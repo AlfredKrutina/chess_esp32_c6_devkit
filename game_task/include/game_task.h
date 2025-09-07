@@ -477,5 +477,74 @@ void game_process_drop_command(const chess_move_command_t* cmd);
  */
 void rook_animation_timer_callback(TimerHandle_t xTimer);
 
+// ============================================================================
+// ENHANCED SMART ERROR HANDLING FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Enhanced smart error handling for invalid moves
+ * @param move Invalid move that was attempted
+ * @param error Type of error that occurred
+ */
+void game_handle_invalid_move_smart(const chess_move_t* move, move_error_t error);
+
+/**
+ * @brief Highlight invalid target area with red LEDs
+ * @param row Row of invalid target
+ * @param col Column of invalid target
+ */
+void game_highlight_invalid_target_area(uint8_t row, uint8_t col);
+
+/**
+ * @brief Highlight valid moves for a specific piece
+ * @param row Row of the piece
+ * @param col Column of the piece
+ */
+void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col);
+
+/**
+ * @brief Enhanced drop command processing with smart error handling
+ * @param cmd Drop command
+ */
+void game_process_drop_command_enhanced(const chess_move_command_t* cmd);
+
+/**
+ * @brief Final integrated drop command with all fixes
+ * @param cmd Drop command
+ */
+void game_process_drop_command_final(const chess_move_command_t* cmd);
+
+// ============================================================================
+// ENHANCED CASTLING SYSTEM FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Detect and handle castling in DROP command
+ * @param move Move that was attempted
+ */
+void game_detect_and_handle_castling(const chess_move_t* move);
+
+/**
+ * @brief Show LED guidance for castling rook move
+ */
+void game_show_castling_rook_guidance();
+
+/**
+ * @brief Check if castling is completed in DROP command
+ * @param move Move that was attempted
+ * @return true if castling was completed
+ */
+bool game_check_castling_completion(const chess_move_t* move);
+
+/**
+ * @brief Complete the castling move
+ */
+void complete_castling_move();
+
+/**
+ * @brief Show castling completion animation
+ */
+void show_castling_completion_animation();
+
 
 #endif // GAME_TASK_H

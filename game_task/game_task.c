@@ -30,6 +30,7 @@
 #include "game_led_animations.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
+// Note: animation_task.h is not included to avoid type conflicts with unified_animation_manager
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -72,7 +73,20 @@ static game_state_t current_game_state = GAME_STATE_IDLE;
 static player_t current_player = PLAYER_WHITE;
 static uint32_t move_count = 0;
 
-// Castling state
+// Enhanced castling state for complete castling system
+typedef struct {
+    bool castling_in_progress;
+    bool king_moved;
+    uint8_t king_to_row, king_to_col;
+    uint8_t rook_from_row, rook_from_col;
+    uint8_t rook_to_row, rook_to_col;
+    player_t castling_player;
+    bool is_kingside;
+} castling_state_t;
+
+static castling_state_t castling_state = {0};
+
+// Legacy castling state (for backward compatibility)
 static bool castle_animation_active = false;
 static chess_move_extended_t pending_castle_move;
 
@@ -115,12 +129,15 @@ static bool task_running = false;
 static bool game_active = false;
 
 // ✅ OPRAVA: Error handling - pamatování posledního validního pole
+// Enhanced error recovery state for smart error handling
 static struct {
     bool has_invalid_piece;           // Je figurka na neplatném poli?
     uint8_t invalid_row, invalid_col; // Neplatná pozice (červené pole)
     uint8_t last_valid_row, last_valid_col; // Poslední platná pozice
     piece_t piece_type;               // Typ figurky
-} error_recovery_state = {false, 0, 0, 0, 0, PIECE_EMPTY};
+    bool waiting_for_move_correction; // Čekáme na opravu tahu
+    uint8_t invalid_piece_row, invalid_piece_col; // Pozice figurky pro opravu
+} error_recovery_state = {false, 0, 0, 0, 0, PIECE_EMPTY, false, 0, 0};
 
 // Game statistics
 static uint32_t total_games = 0;
@@ -2150,7 +2167,181 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
 }
 
 /**
+ * @brief Enhanced drop command processing with smart error handling
+ * @param cmd Drop command
+ */
+void game_process_drop_command_enhanced(const chess_move_command_t* cmd)
+{
+    if (!cmd) return;
+    
+    // Convert notation to coordinates
+    uint8_t to_row, to_col;
+    if (!convert_notation_to_coords(cmd->to_notation, &to_row, &to_col)) {
+        ESP_LOGE(TAG, "Invalid destination notation: %s", cmd->to_notation);
+        return;
+    }
+    
+    if (error_recovery_state.waiting_for_move_correction) {
+        // Kontrola, jestli hráč vrací figurku na správné místo
+        if (to_row == error_recovery_state.invalid_piece_row && 
+            to_col == error_recovery_state.invalid_piece_col) {
+            // Zrušení korekce - figurka vrácena na původní místo
+            ESP_LOGI(TAG, "✅ Piece returned to original position");
+            error_recovery_state.waiting_for_move_correction = false;
+            led_clear_board_only();
+            game_highlight_movable_pieces();  // Ukázat pohyblivé figurky
+            return;
+        }
+        
+        // Pokud se pokouší jít jinam, zkontroluj jestli je to validní
+        chess_move_t correction_move = {
+            .from_row = error_recovery_state.invalid_piece_row,
+            .from_col = error_recovery_state.invalid_piece_col,
+            .to_row = to_row, .to_col = to_col,
+            .piece = board[error_recovery_state.invalid_piece_row][error_recovery_state.invalid_piece_col],
+            .captured_piece = board[to_row][to_col]
+        };
+        
+        move_error_t error = game_is_valid_move(&correction_move);
+        if (error == MOVE_ERROR_NONE) {
+            // Validní korekce!
+            ESP_LOGI(TAG, "✅ Valid correction move");
+            error_recovery_state.waiting_for_move_correction = false;
+            
+            // Provést tah normálně
+            if (game_execute_move(&correction_move)) {
+                // Tah úspěšný - změnit hráče a pokračovat
+                current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+                led_clear_board_only();
+                game_highlight_movable_pieces();
+            }
+        } else {
+            // Stále nevalidní - ukázat znovu error guidance
+            game_handle_invalid_move_smart(&correction_move, error);
+        }
+        return;
+    }
+    
+    // Normální zpracování tahů - integrace všech oprav
+    chess_move_t move = {
+        .from_row = lifted_piece_row,
+        .from_col = lifted_piece_col,
+        .to_row = to_row,
+        .to_col = to_col,
+        .piece = lifted_piece,
+        .captured_piece = board[to_row][to_col]
+    };
+    
+    move_error_t error = game_is_valid_move(&move);
+    if (error != MOVE_ERROR_NONE) {
+        // Nevalidní tah - spustit smart error handling
+        game_handle_invalid_move_smart(&move, error);
+        return;
+    }
+    
+    // Validní tah - zkontrolovat speciální případy
+    game_detect_and_handle_castling(&move);
+    
+    if (!castling_state.castling_in_progress) {
+        // Normální tah - změnit hráče a pokračovat
+        if (game_execute_move(&move)) {
+            current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+            
+            // Spustit přirozenou animaci (použít unified_animation_manager)
+            // animate_piece_move_natural(move.from_row, move.from_col, 
+            //                          move.to_row, move.to_col, move.piece);
+            
+            // Zobrazit pohyblivé figury
+            game_highlight_movable_pieces();
+        }
+    }
+}
+
+/**
  * @brief Process drop command (DN)
+ */
+/**
+ * @brief Final integrated drop command with all fixes
+ * @param cmd Drop command
+ */
+void game_process_drop_command_final(const chess_move_command_t* cmd)
+{
+    if (!cmd) return;
+    
+    ESP_LOGI(TAG, "🎯 Processing DROP command: %s", cmd->to_notation);
+    
+    // 1. Přerušit jakékoliv běžící animace (použít unified_animation_manager)
+    // animation_request_interrupt();
+    
+    // 2. Zpracovat drop podle stavu systému
+    if (castling_state.castling_in_progress) {
+        // Rošáda probíhá - zkontrolovat dokončení
+        uint8_t to_row, to_col;
+        if (convert_notation_to_coords(cmd->to_notation, &to_row, &to_col)) {
+            chess_move_t move = {
+                .from_row = lifted_piece_row,
+                .from_col = lifted_piece_col,
+                .to_row = to_row,
+                .to_col = to_col,
+                .piece = lifted_piece,
+                .captured_piece = board[to_row][to_col]
+            };
+            
+            if (game_check_castling_completion(&move)) {
+                return;  // Rošáda dokončena
+            }
+        }
+    }
+    
+    if (error_recovery_state.waiting_for_move_correction) {
+        // Error correction probíhá - zpracovat opravu
+        game_process_drop_command_enhanced(cmd);
+        return;
+    }
+    
+    // 3. Normální zpracování tahu
+    uint8_t to_row, to_col;
+    if (!convert_notation_to_coords(cmd->to_notation, &to_row, &to_col)) {
+        ESP_LOGE(TAG, "Invalid destination notation: %s", cmd->to_notation);
+        return;
+    }
+    
+    chess_move_t move = {
+        .from_row = lifted_piece_row,
+        .from_col = lifted_piece_col,
+        .to_row = to_row,
+        .to_col = to_col,
+        .piece = lifted_piece,
+        .captured_piece = board[to_row][to_col]
+    };
+    
+    move_error_t error = game_is_valid_move(&move);
+    if (error != MOVE_ERROR_NONE) {
+        // Nevalidní tah - spustit smart error handling
+        game_handle_invalid_move_smart(&move, error);
+        return;
+    }
+    
+    // 4. Validní tah - zkontrolovat speciální případy
+    game_detect_and_handle_castling(&move);
+    
+    if (!castling_state.castling_in_progress) {
+        // Normální tah - změnit hráče a pokračovat
+        if (game_execute_move(&move)) {
+            current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+            
+            // Spustit přirozenou animaci (použít unified_animation_manager)
+            // animate_piece_move_natural(move.from_row, move.from_col, 
+            //                          move.to_row, move.to_col, move.piece);
+            
+            // Zobrazit pohyblivé figury
+            game_highlight_movable_pieces();
+        }
+    }
+}
+
+/**
+ * @brief Process drop command (DN) - Legacy function
  */
 void game_process_drop_command(const chess_move_command_t* cmd)
 {
@@ -4214,6 +4405,107 @@ void game_process_commands(void)
  * @brief Handle invalid move - new error handling system
  * @param error Move error type
  * @param move Move that was attempted
+ */
+// ============================================================================
+// ENHANCED SMART ERROR HANDLING SYSTEM
+// ============================================================================
+
+/**
+ * @brief Enhanced smart error handling for invalid moves
+ * @param move Invalid move that was attempted
+ * @param error Type of error that occurred
+ */
+void game_handle_invalid_move_smart(const chess_move_t* move, move_error_t error)
+{
+    ESP_LOGI(TAG, "🚫 INVALID MOVE - Starting smart recovery");
+    
+    if (!move) {
+        ESP_LOGE(TAG, "❌ Critical error: NULL move pointer in error handling");
+        return;
+    }
+    
+    // 1. Červené bliknutí chybného tahu
+    uint8_t from_led = chess_pos_to_led_index(move->from_row, move->from_col);
+    uint8_t to_led = chess_pos_to_led_index(move->to_row, move->to_col);
+    
+    // Flash error - 5 rychlých červených bliknutí
+    for (int i = 0; i < 5; i++) {
+        led_set_pixel_safe(from_led, 255, 0, 0);  // Red
+        led_set_pixel_safe(to_led, 255, 0, 0);    // Red
+        vTaskDelay(pdMS_TO_TICKS(100));
+        led_clear_board_only();
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    
+    // 2. Rosvítit zeleně zdrojové pole (kde je figurka)
+    led_set_pixel_safe(from_led, 0, 255, 0);  // Green - kde vzít figurku
+    
+    // 3. Rosvítit červeně kolem nevalidního cíle
+    game_highlight_invalid_target_area(move->to_row, move->to_col);
+    
+    // 4. Rosvítit validní tahy pro tuto figurku
+    game_highlight_valid_moves_for_piece(move->from_row, move->from_col);
+    
+    // 5. KRITICKÉ: Neměnit hráče, nechat ho opravit tah
+    ESP_LOGI(TAG, "💡 Please return piece to correct square. Valid moves are highlighted.");
+    
+    // 6. Nastavit internal stav "waiting for correction"
+    error_recovery_state.waiting_for_move_correction = true;
+    error_recovery_state.invalid_piece_row = move->from_row;
+    error_recovery_state.invalid_piece_col = move->from_col;
+}
+
+/**
+ * @brief Highlight invalid target area with red LEDs
+ * @param row Row of invalid target
+ * @param col Column of invalid target
+ */
+void game_highlight_invalid_target_area(uint8_t row, uint8_t col)
+{
+    // Rosvítit červeně pole okolo nevalidního cíle
+    for (int dr = -1; dr <= 1; dr++) {
+        for (int dc = -1; dc <= 1; dc++) {
+            int new_row = row + dr;
+            int new_col = col + dc;
+            
+            if (new_row >= 0 && new_row < 8 && new_col >= 0 && new_col < 8) {
+                uint8_t led_index = chess_pos_to_led_index(new_row, new_col);
+                led_set_pixel_safe(led_index, 255, 50, 50);  // Light red
+            }
+        }
+    }
+}
+
+/**
+ * @brief Highlight valid moves for a specific piece
+ * @param row Row of the piece
+ * @param col Column of the piece
+ */
+void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col)
+{
+    piece_t piece = board[row][col];
+    if (piece == PIECE_EMPTY) return;
+    
+    // Najít všechny validní tahy pro tuto figurku
+    for (int to_row = 0; to_row < 8; to_row++) {
+        for (int to_col = 0; to_col < 8; to_col++) {
+            chess_move_t test_move = {
+                .from_row = row, .from_col = col,
+                .to_row = to_row, .to_col = to_col,
+                .piece = piece,
+                .captured_piece = board[to_row][to_col]
+            };
+            
+            if (game_is_valid_move(&test_move) == MOVE_ERROR_NONE) {
+                uint8_t led_index = chess_pos_to_led_index(to_row, to_col);
+                led_set_pixel_safe(led_index, 0, 0, 255);  // Blue - validní tahy
+            }
+        }
+    }
+}
+
+/**
+ * @brief Legacy function for backward compatibility
  */
 void game_handle_invalid_move(move_error_t error, const chess_move_t* move)
 {
@@ -7399,7 +7691,151 @@ void game_process_puzzle_verify_command(const chess_move_command_t* cmd)
 }
 
 // ============================================================================
-// CASTLING ANIMATION SYSTEM
+// ENHANCED CASTLING SYSTEM
+// ============================================================================
+
+/**
+ * @brief Detect and handle castling in DROP command
+ * @param move Move that was attempted
+ */
+void game_detect_and_handle_castling(const chess_move_t* move)
+{
+    piece_t piece = move->piece;
+    
+    // Je to král a pohybuje se o 2 pole?
+    if ((piece == PIECE_WHITE_KING || piece == PIECE_BLACK_KING) &&
+        abs((int)move->to_col - (int)move->from_col) == 2) {
+        
+        ESP_LOGI(TAG, "🏰 CASTLING DETECTED! King moved 2 squares");
+        
+        // Nastavit stav rošády
+        castling_state.castling_in_progress = true;
+        castling_state.king_moved = true;
+        castling_state.king_to_row = move->to_row;
+        castling_state.king_to_col = move->to_col;
+        castling_state.castling_player = current_player;
+        castling_state.is_kingside = (move->to_col == 6);
+        
+        // Vypočítat pozice věže
+        castling_state.rook_from_row = move->to_row;
+        castling_state.rook_from_col = castling_state.is_kingside ? 7 : 0;
+        castling_state.rook_to_row = move->to_row;
+        castling_state.rook_to_col = castling_state.is_kingside ? 5 : 3;
+        
+        // Zobrazit LED guidance pro věž
+        game_show_castling_rook_guidance();
+        
+        // NEZMĚNIT HRÁČE - čekat na dokončení rošády
+        ESP_LOGI(TAG, "⏳ Waiting for rook move to complete castling...");
+    }
+}
+
+/**
+ * @brief Show LED guidance for castling rook move
+ */
+void game_show_castling_rook_guidance()
+{
+    // Vyčistit board
+    led_clear_board_only();
+    
+    // Pulzující žlutá na věži, kterou treba pohnout
+    uint8_t rook_from_led = chess_pos_to_led_index(castling_state.rook_from_row, castling_state.rook_from_col);
+    uint8_t rook_to_led = chess_pos_to_led_index(castling_state.rook_to_row, castling_state.rook_to_col);
+    
+    // Animace s popisem
+    for (int i = 0; i < 10; i++) {
+        uint8_t intensity = 100 + (i % 5) * 30;  // Pulzování
+        led_set_pixel_safe(rook_from_led, intensity, intensity, 0);  // Žlutá - zvedni odtud
+        led_set_pixel_safe(rook_to_led, 0, intensity, 0);           // Zelená - polož sem
+        vTaskDelay(pdMS_TO_TICKS(200));
+    }
+    
+    ESP_LOGI(TAG, "💡 Move rook from %c%d to %c%d to complete castling", 
+             'a' + castling_state.rook_from_col, castling_state.rook_from_row + 1,
+             'a' + castling_state.rook_to_col, castling_state.rook_to_row + 1);
+}
+
+/**
+ * @brief Check if castling is completed in DROP command
+ * @param move Move that was attempted
+ * @return true if castling was completed
+ */
+bool game_check_castling_completion(const chess_move_t* move)
+{
+    if (!castling_state.castling_in_progress) return false;
+    
+    // Je to správný tah věže?
+    if (move->from_row == castling_state.rook_from_row &&
+        move->from_col == castling_state.rook_from_col &&
+        move->to_row == castling_state.rook_to_row &&
+        move->to_col == castling_state.rook_to_col) {
+        
+        ESP_LOGI(TAG, "✅ CASTLING COMPLETED! Rook moved correctly");
+        
+        // Dokončit rošádu
+        complete_castling_move();
+        
+        // Změnit hráče TEPRVE TEĎ
+        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        
+        // Vyčistit stav rošády
+        memset(&castling_state, 0, sizeof(castling_state));
+        
+        // Zobrazit animaci dokončení
+        show_castling_completion_animation();
+        
+        // Zobrazit pohyblivé figury pro nového hráče
+        game_highlight_movable_pieces();
+        
+        return true;
+    } else {
+        // Nesprávný tah věže - ukázat znovu guidance
+        ESP_LOGI(TAG, "❌ Incorrect rook move for castling");
+        game_show_castling_rook_guidance();
+        return false;
+    }
+}
+
+/**
+ * @brief Complete the castling move
+ */
+void complete_castling_move()
+{
+    // Move rook to final position
+    board[castling_state.rook_to_row][castling_state.rook_to_col] = 
+        board[castling_state.rook_from_row][castling_state.rook_from_col];
+    board[castling_state.rook_from_row][castling_state.rook_from_col] = PIECE_EMPTY;
+    
+    // Mark pieces as moved
+    piece_moved[castling_state.king_to_row][castling_state.king_to_col] = true;
+    piece_moved[castling_state.rook_to_row][castling_state.rook_to_col] = true;
+    
+    ESP_LOGI(TAG, "🏰 Castling move completed successfully");
+}
+
+/**
+ * @brief Show castling completion animation
+ */
+void show_castling_completion_animation()
+{
+    // Zlatá animace úspěšné rošády
+    uint8_t king_led = chess_pos_to_led_index(castling_state.king_to_row, castling_state.king_to_col);
+    uint8_t rook_led = chess_pos_to_led_index(castling_state.rook_to_row, castling_state.rook_to_col);
+    
+    for (int i = 0; i < 5; i++) {
+        led_set_pixel_safe(king_led, 255, 215, 0);  // Zlatá
+        led_set_pixel_safe(rook_led, 255, 215, 0);  // Zlatá
+        vTaskDelay(pdMS_TO_TICKS(200));
+        led_set_pixel_safe(king_led, 0, 0, 0);
+        led_set_pixel_safe(rook_led, 0, 0, 0);
+        vTaskDelay(pdMS_TO_TICKS(200));
+    }
+    
+    ESP_LOGI(TAG, "🏰✨ CASTLING ANIMATION COMPLETED");
+}
+
+// ============================================================================
+// CASTLING ANIMATION SYSTEM (LEGACY)
 // ============================================================================
 
 /**

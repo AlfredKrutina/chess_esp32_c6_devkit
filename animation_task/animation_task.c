@@ -63,13 +63,17 @@ static const char *TAG = "ANIMATION_TASK";
 
 
 // Animation storage
-static animation_t animations[MAX_ANIMATIONS];
+static animation_task_t animations[MAX_ANIMATIONS];
 static uint8_t next_animation_id = 0;
 static bool task_running = false;
 
 // Current active animations
 static uint8_t active_animation_count = 0;
 static uint8_t current_animation_index = 0;
+
+// Global flag for animation interruption
+static volatile bool animation_interrupted = false;
+static SemaphoreHandle_t animation_interrupt_mutex = NULL;
 
 // Animation patterns
 static const uint32_t rainbow_colors[] = {
@@ -107,11 +111,18 @@ void animation_initialize_system(void)
     active_animation_count = 0;
     current_animation_index = 0;
     
+    // Vytvořit mutex pro přerušení animací
+    animation_interrupt_mutex = xSemaphoreCreateMutex();
+    if (animation_interrupt_mutex == NULL) {
+        ESP_LOGE(TAG, "Failed to create animation interrupt mutex");
+    }
+    
     ESP_LOGI(TAG, "Animation system initialized successfully");
+    ESP_LOGI(TAG, "Animation interruption system initialized");
 }
 
 
-uint8_t animation_create(animation_type_t type, uint32_t duration_ms, uint8_t priority, bool loop)
+uint8_t animation_create(animation_task_type_t type, uint32_t duration_ms, uint8_t priority, bool loop)
 {
     if (active_animation_count >= MAX_ANIMATIONS) {
         ESP_LOGW(TAG, "Cannot create animation: maximum animations reached");
@@ -121,7 +132,7 @@ uint8_t animation_create(animation_type_t type, uint32_t duration_ms, uint8_t pr
     // Find free slot
     uint8_t slot = 0;
     for (int i = 0; i < MAX_ANIMATIONS; i++) {
-        if (animations[i].state == ANIM_STATE_IDLE) {
+        if (animations[i].state == ANIM_TASK_STATE_IDLE) {
             slot = i;
             break;
         }
@@ -129,7 +140,7 @@ uint8_t animation_create(animation_type_t type, uint32_t duration_ms, uint8_t pr
     
     // Create animation
     animations[slot].id = next_animation_id++;
-    animations[slot].state = ANIM_STATE_IDLE;
+    animations[slot].state = ANIM_TASK_STATE_IDLE;
     animations[slot].type = type;
     animations[slot].start_time = 0;
     animations[slot].duration_ms = duration_ms;
@@ -153,7 +164,7 @@ void animation_start(uint8_t animation_id)
 {
     for (int i = 0; i < MAX_ANIMATIONS; i++) {
         if (animations[i].id == animation_id) {
-            animations[i].state = ANIM_STATE_RUNNING;
+            animations[i].state = ANIM_TASK_STATE_RUNNING;
             animations[i].start_time = esp_timer_get_time() / 1000;
             animations[i].current_frame = 0;
             
@@ -176,7 +187,7 @@ void animation_stop(uint8_t animation_id)
 {
     for (int i = 0; i < MAX_ANIMATIONS; i++) {
         if (animations[i].id == animation_id) {
-            animations[i].state = ANIM_STATE_IDLE;
+            animations[i].state = ANIM_TASK_STATE_IDLE;
             active_animation_count--;
             
             ESP_LOGI(TAG, "Animation stopped: ID=%d", animation_id);
@@ -191,8 +202,8 @@ void animation_stop(uint8_t animation_id)
 void animation_pause(uint8_t animation_id)
 {
     for (int i = 0; i < MAX_ANIMATIONS; i++) {
-        if (animations[i].id == animation_id && animations[i].state == ANIM_STATE_RUNNING) {
-            animations[i].state = ANIM_STATE_PAUSED;
+        if (animations[i].id == animation_id && animations[i].state == ANIM_TASK_STATE_RUNNING) {
+            animations[i].state = ANIM_TASK_STATE_PAUSED;
             ESP_LOGI(TAG, "Animation paused: ID=%d", animation_id);
             return;
         }
@@ -205,8 +216,8 @@ void animation_pause(uint8_t animation_id)
 void animation_resume(uint8_t animation_id)
 {
     for (int i = 0; i < MAX_ANIMATIONS; i++) {
-        if (animations[i].id == animation_id && animations[i].state == ANIM_STATE_PAUSED) {
-            animations[i].state = ANIM_STATE_RUNNING;
+        if (animations[i].id == animation_id && animations[i].state == ANIM_TASK_STATE_PAUSED) {
+            animations[i].state = ANIM_TASK_STATE_RUNNING;
             ESP_LOGI(TAG, "Animation resumed: ID=%d", animation_id);
             return;
         }
@@ -312,14 +323,284 @@ void animation_generate_rainbow_frame(uint32_t frame)
 
 
 // ============================================================================
+// NATURAL PIECE MOVEMENT ANIMATIONS
+// ============================================================================
+
+// Chess position structure for path calculation
+typedef struct {
+    uint8_t row, col;
+} chess_position_t;
+
+// Forward declarations
+void animate_path_with_interruption(chess_position_t* path, int path_length, piece_t piece);
+void check_for_move_interruption();
+bool new_move_detected();
+
+/**
+ * @brief Calculate natural knight path (L-shape movement)
+ * @param from_row Source row
+ * @param from_col Source column
+ * @param to_row Destination row
+ * @param to_col Destination column
+ * @param path_length Output parameter for path length
+ * @return Array of positions for knight path
+ */
+chess_position_t* calculate_knight_path(uint8_t from_row, uint8_t from_col, 
+                                       uint8_t to_row, uint8_t to_col, int* path_length)
+{
+    chess_position_t* path = malloc(sizeof(chess_position_t) * 4);
+    *path_length = 0;
+    
+    // Začátek
+    path[(*path_length)++] = (chess_position_t){from_row, from_col};
+    
+    // Určit směr L-pohybu
+    int row_diff = to_row - from_row;
+    int col_diff = to_col - from_col;
+    
+    if (abs(row_diff) == 2) {
+        // 2 pole vertikálně, 1 horizontálně
+        path[(*path_length)++] = (chess_position_t){from_row + row_diff/2, from_col};
+        path[(*path_length)++] = (chess_position_t){from_row + row_diff, from_col};
+        path[(*path_length)++] = (chess_position_t){to_row, to_col};
+    } else {
+        // 2 pole horizontálně, 1 vertikálně  
+        path[(*path_length)++] = (chess_position_t){from_row, from_col + col_diff/2};
+        path[(*path_length)++] = (chess_position_t){from_row, from_col + col_diff};
+        path[(*path_length)++] = (chess_position_t){to_row, to_col};
+    }
+    
+    return path;
+}
+
+/**
+ * @brief Calculate diagonal path for bishop
+ * @param from_row Source row
+ * @param from_col Source column
+ * @param to_row Destination row
+ * @param to_col Destination column
+ * @param path_length Output parameter for path length
+ * @return Array of positions for diagonal path
+ */
+chess_position_t* calculate_diagonal_path(uint8_t from_row, uint8_t from_col, 
+                                         uint8_t to_row, uint8_t to_col, int* path_length)
+{
+    int row_diff = to_row - from_row;
+    int col_diff = to_col - from_col;
+    int steps = abs(row_diff);
+    
+    chess_position_t* path = malloc(sizeof(chess_position_t) * (steps + 1));
+    *path_length = 0;
+    
+    int row_step = (row_diff > 0) ? 1 : -1;
+    int col_step = (col_diff > 0) ? 1 : -1;
+    
+    for (int i = 0; i <= steps; i++) {
+        path[(*path_length)++] = (chess_position_t){
+            from_row + i * row_step, 
+            from_col + i * col_step
+        };
+    }
+    
+    return path;
+}
+
+/**
+ * @brief Calculate straight path for rook
+ * @param from_row Source row
+ * @param from_col Source column
+ * @param to_row Destination row
+ * @param to_col Destination column
+ * @param path_length Output parameter for path length
+ * @return Array of positions for straight path
+ */
+chess_position_t* calculate_straight_path(uint8_t from_row, uint8_t from_col, 
+                                         uint8_t to_row, uint8_t to_col, int* path_length)
+{
+    int row_diff = to_row - from_row;
+    int col_diff = to_col - from_col;
+    int steps = (row_diff != 0) ? abs(row_diff) : abs(col_diff);
+    
+    chess_position_t* path = malloc(sizeof(chess_position_t) * (steps + 1));
+    *path_length = 0;
+    
+    int row_step = (row_diff > 0) ? 1 : (row_diff < 0) ? -1 : 0;
+    int col_step = (col_diff > 0) ? 1 : (col_diff < 0) ? -1 : 0;
+    
+    for (int i = 0; i <= steps; i++) {
+        path[(*path_length)++] = (chess_position_t){
+            from_row + i * row_step, 
+            from_col + i * col_step
+        };
+    }
+    
+    return path;
+}
+
+/**
+ * @brief Calculate direct path for other pieces
+ * @param from_row Source row
+ * @param from_col Source column
+ * @param to_row Destination row
+ * @param to_col Destination column
+ * @param path_length Output parameter for path length
+ * @return Array of positions for direct path
+ */
+chess_position_t* calculate_direct_path(uint8_t from_row, uint8_t from_col, 
+                                       uint8_t to_row, uint8_t to_col, int* path_length)
+{
+    chess_position_t* path = malloc(sizeof(chess_position_t) * 2);
+    *path_length = 2;
+    
+    path[0] = (chess_position_t){from_row, from_col};
+    path[1] = (chess_position_t){to_row, to_col};
+    
+    return path;
+}
+
+/**
+ * @brief Animate piece move with natural movement patterns
+ * @param from_row Source row
+ * @param from_col Source column
+ * @param to_row Destination row
+ * @param to_col Destination column
+ * @param piece Piece being moved
+ */
+void animate_piece_move_natural(uint8_t from_row, uint8_t from_col, 
+                               uint8_t to_row, uint8_t to_col, piece_t piece)
+{
+    chess_position_t* path = NULL;
+    int path_length = 0;
+    
+    // Určit typ animace podle figury
+    switch (piece) {
+        case PIECE_WHITE_KNIGHT:
+        case PIECE_BLACK_KNIGHT:
+            path = calculate_knight_path(from_row, from_col, to_row, to_col, &path_length);
+            break;
+            
+        case PIECE_WHITE_BISHOP:
+        case PIECE_BLACK_BISHOP:
+            path = calculate_diagonal_path(from_row, from_col, to_row, to_col, &path_length);
+            break;
+            
+        case PIECE_WHITE_ROOK:
+        case PIECE_BLACK_ROOK:
+            path = calculate_straight_path(from_row, from_col, to_row, to_col, &path_length);
+            break;
+            
+        default:
+            // Ostatní figury - přímá cesta
+            path = calculate_direct_path(from_row, from_col, to_row, to_col, &path_length);
+            break;
+    }
+    
+    // Animovat cestu
+    if (path != NULL) {
+        animate_path_with_interruption(path, path_length, piece);
+        free(path);
+    }
+}
+
+/**
+ * @brief Animate path with interruption capability
+ * @param path Array of positions to animate
+ * @param path_length Number of positions in path
+ * @param piece Piece being animated
+ */
+void animate_path_with_interruption(chess_position_t* path, int path_length, piece_t piece)
+{
+    animation_interrupted = false;
+    
+    // Získat barvy figury
+    uint8_t r = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) ? 0 : 255;
+    uint8_t g = 255;
+    uint8_t b = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) ? 255 : 0;
+    
+    for (int i = 0; i < path_length && !animation_interrupted; i++) {
+        // Vymazat předchozí
+        if (i > 0) {
+            uint8_t prev_led = chess_pos_to_led_index(path[i-1].row, path[i-1].col);
+            led_set_pixel_safe(prev_led, 0, 0, 0);
+        }
+        
+        // Rosvítit aktuální
+        uint8_t led_index = chess_pos_to_led_index(path[i].row, path[i].col);
+        led_set_pixel_safe(led_index, r, g, b);
+        
+        // Krátká pauza s kontrolou přerušení
+        for (int wait = 0; wait < 20 && !animation_interrupted; wait++) {
+            vTaskDelay(pdMS_TO_TICKS(25));  // 25ms x 20 = 500ms celkem
+            
+            // Kontrola nového tahu během animace
+            check_for_move_interruption();
+        }
+    }
+    
+    // Vyčistit na konci
+    led_clear_all_safe();
+}
+
+/**
+ * @brief Check for move interruption during animation
+ */
+void check_for_move_interruption()
+{
+    // Kontrola, jestli hráč nezačal nový tah
+    // (implementace závisí na způsobu detekce tahů)
+    if (new_move_detected()) {
+        animation_interrupted = true;
+        ESP_LOGI(TAG, "🏃 Animation interrupted by new move");
+    }
+}
+
+/**
+ * @brief Request animation interruption
+ */
+void animation_request_interrupt()
+{
+    if (animation_interrupt_mutex) {
+        xSemaphoreTake(animation_interrupt_mutex, portMAX_DELAY);
+        animation_interrupted = true;
+        xSemaphoreGive(animation_interrupt_mutex);
+        ESP_LOGI(TAG, "🛑 Animation interruption requested");
+    }
+}
+
+/**
+ * @brief Check if new move was detected (placeholder)
+ * @return true if new move detected
+ */
+bool new_move_detected()
+{
+    // TODO: Implement actual move detection logic
+    // This could check a global flag set by the game task
+    return false;
+}
+
+// ============================================================================
 // ANIMATION EXECUTION FUNCTIONS
 // ============================================================================
 
 
-void animation_execute_frame(animation_t* anim)
+void animation_execute_frame(animation_task_t* anim)
 {
-    if (!anim || anim->state != ANIM_STATE_RUNNING) {
+    if (!anim || anim->state != ANIM_TASK_STATE_RUNNING) {
         return;
+    }
+    
+    // Kontrola přerušení na začátku každého framu
+    if (animation_interrupt_mutex) {
+        xSemaphoreTake(animation_interrupt_mutex, portMAX_DELAY);
+        bool should_interrupt = animation_interrupted;
+        xSemaphoreGive(animation_interrupt_mutex);
+        
+        if (should_interrupt) {
+            ESP_LOGI(TAG, "🛑 Animation interrupted mid-frame");
+            anim->state = ANIM_TASK_STATE_FINISHED;
+            animation_interrupted = false;  // Reset flag
+            return;
+        }
     }
     
     uint32_t current_time = esp_timer_get_time() / 1000;
@@ -333,7 +614,7 @@ void animation_execute_frame(animation_t* anim)
             anim->current_frame = 0;
         } else {
             // Finish animation
-            anim->state = ANIM_STATE_FINISHED;
+            anim->state = ANIM_TASK_STATE_FINISHED;
             active_animation_count--;
             ESP_LOGI(TAG, "Animation finished: ID=%d", anim->id);
             
@@ -347,40 +628,40 @@ void animation_execute_frame(animation_t* anim)
     
     // Generate frame based on animation type
     switch (anim->type) {
-        case ANIM_TYPE_WAVE:
+        case ANIM_TASK_TYPE_WAVE:
             animation_generate_wave_frame(anim->current_frame, 0xFF0000, 5);
             animation_send_frame_to_leds(wave_frame);
             break;
             
-        case ANIM_TYPE_PULSE:
+        case ANIM_TASK_TYPE_PULSE:
             animation_generate_pulse_frame(anim->current_frame, 0x00FF00, 3);
             animation_send_frame_to_leds(pulse_frame);
             break;
             
-        case ANIM_TYPE_FADE:
+        case ANIM_TASK_TYPE_FADE:
             animation_generate_fade_frame(anim->current_frame, 0x0000FF, 0xFF0000, anim->total_frames);
             animation_send_frame_to_leds(fade_frame);
             break;
             
-        case ANIM_TYPE_CHESS_PATTERN:
+        case ANIM_TASK_TYPE_CHESS_PATTERN:
             animation_generate_chess_pattern(anim->current_frame, 0xFFFFFF, 0x000000);
             animation_send_frame_to_leds(wave_frame);
             break;
             
-        case ANIM_TYPE_RAINBOW:
+        case ANIM_TASK_TYPE_RAINBOW:
             animation_generate_rainbow_frame(anim->current_frame);
             animation_send_frame_to_leds(wave_frame);
             break;
             
-        case ANIM_TYPE_MOVE_HIGHLIGHT:
+        case ANIM_TASK_TYPE_MOVE_HIGHLIGHT:
             animation_execute_move_highlight(anim);
             break;
             
-        case ANIM_TYPE_CHECK_HIGHLIGHT:
+        case ANIM_TASK_TYPE_CHECK_HIGHLIGHT:
             animation_execute_check_highlight(anim);
             break;
             
-        case ANIM_TYPE_GAME_OVER:
+        case ANIM_TASK_TYPE_GAME_OVER:
             animation_execute_game_over(anim);
             break;
             
@@ -404,7 +685,7 @@ void animation_send_frame_to_leds(const uint8_t frame[CHESS_LED_COUNT_TOTAL][3])
 }
 
 
-void animation_execute_move_highlight(animation_t* anim)
+void animation_execute_move_highlight(animation_task_t* anim)
 {
     // This would highlight the move path
     // For now, just show a simple pattern
@@ -421,7 +702,7 @@ void animation_execute_move_highlight(animation_t* anim)
 }
 
 
-void animation_execute_check_highlight(animation_t* anim)
+void animation_execute_check_highlight(animation_task_t* anim)
 {
     // Flash red for check
     static bool flash_state = false;
@@ -439,7 +720,7 @@ void animation_execute_check_highlight(animation_t* anim)
 }
 
 
-void animation_execute_game_over(animation_t* anim)
+void animation_execute_game_over(animation_task_t* anim)
 {
     // Alternating red and black pattern
     for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
@@ -500,7 +781,7 @@ void animation_stop_all(void)
     ESP_LOGI(TAG, "Stopping all animations");
     
     for (int i = 0; i < MAX_ANIMATIONS; i++) {
-        if (animations[i].state != ANIM_STATE_IDLE) {
+        if (animations[i].state != ANIM_TASK_STATE_IDLE) {
             animation_stop(animations[i].id);
         }
     }
@@ -514,7 +795,7 @@ void animation_pause_all(void)
     ESP_LOGI(TAG, "Pausing all animations");
     
     for (int i = 0; i < MAX_ANIMATIONS; i++) {
-        if (animations[i].state == ANIM_STATE_RUNNING) {
+        if (animations[i].state == ANIM_TASK_STATE_RUNNING) {
             animation_pause(animations[i].id);
         }
     }
@@ -526,7 +807,7 @@ void animation_resume_all(void)
     ESP_LOGI(TAG, "Resuming all animations");
     
     for (int i = 0; i < MAX_ANIMATIONS; i++) {
-        if (animations[i].state == ANIM_STATE_PAUSED) {
+        if (animations[i].state == ANIM_TASK_STATE_PAUSED) {
             animation_resume(animations[i].id);
         }
     }
@@ -540,7 +821,7 @@ void animation_print_status(void)
     ESP_LOGI(TAG, "  Total animations: %d", MAX_ANIMATIONS);
     
     for (int i = 0; i < MAX_ANIMATIONS; i++) {
-        if (animations[i].state != ANIM_STATE_IDLE) {
+        if (animations[i].state != ANIM_TASK_STATE_IDLE) {
             ESP_LOGI(TAG, "  Animation %d: ID=%d, type=%d, state=%d, priority=%d", 
                       i, animations[i].id, animations[i].type, 
                       animations[i].state, animations[i].priority);
@@ -554,11 +835,11 @@ void animation_test_all(void)
     ESP_LOGI(TAG, "Testing all animation types...");
     
     // Create test animations
-    uint8_t wave_id = animation_create(ANIM_TYPE_WAVE, 5000, 1, false);
-    uint8_t pulse_id = animation_create(ANIM_TYPE_PULSE, 5000, 2, false);
-    uint8_t fade_id = animation_create(ANIM_TYPE_FADE, 5000, 3, false);
-    uint8_t chess_id = animation_create(ANIM_TYPE_CHESS_PATTERN, 5000, 4, false);
-    uint8_t rainbow_id = animation_create(ANIM_TYPE_RAINBOW, 5000, 5, false);
+    uint8_t wave_id = animation_create(ANIM_TASK_TYPE_WAVE, 5000, 1, false);
+    uint8_t pulse_id = animation_create(ANIM_TASK_TYPE_PULSE, 5000, 2, false);
+    uint8_t fade_id = animation_create(ANIM_TASK_TYPE_FADE, 5000, 3, false);
+    uint8_t chess_id = animation_create(ANIM_TASK_TYPE_CHESS_PATTERN, 5000, 4, false);
+    uint8_t rainbow_id = animation_create(ANIM_TASK_TYPE_RAINBOW, 5000, 5, false);
     
     // Start animations with delays
     animation_start(wave_id);
@@ -588,18 +869,18 @@ void animation_test_all(void)
  * @param animation_type Animation type
  * @return Animation name string
  */
-const char* animation_get_name(animation_type_t animation_type)
+const char* animation_get_name(animation_task_type_t animation_type)
 {
     switch (animation_type) {
-        case ANIM_TYPE_WAVE: return "Wave pattern";
-        case ANIM_TYPE_PULSE: return "Pulse effect";
-        case ANIM_TYPE_FADE: return "Fade transition";
-        case ANIM_TYPE_CHESS_PATTERN: return "Chess board pattern";
-        case ANIM_TYPE_RAINBOW: return "Rainbow colors";
-        case ANIM_TYPE_MOVE_HIGHLIGHT: return "Move path highlight";
-        case ANIM_TYPE_CHECK_HIGHLIGHT: return "Check indicator";
-        case ANIM_TYPE_GAME_OVER: return "Game over pattern";
-        case ANIM_TYPE_CUSTOM: return "Custom animation";
+        case ANIM_TASK_TYPE_WAVE: return "Wave pattern";
+        case ANIM_TASK_TYPE_PULSE: return "Pulse effect";
+        case ANIM_TASK_TYPE_FADE: return "Fade transition";
+        case ANIM_TASK_TYPE_CHESS_PATTERN: return "Chess board pattern";
+        case ANIM_TASK_TYPE_RAINBOW: return "Rainbow colors";
+        case ANIM_TASK_TYPE_MOVE_HIGHLIGHT: return "Move path highlight";
+        case ANIM_TASK_TYPE_CHECK_HIGHLIGHT: return "Check indicator";
+        case ANIM_TASK_TYPE_GAME_OVER: return "Game over pattern";
+        case ANIM_TASK_TYPE_CUSTOM: return "Custom animation";
         default: return "Unknown";
     }
 }
@@ -608,7 +889,7 @@ const char* animation_get_name(animation_type_t animation_type)
  * @brief Print animation progress with text representation
  * @param anim Animation to display
  */
-void animation_print_progress(const animation_t* anim)
+void animation_print_progress(const animation_task_t* anim)
 {
     if (anim == NULL) return;
     
@@ -777,7 +1058,7 @@ void animation_task_start(void *pvParameters)
         
         // Execute active animations
         for (int i = 0; i < MAX_ANIMATIONS; i++) {
-            if (animations[i].state == ANIM_STATE_RUNNING) {
+            if (animations[i].state == ANIM_TASK_STATE_RUNNING) {
                 animation_execute_frame(&animations[i]);
             }
         }
