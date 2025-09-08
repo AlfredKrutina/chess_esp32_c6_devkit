@@ -137,9 +137,20 @@ static struct {
     piece_t piece_type;               // Typ figurky
     bool waiting_for_move_correction; // Čekáme na opravu tahu
     uint8_t error_count;             // ✅ Počítadlo chyb za sebou
-    uint32_t error_start_time;       // ✅ Čas začátku error stavu (pro timeout)
-    uint32_t max_error_timeout_ms;   // ✅ Maximální timeout pro error recovery
-} error_recovery_state = {false, 0, 0, 0, 0, PIECE_EMPTY, false, 0, 0, 30000}; // 30s timeout
+} error_recovery_state = {false, 0, 0, 0, 0, PIECE_EMPTY, false, 0};
+
+// ✅ NON-BLOCKING BLINK SYSTEM
+typedef struct {
+    bool active;
+    uint8_t led_index;
+    uint32_t blink_count;
+    uint32_t max_blinks;
+    uint32_t last_toggle_time;
+    uint32_t blink_interval_ms;
+    bool led_state;
+} non_blocking_blink_state_t;
+
+static non_blocking_blink_state_t blink_state = {false, 0, 0, 10, 0, 300, false};
 
 // Game statistics
 static uint32_t total_games = 0;
@@ -190,9 +201,9 @@ bool game_execute_move_enhanced(chess_move_extended_t* move);
 uint32_t game_generate_legal_moves(player_t player);
 
 // Error recovery functions
-static void game_reset_error_recovery_state(void);
-static bool game_is_error_recovery_timeout_expired(void);
-static void game_handle_error_recovery_timeout(void);
+void game_reset_error_recovery_state(void);
+void game_update_error_blink(void);
+void game_stop_error_blink(void);
 
 // ============================================================================
 // POSITION HASHING AND DRAW DETECTION
@@ -2070,6 +2081,9 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
 {
     if (!cmd) return;
     
+    // ✅ PŘERUŠIT BLIKÁNÍ při zvednutí figurky
+    game_stop_error_blink();
+    
     // ✅ OPRAVA: Bezpečnostní kontrola notation stringu (array je vždy != NULL)
     if (strlen(cmd->from_notation) == 0 || strlen(cmd->from_notation) > 7) {
         ESP_LOGE(TAG, "❌ Invalid or corrupted notation string");
@@ -2483,7 +2497,6 @@ void game_process_drop_command(const chess_move_command_t* cmd)
             error_recovery_state.original_valid_row = lifted_piece_row;  // a7
             error_recovery_state.original_valid_col = lifted_piece_col;  // 0
             error_recovery_state.error_count = 1;
-            error_recovery_state.error_start_time = esp_timer_get_time() / 1000; // Start timeout
             
             ESP_LOGI(TAG, "🚨 FIRST ERROR: Original position saved as %c%d", 
                      'a' + error_recovery_state.original_valid_col, 
@@ -2534,90 +2547,92 @@ void game_process_drop_command(const chess_move_command_t* cmd)
  */
 void game_show_invalid_move_error_with_blink(uint8_t error_row, uint8_t error_col)
 {
-    ESP_LOGI(TAG, "🚨 Showing blinking red LED at %c%d", 'a' + error_col, error_row + 1);
+    ESP_LOGI(TAG, "🚨 Starting non-blocking blink at %c%d", 'a' + error_col, error_row + 1);
     
     // Vyčistit board LED
     led_clear_board_only();
     
-    // Spustit blikající červenou LED na chybném poli
-    uint8_t led_index = chess_pos_to_led_index(error_row, error_col);
+    // Nastavit non-blocking blink state
+    blink_state.active = true;
+    blink_state.led_index = chess_pos_to_led_index(error_row, error_col);
+    blink_state.blink_count = 0;
+    blink_state.max_blinks = 10; // 5x bliknutí (on/off)
+    blink_state.last_toggle_time = esp_timer_get_time() / 1000;
+    blink_state.blink_interval_ms = 300; // 300ms interval
+    blink_state.led_state = false;
     
-    // Vytvořit blikající animaci
-    for (int blink = 0; blink < 10; blink++) {
-        // Červená
-        led_set_pixel_safe(led_index, 255, 0, 0);
-        vTaskDelay(pdMS_TO_TICKS(200));
-        
-        // Vypnuto
-        led_set_pixel_safe(led_index, 0, 0, 0);
-        vTaskDelay(pdMS_TO_TICKS(200));
+    // Spustit první blik
+    led_set_pixel_safe(blink_state.led_index, 255, 0, 0); // Červená
+    blink_state.led_state = true;
+    
+    ESP_LOGI(TAG, "✅ Non-blocking blink started - can be interrupted");
+}
+
+/**
+ * @brief Update non-blocking blink animation
+ */
+void game_update_error_blink(void)
+{
+    if (!blink_state.active) {
+        return;
     }
     
-    // Nechej červenou rozsvícenou
-    led_set_pixel_safe(led_index, 255, 0, 0);
+    uint32_t current_time = esp_timer_get_time() / 1000;
     
-    ESP_LOGI(TAG, "🚨 Error indication complete - red LED stays on at invalid position");
+    // Kontrola timeoutu pro toggle
+    if (current_time - blink_state.last_toggle_time >= blink_state.blink_interval_ms) {
+        blink_state.blink_count++;
+        
+        // Toggle LED
+        if (blink_state.led_state) {
+            // Vypnout LED
+            led_set_pixel_safe(blink_state.led_index, 0, 0, 0);
+            blink_state.led_state = false;
+        } else {
+            // Zapnout LED
+            led_set_pixel_safe(blink_state.led_index, 255, 0, 0); // Červená
+            blink_state.led_state = true;
+        }
+        
+        blink_state.last_toggle_time = current_time;
+        
+        // Kontrola ukončení blikání
+        if (blink_state.blink_count >= blink_state.max_blinks) {
+            blink_state.active = false;
+            // Nechat LED rozsvícenou na konci
+            led_set_pixel_safe(blink_state.led_index, 255, 0, 0);
+            ESP_LOGI(TAG, "✅ Error blink completed");
+        }
+    }
+}
+
+/**
+ * @brief Stop error blink animation
+ */
+void game_stop_error_blink(void)
+{
+    if (blink_state.active) {
+        blink_state.active = false;
+        led_set_pixel_safe(blink_state.led_index, 0, 0, 0); // Vypnout LED
+        ESP_LOGI(TAG, "🛑 Error blink interrupted by user action");
+    }
 }
 
 /**
  * @brief Reset error recovery state completely
  */
-static void game_reset_error_recovery_state(void)
+void game_reset_error_recovery_state(void)
 {
-    error_recovery_state.waiting_for_move_correction = false;
     error_recovery_state.has_invalid_piece = false;
+    error_recovery_state.waiting_for_move_correction = false;
     error_recovery_state.error_count = 0;
-    error_recovery_state.error_start_time = 0;
     error_recovery_state.invalid_row = 0;
     error_recovery_state.invalid_col = 0;
     error_recovery_state.original_valid_row = 0;
     error_recovery_state.original_valid_col = 0;
     error_recovery_state.piece_type = PIECE_EMPTY;
-}
-
-/**
- * @brief Check if error recovery timeout has expired
- * @return true if timeout expired, false otherwise
- */
-static bool game_is_error_recovery_timeout_expired(void)
-{
-    if (!error_recovery_state.waiting_for_move_correction) {
-        return false;
-    }
     
-    uint32_t current_time = esp_timer_get_time() / 1000; // Convert to milliseconds
-    return (current_time - error_recovery_state.error_start_time) > error_recovery_state.max_error_timeout_ms;
-}
-
-/**
- * @brief Handle error recovery timeout - force reset
- */
-static void game_handle_error_recovery_timeout(void)
-{
-    if (game_is_error_recovery_timeout_expired()) {
-        ESP_LOGW(TAG, "⏰ Error recovery timeout expired - forcing reset");
-        
-        // Vrátit figurku na původní pozici
-        if (error_recovery_state.has_invalid_piece) {
-            board[error_recovery_state.invalid_row][error_recovery_state.invalid_col] = PIECE_EMPTY;
-            board[error_recovery_state.original_valid_row][error_recovery_state.original_valid_col] = error_recovery_state.piece_type;
-        }
-        
-        // Reset error stavu
-        game_reset_error_recovery_state();
-        
-        // Reset lifted piece state
-        piece_lifted = false;
-        lifted_piece_row = 0;
-        lifted_piece_col = 0;
-        lifted_piece = PIECE_EMPTY;
-        
-        // Vyčistit LED a ukázat normální stav
-        led_clear_board_only();
-        game_highlight_movable_pieces();
-        
-        ESP_LOGI(TAG, "🔄 Error recovery timeout - board reset to normal state");
-    }
+    ESP_LOGI(TAG, "✅ Error recovery state reset");
 }
 
 // ============================================================================
@@ -4299,8 +4314,8 @@ void game_process_chess_move(const chess_move_command_t* cmd)
 
 void game_process_commands(void)
 {
-    // ✅ KONTROLA ERROR RECOVERY TIMEOUT
-    game_handle_error_recovery_timeout();
+    // ✅ AKTUALIZOVAT non-blocking blink
+    game_update_error_blink();
     
     // Process commands from queue
     if (game_command_queue != NULL) {
