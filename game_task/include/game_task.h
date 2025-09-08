@@ -536,15 +536,18 @@ void game_show_castling_rook_guidance();
  */
 bool game_check_castling_completion(const chess_move_t* move);
 
-/**
- * @brief Complete the castling move
- */
-void complete_castling_move();
 
 /**
  * @brief Show castling completion animation
  */
 void show_castling_completion_animation();
+
+/**
+ * @brief Show blinking red LED for invalid move error
+ * @param error_row Row of invalid position
+ * @param error_col Column of invalid position
+ */
+void game_show_invalid_move_error_with_blink(uint8_t error_row, uint8_t error_col);
 
 
 #endif // GAME_TASK_H

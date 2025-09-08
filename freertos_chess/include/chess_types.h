@@ -329,6 +329,13 @@ typedef enum {
     LED_CMD_ERROR_RECOVERY = 38,      // Recovery from error state
     LED_CMD_SHOW_LEGAL_MOVES = 39,    // Show all legal moves for piece type
     
+    // Enhanced Castling System commands
+    LED_CMD_CASTLING_GUIDANCE = 40,   // Show castling guidance (king/rook positions)
+    LED_CMD_CASTLING_ERROR = 41,      // Show castling error indication
+    LED_CMD_CASTLING_CELEBRATION = 42, // Show castling completion celebration
+    LED_CMD_CASTLING_TUTORIAL = 43,   // Show castling tutorial
+    LED_CMD_CASTLING_CLEAR = 44,      // Clear all castling indications
+    
     LED_CMD_STATUS_ACTIVE = 97,
     LED_CMD_STATUS_COMPACT = 98,
     LED_CMD_STATUS_DETAILED = 99

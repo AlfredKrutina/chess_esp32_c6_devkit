@@ -672,6 +672,13 @@ void led_anim_endgame(const led_command_t* cmd);
 void led_anim_check(const led_command_t* cmd);
 void led_anim_checkmate(const led_command_t* cmd);
 
+// Enhanced Castling System functions
+void led_enhanced_castling_guidance(const led_command_t* cmd);
+void led_enhanced_castling_error(const led_command_t* cmd);
+void led_enhanced_castling_celebration(const led_command_t* cmd);
+void led_enhanced_castling_tutorial(const led_command_t* cmd);
+void led_enhanced_castling_clear(void);
+
 /**
  * @brief Execute LED command with full command structure
  */
@@ -880,6 +887,32 @@ void led_execute_command_new(const led_command_t* cmd)
         case LED_CMD_SHOW_LEGAL_MOVES:
             ESP_LOGI(TAG, "💡 Show legal moves for piece at LED %d", cmd->led_index);
             led_show_legal_moves(cmd);
+            break;
+            
+        // Enhanced Castling System commands
+        case LED_CMD_CASTLING_GUIDANCE:
+            ESP_LOGI(TAG, "🏰 Enhanced castling guidance");
+            led_enhanced_castling_guidance(cmd);
+            break;
+            
+        case LED_CMD_CASTLING_ERROR:
+            ESP_LOGI(TAG, "❌ Enhanced castling error indication");
+            led_enhanced_castling_error(cmd);
+            break;
+            
+        case LED_CMD_CASTLING_CELEBRATION:
+            ESP_LOGI(TAG, "🎉 Enhanced castling celebration");
+            led_enhanced_castling_celebration(cmd);
+            break;
+            
+        case LED_CMD_CASTLING_TUTORIAL:
+            ESP_LOGI(TAG, "📖 Enhanced castling tutorial");
+            led_enhanced_castling_tutorial(cmd);
+            break;
+            
+        case LED_CMD_CASTLING_CLEAR:
+            ESP_LOGI(TAG, "🧹 Clear enhanced castling indications");
+            led_enhanced_castling_clear();
             break;
             
         default:
@@ -2962,4 +2995,128 @@ static void led_init_duration_system(void)
         ESP_LOGE(TAG, "❌ Failed to create LED duration timer");
         led_duration_system_enabled = false;
     }
+}
+
+// ============================================================================
+// ENHANCED CASTLING SYSTEM LED FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Enhanced castling guidance LED function
+ */
+void led_enhanced_castling_guidance(const led_command_t* cmd)
+{
+    if (!cmd) return;
+    
+    ESP_LOGI(TAG, "🏰 Enhanced castling guidance at LED %d", cmd->led_index);
+    
+    // Clear board first
+    led_clear_board_only();
+    
+    // Show guidance based on command data
+    // cmd->data should contain castling guidance data
+    if (cmd->data) {
+        // Parse guidance data and show appropriate guidance
+        // This would be called from enhanced_castling_system.c
+        led_set_pixel_safe(cmd->led_index, cmd->red, cmd->green, cmd->blue);
+    } else {
+        // Default guidance - show source and destination
+        led_set_pixel_safe(cmd->led_index, 255, 215, 0); // Gold for source
+    }
+}
+
+/**
+ * @brief Enhanced castling error LED function
+ */
+void led_enhanced_castling_error(const led_command_t* cmd)
+{
+    if (!cmd) return;
+    
+    ESP_LOGI(TAG, "❌ Enhanced castling error at LED %d", cmd->led_index);
+    
+    // Flash error indication
+    for (int flash = 0; flash < 3; flash++) {
+        led_clear_board_only();
+        vTaskDelay(pdMS_TO_TICKS(200));
+        
+        led_set_pixel_safe(cmd->led_index, 255, 0, 0); // Red error
+        vTaskDelay(pdMS_TO_TICKS(200));
+    }
+    
+    led_clear_board_only();
+}
+
+/**
+ * @brief Enhanced castling celebration LED function
+ */
+void led_enhanced_castling_celebration(const led_command_t* cmd)
+{
+    if (!cmd) return;
+    
+    ESP_LOGI(TAG, "🎉 Enhanced castling celebration");
+    
+    // Rainbow celebration effect
+    for (int cycle = 0; cycle < 3; cycle++) {
+        uint8_t colors[][3] = {
+            {255, 0, 0},    // Red
+            {0, 255, 0},    // Green
+            {0, 0, 255},    // Blue
+            {255, 255, 0},  // Yellow
+            {255, 0, 255},  // Magenta
+            {0, 255, 255}   // Cyan
+        };
+        
+        for (int i = 0; i < 6; i++) {
+            led_clear_board_only();
+            led_set_pixel_safe(cmd->led_index, colors[i][0], colors[i][1], colors[i][2]);
+            vTaskDelay(pdMS_TO_TICKS(100));
+        }
+    }
+    
+    // Final success state
+    led_clear_board_only();
+    led_set_pixel_safe(cmd->led_index, 0, 255, 0); // Green for success
+}
+
+/**
+ * @brief Enhanced castling tutorial LED function
+ */
+void led_enhanced_castling_tutorial(const led_command_t* cmd)
+{
+    if (!cmd) return;
+    
+    ESP_LOGI(TAG, "📖 Enhanced castling tutorial");
+    
+    // Step-by-step tutorial
+    for (int step = 0; step < 3; step++) {
+        led_clear_board_only();
+        
+        if (step == 0) {
+            // Show king position
+            led_set_pixel_safe(cmd->led_index, 255, 215, 0); // Gold
+        } else if (step == 1) {
+            // Show rook position
+            led_set_pixel_safe(cmd->led_index, 192, 192, 192); // Silver
+        } else {
+            // Show both positions
+            led_set_pixel_safe(cmd->led_index, 255, 215, 0); // Gold
+            if (cmd->data) {
+                uint8_t* rook_pos = (uint8_t*)cmd->data;
+                led_set_pixel_safe(*rook_pos, 192, 192, 192); // Silver
+            }
+        }
+        
+        vTaskDelay(pdMS_TO_TICKS(1500));
+    }
+    
+    led_clear_board_only();
+}
+
+/**
+ * @brief Clear enhanced castling indications
+ */
+void led_enhanced_castling_clear(void)
+{
+    ESP_LOGI(TAG, "🧹 Clearing enhanced castling indications");
+    led_clear_board_only();
 }
