@@ -134,11 +134,12 @@ static struct {
     bool has_invalid_piece;           // Je figurka na neplatném poli?
     uint8_t invalid_row, invalid_col; // Aktuální neplatná pozice (červené pole)
     uint8_t original_valid_row, original_valid_col; // ✅ PŮVODNÍ validní pozice (nikdy se nezmění)
-    uint8_t last_valid_row, last_valid_col; // Poslední známá validní pozice
     piece_t piece_type;               // Typ figurky
     bool waiting_for_move_correction; // Čekáme na opravu tahu
     uint8_t error_count;             // ✅ Počítadlo chyb za sebou
-} error_recovery_state = {false, 0, 0, 0, 0, 0, 0, PIECE_EMPTY, false, 0};
+    uint32_t error_start_time;       // ✅ Čas začátku error stavu (pro timeout)
+    uint32_t max_error_timeout_ms;   // ✅ Maximální timeout pro error recovery
+} error_recovery_state = {false, 0, 0, 0, 0, PIECE_EMPTY, false, 0, 0, 30000}; // 30s timeout
 
 // Game statistics
 static uint32_t total_games = 0;
@@ -187,6 +188,11 @@ static game_state_t game_result = GAME_STATE_IDLE;
 void game_print_board_enhanced(void);
 bool game_execute_move_enhanced(chess_move_extended_t* move);
 uint32_t game_generate_legal_moves(player_t player);
+
+// Error recovery functions
+static void game_reset_error_recovery_state(void);
+static bool game_is_error_recovery_timeout_expired(void);
+static void game_handle_error_recovery_timeout(void);
 
 // ============================================================================
 // POSITION HASHING AND DRAW DETECTION
@@ -2083,6 +2089,7 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
     
     // ✅ KONTROLA ERROR RECOVERY STAVU
     if (error_recovery_state.waiting_for_move_correction) {
+        // ✅ KONTROLA: Je to správná neplatná pozice?
         if (from_row == error_recovery_state.invalid_row && 
             from_col == error_recovery_state.invalid_col) {
             
@@ -2141,6 +2148,20 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
                      'a' + error_recovery_state.original_valid_col, 
                      error_recovery_state.original_valid_row + 1);
             game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+            return;
+        } else {
+            // ✅ UP z jiné pozice během error recovery - ignorovat nebo resetovat?
+            ESP_LOGW(TAG, "⚠️ UP from different position during error recovery: %s (expected %c%d)", 
+                     cmd->from_notation,
+                     'a' + error_recovery_state.invalid_col, 
+                     error_recovery_state.invalid_row + 1);
+            
+            char warning_msg[128];
+            snprintf(warning_msg, sizeof(warning_msg), 
+                     "⚠️ Error recovery active - lift piece from %c%d first", 
+                     'a' + error_recovery_state.invalid_col, 
+                     error_recovery_state.invalid_row + 1);
+            game_send_response_to_uart(warning_msg, true, (QueueHandle_t)cmd->response_queue);
             return;
         }
     }
@@ -2309,9 +2330,7 @@ void game_process_drop_command(const chess_move_command_t* cmd)
             board[to_row][to_col] = error_recovery_state.piece_type;
             
             // ✅ RESETOVAT error stav
-            error_recovery_state.waiting_for_move_correction = false;
-            error_recovery_state.has_invalid_piece = false;
-            error_recovery_state.error_count = 0;
+            game_reset_error_recovery_state();
             
             // Vyčistit LED a ukázat normální stav
             led_clear_board_only();
@@ -2351,9 +2370,7 @@ void game_process_drop_command(const chess_move_command_t* cmd)
             // Provést normální move execution
             if (game_execute_move(&correction_move)) {
                 // Úspěšný tah - resetovat error stav
-                error_recovery_state.waiting_for_move_correction = false;
-                error_recovery_state.has_invalid_piece = false;
-                error_recovery_state.error_count = 0;
+                game_reset_error_recovery_state();
                 
                 // Změnit hráče
                 current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
@@ -2465,25 +2482,20 @@ void game_process_drop_command(const chess_move_command_t* cmd)
             // První chyba - uložit původní validní pozici
             error_recovery_state.original_valid_row = lifted_piece_row;  // a7
             error_recovery_state.original_valid_col = lifted_piece_col;  // 0
-            error_recovery_state.last_valid_row = lifted_piece_row;
-            error_recovery_state.last_valid_col = lifted_piece_col;
             error_recovery_state.error_count = 1;
+            error_recovery_state.error_start_time = esp_timer_get_time() / 1000; // Start timeout
             
             ESP_LOGI(TAG, "🚨 FIRST ERROR: Original position saved as %c%d", 
                      'a' + error_recovery_state.original_valid_col, 
                      error_recovery_state.original_valid_row + 1);
         } else {
-            // ✅ DALŠÍ CHYBA - zachovat původní pozici, aktualizovat jen last_valid
-            error_recovery_state.last_valid_row = lifted_piece_row; // Pozice před tímto chybným tahem
-            error_recovery_state.last_valid_col = lifted_piece_col;
+            // ✅ DALŠÍ CHYBA - zachovat původní pozici
             error_recovery_state.error_count++;
             
-            ESP_LOGI(TAG, "🚨 REPEATED ERROR #%d: Original=%c%d, Last_valid=%c%d", 
+            ESP_LOGI(TAG, "🚨 REPEATED ERROR #%d: Original=%c%d", 
                      error_recovery_state.error_count,
                      'a' + error_recovery_state.original_valid_col, 
-                     error_recovery_state.original_valid_row + 1,
-                     'a' + error_recovery_state.last_valid_col, 
-                     error_recovery_state.last_valid_row + 1);
+                     error_recovery_state.original_valid_row + 1);
         }
         
         // ✅ SPOLEČNÉ NASTAVENÍ pro všechny chyby
@@ -2545,6 +2557,67 @@ void game_show_invalid_move_error_with_blink(uint8_t error_row, uint8_t error_co
     led_set_pixel_safe(led_index, 255, 0, 0);
     
     ESP_LOGI(TAG, "🚨 Error indication complete - red LED stays on at invalid position");
+}
+
+/**
+ * @brief Reset error recovery state completely
+ */
+static void game_reset_error_recovery_state(void)
+{
+    error_recovery_state.waiting_for_move_correction = false;
+    error_recovery_state.has_invalid_piece = false;
+    error_recovery_state.error_count = 0;
+    error_recovery_state.error_start_time = 0;
+    error_recovery_state.invalid_row = 0;
+    error_recovery_state.invalid_col = 0;
+    error_recovery_state.original_valid_row = 0;
+    error_recovery_state.original_valid_col = 0;
+    error_recovery_state.piece_type = PIECE_EMPTY;
+}
+
+/**
+ * @brief Check if error recovery timeout has expired
+ * @return true if timeout expired, false otherwise
+ */
+static bool game_is_error_recovery_timeout_expired(void)
+{
+    if (!error_recovery_state.waiting_for_move_correction) {
+        return false;
+    }
+    
+    uint32_t current_time = esp_timer_get_time() / 1000; // Convert to milliseconds
+    return (current_time - error_recovery_state.error_start_time) > error_recovery_state.max_error_timeout_ms;
+}
+
+/**
+ * @brief Handle error recovery timeout - force reset
+ */
+static void game_handle_error_recovery_timeout(void)
+{
+    if (game_is_error_recovery_timeout_expired()) {
+        ESP_LOGW(TAG, "⏰ Error recovery timeout expired - forcing reset");
+        
+        // Vrátit figurku na původní pozici
+        if (error_recovery_state.has_invalid_piece) {
+            board[error_recovery_state.invalid_row][error_recovery_state.invalid_col] = PIECE_EMPTY;
+            board[error_recovery_state.original_valid_row][error_recovery_state.original_valid_col] = error_recovery_state.piece_type;
+        }
+        
+        // Reset error stavu
+        game_reset_error_recovery_state();
+        
+        // Reset lifted piece state
+        piece_lifted = false;
+        lifted_piece_row = 0;
+        lifted_piece_col = 0;
+        lifted_piece = PIECE_EMPTY;
+        
+        // Vyčistit LED a ukázat normální stav
+        led_clear_board_only();
+        game_highlight_movable_pieces();
+        
+        ESP_LOGI(TAG, "🔄 Error recovery timeout - board reset to normal state");
+    }
 }
 
 // ============================================================================
@@ -4226,6 +4299,9 @@ void game_process_chess_move(const chess_move_command_t* cmd)
 
 void game_process_commands(void)
 {
+    // ✅ KONTROLA ERROR RECOVERY TIMEOUT
+    game_handle_error_recovery_timeout();
+    
     // Process commands from queue
     if (game_command_queue != NULL) {
         // Try to receive chess_move_command_t structure (from UART)
@@ -4559,9 +4635,9 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t* move)
     error_recovery_state.invalid_col = move->to_col;
     error_recovery_state.piece_type = board[move->from_row][move->from_col];
     
-    // 2. Zapamatovat si poslední validní pozici (odkud byl tah)
-    error_recovery_state.last_valid_row = move->from_row;
-    error_recovery_state.last_valid_col = move->from_col;
+    // 2. Zapamatovat si původní validní pozici (odkud byl tah)
+    error_recovery_state.original_valid_row = move->from_row;
+    error_recovery_state.original_valid_col = move->from_col;
     
     // 3. Přesunout figurku na neplatnou pozici (simulace HW reality)
     board[move->to_row][move->to_col] = board[move->from_row][move->from_col];
