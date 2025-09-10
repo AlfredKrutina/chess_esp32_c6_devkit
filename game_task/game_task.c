@@ -1647,10 +1647,12 @@ bool game_execute_move(const chess_move_t* move)
                                                      castling_state.rook_to_col), 
                               0, 255, 0); // Zelená pro cíl věže
             
-            // NEMĚNIT HRÁČE - čekáme na tah věže!
+            // ✅ KRITICKÉ: NEMĚNIT HRÁČE pro castling!
             ESP_LOGI(TAG, "⏳ Waiting for rook move from %c%d to %c%d", 
                      'a' + castling_state.rook_from_col, castling_state.rook_from_row + 1,
                      'a' + castling_state.rook_to_col, castling_state.rook_to_row + 1);
+            ESP_LOGI(TAG, "🏰 Castling in progress - player remains %s", 
+                     current_player == PLAYER_WHITE ? "White" : "Black");
             return success; // Return success but don't change player
         }
         
@@ -1697,18 +1699,19 @@ bool game_execute_move(const chess_move_t* move)
                 // Zlatá animace dokončení rošády
                 show_castling_completion_animation();
                 
-                // Změnit hráče po dokončení rošády
+                // ✅ TEPRVE NYÍ změnit hráče po dokončení rošády
                 current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+                move_count++;
                 
-                // Vyčistit stav rošády
-                memset(&castling_state, 0, sizeof(castling_state));
+                ESP_LOGI(TAG, "🎉 Castling completed! Player changed to %s", 
+                         current_player == PLAYER_WHITE ? "White" : "Black");
+                
+                // Resetovat castling state
+                castling_state.in_progress = false;
                 
                 // Zobrazit pohyblivé figury pro nového hráče
                 led_clear_board_only();
                 game_highlight_movable_pieces();
-                
-                ESP_LOGI(TAG, "🏰 Castling completed! %s to move", 
-                         (current_player == PLAYER_WHITE) ? "White" : "Black");
             } else {
                 ESP_LOGE(TAG, "❌ Wrong move during castling - expected rook from %c%d to %c%d", 
                          'a' + castling_state.rook_from_col, castling_state.rook_from_row + 1,
@@ -1716,16 +1719,12 @@ bool game_execute_move(const chess_move_t* move)
                 // Nezměnit hráče - stále čekáme na správný tah věže
             }
         } else {
-            // Switch players (only for normal moves, not for castling)
-            if (extended_move.move_type != MOVE_TYPE_CASTLE_KING && extended_move.move_type != MOVE_TYPE_CASTLE_QUEEN) {
-                current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-                
-                ESP_LOGI(TAG, "Move executed successfully. %s to move", 
-                          (current_player == PLAYER_WHITE) ? "White" : "Black");
-            } else {
-                ESP_LOGI(TAG, "Castling move executed. %s still to move (waiting for rook)", 
-                          (current_player == PLAYER_WHITE) ? "White" : "Black");
-            }
+            // ✅ NORMÁLNÍ TAHY - změnit hráče
+            current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+            move_count++;
+            
+            ESP_LOGI(TAG, "✅ Move executed successfully. %s to move", 
+                     (current_player == PLAYER_WHITE) ? "White" : "Black");
         }
     }
     
@@ -2547,25 +2546,22 @@ void game_process_drop_command(const chess_move_command_t* cmd)
  */
 void game_show_invalid_move_error_with_blink(uint8_t error_row, uint8_t error_col)
 {
+    // ❌ Přerušit předchozí blikání
+    game_stop_error_blink();
+
     ESP_LOGI(TAG, "🚨 Starting non-blocking blink at %c%d", 'a' + error_col, error_row + 1);
-    
-    // Vyčistit board LED
     led_clear_board_only();
-    
-    // Nastavit non-blocking blink state
+
     blink_state.active = true;
     blink_state.led_index = chess_pos_to_led_index(error_row, error_col);
     blink_state.blink_count = 0;
-    blink_state.max_blinks = 10; // 5x bliknutí (on/off)
+    blink_state.max_blinks = 10;
     blink_state.last_toggle_time = esp_timer_get_time() / 1000;
-    blink_state.blink_interval_ms = 300; // 300ms interval
+    blink_state.blink_interval_ms = 300;
     blink_state.led_state = false;
-    
-    // Spustit první blik
-    led_set_pixel_safe(blink_state.led_index, 255, 0, 0); // Červená
-    blink_state.led_state = true;
-    
-    ESP_LOGI(TAG, "✅ Non-blocking blink started - can be interrupted");
+
+    // Spustit první toggle
+    game_update_error_blink();
 }
 
 /**
