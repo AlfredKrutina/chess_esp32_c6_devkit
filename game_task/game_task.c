@@ -590,6 +590,9 @@ void game_reset_game(void)
     memset(move_history, 0, sizeof(move_history));
     history_index = 0;
     
+    // Reset castling state
+    memset(&castling_state, 0, sizeof(castling_state));
+    
     // Clear captured pieces
     white_captured_count = 0;
     black_captured_count = 0;
