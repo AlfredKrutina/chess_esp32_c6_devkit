@@ -2264,6 +2264,26 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     // Step 3: Clear only board LEDs and update game state
     led_clear_board_only();
     
+    // FIXED: Check for "drop without lift" before state handling
+    if (!piece_lifted && current_game_state != GAME_STATE_CASTLING_IN_PROGRESS) {
+        ESP_LOGW(TAG, "❌ Drop command without prior lift");
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg), "❌ Invalid move - lift piece first");
+        game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+        
+        // LED: blink red on last lifted position if available
+        if (lifted_piece_row < 8 && lifted_piece_col < 8) {
+            led_clear_board_only();
+            for (int i = 0; i < 3; i++) {
+                led_set_pixel_safe(chess_pos_to_led_index(lifted_piece_row, lifted_piece_col), 255, 0, 0);
+                vTaskDelay(pdMS_TO_TICKS(200));
+                led_clear_board_only();
+                vTaskDelay(pdMS_TO_TICKS(200));
+            }
+        }
+        return;
+    }
+    
     // Handle different game states according to specification
     if (current_game_state == GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
         // Handle opponent piece return
@@ -2271,6 +2291,9 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             // Correct position - clear error state
             led_clear_board_only();
             current_game_state = GAME_STATE_IDLE;
+            // FIXED: Reset error count after successful recovery
+            consecutive_error_count = 0;
+            ESP_LOGI(TAG, "✅ Error count reset to 0 after opponent piece return");
             char success_msg[256];
             snprintf(success_msg, sizeof(success_msg), "✅ Opponent's piece returned - ready to play");
             game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
@@ -2485,7 +2508,7 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
  */
 static void game_generate_advantage_graph(char* buffer, size_t buffer_size, uint32_t game_duration, uint32_t total_moves)
 {
-    if (!buffer || buffer_size < 512) return;
+    if (!buffer || buffer_size < 128) return;  // Reduced minimum buffer size
     
     // Graph dimensions
     const int GRAPH_WIDTH = 60;
@@ -3015,7 +3038,7 @@ void game_process_puzzle_command(const chess_move_command_t* cmd)
         }
     }
     
-    char puzzle_data[1024];  // Puzzle data needs more space for full description
+    char puzzle_data[1024];  // Restored buffer size for puzzle data
     snprintf(puzzle_data, sizeof(puzzle_data),
         "🧩 CHESS PUZZLE STARTED\n"
         "═══════════════════════════════════════════════════════════════\n"
@@ -3690,7 +3713,7 @@ void game_process_list_games_command(const chess_move_command_t* cmd)
     
     ESP_LOGI(TAG, "📁 Processing LIST_GAMES command");
     
-    char response_data[1024];
+    char response_data[1024];  // Restored buffer size for list games
     snprintf(response_data, sizeof(response_data),
         "📁 Saved Games List\n"
         "═══════════════════════════════════════════════════════════════\n"
@@ -3960,13 +3983,20 @@ void game_process_chess_move(const chess_move_command_t* cmd)
         if (game_execute_move(&move)) {
             ESP_LOGI(TAG, "✅ UART move executed successfully: %s -> %s", cmd->from_notation, cmd->to_notation);
             
-            // Print successful move with colors
-            printf("\r\n");
-            printf("\033[92m✅ " "\033[1m" "MOVE EXECUTED SUCCESSFULLY!" "\033[0m" "\r\n");
-            printf("\033[93m   • Move: " "\033[1m" "%s → %s" "\033[0m" "\r\n", cmd->from_notation, cmd->to_notation);
-            printf("\033[93m   • Piece: " "\033[1m" "%s" "\033[0m" "\r\n", piece_symbols[move.piece]);
+            // Print successful move with colors - using snprintf for safety
+            char move_msg[256];
+            snprintf(move_msg, sizeof(move_msg), "\r\n\033[92m✅ \033[1mMOVE EXECUTED SUCCESSFULLY!\033[0m\r\n");
+            printf("%s", move_msg);
+            
+            snprintf(move_msg, sizeof(move_msg), "\033[93m   • Move: \033[1m%s → %s\033[0m\r\n", cmd->from_notation, cmd->to_notation);
+            printf("%s", move_msg);
+            
+            snprintf(move_msg, sizeof(move_msg), "\033[93m   • Piece: \033[1m%s\033[0m\r\n", piece_symbols[move.piece]);
+            printf("%s", move_msg);
+            
             if (move.captured_piece != PIECE_EMPTY) {
-                printf("\033[93m   • Captured: " "\033[1m" "%s" "\033[0m" "\r\n", piece_symbols[move.captured_piece]);
+                snprintf(move_msg, sizeof(move_msg), "\033[93m   • Captured: \033[1m%s\033[0m\r\n", piece_symbols[move.captured_piece]);
+                printf("%s", move_msg);
             }
             printf("\r\n");
             
@@ -4354,6 +4384,11 @@ void game_cancel_castling_transaction(void)
         ESP_LOGW(TAG, "🏰 Cancelling castling transaction");
         castling_in_progress = false;
         
+        // FIXED: Internal rollback - move king back to original position
+        piece_t king = board[castling_king_row][castling_king_to_col];
+        board[castling_king_row][castling_king_to_col] = PIECE_EMPTY;
+        board[castling_king_row][castling_king_from_col] = king;
+        
         // Set game state to general error recovery
         current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
         
@@ -4369,6 +4404,10 @@ void game_cancel_castling_transaction(void)
             led_clear_board_only();
             vTaskDelay(pdMS_TO_TICKS(200));
         }
+        
+        // FIXED: Switch player after castling cancellation
+        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        ESP_LOGI(TAG, "🔄 Player switched after castling cancellation");
         
         // UART instruction
         char error_msg[256];
@@ -4420,6 +4459,10 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t* move)
         
         // Reset game completely
         game_reset_game();
+        
+        // FIXED: Switch player after game reset due to errors
+        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        ESP_LOGI(TAG, "🔄 Player switched after game reset due to errors");
         
         // Clear error state
         consecutive_error_count = 0;
@@ -4603,6 +4646,10 @@ void game_handle_general_error(move_error_t error, const chess_move_t* move)
         
         // Reset game completely
         game_reset_game();
+        
+        // FIXED: Switch player after game reset due to errors
+        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        ESP_LOGI(TAG, "🔄 Player switched after game reset due to errors");
         
         // Clear error state
         consecutive_error_count = 0;
@@ -7172,7 +7219,7 @@ void game_process_puzzle_next_command(const chess_move_command_t* cmd)
     current_puzzle.current_step++;
     puzzle_step_t* step = &current_puzzle.steps[current_puzzle.current_step];
     
-    char response_data[1024];
+    char response_data[1024];  // Restored buffer size for list games
     snprintf(response_data, sizeof(response_data),
         "➡️ PUZZLE NEXT STEP\n"
         "═══════════════════════════════════════════════════════════════\n"
@@ -7355,7 +7402,7 @@ void game_process_puzzle_complete_command(const chess_move_command_t* cmd)
     uint32_t solve_time = current_puzzle.completion_time - current_puzzle.start_time;
     current_puzzle.is_active = false;
     
-    char response_data[1024];
+    char response_data[1024];  // Restored buffer size for list games
     snprintf(response_data, sizeof(response_data),
         "🏆 PUZZLE COMPLETED!\n"
         "═══════════════════════════════════════════════════════════════\n"
@@ -7445,7 +7492,7 @@ void game_process_puzzle_verify_command(const chess_move_command_t* cmd)
     
     puzzle_step_t* current_step = &current_puzzle.steps[current_puzzle.current_step];
     
-    char response_data[1024];
+    char response_data[1024];  // Restored buffer size for list games
     snprintf(response_data, sizeof(response_data),
         "🔍 PUZZLE VERIFICATION\n"
         "═══════════════════════════════════════════════════════════════\n"
