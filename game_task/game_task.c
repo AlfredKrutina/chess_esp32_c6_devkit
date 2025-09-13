@@ -1594,6 +1594,11 @@ bool game_execute_move(const chess_move_t* move)
     piece_t source_piece = game_get_piece(move->from_row, move->from_col);
     piece_t dest_piece = game_get_piece(move->to_row, move->to_col);
     
+    // FIXED: Use move->piece if provided (for recovery moves where piece is already lifted)
+    if (move->piece != PIECE_EMPTY) {
+        source_piece = move->piece;
+    }
+    
     // Create extended move for proper handling of special cases
     chess_move_extended_t extended_move = {
         .from_row = move->from_row,
@@ -2038,15 +2043,8 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
     
     // Handle different game states according to specification
     if (current_game_state == GAME_STATE_ERROR_RECOVERY_GENERAL) {
-        // FIXED: Recovery - must lift from invalid_move_backup.to (nevalidní pozice)
-        if (from_row != invalid_move_backup.to_row || from_col != invalid_move_backup.to_col) {
-            ESP_LOGW(TAG, "❌ Error recovery active - can only lift piece at [%d,%d]", 
-                     invalid_move_backup.to_row, invalid_move_backup.to_col);
-            char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Return piece to highlighted square first");
-            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
-            return;
-        }
+        // FIXED: Recovery - ignore actual position and force lift from last_valid_position
+        // Player must physically lift piece from last_valid_position, not from invalid destination
         
         // FIXED: Valid lift from error recovery position - use last_valid_position for internal tracking
         if (!has_last_valid_position) {
@@ -2079,8 +2077,10 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
             }
         }
         
-        // Change state to waiting for piece drop
+        // Change state to recovery waiting for piece drop
         current_game_state = GAME_STATE_WAITING_PIECE_DROP;
+        // Mark that this is recovery mode
+        error_recovery_active = true;
         
         char success_msg[256];
         snprintf(success_msg, sizeof(success_msg), "✅ Piece lifted for recovery from last valid position %c%d - showing possible moves", 
@@ -2390,6 +2390,59 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     }
     
     if (current_game_state == GAME_STATE_WAITING_PIECE_DROP) {
+        // Check if this is recovery mode
+        if (error_recovery_active) {
+            // FIXED: Recovery mode - only allow drop on last_valid_position
+            if (to_row == last_valid_position_row && to_col == last_valid_position_col) {
+                // Player returned piece to correct position - execute the return move
+                chess_move_t return_move = {
+                    .from_row = invalid_move_backup.to_row,      // from invalid position (h4)
+                    .from_col = invalid_move_backup.to_col,      // from invalid position (h4)
+                    .to_row = last_valid_position_row,           // to last valid position (a7)
+                    .to_col = last_valid_position_col,           // to last valid position (a7)
+                    .piece = invalid_move_backup.piece,          // the piece being returned
+                    .captured_piece = board[last_valid_position_row][last_valid_position_col],
+                    .timestamp = esp_timer_get_time() / 1000
+                };
+                
+                // Execute the return move
+                if (game_execute_move(&return_move)) {
+                    // Move executed successfully - clear error state
+                    led_clear_board_only();
+                    current_game_state = GAME_STATE_IDLE;
+                    consecutive_error_count = 0;
+                    piece_lifted = false;
+                    error_recovery_active = false;
+                    has_last_valid_position = false;
+                    // Clear invalid_move_backup
+                    memset(&invalid_move_backup, 0, sizeof(invalid_move_backup));
+                    
+                    // FIXED: Show player change animation and highlight movable pieces
+                    game_show_player_change_animation(current_player, current_player);
+                    vTaskDelay(pdMS_TO_TICKS(1000)); // Wait for animation
+                    game_highlight_movable_pieces();
+                    
+                    char success_msg[256];
+                    snprintf(success_msg, sizeof(success_msg), "✅ Piece returned – continue playing");
+                    game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+                } else {
+                    // Move execution failed
+                    ESP_LOGE(TAG, "❌ Failed to execute return move");
+                    char error_msg[256];
+                    snprintf(error_msg, sizeof(error_msg), "❌ Failed to return piece");
+                    game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+                }
+            } else {
+                // Wrong position - show error
+                led_clear_board_only();
+                led_set_pixel_safe(chess_pos_to_led_index(last_valid_position_row, last_valid_position_col), 255, 255, 0); // Yellow
+                char error_msg[256];
+                snprintf(error_msg, sizeof(error_msg), "❌ Return to highlighted square first");
+                game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            }
+            return;
+        }
+        
         // Normal move handling
         if (!piece_lifted) {
             ESP_LOGE(TAG, "❌ No piece was lifted - use UP command first");
@@ -2575,26 +2628,7 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
         return;
     }
     
-    if (current_game_state == GAME_STATE_ERROR_RECOVERY_GENERAL) {
-        // FIXED: Handle general error recovery according to user flow
-        if (to_row == last_valid_position_row && to_col == last_valid_position_col) {
-            // Player returned piece to correct position - clear error state
-            led_clear_board_only();
-            current_game_state = GAME_STATE_IDLE;
-            consecutive_error_count = 0;
-            char success_msg[256];
-            snprintf(success_msg, sizeof(success_msg), "✅ Piece returned – continue playing");
-            game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
-        } else {
-            // Wrong position - show error
-            led_clear_board_only();
-            led_set_pixel_safe(chess_pos_to_led_index(last_valid_position_row, last_valid_position_col), 255, 255, 0); // Yellow
-            char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Return to highlighted square first");
-            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
-        }
-        return;
-    }
+    // ERROR_RECOVERY_GENERAL handler moved to WAITING_PIECE_DROP with error_recovery_active check
     
     // Invalid state
     ESP_LOGE(TAG, "❌ Invalid drop command in state %d", current_game_state);
@@ -4674,8 +4708,18 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t* move)
         return;
     }
     
-    // FIXED: Store the invalid move for recovery
-    invalid_move_backup = *move;
+    // FIXED: Store the invalid move for recovery - update only 'to' position
+    // Keep 'from' as last_valid_position for proper recovery
+    if (has_last_valid_position) {
+        invalid_move_backup.from_row = last_valid_position_row;
+        invalid_move_backup.from_col = last_valid_position_col;
+    } else {
+        invalid_move_backup.from_row = move->from_row;
+        invalid_move_backup.from_col = move->from_col;
+    }
+    invalid_move_backup.to_row = move->to_row;
+    invalid_move_backup.to_col = move->to_col;
+    invalid_move_backup.piece = move->piece;
     current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
     error_recovery_active = true;
     error_recovery_start_time = esp_timer_get_time() / 1000;
