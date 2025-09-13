@@ -2133,39 +2133,30 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         }
         
     } else if (current_game_state == GAME_STATE_ERROR_RECOVERY_GENERAL) {
-        // FIXED: Handle UP in error recovery - must lift from invalid_move_backup.to (nevalidní pozice)
-        if (from_row != invalid_move_backup.to_row || from_col != invalid_move_backup.to_col) {
-            ESP_LOGW(TAG, "❌ Error recovery active - can only lift piece at [%d,%d]", 
-                     invalid_move_backup.to_row, invalid_move_backup.to_col);
+        // FIXED: Ignore square from event - force lift from last_valid_position
+        if (!has_last_valid_position) {
+            ESP_LOGE(TAG, "❌ Error recovery active but no last valid position!");
             char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Return piece to highlighted square first");
+            snprintf(error_msg, sizeof(error_msg), "❌ No valid position to return to");
             game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
             return;
         }
         
-        // Valid lift from error recovery position
+        // FIXED: Force lift from last_valid_position, ignore actual position from event
+        uint8_t row = last_valid_position_row;
+        uint8_t col = last_valid_position_col;
         piece_lifted = true;
-        lifted_piece_row = from_row;
-        lifted_piece_col = from_col;
+        lifted_piece_row = row;
+        lifted_piece_col = col;
         lifted_piece = piece;
         
-        // FIXED: Show yellow LED on LAST VALID POSITION (not current position)
+        // FIXED: Show yellow LED on last_valid_position
         led_clear_board_only();
-        if (has_last_valid_position) {
-            led_set_pixel_safe(chess_pos_to_led_index(last_valid_position_row, last_valid_position_col), 255, 255, 0); // Yellow on last valid position
-        } else {
-            led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 255, 0); // Yellow on current position as fallback
-        }
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255, 0); // Yellow on last valid position
         
-        // FIXED: Show possible moves from LAST VALID POSITION (not current position)
+        // FIXED: Show possible moves from last_valid_position
         move_suggestion_t suggestions[64];
-        uint32_t valid_moves = 0;
-        if (has_last_valid_position) {
-            valid_moves = game_get_available_moves(last_valid_position_row, last_valid_position_col, suggestions, 64);
-        } else {
-            // Fallback to current position if no last valid position
-            valid_moves = game_get_available_moves(from_row, from_col, suggestions, 64);
-        }
+        uint32_t valid_moves = game_get_available_moves(row, col, suggestions, 64);
         
         for (uint32_t i = 0; i < valid_moves; i++) {
             uint8_t led_index = chess_pos_to_led_index(suggestions[i].to_row, suggestions[i].to_col);
@@ -2180,13 +2171,8 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         current_game_state = GAME_STATE_WAITING_PIECE_DROP;
         
         char success_msg[256];
-        if (has_last_valid_position) {
-            snprintf(success_msg, sizeof(success_msg), "✅ Piece lifted for recovery - showing possible moves from %c%d", 
-                    'a' + last_valid_position_col, last_valid_position_row + 1);
-        } else {
-            snprintf(success_msg, sizeof(success_msg), "✅ Piece lifted from %c%d - showing possible moves", 
-                    'a' + from_col, from_row + 1);
-        }
+        snprintf(success_msg, sizeof(success_msg), "✅ Piece lifted for recovery from last valid position %c%d - showing possible moves", 
+                'a' + col, row + 1);
         game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
         return;
         
@@ -2343,9 +2329,6 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
         vTaskDelay(pdMS_TO_TICKS(250));
     }
     
-    // Step 3: Clear only board LEDs and update game state
-    led_clear_board_only();
-    
     // FIXED: Check for "drop without lift" before state handling
     if (!piece_lifted && current_game_state != GAME_STATE_CASTLING_IN_PROGRESS) {
         ESP_LOGW(TAG, "❌ Drop command without prior lift");
@@ -2449,6 +2432,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             }
         }
         
+        // FIXED: Store last valid position BEFORE validation (for error recovery)
+        last_valid_position_row = move.from_row;
+        last_valid_position_col = move.from_col;
+        has_last_valid_position = true;
+        
         // FIXED: Execute move FIRST, then validate (according to user's flow)
         if (game_execute_move(&move)) {
             // Move executed - now validate it
@@ -2460,11 +2448,6 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             }
             // Move successful
             player_t previous_player = current_player;
-            
-            // FIXED: Store last valid position
-            last_valid_position_row = move.from_row;
-            last_valid_position_col = move.from_col;
-            has_last_valid_position = true;
             
             // Reset error count on successful move
             consecutive_error_count = 0;
@@ -2606,7 +2589,12 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     ESP_LOGE(TAG, "❌ Invalid drop command in state %d", current_game_state);
     game_send_response_to_uart("❌ Invalid action in current game state", true, (QueueHandle_t)cmd->response_queue);
     
-    // Step 4: Player change animation and highlighting is handled in game_show_player_change_animation
+    // Step 4: Clear board LEDs after state handling (but NOT for ERROR_RECOVERY_GENERAL)
+    if (current_game_state != GAME_STATE_ERROR_RECOVERY_GENERAL) {
+        led_clear_board_only();
+    }
+    
+    // Step 5: Player change animation and highlighting is handled in game_show_player_change_animation
     // No need to call game_highlight_movable_pieces() here
 }
 
