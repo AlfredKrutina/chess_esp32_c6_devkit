@@ -63,10 +63,10 @@ typedef enum {
     GAME_STATE_PAUSED = 3,
     GAME_STATE_FINISHED = 4,
     GAME_STATE_ERROR = 5,
-    GAME_STATE_PLAYING = 6,
-    GAME_STATE_PROMOTION = 7,
-    GAME_STATE_ERROR_RECOVERY = 8,  // New state for error recovery
-    GAME_STATE_WAITING_FOR_RETURN = 9  // Waiting for piece to be returned
+    GAME_STATE_WAITING_PIECE_DROP = 6,
+    GAME_STATE_CASTLING_IN_PROGRESS = 7,
+    GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT = 8,
+    GAME_STATE_ERROR_RECOVERY_GENERAL = 9
 } game_state_t;
 
 /**
@@ -101,7 +101,8 @@ typedef enum {
     MOVE_ERROR_GAME_NOT_ACTIVE = 16,
     MOVE_ERROR_INVALID_MOVE_STRUCTURE = 17,
     MOVE_ERROR_INVALID_COORDINATES = 18,
-    MOVE_ERROR_ILLEGAL_MOVE = 19
+    MOVE_ERROR_ILLEGAL_MOVE = 19,
+    MOVE_ERROR_INVALID_CASTLING = 20
 } move_error_t;
 
 // ============================================================================

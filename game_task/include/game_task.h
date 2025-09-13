@@ -251,6 +251,23 @@ void game_display_move_error(move_error_t error, const chess_move_t* move);
 void game_show_move_suggestions(uint8_t row, uint8_t col);
 uint32_t game_get_available_moves(uint8_t row, uint8_t col, move_suggestion_t* suggestions, uint32_t max_suggestions);
 
+// Enhanced error handling functions
+void game_handle_invalid_move(move_error_t error, const chess_move_t* move);
+void game_handle_general_error(move_error_t error, const chess_move_t* move);
+bool game_is_error_recovery_active(void);
+bool game_handle_piece_return(uint8_t row, uint8_t col);
+bool game_is_error_recovery_timeout(void);
+void game_clear_error_recovery(void);
+uint32_t game_get_error_count(void);
+
+// Castling transaction functions
+bool game_start_castling_transaction(bool is_kingside);
+bool game_handle_castling_king_move(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col);
+bool game_handle_castling_rook_move(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col);
+void game_cancel_castling_transaction(void);
+bool game_is_castling_in_progress(void);
+bool game_is_castling_timeout(void);
+
 
 // ============================================================================
 // MOVE EXECUTION FUNCTIONS

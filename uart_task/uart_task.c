@@ -4536,8 +4536,10 @@ command_result_t uart_cmd_debug_game(const char* args)
         case GAME_STATE_PAUSED: state_str = "Paused"; break;
         case GAME_STATE_FINISHED: state_str = "Finished"; break;
         case GAME_STATE_ERROR: state_str = "Error"; break;
-        case GAME_STATE_PLAYING: state_str = "Playing"; break;
-        case GAME_STATE_PROMOTION: state_str = "Promotion"; break;
+        case GAME_STATE_WAITING_PIECE_DROP: state_str = "Waiting for piece drop"; break;
+        case GAME_STATE_CASTLING_IN_PROGRESS: state_str = "Castling in progress"; break;
+        case GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT: state_str = "Error recovery - opponent lift"; break;
+        case GAME_STATE_ERROR_RECOVERY_GENERAL: state_str = "Error recovery - general"; break;
         default: state_str = "Unknown"; break;
     }
     uart_send_formatted("   State: %s (%d)", state_str, game_state);

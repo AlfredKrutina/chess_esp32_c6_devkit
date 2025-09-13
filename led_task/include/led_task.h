@@ -87,4 +87,10 @@ void led_setup_animation_after_endgame(void);
 // Endgame animation control
 void led_stop_endgame_animation(void);
 
+// Enhanced brightness control functions
+esp_err_t led_set_pixel_enhanced(uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue, float brightness);
+void led_interpolate_color(const void* from_color, const void* to_color, float progress, void* result_color);
+void led_apply_breathing_effect(const void* base_color, float breath_phase, float intensity, void* result_color);
+void led_apply_multi_harmonic_pulse(const void* base_color, float pulse_phase, int harmonics, void* result_color);
+
 #endif // LED_TASK_H

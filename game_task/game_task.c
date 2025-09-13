@@ -62,7 +62,7 @@ static const int8_t knight_moves[8][2] = {
 };
 
 // Game configuration
-#define MAX_MOVES_HISTORY    200     // Maximum moves to remember
+#define MAX_MOVES_HISTORY    50      // Maximum moves to remember
 #define GAME_TIMEOUT_MS      300000  // 5 minutes per move timeout
 #define MOVE_VALIDATION_MS   100     // Move validation timeout
 
@@ -96,9 +96,10 @@ static uint8_t en_passant_target_col = 0;
 static uint8_t en_passant_victim_row = 0;
 static uint8_t en_passant_victim_col = 0;
 
-// Move history
-static chess_move_t move_history[MAX_MOVES_HISTORY];
-static uint32_t history_index = 0;
+// Minimal move tracking - only what we actually need
+static chess_move_t last_valid_move;
+static chess_move_t current_invalid_move;
+static bool has_last_valid_move = false;
 
 // Task state
 static bool task_running = false;
@@ -125,8 +126,9 @@ static uint32_t white_castles = 0;
 static uint32_t black_castles = 0;
 static uint32_t moves_without_capture = 0;
 static uint32_t max_moves_without_capture = 0;
-static uint32_t position_history[100];
-static uint32_t position_history_count = 0;
+// Minimal position tracking - only for draw detection
+static uint32_t last_position_hash = 0;
+static uint8_t position_repetition_count = 0;
 
 // Game state flags
 static bool timer_enabled = true;
@@ -134,12 +136,33 @@ static bool game_saved = false;
 static char saved_game_name[32] = "";
 static game_state_t game_result = GAME_STATE_IDLE;
 
+// Error recovery state
+static bool error_recovery_active = false;
+static chess_move_t invalid_move_backup;
+static uint32_t error_recovery_start_time = 0;
+static const uint32_t ERROR_RECOVERY_TIMEOUT_MS = 30000; // 30 seconds
+
+// Error counting system
+static uint32_t consecutive_error_count = 0;
+static const uint32_t MAX_CONSECUTIVE_ERRORS = 10;
+
+// Castling transaction state
+static bool castling_in_progress = false;
+static bool castling_kingside = false;
+static uint8_t castling_king_row = 0;
+static uint8_t castling_king_from_col = 0;
+static uint8_t castling_king_to_col = 0;
+static uint8_t castling_rook_from_col = 0;
+static uint8_t castling_rook_to_col = 0;
+static uint32_t castling_start_time = 0;
+static const uint32_t CASTLING_TIMEOUT_MS = 60000; // 60 seconds
+
 // Castling flags and en passant state
 // (declared later in the file)
 
 // Move generation buffers (declared later in the file)
-// static chess_move_extended_t legal_moves_buffer[128];
-// static uint32_t legal_moves_count = 0;
+// static chess_move_extended_t temp_moves_buffer[128];
+// static uint32_t temp_moves_count = 0;
 
 // Include ctype.h for tolower function
 #include <ctype.h>
@@ -205,16 +228,11 @@ uint32_t game_calculate_position_hash(void)
 bool game_is_position_repeated(void)
 {
     uint32_t current_hash = game_calculate_position_hash();
-    int repetition_count = 0;
+    // repetition_count removed - not needed
     
-    // Count how many times current position appears in history
-    for (int i = 0; i < position_history_count; i++) {
-        if (position_history[i] == current_hash) {
-            repetition_count++;
-            if (repetition_count >= 3) {
-                return true; // Threefold repetition detected
-            }
-        }
+    // Check if current position repeats
+    if (current_hash == last_position_hash && position_repetition_count >= 3) {
+        return true; // Threefold repetition detected
     }
     
     return false;
@@ -227,14 +245,12 @@ void game_add_position_to_history(void)
 {
     uint32_t current_hash = game_calculate_position_hash();
     
-    if (position_history_count < 100) {
-        position_history[position_history_count++] = current_hash;
+    // Simple repetition detection - only check if same as last position
+    if (current_hash == last_position_hash) {
+        position_repetition_count++;
     } else {
-        // Shift history and add new position
-        for (int i = 0; i < 99; i++) {
-            position_history[i] = position_history[i + 1];
-        }
-        position_history[99] = current_hash;
+        position_repetition_count = 1;
+        last_position_hash = current_hash;
     }
 }
 
@@ -389,13 +405,100 @@ static uint8_t last_move_to_col = 0;
 static bool has_last_move = false;
 
 // Captured pieces counter
-static uint32_t white_captured_count = 0;
-static uint32_t black_captured_count = 0;
-static piece_t white_captured_pieces[16];  // Max 16 pieces can be captured
-static piece_t black_captured_pieces[16];
-static uint32_t white_captured_index = 0;
-static uint32_t black_captured_index = 0;
+// Minimal captured pieces tracking - only counts
+static uint8_t white_captured_count = 0;
+static uint8_t black_captured_count = 0;
 
+
+// ============================================================================
+// CASTLING VALIDATION FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Check if player can castle kingside
+ * @param player Player to check
+ * @return true if castling is possible
+ */
+bool game_can_castle_kingside(player_t player)
+{
+    uint8_t king_row = (player == PLAYER_WHITE) ? 0 : 7;
+    uint8_t king_col = 4;
+    uint8_t rook_col = 7;
+    
+    // Check if king and rook are in correct positions
+    piece_t king = board[king_row][king_col];
+    piece_t rook = board[king_row][rook_col];
+    
+    bool valid_king = (player == PLAYER_WHITE) ? (king == PIECE_WHITE_KING) : (king == PIECE_BLACK_KING);
+    bool valid_rook = (player == PLAYER_WHITE) ? (rook == PIECE_WHITE_ROOK) : (rook == PIECE_BLACK_ROOK);
+    
+    if (!valid_king || !valid_rook) {
+        return false;
+    }
+    
+    // Check if pieces have moved
+    if ((player == PLAYER_WHITE && (white_king_moved || white_rook_h_moved)) ||
+        (player == PLAYER_BLACK && (black_king_moved || black_rook_h_moved))) {
+        return false;
+    }
+    
+    // Check if path is clear
+    for (uint8_t col = king_col + 1; col < rook_col; col++) {
+        if (board[king_row][col] != PIECE_EMPTY) {
+            return false;
+        }
+    }
+    
+    // Check if king is in check
+    if (game_is_king_in_check(player)) {
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * @brief Check if player can castle queenside
+ * @param player Player to check
+ * @return true if castling is possible
+ */
+bool game_can_castle_queenside(player_t player)
+{
+    uint8_t king_row = (player == PLAYER_WHITE) ? 0 : 7;
+    uint8_t king_col = 4;
+    uint8_t rook_col = 0;
+    
+    // Check if king and rook are in correct positions
+    piece_t king = board[king_row][king_col];
+    piece_t rook = board[king_row][rook_col];
+    
+    bool valid_king = (player == PLAYER_WHITE) ? (king == PIECE_WHITE_KING) : (king == PIECE_BLACK_KING);
+    bool valid_rook = (player == PLAYER_WHITE) ? (rook == PIECE_WHITE_ROOK) : (rook == PIECE_BLACK_ROOK);
+    
+    if (!valid_king || !valid_rook) {
+        return false;
+    }
+    
+    // Check if pieces have moved
+    if ((player == PLAYER_WHITE && (white_king_moved || white_rook_a_moved)) ||
+        (player == PLAYER_BLACK && (black_king_moved || black_rook_a_moved))) {
+        return false;
+    }
+    
+    // Check if path is clear
+    for (uint8_t col = rook_col + 1; col < king_col; col++) {
+        if (board[king_row][col] != PIECE_EMPTY) {
+            return false;
+        }
+    }
+    
+    // Check if king is in check
+    if (game_is_king_in_check(player)) {
+        return false;
+    }
+    
+    return true;
+}
 
 // ============================================================================
 // ENHANCED MOVE VALIDATION SYSTEM
@@ -528,23 +631,34 @@ void game_reset_game(void)
     black_castles = 0;
     moves_without_capture = 0;
     max_moves_without_capture = 0;
-    position_history_count = 0;
+    position_repetition_count = 0;
+    last_position_hash = 0;
     game_result = GAME_STATE_IDLE;
     game_saved = false;
     saved_game_name[0] = '\0';
     
-    // Clear move history
-    memset(move_history, 0, sizeof(move_history));
-    history_index = 0;
+    // Clear move tracking
+    has_last_valid_move = false;
+    memset(&last_valid_move, 0, sizeof(last_valid_move));
+    memset(&current_invalid_move, 0, sizeof(current_invalid_move));
     
     // Clear captured pieces
     white_captured_count = 0;
     black_captured_count = 0;
-    white_captured_index = 0;
-    black_captured_index = 0;
     
     // Clear last move tracking
     has_last_move = false;
+    
+    // Reset error handling states
+    error_recovery_active = false;
+    consecutive_error_count = 0;
+    piece_lifted = false;
+    lifted_piece_row = 0;
+    lifted_piece_col = 0;
+    lifted_piece = PIECE_EMPTY;
+    
+    // Reset castling states
+    castling_in_progress = false;
     
     // Reinitialize board
     game_initialize_board();
@@ -561,7 +675,7 @@ void game_start_new_game(void)
     game_reset_game();
     
     // Set game state
-    current_game_state = GAME_STATE_ACTIVE;
+    current_game_state = GAME_STATE_IDLE;
     game_active = true;
     game_start_time = esp_timer_get_time() / 1000;
     last_move_time = game_start_time;
@@ -579,7 +693,8 @@ void game_start_new_game(void)
     black_castles = 0;
     moves_without_capture = 0;
     max_moves_without_capture = 0;
-    position_history_count = 0;
+    position_repetition_count = 0;
+    last_position_hash = 0;
     game_result = GAME_STATE_IDLE;
     game_saved = false;
     saved_game_name[0] = '\0';
@@ -1142,75 +1257,80 @@ void game_display_move_error(move_error_t error, const chess_move_t* move)
     const char* piece_name = game_get_piece_name(move->piece);
     const char* player_name = (current_player == PLAYER_WHITE) ? "White" : "Black";
     
-    // Enhanced error messages with colors and detailed reasoning
-    printf("\r\n");
-    printf("\033[91m❌ " "\033[1m" "INVALID MOVE!" "\033[0m" "\r\n");
-    printf("\033[93m   • Move: " "\033[1m" "%s → %s" "\033[0m" "\r\n", from_square, to_square);
+    // Use smaller static buffer to avoid memory issues
+    static char error_msg[256];
+    
+    // Build error message safely
+    snprintf(error_msg, sizeof(error_msg), "❌ INVALID MOVE!\n   • Move: %s → %s\n", from_square, to_square);
     
     switch (error) {
         case MOVE_ERROR_NO_PIECE:
-            printf("\033[91m   • Reason: " "\033[1m" "No piece at %s" "\033[0m" "\r\n", from_square);
-            printf("\033[90m   • Solution: Choose a square with your piece" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: No piece at %s\n   • Solution: Choose a square with your piece", from_square);
             break;
             
         case MOVE_ERROR_WRONG_COLOR:
-            printf("\033[91m   • Reason: " "\033[1m" "%s cannot move %s's piece" "\033[0m" "\r\n", 
-                   player_name, (current_player == PLAYER_WHITE) ? "Black" : "White");
-            printf("\033[90m   • Solution: Move only your own pieces" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: %s cannot move %s's piece\n   • Solution: Move only your own pieces", 
+                player_name, (current_player == PLAYER_WHITE) ? "Black" : "White");
             break;
             
         case MOVE_ERROR_BLOCKED_PATH:
-            printf("\033[91m   • Reason: " "\033[1m" "Path from %s to %s is blocked" "\033[0m" "\r\n", from_square, to_square);
-            printf("\033[90m   • Solution: Clear the path or choose different destination" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: Path from %s to %s is blocked\n   • Solution: Clear the path or choose different destination", 
+                from_square, to_square);
             break;
             
         case MOVE_ERROR_INVALID_PATTERN:
-            printf("\033[91m   • Reason: " "\033[1m" "%s cannot move from %s to %s" "\033[0m" "\r\n", piece_name, from_square, to_square);
-            printf("\033[90m   • Solution: Follow the piece's movement rules" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: %s cannot move from %s to %s\n   • Solution: Follow the piece's movement rules", 
+                piece_name, from_square, to_square);
             break;
             
         case MOVE_ERROR_KING_IN_CHECK:
-            printf("\033[91m   • Reason: " "\033[1m" "This move would leave your king in check" "\033[0m" "\r\n");
-            printf("\033[90m   • Solution: Move to protect your king or block the attack" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: This move would leave your king in check\n   • Solution: Move to protect your king or block the attack");
             break;
             
         case MOVE_ERROR_CASTLING_BLOCKED:
-            printf("\033[91m   • Reason: " "\033[1m" "Castling is not allowed (king or rook has moved)" "\033[0m" "\r\n");
-            printf("\033[90m   • Solution: Castling requires unmoved king and rook" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: Castling is not allowed (king or rook has moved)\n   • Solution: Castling requires unmoved king and rook");
             break;
             
         case MOVE_ERROR_EN_PASSANT_INVALID:
-            printf("\033[91m   • Reason: " "\033[1m" "En passant is not possible" "\033[0m" "\r\n");
-            printf("\033[90m   • Solution: En passant only after opponent's 2-square pawn move" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: En passant is not possible\n   • Solution: En passant only after opponent's 2-square pawn move");
             break;
             
         case MOVE_ERROR_DESTINATION_OCCUPIED:
-            printf("\033[91m   • Reason: " "\033[1m" "Destination %s is occupied by your own piece" "\033[0m" "\r\n", to_square);
-            printf("\033[90m   • Solution: Choose empty square or capture opponent's piece" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: Destination %s is occupied by your own piece\n   • Solution: Choose empty square or capture opponent's piece", 
+                to_square);
             break;
             
         case MOVE_ERROR_OUT_OF_BOUNDS:
-            printf("\033[91m   • Reason: " "\033[1m" "Coordinates are out of board bounds" "\033[0m" "\r\n");
-            printf("\033[90m   • Solution: Use valid chess notation (a1-h8)" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: Coordinates are out of board bounds\n   • Solution: Use valid chess notation (a1-h8)");
             break;
             
         case MOVE_ERROR_GAME_NOT_ACTIVE:
-            printf("\033[91m   • Reason: " "\033[1m" "Game is not active" "\033[0m" "\r\n");
-            printf("\033[90m   • Solution: Start a new game first" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: Game is not active\n   • Solution: Start a new game first");
             break;
             
         case MOVE_ERROR_INVALID_MOVE_STRUCTURE:
-            printf("\033[91m   • Reason: " "\033[1m" "Move structure is invalid" "\033[0m" "\r\n");
-            printf("\033[90m   • Solution: Use proper move format (e.g., e2e4)" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: Move structure is invalid\n   • Solution: Use proper move format (e.g., e2e4)");
             break;
             
         default:
-            printf("\033[91m   • Reason: " "\033[1m" "Unknown error occurred" "\033[0m" "\r\n");
-            printf("\033[90m   • Solution: Try a different move" "\033[0m" "\r\n");
+            snprintf(error_msg + strlen(error_msg), sizeof(error_msg) - strlen(error_msg),
+                "   • Reason: Unknown error occurred\n   • Solution: Try a different move");
             break;
     }
     
-    printf("\r\n");
+    // Send error message via printf (safer for this function)
+    printf("%s\n", error_msg);
     
     // Show helpful suggestions
     if (tutorial_mode_active && show_hints) {
@@ -1273,10 +1393,15 @@ void game_show_move_suggestions(uint8_t row, uint8_t col)
     ESP_LOGI(TAG, "💡 Hint: %s at %s can move to:", 
              game_get_piece_name(piece), from_square);
     
-    // Group moves by type
-    char normal_moves[128] = "";
-    char capture_moves[128] = "";
-    char special_moves[128] = "";
+    // OPTIMIZED: Use static buffers to reduce stack usage
+    static char normal_moves[128] = "";
+    static char capture_moves[128] = "";
+    static char special_moves[128] = "";
+    
+    // Clear buffers
+    normal_moves[0] = '\0';
+    capture_moves[0] = '\0';
+    special_moves[0] = '\0';
     
     int normal_pos = 0, capture_pos = 0, special_pos = 0;
     
@@ -1451,6 +1576,8 @@ bool game_execute_move(const chess_move_t* move)
     move_error_t error = game_is_valid_move(move);
     if (error != MOVE_ERROR_NONE) {
         ESP_LOGW(TAG, "Invalid move attempted: %d", error);
+        // Call enhanced error handling
+        game_handle_invalid_move(error, move);
         return false;
     }
     
@@ -1514,6 +1641,9 @@ bool game_execute_move(const chess_move_t* move)
     bool success = game_execute_move_enhanced(&extended_move);
     
     if (success) {
+        // Reset error count on successful move
+        consecutive_error_count = 0;
+        
         // Update last move tracking for future en passant detection
         last_move_from_row = move->from_row;
         last_move_from_col = move->from_col;
@@ -1521,14 +1651,12 @@ bool game_execute_move(const chess_move_t* move)
         last_move_to_col = move->to_col;
         has_last_move = true;
         
-        // Add to move history
-        if (history_index < MAX_MOVES_HISTORY) {
-            move_history[history_index] = *move;
-            move_history[history_index].piece = source_piece;
-            move_history[history_index].captured_piece = dest_piece;
-            move_history[history_index].timestamp = esp_timer_get_time() / 1000;
-            history_index++;
-        }
+        // Store last valid move for error recovery
+        last_valid_move = *move;
+        last_valid_move.piece = source_piece;
+        last_valid_move.captured_piece = dest_piece;
+        last_valid_move.timestamp = esp_timer_get_time() / 1000;
+        has_last_valid_move = true;
         
         // Update game state
         move_count++;
@@ -1683,18 +1811,10 @@ void game_print_board(void)
     if (white_captured_count > 0 || black_captured_count > 0) {
         ESP_LOGI(TAG, "Captured pieces:");
         if (white_captured_count > 0) {
-            printf("  White captured: ");
-            for (uint32_t i = 0; i < white_captured_index; i++) {
-                printf("%s ", piece_symbols[white_captured_pieces[i]]);
-            }
-            printf("(%" PRIu32 " total)\n", white_captured_count);
+            printf("  White captured: %d pieces\n", white_captured_count);
         }
         if (black_captured_count > 0) {
-            printf("  Black captured: ");
-            for (uint32_t i = 0; i < black_captured_index; i++) {
-                printf("%s ", piece_symbols[black_captured_pieces[i]]);
-            }
-            printf("(%" PRIu32 " total)\n", black_captured_count);
+            printf("  Black captured: %d pieces\n", black_captured_count);
         }
     }
     
@@ -1717,15 +1837,13 @@ void game_print_board(void)
 
 void game_print_move_history(void)
 {
-    ESP_LOGI(TAG, "Move history (%lu moves):", history_index);
-    
-    for (uint32_t i = 0; i < history_index; i++) {
-        const chess_move_t* move = &move_history[i];
-        ESP_LOGI(TAG, "  %lu. %c%d-%c%d %s", 
-                  i + 1,
-                  'a' + move->from_col, move->from_row + 1,
-                  'a' + move->to_col, move->to_row + 1,
-                  game_get_piece_name(move->piece));
+    if (has_last_valid_move) {
+        ESP_LOGI(TAG, "Last valid move: %c%d-%c%d %s", 
+                 'a' + last_valid_move.from_col, last_valid_move.from_row + 1,
+                 'a' + last_valid_move.to_col, last_valid_move.to_row + 1,
+                 game_get_piece_name(last_valid_move.piece));
+    } else {
+        ESP_LOGI(TAG, "No moves yet");
     }
 }
 
@@ -1737,7 +1855,7 @@ void game_print_move_history(void)
 /**
  * @brief Send response to UART task via queue
  */
-static void game_send_response_to_uart(const char* message, bool is_error, QueueHandle_t response_queue)
+void game_send_response_to_uart(const char* message, bool is_error, QueueHandle_t response_queue)
 {
     if (response_queue == NULL) {
         // Fallback to logging if no response queue
@@ -1906,22 +2024,124 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
     // Check if there's a piece at the square
     piece_t piece = board[from_row][from_col];
     if (piece == PIECE_EMPTY) {
-        char error_msg[128];
+        char error_msg[256];
         snprintf(error_msg, sizeof(error_msg), "❌ No piece at %s", cmd->from_notation);
         ESP_LOGE(TAG, "❌ No piece at %s", cmd->from_notation);
         game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
         return;
     }
     
-    // Check if piece belongs to current player
-    bool is_white_piece = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
-    bool is_black_piece = (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING);
-    
-    if ((current_player == PLAYER_WHITE && !is_white_piece) ||
-        (current_player == PLAYER_BLACK && !is_black_piece)) {
-        ESP_LOGE(TAG, "❌ Cannot lift opponent's piece at %s", cmd->from_notation);
-        char error_msg[128];
-        snprintf(error_msg, sizeof(error_msg), "❌ Cannot lift opponent's piece at %s", cmd->from_notation);
+    // Handle different game states according to specification
+    if (current_game_state == GAME_STATE_IDLE) {
+        // Check if piece belongs to current player
+        bool is_white_piece = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
+        bool is_black_piece = (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING);
+        
+        if ((current_player == PLAYER_WHITE && !is_white_piece) ||
+            (current_player == PLAYER_BLACK && !is_black_piece)) {
+            // Opponent's piece - start opponent lift recovery
+            ESP_LOGW(TAG, "❌ Cannot lift opponent's piece at %s", cmd->from_notation);
+            
+            // Set state to opponent lift recovery
+            current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
+            invalid_move_backup.from_row = from_row;
+            invalid_move_backup.from_col = from_col;
+            
+            // LED: solid red on opponent piece position
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 0, 0); // Solid red
+            
+            // UART instruction
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to %s", cmd->from_notation);
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            return;
+        }
+        
+        // Own piece - proceed normally
+        current_game_state = GAME_STATE_WAITING_PIECE_DROP;
+        
+        // Set piece lifted state
+        piece_lifted = true;
+        lifted_piece_row = from_row;
+        lifted_piece_col = from_col;
+        lifted_piece = piece;
+        
+        // Check if this is a king move that could be castling
+        if (piece == PIECE_WHITE_KING || piece == PIECE_BLACK_KING) {
+            // Check if castling is possible
+            bool can_castle_kingside = game_can_castle_kingside(current_player);
+            bool can_castle_queenside = game_can_castle_queenside(current_player);
+            
+            if (can_castle_kingside || can_castle_queenside) {
+                // Show castling options
+                char castling_msg[256];
+                snprintf(castling_msg, sizeof(castling_msg),
+                    "🏰 King lifted - castling options:\n"
+                    "  • Move 2 squares right for kingside\n"
+                    "  • Move 2 squares left for queenside\n"
+                    "  • Or move normally"
+                );
+                game_send_response_to_uart(castling_msg, false, (QueueHandle_t)cmd->response_queue);
+            }
+        }
+        
+    } else if (current_game_state == GAME_STATE_CASTLING_IN_PROGRESS) {
+        // Handle castling piece lift
+        uint8_t king_row = (current_player == PLAYER_WHITE) ? 0 : 7;
+        uint8_t king_col = castling_king_from_col; // King is at original position
+        uint8_t rook_from_col = castling_rook_from_col;
+        
+        bool is_king = (from_row == king_row && from_col == king_col);
+        bool is_rook = (from_row == king_row && from_col == rook_from_col);
+        
+        if (!is_king && !is_rook) {
+            // Wrong piece during castling - handle as general error
+            chess_move_t error_move = {
+                .from_row = from_row,
+                .from_col = from_col,
+                .to_row = from_row,
+                .to_col = from_col,
+                .piece = piece,
+                .captured_piece = PIECE_EMPTY,
+                .timestamp = esp_timer_get_time() / 1000
+            };
+            game_handle_general_error(MOVE_ERROR_INVALID_CASTLING, &error_move);
+            return;
+        }
+        
+        // Set piece lifted state for castling
+        piece_lifted = true;
+        lifted_piece_row = from_row;
+        lifted_piece_col = from_col;
+        lifted_piece = piece;
+        
+    } else if (current_game_state == GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
+        // Only allow lifting the piece that needs to be returned
+        if (from_row != invalid_move_backup.from_row || from_col != invalid_move_backup.from_col) {
+            ESP_LOGW(TAG, "❌ Error recovery active - can only lift piece at [%d,%d]", 
+                     invalid_move_backup.from_row, invalid_move_backup.from_col);
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to %s first", cmd->from_notation);
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            return;
+        }
+        
+    } else if (current_game_state == GAME_STATE_ERROR_RECOVERY_GENERAL) {
+        // Only allow lifting the piece that needs to be returned
+        if (from_row != invalid_move_backup.from_row || from_col != invalid_move_backup.from_col) {
+            ESP_LOGW(TAG, "❌ Error recovery active - can only lift piece at [%d,%d]", 
+                     invalid_move_backup.from_row, invalid_move_backup.from_col);
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Return piece to highlighted square first");
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            return;
+        }
+        
+    } else {
+        // Other states - ignore or send instructions
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg), "❌ Invalid action in current game state");
         game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
         return;
     }
@@ -1944,44 +2164,51 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
     // Give FreeRTOS scheduler time to process LED commands
     vTaskDelay(pdMS_TO_TICKS(50));
     
-    // Show possible moves
-    ESP_LOGI(TAG, "🔄 Showing possible moves from %s", cmd->from_notation);
-    
-    // Get valid moves for this piece
-    move_suggestion_t suggestions[64];
-    uint32_t valid_moves = game_get_available_moves(from_row, from_col, suggestions, 64);
-    
-    ESP_LOGI(TAG, "Found %lu valid moves for piece at %s", valid_moves, cmd->from_notation);
-    
-    // Send LED commands to highlight possible destinations
-    if (valid_moves > 0) {
-        for (uint32_t i = 0; i < valid_moves; i++) {
-            uint8_t dest_row = suggestions[i].to_row;
-            uint8_t dest_col = suggestions[i].to_col;
-            uint8_t led_index = chess_pos_to_led_index(dest_row, dest_col);
-            
-            // Check if destination has opponent's piece
-            piece_t dest_piece = board[dest_row][dest_col];
-            bool is_opponent_piece = (current_player == PLAYER_WHITE && dest_piece >= PIECE_BLACK_PAWN && dest_piece <= PIECE_BLACK_KING) ||
-                                   (current_player == PLAYER_BLACK && dest_piece >= PIECE_WHITE_PAWN && dest_piece <= PIECE_WHITE_KING);
-            
-            if (is_opponent_piece) {
-                // Orange for opponent's pieces (capture)
-                led_set_pixel_safe(led_index, 255, 165, 0);
-            } else {
-                // Green for empty squares
-                led_set_pixel_safe(led_index, 0, 255, 0);
+    // Show possible moves (only if not in error recovery)
+    if (!game_is_error_recovery_active()) {
+        ESP_LOGI(TAG, "🔄 Showing possible moves from %s", cmd->from_notation);
+        
+        // Get valid moves for this piece
+        move_suggestion_t suggestions[64];
+        uint32_t valid_moves = game_get_available_moves(from_row, from_col, suggestions, 64);
+        
+        ESP_LOGI(TAG, "Found %lu valid moves for piece at %s", valid_moves, cmd->from_notation);
+        
+        // Send LED commands to highlight possible destinations
+        if (valid_moves > 0) {
+            for (uint32_t i = 0; i < valid_moves; i++) {
+                uint8_t dest_row = suggestions[i].to_row;
+                uint8_t dest_col = suggestions[i].to_col;
+                uint8_t led_index = chess_pos_to_led_index(dest_row, dest_col);
+                
+                // Check if destination has opponent's piece
+                piece_t dest_piece = board[dest_row][dest_col];
+                bool is_opponent_piece = (current_player == PLAYER_WHITE && dest_piece >= PIECE_BLACK_PAWN && dest_piece <= PIECE_BLACK_KING) ||
+                                       (current_player == PLAYER_BLACK && dest_piece >= PIECE_WHITE_PAWN && dest_piece <= PIECE_WHITE_KING);
+                
+                if (is_opponent_piece) {
+                    // Orange for opponent's pieces (capture)
+                    led_set_pixel_safe(led_index, 255, 165, 0);
+                } else {
+                    // Green for empty squares
+                    led_set_pixel_safe(led_index, 0, 255, 0);
+                }
             }
         }
+    } else {
+        ESP_LOGI(TAG, "🔄 Error recovery mode - piece lifted for return");
     }
     
     // Give FreeRTOS scheduler time to process LED commands
     vTaskDelay(pdMS_TO_TICKS(50));
     
     // Send success response
-    char success_msg[128];
-    snprintf(success_msg, sizeof(success_msg), "✅ Piece lifted from %s - %" PRIu32 " possible moves", 
-            cmd->from_notation, valid_moves);
+    char success_msg[256];
+    if (game_is_error_recovery_active()) {
+        snprintf(success_msg, sizeof(success_msg), "✅ Piece lifted for return to correct position");
+    } else {
+        snprintf(success_msg, sizeof(success_msg), "✅ Piece lifted from %s - ready to move", cmd->from_notation);
+    }
     game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
 }
 
@@ -2037,8 +2264,43 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     // Step 3: Clear only board LEDs and update game state
     led_clear_board_only();
     
-    // Step 3: Execute the actual move if we have a lifted piece
-    if (piece_lifted) {
+    // Handle different game states according to specification
+    if (current_game_state == GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
+        // Handle opponent piece return
+        if (to_row == invalid_move_backup.from_row && to_col == invalid_move_backup.from_col) {
+            // Correct position - clear error state
+            led_clear_board_only();
+            current_game_state = GAME_STATE_IDLE;
+            char success_msg[256];
+            snprintf(success_msg, sizeof(success_msg), "✅ Opponent's piece returned - ready to play");
+            game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        } else {
+            // Wrong position - show error
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to %c%d", 
+                    'a' + invalid_move_backup.from_col, invalid_move_backup.from_row + 1);
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            
+            // LED: blink red on correct position
+            led_clear_board_only();
+            for (int i = 0; i < 3; i++) {
+                led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
+                vTaskDelay(pdMS_TO_TICKS(200));
+                led_clear_board_only();
+                vTaskDelay(pdMS_TO_TICKS(200));
+            }
+        }
+        return;
+    }
+    
+    if (current_game_state == GAME_STATE_WAITING_PIECE_DROP) {
+        // Normal move handling
+        if (!piece_lifted) {
+            ESP_LOGE(TAG, "❌ No piece was lifted - use UP command first");
+            game_send_response_to_uart("❌ No piece was lifted - use UP command first", true, (QueueHandle_t)cmd->response_queue);
+            return;
+        }
+        
         // Create move structure
         chess_move_t move = {
             .from_row = lifted_piece_row,
@@ -2050,44 +2312,161 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             .timestamp = esp_timer_get_time() / 1000
         };
         
-        // Execute the move
+        // Check if this is a castling move (king moves 2 columns)
+        if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+            int col_diff = abs((int)to_col - (int)lifted_piece_col);
+            if (col_diff == 2) {
+                // This is a castling move - validate and start castling flow
+                bool is_kingside = (to_col == 6);
+                
+                // Validate castling requirements
+                bool can_castle = is_kingside ? game_can_castle_kingside(current_player) : game_can_castle_queenside(current_player);
+                
+                if (can_castle) {
+                    // Execute king move first
+                    if (game_execute_move(&move)) {
+                        // King move successful - start castling transaction
+                        if (game_start_castling_transaction(is_kingside)) {
+                            // Castling transaction started - wait for rook move
+                            piece_lifted = false;
+                            lifted_piece_row = 0;
+                            lifted_piece_col = 0;
+                            lifted_piece = PIECE_EMPTY;
+                            return;
+                        } else {
+                            // Castling transaction failed - handle as general error
+                            game_handle_general_error(MOVE_ERROR_INVALID_CASTLING, &move);
+                            return;
+                        }
+                    } else {
+                        // King move failed - handle as general error
+                        game_handle_general_error(MOVE_ERROR_INVALID_MOVE, &move);
+                        return;
+                    }
+                } else {
+                    // Castling not allowed - handle as general error
+                    game_handle_general_error(MOVE_ERROR_INVALID_CASTLING, &move);
+                    return;
+                }
+            }
+        }
+        
+        // Execute normal move
         if (game_execute_move(&move)) {
-            // Move successful - switch player
+            // Move successful
             player_t previous_player = current_player;
             current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
             move_count++;
             
+            // Reset error count on successful move
+            consecutive_error_count = 0;
+            
+            // Reset piece lifted state
+            piece_lifted = false;
+            lifted_piece_row = 0;
+            lifted_piece_col = 0;
+            lifted_piece = PIECE_EMPTY;
+            
             // Convert coordinates back to notation for display
             char from_notation[4];
-            convert_coords_to_notation(lifted_piece_row, lifted_piece_col, from_notation);
+            convert_coords_to_notation(move.from_row, move.from_col, from_notation);
             
             ESP_LOGI(TAG, "✅ Move executed successfully: %s -> %s", from_notation, cmd->to_notation);
             
-            // FIXED: Show player change animation
+            // Show player change animation
             game_show_player_change_animation(previous_player, current_player);
             
             // Send success response
-            char success_msg[128];
+            char success_msg[256];
             snprintf(success_msg, sizeof(success_msg), "✅ Move completed: %s -> %s", from_notation, cmd->to_notation);
             game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+            
+            // Reset lifted piece state
+            piece_lifted = false;
+            lifted_piece_row = 0;
+            lifted_piece_col = 0;
+            lifted_piece = PIECE_EMPTY;
+            
+            // Return to idle state
+            current_game_state = GAME_STATE_IDLE;
         } else {
-            // Move failed
-            char from_notation[4];
-            convert_coords_to_notation(lifted_piece_row, lifted_piece_col, from_notation);
-            ESP_LOGE(TAG, "❌ Move failed: %s -> %s", from_notation, cmd->to_notation);
-            game_send_response_to_uart("❌ Invalid move", true, (QueueHandle_t)cmd->response_queue);
+            // Move failed - handle as general error
+            game_handle_general_error(MOVE_ERROR_INVALID_MOVE, &move);
         }
-        
-        // Reset lifted piece state
-        piece_lifted = false;
-        lifted_piece_row = 0;
-        lifted_piece_col = 0;
-        lifted_piece = PIECE_EMPTY;
-    } else {
-        // No piece was lifted
-        ESP_LOGE(TAG, "❌ No piece was lifted - use UP command first");
-        game_send_response_to_uart("❌ No piece was lifted - use UP command first", true, (QueueHandle_t)cmd->response_queue);
+        return;
     }
+    
+    if (current_game_state == GAME_STATE_CASTLING_IN_PROGRESS) {
+        // Handle castling drop - must be rook move
+        if (lifted_piece == PIECE_WHITE_ROOK || lifted_piece == PIECE_BLACK_ROOK) {
+            if (game_handle_castling_rook_move(lifted_piece_row, lifted_piece_col, to_row, to_col)) {
+                // Castling completed successfully
+                piece_lifted = false;
+                lifted_piece_row = 0;
+                lifted_piece_col = 0;
+                lifted_piece = PIECE_EMPTY;
+                current_game_state = GAME_STATE_IDLE;
+            } else {
+                // Castling failed - handle as general error
+                chess_move_t error_move = {
+                    .from_row = lifted_piece_row,
+                    .from_col = lifted_piece_col,
+                    .to_row = to_row,
+                    .to_col = to_col,
+                    .piece = lifted_piece,
+                    .captured_piece = PIECE_EMPTY,
+                    .timestamp = esp_timer_get_time() / 1000
+                };
+                game_handle_general_error(MOVE_ERROR_INVALID_CASTLING, &error_move);
+            }
+        } else {
+            // Wrong piece during castling - handle as general error
+            chess_move_t error_move = {
+                .from_row = lifted_piece_row,
+                .from_col = lifted_piece_col,
+                .to_row = to_row,
+                .to_col = to_col,
+                .piece = lifted_piece,
+                .captured_piece = PIECE_EMPTY,
+                .timestamp = esp_timer_get_time() / 1000
+            };
+            game_handle_general_error(MOVE_ERROR_INVALID_CASTLING, &error_move);
+        }
+        return;
+    }
+    
+    if (current_game_state == GAME_STATE_ERROR_RECOVERY_GENERAL) {
+        // Handle general error recovery
+        if (to_row == invalid_move_backup.from_row && to_col == invalid_move_backup.from_col) {
+            // Correct position - clear error state
+            led_clear_board_only();
+            current_game_state = GAME_STATE_IDLE;
+            consecutive_error_count = 0;
+            char success_msg[256];
+            snprintf(success_msg, sizeof(success_msg), "✅ Piece returned to correct position - ready to play");
+            game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        } else {
+            // Wrong position - show error
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Return piece to %c%d", 
+                    'a' + invalid_move_backup.from_col, invalid_move_backup.from_row + 1);
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            
+            // LED: blink red on correct position
+            led_clear_board_only();
+            for (int i = 0; i < 3; i++) {
+                led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
+                vTaskDelay(pdMS_TO_TICKS(200));
+                led_clear_board_only();
+                vTaskDelay(pdMS_TO_TICKS(200));
+            }
+        }
+        return;
+    }
+    
+    // Invalid state
+    ESP_LOGE(TAG, "❌ Invalid drop command in state %d", current_game_state);
+    game_send_response_to_uart("❌ Invalid action in current game state", true, (QueueHandle_t)cmd->response_queue);
     
     // Step 4: Player change animation and highlighting is handled in game_show_player_change_animation
     // No need to call game_highlight_movable_pieces() here
@@ -2690,7 +3069,7 @@ void game_process_castle_command(const chess_move_command_t* cmd)
     bool is_queenside = (strcmp(cmd->to_notation, "queenside") == 0);
     
     if (!is_kingside && !is_queenside) {
-        char error_msg[1024];
+        char error_msg[256];
         snprintf(error_msg, sizeof(error_msg),
             "❌ Invalid castle direction: '%s'\n"
             "💡 Valid options: 'kingside' or 'queenside'\n"
@@ -2729,110 +3108,35 @@ void game_process_castle_command(const chess_move_command_t* cmd)
     }
     
     if (can_castle) {
-        // FIXED: Actually perform castling with LED animations
-        uint8_t king_row = (current_player == PLAYER_WHITE) ? 0 : 7;
-        uint8_t king_from_col = 4;
-        uint8_t king_to_col = is_kingside ? 6 : 2;
-        uint8_t rook_from_col = is_kingside ? 7 : 0;
-        uint8_t rook_to_col = is_kingside ? 5 : 3;
-        
-        // Get LED indices for animation
-        uint8_t king_from_led = chess_pos_to_led_index(king_row, king_from_col);
-        uint8_t king_to_led = chess_pos_to_led_index(king_row, king_to_col);
-        uint8_t rook_from_led = chess_pos_to_led_index(king_row, rook_from_col);
-        uint8_t rook_to_led = chess_pos_to_led_index(king_row, rook_to_col);
-        
-        // 1. Highlight king and rook positions (gold)
-        led_set_pixel_safe(king_from_led, 255, 215, 0); // Gold
-        led_set_pixel_safe(rook_from_led, 255, 215, 0); // Gold
-        vTaskDelay(pdMS_TO_TICKS(500));
-        
-        // 2. Show castling animation
-        led_command_t castle_cmd = {
-            .type = LED_CMD_ANIM_CASTLE,
-            .led_index = king_from_led,
-            .red = 255, .green = 215, .blue = 0, // Gold
-            .duration_ms = 1500,
-            .data = &king_to_led
-        };
-        led_execute_command_new(&castle_cmd);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        
-        // 3. Actually perform the castling move
-        piece_t king = board[king_row][king_from_col];
-        piece_t rook = board[king_row][rook_from_col];
-        
-        // Move king
-        board[king_row][king_from_col] = PIECE_EMPTY;
-        board[king_row][king_to_col] = king;
-        
-        // Move rook
-        board[king_row][rook_from_col] = PIECE_EMPTY;
-        board[king_row][rook_to_col] = rook;
-        
-        // Update castling flags
-        if (current_player == PLAYER_WHITE) {
-            white_king_moved = true;
-            if (is_kingside) white_rook_h_moved = true;
-            else white_rook_a_moved = true;
+        // Start castling transaction
+        if (game_start_castling_transaction(is_kingside)) {
+            char success_msg[256];
+            snprintf(success_msg, sizeof(success_msg),
+                "🏰 Castling started!\n"
+                "  • %s %s\n"
+                "  • Move king first, then rook",
+                current_player == PLAYER_WHITE ? "White" : "Black",
+                is_kingside ? "Kingside" : "Queenside"
+            );
+            game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
         } else {
-            black_king_moved = true;
-            if (is_kingside) black_rook_h_moved = true;
-            else black_rook_a_moved = true;
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg),
+                "❌ Failed to start castling!\n"
+                "  • Check king and rook positions\n"
+                "  • Ensure path is clear"
+            );
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
         }
-        
-        // 4. Highlight final positions (green)
-        led_set_pixel_safe(king_to_led, 0, 255, 0); // Green
-        led_set_pixel_safe(rook_to_led, 0, 255, 0); // Green
-        vTaskDelay(pdMS_TO_TICKS(500));
-        
-        // 5. Clear highlights
-        led_clear_board_only();
-        vTaskDelay(pdMS_TO_TICKS(200));
-        
-        char success_msg[256];
-        snprintf(success_msg, sizeof(success_msg),
-            "✅ Castling successful!\n"
-            "  • Move: %s\n"
-            "  • Player: %s\n"
-            "  • Type: %s\n"
-            "  • Notation: %s",
-            castle_notation,
-            current_player == PLAYER_WHITE ? "White" : "Black",
-            is_kingside ? "Kingside" : "Queenside",
-            castle_notation
-        );
-        game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
-        
-        // Switch player
-        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
     } else {
-        char error_msg[1024];
+        char error_msg[256];
         snprintf(error_msg, sizeof(error_msg),
             "❌ Castling not possible!\n"
-            "═══════════════════════════════════════════════════════════════\n"
-            "🎯 Player: %s\n"
-            "🎯 Attempted: %s castling\n"
-            "🎯 Notation: %s\n"
-            "\n"
-            "🚫 Possible reasons:\n"
-            "  • King has already moved\n"
-            "  • Rook has already moved\n"
-            "  • Path between king and rook is blocked\n"
-            "  • King is currently in check\n"
-            "  • King would pass through check\n"
-            "  • King would end up in check\n"
-            "\n"
-            "💡 Castling requirements:\n"
-            "  • King and rook must not have moved\n"
-            "  • No pieces between king and rook\n"
-            "  • King not in check\n"
-            "  • King doesn't pass through or into check\n"
-            "\n"
-            "🔍 Check current position with 'BOARD' command",
+            "  • Player: %s\n"
+            "  • Attempted: %s castling\n"
+            "  • Possible reasons: King/rook moved, path blocked, king in check",
             current_player == PLAYER_WHITE ? "White" : "Black",
-            is_kingside ? "Kingside" : "Queenside",
-            is_kingside ? "O-O" : "O-O-O"
+            is_kingside ? "Kingside" : "Queenside"
         );
         game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
     }
@@ -2851,7 +3155,7 @@ void game_process_promote_command(const chess_move_command_t* cmd)
     // Parse promotion square and piece
     uint8_t row, col;
     if (!convert_notation_to_coords(cmd->from_notation, &row, &col)) {
-        char error_msg[1024];
+        char error_msg[256];
         snprintf(error_msg, sizeof(error_msg),
             "❌ Invalid square notation: '%s'\n"
             "💡 Valid format: letter + number (e.g., 'e8', 'a1', 'h7')\n"
@@ -2870,7 +3174,7 @@ void game_process_promote_command(const chess_move_command_t* cmd)
     bool is_black_pawn = (current_piece == PIECE_BLACK_PAWN);
     
     if (!is_white_pawn && !is_black_pawn) {
-        char error_msg[1024];
+        char error_msg[256];
         const char* piece_name = "Unknown";
         if (current_piece != PIECE_EMPTY) {
             switch (current_piece) {
@@ -2891,21 +3195,10 @@ void game_process_promote_command(const chess_move_command_t* cmd)
         
         snprintf(error_msg, sizeof(error_msg),
             "❌ No pawn to promote at %s\n"
-            "═══════════════════════════════════════════════════════════════\n"
-            "🎯 Square: %s\n"
-            "🎯 Current piece: %s\n"
-            "\n"
-            "💡 Promotion requirements:\n"
-            "  • Must be a pawn (not %s)\n"
-            "  • Pawn must be on 8th rank (for White) or 1st rank (for Black)\n"
-            "  • Square must not be empty\n"
-            "\n"
-            "🔍 Check current position with 'BOARD' command\n"
-            "💡 Use 'MOVES pawn' to see all pawn positions",
+            "  • Current piece: %s\n"
+            "  • Must be a pawn on 8th/1st rank",
             cmd->from_notation,
-            cmd->from_notation,
-            current_piece == PIECE_EMPTY ? "Empty square" : piece_name,
-            current_piece == PIECE_EMPTY ? "empty" : "this piece"
+            current_piece == PIECE_EMPTY ? "Empty square" : piece_name
         );
         game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
         return;
@@ -2933,23 +3226,11 @@ void game_process_promote_command(const chess_move_command_t* cmd)
             piece_name = "Knight";
             break;
         default:
-            char error_msg[1024];
+            char error_msg[256];
             snprintf(error_msg, sizeof(error_msg),
                 "❌ Invalid promotion piece: '%s'\n"
-                "═══════════════════════════════════════════════════════════════\n"
-                "💡 Valid promotion pieces:\n"
-                "  • Q = Queen (most common)\n"
-                "  • R = Rook\n"
-                "  • B = Bishop\n"
-                "  • N = Knight\n"
-                "\n"
-                "💡 Examples:\n"
-                "  • PROMOTE e8=Q (promote to Queen)\n"
-                "  • PROMOTE a8=R (promote to Rook)\n"
-                "  • PROMOTE h8=B (promote to Bishop)\n"
-                "  • PROMOTE c8=N (promote to Knight)\n"
-                "\n"
-                "🎯 Note: Queen is the most powerful choice!",
+                "  • Valid: Q (Queen), R (Rook), B (Bishop), N (Knight)\n"
+                "  • Example: PROMOTE e8=Q",
                 cmd->to_notation
             );
             game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
@@ -3000,15 +3281,9 @@ void game_process_promote_command(const chess_move_command_t* cmd)
     char success_msg[256];
     snprintf(success_msg, sizeof(success_msg),
         "✅ Pawn promotion successful!\n"
-        "  • Square: %s\n"
-        "  • Promoted to: %s\n"
-        "  • Player: %s\n"
-        "  • Notation: %s=%s",
-        cmd->from_notation,
+        "  • %s at %s",
         piece_name,
-        current_player == PLAYER_WHITE ? "White" : "Black",
-        cmd->from_notation,
-        cmd->to_notation
+        cmd->from_notation
     );
     
     game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
@@ -3197,7 +3472,7 @@ void game_process_endgame_white_command(const chess_move_command_t* cmd)
     }
     
     // MEMORY OPTIMIZATION: Generate advantage graph to small buffer
-    char graph_buffer[256]; // Small stack buffer instead of malloc(1024)
+    char graph_buffer[128]; // Small stack buffer instead of malloc(1024)
     game_generate_advantage_graph(graph_buffer, sizeof(graph_buffer), game_duration, total_moves);
     
     // MEMORY OPTIMIZATION: Use streaming output instead of large buffer
@@ -3317,7 +3592,7 @@ void game_process_endgame_black_command(const chess_move_command_t* cmd)
     }
     
     // MEMORY OPTIMIZATION: Generate advantage graph to small buffer
-    char graph_buffer[256]; // Small stack buffer instead of malloc(1024)
+    char graph_buffer[128]; // Small stack buffer instead of malloc(1024)
     game_generate_advantage_graph(graph_buffer, sizeof(graph_buffer), game_duration, total_moves);
     
     // MEMORY OPTIMIZATION: Use streaming output instead of large buffer
@@ -3713,7 +3988,7 @@ void game_process_chess_move(const chess_move_command_t* cmd)
             game_show_player_change_animation(previous_player, current_player);
             
             // Send success response to UART
-            char success_msg[128];
+            char success_msg[256];
             snprintf(success_msg, sizeof(success_msg), "Move executed: %s -> %s", 
                     cmd->from_notation, cmd->to_notation);
             game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
@@ -3728,7 +4003,7 @@ void game_process_chess_move(const chess_move_command_t* cmd)
         game_display_move_error(error, &move);
         
         // Send error response to UART
-        char error_msg[128];
+        char error_msg[256];
         snprintf(error_msg, sizeof(error_msg), "Invalid move: %s -> %s (error: %d)", 
                 cmd->from_notation, cmd->to_notation, error);
         game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
@@ -3943,26 +4218,237 @@ void game_process_commands(void)
     }
 }
 
+// Error recovery variables are now declared globally above
+
 /**
- * @brief Handle invalid move - new error handling system
+ * @brief Start castling transaction
+ * @param is_kingside true for kingside, false for queenside
+ * @return true if castling transaction started successfully
+ */
+bool game_start_castling_transaction(bool is_kingside)
+{
+    if (castling_in_progress) {
+        ESP_LOGW(TAG, "❌ Castling already in progress");
+        return false;
+    }
+    
+    // King has already moved, now we need to set up rook move
+    uint8_t king_row = (current_player == PLAYER_WHITE) ? 0 : 7;
+    uint8_t king_col = is_kingside ? 6 : 2; // King is now at destination
+    uint8_t rook_col = is_kingside ? 7 : 0;
+    
+    // Check if rook is still in correct position
+    piece_t rook = board[king_row][rook_col];
+    bool valid_rook = (current_player == PLAYER_WHITE) ? (rook == PIECE_WHITE_ROOK) : (rook == PIECE_BLACK_ROOK);
+    
+    if (!valid_rook) {
+        ESP_LOGE(TAG, "❌ Invalid castling setup - rook not in position");
+        return false;
+    }
+    
+    // Start castling transaction
+    castling_in_progress = true;
+    castling_kingside = is_kingside;
+    castling_king_row = king_row;
+    castling_king_from_col = 4; // Original king position
+    castling_king_to_col = king_col; // Current king position
+    castling_rook_from_col = rook_col;
+    castling_rook_to_col = is_kingside ? 5 : 3;
+    castling_start_time = esp_timer_get_time() / 1000;
+    
+    // Set game state to castling in progress
+    current_game_state = GAME_STATE_CASTLING_IN_PROGRESS;
+    
+    ESP_LOGI(TAG, "🏰 Castling transaction started: %s %s", 
+             (current_player == PLAYER_WHITE) ? "White" : "Black",
+             is_kingside ? "kingside" : "queenside");
+    
+    // Highlight rook position for next move
+    led_clear_board_only();
+    led_set_pixel_safe(chess_pos_to_led_index(king_row, rook_col), 255, 215, 0); // Gold
+    led_set_pixel_safe(chess_pos_to_led_index(king_row, castling_rook_to_col), 0, 255, 0); // Green - target
+    
+    return true;
+}
+
+// King move is now handled in game_process_drop_command
+// This function is no longer needed
+
+/**
+ * @brief Handle rook move during castling
+ * @param from_row Rook's current row
+ * @param from_col Rook's current column
+ * @param to_row Rook's destination row
+ * @param to_col Rook's destination column
+ * @return true if castling completed successfully
+ */
+bool game_handle_castling_rook_move(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)
+{
+    if (!castling_in_progress) {
+        return false;
+    }
+    
+    // Check if this is the expected rook move
+    if (from_row != castling_king_row || from_col != castling_rook_from_col ||
+        to_row != castling_king_row || to_col != castling_rook_to_col) {
+        ESP_LOGW(TAG, "❌ Invalid rook move during castling - expected [%d,%d] -> [%d,%d]",
+                 castling_king_row, castling_rook_from_col, castling_king_row, castling_rook_to_col);
+        return false;
+    }
+    
+    // Move rook
+    piece_t rook = board[from_row][from_col];
+    board[from_row][from_col] = PIECE_EMPTY;
+    board[to_row][to_col] = rook;
+    
+    // Update castling flags
+    if (current_player == PLAYER_WHITE) {
+        if (castling_kingside) {
+            white_rook_h_moved = true;
+        } else {
+            white_rook_a_moved = true;
+        }
+    } else {
+        if (castling_kingside) {
+            black_rook_h_moved = true;
+        } else {
+            black_rook_a_moved = true;
+        }
+    }
+    
+    // Complete castling
+    castling_in_progress = false;
+    
+    // Reset error count on successful castling
+    consecutive_error_count = 0;
+    
+    // Set game state to idle
+    current_game_state = GAME_STATE_IDLE;
+    
+    ESP_LOGI(TAG, "🏰 Castling completed successfully!");
+    
+    // Show completion animation
+    led_clear_board_only();
+    led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_king_to_col), 0, 255, 0); // Green
+    led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_rook_to_col), 0, 255, 0); // Green
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    led_clear_board_only();
+    
+    // Switch player
+    current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    
+    // Send success message
+    char success_msg[256];
+    snprintf(success_msg, sizeof(success_msg), "🏰✅ Castling completed successfully!");
+    game_send_response_to_uart(success_msg, false, NULL);
+    
+    return true;
+}
+
+/**
+ * @brief Cancel castling transaction
+ */
+void game_cancel_castling_transaction(void)
+{
+    if (castling_in_progress) {
+        ESP_LOGW(TAG, "🏰 Cancelling castling transaction");
+        castling_in_progress = false;
+        
+        // Set game state to general error recovery
+        current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
+        
+        // Store king position for return
+        invalid_move_backup.from_row = castling_king_row;
+        invalid_move_backup.from_col = castling_king_from_col;
+        
+        // LED: red blink on king original position
+        led_clear_board_only();
+        for (int i = 0; i < 3; i++) {
+            led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_king_from_col), 255, 0, 0);
+            vTaskDelay(pdMS_TO_TICKS(200));
+            led_clear_board_only();
+            vTaskDelay(pdMS_TO_TICKS(200));
+        }
+        
+        // UART instruction
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg), "🏰❌ Castling cancelled - return king to %c%d", 
+                'a' + castling_king_from_col, castling_king_row + 1);
+        game_send_response_to_uart(error_msg, true, NULL);
+    }
+}
+
+/**
+ * @brief Check if castling is in progress
+ * @return true if castling is in progress
+ */
+bool game_is_castling_in_progress(void)
+{
+    return castling_in_progress;
+}
+
+/**
+ * @brief Check if castling timeout has expired
+ * @return true if timeout expired
+ */
+bool game_is_castling_timeout(void)
+{
+    if (!castling_in_progress) {
+        return false;
+    }
+    
+    uint32_t current_time = esp_timer_get_time() / 1000;
+    return (current_time - castling_start_time) > CASTLING_TIMEOUT_MS;
+}
+
+/**
+ * @brief Handle invalid move - enhanced error handling system
  * @param error Move error type
  * @param move Move that was attempted
  */
 void game_handle_invalid_move(move_error_t error, const chess_move_t* move)
 {
-    ESP_LOGI(TAG, "🚨 Invalid move detected - implementing new error handling");
+    ESP_LOGI(TAG, "🚨 Invalid move detected - implementing enhanced error handling");
     
-    // Set game state to error recovery
-    current_game_state = GAME_STATE_ERROR_RECOVERY;
+    // Increment error count
+    consecutive_error_count++;
+    ESP_LOGW(TAG, "❌ Error #%u of %u consecutive errors", (unsigned int)consecutive_error_count, (unsigned int)MAX_CONSECUTIVE_ERRORS);
+    
+    // Check if we've reached maximum errors
+    if (consecutive_error_count >= MAX_CONSECUTIVE_ERRORS) {
+        ESP_LOGE(TAG, "🚨 MAXIMUM ERRORS REACHED! Resetting game...");
+        
+        // Reset game completely
+        game_reset_game();
+        
+        // Clear error state
+        consecutive_error_count = 0;
+        error_recovery_active = false;
+        current_game_state = GAME_STATE_IDLE;
+        
+        // Send reset message
+        char reset_msg[128];
+        snprintf(reset_msg, sizeof(reset_msg),
+            "🚨 MAXIMUM ERRORS REACHED!\n"
+            "  • %u consecutive errors detected\n"
+            "  • Game has been reset\n"
+            "  • Starting fresh game",
+            (unsigned int)MAX_CONSECUTIVE_ERRORS
+        );
+        game_send_response_to_uart(reset_msg, true, NULL);
+        return;
+    }
+    
+    // Set game state to general error recovery
+    current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
+    error_recovery_active = true;
+    error_recovery_start_time = esp_timer_get_time() / 1000;
     
     // Store the invalid move for recovery
-    static chess_move_t invalid_move;
-    invalid_move = *move;
-    
-    // ENHANCED ERROR HANDLING: Multi-step recovery process
-    ESP_LOGI(TAG, "🔴 Step 1: Highlighting invalid destination");
+    invalid_move_backup = *move;
     
     // Step 1: Highlight invalid destination with pulsing red
+    ESP_LOGI(TAG, "🔴 Step 1: Highlighting invalid destination");
     for (int pulse = 0; pulse < 6; pulse++) {
         led_clear_board_only();
         float brightness = 0.4f + 0.6f * sin(pulse * 1.57f);
@@ -3971,28 +4457,210 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t* move)
         vTaskDelay(pdMS_TO_TICKS(250));
     }
     
-    ESP_LOGI(TAG, "🟡 Step 2: Forcing piece return to original position");
-    
-    // Step 2: Force user to return piece to original position (pulsing yellow)
-    for (int pulse = 0; pulse < 8; pulse++) {
-        // ✅ CRITICAL: DO NOT clear board - keep pulsing yellow LEDs on
-        // led_clear_board_only(); // REMOVED - LEDs must stay on to force user to return piece
-        float brightness = 0.5f + 0.5f * sin(pulse * 1.26f);
-        led_set_pixel_safe(chess_pos_to_led_index(move->from_row, move->from_col), 
-                          (uint8_t)(255 * brightness), (uint8_t)(255 * brightness), 0); // Pulsing yellow
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-    
-    ESP_LOGI(TAG, "🟢 Step 3: Waiting for piece return - DO NOT clear LEDs");
-    
-    // Step 3: Keep LEDs on to force piece return - DO NOT clear board
-    // The pulsing yellow LED should remain visible until piece is returned
-    
-    // Display error message
+    // Step 2: Show error message with error count
     game_display_move_error(error, move);
+    
+    // Show error count information
+    char error_count_msg[256];
+    snprintf(error_count_msg, sizeof(error_count_msg),
+        "❌ Error #%u of %u consecutive errors\n"
+        "  • Return piece to highlighted position to continue\n"
+        "  • Game will reset after %u errors",
+        (unsigned int)consecutive_error_count, (unsigned int)MAX_CONSECUTIVE_ERRORS, (unsigned int)MAX_CONSECUTIVE_ERRORS
+    );
+    game_send_response_to_uart(error_count_msg, true, NULL);
+    
+    // Step 3: Highlight source position for piece return
+    ESP_LOGI(TAG, "🟡 Step 2: Highlighting source position for piece return");
+    led_clear_board_only();
+    led_set_pixel_safe(chess_pos_to_led_index(move->from_row, move->from_col), 
+                      255, 255, 0); // Solid yellow
     
     ESP_LOGI(TAG, "💡 User must return piece to [%d,%d] and try again", 
              move->from_row, move->from_col);
+}
+
+/**
+ * @brief Check if error recovery is active
+ * @return true if error recovery is active
+ */
+bool game_is_error_recovery_active(void)
+{
+    return error_recovery_active;
+}
+
+/**
+ * @brief Handle piece return during error recovery
+ * @param row Row where piece was returned
+ * @param col Column where piece was returned
+ * @return true if piece was returned to correct position
+ */
+bool game_handle_piece_return(uint8_t row, uint8_t col)
+{
+    if (!error_recovery_active) {
+        return false;
+    }
+    
+    // Check if piece was returned to correct position
+    if (row == invalid_move_backup.from_row && col == invalid_move_backup.from_col) {
+        ESP_LOGI(TAG, "✅ Piece returned to correct position - clearing error state");
+        
+        // Clear error recovery state
+        error_recovery_active = false;
+        current_game_state = GAME_STATE_IDLE;
+        
+        // Reset error count on successful recovery
+        consecutive_error_count = 0;
+        ESP_LOGI(TAG, "✅ Error count reset to 0");
+        
+        // Clear LEDs
+        led_clear_board_only();
+        
+        // Reset lifted piece state
+        piece_lifted = false;
+        lifted_piece_row = 0;
+        lifted_piece_col = 0;
+        lifted_piece = PIECE_EMPTY;
+        
+        return true;
+    } else {
+        ESP_LOGW(TAG, "❌ Piece returned to wrong position [%d,%d], expected [%d,%d]", 
+                 row, col, invalid_move_backup.from_row, invalid_move_backup.from_col);
+        
+        // Show error - wrong position
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red - wrong position
+        led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 
+                          255, 255, 0); // Yellow - correct position
+        
+        return false;
+    }
+}
+
+/**
+ * @brief Check if error recovery timeout has expired
+ * @return true if timeout expired
+ */
+bool game_is_error_recovery_timeout(void)
+{
+    if (!error_recovery_active) {
+        return false;
+    }
+    
+    uint32_t current_time = esp_timer_get_time() / 1000;
+    return (current_time - error_recovery_start_time) > ERROR_RECOVERY_TIMEOUT_MS;
+}
+
+/**
+ * @brief Force clear error recovery state
+ */
+void game_clear_error_recovery(void)
+{
+    if (error_recovery_active) {
+        ESP_LOGI(TAG, "🔄 Clearing error recovery state");
+        error_recovery_active = false;
+        current_game_state = GAME_STATE_IDLE;
+        
+        // Reset error count
+        consecutive_error_count = 0;
+        ESP_LOGI(TAG, "✅ Error count reset to 0");
+        
+        led_clear_board_only();
+        
+        // Reset lifted piece state
+        piece_lifted = false;
+        lifted_piece_row = 0;
+        lifted_piece_col = 0;
+        lifted_piece = PIECE_EMPTY;
+    }
+}
+
+/**
+ * @brief Get current error count
+ * @return Current consecutive error count
+ */
+uint32_t game_get_error_count(void)
+{
+    return consecutive_error_count;
+}
+
+/**
+ * @brief Handle general error (invalid move, etc.)
+ * @param error Error type
+ * @param move Move that caused the error
+ */
+void game_handle_general_error(move_error_t error, const chess_move_t* move)
+{
+    ESP_LOGI(TAG, "🚨 General error detected - implementing enhanced error handling");
+    
+    // Increment error count
+    consecutive_error_count++;
+    ESP_LOGW(TAG, "❌ Error #%u of %u consecutive errors", (unsigned int)consecutive_error_count, (unsigned int)MAX_CONSECUTIVE_ERRORS);
+    
+    // Check if we've reached maximum errors
+    if (consecutive_error_count >= MAX_CONSECUTIVE_ERRORS) {
+        ESP_LOGE(TAG, "🚨 MAXIMUM ERRORS REACHED! Resetting game...");
+        
+        // Reset game completely
+        game_reset_game();
+        
+        // Clear error state
+        consecutive_error_count = 0;
+        current_game_state = GAME_STATE_IDLE;
+        
+        // Send reset message
+        char reset_msg[128];
+        snprintf(reset_msg, sizeof(reset_msg),
+            "🚨 MAXIMUM ERRORS REACHED!\n"
+            "  • %u consecutive errors detected\n"
+            "  • Game has been reset\n"
+            "  • Starting fresh game",
+            (unsigned int)MAX_CONSECUTIVE_ERRORS
+        );
+        game_send_response_to_uart(reset_msg, true, NULL);
+        return;
+    }
+    
+    // Set game state to general error recovery
+    current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
+    
+    // Store the invalid move for recovery
+    invalid_move_backup = *move;
+    
+    // Step 1: Highlight invalid destination with pulsing red
+    ESP_LOGI(TAG, "🔴 Step 1: Highlighting invalid destination");
+    for (int pulse = 0; pulse < 6; pulse++) {
+        led_clear_board_only();
+        float brightness = 0.4f + 0.6f * sin(pulse * 1.57f);
+        led_set_pixel_safe(chess_pos_to_led_index(move->to_row, move->to_col), 
+                          (uint8_t)(255 * brightness), 0, 0); // Pulsing red
+        vTaskDelay(pdMS_TO_TICKS(250));
+    }
+    
+    // Step 2: Show error message with error count
+    game_display_move_error(error, move);
+    
+    // Show error count information
+    char error_count_msg[256];
+    snprintf(error_count_msg, sizeof(error_count_msg),
+        "❌ Error #%u of %u consecutive errors\n"
+        "  • Return piece to highlighted position to continue\n"
+        "  • Game will reset after %u errors",
+        (unsigned int)consecutive_error_count, (unsigned int)MAX_CONSECUTIVE_ERRORS, (unsigned int)MAX_CONSECUTIVE_ERRORS
+    );
+    game_send_response_to_uart(error_count_msg, true, NULL);
+    
+    // Step 3: Highlight source position for piece return
+    ESP_LOGI(TAG, "🟡 Step 3: Highlighting source position for piece return");
+    led_clear_board_only();
+    led_set_pixel_safe(chess_pos_to_led_index(move->from_row, move->from_col), 
+                      255, 255, 0); // Solid yellow
+    
+    // Keep piece lifted for return
+    piece_lifted = true;
+    lifted_piece_row = move->from_row;
+    lifted_piece_col = move->from_col;
+    lifted_piece = move->piece;
 }
 
 /**
@@ -4096,17 +4764,15 @@ void game_process_move_command(const void* move_cmd_ptr)
     // Switch player
     current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
     
-    // Add to move history
-    if (history_index < MAX_MOVES_HISTORY) {
-        move_history[history_index].from_row = move_cmd->from_row;
-        move_history[history_index].from_col = move_cmd->from_col;
-        move_history[history_index].to_row = move_cmd->to_row;
-        move_history[history_index].to_col = move_cmd->to_col;
-        move_history[history_index].piece = from_piece;
-        move_history[history_index].captured_piece = to_piece;
-        move_history[history_index].timestamp = last_move_time;
-        history_index++;
-    }
+    // Store last valid move
+    last_valid_move.from_row = move_cmd->from_row;
+    last_valid_move.from_col = move_cmd->from_col;
+    last_valid_move.to_row = move_cmd->to_row;
+    last_valid_move.to_col = move_cmd->to_col;
+    last_valid_move.piece = from_piece;
+    last_valid_move.captured_piece = to_piece;
+    last_valid_move.timestamp = last_move_time;
+    has_last_valid_move = true;
     
     // Track last move for board display
     last_move_from_row = move_cmd->from_row;
@@ -4119,16 +4785,10 @@ void game_process_move_command(const void* move_cmd_ptr)
     if (to_piece != PIECE_EMPTY) {
         if (current_player == PLAYER_WHITE) {
             // Black piece was captured by white
-            if (black_captured_index < 16) {
-                black_captured_pieces[black_captured_index++] = to_piece;
-                black_captured_count++;
-            }
+            black_captured_count++;
         } else {
             // White piece was captured by black
-            if (white_captured_index < 16) {
-                white_captured_pieces[white_captured_index++] = to_piece;
-                white_captured_count++;
-            }
+            white_captured_count++;
         }
         moves_without_capture = 0; // Reset counter on capture
     } else {
@@ -4332,88 +4992,106 @@ void game_show_player_change_animation(player_t previous_player, player_t curren
         }
     }
     
-    // ENHANCED: Ultra-smooth player change animation with harmonious colors
-    for (int step = 0; step < 8; step++) { // Reduced steps for speed
-        float progress = (float)step / 7.0f;
+    // ENHANCED: Ultra-smooth player change animation with advanced brightness control
+    for (int step = 0; step < 20; step++) { // More steps for ultra-smoothness
+        float progress = (float)step / 19.0f;
         
         // Clear board first
         led_clear_board_only();
         
-        // Animate all columns at once with ultra-smooth trail effect
+        // Animate all columns at once with enhanced trail effect
         for (int col = 0; col < 8; col++) {
             if (prev_pieces[col] != -1 && curr_pieces[col] != -1) {
-                // Create ultra-smooth trail effect - show multiple points along the path
-                for (int trail = 0; trail < 5; trail++) {
-                    float trail_progress = progress - (trail * 0.12f);
+                // Create enhanced trail effect with more trail points
+                for (int trail = 0; trail < 8; trail++) {
+                    float trail_progress = progress - (trail * 0.06f);
                     if (trail_progress < 0) continue;
                     if (trail_progress > 1) break;
                     
-                    // Calculate intermediate position with smooth easing
-                    float eased_progress = trail_progress * trail_progress * (3.0f - 2.0f * trail_progress); // Smooth step
+                    // Calculate intermediate position with advanced easing
+                    float eased_progress = trail_progress * trail_progress * trail_progress * (trail_progress * (trail_progress * 6.0f - 15.0f) + 10.0f); // Smooth step 5
                     int inter_row = prev_pieces[col] + (curr_pieces[col] - prev_pieces[col]) * eased_progress;
                     int inter_col = col;
                     uint8_t inter_led = chess_pos_to_led_index(inter_row, inter_col);
                     
-                    // Harmonious color transition: Deep Blue -> Purple -> Magenta -> Pink -> Gold -> Yellow
+                    // Enhanced harmonious color transition with more phases
                     uint8_t red, green, blue;
-                    if (trail_progress < 0.16f) {
-                        // Deep Blue to Purple
-                        float local_progress = trail_progress / 0.16f;
-                        red = (uint8_t)(128 * local_progress);
+                    if (trail_progress < 0.125f) {
+                        // Phase 1: Deep Blue to Royal Blue
+                        float local_progress = trail_progress / 0.125f;
+                        red = (uint8_t)(100 * local_progress);
                         green = 0;
                         blue = 255;
-                    } else if (trail_progress < 0.33f) {
-                        // Purple to Magenta
-                        float local_progress = (trail_progress - 0.16f) / 0.17f;
-                        red = 128 + (uint8_t)(127 * local_progress);
+                    } else if (trail_progress < 0.25f) {
+                        // Phase 2: Royal Blue to Purple
+                        float local_progress = (trail_progress - 0.125f) / 0.125f;
+                        red = 100 + (uint8_t)(155 * local_progress);
+                        green = 0;
+                        blue = 255;
+                    } else if (trail_progress < 0.375f) {
+                        // Phase 3: Purple to Magenta
+                        red = 255;
                         green = 0;
                         blue = 255;
                     } else if (trail_progress < 0.5f) {
-                        // Magenta to Pink
-                        float local_progress = (trail_progress - 0.33f) / 0.17f;
+                        // Phase 4: Magenta to Pink
+                        float local_progress = (trail_progress - 0.375f) / 0.125f;
                         red = 255;
-                        green = (uint8_t)(128 * local_progress);
-                        blue = 255 - (uint8_t)(128 * local_progress);
-                    } else if (trail_progress < 0.66f) {
-                        // Pink to Gold
-                        float local_progress = (trail_progress - 0.5f) / 0.16f;
+                        green = (uint8_t)(100 * local_progress);
+                        blue = 255 - (uint8_t)(100 * local_progress);
+                    } else if (trail_progress < 0.625f) {
+                        // Phase 5: Pink to Coral
+                        float local_progress = (trail_progress - 0.5f) / 0.125f;
                         red = 255;
-                        green = 128 + (uint8_t)(127 * local_progress);
-                        blue = 127 - (uint8_t)(127 * local_progress);
-                    } else if (trail_progress < 0.83f) {
-                        // Gold to Yellow
+                        green = 100 + (uint8_t)(100 * local_progress);
+                        blue = 155 - (uint8_t)(100 * local_progress);
+                    } else if (trail_progress < 0.75f) {
+                        // Phase 6: Coral to Orange
+                        float local_progress = (trail_progress - 0.625f) / 0.125f;
+                        red = 255;
+                        green = 200 + (uint8_t)(55 * local_progress);
+                        blue = 55 - (uint8_t)(55 * local_progress);
+                    } else if (trail_progress < 0.875f) {
+                        // Phase 7: Orange to Gold
+                        float local_progress = (trail_progress - 0.75f) / 0.125f;
                         red = 255;
                         green = 255;
-                        blue = 0;
+                        blue = (uint8_t)(40 * (1.0f - local_progress));
                     } else {
-                        // Yellow to Bright White
-                        float local_progress = (trail_progress - 0.83f) / 0.17f;
+                        // Phase 8: Gold to Bright White
+                        float local_progress = (trail_progress - 0.875f) / 0.125f;
                         red = 255;
                         green = 255;
-                        blue = (uint8_t)(255 * local_progress);
+                        blue = 40 + (uint8_t)(215 * local_progress);
                     }
                     
-                    // Enhanced trail brightness effect - smoother gradient
-                    float trail_brightness = 1.0f - (trail * 0.18f);
-                    red = (uint8_t)(red * trail_brightness);
-                    green = (uint8_t)(green * trail_brightness);
-                    blue = (uint8_t)(blue * trail_brightness);
+                    // Advanced trail brightness with exponential fade and gamma correction
+                    float trail_brightness = powf(1.0f - (trail * 0.12f), 2.2f); // Gamma correction for better visual perception
                     
-                    // Enhanced pulsing effect with multiple harmonics
-                    float pulse1 = 0.7f + 0.3f * sin(progress * 6.28f + trail * 1.26f);
-                    float pulse2 = 0.9f + 0.1f * sin(progress * 12.56f + trail * 2.51f);
-                    float combined_pulse = pulse1 * pulse2;
+                    // Multi-layered pulsing effect with different frequencies
+                    float pulse1 = 0.5f + 0.5f * sin(progress * 12.56f + trail * 1.26f); // Main pulse
+                    float pulse2 = 0.8f + 0.2f * sin(progress * 25.12f + trail * 2.51f); // Secondary pulse
+                    float pulse3 = 0.9f + 0.1f * sin(progress * 50.24f + trail * 3.77f); // Fine detail pulse
+                    float pulse4 = 0.95f + 0.05f * sin(progress * 100.48f + trail * 5.03f); // Micro pulse
+                    float combined_pulse = pulse1 * pulse2 * pulse3 * pulse4;
                     
-                    red = (uint8_t)(red * combined_pulse);
-                    green = (uint8_t)(green * combined_pulse);
-                    blue = (uint8_t)(blue * combined_pulse);
+                    // Apply brightness and pulsing with saturation boost
+                    float saturation_boost = 1.0f + 0.2f * sin(progress * 6.28f); // Subtle saturation variation
+                    red = (uint8_t)(red * trail_brightness * combined_pulse * saturation_boost);
+                    green = (uint8_t)(green * trail_brightness * combined_pulse * saturation_boost);
+                    blue = (uint8_t)(blue * trail_brightness * combined_pulse * saturation_boost);
+                    
+                    // Clamp values to valid range
+                    red = (red > 255) ? 255 : red;
+                    green = (green > 255) ? 255 : green;
+                    blue = (blue > 255) ? 255 : blue;
                     
                     led_set_pixel_safe(inter_led, red, green, blue);
                 }
             }
         }
         
-        vTaskDelay(pdMS_TO_TICKS(25)); // Faster animation - half the time
+        vTaskDelay(pdMS_TO_TICKS(12)); // Optimized timing: 20 steps × 12ms = 240ms total for better responsiveness
     }
     
     // Clear board after animation
@@ -4955,27 +5633,15 @@ void game_export_pgn(char* pgn_buffer, size_t buffer_size)
                        "[Result \"*\"]\n\n",
                        "2025-01-01"); // TODO: Get actual date
     
-    // Add moves
-    for (uint32_t i = 0; i < history_index && pos < buffer_size - 50; i++) {
-        const chess_move_t* move = &move_history[i];
+    // Add last move if available
+    if (has_last_valid_move && pos < buffer_size - 50) {
+        const chess_move_t* move = &last_valid_move;
         char from_square[4], to_square[4];
         game_coords_to_square(move->from_row, move->from_col, from_square);
         game_coords_to_square(move->to_row, move->to_col, to_square);
         
-        if (i % 2 == 0) {
-            // White move
-            pos += snprintf(pgn_buffer + pos, buffer_size - pos, "%" PRIu32 ". %s%s", 
-                           (i / 2) + 1, from_square, to_square);
-        } else {
-            // Black move
-            pos += snprintf(pgn_buffer + pos, buffer_size - pos, " %s%s ", 
-                           from_square, to_square);
-        }
-        
-        // Add newline every 10 moves
-        if ((i + 1) % 20 == 0) {
-            pos += snprintf(pgn_buffer + pos, buffer_size - pos, "\n");
-        }
+        // Add move notation
+        pos += snprintf(pgn_buffer + pos, buffer_size - pos, "1. %s%s", from_square, to_square);
     }
     
     // Add result
@@ -5070,6 +5736,18 @@ void game_task_start(void *pvParameters)
         // Process matrix events (moves)
         game_process_matrix_events();
         
+        // Check for error recovery timeout
+        if (game_is_error_recovery_active() && game_is_error_recovery_timeout()) {
+            ESP_LOGW(TAG, "⏰ Error recovery timeout - clearing error state");
+            game_clear_error_recovery();
+        }
+        
+        // Check for castling timeout
+        if (game_is_castling_in_progress() && game_is_castling_timeout()) {
+            ESP_LOGW(TAG, "⏰ Castling timeout - cancelling castling transaction");
+            game_cancel_castling_transaction();
+        }
+        
         // Periodic status update
         if (loop_count % 5000 == 0) { // Every 5 seconds
             ESP_LOGI(TAG, "Game Task Status: loop=%d, state=%d, player=%d, moves=%lu", 
@@ -5148,9 +5826,9 @@ static const int8_t rook_dirs[4][2] = {
 
 // Lifted piece state tracking (already defined above)
 
-// Move generation buffers
-static chess_move_extended_t legal_moves_buffer[128];
-static uint32_t legal_moves_count = 0;
+// Minimal move generation - only when needed
+static chess_move_extended_t temp_moves_buffer[16];  // Only for current move validation
+static uint32_t temp_moves_count = 0;
 
 // Game position history for draw detection (declared earlier in the file)
 // static uint32_t position_hashes[100];
@@ -5340,9 +6018,9 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col, player_t playe
         if (to_row == promotion_row) {
             // Promotion moves
             for (int promo = PROMOTION_QUEEN; promo <= PROMOTION_KNIGHT; promo++) {
-                if (legal_moves_count >= 128) return;
+                if (temp_moves_count >= 16) return;
                 
-                chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+                chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
                 move->from_row = from_row;
                 move->from_col = from_col;
                 move->to_row = to_row;
@@ -5353,14 +6031,14 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col, player_t playe
                 move->promotion_piece = (promotion_choice_t)promo;
                 
                 if (game_simulate_move_check(move, player)) {
-                    legal_moves_count++;
+                    temp_moves_count++;
                 }
             }
         } else {
             // Normal forward move
-            if (legal_moves_count >= 128) return;
+            if (temp_moves_count >= 16) return;
             
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+            chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
             move->from_row = from_row;
             move->from_col = from_col;
             move->to_row = to_row;
@@ -5370,14 +6048,14 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col, player_t playe
             move->move_type = MOVE_TYPE_NORMAL;
             
             if (game_simulate_move_check(move, player)) {
-                legal_moves_count++;
+                temp_moves_count++;
             }
             
             // Double move from starting position
             if (from_row == start_row && board[to_row + direction][from_col] == PIECE_EMPTY) {
-                if (legal_moves_count >= 128) return;
+                if (temp_moves_count >= 16) return;
                 
-                move = &legal_moves_buffer[legal_moves_count];
+                move = &temp_moves_buffer[temp_moves_count];
                 move->from_row = from_row;
                 move->from_col = from_col;
                 move->to_row = to_row + direction;
@@ -5387,7 +6065,7 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col, player_t playe
                 move->move_type = MOVE_TYPE_NORMAL;
                 
                 if (game_simulate_move_check(move, player)) {
-                    legal_moves_count++;
+                    temp_moves_count++;
                 }
             }
         }
@@ -5403,9 +6081,9 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col, player_t playe
                 if (to_row == promotion_row) {
                     // Capture with promotion
                     for (int promo = PROMOTION_QUEEN; promo <= PROMOTION_KNIGHT; promo++) {
-                        if (legal_moves_count >= 128) return;
+                        if (temp_moves_count >= 16) return;
                         
-                        chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+                        chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
                         move->from_row = from_row;
                         move->from_col = from_col;
                         move->to_row = to_row;
@@ -5416,14 +6094,14 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col, player_t playe
                         move->promotion_piece = (promotion_choice_t)promo;
                         
                         if (game_simulate_move_check(move, player)) {
-                            legal_moves_count++;
+                            temp_moves_count++;
                         }
                     }
                 } else {
                     // Normal capture
-                    if (legal_moves_count >= 128) return;
+                    if (temp_moves_count >= 16) return;
                     
-                    chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+                    chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
                     move->from_row = from_row;
                     move->from_col = from_col;
                     move->to_row = to_row;
@@ -5433,7 +6111,7 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col, player_t playe
                     move->move_type = MOVE_TYPE_CAPTURE;
                     
                     if (game_simulate_move_check(move, player)) {
-                        legal_moves_count++;
+                        temp_moves_count++;
                     }
                 }
             }
@@ -5444,9 +6122,9 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col, player_t playe
     if (en_passant_available && from_row == (is_white ? 4 : 3)) {
         for (int dc = -1; dc <= 1; dc += 2) {
             if (from_col + dc == en_passant_target_col) {
-                if (legal_moves_count >= 128) return;
+                if (temp_moves_count >= 16) return;
                 
-                chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+                chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
                 move->from_row = from_row;
                 move->from_col = from_col;
                 move->to_row = en_passant_target_row;
@@ -5456,7 +6134,7 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col, player_t playe
                 move->move_type = MOVE_TYPE_EN_PASSANT;
                 
                 if (game_simulate_move_check(move, player)) {
-                    legal_moves_count++;
+                    temp_moves_count++;
                 }
             }
         }
@@ -5480,9 +6158,9 @@ void game_generate_knight_moves(uint8_t from_row, uint8_t from_col, player_t pla
         // Skip if occupied by own piece
         if (game_is_own_piece(target, player)) continue;
         
-        if (legal_moves_count >= 128) return;
+        if (temp_moves_count >= 16) return;
         
-        chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+        chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
         move->from_row = from_row;
         move->from_col = from_col;
         move->to_row = to_row;
@@ -5492,7 +6170,7 @@ void game_generate_knight_moves(uint8_t from_row, uint8_t from_col, player_t pla
         move->move_type = (target == PIECE_EMPTY) ? MOVE_TYPE_NORMAL : MOVE_TYPE_CAPTURE;
         
         if (game_simulate_move_check(move, player)) {
-            legal_moves_count++;
+            temp_moves_count++;
         }
     }
 }
@@ -5517,9 +6195,9 @@ void game_generate_sliding_moves(uint8_t from_row, uint8_t from_col, player_t pl
             // Can't move to square occupied by own piece
             if (game_is_own_piece(target, player)) break;
             
-            if (legal_moves_count >= 128) return;
+            if (temp_moves_count >= 16) return;
             
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+            chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
             move->from_row = from_row;
             move->from_col = from_col;
             move->to_row = to_row;
@@ -5529,7 +6207,7 @@ void game_generate_sliding_moves(uint8_t from_row, uint8_t from_col, player_t pl
             move->move_type = (target == PIECE_EMPTY) ? MOVE_TYPE_NORMAL : MOVE_TYPE_CAPTURE;
             
             if (game_simulate_move_check(move, player)) {
-                legal_moves_count++;
+                temp_moves_count++;
             }
             
             // Stop if we hit any piece
@@ -5556,9 +6234,9 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
         // Skip if occupied by own piece
         if (game_is_own_piece(target, player)) continue;
         
-        if (legal_moves_count >= 128) return;
+        if (temp_moves_count >= 16) return;
         
-        chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+        chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
         move->from_row = from_row;
         move->from_col = from_col;
         move->to_row = to_row;
@@ -5568,7 +6246,7 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
         move->move_type = (target == PIECE_EMPTY) ? MOVE_TYPE_NORMAL : MOVE_TYPE_CAPTURE;
         
         if (game_simulate_move_check(move, player)) {
-            legal_moves_count++;
+            temp_moves_count++;
         }
     }
     
@@ -5582,9 +6260,9 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
             !game_is_square_attacked(0, 5, PLAYER_BLACK) &&
             !game_is_square_attacked(0, 6, PLAYER_BLACK)) {
             
-            if (legal_moves_count >= 128) return; // FIXED: Proper bounds checking
+            if (temp_moves_count >= 16) return; // FIXED: Proper bounds checking
             
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+            chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
             move->from_row = from_row; // FIXED: Use actual king position
             move->from_col = from_col;
             move->to_row = 0;
@@ -5592,7 +6270,7 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
             move->piece = king;
             move->captured_piece = PIECE_EMPTY;
             move->move_type = MOVE_TYPE_CASTLE_KING;
-            legal_moves_count++;
+            temp_moves_count++;
         }
         
         // White queenside castling
@@ -5601,9 +6279,9 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
             !game_is_square_attacked(0, 2, PLAYER_BLACK) &&
             !game_is_square_attacked(0, 3, PLAYER_BLACK)) {
             
-            if (legal_moves_count >= 128) return; // FIXED: Proper bounds checking
+            if (temp_moves_count >= 16) return; // FIXED: Proper bounds checking
             
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+            chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
             move->from_row = from_row; // FIXED: Use actual king position
             move->from_col = from_col;
             move->to_row = 0;
@@ -5611,7 +6289,7 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
             move->piece = king;
             move->captured_piece = PIECE_EMPTY;
             move->move_type = MOVE_TYPE_CASTLE_QUEEN;
-            legal_moves_count++;
+            temp_moves_count++;
         }
     }
     
@@ -5622,9 +6300,9 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
             !game_is_square_attacked(7, 5, PLAYER_WHITE) &&
             !game_is_square_attacked(7, 6, PLAYER_WHITE)) {
             
-            if (legal_moves_count >= 128) return; // FIXED: Proper bounds checking
+            if (temp_moves_count >= 16) return; // FIXED: Proper bounds checking
             
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+            chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
             move->from_row = from_row; // FIXED: Use actual king position
             move->from_col = from_col;
             move->to_row = 7;
@@ -5632,7 +6310,7 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
             move->piece = king;
             move->captured_piece = PIECE_EMPTY;
             move->move_type = MOVE_TYPE_CASTLE_KING;
-            legal_moves_count++;
+            temp_moves_count++;
         }
         
         // Black queenside castling
@@ -5641,9 +6319,9 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
             !game_is_square_attacked(7, 2, PLAYER_WHITE) &&
             !game_is_square_attacked(7, 3, PLAYER_WHITE)) {
             
-            if (legal_moves_count >= 128) return; // FIXED: Proper bounds checking
+            if (temp_moves_count >= 16) return; // FIXED: Proper bounds checking
             
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+            chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
             move->from_row = from_row; // FIXED: Use actual king position
             move->from_col = from_col;
             move->to_row = 7;
@@ -5651,7 +6329,7 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
             move->piece = king;
             move->captured_piece = PIECE_EMPTY;
             move->move_type = MOVE_TYPE_CASTLE_QUEEN;
-            legal_moves_count++;
+            temp_moves_count++;
         }
     }
 }
@@ -5664,7 +6342,7 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col, player_t playe
  * @brief Generate all legal moves for current player
  */
 uint32_t game_generate_legal_moves(player_t player) {
-    legal_moves_count = 0;
+    temp_moves_count = 0;
     
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
@@ -5710,7 +6388,7 @@ uint32_t game_generate_legal_moves(player_t player) {
         }
     }
     
-    return legal_moves_count;
+    return temp_moves_count;
 }
 
 // ============================================================================
@@ -5986,7 +6664,7 @@ move_error_t game_validate_move_enhanced(uint8_t from_row, uint8_t from_col,
     uint32_t num_legal = game_generate_legal_moves(current_player);
     
     for (uint32_t i = 0; i < num_legal; i++) {
-        chess_move_extended_t* move = &legal_moves_buffer[i];
+        chess_move_extended_t* move = &temp_moves_buffer[i];
         if (move->from_row == from_row && move->from_col == from_col &&
             move->to_row == to_row && move->to_col == to_col) {
             return MOVE_ERROR_NONE; // Move is legal
@@ -6053,7 +6731,8 @@ void game_initialize_board_enhanced(void) {
     
     // Reset other counters
     fifty_move_counter = 0;
-    position_history_count = 0;
+    position_repetition_count = 0;
+    last_position_hash = 0;
     
     ESP_LOGI(TAG, "Enhanced chess board initialized successfully");
     game_print_board_enhanced();
@@ -6075,9 +6754,9 @@ void game_generate_castling_moves(uint8_t from_row, uint8_t from_col, player_t p
             !game_is_square_attacked(0, 5, PLAYER_BLACK) &&
             !game_is_square_attacked(0, 6, PLAYER_BLACK)) {
             
-            if (legal_moves_count >= 128) return;
+            if (temp_moves_count >= 16) return;
             
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+            chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
             move->from_row = from_row;
             move->from_col = from_col;
             move->to_row = 0;
@@ -6087,7 +6766,7 @@ void game_generate_castling_moves(uint8_t from_row, uint8_t from_col, player_t p
             move->move_type = MOVE_TYPE_CASTLE_KING;
             
             if (game_simulate_move_check(move, player)) {
-                legal_moves_count++;
+                temp_moves_count++;
             }
         }
         
@@ -6097,9 +6776,9 @@ void game_generate_castling_moves(uint8_t from_row, uint8_t from_col, player_t p
             !game_is_square_attacked(0, 2, PLAYER_BLACK) &&
             !game_is_square_attacked(0, 3, PLAYER_BLACK)) {
             
-            if (legal_moves_count >= 128) return;
+            if (temp_moves_count >= 16) return;
             
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+            chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
             move->from_row = from_row;
             move->from_col = from_col;
             move->to_row = 0;
@@ -6109,7 +6788,7 @@ void game_generate_castling_moves(uint8_t from_row, uint8_t from_col, player_t p
             move->move_type = MOVE_TYPE_CASTLE_QUEEN;
             
             if (game_simulate_move_check(move, player)) {
-                legal_moves_count++;
+                temp_moves_count++;
             }
         }
     }
@@ -6121,9 +6800,9 @@ void game_generate_castling_moves(uint8_t from_row, uint8_t from_col, player_t p
             !game_is_square_attacked(7, 5, PLAYER_WHITE) &&
             !game_is_square_attacked(7, 6, PLAYER_WHITE)) {
             
-            if (legal_moves_count >= 128) return;
+            if (temp_moves_count >= 16) return;
             
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+            chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
             move->from_row = from_row;
             move->from_col = from_col;
             move->to_row = 7;
@@ -6133,7 +6812,7 @@ void game_generate_castling_moves(uint8_t from_row, uint8_t from_col, player_t p
             move->move_type = MOVE_TYPE_CASTLE_KING;
             
             if (game_simulate_move_check(move, player)) {
-                legal_moves_count++;
+                temp_moves_count++;
             }
         }
         
@@ -6143,9 +6822,9 @@ void game_generate_castling_moves(uint8_t from_row, uint8_t from_col, player_t p
             !game_is_square_attacked(7, 2, PLAYER_WHITE) &&
             !game_is_square_attacked(7, 3, PLAYER_WHITE)) {
             
-            if (legal_moves_count >= 128) return;
+            if (temp_moves_count >= 16) return;
             
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
+            chess_move_extended_t* move = &temp_moves_buffer[temp_moves_count];
             move->from_row = from_row;
             move->from_col = from_col;
             move->to_row = 7;
@@ -6155,7 +6834,7 @@ void game_generate_castling_moves(uint8_t from_row, uint8_t from_col, player_t p
             move->move_type = MOVE_TYPE_CASTLE_QUEEN;
             
             if (game_simulate_move_check(move, player)) {
-                legal_moves_count++;
+                temp_moves_count++;
             }
         }
     }
