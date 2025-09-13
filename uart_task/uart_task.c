@@ -1846,6 +1846,9 @@ static const uart_command_t commands[] = {
     // Endgame animation control
     {"STOP_ENDGAME", uart_cmd_stop_endgame, "Stop endless endgame animation", "STOP_ENDGAME", false, {"STOP", "END_STOP", "", "", ""}},
     
+    // Error Recovery Commands
+    {"RECOVER", uart_cmd_recover, "Recover from error state", "", false, {"REC", "ERROR_RECOVERY", "", "", ""}},
+    
     // System Commands
 
     
@@ -6188,5 +6191,16 @@ command_result_t uart_cmd_stop_endgame(const char* args)
     led_stop_endgame_animation();
     
     uart_send_line("✅ Endless endgame animation stopped");
+    return CMD_SUCCESS;
+}
+
+command_result_t uart_cmd_recover(const char* args)
+{
+    uart_send_line("🔄 Recovering from error state...");
+    
+    // Call game_clear_error_recovery to reset error state
+    game_clear_error_recovery();
+    
+    uart_send_line("✅ Error state cleared - ready to play");
     return CMD_SUCCESS;
 }
