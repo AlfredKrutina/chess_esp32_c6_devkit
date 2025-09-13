@@ -258,6 +258,10 @@ bool game_is_error_recovery_active(void);
 bool game_handle_piece_return(uint8_t row, uint8_t col);
 bool game_is_error_recovery_timeout(void);
 void game_clear_error_recovery(void);
+
+// Strict castling functions (no automatic moves)
+bool game_start_castling_transaction_strict(bool is_kingside, uint8_t king_from_row, uint8_t king_from_col, uint8_t king_to_row, uint8_t king_to_col);
+bool game_complete_castling_strict(void);
 uint32_t game_get_error_count(void);
 
 // Castling transaction functions

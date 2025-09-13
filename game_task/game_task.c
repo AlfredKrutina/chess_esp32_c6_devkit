@@ -2138,6 +2138,36 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
             return;
         }
         
+    } else if (current_game_state == GAME_STATE_CASTLING_IN_PROGRESS) {
+        // FIXED: Handle UP in castling - must be rook from correct position
+        if (from_row != castling_king_row || from_col != castling_rook_from_col) {
+            ESP_LOGW(TAG, "❌ Castling in progress - lift rook from %c%d", 
+                     'a' + castling_rook_from_col, castling_king_row + 1);
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Lift rook from %c%d", 
+                    'a' + castling_rook_from_col, castling_king_row + 1);
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            return;
+        }
+        
+        // Valid rook lift - set piece lifted state
+        piece_lifted = true;
+        lifted_piece_row = from_row;
+        lifted_piece_col = from_col;
+        lifted_piece = piece;
+        
+        // LED guidance: steady green on rook_from + blue steady on rook_to
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_rook_from_col), 0, 255, 0); // Green steady
+        led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_rook_to_col), 0, 0, 255); // Blue steady
+        
+        // UART instruction
+        char instruction[256];
+        snprintf(instruction, sizeof(instruction), "🏰 Place rook on %c%d", 
+                'a' + castling_rook_to_col, castling_king_row + 1);
+        game_send_response_to_uart(instruction, false, (QueueHandle_t)cmd->response_queue);
+        return;
+        
     } else {
         // Other states - ignore or send instructions
         char error_msg[256];
@@ -2346,24 +2376,17 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                 bool can_castle = is_kingside ? game_can_castle_kingside(current_player) : game_can_castle_queenside(current_player);
                 
                 if (can_castle) {
-                    // Execute king move first
-                    if (game_execute_move(&move)) {
-                        // King move successful - start castling transaction
-                        if (game_start_castling_transaction(is_kingside)) {
-                            // Castling transaction started - wait for rook move
-                            piece_lifted = false;
-                            lifted_piece_row = 0;
-                            lifted_piece_col = 0;
-                            lifted_piece = PIECE_EMPTY;
-                            return;
-                        } else {
-                            // Castling transaction failed - handle as general error
-                            game_handle_general_error(MOVE_ERROR_INVALID_CASTLING, &move);
-                            return;
-                        }
+                    // FIXED: Start castling flow WITHOUT moving king in memory
+                    if (game_start_castling_transaction_strict(is_kingside, lifted_piece_row, lifted_piece_col, to_row, to_col)) {
+                        // Castling transaction started - wait for rook move
+                        piece_lifted = false;
+                        lifted_piece_row = 0;
+                        lifted_piece_col = 0;
+                        lifted_piece = PIECE_EMPTY;
+                        return;
                     } else {
-                        // King move failed - handle as general error
-                        game_handle_general_error(MOVE_ERROR_INVALID_MOVE, &move);
+                        // Castling transaction failed - handle as general error
+                        game_handle_general_error(MOVE_ERROR_INVALID_CASTLING, &move);
                         return;
                     }
                 } else {
@@ -2420,17 +2443,47 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     }
     
     if (current_game_state == GAME_STATE_CASTLING_IN_PROGRESS) {
-        // Handle castling drop - must be rook move
+        // FIXED: Handle castling drop - must be rook move to correct position
         if (lifted_piece == PIECE_WHITE_ROOK || lifted_piece == PIECE_BLACK_ROOK) {
-            if (game_handle_castling_rook_move(lifted_piece_row, lifted_piece_col, to_row, to_col)) {
-                // Castling completed successfully
-                piece_lifted = false;
-                lifted_piece_row = 0;
-                lifted_piece_col = 0;
-                lifted_piece = PIECE_EMPTY;
-                current_game_state = GAME_STATE_IDLE;
+            // Check if rook is placed on correct position
+            if (to_row == castling_king_row && to_col == castling_rook_to_col) {
+                // Valid rook placement - complete castling WITHOUT moving pieces in memory
+                if (game_complete_castling_strict()) {
+                    // Castling completed successfully
+                    piece_lifted = false;
+                    lifted_piece_row = 0;
+                    lifted_piece_col = 0;
+                    lifted_piece = PIECE_EMPTY;
+                    current_game_state = GAME_STATE_IDLE;
+                } else {
+                    // Castling completion failed - handle as general error
+                    chess_move_t error_move = {
+                        .from_row = lifted_piece_row,
+                        .from_col = lifted_piece_col,
+                        .to_row = to_row,
+                        .to_col = to_col,
+                        .piece = lifted_piece,
+                        .captured_piece = PIECE_EMPTY,
+                        .timestamp = esp_timer_get_time() / 1000
+                    };
+                    game_handle_general_error(MOVE_ERROR_INVALID_CASTLING, &error_move);
+                }
             } else {
-                // Castling failed - handle as general error
+                // Wrong position - handle as general error
+                char error_msg[256];
+                snprintf(error_msg, sizeof(error_msg), "❌ Place rook on %c%d", 
+                        'a' + castling_rook_to_col, castling_king_row + 1);
+                game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+                
+                // LED: blink red on correct position
+                led_clear_board_only();
+                for (int i = 0; i < 3; i++) {
+                    led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_rook_to_col), 255, 0, 0);
+                    vTaskDelay(pdMS_TO_TICKS(200));
+                    led_clear_board_only();
+                    vTaskDelay(pdMS_TO_TICKS(200));
+                }
+                
                 chess_move_t error_move = {
                     .from_row = lifted_piece_row,
                     .from_col = lifted_piece_col,
@@ -2444,6 +2497,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             }
         } else {
             // Wrong piece during castling - handle as general error
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Lift rook from %c%d", 
+                    'a' + castling_rook_from_col, castling_king_row + 1);
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            
             chess_move_t error_move = {
                 .from_row = lifted_piece_row,
                 .from_col = lifted_piece_col,
@@ -4251,7 +4309,80 @@ void game_process_commands(void)
 // Error recovery variables are now declared globally above
 
 /**
- * @brief Start castling transaction
+ * @brief Start castling transaction (STRICT - no automatic moves)
+ * @param is_kingside true for kingside, false for queenside
+ * @param king_from_row King's current row
+ * @param king_from_col King's current column
+ * @param king_to_row King's destination row
+ * @param king_to_col King's destination column
+ * @return true if castling transaction started successfully
+ */
+bool game_start_castling_transaction_strict(bool is_kingside, uint8_t king_from_row, uint8_t king_from_col, uint8_t king_to_row, uint8_t king_to_col)
+{
+    if (castling_in_progress) {
+        ESP_LOGW(TAG, "❌ Castling already in progress");
+        return false;
+    }
+    
+    // Validate castling requirements
+    bool can_castle = is_kingside ? game_can_castle_kingside(current_player) : game_can_castle_queenside(current_player);
+    if (!can_castle) {
+        ESP_LOGE(TAG, "❌ Castling not allowed");
+        return false;
+    }
+    
+    // Calculate rook positions
+    uint8_t rook_col = is_kingside ? 7 : 0;
+    uint8_t rook_to_col = is_kingside ? 5 : 3;
+    
+    // Check if rook is still in correct position
+    piece_t rook = board[king_from_row][rook_col];
+    bool valid_rook = (current_player == PLAYER_WHITE) ? (rook == PIECE_WHITE_ROOK) : (rook == PIECE_BLACK_ROOK);
+    
+    if (!valid_rook) {
+        ESP_LOGE(TAG, "❌ Invalid castling setup - rook not in position");
+        return false;
+    }
+    
+    // Start castling transaction WITHOUT moving king in memory
+    castling_in_progress = true;
+    castling_kingside = is_kingside;
+    castling_king_row = king_from_row;
+    castling_king_from_col = king_from_col;
+    castling_king_to_col = king_to_col;
+    castling_rook_from_col = rook_col;
+    castling_rook_to_col = rook_to_col;
+    castling_start_time = esp_timer_get_time() / 1000;
+    
+    // Set game state to castling in progress
+    current_game_state = GAME_STATE_CASTLING_IN_PROGRESS;
+    
+    ESP_LOGI(TAG, "🏰 Castling transaction started (STRICT): %s %s", 
+             (current_player == PLAYER_WHITE) ? "White" : "Black",
+             is_kingside ? "kingside" : "queenside");
+    
+    // LED guidance: green blink on rook_from + blue steady on rook_to
+    led_clear_board_only();
+    for (int i = 0; i < 3; i++) {
+        led_set_pixel_safe(chess_pos_to_led_index(king_from_row, rook_col), 0, 255, 0); // Green blink
+        vTaskDelay(pdMS_TO_TICKS(200));
+        led_clear_board_only();
+        vTaskDelay(pdMS_TO_TICKS(200));
+    }
+    led_set_pixel_safe(chess_pos_to_led_index(king_from_row, rook_col), 0, 255, 0); // Green steady
+    led_set_pixel_safe(chess_pos_to_led_index(king_from_row, rook_to_col), 0, 0, 255); // Blue steady
+    
+    // UART instruction
+    char instruction[256];
+    snprintf(instruction, sizeof(instruction), "🏰 Castling: lift rook from %c%d", 
+            'a' + rook_col, king_from_row + 1);
+    game_send_response_to_uart(instruction, false, NULL);
+    
+    return true;
+}
+
+/**
+ * @brief Start castling transaction (LEGACY - with automatic moves)
  * @param is_kingside true for kingside, false for queenside
  * @return true if castling transaction started successfully
  */
@@ -4305,7 +4436,64 @@ bool game_start_castling_transaction(bool is_kingside)
 // This function is no longer needed
 
 /**
- * @brief Handle rook move during castling
+ * @brief Complete castling (STRICT - no automatic moves)
+ * @return true if castling completed successfully
+ */
+bool game_complete_castling_strict(void)
+{
+    if (!castling_in_progress) {
+        return false;
+    }
+    
+    // FIXED: Complete castling WITHOUT moving pieces in memory
+    // The pieces are already in correct positions by player's physical actions
+    
+    // Update castling flags
+    if (current_player == PLAYER_WHITE) {
+        if (castling_kingside) {
+            white_rook_h_moved = true;
+        } else {
+            white_rook_a_moved = true;
+        }
+    } else {
+        if (castling_kingside) {
+            black_rook_h_moved = true;
+        } else {
+            black_rook_a_moved = true;
+        }
+    }
+    
+    // Complete castling
+    castling_in_progress = false;
+    
+    // Reset error count on successful castling
+    consecutive_error_count = 0;
+    
+    // Set game state to idle
+    current_game_state = GAME_STATE_IDLE;
+    
+    ESP_LOGI(TAG, "🏰 Castling completed successfully (STRICT)!");
+    
+    // Show completion animation
+    led_clear_board_only();
+    led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_king_to_col), 0, 255, 0); // Green
+    led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_rook_to_col), 0, 255, 0); // Green
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    led_clear_board_only();
+    
+    // Switch player
+    current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    
+    // Send success message
+    char success_msg[256];
+    snprintf(success_msg, sizeof(success_msg), "🏰✅ Castling completed successfully!");
+    game_send_response_to_uart(success_msg, false, NULL);
+    
+    return true;
+}
+
+/**
+ * @brief Handle rook move during castling (LEGACY - with automatic moves)
  * @param from_row Rook's current row
  * @param from_col Rook's current column
  * @param to_row Rook's destination row
@@ -4384,11 +4572,7 @@ void game_cancel_castling_transaction(void)
         ESP_LOGW(TAG, "🏰 Cancelling castling transaction");
         castling_in_progress = false;
         
-        // FIXED: Internal rollback - move king back to original position
-        piece_t king = board[castling_king_row][castling_king_to_col];
-        board[castling_king_row][castling_king_to_col] = PIECE_EMPTY;
-        board[castling_king_row][castling_king_from_col] = king;
-        
+        // FIXED: NO board rollback - player must physically return pieces
         // Set game state to general error recovery
         current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
         
@@ -4396,18 +4580,14 @@ void game_cancel_castling_transaction(void)
         invalid_move_backup.from_row = castling_king_row;
         invalid_move_backup.from_col = castling_king_from_col;
         
-        // LED: red blink on king original position
+        // LED: pulsing red on king original position
         led_clear_board_only();
-        for (int i = 0; i < 3; i++) {
-            led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_king_from_col), 255, 0, 0);
-            vTaskDelay(pdMS_TO_TICKS(200));
-            led_clear_board_only();
-            vTaskDelay(pdMS_TO_TICKS(200));
+        for (int i = 0; i < 6; i++) {
+            float brightness = 0.4f + 0.6f * sin(i * 1.57f);
+            led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_king_from_col), 
+                              (uint8_t)(255 * brightness), 0, 0); // Pulsing red
+            vTaskDelay(pdMS_TO_TICKS(250));
         }
-        
-        // FIXED: Switch player after castling cancellation
-        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-        ESP_LOGI(TAG, "🔄 Player switched after castling cancellation");
         
         // UART instruction
         char error_msg[256];
