@@ -2037,7 +2037,58 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
     }
     
     // Handle different game states according to specification
-    if (current_game_state == GAME_STATE_IDLE) {
+    if (current_game_state == GAME_STATE_ERROR_RECOVERY_GENERAL) {
+        // FIXED: Recovery - must lift from invalid_move_backup.to (nevalidní pozice)
+        if (from_row != invalid_move_backup.to_row || from_col != invalid_move_backup.to_col) {
+            ESP_LOGW(TAG, "❌ Error recovery active - can only lift piece at [%d,%d]", 
+                     invalid_move_backup.to_row, invalid_move_backup.to_col);
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Return piece to highlighted square first");
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            return;
+        }
+        
+        // FIXED: Valid lift from error recovery position - use last_valid_position for internal tracking
+        if (!has_last_valid_position) {
+            ESP_LOGE(TAG, "❌ Error recovery active but no last valid position!");
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ No valid position to return to");
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            return;
+        }
+        
+        piece_lifted = true;
+        lifted_piece_row = last_valid_position_row;
+        lifted_piece_col = last_valid_position_col;
+        lifted_piece = piece;
+        
+        // FIXED: Show yellow LED on last_valid_position
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(last_valid_position_row, last_valid_position_col), 255, 255, 0); // Yellow on last valid position
+        
+        // FIXED: Show possible moves from last_valid_position
+        move_suggestion_t suggestions[64];
+        uint32_t valid_moves = game_get_available_moves(last_valid_position_row, last_valid_position_col, suggestions, 64);
+        
+        for (uint32_t i = 0; i < valid_moves; i++) {
+            uint8_t led_index = chess_pos_to_led_index(suggestions[i].to_row, suggestions[i].to_col);
+            if (suggestions[i].is_capture) {
+                led_set_pixel_safe(led_index, 255, 165, 0); // Orange for captures
+            } else {
+                led_set_pixel_safe(led_index, 0, 255, 0); // Green for normal moves
+            }
+        }
+        
+        // Change state to waiting for piece drop
+        current_game_state = GAME_STATE_WAITING_PIECE_DROP;
+        
+        char success_msg[256];
+        snprintf(success_msg, sizeof(success_msg), "✅ Piece lifted for recovery from last valid position %c%d - showing possible moves", 
+                'a' + last_valid_position_col, last_valid_position_row + 1);
+        game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        return;
+        
+    } else if (current_game_state == GAME_STATE_IDLE) {
         // Check if piece belongs to current player
         bool is_white_piece = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
         bool is_black_piece = (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING);
@@ -2132,49 +2183,6 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
             return;
         }
         
-    } else if (current_game_state == GAME_STATE_ERROR_RECOVERY_GENERAL) {
-        // FIXED: Ignore square from event - force lift from last_valid_position
-        if (!has_last_valid_position) {
-            ESP_LOGE(TAG, "❌ Error recovery active but no last valid position!");
-            char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ No valid position to return to");
-            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
-            return;
-        }
-        
-        // FIXED: Force lift from last_valid_position, ignore actual position from event
-        uint8_t row = last_valid_position_row;
-        uint8_t col = last_valid_position_col;
-        piece_lifted = true;
-        lifted_piece_row = row;
-        lifted_piece_col = col;
-        lifted_piece = piece;
-        
-        // FIXED: Show yellow LED on last_valid_position
-        led_clear_board_only();
-        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255, 0); // Yellow on last valid position
-        
-        // FIXED: Show possible moves from last_valid_position
-        move_suggestion_t suggestions[64];
-        uint32_t valid_moves = game_get_available_moves(row, col, suggestions, 64);
-        
-        for (uint32_t i = 0; i < valid_moves; i++) {
-            uint8_t led_index = chess_pos_to_led_index(suggestions[i].to_row, suggestions[i].to_col);
-            if (suggestions[i].is_capture) {
-                led_set_pixel_safe(led_index, 255, 165, 0); // Orange for captures
-            } else {
-                led_set_pixel_safe(led_index, 0, 255, 0); // Green for normal moves
-            }
-        }
-        
-        // Change state to waiting for piece drop
-        current_game_state = GAME_STATE_WAITING_PIECE_DROP;
-        
-        char success_msg[256];
-        snprintf(success_msg, sizeof(success_msg), "✅ Piece lifted for recovery from last valid position %c%d - showing possible moves", 
-                'a' + col, row + 1);
-        game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
-        return;
         
     } else if (current_game_state == GAME_STATE_CASTLING_IN_PROGRESS) {
         // FIXED: Handle UP in castling - must be rook from correct position
@@ -2432,22 +2440,25 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             }
         }
         
-        // FIXED: Store last valid position BEFORE validation (for error recovery)
+        // FIXED: Store last_valid_position BEFORE validation (for error recovery)
         last_valid_position_row = move.from_row;
         last_valid_position_col = move.from_col;
         has_last_valid_position = true;
         
-        // FIXED: Execute move FIRST, then validate (according to user's flow)
+        // FIXED: Validate move FIRST, then execute only if valid
+        move_error_t move_error = game_is_valid_move(&move);
+        if (move_error != MOVE_ERROR_NONE) {
+            // Invalid move - handle error WITHOUT moving piece in board[][]
+            game_handle_invalid_move(move_error, &move);
+            return;
+        }
+        
+        // Move is valid - execute it
         if (game_execute_move(&move)) {
-            // Move executed - now validate it
-            move_error_t move_error = game_is_valid_move(&move);
-            if (move_error != MOVE_ERROR_NONE) {
-                // Invalid move - handle error AFTER moving piece in board[][]
-                game_handle_invalid_move(move_error, &move);
-                return;
-            }
-            // Move successful
+            // Move executed successfully
             player_t previous_player = current_player;
+            
+            // last_valid_position already set before validation
             
             // Reset error count on successful move
             consecutive_error_count = 0;
@@ -4668,6 +4679,10 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t* move)
     current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
     error_recovery_active = true;
     error_recovery_start_time = esp_timer_get_time() / 1000;
+    
+    // FIXED: Move piece in board[][] to match physical state
+    board[move->to_row][move->to_col] = move->piece;
+    board[move->from_row][move->from_col] = PIECE_EMPTY;
     
     // Step 1: Pulsing red on invalid destination (3x)
     ESP_LOGI(TAG, "🔴 Step 1: Pulsing red on invalid destination");
