@@ -44,8 +44,6 @@
 #include "../freertos_chess/include/chess_types.h"
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
 #include "../uart_commands_extended/include/uart_commands_extended.h"  // ✅ FIX: Include extended UART commands
-#include "../unified_animation_manager/include/unified_animation_manager.h"
-#include "../enhanced_puzzle_system/include/enhanced_puzzle_system.h"  // Non-blocking endgame animations
 #include <math.h>
 #include <inttypes.h>
 #include "esp_system.h"
@@ -1133,7 +1131,6 @@ command_result_t uart_cmd_puzzle(const char* args);
 command_result_t uart_cmd_puzzle_next(const char* args);
 command_result_t uart_cmd_puzzle_verify(const char* args);
 command_result_t uart_cmd_puzzle_reset(const char* args);
-command_result_t uart_cmd_puzzle_removal_test(const char* args);
 command_result_t uart_cmd_puzzle_complete(const char* args);
 
 // Component Control Commands
@@ -1164,8 +1161,6 @@ command_result_t uart_cmd_endgame_wave(const char* args);
 command_result_t uart_cmd_endgame_circles(const char* args);
 command_result_t uart_cmd_endgame_cascade(const char* args);
 command_result_t uart_cmd_endgame_fireworks(const char* args);
-command_result_t uart_cmd_endgame_draw_spiral(const char* args);
-command_result_t uart_cmd_endgame_draw_pulse(const char* args);
 
 // Puzzle Commands
 command_result_t uart_cmd_puzzle_1(const char* args);
@@ -1538,8 +1533,6 @@ void uart_cmd_help_debug(void)
         uart_send_formatted("  ENDGAME_CIRCLES   - Expanding circles from center");
         uart_send_formatted("  ENDGAME_CASCADE   - Falling lights animation");
         uart_send_formatted("  ENDGAME_FIREWORKS - Random burst animation");
-        uart_send_formatted("  DRAW_SPIRAL       - Draw spiral animation");
-        uart_send_formatted("  DRAW_PULSE        - Draw pulse animation");
         uart_send_formatted("");
         if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
         uart_send_formatted("🧩 Puzzle System:");
@@ -1842,8 +1835,6 @@ static const uart_command_t commands[] = {
     {"ENDGAME_CIRCLES", uart_cmd_endgame_circles, "Endgame circles animation", "ENDGAME_CIRCLES", false, {"CIRCLES", "ENDGAME_1", "", "", ""}},
     {"ENDGAME_CASCADE", uart_cmd_endgame_cascade, "Endgame cascade animation", "ENDGAME_CASCADE", false, {"CASCADE", "ENDGAME_2", "", "", ""}},
     {"ENDGAME_FIREWORKS", uart_cmd_endgame_fireworks, "Endgame fireworks animation", "ENDGAME_FIREWORKS", false, {"FIREWORKS", "ENDGAME_3", "", "", ""}},
-    {"DRAW_SPIRAL", uart_cmd_endgame_draw_spiral, "Draw spiral animation", "DRAW_SPIRAL", false, {"SPIRAL", "DRAW_0", "", "", ""}},
-    {"DRAW_PULSE", uart_cmd_endgame_draw_pulse, "Draw pulse animation", "DRAW_PULSE", false, {"PULSE", "DRAW_1", "", "", ""}},
     
     // Puzzle Commands
     {"PUZZLE_1", uart_cmd_puzzle_1, "Load puzzle 1 (Easy)", "PUZZLE_1", false, {"P1", "EASY", "", "", ""}},
@@ -1851,7 +1842,6 @@ static const uart_command_t commands[] = {
     {"PUZZLE_3", uart_cmd_puzzle_3, "Load puzzle 3 (Hard)", "PUZZLE_3", false, {"P3", "HARD", "", "", ""}},
     {"PUZZLE_4", uart_cmd_puzzle_4, "Load puzzle 4 (Expert)", "PUZZLE_4", false, {"P4", "EXPERT", "", "", ""}},
     {"PUZZLE_5", uart_cmd_puzzle_5, "Load puzzle 5 (Master)", "PUZZLE_5", false, {"P5", "MASTER", "", "", ""}},
-    {"PUZZLE_REMOVAL_TEST", uart_cmd_puzzle_removal_test, "Test puzzle removal guidance", "PUZZLE_REMOVAL_TEST", false, {"REMOVAL_TEST", "TEST_REMOVAL", "", "", ""}},
     
     // Endgame animation control
     {"STOP_ENDGAME", uart_cmd_stop_endgame, "Stop endless endgame animation", "STOP_ENDGAME", false, {"STOP", "END_STOP", "", "", ""}},
@@ -6020,133 +6010,73 @@ command_result_t uart_cmd_test_puzzle_anim(const char* args)
 // Endgame Animation Style Commands
 command_result_t uart_cmd_endgame_wave(const char* args)
 {
-    uart_send_line("🌊 Starting NON-BLOCKING endgame wave animation...");
+    uart_send_line("🌊 Starting endgame wave animation...");
     
-    // Use unified animation manager for non-blocking animation
-    uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_WAVE, ANIM_PRIORITY_HIGH);
-    if (anim_id != 0) {
-        esp_err_t ret = animation_start_endgame_wave(anim_id, 27, 0); // d4, white winner
-        if (ret == ESP_OK) {
-            uart_send_formatted("✅ Non-blocking endgame wave animation started (ID: %lu)", anim_id);
-        } else {
-            uart_send_formatted("❌ Failed to start endgame wave animation: %s", esp_err_to_name(ret));
-            return CMD_ERROR_SYSTEM_ERROR;
-        }
-    } else {
-        uart_send_line("❌ Failed to create animation - too many active animations");
-        return CMD_ERROR_SYSTEM_ERROR;
-    }
+    uint8_t style = 0; // Wave
+    led_command_t endgame_cmd = {
+        .type = LED_CMD_ANIM_ENDGAME,
+        .led_index = 27, // d4
+        .red = 255, .green = 215, .blue = 0,
+        .duration_ms = 3000,
+        .data = &style
+    };
+    led_execute_command_new(&endgame_cmd);
     
+    uart_send_line("✅ Endgame wave animation started");
     return CMD_SUCCESS;
 }
 
 command_result_t uart_cmd_endgame_circles(const char* args)
 {
-    uart_send_line("⭕ Starting NON-BLOCKING endgame circles animation...");
+    uart_send_line("⭕ Starting endgame circles animation...");
     
-    // Use unified animation manager for non-blocking animation
-    uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_CIRCLES, ANIM_PRIORITY_HIGH);
-    if (anim_id != 0) {
-        esp_err_t ret = animation_start_endgame_circles(anim_id, 27, 0); // d4, white winner
-        if (ret == ESP_OK) {
-            uart_send_formatted("✅ Non-blocking endgame circles animation started (ID: %lu)", anim_id);
-        } else {
-            uart_send_formatted("❌ Failed to start endgame circles animation: %s", esp_err_to_name(ret));
-            return CMD_ERROR_SYSTEM_ERROR;
-        }
-    } else {
-        uart_send_line("❌ Failed to create animation - too many active animations");
-        return CMD_ERROR_SYSTEM_ERROR;
-    }
+    uint8_t style = 1; // Circles
+    led_command_t endgame_cmd = {
+        .type = LED_CMD_ANIM_ENDGAME,
+        .led_index = 27, // d4
+        .red = 255, .green = 215, .blue = 0,
+        .duration_ms = 3000,
+        .data = &style
+    };
+    led_execute_command_new(&endgame_cmd);
     
+    uart_send_line("✅ Endgame circles animation started");
     return CMD_SUCCESS;
 }
 
 command_result_t uart_cmd_endgame_cascade(const char* args)
 {
-    uart_send_line("💫 Starting NON-BLOCKING endgame cascade animation...");
+    uart_send_line("💫 Starting endgame cascade animation...");
     
-    // Use unified animation manager for non-blocking animation
-    uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_CASCADE, ANIM_PRIORITY_HIGH);
-    if (anim_id != 0) {
-        esp_err_t ret = animation_start_endgame_cascade(anim_id, 27, 0); // d4, white winner
-        if (ret == ESP_OK) {
-            uart_send_formatted("✅ Non-blocking endgame cascade animation started (ID: %lu)", anim_id);
-        } else {
-            uart_send_formatted("❌ Failed to start endgame cascade animation: %s", esp_err_to_name(ret));
-            return CMD_ERROR_SYSTEM_ERROR;
-        }
-    } else {
-        uart_send_line("❌ Failed to create animation - too many active animations");
-        return CMD_ERROR_SYSTEM_ERROR;
-    }
+    uint8_t style = 2; // Cascade
+    led_command_t endgame_cmd = {
+        .type = LED_CMD_ANIM_ENDGAME,
+        .led_index = 27, // d4
+        .red = 255, .green = 215, .blue = 0,
+        .duration_ms = 3000,
+        .data = &style
+    };
+    led_execute_command_new(&endgame_cmd);
     
+    uart_send_line("✅ Endgame cascade animation started");
     return CMD_SUCCESS;
 }
 
 command_result_t uart_cmd_endgame_fireworks(const char* args)
 {
-    uart_send_line("🎆 Starting NON-BLOCKING endgame fireworks animation...");
+    uart_send_line("🎆 Starting endgame fireworks animation...");
     
-    // Use unified animation manager for non-blocking animation
-    uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_FIREWORKS, ANIM_PRIORITY_HIGH);
-    if (anim_id != 0) {
-        esp_err_t ret = animation_start_endgame_fireworks(anim_id, 27, 0); // d4, white winner
-        if (ret == ESP_OK) {
-            uart_send_formatted("✅ Non-blocking endgame fireworks animation started (ID: %lu)", anim_id);
-        } else {
-            uart_send_formatted("❌ Failed to start endgame fireworks animation: %s", esp_err_to_name(ret));
-            return CMD_ERROR_SYSTEM_ERROR;
-        }
-    } else {
-        uart_send_line("❌ Failed to create animation - too many active animations");
-        return CMD_ERROR_SYSTEM_ERROR;
-    }
+    uint8_t style = 3; // Fireworks
+    led_command_t endgame_cmd = {
+        .type = LED_CMD_ANIM_ENDGAME,
+        .led_index = 27, // d4
+        .red = 255, .green = 215, .blue = 0,
+        .duration_ms = 3000,
+        .data = &style
+    };
+    led_execute_command_new(&endgame_cmd);
     
-    return CMD_SUCCESS;
-}
-
-command_result_t uart_cmd_endgame_draw_spiral(const char* args)
-{
-    uart_send_line("🌀 Starting NON-BLOCKING draw spiral animation...");
-    
-    // Use unified animation manager for non-blocking animation
-    uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_DRAW_SPIRAL, ANIM_PRIORITY_HIGH);
-    if (anim_id != 0) {
-        esp_err_t ret = animation_start_endgame_draw_spiral(anim_id, 27); // d4 center
-        if (ret == ESP_OK) {
-            uart_send_formatted("✅ Non-blocking draw spiral animation started (ID: %lu)", anim_id);
-        } else {
-            uart_send_formatted("❌ Failed to start draw spiral animation: %s", esp_err_to_name(ret));
-            return CMD_ERROR_SYSTEM_ERROR;
-        }
-    } else {
-        uart_send_line("❌ Failed to create animation - too many active animations");
-        return CMD_ERROR_SYSTEM_ERROR;
-    }
-    
-    return CMD_SUCCESS;
-}
-
-command_result_t uart_cmd_endgame_draw_pulse(const char* args)
-{
-    uart_send_line("💓 Starting NON-BLOCKING draw pulse animation...");
-    
-    // Use unified animation manager for non-blocking animation
-    uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_DRAW_PULSE, ANIM_PRIORITY_HIGH);
-    if (anim_id != 0) {
-        esp_err_t ret = animation_start_endgame_draw_pulse(anim_id, 27); // d4 center
-        if (ret == ESP_OK) {
-            uart_send_formatted("✅ Non-blocking draw pulse animation started (ID: %lu)", anim_id);
-        } else {
-            uart_send_formatted("❌ Failed to start draw pulse animation: %s", esp_err_to_name(ret));
-            return CMD_ERROR_SYSTEM_ERROR;
-        }
-    } else {
-        uart_send_line("❌ Failed to create animation - too many active animations");
-        return CMD_ERROR_SYSTEM_ERROR;
-    }
-    
+    uart_send_line("✅ Endgame fireworks animation started");
     return CMD_SUCCESS;
 }
 
@@ -6248,55 +6178,13 @@ command_result_t uart_cmd_puzzle_5(const char* args)
     return CMD_SUCCESS;
 }
 
-command_result_t uart_cmd_puzzle_removal_test(const char* args)
-{
-    uart_send_line("🔴 Testing Puzzle Removal Guidance...");
-    
-    // Initialize puzzle system if not already done
-    puzzle_system_config_t config = {
-        .max_puzzles = 5,
-        .removal_timeout_ms = 30000,
-        .hint_duration_ms = 3000,
-        .max_wrong_moves = 3,
-        .enable_visual_guidance = true,
-        .enable_sound_feedback = false,
-        .enable_progress_tracking = true
-    };
-    
-    esp_err_t init_result = puzzle_system_init(&config);
-    if (init_result != ESP_OK && init_result != ESP_ERR_INVALID_STATE) {
-        uart_send_formatted("❌ Failed to initialize puzzle system: %s", esp_err_to_name(init_result));
-        return CMD_ERROR_SYSTEM_ERROR;
-    }
-    
-    // Load puzzle 1 for testing
-    esp_err_t load_result = puzzle_load(1);
-    if (load_result != ESP_OK) {
-        uart_send_formatted("❌ Failed to load puzzle: %s", esp_err_to_name(load_result));
-        return CMD_ERROR_SYSTEM_ERROR;
-    }
-    
-    uart_send_line("✅ Puzzle loaded - showing pieces to remove in RED");
-    uart_send_line("💡 Remove the red pieces from the board and use matrix scanning");
-    uart_send_line("💡 This tests the puzzle setup guidance system");
-    
-    return CMD_SUCCESS;
-}
-
 command_result_t uart_cmd_stop_endgame(const char* args)
 {
-    uart_send_line("🛑 Stopping all endgame animations...");
+    uart_send_line("🛑 Stopping endless endgame animation...");
     
-    // Stop all endgame animations using unified animation manager
-    esp_err_t ret = unified_animation_stop_all();
-    if (ret == ESP_OK) {
-        uart_send_line("✅ All endgame animations stopped");
-    } else {
-        uart_send_formatted("⚠️ Some animations may still be running: %s", esp_err_to_name(ret));
-    }
-    
-    // Also stop legacy endgame animation system
+    // Stop endgame animation
     led_stop_endgame_animation();
     
+    uart_send_line("✅ Endless endgame animation stopped");
     return CMD_SUCCESS;
 }

@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
 // ============================================================================
 // CONSTANTS AND DEFINITIONS
 // ============================================================================
@@ -33,36 +34,36 @@
 
 
 
-// Animation types (renamed to avoid conflicts with unified_animation_manager)
+// Animation types
 typedef enum {
-    ANIM_TASK_TYPE_WAVE = 0,         // Wave pattern
-    ANIM_TASK_TYPE_PULSE,            // Pulse effect
-    ANIM_TASK_TYPE_FADE,             // Fade transition
-    ANIM_TASK_TYPE_CHESS_PATTERN,    // Chess board pattern
-    ANIM_TASK_TYPE_RAINBOW,          // Rainbow colors
-    ANIM_TASK_TYPE_MOVE_HIGHLIGHT,   // Move path highlight
-    ANIM_TASK_TYPE_CHECK_HIGHLIGHT,  // Check indicator
-    ANIM_TASK_TYPE_GAME_OVER,        // Game over pattern
-    ANIM_TASK_TYPE_CUSTOM            // Custom animation
-} animation_task_type_t;
+    ANIM_TYPE_WAVE = 0,         // Wave pattern
+    ANIM_TYPE_PULSE,            // Pulse effect
+    ANIM_TYPE_FADE,             // Fade transition
+    ANIM_TYPE_CHESS_PATTERN,    // Chess board pattern
+    ANIM_TYPE_RAINBOW,          // Rainbow colors
+    ANIM_TYPE_MOVE_HIGHLIGHT,   // Move path highlight
+    ANIM_TYPE_CHECK_HIGHLIGHT,  // Check indicator
+    ANIM_TYPE_GAME_OVER,        // Game over pattern
+    ANIM_TYPE_CUSTOM            // Custom animation
+} animation_type_t;
 
-// Animation state types (renamed to avoid conflicts with unified_animation_manager)
+// Animation state types
 typedef enum {
-    ANIM_TASK_STATE_IDLE = 0,       // Animation is idle
-    ANIM_TASK_STATE_RUNNING,        // Animation is running
-    ANIM_TASK_STATE_PAUSED,         // Animation is paused
-    ANIM_TASK_STATE_FINISHED        // Animation has finished
-} animation_task_state_t;
+    ANIM_STATE_IDLE = 0,       // Animation is idle
+    ANIM_STATE_RUNNING,        // Animation is running
+    ANIM_STATE_PAUSED,         // Animation is paused
+    ANIM_STATE_FINISHED        // Animation has finished
+} animation_state_t;
 
 // Animation structure
 typedef struct {
     uint8_t id;                 // Animation ID
-    animation_task_state_t state;    // Current state
+    animation_state_t state;    // Current state
     bool active;                // Whether animation is active
     bool paused;                // Whether animation is paused
     bool loop;                  // Whether to loop animation
     uint8_t priority;           // Animation priority (0-255)
-    animation_task_type_t type;      // Animation type
+    animation_type_t type;      // Animation type
     uint32_t start_time;        // Start timestamp
     uint32_t duration_ms;       // Duration in milliseconds
     uint32_t frame_duration_ms; // Frame duration in ms
@@ -70,7 +71,7 @@ typedef struct {
     uint32_t total_frames;      // Total frame count
     uint32_t frame_interval;    // Frame interval in ms
     void* data;                 // Animation-specific data
-} animation_task_t;
+} animation_t;
 
 
 // ============================================================================
@@ -103,7 +104,7 @@ void animation_initialize_system(void);
  * @param loop Whether to loop the animation
  * @return Animation ID or 0xFF if failed
  */
-uint8_t animation_create(animation_task_type_t type, uint32_t duration_ms, uint8_t priority, bool loop);
+uint8_t animation_create(animation_type_t type, uint32_t duration_ms, uint8_t priority, bool loop);
 
 /**
  * @brief Start an animation
@@ -184,7 +185,7 @@ void animation_generate_rainbow_frame(uint32_t frame);
  * @brief Execute animation frame
  * @param anim Animation to execute
  */
-void animation_execute_frame(animation_task_t* anim);
+void animation_execute_frame(animation_t* anim);
 
 /**
  * @brief Send frame data to LEDs
@@ -196,19 +197,19 @@ void animation_send_frame_to_leds(const uint8_t frame[CHESS_LED_COUNT_TOTAL][3])
  * @brief Execute move highlight animation
  * @param anim Animation data
  */
-void animation_execute_move_highlight(animation_task_t* anim);
+void animation_execute_move_highlight(animation_t* anim);
 
 /**
  * @brief Execute check highlight animation
  * @param anim Animation data
  */
-void animation_execute_check_highlight(animation_task_t* anim);
+void animation_execute_check_highlight(animation_t* anim);
 
 /**
  * @brief Execute game over animation
  * @param anim Animation data
  */
-void animation_execute_game_over(animation_task_t* anim);
+void animation_execute_game_over(animation_t* anim);
 
 
 // ============================================================================
@@ -252,37 +253,11 @@ void animation_test_all(void);
 void animation_test_system(void);
 
 // Animation text representation functions
-const char* animation_get_name(animation_task_type_t animation_type);
-void animation_print_progress(const animation_task_t* anim);
+const char* animation_get_name(animation_type_t animation_type);
+void animation_print_progress(const animation_t* anim);
 void animation_print_piece_move(const char* from_square, const char* to_square, 
                                const char* piece_name, float progress);
 void animation_print_check_status(bool is_checkmate, float progress);
 void animation_print_summary(void);
-
-// ============================================================================
-// NATURAL PIECE MOVEMENT ANIMATIONS
-// ============================================================================
-
-/**
- * @brief Animate piece move with natural movement patterns
- * @param from_row Source row
- * @param from_col Source column
- * @param to_row Destination row
- * @param to_col Destination column
- * @param piece Piece being moved
- */
-void animate_piece_move_natural(uint8_t from_row, uint8_t from_col, 
-                               uint8_t to_row, uint8_t to_col, piece_t piece);
-
-/**
- * @brief Request animation interruption
- */
-void animation_request_interrupt();
-
-/**
- * @brief Check if new move was detected (placeholder)
- * @return true if new move detected
- */
-bool new_move_detected();
 
 #endif // ANIMATION_TASK_H

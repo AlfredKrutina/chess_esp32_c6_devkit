@@ -16,8 +16,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
 #include "esp_err.h"
 
 #ifdef __cplusplus
@@ -62,11 +60,7 @@ typedef enum {
     GAME_STATE_ACTIVE = 2,
     GAME_STATE_PAUSED = 3,
     GAME_STATE_FINISHED = 4,
-    GAME_STATE_ERROR = 5,
-    GAME_STATE_PLAYING = 6,
-    GAME_STATE_PROMOTION = 7,
-    GAME_STATE_ERROR_RECOVERY = 8,  // New state for error recovery
-    GAME_STATE_WAITING_FOR_RETURN = 9  // Waiting for piece to be returned
+    GAME_STATE_ERROR = 5
 } game_state_t;
 
 /**
@@ -179,53 +173,7 @@ typedef enum {
     GAME_CMD_UNDO_MOVE = 3,
     GAME_CMD_GET_STATUS = 4,
     GAME_CMD_GET_BOARD = 5,
-    GAME_CMD_GET_VALID_MOVES = 6,
-    GAME_CMD_PICKUP_PIECE = 7,
-    GAME_CMD_DROP_PIECE = 8,
-    GAME_CMD_PROMOTION = 9,
-    GAME_CMD_MOVE = 10,
-    GAME_CMD_SHOW_BOARD = 11,
-    GAME_CMD_PICKUP = 12,  // up command - piece lifted
-    GAME_CMD_DROP = 13,    // dn command - piece placed
-    GAME_CMD_GET_HISTORY = 14,  // get move history
-    GAME_CMD_DEBUG_INFO = 15,   // debug game information
-    GAME_CMD_DEBUG_BOARD = 16,  // debug board information
-    
-    // High Priority Commands
-    GAME_CMD_EVALUATE = 17,     // position evaluation
-    GAME_CMD_SAVE = 18,         // save game
-    GAME_CMD_LOAD = 19,         // load game
-    GAME_CMD_PUZZLE = 20,       // chess puzzle
-    
-    // Medium Priority Commands
-    GAME_CMD_CASTLE = 21,       // castling
-    GAME_CMD_PROMOTE = 22,      // pawn promotion
-    
-    // Component Control Commands
-    GAME_CMD_COMPONENT_OFF = 23, // turn off component
-    GAME_CMD_COMPONENT_ON = 24,  // turn on component
-    
-    // Endgame Commands
-    GAME_CMD_ENDGAME_WHITE = 25, // endgame white wins
-    GAME_CMD_ENDGAME_BLACK = 26, // endgame black wins
-    
-    // Game Management Commands
-    GAME_CMD_LIST_GAMES = 27,    // list saved games
-    GAME_CMD_DELETE_GAME = 28,   // delete saved game
-    
-    // Puzzle Commands
-    GAME_CMD_PUZZLE_NEXT = 29,   // Next puzzle step
-    GAME_CMD_PUZZLE_RESET = 30,  // Reset current puzzle
-    GAME_CMD_PUZZLE_COMPLETE = 31, // Complete current puzzle
-    GAME_CMD_PUZZLE_VERIFY = 32, // Verify puzzle move
-    
-    // Animation Test Commands
-    GAME_CMD_TEST_MOVE_ANIM = 33,    // Test move animation
-    GAME_CMD_TEST_PLAYER_ANIM = 34,  // Test player change animation
-    GAME_CMD_TEST_CASTLE_ANIM = 35,  // Test castling animation
-    GAME_CMD_TEST_PROMOTE_ANIM = 36, // Test promotion animation
-    GAME_CMD_TEST_ENDGAME_ANIM = 37, // Test endgame animation
-    GAME_CMD_TEST_PUZZLE_ANIM = 38   // Test puzzle animation
+    GAME_CMD_GET_VALID_MOVES = 6
 } game_command_type_t;
 
 /**
@@ -236,35 +184,8 @@ typedef struct {
     char from_notation[4];
     char to_notation[4];
     uint8_t player;
-    QueueHandle_t response_queue;
-    uint8_t promotion_choice;  // For promotion commands
+    uint32_t response_queue;
 } chess_move_command_t;
-
-/**
- * @brief Game response types
- */
-typedef enum {
-    GAME_RESPONSE_SUCCESS = 0,
-    GAME_RESPONSE_ERROR = 1,
-    GAME_RESPONSE_BOARD = 2,
-    GAME_RESPONSE_MOVES = 3,
-    GAME_RESPONSE_STATUS = 4,
-    GAME_RESPONSE_HISTORY = 5,
-    GAME_RESPONSE_MOVE_RESULT = 6,
-    GAME_RESPONSE_LED_STATUS = 7
-} game_response_type_t;
-
-/**
- * @brief Game response structure for UART communication
- */
-typedef struct {
-    uint8_t type;
-    uint8_t command_type;  // Original command type
-    uint8_t error_code;
-    char message[256];
-    char data[3584];  // Increased buffer size for complete reports - board data ~3000 chars, with safety margin
-    uint32_t timestamp;
-} game_response_t;
 
 // ============================================================================
 // LED SYSTEM DEFINITIONS
@@ -283,55 +204,7 @@ typedef enum {
     LED_CMD_BUTTON_RELEASE = 6,
     LED_CMD_ANIMATION = 7,
     LED_CMD_TEST = 8,
-    LED_CMD_SET_BRIGHTNESS = 9,
-    LED_CMD_TEST_ALL = 10,      // Test all LEDs
-    LED_CMD_MATRIX_OFF = 11,    // Disable matrix scanning LED effects
-    LED_CMD_MATRIX_ON = 12,     // Enable matrix scanning LED effects
-    
-    // Puzzle Animation Commands
-    LED_CMD_PUZZLE_START = 13,   // Start puzzle animation sequence
-    LED_CMD_PUZZLE_HIGHLIGHT = 14, // Highlight source piece
-    LED_CMD_PUZZLE_PATH = 15,    // Show path from source to destination
-    LED_CMD_PUZZLE_DESTINATION = 16, // Highlight destination
-    LED_CMD_PUZZLE_COMPLETE = 17,   // Complete puzzle step animation
-    LED_CMD_PUZZLE_STOP = 18,    // Stop all puzzle animations
-    
-    // Advanced Chess Animations
-    LED_CMD_ANIM_PLAYER_CHANGE = 19, // Player change animation (rays)
-    LED_CMD_ANIM_MOVE_PATH = 20,     // Move path animation
-    LED_CMD_ANIM_CASTLE = 21,        // Castling animation
-    LED_CMD_ANIM_PROMOTE = 22,       // Promotion animation
-    LED_CMD_ANIM_ENDGAME = 23,       // Endgame animation (waves)
-    LED_CMD_ANIM_CHECK = 24,         // Check animation
-    LED_CMD_ANIM_CHECKMATE = 25,     // Checkmate animation
-    LED_CMD_ANIM_PUZZLE_PATH = 26,   // Puzzle path animation
-    
-    // Component control commands
-    LED_CMD_DISABLE = 25,            // Disable LED component
-    LED_CMD_ENABLE = 26,             // Enable LED component
-    
-    // Button LED logic commands
-    LED_CMD_BUTTON_PROMOTION_AVAILABLE = 27, // Set promotion available for button
-    LED_CMD_BUTTON_PROMOTION_UNAVAILABLE = 28, // Set promotion unavailable for button
-    LED_CMD_BUTTON_SET_PRESSED = 29,  // Set button pressed state
-    LED_CMD_BUTTON_SET_RELEASED = 30, // Set button released state
-    
-    // Game state integration commands
-    LED_CMD_GAME_STATE_UPDATE = 31,   // Update LEDs based on current game state
-    LED_CMD_HIGHLIGHT_PIECES = 32,    // Highlight pieces that can move
-    LED_CMD_HIGHLIGHT_MOVES = 33,     // Highlight possible moves for selected piece
-    LED_CMD_CLEAR_HIGHLIGHTS = 34,    // Clear all highlights
-    LED_CMD_PLAYER_CHANGE = 35,       // Player change animation
-    
-    // Error handling commands
-    LED_CMD_ERROR_INVALID_MOVE = 36,  // Show error for invalid move
-    LED_CMD_ERROR_RETURN_PIECE = 37,  // Force user to return piece
-    LED_CMD_ERROR_RECOVERY = 38,      // Recovery from error state
-    LED_CMD_SHOW_LEGAL_MOVES = 39,    // Show all legal moves for piece type
-    
-    LED_CMD_STATUS_ACTIVE = 97,
-    LED_CMD_STATUS_COMPACT = 98,
-    LED_CMD_STATUS_DETAILED = 99
+    LED_CMD_SET_BRIGHTNESS = 9
 } led_command_type_t;
 
 /**
@@ -345,7 +218,6 @@ typedef struct {
     uint8_t blue;
     uint32_t duration_ms;
     void* data;
-    QueueHandle_t response_queue;  // For response communication
 } led_command_t;
 
 // ============================================================================
@@ -401,25 +273,8 @@ typedef struct {
     uint8_t to_col;
 } matrix_event_t;
 
-/**
- * @brief Matrix command types
- */
-typedef enum {
-    MATRIX_CMD_SCAN = 0,
-    MATRIX_CMD_RESET = 1,
-    MATRIX_CMD_TEST = 2,
-    MATRIX_CMD_CALIBRATE = 3,
-    MATRIX_CMD_DISABLE = 4,          // Disable matrix scanning
-    MATRIX_CMD_ENABLE = 5            // Enable matrix scanning
-} matrix_command_type_t;
 
-/**
- * @brief Matrix command structure
- */
-typedef struct {
-    matrix_command_type_t type;
-    uint8_t data[16];
-} matrix_command_t;
+
 
 
 
@@ -488,8 +343,8 @@ typedef struct {
     bool verbose_mode;           // Verbose logging mode
     bool quiet_mode;            // Quiet mode (minimal output)
     uint8_t log_level;          // Log level (ESP_LOG_*)
+    bool echo_enabled;          // UART echo enabled
     uint32_t command_timeout_ms; // Command timeout in milliseconds
-    bool echo_enabled;          // Character echo enabled
 } system_config_t;
 
 // Forward declarations for configuration functions
@@ -497,60 +352,6 @@ esp_err_t config_manager_init(void);
 esp_err_t config_load_from_nvs(system_config_t* config);
 esp_err_t config_save_to_nvs(const system_config_t* config);
 esp_err_t config_apply_settings(const system_config_t* config);
-
-/**
- * @brief Puzzle difficulty levels
- */
-typedef enum {
-    PUZZLE_DIFFICULTY_BEGINNER = 1,   // 2-3 moves, basic tactics
-    PUZZLE_DIFFICULTY_INTERMEDIATE = 2, // 3-5 moves, complex tactics
-    PUZZLE_DIFFICULTY_ADVANCED = 3,   // 5+ moves, advanced combinations
-    PUZZLE_DIFFICULTY_MASTER = 4      // Complex endgames and studies
-} puzzle_difficulty_t;
-
-/**
- * @brief Puzzle step structure
- */
-typedef struct {
-    uint8_t from_row;
-    uint8_t from_col;
-    uint8_t to_row;
-    uint8_t to_col;
-    char description[64];  // Human readable description
-    bool is_forced;        // Whether this move is forced
-} puzzle_step_t;
-
-/**
- * @brief Complete puzzle structure
- */
-typedef struct {
-    char name[32];                    // Puzzle name
-    char description[128];            // Puzzle description
-    puzzle_difficulty_t difficulty;   // Difficulty level
-    piece_t initial_board[8][8];     // Initial board position
-    puzzle_step_t steps[16];         // Up to 16 moves
-    uint8_t step_count;              // Number of steps
-    uint8_t current_step;            // Current step index
-    bool is_active;                  // Whether puzzle is active
-    uint32_t start_time;             // Puzzle start timestamp
-    uint32_t completion_time;        // Completion timestamp
-} chess_puzzle_t;
-
-/**
- * @brief Animation state for LED effects
- */
-typedef struct {
-    bool is_active;                  // Animation active
-    uint8_t animation_type;          // Type of animation
-    uint8_t current_frame;           // Current animation frame
-    uint8_t total_frames;            // Total frames in animation
-    uint32_t frame_duration_ms;      // Duration per frame
-    uint32_t last_update_time;       // Last update timestamp
-    uint8_t source_square;           // Source square (0-63)
-    uint8_t target_square;           // Target square (0-63)
-    uint8_t color_r, color_g, color_b; // Animation colors
-    bool interrupt_on_placement;     // Stop animation when piece placed
-} led_animation_state_t;
 
 #ifdef __cplusplus
 }

@@ -132,7 +132,7 @@ extern "C" {
 #define MATRIX_TASK_STACK_SIZE (3 * 1024)       // 3KB (unchanged - already optimal)
 #define BUTTON_TASK_STACK_SIZE (3 * 1024)       // 3KB (unchanged - already optimal)
 #define UART_TASK_STACK_SIZE (6 * 1024)         // 6KB (UART task needs more stack for command processing and response handling)
-#define GAME_TASK_STACK_SIZE (10 * 1024)        // ✅ OPRAVA: 10KB pro bezpečný error handling (zvětšeno z 6KB)
+#define GAME_TASK_STACK_SIZE (6 * 1024)         // 6KB (reduced from 10KB - streaming eliminates large reports)
 #define ANIMATION_TASK_STACK_SIZE (2 * 1024)    // 2KB (reduced from 3KB - simple animations)
 #define SCREEN_SAVER_TASK_STACK_SIZE (2 * 1024) // 2KB (reduced from 3KB - simple patterns)
 #define TEST_TASK_STACK_SIZE (2 * 1024)         // 2KB (reduced from 3KB - debug only)

@@ -14,10 +14,6 @@ idf_component_register(
         test_task
         matter_task
         web_server_task
-        unified_animation_manager
-        led_state_manager
-        visual_error_system
-        enhanced_puzzle_system
     PRIV_REQUIRES
         spi_flash
         console

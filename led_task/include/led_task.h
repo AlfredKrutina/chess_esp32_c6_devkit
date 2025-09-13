@@ -66,7 +66,6 @@ void led_update_button_availability_from_game(void); // Update button availabili
 // Error handling LED functions
 void led_error_invalid_move(const led_command_t* cmd);
 void led_error_return_piece(const led_command_t* cmd);
-void led_anim_endgame(const led_command_t* cmd);
 void led_error_recovery(const led_command_t* cmd);
 void led_show_legal_moves(const led_command_t* cmd);
 

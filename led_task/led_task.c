@@ -24,7 +24,6 @@
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
-#include "../unified_animation_manager/include/unified_animation_manager.h"  // Non-blocking endgame animations
 
 // Define min macro if not available
 #ifndef min
@@ -672,13 +671,6 @@ void led_anim_endgame(const led_command_t* cmd);
 void led_anim_check(const led_command_t* cmd);
 void led_anim_checkmate(const led_command_t* cmd);
 
-// Enhanced Castling System functions
-void led_enhanced_castling_guidance(const led_command_t* cmd);
-void led_enhanced_castling_error(const led_command_t* cmd);
-void led_enhanced_castling_celebration(const led_command_t* cmd);
-void led_enhanced_castling_tutorial(const led_command_t* cmd);
-void led_enhanced_castling_clear(void);
-
 /**
  * @brief Execute LED command with full command structure
  */
@@ -887,32 +879,6 @@ void led_execute_command_new(const led_command_t* cmd)
         case LED_CMD_SHOW_LEGAL_MOVES:
             ESP_LOGI(TAG, "💡 Show legal moves for piece at LED %d", cmd->led_index);
             led_show_legal_moves(cmd);
-            break;
-            
-        // Enhanced Castling System commands
-        case LED_CMD_CASTLING_GUIDANCE:
-            ESP_LOGI(TAG, "🏰 Enhanced castling guidance");
-            led_enhanced_castling_guidance(cmd);
-            break;
-            
-        case LED_CMD_CASTLING_ERROR:
-            ESP_LOGI(TAG, "❌ Enhanced castling error indication");
-            led_enhanced_castling_error(cmd);
-            break;
-            
-        case LED_CMD_CASTLING_CELEBRATION:
-            ESP_LOGI(TAG, "🎉 Enhanced castling celebration");
-            led_enhanced_castling_celebration(cmd);
-            break;
-            
-        case LED_CMD_CASTLING_TUTORIAL:
-            ESP_LOGI(TAG, "📖 Enhanced castling tutorial");
-            led_enhanced_castling_tutorial(cmd);
-            break;
-            
-        case LED_CMD_CASTLING_CLEAR:
-            ESP_LOGI(TAG, "🧹 Clear enhanced castling indications");
-            led_enhanced_castling_clear();
             break;
             
         default:
@@ -1670,21 +1636,6 @@ void led_task_start(void *pvParameters)
     // ✅ Initialize duration management system
     led_init_duration_system();
     
-    // ✅ Initialize unified animation manager for non-blocking endgame animations
-    animation_config_t anim_config = {
-        .max_concurrent_animations = 8,
-        .update_frequency_hz = 30,  // 30 FPS for smooth animations
-        .enable_smooth_interpolation = true,
-        .enable_trail_effects = true,
-        .default_duration_ms = 1000
-    };
-    esp_err_t anim_ret = animation_manager_init(&anim_config);
-    if (anim_ret != ESP_OK) {
-        ESP_LOGW(TAG, "⚠️ Animation manager init failed: %s", esp_err_to_name(anim_ret));
-    } else {
-        ESP_LOGI(TAG, "✅ Animation manager initialized");
-    }
-    
     // Initialize LED states
     ESP_LOGI(TAG, "🔄 Clearing all LEDs...");
     led_clear_all_internal();
@@ -1714,9 +1665,6 @@ void led_task_start(void *pvParameters)
         // Update animations
         led_update_animation();
         
-        // Update unified animation manager (non-blocking endgame animations)
-        animation_manager_update();
-        
         // Process button blink timers
         led_process_button_blink_timers();
         
@@ -1734,8 +1682,8 @@ void led_task_start(void *pvParameters)
         
         loop_count++;
         
-        // ✅ Optimalizovaný cyklus - 33ms pro 30 FPS animace
-        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(33));
+        // ✅ BEZPEČNÝ cyklus - 100ms pro absolutní stabilitu LED
+        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(100));
     }
 }
 
@@ -2208,22 +2156,72 @@ void led_anim_castle(const led_command_t* cmd) {
 void led_anim_promote(const led_command_t* cmd) {
     if (!cmd) return;
     
-    ESP_LOGI(TAG, "👑 Starting NON-BLOCKING promotion animation");
+    ESP_LOGI(TAG, "👑 Starting promotion animation");
     
     uint8_t promotion_led = cmd->led_index;
     
-    // ✅ OPRAVA: Non-blocking promotion animation using unified_animation_manager
-    uint32_t anim_id = unified_animation_create(ANIM_TYPE_PROMOTION, ANIM_PRIORITY_HIGH);
-    if (anim_id != 0) {
-        esp_err_t ret = animation_start_promotion(anim_id, promotion_led);
-        if (ret == ESP_OK) {
-            ESP_LOGI(TAG, "✅ Non-blocking promotion animation started (ID: %lu)", anim_id);
+    // ENHANCED: Multi-stage promotion animation
+    for (int stage = 0; stage < 4; stage++) {
+        led_clear_board_only();
+        
+        if (stage == 0) {
+            // Stage 1: Highlight pawn (white)
+            led_set_pixel_safe(promotion_led, 255, 255, 255);
+            vTaskDelay(pdMS_TO_TICKS(300));
+        } else if (stage == 1) {
+            // Stage 2: Transformation effect (pulsing)
+            for (int pulse = 0; pulse < 5; pulse++) {
+                float brightness = 0.5f + 0.5f * sin(pulse * 1.26f);
+                led_set_pixel_safe(promotion_led, (uint8_t)(255 * brightness), (uint8_t)(255 * brightness), (uint8_t)(255 * brightness));
+                vTaskDelay(pdMS_TO_TICKS(100));
+            }
+        } else if (stage == 2) {
+            // Stage 3: Show promoted piece (gold)
+            led_set_pixel_safe(promotion_led, 255, 215, 0);
+            vTaskDelay(pdMS_TO_TICKS(400));
         } else {
-            ESP_LOGE(TAG, "❌ Failed to start promotion animation: %s", esp_err_to_name(ret));
+            // Stage 4: Celebration effect (rainbow burst)
+            for (int burst = 0; burst < 8; burst++) {
+                led_clear_board_only();
+                
+                // Rainbow color progression
+                uint8_t r, g, b;
+                if (burst < 2) {
+                    r = 255; g = 0; b = 0; // Red
+                } else if (burst < 4) {
+                    r = 255; g = 165; b = 0; // Orange
+                } else if (burst < 6) {
+                    r = 255; g = 255; b = 0; // Yellow
+                } else {
+                    r = 0; g = 255; b = 0; // Green
+                }
+                
+                // Add surrounding glow effect
+                for (int offset = -1; offset <= 1; offset++) {
+                    for (int offset2 = -1; offset2 <= 1; offset2++) {
+                        if (offset == 0 && offset2 == 0) continue;
+                        int glow_row = (promotion_led / 8) + offset;
+                        int glow_col = (promotion_led % 8) + offset2;
+                        if (glow_row >= 0 && glow_row < 8 && glow_col >= 0 && glow_col < 8) {
+                            uint8_t glow_led = chess_pos_to_led_index(glow_row, glow_col);
+                            led_set_pixel_safe(glow_led, (uint8_t)(r * 0.3f), (uint8_t)(g * 0.3f), (uint8_t)(b * 0.3f));
+                        }
+                    }
+                }
+                
+                led_set_pixel_safe(promotion_led, r, g, b);
+                vTaskDelay(pdMS_TO_TICKS(33)); // 30 FPS
+            }
         }
-    } else {
-        ESP_LOGE(TAG, "❌ Failed to create promotion animation");
     }
+    
+    // Final highlight
+    led_clear_board_only();
+    led_set_pixel_safe(promotion_led, 255, 215, 0); // Gold
+    vTaskDelay(pdMS_TO_TICKS(500));
+    led_clear_board_only();
+    
+    ESP_LOGI(TAG, "👑 Promotion animation completed");
 }
 
 /**
@@ -2304,7 +2302,7 @@ void led_booting_animation(void)
 void led_anim_endgame(const led_command_t* cmd) {
     if (!cmd) return;
     
-    ESP_LOGI(TAG, "🏆 Starting NON-BLOCKING endgame animation");
+    ESP_LOGI(TAG, "🏆 Starting ENDLESS endgame animation");
     
     // Get animation style from data (0=wave, 1=circles, 2=cascade, 3=fireworks)
     uint8_t style = (cmd->data ? *((uint8_t*)cmd->data) : 0);
@@ -2318,34 +2316,151 @@ void led_anim_endgame(const led_command_t* cmd) {
     // Reset WDT at start
     esp_task_wdt_reset();
     
-    // Actually create and start the animation using unified_animation_manager
-    animation_type_t anim_type;
-    switch (style) {
-        case 0: anim_type = ANIM_TYPE_ENDGAME_WAVE; break;
-        case 1: anim_type = ANIM_TYPE_ENDGAME_CIRCLES; break;
-        case 2: anim_type = ANIM_TYPE_ENDGAME_CASCADE; break;
-        case 3: anim_type = ANIM_TYPE_ENDGAME_FIREWORKS; break;
-        default: anim_type = ANIM_TYPE_ENDGAME_WAVE; break;
-    }
+    // ENHANCED colors for winner vs loser - more vibrant and clear
+    uint8_t winner_r = 255, winner_g = 215, winner_b = 0; // Bright Gold for winner
+    uint8_t loser_r = 100, loser_g = 100, loser_b = 100;  // Dark Gray for loser
+    // uint8_t celebration_r = 255, celebration_g = 0, celebration_b = 255; // Magenta celebration - unused
     
-    uint32_t anim_id = unified_animation_create(anim_type, ANIM_PRIORITY_HIGH);
-    if (anim_id != 0) {
-        esp_err_t ret = ESP_OK;
-        switch (style) {
-            case 0: ret = animation_start_endgame_wave(anim_id, 27, 0); break;
-            case 1: ret = animation_start_endgame_circles(anim_id, 27, 0); break;
-            case 2: ret = animation_start_endgame_cascade(anim_id, 27, 0); break;
-            case 3: ret = animation_start_endgame_fireworks(anim_id, 27, 0); break;
+    // Start endless endgame animation
+    ESP_LOGI(TAG, "🔄 Starting endless endgame animation loop...");
+    
+    // Endless animation loop - runs until new game
+    while (endgame_animation_active) {
+        endgame_animation_frame++;
+        
+        if (style == 0) {
+            // ENDLESS Wave animation - interactive colors
+        for (int radius = 7; radius >= 0; radius--) {
+                if (!endgame_animation_active) break; // Check if still active
+                
+                led_clear_board_only();
+            
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
+                    int dist_to_edge = min(min(row, 7-row), min(col, 7-col));
+                    
+                    if (dist_to_edge == radius) {
+                        uint8_t square = chess_pos_to_led_index(row, col);
+                            
+                            // Interactive colors based on position
+                            float brightness = 0.5f + 0.5f * sin(endgame_animation_frame * 0.1f + radius * 0.5f);
+                            uint8_t r = (uint8_t)(winner_r * brightness);
+                            uint8_t g = (uint8_t)(winner_g * brightness);
+                            uint8_t b = (uint8_t)(winner_b * brightness);
+                            
+                            // Add pulsing effect
+                            float pulse = 0.7f + 0.3f * sin(endgame_animation_frame * 0.2f + radius * 0.8f);
+                            r = (uint8_t)(r * pulse);
+                            g = (uint8_t)(g * pulse);
+                            b = (uint8_t)(b * pulse);
+                            
+                            led_set_pixel_safe(square, r, g, b);
+                        }
+                    }
+                }
+                
+                vTaskDelay(pdMS_TO_TICKS(50)); // Slower for endless effect
+                esp_task_wdt_reset();
+            }
+        } else if (style == 1) {
+            // ENDLESS Circles animation - expanding with color transitions
+            uint8_t center_led = cmd->led_index;
+            for (int radius = 0; radius <= 7; radius++) {
+                if (!endgame_animation_active) break; // Check if still active
+                
+                led_clear_board_only();
+                
+                for (int row = 0; row < 8; row++) {
+                    for (int col = 0; col < 8; col++) {
+                        int dist = abs(row - (center_led / 8)) + abs(col - (center_led % 8));
+                        
+                        if (dist == radius) {
+                            uint8_t square = chess_pos_to_led_index(row, col);
+                            
+                            // Color transition based on distance from center
+                            float color_progress = (float)radius / 7.0f;
+                            uint8_t r = winner_r - (uint8_t)((winner_r - loser_r) * color_progress);
+                            uint8_t g = winner_g - (uint8_t)((winner_g - loser_g) * color_progress);
+                            uint8_t b = winner_b - (uint8_t)((winner_b - loser_b) * color_progress);
+                            
+                            // Brightness based on animation frame
+                            float brightness = 0.6f + 0.4f * sin(endgame_animation_frame * 0.1f + radius * 0.4f);
+                            r = (uint8_t)(r * brightness);
+                            g = (uint8_t)(g * brightness);
+                            b = (uint8_t)(b * brightness);
+                            
+                            led_set_pixel_safe(square, r, g, b);
+                        }
+                    }
+                }
+                
+                vTaskDelay(pdMS_TO_TICKS(50)); // Slower for endless effect
+                esp_task_wdt_reset();
+            }
+        } else if (style == 2) {
+            // ENDLESS Cascade animation - falling effect with color waves
+            for (int row = 0; row < 8; row++) {
+                if (!endgame_animation_active) break; // Check if still active
+                
+                led_clear_board_only();
+                
+                for (int col = 0; col < 8; col++) {
+                    int active_row = (row + endgame_animation_frame) % 8;
+                    uint8_t square = chess_pos_to_led_index(active_row, col);
+                    
+                    // Color wave effect
+                    float wave = 0.5f + 0.5f * sin(col * 0.8f + endgame_animation_frame * 0.1f);
+                    uint8_t r = (uint8_t)(winner_r * wave);
+                    uint8_t g = (uint8_t)(winner_g * wave);
+                    uint8_t b = (uint8_t)(winner_b * wave);
+                    
+                    // Add brightness variation
+                    float brightness = 0.7f + 0.3f * sin(active_row * 0.5f + col * 0.3f);
+                    r = (uint8_t)(r * brightness);
+                    g = (uint8_t)(g * brightness);
+                    b = (uint8_t)(b * brightness);
+                    
+                    led_set_pixel_safe(square, r, g, b);
+                }
+                
+                vTaskDelay(pdMS_TO_TICKS(50)); // Slower for endless effect
+                esp_task_wdt_reset();
+            }
+        } else {
+            // ENDLESS Fireworks animation - random bursts with color variety
+            led_clear_board_only();
+            
+            for (int i = 0; i < 12; i++) {
+                int row = (endgame_animation_frame * 3 + i * 2) % 8;
+                int col = (endgame_animation_frame * 5 + i * 3) % 8;
+                uint8_t square = chess_pos_to_led_index(row, col);
+                
+                // Random colors for fireworks
+                uint8_t r = (i * 23 + endgame_animation_frame * 17) % 256;
+                uint8_t g = (i * 37 + endgame_animation_frame * 29) % 256;
+                uint8_t b = (i * 41 + endgame_animation_frame * 31) % 256;
+                
+                // Add brightness variation
+                float brightness = 0.4f + 0.6f * sin(i * 0.5f + endgame_animation_frame * 0.1f);
+                r = (uint8_t)(r * brightness);
+                g = (uint8_t)(g * brightness);
+                b = (uint8_t)(b * brightness);
+                
+                led_set_pixel_safe(square, r, g, b);
+            }
+            
+            vTaskDelay(pdMS_TO_TICKS(100)); // Slower for endless effect
+            esp_task_wdt_reset();
         }
         
-        if (ret == ESP_OK) {
-            ESP_LOGI(TAG, "✅ Endgame animation started successfully (ID: %lu, style: %d)", anim_id, style);
-        } else {
-            ESP_LOGE(TAG, "❌ Failed to start endgame animation: %s", esp_err_to_name(ret));
-        }
-    } else {
-        ESP_LOGE(TAG, "❌ Failed to create endgame animation - no free slots");
+        // Small delay between animation cycles
+            vTaskDelay(pdMS_TO_TICKS(200));
+        esp_task_wdt_reset();
     }
+    
+    // Animation stopped - clear board
+    led_clear_board_only();
+    ESP_LOGI(TAG, "🏆 Endless endgame animation stopped");
 }
 
 /**
@@ -2991,132 +3106,8 @@ static void led_init_duration_system(void)
     if (led_duration_timer != NULL) {
         xTimerStart(led_duration_timer, 0);
         ESP_LOGI(TAG, "✅ LED duration management system initialized");
-        } else {
+    } else {
         ESP_LOGE(TAG, "❌ Failed to create LED duration timer");
         led_duration_system_enabled = false;
     }
-}
-
-// ============================================================================
-// ENHANCED CASTLING SYSTEM LED FUNCTIONS
-// ============================================================================
-
-/**
- * @brief Enhanced castling guidance LED function
- */
-void led_enhanced_castling_guidance(const led_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "🏰 Enhanced castling guidance at LED %d", cmd->led_index);
-    
-    // Clear board first
-    led_clear_board_only();
-    
-    // Show guidance based on command data
-    // cmd->data should contain castling guidance data
-    if (cmd->data) {
-        // Parse guidance data and show appropriate guidance
-        // This would be called from enhanced_castling_system.c
-        led_set_pixel_safe(cmd->led_index, cmd->red, cmd->green, cmd->blue);
-    } else {
-        // Default guidance - show source and destination
-        led_set_pixel_safe(cmd->led_index, 255, 215, 0); // Gold for source
-    }
-}
-
-/**
- * @brief Enhanced castling error LED function
- */
-void led_enhanced_castling_error(const led_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "❌ Enhanced castling error at LED %d", cmd->led_index);
-    
-    // Flash error indication
-    for (int flash = 0; flash < 3; flash++) {
-        led_clear_board_only();
-        vTaskDelay(pdMS_TO_TICKS(200));
-        
-        led_set_pixel_safe(cmd->led_index, 255, 0, 0); // Red error
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-    
-    led_clear_board_only();
-}
-
-/**
- * @brief Enhanced castling celebration LED function
- */
-void led_enhanced_castling_celebration(const led_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "🎉 Enhanced castling celebration");
-    
-    // Rainbow celebration effect
-    for (int cycle = 0; cycle < 3; cycle++) {
-        uint8_t colors[][3] = {
-            {255, 0, 0},    // Red
-            {0, 255, 0},    // Green
-            {0, 0, 255},    // Blue
-            {255, 255, 0},  // Yellow
-            {255, 0, 255},  // Magenta
-            {0, 255, 255}   // Cyan
-        };
-        
-        for (int i = 0; i < 6; i++) {
-            led_clear_board_only();
-            led_set_pixel_safe(cmd->led_index, colors[i][0], colors[i][1], colors[i][2]);
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
-    }
-    
-    // Final success state
-    led_clear_board_only();
-    led_set_pixel_safe(cmd->led_index, 0, 255, 0); // Green for success
-}
-
-/**
- * @brief Enhanced castling tutorial LED function
- */
-void led_enhanced_castling_tutorial(const led_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "📖 Enhanced castling tutorial");
-    
-    // Step-by-step tutorial
-    for (int step = 0; step < 3; step++) {
-        led_clear_board_only();
-        
-        if (step == 0) {
-            // Show king position
-            led_set_pixel_safe(cmd->led_index, 255, 215, 0); // Gold
-        } else if (step == 1) {
-            // Show rook position
-            led_set_pixel_safe(cmd->led_index, 192, 192, 192); // Silver
-        } else {
-            // Show both positions
-            led_set_pixel_safe(cmd->led_index, 255, 215, 0); // Gold
-            if (cmd->data) {
-                uint8_t* rook_pos = (uint8_t*)cmd->data;
-                led_set_pixel_safe(*rook_pos, 192, 192, 192); // Silver
-            }
-        }
-        
-        vTaskDelay(pdMS_TO_TICKS(1500));
-    }
-    
-    led_clear_board_only();
-}
-
-/**
- * @brief Clear enhanced castling indications
- */
-void led_enhanced_castling_clear(void)
-{
-    ESP_LOGI(TAG, "🧹 Clearing enhanced castling indications");
-    led_clear_board_only();
 }
