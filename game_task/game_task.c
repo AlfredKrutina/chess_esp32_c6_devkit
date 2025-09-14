@@ -2467,22 +2467,34 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
         // Handle opponent piece return
         if (to_row == invalid_move_backup.from_row && to_col == invalid_move_backup.from_col) {
             // Correct position - clear error state
-            led_clear_board_only();
+            ESP_LOGI(TAG, "✅ Opponent's piece returned to correct position");
+            
+            // Clear error recovery state
+            error_recovery_active = false;
+            piece_lifted = false;
             current_game_state = GAME_STATE_IDLE;
+            
             // FIXED: Reset error count after successful recovery
             consecutive_error_count = 0;
             ESP_LOGI(TAG, "✅ Error count reset to 0 after opponent piece return");
+            
+            // LED: Clear board and show valid moves for current player
+            led_clear_board_only();
+            game_highlight_movable_pieces();
+            
             char success_msg[256];
-            snprintf(success_msg, sizeof(success_msg), "✅ Opponent's piece returned - ready to play");
+            snprintf(success_msg, sizeof(success_msg), "✅ Opponent's piece returned – your turn remains");
             game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
         } else {
-            // Wrong position - show error
+            // Wrong position - show error and maintain red highlighting
+            ESP_LOGW(TAG, "❌ Wrong return position - must return to [%d,%d]", 
+                     invalid_move_backup.from_row, invalid_move_backup.from_col);
+            
             char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to %c%d", 
-                    'a' + invalid_move_backup.from_col, invalid_move_backup.from_row + 1);
+            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to highlighted square");
             game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
             
-            // LED: blink red on correct position
+            // LED: Clear board and blink red on correct position, then keep it red
             led_clear_board_only();
             for (int i = 0; i < 3; i++) {
                 led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
@@ -2490,6 +2502,8 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                 led_clear_board_only();
                 vTaskDelay(pdMS_TO_TICKS(200));
             }
+            // Finally keep the red square highlighted
+            led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
         }
         return;
     }
@@ -7392,9 +7406,31 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col)
     ESP_LOGI(TAG, "🖐️ Matrix: Piece lifted from %c%d", 'a' + col, row + 1);
     
     // Check if there's a piece at the square
+    // NOTE: Matrix event occurs AFTER piece is lifted, so board[row][col] is already empty
+    // We need to check if this was a valid lift by checking the piece that was there
+    // For Matrix events, we can't check board state after lift, so we assume it was valid
+    // and let the game logic handle the validation
     piece_t piece = board[row][col];
     if (piece == PIECE_EMPTY) {
-        ESP_LOGW(TAG, "❌ No piece to lift at %c%d", 'a' + col, row + 1);
+        // Matrix event after lift - we can't determine piece type from empty board
+        // We need to determine piece type from game context or previous state
+        ESP_LOGW(TAG, "❌ Matrix event: Board empty at %c%d after lift", 'a' + col, row + 1);
+        
+        // For now, we'll assume this was an opponent piece lift and start recovery
+        // This is a limitation of Matrix events happening after physical lift
+        ESP_LOGW(TAG, "🔄 Matrix: Assuming opponent piece lift at %c%d", 'a' + col, row + 1);
+        
+        // Start opponent lift recovery
+        current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
+        invalid_move_backup.from_row = row;
+        invalid_move_backup.from_col = col;
+        
+        // LED: solid red on opponent piece position
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Solid red
+        
+        // Log recovery start
+        ESP_LOGI(TAG, "🔴 Recovery: Return opponent's piece to %c%d", 'a' + col, row + 1);
         return;
     }
     
@@ -7405,6 +7441,21 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col)
     
     if (!is_current_player) {
         ESP_LOGW(TAG, "❌ Cannot lift opponent's piece at %c%d", 'a' + col, row + 1);
+        
+        // Start opponent lift recovery - same logic as UART command
+        ESP_LOGW(TAG, "🔄 Starting opponent lift recovery for piece at %c%d", 'a' + col, row + 1);
+        
+        // Set state to opponent lift recovery
+        current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
+        invalid_move_backup.from_row = row;
+        invalid_move_backup.from_col = col;
+        
+        // LED: solid red on opponent piece position
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Solid red
+        
+        // Log recovery start
+        ESP_LOGI(TAG, "🔴 Recovery: Return opponent's piece to %c%d", 'a' + col, row + 1);
         return;
     }
     
@@ -7453,6 +7504,55 @@ void game_handle_piece_placed(uint8_t row, uint8_t col)
 {
     ESP_LOGI(TAG, "✋ Matrix: Piece placed at %c%d", 'a' + col, row + 1);
     
+    // Check if we're in opponent lift recovery state
+    if (current_game_state == GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
+        ESP_LOGI(TAG, "🔄 Matrix: Handling opponent piece return in recovery state");
+        
+        // Use the same logic as drop command for consistency
+        if (row == invalid_move_backup.from_row && col == invalid_move_backup.from_col) {
+            // Correct position - clear error state
+            ESP_LOGI(TAG, "✅ Matrix: Opponent's piece returned to correct position");
+            
+            // Clear error recovery state
+            error_recovery_active = false;
+            piece_lifted = false;
+            current_game_state = GAME_STATE_IDLE;
+            
+            // FIXED: Reset error count after successful recovery
+            consecutive_error_count = 0;
+            ESP_LOGI(TAG, "✅ Error count reset to 0 after opponent piece return");
+            
+            // LED: Clear board and show valid moves for current player
+            led_clear_board_only();
+            game_highlight_movable_pieces();
+            
+            // Send UART response
+            char success_msg[256];
+            snprintf(success_msg, sizeof(success_msg), "✅ Opponent's piece returned – your turn remains");
+            // Note: No response queue available in matrix events, so we'll just log
+            ESP_LOGI(TAG, "📤 %s", success_msg);
+        } else {
+            // Wrong position - show error and maintain red highlighting
+            ESP_LOGW(TAG, "❌ Matrix: Wrong return position - must return to [%d,%d]", 
+                     invalid_move_backup.from_row, invalid_move_backup.from_col);
+            
+            // LED: Clear board and blink red on correct position, then keep it red
+            led_clear_board_only();
+            for (int i = 0; i < 3; i++) {
+                led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
+                vTaskDelay(pdMS_TO_TICKS(200));
+                led_clear_board_only();
+                vTaskDelay(pdMS_TO_TICKS(200));
+            }
+            // Finally keep the red square highlighted
+            led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
+            
+            ESP_LOGW(TAG, "📤 ❌ Return opponent's piece to highlighted square");
+        }
+        return;
+    }
+    
+    // Normal piece placement (not in recovery state)
     // Clear only board LEDs
     led_clear_board_only();
     
