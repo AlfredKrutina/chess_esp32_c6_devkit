@@ -1670,11 +1670,10 @@ bool game_execute_move(const chess_move_t* move)
         has_last_valid_move = true;
         
         // Update game state
-        move_count++;
         last_move_time = esp_timer_get_time() / 1000;
         
-        // Switch players
-        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        // FIXED: move_count++ and player switch are handled by game_execute_move_enhanced()
+        // No need to duplicate here
         
         ESP_LOGI(TAG, "Move executed successfully. %s to move", 
                   (current_player == PLAYER_WHITE) ? "White" : "Black");
@@ -2665,8 +2664,8 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             // Reset error count on successful move
             consecutive_error_count = 0;
             
-            current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-            move_count++;
+            // FIXED: move_count++ and player switch are handled by game_execute_move()
+            // No need to duplicate here
             
             // Reset piece lifted state
             piece_lifted = false;
@@ -5104,11 +5103,10 @@ void game_process_move_command(const void* move_cmd_ptr)
     piece_moved[move_cmd->to_row][move_cmd->to_col] = true;
     
     // Update game state
-    move_count++;
     last_move_time = esp_timer_get_time() / 1000;
     
-    // Switch player
-    current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    // FIXED: move_count++ and player switch are handled by game_execute_move()
+    // No need to duplicate here
     
     // Store last valid move
     last_valid_move.from_row = move_cmd->from_row;
@@ -6833,15 +6831,15 @@ bool game_execute_move_enhanced(chess_move_extended_t* move) {
     }
     
     // Update move counters and statistics
-    move_count++;
     if (current_player == PLAYER_WHITE) {
         white_moves_count++;
     } else {
         black_moves_count++;
     }
     
-    // Switch players
+    // Switch players and increment move count
     current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    move_count++;  // FIXED: Increment move count when player changes
     
     return true;
 }
@@ -7373,9 +7371,8 @@ void game_process_promotion_command(const chess_move_command_t* cmd)
         // Clear promotion state (6 = GAME_STATE_PLAYING)
         current_game_state = 6;
         
-        // Switch to next player
-        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-        move_count++;
+        // FIXED: move_count++ and player switch are handled by game_execute_move()
+        // No need to duplicate here
         
         // Print updated board
         game_print_board();
