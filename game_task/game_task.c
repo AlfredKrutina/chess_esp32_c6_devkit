@@ -2245,6 +2245,34 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
                 'a' + invalid_move_backup.from_col, invalid_move_backup.from_row + 1);
         game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
         return;
+        
+    } else if (current_game_state == GAME_STATE_ERROR_RECOVERY_CASTLING_CANCEL) {
+        // FIXED: Handle castling cancellation - only allow lifting king from original position
+        if (from_row != castling_king_row || from_col != castling_king_from_col) {
+            ESP_LOGW(TAG, "❌ Castling cancellation - can only lift king from %c%d", 
+                     'a' + castling_king_from_col, castling_king_row + 1);
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Return king to %c%d to complete cancellation", 
+                    'a' + castling_king_from_col, castling_king_row + 1);
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            return;
+        }
+        
+        // Valid lift of king for castling cancellation
+        piece_lifted = true;
+        lifted_piece_row = from_row;
+        lifted_piece_col = from_col;
+        lifted_piece = board[castling_king_row][castling_king_from_col];
+        
+        // LED: steady yellow on king position
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_king_from_col), 255, 255, 0); // Yellow
+        
+        char success_msg[256];
+        snprintf(success_msg, sizeof(success_msg), "🏰 King lifted - place on original position to complete cancellation");
+        game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        return;
+        
     } else if (current_game_state == GAME_STATE_CASTLING_IN_PROGRESS) {
         // FIXED: Handle UP in castling - must be rook from correct position
         if (from_row != castling_king_row || from_col != castling_rook_from_col) {
@@ -2440,6 +2468,55 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             led_clear_board_only();
             for (int i = 0; i < 3; i++) {
                 led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
+                vTaskDelay(pdMS_TO_TICKS(200));
+                led_clear_board_only();
+                vTaskDelay(pdMS_TO_TICKS(200));
+            }
+        }
+        return;
+    }
+    
+    if (current_game_state == GAME_STATE_ERROR_RECOVERY_CASTLING_CANCEL) {
+        // FIXED: Handle castling cancellation - king must be returned to original position
+        if (to_row == castling_king_row && to_col == castling_king_from_col) {
+            // Correct position - complete castling cancellation
+            ESP_LOGI(TAG, "🏰 Castling cancellation completed");
+            
+            // Reset all castling state
+            castling_in_progress = false;
+            castling_kingside = false;
+            castling_king_row = 0;
+            castling_king_from_col = 0;
+            castling_king_to_col = 0;
+            castling_rook_from_col = 0;
+            castling_rook_to_col = 0;
+            castling_start_time = 0;
+            
+            // Return to idle state
+            current_game_state = GAME_STATE_IDLE;
+            piece_lifted = false;
+            lifted_piece_row = 0;
+            lifted_piece_col = 0;
+            lifted_piece = PIECE_EMPTY;
+            
+            // Clear board and show movable pieces
+            led_clear_board_only();
+            game_highlight_movable_pieces();
+            
+            char success_msg[256];
+            snprintf(success_msg, sizeof(success_msg), "🏰 Castling cancelled - continue playing");
+            game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        } else {
+            // Wrong position - show error
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Return king to %c%d to complete cancellation", 
+                    'a' + castling_king_from_col, castling_king_row + 1);
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            
+            // LED: blink yellow on correct position
+            led_clear_board_only();
+            for (int i = 0; i < 3; i++) {
+                led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_king_from_col), 255, 255, 0);
                 vTaskDelay(pdMS_TO_TICKS(200));
                 led_clear_board_only();
                 vTaskDelay(pdMS_TO_TICKS(200));
@@ -2805,6 +2882,22 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                 snprintf(success_msg, sizeof(success_msg), 
                          "🏰 Castling completed – next player to move");
                 game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+                return;
+            } else if (to_row == castling_king_row && to_col == (castling_kingside ? 7 : 0)) {
+                // FIXED: Věž vrácena na původní pozici = zrušení rošády
+                ESP_LOGI(TAG, "🏰 Rook returned to original position - cancelling castling");
+                
+                // Vynutit návrat krále na původní pozici
+                current_game_state = GAME_STATE_ERROR_RECOVERY_CASTLING_CANCEL;
+                
+                // LED: žlutě na původní pozici krále
+                led_clear_board_only();
+                led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_king_from_col), 255, 255, 0);
+                
+                char cancel_msg[256];
+                snprintf(cancel_msg, sizeof(cancel_msg), 
+                         "🏰 Return king to original position to complete cancellation");
+                game_send_response_to_uart(cancel_msg, false, (QueueHandle_t)cmd->response_queue);
                 return;
             } else {
                 // Položeno jinde → error a vynucení návratu
@@ -4826,10 +4919,22 @@ void game_cancel_castling_transaction(void)
     if (castling_in_progress) {
         ESP_LOGW(TAG, "🏰 Cancelling castling transaction");
         
-        // FIXED: Správné čištění castling_in_progress
+        // FIXED: Kompletní reset všech castling flagů
         castling_in_progress = false;
         castling_kingside = false;
+        castling_king_row = 0;
+        castling_king_from_col = 0;
+        castling_king_to_col = 0;
+        castling_rook_from_col = 0;
+        castling_rook_to_col = 0;
+        castling_start_time = 0;
+        
+        // Návrat do idle stavu
         current_game_state = GAME_STATE_IDLE;
+        piece_lifted = false;
+        lifted_piece_row = 0;
+        lifted_piece_col = 0;
+        lifted_piece = PIECE_EMPTY;
         
         // Clear board
         led_clear_board_only();
@@ -4906,6 +5011,12 @@ void game_cancel_recovery(void)
 void game_handle_invalid_move(move_error_t error, const chess_move_t* move)
 {
     ESP_LOGI(TAG, "🚨 Invalid move detected - implementing enhanced error handling");
+    
+    // FIXED: Vyčistit castling state při jakémkoli error handlingu
+    if (castling_in_progress) {
+        ESP_LOGI(TAG, "🏰 Clearing castling state due to invalid move");
+        game_cancel_castling_transaction();
+    }
     
     // Increment error count
     consecutive_error_count++;
