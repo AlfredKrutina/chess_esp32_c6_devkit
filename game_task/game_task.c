@@ -2411,7 +2411,8 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     }
     
     // FIXED: Progressive color animation from green to blue
-    if (piece_lifted) {
+    // BUT: Skip animation if we're in opponent lift recovery state
+    if (piece_lifted && current_game_state != GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
         
         // Step 1: Show move path with progressive color change (green -> blue)
         for (int step = 0; step < 10; step++) {
@@ -2436,14 +2437,16 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
         led_clear_board_only();
         led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 0, 0, 255); // Blue
         vTaskDelay(pdMS_TO_TICKS(300));
-    } else {
-        // Fallback: simple blue flash if no piece was lifted
+    } else if (current_game_state != GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
+        // Fallback: simple blue flash if no piece was lifted (but not in recovery)
         led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 0, 0, 255); // Blue flash
         vTaskDelay(pdMS_TO_TICKS(250));
     }
     
     // FIXED: Check for "drop without lift" before state handling
-    if (!piece_lifted && current_game_state != GAME_STATE_CASTLING_IN_PROGRESS) {
+    // BUT: Skip this check if we're in opponent lift recovery state
+    if (!piece_lifted && current_game_state != GAME_STATE_CASTLING_IN_PROGRESS && 
+        current_game_state != GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
         ESP_LOGW(TAG, "❌ Drop command without prior lift");
         char error_msg[256];
         snprintf(error_msg, sizeof(error_msg), "❌ Invalid move - lift piece first");
@@ -7408,17 +7411,15 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col)
     // Check if there's a piece at the square
     // NOTE: Matrix event occurs AFTER piece is lifted, so board[row][col] is already empty
     // We need to check if this was a valid lift by checking the piece that was there
-    // For Matrix events, we can't check board state after lift, so we assume it was valid
-    // and let the game logic handle the validation
     piece_t piece = board[row][col];
     if (piece == PIECE_EMPTY) {
         // Matrix event after lift - we can't determine piece type from empty board
-        // We need to determine piece type from game context or previous state
+        // This is a limitation of Matrix events happening after physical lift
         ESP_LOGW(TAG, "❌ Matrix event: Board empty at %c%d after lift", 'a' + col, row + 1);
         
-        // For now, we'll assume this was an opponent piece lift and start recovery
-        // This is a limitation of Matrix events happening after physical lift
-        ESP_LOGW(TAG, "🔄 Matrix: Assuming opponent piece lift at %c%d", 'a' + col, row + 1);
+        // For Matrix events, we need to determine if this was an opponent piece lift
+        // We can't check board state, so we'll start recovery and let the user handle it
+        ESP_LOGW(TAG, "🔄 Matrix: Starting opponent piece recovery at %c%d", 'a' + col, row + 1);
         
         // Start opponent lift recovery
         current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
