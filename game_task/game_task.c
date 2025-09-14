@@ -2016,6 +2016,42 @@ static void game_send_board_to_uart(QueueHandle_t response_queue)
 // Function removed - using game_send_board_to_uart(QueueHandle_t) instead
 
 /**
+ * @brief Highlight valid moves for a specific piece
+ * @param row Row coordinate of the piece
+ * @param col Column coordinate of the piece
+ */
+void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col)
+{
+    ESP_LOGI(TAG, "🟡 Highlighting valid moves for piece at %c%d", 'a' + col, row + 1);
+    
+    // Clear board first
+    led_clear_board_only();
+    
+    // Highlight the piece position in yellow
+    led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255, 0); // Yellow
+    
+    // Get available moves for this piece
+    move_suggestion_t suggestions[64];
+    uint32_t valid_moves = game_get_available_moves(row, col, suggestions, 64);
+    
+    if (valid_moves > 0) {
+        ESP_LOGI(TAG, "💡 Found %lu valid moves for piece at %c%d", valid_moves, 'a' + col, row + 1);
+        
+        // Highlight possible destinations
+        for (uint32_t i = 0; i < valid_moves; i++) {
+            uint8_t led_index = chess_pos_to_led_index(suggestions[i].to_row, suggestions[i].to_col);
+            if (suggestions[i].is_capture) {
+                led_set_pixel_safe(led_index, 255, 165, 0); // Orange for captures
+            } else {
+                led_set_pixel_safe(led_index, 0, 255, 0); // Green for normal moves
+            }
+        }
+    } else {
+        ESP_LOGI(TAG, "⚠️ No valid moves found for piece at %c%d", 'a' + col, row + 1);
+    }
+}
+
+/**
  * @brief Process pickup command (UP)
  */
 static void game_process_pickup_command(const chess_move_command_t* cmd)
@@ -2056,48 +2092,25 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
             return;
         }
         
-        // FIXED: Recovery - piece is physically on invalid position, but we need to return it to last_valid_position
-        // First check if piece is actually on the invalid position (where it should be physically)
-        if (board[invalid_move_backup.to_row][invalid_move_backup.to_col] != invalid_move_backup.piece) {
-            ESP_LOGE(TAG, "❌ Piece not found on invalid position - recovery failed");
-            char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Piece not found on invalid position");
-            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
-            return;
-        }
-        
-        // Piece is on invalid position - set up for return to last_valid_position
+        // 1. Ujistit se, že board[invalid_move_backup.to] obsahuje tu figuru
         piece_lifted = true;
-        lifted_piece_row = invalid_move_backup.to_row;  // From invalid position
-        lifted_piece_col = invalid_move_backup.to_col;  // From invalid position
-        lifted_piece = invalid_move_backup.piece;       // The piece to return
-        
-        // FIXED: Show yellow LED on last_valid_position
-        led_clear_board_only();
-        led_set_pixel_safe(chess_pos_to_led_index(last_valid_position_row, last_valid_position_col), 255, 255, 0); // Yellow on last valid position
-        
-        // FIXED: Show possible moves from last_valid_position
-        move_suggestion_t suggestions[64];
-        uint32_t valid_moves = game_get_available_moves(last_valid_position_row, last_valid_position_col, suggestions, 64);
-        
-        for (uint32_t i = 0; i < valid_moves; i++) {
-            uint8_t led_index = chess_pos_to_led_index(suggestions[i].to_row, suggestions[i].to_col);
-            if (suggestions[i].is_capture) {
-                led_set_pixel_safe(led_index, 255, 165, 0); // Orange for captures
-            } else {
-                led_set_pixel_safe(led_index, 0, 255, 0); // Green for normal moves
-            }
-        }
-        
-        // Change state to recovery waiting for piece drop
+        lifted_piece_row = invalid_move_backup.to_row;
+        lifted_piece_col = invalid_move_backup.to_col;
+        lifted_piece = invalid_move_backup.piece;
         current_game_state = GAME_STATE_WAITING_PIECE_DROP;
-        // Mark that this is recovery mode
-        error_recovery_active = true;
-        
-        char success_msg[256];
-        snprintf(success_msg, sizeof(success_msg), "✅ Piece lifted for recovery from last valid position %c%d - showing possible moves", 
-                'a' + last_valid_position_col, last_valid_position_row + 1);
-        game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+
+        // 2. LED: žlutá na last_valid + zelené tahy z ní
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(
+            last_valid_position_row, last_valid_position_col), 255, 255, 0);
+        game_highlight_valid_moves_for_piece(
+            last_valid_position_row, last_valid_position_col
+        );
+
+        game_send_response_to_uart(
+            "✅ Recovery lift – select one of highlighted moves (green) or cancel (yellow)", 
+            false, (QueueHandle_t)cmd->response_queue
+        );
         return;
         
     } else if (current_game_state == GAME_STATE_IDLE) {
@@ -2128,6 +2141,11 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         
         // Own piece - proceed normally
         current_game_state = GAME_STATE_WAITING_PIECE_DROP;
+        
+        // FIXED: Uložit last_valid_position při každém UP příkazu
+        last_valid_position_row = from_row;
+        last_valid_position_col = from_col;
+        has_last_valid_position = true;
         
         // Set piece lifted state
         piece_lifted = true;
@@ -2195,7 +2213,21 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
             return;
         }
         
+        // FIXED: Force recovery from correct opponent piece position
+        piece_lifted = true;
+        lifted_piece_row = invalid_move_backup.from_row;  // Use backup position, not event position
+        lifted_piece_col = invalid_move_backup.from_col;  // Use backup position, not event position
+        lifted_piece = board[invalid_move_backup.from_row][invalid_move_backup.from_col];
         
+        // LED: steady red on opponent piece position
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0); // Solid red
+        
+        char success_msg[256];
+        snprintf(success_msg, sizeof(success_msg), "✅ Opponent's piece lifted - return to %c%d", 
+                'a' + invalid_move_backup.from_col, invalid_move_backup.from_row + 1);
+        game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        return;
     } else if (current_game_state == GAME_STATE_CASTLING_IN_PROGRESS) {
         // FIXED: Handle UP in castling - must be rook from correct position
         if (from_row != castling_king_row || from_col != castling_rook_from_col) {
@@ -2400,58 +2432,120 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     }
     
     if (current_game_state == GAME_STATE_WAITING_PIECE_DROP) {
-        // Check if this is recovery mode
+        // NEW RECOVERY FLOW: Check if this is recovery mode
         if (error_recovery_active) {
-            // FIXED: Recovery mode - only allow drop on last_valid_position
-            if (to_row == last_valid_position_row && to_col == last_valid_position_col) {
-                // Player returned piece to correct position - execute the return move
-                chess_move_t return_move = {
-                    .from_row = invalid_move_backup.to_row,      // from invalid position
-                    .from_col = invalid_move_backup.to_col,      // from invalid position
-                    .to_row = last_valid_position_row,           // to last valid position
-                    .to_col = last_valid_position_col,           // to last valid position
-                    .piece = invalid_move_backup.piece,          // the piece being returned
-                    .captured_piece = board[last_valid_position_row][last_valid_position_col],
-                    .timestamp = esp_timer_get_time() / 1000
-                };
-                
-                // Execute the return move to restore board state
-                if (game_execute_move(&return_move)) {
-                    // Move executed successfully - clear error state
-                    led_clear_board_only();
-                    current_game_state = GAME_STATE_IDLE;
-                    consecutive_error_count = 0;
-                    piece_lifted = false;
-                    error_recovery_active = false;
-                    // FIXED: Keep last_valid_position for next move
-                    // has_last_valid_position = false; // DON'T clear this!
-                    
-                    // Clear invalid_move_backup
-                    memset(&invalid_move_backup, 0, sizeof(invalid_move_backup));
-                    
-                    // FIXED: Show player change animation and highlight movable pieces
-                    game_show_player_change_animation(current_player, current_player);
-                    vTaskDelay(pdMS_TO_TICKS(1000)); // Wait for animation
-                    game_highlight_movable_pieces();
-                    
-                    char success_msg[256];
-                    snprintf(success_msg, sizeof(success_msg), "✅ Piece returned – continue playing");
-                    game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
-                } else {
-                    // Move execution failed
-                    ESP_LOGE(TAG, "❌ Failed to execute return move");
-                    char error_msg[256];
-                    snprintf(error_msg, sizeof(error_msg), "❌ Failed to return piece");
-                    game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            // 3A) Položení na zelené pole → provést recovery move
+            move_suggestion_t suggestions[64];
+            uint32_t count = game_get_available_moves(
+                last_valid_position_row, last_valid_position_col,
+                suggestions, 64
+            );
+            bool is_green = false;
+            for (uint32_t i = 0; i < count; i++) {
+                if (suggestions[i].to_row == to_row &&
+                    suggestions[i].to_col == to_col) {
+                    is_green = true;
+                    break;
                 }
-            } else {
-                // Wrong position - show error
-                led_clear_board_only();
-                led_set_pixel_safe(chess_pos_to_led_index(last_valid_position_row, last_valid_position_col), 255, 255, 0); // Yellow
-                char error_msg[256];
-                snprintf(error_msg, sizeof(error_msg), "❌ Return to highlighted square first");
-                game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
             }
+
+            if (is_green) {
+                // FIXED: Manual board update for recovery move
+                // 1. Vymaž figurku z nevalidní pozice
+                board[invalid_move_backup.to_row][invalid_move_backup.to_col] = PIECE_EMPTY;
+                
+                // 2. Umísti figurku na validní pozici
+                board[to_row][to_col] = lifted_piece;
+                
+                // 3. Aktualizuj last_valid_position
+                last_valid_position_row = to_row;
+                last_valid_position_col = to_col;
+                
+                // 4. Vyčistit recovery
+                error_recovery_active = false;
+                current_game_state = GAME_STATE_IDLE;
+                piece_lifted = false;
+
+                // 5. LED: modrá flash + žlutá na nové last_valid
+                led_clear_board_only();
+                led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 0, 0, 255);
+                vTaskDelay(pdMS_TO_TICKS(200));
+                led_clear_board_only();
+                led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 255, 255, 0);
+
+                // 6. Změna hráče
+                current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+
+                // 7. Reset error count on successful recovery
+                consecutive_error_count = 0;
+
+                game_send_response_to_uart("✅ Move recovered – next player to move", false, (QueueHandle_t)cmd->response_queue);
+                return;
+            }
+
+            // 3B) Položení na žluté pole → zrušení recovery
+            if (to_row == last_valid_position_row && to_col == last_valid_position_col) {
+                // FIXED: Manual board update for recovery cancellation
+                // 1. Vymaž figurku z nevalidní pozice
+                board[invalid_move_backup.to_row][invalid_move_backup.to_col] = PIECE_EMPTY;
+                
+                // 2. Umísti figurku zpět na last_valid_position
+                board[last_valid_position_row][last_valid_position_col] = lifted_piece;
+                
+                // 3. Vyčistit recovery
+                error_recovery_active = false;
+                current_game_state = GAME_STATE_IDLE;
+                piece_lifted = false;
+
+                // 4. LED: zobrazit všechny tahy hráče
+                led_clear_board_only();
+                game_highlight_movable_pieces();
+
+                // 5. Reset error count on successful cancellation
+                consecutive_error_count = 0;
+
+                game_send_response_to_uart("❌ Recovery cancelled – try a valid move", false, (QueueHandle_t)cmd->response_queue);
+                return;
+            }
+
+            // 3C) Položení na jiné nevalidní pole → změna nevalidní pozice
+            // Vymaž starou figurku
+            board[invalid_move_backup.to_row][invalid_move_backup.to_col] = PIECE_EMPTY;
+            // Umísti figurku na nové místo
+            board[to_row][to_col] = lifted_piece;
+            invalid_move_backup.to_row = to_row;
+            invalid_move_backup.to_col = to_col;
+            // Zůstaň v recovery
+            current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
+            
+            // Error handling - increment error count
+            consecutive_error_count++;
+            ESP_LOGW(TAG, "❌ Recovery error #%u of %u consecutive errors", (unsigned int)consecutive_error_count, (unsigned int)MAX_CONSECUTIVE_ERRORS);
+            
+            // Check if we've reached maximum errors
+            if (consecutive_error_count >= MAX_CONSECUTIVE_ERRORS) {
+                ESP_LOGE(TAG, "🚨 MAXIMUM ERRORS REACHED! Resetting game...");
+                game_reset_game();
+                current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+                consecutive_error_count = 0;
+                error_recovery_active = false;
+                current_game_state = GAME_STATE_IDLE;
+                has_last_valid_position = false;
+                game_send_response_to_uart("🚨 Too many errors - game reset", true, (QueueHandle_t)cmd->response_queue);
+                return;
+            }
+
+            // LED: blikání + trvale červená na nové to
+            for (int i = 0; i < 2; i++) {
+                led_clear_board_only();
+                led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 255, 0, 0);
+                vTaskDelay(pdMS_TO_TICKS(200));
+                led_clear_board_only();
+                vTaskDelay(pdMS_TO_TICKS(200));
+            }
+            led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 255, 0, 0);
+
+            game_send_response_to_uart("❌ Invalid – new return point set, lift again", true, (QueueHandle_t)cmd->response_queue);
             return;
         }
         
@@ -2505,11 +2599,56 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             }
         }
         
-        // FIXED: Validate move FIRST, then execute only if valid
+        // NEW RECOVERY FLOW: Handle invalid moves with board consistency
         move_error_t move_error = game_is_valid_move(&move);
         if (move_error != MOVE_ERROR_NONE) {
-            // Invalid move - handle error WITHOUT moving piece in board[][]
-            game_handle_invalid_move(move_error, &move);
+            // FIXED: last_valid_position se nyní ukládá při každém UP příkazu
+            // Není potřeba ji ukládat zde
+
+            // 2. Ulož invalidní tah pro recovery
+            invalid_move_backup = move;
+
+            // 3. Synchronizuj board s fyzickým stavem
+            board[move.to_row][move.to_col] = move.piece;
+            board[move.from_row][move.from_col] = PIECE_EMPTY;
+
+            // 4. Nastav recovery
+            error_recovery_active = true;
+            current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
+            error_recovery_start_time = esp_timer_get_time() / 1000;
+            
+            // 5. Error handling - increment error count
+            consecutive_error_count++;
+            ESP_LOGW(TAG, "❌ Error #%u of %u consecutive errors", (unsigned int)consecutive_error_count, (unsigned int)MAX_CONSECUTIVE_ERRORS);
+            
+            // Check if we've reached maximum errors
+            if (consecutive_error_count >= MAX_CONSECUTIVE_ERRORS) {
+                ESP_LOGE(TAG, "🚨 MAXIMUM ERRORS REACHED! Resetting game...");
+                game_reset_game();
+                current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+                consecutive_error_count = 0;
+                error_recovery_active = false;
+                current_game_state = GAME_STATE_IDLE;
+                has_last_valid_position = false;
+                game_send_response_to_uart("🚨 Too many errors - game reset", true, (QueueHandle_t)cmd->response_queue);
+                return;
+            }
+
+            // 6. LED: blikání + trvale červená
+            for (int i = 0; i < 3; i++) {
+                led_clear_board_only();
+                led_set_pixel_safe(chess_pos_to_led_index(move.to_row, move.to_col), 255, 0, 0);
+                vTaskDelay(pdMS_TO_TICKS(300));
+                led_clear_board_only();
+                vTaskDelay(pdMS_TO_TICKS(300));
+            }
+            led_set_pixel_safe(chess_pos_to_led_index(move.to_row, move.to_col), 255, 0, 0);
+
+            // 7. UART instrukce
+            char msg[64];
+            snprintf(msg, sizeof(msg), "❌ Invalid move – lift piece from %c%d to return it",
+                     'a' + move.to_col, move.to_row + 1);
+            game_send_response_to_uart(msg, true, (QueueHandle_t)cmd->response_queue);
             return;
         }
         
@@ -2638,59 +2777,8 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
         return;
     }
     
-    // Handle GAME_STATE_ERROR_RECOVERY_GENERAL (state 9)
-    if (current_game_state == GAME_STATE_ERROR_RECOVERY_GENERAL) {
-        // FIXED: In recovery state, only allow drop on last_valid_position
-        if (to_row == last_valid_position_row && to_col == last_valid_position_col) {
-            // Player returned piece to correct position - execute the return move
-            chess_move_t return_move = {
-                .from_row = invalid_move_backup.to_row,      // from invalid position
-                .from_col = invalid_move_backup.to_col,      // from invalid position
-                .to_row = last_valid_position_row,           // to last valid position
-                .to_col = last_valid_position_col,           // to last valid position
-                .piece = invalid_move_backup.piece,          // the piece being returned
-                .captured_piece = board[last_valid_position_row][last_valid_position_col],
-                .timestamp = esp_timer_get_time() / 1000
-            };
-            
-            // Execute the return move to restore board state
-            if (game_execute_move(&return_move)) {
-                // Move executed successfully - clear error state
-                led_clear_board_only();
-                current_game_state = GAME_STATE_IDLE;
-                consecutive_error_count = 0;
-                piece_lifted = false;
-                error_recovery_active = false;
-                // Keep last_valid_position for next move
-                
-                // Clear invalid_move_backup
-                memset(&invalid_move_backup, 0, sizeof(invalid_move_backup));
-                
-                // Show player change animation and highlight movable pieces
-                game_show_player_change_animation(current_player, current_player);
-                vTaskDelay(pdMS_TO_TICKS(1000)); // Wait for animation
-                game_highlight_movable_pieces();
-                
-                char success_msg[256];
-                snprintf(success_msg, sizeof(success_msg), "✅ Piece returned – continue playing");
-                game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
-            } else {
-                // Move execution failed
-                ESP_LOGE(TAG, "❌ Failed to execute return move");
-                char error_msg[256];
-                snprintf(error_msg, sizeof(error_msg), "❌ Failed to return piece");
-                game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
-            }
-        } else {
-            // Wrong position - show error
-            led_clear_board_only();
-            led_set_pixel_safe(chess_pos_to_led_index(last_valid_position_row, last_valid_position_col), 255, 255, 0); // Yellow
-            char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Return to highlighted square first");
-            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
-        }
-        return;
-    }
+    // FIXED: GAME_STATE_ERROR_RECOVERY_GENERAL je nyní sjednocen s WAITING_PIECE_DROP recovery
+    // Duplicitní logika byla odstraněna
     
     // Invalid state
     ESP_LOGE(TAG, "❌ Invalid drop command in state %d", current_game_state);
@@ -4677,30 +4765,17 @@ void game_cancel_castling_transaction(void)
 {
     if (castling_in_progress) {
         ESP_LOGW(TAG, "🏰 Cancelling castling transaction");
+        
+        // FIXED: Správné čištění castling_in_progress
         castling_in_progress = false;
+        castling_kingside = false;
+        current_game_state = GAME_STATE_IDLE;
         
-        // FIXED: NO board rollback - player must physically return pieces
-        // Set game state to general error recovery
-        current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
-        
-        // Store king position for return
-        invalid_move_backup.from_row = castling_king_row;
-        invalid_move_backup.from_col = castling_king_from_col;
-        
-        // LED: pulsing red on king original position
+        // Clear board
         led_clear_board_only();
-        for (int i = 0; i < 6; i++) {
-            float brightness = 0.4f + 0.6f * sin(i * 1.57f);
-            led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_king_from_col), 
-                              (uint8_t)(255 * brightness), 0, 0); // Pulsing red
-            vTaskDelay(pdMS_TO_TICKS(250));
-        }
         
-        // UART instruction
-        char error_msg[256];
-        snprintf(error_msg, sizeof(error_msg), "🏰❌ Castling cancelled - return king to %c%d", 
-                'a' + castling_king_from_col, castling_king_row + 1);
-        game_send_response_to_uart(error_msg, true, NULL);
+        // Send cancellation message
+        game_send_response_to_uart("🏰❌ Castling cancelled – continue playing", false, NULL);
     }
 }
 
@@ -4726,6 +4801,42 @@ bool game_is_castling_timeout(void)
     uint32_t current_time = esp_timer_get_time() / 1000;
     return (current_time - castling_start_time) > CASTLING_TIMEOUT_MS;
 }
+
+/**
+ * @brief Check if error recovery timeout has expired
+ * @return true if timeout expired
+ */
+bool game_is_error_recovery_timeout(void)
+{
+    if (!error_recovery_active) {
+        return false;
+    }
+    
+    uint32_t current_time = esp_timer_get_time() / 1000;
+    return (current_time - error_recovery_start_time) > ERROR_RECOVERY_TIMEOUT_MS;
+}
+
+/**
+ * @brief Cancel error recovery due to timeout
+ */
+void game_cancel_recovery(void)
+{
+    ESP_LOGW(TAG, "⏱️ Recovery timeout - cancelling recovery");
+    
+    // Clear recovery state
+    error_recovery_active = false;
+    current_game_state = GAME_STATE_IDLE;
+    consecutive_error_count = 0;
+    piece_lifted = false;
+    
+    // Clear board
+    led_clear_board_only();
+    
+    // Send timeout message
+    game_send_response_to_uart("⏱️ Recovery timeout – continue playing", false, NULL);
+}
+
+// FIXED: Duplicitní funkce byla odstraněna - používá se game_cancel_castling_transaction()
 
 /**
  * @brief Handle invalid move - enhanced error handling system
@@ -4770,46 +4881,35 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t* move)
         return;
     }
     
-    // FIXED: Store the invalid move for recovery - update only 'to' position
-    // Keep 'from' as last_valid_position for proper recovery
-    if (has_last_valid_position) {
-        invalid_move_backup.from_row = last_valid_position_row;
-        invalid_move_backup.from_col = last_valid_position_col;
-    } else {
-        invalid_move_backup.from_row = move->from_row;
-        invalid_move_backup.from_col = move->from_col;
-    }
-    invalid_move_backup.to_row = move->to_row;
-    invalid_move_backup.to_col = move->to_col;
-    invalid_move_backup.piece = move->piece;
+    // FIXED: last_valid_position se nyní ukládá při každém UP příkazu
+    // Není potřeba ji ukládat zde
+
+    // 2. Uložení invalid_move_backup pro recovery
+    invalid_move_backup = *move;
+
+    // 3. Posunutí boardu na nevalidní cíl (pro fyzický pickup)
+    board[move->to_row][move->to_col] = move->piece;
+    board[move->from_row][move->from_col] = PIECE_EMPTY;
+
+    // 4. Nastavení recovery stavu
     current_game_state = GAME_STATE_ERROR_RECOVERY_GENERAL;
     error_recovery_active = true;
     error_recovery_start_time = esp_timer_get_time() / 1000;
     
-    // FIXED: Move piece in board[][] to match physical state for pickup capability
-    // But keep last_valid_position unchanged for proper recovery
-    board[move->to_row][move->to_col] = move->piece;
-    board[move->from_row][move->from_col] = PIECE_EMPTY;
-    
-    // Step 1: Pulsing red on invalid destination (3x)
-    ESP_LOGI(TAG, "🔴 Step 1: Pulsing red on invalid destination");
+    // 5. LED indikace nevalidního cíle
     for (int i = 0; i < 3; i++) {
         led_clear_board_only();
-        led_set_pixel_safe(chess_pos_to_led_index(move->to_row, move->to_col), 255, 0, 0); // Red
+        led_set_pixel_safe(chess_pos_to_led_index(move->to_row, move->to_col), 255, 0, 0);
         vTaskDelay(pdMS_TO_TICKS(300));
         led_clear_board_only();
         vTaskDelay(pdMS_TO_TICKS(300));
     }
-    
-    // Step 2: Trvale červená LED na target (podle user flow)
-    ESP_LOGI(TAG, "🔴 Step 2: Trvale červená LED na target");
-    led_clear_board_only();
-    led_set_pixel_safe(chess_pos_to_led_index(move->to_row, move->to_col), 255, 0, 0); // Red
-    
-    // UART instruction
+    led_set_pixel_safe(chess_pos_to_led_index(move->to_row, move->to_col), 255, 0, 0);
+
+    // 6. UART instrukce
     char msg[64];
-    snprintf(msg, sizeof(msg), "❌ Invalid move – lift piece from %c%d to return it", 
-            'a' + move->to_col, move->to_row + 1);
+    snprintf(msg, sizeof(msg), "❌ Invalid move – lift piece from %c%d to return it",
+             'a' + move->to_col, move->to_row + 1);
     game_send_response_to_uart(msg, true, NULL);
     
     ESP_LOGI(TAG, "💡 User must return piece to [%d,%d] and try again", 
@@ -4873,19 +4973,7 @@ bool game_handle_piece_return(uint8_t row, uint8_t col)
     }
 }
 
-/**
- * @brief Check if error recovery timeout has expired
- * @return true if timeout expired
- */
-bool game_is_error_recovery_timeout(void)
-{
-    if (!error_recovery_active) {
-        return false;
-    }
-    
-    uint32_t current_time = esp_timer_get_time() / 1000;
-    return (current_time - error_recovery_start_time) > ERROR_RECOVERY_TIMEOUT_MS;
-}
+// FIXED: Duplicitní definice byla odstraněna
 
 /**
  * @brief Force clear error recovery state
