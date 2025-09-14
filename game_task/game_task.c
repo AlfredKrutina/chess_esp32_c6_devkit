@@ -2152,36 +2152,60 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         lifted_piece_col = from_col;
         lifted_piece = piece;
         
-        // Check if this is a king move that could be castling
+        // ENHANCED: Check if this is a king move that could be castling
         if (piece == PIECE_WHITE_KING || piece == PIECE_BLACK_KING) {
             // Check if castling is possible
             bool can_castle_kingside = game_can_castle_kingside(current_player);
             bool can_castle_queenside = game_can_castle_queenside(current_player);
             
             if (can_castle_kingside || can_castle_queenside) {
-                // Show castling options
+                // ENHANCED: Start castling transaction with improved flow
+                castling_in_progress = true;
+                castling_king_row = from_row;
+                castling_king_from_col = from_col;
+                castling_kingside = can_castle_kingside;
+                castling_start_time = esp_timer_get_time() / 1000;
+                
+                current_game_state = GAME_STATE_CASTLING_IN_PROGRESS;
+                
+                // LED: žlutě králova startovní pozice + zeleně oba cíle
+                led_clear_board_only();
+                led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 255, 0); // Yellow king
+                uint8_t castle_col = castling_kingside ? from_col + 2 : from_col - 2;
+                led_set_pixel_safe(chess_pos_to_led_index(from_row, castle_col), 0, 255, 0); // Green target
+                
                 char castling_msg[256];
-                snprintf(castling_msg, sizeof(castling_msg),
-                    "🏰 King lifted - castling options:\n"
-                    "  • Move 2 squares right for kingside\n"
-                    "  • Move 2 squares left for queenside\n"
-                    "  • Or move normally"
-                );
+                snprintf(castling_msg, sizeof(castling_msg), 
+                         "🏰 Castling initiated – place king on highlighted square");
                 game_send_response_to_uart(castling_msg, false, (QueueHandle_t)cmd->response_queue);
             }
         }
         
     } else if (current_game_state == GAME_STATE_CASTLING_IN_PROGRESS) {
-        // Handle castling piece lift
-        uint8_t king_row = (current_player == PLAYER_WHITE) ? 0 : 7;
-        uint8_t king_col = castling_king_from_col; // King is at original position
-        uint8_t rook_from_col = castling_rook_from_col;
+        // ENHANCED: Handle castling piece lift with improved flow
+        // Povolit UP jen z původní věžové pozice (král už je umístěn)
+        uint8_t rook_from_col = castling_kingside ? 7 : 0;
         
-        bool is_king = (from_row == king_row && from_col == king_col);
-        bool is_rook = (from_row == king_row && from_col == rook_from_col);
-        
-        if (!is_king && !is_rook) {
-            // Wrong piece during castling - handle as general error
+        if (from_row == castling_king_row && from_col == rook_from_col) {
+            // Zvednutí věže
+            piece_lifted = true;
+            lifted_piece_row = from_row;
+            lifted_piece_col = from_col;
+            lifted_piece = piece;
+
+            // LED: změnit modré pole věže na žluté + zeleně cíl
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 255, 0); // Yellow rook (změna z modré)
+            uint8_t rook_to_col = castling_kingside ? castling_king_from_col + 1 : castling_king_from_col - 1;
+            led_set_pixel_safe(chess_pos_to_led_index(from_row, rook_to_col), 0, 255, 0); // Green target
+
+            char castling_msg[256];
+            snprintf(castling_msg, sizeof(castling_msg), 
+                     "🏰 Place rook on highlighted square");
+            game_send_response_to_uart(castling_msg, false, (QueueHandle_t)cmd->response_queue);
+            return;
+        } else {
+            // Jiný UP → error
             chess_move_t error_move = {
                 .from_row = from_row,
                 .from_col = from_col,
@@ -2194,12 +2218,6 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
             game_handle_invalid_move(MOVE_ERROR_INVALID_CASTLING, &error_move);
             return;
         }
-        
-        // Set piece lifted state for castling
-        piece_lifted = true;
-        lifted_piece_row = from_row;
-        lifted_piece_col = from_col;
-        lifted_piece = piece;
         
     } else if (current_game_state == GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
         // Only allow lifting the piece that needs to be returned
@@ -2703,47 +2721,43 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     }
     
     if (current_game_state == GAME_STATE_CASTLING_IN_PROGRESS) {
-        // FIXED: Handle castling drop - must be rook move to correct position
-        if (lifted_piece == PIECE_WHITE_ROOK || lifted_piece == PIECE_BLACK_ROOK) {
-            // Check if rook is placed on correct position
-            if (to_row == castling_king_row && to_col == castling_rook_to_col) {
-                // Valid rook placement - complete castling WITHOUT moving pieces in memory
-                if (game_complete_castling_strict()) {
-                    // Castling completed successfully
-                    piece_lifted = false;
-                    lifted_piece_row = 0;
-                    lifted_piece_col = 0;
-                    lifted_piece = PIECE_EMPTY;
-                    current_game_state = GAME_STATE_IDLE;
-                } else {
-                    // Castling completion failed - handle as general error
-                    chess_move_t error_move = {
-                        .from_row = lifted_piece_row,
-                        .from_col = lifted_piece_col,
-                        .to_row = to_row,
-                        .to_col = to_col,
-                        .piece = lifted_piece,
-                        .captured_piece = PIECE_EMPTY,
-                        .timestamp = esp_timer_get_time() / 1000
-                    };
-                    game_handle_invalid_move(MOVE_ERROR_INVALID_CASTLING, &error_move);
-                }
-            } else {
-                // Wrong position - handle as general error
-                char error_msg[256];
-                snprintf(error_msg, sizeof(error_msg), "❌ Place rook on %c%d", 
-                        'a' + castling_rook_to_col, castling_king_row + 1);
-                game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+        // ENHANCED: Handle castling drop with improved flow
+        if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+            // 1. Položení krále - ověřit, že cíl je rošádová destinace
+            uint8_t expected_col = castling_kingside 
+                ? castling_king_from_col + 2 
+                : castling_king_from_col - 2;
+            
+            if (to_row == castling_king_row && to_col == expected_col) {
+                // 1) FIXED: Pouze softwarový přesun krále (věž se NEPŘESOUVÁ!)
+                board[castling_king_row][castling_king_from_col] = PIECE_EMPTY; // Vymazat původní pozici krále
+                board[to_row][to_col] = lifted_piece; // Král na novém místě
                 
-                // LED: blink red on correct position
+                // Aktualizovat tracking proměnné
+                last_valid_position_row = to_row;
+                last_valid_position_col = to_col;
+                has_last_valid_position = true;
+
+                // 2) LED: modře pole věže + zeleně cíl věže (věž se NEPŘESOUVÁ automaticky!)
+                uint8_t rook_from_col = castling_kingside ? 7 : 0;
+                uint8_t rook_to_col = castling_kingside ? to_col - 1 : to_col + 1;
                 led_clear_board_only();
-                for (int i = 0; i < 3; i++) {
-                    led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, castling_rook_to_col), 255, 0, 0);
-                    vTaskDelay(pdMS_TO_TICKS(200));
-                    led_clear_board_only();
-                    vTaskDelay(pdMS_TO_TICKS(200));
-                }
+                led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, rook_from_col), 0, 0, 255); // Blue rook
+                led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, rook_to_col), 0, 255, 0); // Green target
+
+                // Přepnout do stavu "čeká na věž" - věž zůstává na původním místě!
+                piece_lifted = false;
+                lifted_piece_row = 0;
+                lifted_piece_col = 0;
+                lifted_piece = PIECE_EMPTY;
                 
+                char castling_msg[256];
+                snprintf(castling_msg, sizeof(castling_msg), 
+                         "🏰 King placed – now lift rook from highlighted square");
+                game_send_response_to_uart(castling_msg, false, (QueueHandle_t)cmd->response_queue);
+                return;
+            } else {
+                // Jiný DN → špatné… handle invalid as general error
                 chess_move_t error_move = {
                     .from_row = lifted_piece_row,
                     .from_col = lifted_piece_col,
@@ -2754,14 +2768,60 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                     .timestamp = esp_timer_get_time() / 1000
                 };
                 game_handle_invalid_move(MOVE_ERROR_INVALID_CASTLING, &error_move);
+                return;
+            }
+        } else if (lifted_piece == PIECE_WHITE_ROOK || lifted_piece == PIECE_BLACK_ROOK) {
+            // 2. Položení věže
+            uint8_t rook_to_col = castling_kingside 
+                ? castling_king_from_col + 1 
+                : castling_king_from_col - 1;
+            
+            if (to_row == castling_king_row && to_col == rook_to_col) {
+                // FIXED: Věž se přesouvá až po fyzickém položení hráčem!
+                // Věž je už fyzicky na správném místě, jen aktualizujeme board
+                board[castling_king_row][castling_kingside ? 7 : 0] = PIECE_EMPTY; // Vymazat původní pozici
+                board[to_row][to_col] = lifted_piece; // Věž je na novém místě
+
+                // Dokončení rošády
+                castling_in_progress = false;
+                current_game_state = GAME_STATE_IDLE;
+                piece_lifted = false;
+                lifted_piece_row = 0;
+                lifted_piece_col = 0;
+                lifted_piece = PIECE_EMPTY;
+
+                // Switch player
+                player_t previous_player = current_player;
+                current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+
+                // FIXED: Vyvolat animaci změny hráče a vyčistit LED
+                game_show_player_change_animation(previous_player, current_player);
+                
+                // Vyčistit LED a zobrazit tahy nového hráče
+                led_clear_board_only();
+                game_highlight_movable_pieces();
+
+                char success_msg[256];
+                snprintf(success_msg, sizeof(success_msg), 
+                         "🏰 Castling completed – next player to move");
+                game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+                return;
+            } else {
+                // Položeno jinde → error a vynucení návratu
+                chess_move_t error_move = {
+                    .from_row = lifted_piece_row,
+                    .from_col = lifted_piece_col,
+                    .to_row = to_row,
+                    .to_col = to_col,
+                    .piece = lifted_piece,
+                    .captured_piece = PIECE_EMPTY,
+                    .timestamp = esp_timer_get_time() / 1000
+                };
+                game_handle_invalid_move(MOVE_ERROR_INVALID_CASTLING, &error_move);
+                return;
             }
         } else {
             // Wrong piece during castling - handle as general error
-            char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Lift rook from %c%d", 
-                    'a' + castling_rook_from_col, castling_king_row + 1);
-            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
-            
             chess_move_t error_move = {
                 .from_row = lifted_piece_row,
                 .from_col = lifted_piece_col,
@@ -2783,8 +2843,9 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     ESP_LOGE(TAG, "❌ Invalid drop command in state %d", current_game_state);
     game_send_response_to_uart("❌ Invalid action in current game state", true, (QueueHandle_t)cmd->response_queue);
     
-    // Step 4: Clear board LEDs after state handling (but NOT for ERROR_RECOVERY_GENERAL)
-    if (current_game_state != GAME_STATE_ERROR_RECOVERY_GENERAL) {
+    // Step 4: Clear board LEDs after state handling (but NOT for ERROR_RECOVERY_GENERAL or CASTLING_IN_PROGRESS)
+    if (current_game_state != GAME_STATE_ERROR_RECOVERY_GENERAL && 
+        current_game_state != GAME_STATE_CASTLING_IN_PROGRESS) {
         led_clear_board_only();
     }
     
