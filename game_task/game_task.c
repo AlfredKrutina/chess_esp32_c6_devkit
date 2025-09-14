@@ -144,6 +144,15 @@ static const uint32_t ERROR_RECOVERY_TIMEOUT_MS = 30000; // 30 seconds
 
 // Error counting system
 static uint32_t consecutive_error_count = 0;
+
+// IMPROVED: Opponent piece tracking for comprehensive flow
+static bool opponent_piece_moved = false;
+static uint8_t opponent_original_row = 0;
+static uint8_t opponent_original_col = 0;
+static piece_t opponent_original_piece = PIECE_EMPTY;
+static uint8_t opponent_current_row = 0;
+static uint8_t opponent_current_col = 0;
+static bool opponent_invalid_position = false;
 static const uint32_t MAX_CONSECUTIVE_ERRORS = 10;
 
 // Last valid position tracking
@@ -622,6 +631,12 @@ void game_reset_game(void)
     last_move_time = 0;
     move_count = 0;
     game_active = false;
+    
+    // IMPROVED: Reset opponent piece tracking
+    opponent_piece_moved = false;
+    opponent_invalid_position = false;
+    opponent_original_piece = PIECE_EMPTY;
+    ESP_LOGI(TAG, "🔄 Reset opponent piece tracking");
     
     // Reset extended statistics
     white_time_total = 0;
@@ -2122,19 +2137,62 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
             // Opponent's piece - start opponent lift recovery
             ESP_LOGW(TAG, "❌ Cannot lift opponent's piece at %s", cmd->from_notation);
             
-            // Set state to opponent lift recovery
-            current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
-            invalid_move_backup.from_row = from_row;
-            invalid_move_backup.from_col = from_col;
+            // IMPROVED: Use new opponent piece tracking system
+            ESP_LOGW(TAG, "🔄 UART: Starting opponent piece tracking at %s", cmd->from_notation);
             
-            // LED: solid red on opponent piece position
-            led_clear_board_only();
-            led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 0, 0); // Solid red
+            // Track opponent piece movement
+            opponent_piece_moved = true;
+            opponent_current_row = from_row;
+            opponent_current_col = from_col;
             
-            // UART instruction
-            char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to %s", cmd->from_notation);
-            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            // Store original position if not already stored
+            if (opponent_original_piece == PIECE_EMPTY) {
+                opponent_original_row = from_row;
+                opponent_original_col = from_col;
+                opponent_original_piece = piece;
+                ESP_LOGI(TAG, "📍 Stored opponent piece original position [%d,%d]", opponent_original_row, opponent_original_col);
+            }
+            
+            // Check if this is from invalid position
+            if (opponent_invalid_position && from_row == opponent_current_row && from_col == opponent_current_col) {
+                // Lifting from invalid position - show green on last valid position
+                ESP_LOGW(TAG, "🔄 Lifting opponent piece from invalid position - showing last valid position");
+                
+                // IMPROVED: Show green on last valid position (as requested)
+                led_clear_board_only();
+                led_set_pixel_safe(chess_pos_to_led_index(opponent_original_row, opponent_original_col), 0, 255, 0); // Green on last valid position
+                
+                // UART instruction
+                char error_msg[256];
+                char orig_notation[4];
+                convert_coords_to_notation(opponent_original_row, opponent_original_col, orig_notation);
+                snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to last valid position %s", orig_notation);
+                game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            } else {
+                // Normal opponent piece lift - start recovery
+                ESP_LOGW(TAG, "🔄 Starting opponent lift recovery for piece at %s", cmd->from_notation);
+                
+                // Set state to opponent lift recovery
+                current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
+                invalid_move_backup.from_row = from_row;
+                invalid_move_backup.from_col = from_col;
+                
+                // IMPROVED: Red blink + green steady guiding target
+                led_clear_board_only();
+                for (int i = 0; i < 2; i++) {
+                    led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 0, 0); // Red blink
+                    vTaskDelay(pdMS_TO_TICKS(200));
+                    led_clear_board_only();
+                    vTaskDelay(pdMS_TO_TICKS(200));
+                }
+                // Now green steady on original position for clear guidance
+                led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 0, 255, 0); // Green guidance
+                
+                // UART instruction
+                char error_msg[256];
+                snprintf(error_msg, sizeof(error_msg), "❌ Opponent's piece lifted – drop it back on highlighted square");
+                game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+            }
             return;
         }
         
@@ -2472,6 +2530,12 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             // Correct position - clear error state
             ESP_LOGI(TAG, "✅ Opponent's piece returned to correct position");
             
+            // IMPROVED: Reset opponent piece tracking
+            opponent_piece_moved = false;
+            opponent_invalid_position = false;
+            opponent_original_piece = PIECE_EMPTY;
+            ESP_LOGI(TAG, "🔄 Reset opponent piece tracking");
+            
             // Clear error recovery state
             error_recovery_active = false;
             piece_lifted = false;
@@ -2494,19 +2558,19 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                      invalid_move_backup.from_row, invalid_move_backup.from_col);
             
             char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to highlighted square");
+            snprintf(error_msg, sizeof(error_msg), "❌ Drop it back on the highlighted square");
             game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
             
-            // LED: Clear board and blink red on correct position, then keep it red
+            // IMPROVED: Red blink + green steady guiding target
             led_clear_board_only();
-            for (int i = 0; i < 3; i++) {
-                led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
-                vTaskDelay(pdMS_TO_TICKS(200));
+            for (int i = 0; i < 2; i++) {
+                led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0); // Red blink
+                vTaskDelay(pdMS_TO_TICKS(150));
                 led_clear_board_only();
-                vTaskDelay(pdMS_TO_TICKS(200));
+                vTaskDelay(pdMS_TO_TICKS(150));
             }
-            // Finally keep the red square highlighted
-            led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
+            // Green guidance, where to return
+            led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 0, 255, 0); // Green guidance
         }
         return;
     }
@@ -7417,21 +7481,60 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col)
         // This is a limitation of Matrix events happening after physical lift
         ESP_LOGW(TAG, "❌ Matrix event: Board empty at %c%d after lift", 'a' + col, row + 1);
         
-        // For Matrix events, we need to determine if this was an opponent piece lift
-        // We can't check board state, so we'll start recovery and let the user handle it
-        ESP_LOGW(TAG, "🔄 Matrix: Starting opponent piece recovery at %c%d", 'a' + col, row + 1);
+        // IMPROVED: Use new opponent piece tracking system
+        ESP_LOGW(TAG, "🔄 Matrix: Starting opponent piece tracking at %c%d", 'a' + col, row + 1);
         
-        // Start opponent lift recovery
-        current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
-        invalid_move_backup.from_row = row;
-        invalid_move_backup.from_col = col;
+        // Track opponent piece movement
+        opponent_piece_moved = true;
+        opponent_current_row = row;
+        opponent_current_col = col;
         
-        // LED: solid red on opponent piece position
-        led_clear_board_only();
-        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Solid red
+        // Store original position if not already stored
+        if (opponent_original_piece == PIECE_EMPTY) {
+            opponent_original_row = row;
+            opponent_original_col = col;
+            opponent_original_piece = PIECE_EMPTY; // We can't determine piece type
+            ESP_LOGI(TAG, "📍 Stored opponent piece original position [%d,%d]", opponent_original_row, opponent_original_col);
+        }
         
-        // Log recovery start
-        ESP_LOGI(TAG, "🔴 Recovery: Return opponent's piece to %c%d", 'a' + col, row + 1);
+        // Check if this is from invalid position
+        if (opponent_invalid_position && row == opponent_current_row && col == opponent_current_col) {
+            // Lifting from invalid position - show green on last valid position
+            ESP_LOGW(TAG, "🔄 Lifting opponent piece from invalid position - showing last valid position");
+            
+            // IMPROVED: Show green on last valid position (as requested)
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_original_row, opponent_original_col), 0, 255, 0); // Green on last valid position
+            
+            // UART instruction
+            char error_msg[256];
+            char orig_notation[4];
+            convert_coords_to_notation(opponent_original_row, opponent_original_col, orig_notation);
+            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to last valid position %s", orig_notation);
+            ESP_LOGW(TAG, "📤 %s", error_msg);
+        } else {
+            // Normal opponent piece lift - start recovery
+            ESP_LOGW(TAG, "🔄 Starting opponent lift recovery for piece at %c%d", 'a' + col, row + 1);
+            
+            // Set state to opponent lift recovery
+            current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
+            invalid_move_backup.from_row = row;
+            invalid_move_backup.from_col = col;
+            
+            // IMPROVED: Red blink + green steady guiding target
+            led_clear_board_only();
+            for (int i = 0; i < 2; i++) {
+                led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red blink
+                vTaskDelay(pdMS_TO_TICKS(200));
+                led_clear_board_only();
+                vTaskDelay(pdMS_TO_TICKS(200));
+            }
+            // Now green steady on original position for clear guidance
+            led_set_pixel_safe(chess_pos_to_led_index(row, col), 0, 255, 0); // Green guidance
+            
+            // Log recovery start
+            ESP_LOGI(TAG, "🔴 Recovery: Return opponent's piece to %c%d", 'a' + col, row + 1);
+        }
         return;
     }
     
@@ -7443,20 +7546,57 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col)
     if (!is_current_player) {
         ESP_LOGW(TAG, "❌ Cannot lift opponent's piece at %c%d", 'a' + col, row + 1);
         
-        // Start opponent lift recovery - same logic as UART command
-        ESP_LOGW(TAG, "🔄 Starting opponent lift recovery for piece at %c%d", 'a' + col, row + 1);
+        // IMPROVED: Track opponent piece movement
+        opponent_piece_moved = true;
+        opponent_current_row = row;
+        opponent_current_col = col;
         
-        // Set state to opponent lift recovery
-        current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
-        invalid_move_backup.from_row = row;
-        invalid_move_backup.from_col = col;
+        // Store original position if not already stored
+        if (opponent_original_piece == PIECE_EMPTY) {
+            opponent_original_row = row;
+            opponent_original_col = col;
+            opponent_original_piece = board[row][col];
+            ESP_LOGI(TAG, "📍 Stored opponent piece original position [%d,%d]", opponent_original_row, opponent_original_col);
+        }
         
-        // LED: solid red on opponent piece position
-        led_clear_board_only();
-        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Solid red
-        
-        // Log recovery start
-        ESP_LOGI(TAG, "🔴 Recovery: Return opponent's piece to %c%d", 'a' + col, row + 1);
+        // Check if this is from invalid position
+        if (opponent_invalid_position && row == opponent_current_row && col == opponent_current_col) {
+            // Lifting from invalid position - show green on last valid position
+            ESP_LOGW(TAG, "🔄 Lifting opponent piece from invalid position - showing last valid position");
+            
+            // IMPROVED: Show green on last valid position (as requested)
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_original_row, opponent_original_col), 0, 255, 0); // Green on last valid position
+            
+            // UART instruction
+            char error_msg[256];
+            char orig_notation[4];
+            convert_coords_to_notation(opponent_original_row, opponent_original_col, orig_notation);
+            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to last valid position %s", orig_notation);
+            ESP_LOGW(TAG, "📤 %s", error_msg);
+        } else {
+            // Normal opponent piece lift - start recovery
+            ESP_LOGW(TAG, "🔄 Starting opponent lift recovery for piece at %c%d", 'a' + col, row + 1);
+            
+            // Set state to opponent lift recovery
+            current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
+            invalid_move_backup.from_row = row;
+            invalid_move_backup.from_col = col;
+            
+            // IMPROVED: Red blink + green steady guiding target
+            led_clear_board_only();
+            for (int i = 0; i < 2; i++) {
+                led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red blink
+                vTaskDelay(pdMS_TO_TICKS(200));
+                led_clear_board_only();
+                vTaskDelay(pdMS_TO_TICKS(200));
+            }
+            // Now green steady on original position for clear guidance
+            led_set_pixel_safe(chess_pos_to_led_index(row, col), 0, 255, 0); // Green guidance
+            
+            // Log recovery start
+            ESP_LOGI(TAG, "🔴 Recovery: Return opponent's piece to %c%d", 'a' + col, row + 1);
+        }
         return;
     }
     
@@ -7514,6 +7654,12 @@ void game_handle_piece_placed(uint8_t row, uint8_t col)
             // Correct position - clear error state
             ESP_LOGI(TAG, "✅ Matrix: Opponent's piece returned to correct position");
             
+            // IMPROVED: Reset opponent piece tracking
+            opponent_piece_moved = false;
+            opponent_invalid_position = false;
+            opponent_original_piece = PIECE_EMPTY;
+            ESP_LOGI(TAG, "🔄 Reset opponent piece tracking");
+            
             // Clear error recovery state
             error_recovery_active = false;
             piece_lifted = false;
@@ -7537,18 +7683,18 @@ void game_handle_piece_placed(uint8_t row, uint8_t col)
             ESP_LOGW(TAG, "❌ Matrix: Wrong return position - must return to [%d,%d]", 
                      invalid_move_backup.from_row, invalid_move_backup.from_col);
             
-            // LED: Clear board and blink red on correct position, then keep it red
+            // IMPROVED: Red blink + green steady guiding target
             led_clear_board_only();
-            for (int i = 0; i < 3; i++) {
-                led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
-                vTaskDelay(pdMS_TO_TICKS(200));
+            for (int i = 0; i < 2; i++) {
+                led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0); // Red blink
+                vTaskDelay(pdMS_TO_TICKS(150));
                 led_clear_board_only();
-                vTaskDelay(pdMS_TO_TICKS(200));
+                vTaskDelay(pdMS_TO_TICKS(150));
             }
-            // Finally keep the red square highlighted
-            led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
+            // Green guidance, where to return
+            led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 0, 255, 0); // Green guidance
             
-            ESP_LOGW(TAG, "📤 ❌ Return opponent's piece to highlighted square");
+            ESP_LOGW(TAG, "📤 ❌ Drop it back on the highlighted square");
         }
         return;
     }
@@ -7556,6 +7702,58 @@ void game_handle_piece_placed(uint8_t row, uint8_t col)
     // Normal piece placement (not in recovery state)
     // Clear only board LEDs
     led_clear_board_only();
+    
+    // IMPROVED: Check if opponent piece was placed on invalid position
+    if (opponent_piece_moved) {
+        // Update current position
+        opponent_current_row = row;
+        opponent_current_col = col;
+        
+        // Check if current position is valid for this piece
+        move_suggestion_t suggestions[64];
+        uint32_t valid_moves = game_get_available_moves(opponent_current_row, opponent_current_col, suggestions, 64);
+        
+        if (valid_moves == 0) {
+            // Invalid position - show red indication
+            ESP_LOGW(TAG, "❌ Opponent piece placed on invalid position [%d,%d]", opponent_current_row, opponent_current_col);
+            opponent_invalid_position = true;
+            
+            // IMPROVED: Systematically move piece in board array to track position
+            if (opponent_original_piece != PIECE_EMPTY) {
+                // Move piece from original position to current position in board
+                board[opponent_original_row][opponent_original_col] = PIECE_EMPTY;
+                board[opponent_current_row][opponent_current_col] = opponent_original_piece;
+                ESP_LOGI(TAG, "🔄 Systematically moved opponent piece from [%d,%d] to [%d,%d]", 
+                        opponent_original_row, opponent_original_col, opponent_current_row, opponent_current_col);
+            }
+            
+            // IMPROVED: Show ONLY red on invalid position (as requested)
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_current_row, opponent_current_col), 255, 0, 0); // Red for invalid position
+            
+            // UART instruction
+            char error_msg[256];
+            char pos_notation[4];
+            convert_coords_to_notation(opponent_current_row, opponent_current_col, pos_notation);
+            snprintf(error_msg, sizeof(error_msg), "❌ Invalid position %s - move opponent's piece to valid square", pos_notation);
+            ESP_LOGW(TAG, "📤 %s", error_msg);
+        } else {
+            // Valid position - clear invalid flag and reset tracking
+            opponent_invalid_position = false;
+            opponent_piece_moved = false;
+            opponent_original_piece = PIECE_EMPTY;
+            ESP_LOGI(TAG, "✅ Opponent piece placed on valid position [%d,%d] - tracking reset", opponent_current_row, opponent_current_col);
+            
+            // IMPROVED: Show success indication and then highlight movable pieces (as requested)
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_current_row, opponent_current_col), 0, 255, 0); // Green for valid position
+            vTaskDelay(pdMS_TO_TICKS(500)); // Show green for 500ms
+            led_clear_board_only();
+            
+            // Show movable pieces with valid moves (as requested)
+            game_highlight_movable_pieces();
+        }
+    }
     
     // After piece is placed, show pieces that the opponent can move
     // This completes the cycle as requested by the user
