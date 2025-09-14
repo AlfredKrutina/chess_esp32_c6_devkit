@@ -2392,6 +2392,24 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
         return;
     }
     
+    // FIXED: Kontrola, zda se figurka vrátila na stejnou pozici - PŘED všemi speciálními stavy
+    if (piece_lifted && lifted_piece_row == to_row && lifted_piece_col == to_col) {
+        // Figurka se vrátila na původní pozici - reset tahu
+        piece_lifted = false;
+        lifted_piece_row = 0;
+        lifted_piece_col = 0;
+        lifted_piece = PIECE_EMPTY;
+        current_game_state = GAME_STATE_IDLE;
+        
+        led_clear_board_only();
+        game_highlight_movable_pieces();
+        
+        char reset_msg[256];
+        snprintf(reset_msg, sizeof(reset_msg), "↩️ Move cancelled - piece returned to original position");
+        game_send_response_to_uart(reset_msg, false, (QueueHandle_t)cmd->response_queue);
+        return;
+    }
+    
     // FIXED: Progressive color animation from green to blue
     if (piece_lifted) {
         
@@ -2411,7 +2429,7 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             
             led_clear_board_only();
             led_set_pixel_safe(inter_led, red, green, blue);
-            vTaskDelay(pdMS_TO_TICKS(100));
+            vTaskDelay(pdMS_TO_TICKS(50)); // FIXED: Zrychleno z 100ms na 50ms
         }
         
         // Step 2: Final blue flash on destination
@@ -5508,9 +5526,9 @@ void game_show_player_change_animation(player_t previous_player, player_t curren
         }
     }
     
-    // ENHANCED: Ultra-smooth player change animation with advanced brightness control
-    for (int step = 0; step < 20; step++) { // More steps for ultra-smoothness
-        float progress = (float)step / 19.0f;
+    // FIXED: Zrychlená animace - z 20 kroků na 10, z 12ms na 6ms
+    for (int step = 0; step < 10; step++) { // Zrychleno z 20 na 10 kroků
+        float progress = (float)step / 9.0f; // Zrychleno z 19 na 9
         
         // Clear board first
         led_clear_board_only();
@@ -5607,12 +5625,12 @@ void game_show_player_change_animation(player_t previous_player, player_t curren
             }
         }
         
-        vTaskDelay(pdMS_TO_TICKS(12)); // Optimized timing: 20 steps × 12ms = 240ms total for better responsiveness
+        vTaskDelay(pdMS_TO_TICKS(6)); // FIXED: Zrychleno z 12ms na 6ms - 10 kroků × 6ms = 60ms celkem
     }
     
     // Clear board after animation
     led_clear_board_only();
-    vTaskDelay(pdMS_TO_TICKS(200));
+    vTaskDelay(pdMS_TO_TICKS(100)); // FIXED: Zrychleno z 200ms na 100ms
     
     // Finally, highlight movable pieces for current player
     game_highlight_movable_pieces();
@@ -5644,7 +5662,7 @@ void game_test_move_animation(void)
         
         led_clear_board_only();
         led_set_pixel_safe(inter_led, red, green, blue);
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(50)); // FIXED: Zrychleno z 100ms na 50ms
     }
     
     // Final blue flash
