@@ -165,6 +165,18 @@ static const uint32_t CASTLING_TIMEOUT_MS = 60000; // 60 seconds
 // Castling flags and en passant state
 // (declared later in the file)
 
+// Opponent piece handling state
+static bool opponent_piece_moved = false;
+static uint8_t opponent_original_row = 0;
+static uint8_t opponent_original_col = 0;
+static uint8_t opponent_current_row = 0;
+static uint8_t opponent_current_col = 0;
+static piece_t opponent_piece_type = PIECE_EMPTY;
+static bool opponent_animation_active = false;
+
+// Animační timer pro návrat figurky
+static TimerHandle_t opponent_return_timer = NULL;
+
 // Move generation buffers (declared later in the file)
 // static chess_move_extended_t temp_moves_buffer[128];
 // static uint32_t temp_moves_count = 0;
@@ -179,6 +191,11 @@ static const uint32_t CASTLING_TIMEOUT_MS = 60000; // 60 seconds
 void game_print_board_enhanced(void);
 bool game_execute_move_enhanced(chess_move_extended_t* move);
 uint32_t game_generate_legal_moves(player_t player);
+
+// Opponent piece handling functions
+void start_opponent_return_animation(void);
+void stop_opponent_return_animation(void);
+void opponent_return_animation_callback(TimerHandle_t timer);
 
 // ============================================================================
 // POSITION HASHING AND DRAW DETECTION
@@ -2119,21 +2136,28 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         
         if ((current_player == PLAYER_WHITE && !is_white_piece) ||
             (current_player == PLAYER_BLACK && !is_black_piece)) {
-            // Opponent's piece - start opponent lift recovery
+            // Opponent's piece - start opponent lift recovery with board sync
             ESP_LOGW(TAG, "❌ Cannot lift opponent's piece at %s", cmd->from_notation);
             
-            // Set state to opponent lift recovery
+            // 1) Synchronizuj board - vymaž figurku z původní pozice
+            opponent_piece_type = piece;
+            opponent_original_row = from_row;
+            opponent_original_col = from_col;
+            opponent_current_row = from_row;
+            opponent_current_col = from_col;
+            board[from_row][from_col] = PIECE_EMPTY;
+            opponent_piece_moved = true;
+            
+            // 2) Nastav stav
             current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
-            invalid_move_backup.from_row = from_row;
-            invalid_move_backup.from_col = from_col;
             
-            // LED: solid red on opponent piece position
+            // 3) LED: červeně pod původní pozicí
             led_clear_board_only();
-            led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 0, 0); // Solid red
+            led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 0, 0);
             
-            // UART instruction
+            // 4) UART instruction
             char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to %s", cmd->from_notation);
+            snprintf(error_msg, sizeof(error_msg), "❌ Opponent piece lifted - return to red square");
             game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
             return;
         }
@@ -2221,9 +2245,9 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         
     } else if (current_game_state == GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
         // Only allow lifting the piece that needs to be returned
-        if (from_row != invalid_move_backup.from_row || from_col != invalid_move_backup.from_col) {
+        if (from_row != opponent_original_row || from_col != opponent_original_col) {
             ESP_LOGW(TAG, "❌ Error recovery active - can only lift piece at [%d,%d]", 
-                     invalid_move_backup.from_row, invalid_move_backup.from_col);
+                     opponent_original_row, opponent_original_col);
             char error_msg[256];
             snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to %s first", cmd->from_notation);
             game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
@@ -2231,19 +2255,54 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         }
         
         // FIXED: Force recovery from correct opponent piece position
+        piece_lifted = false; // Reset first
         piece_lifted = true;
-        lifted_piece_row = invalid_move_backup.from_row;  // Use backup position, not event position
-        lifted_piece_col = invalid_move_backup.from_col;  // Use backup position, not event position
-        lifted_piece = board[invalid_move_backup.from_row][invalid_move_backup.from_col];
+        lifted_piece_row = opponent_original_row;
+        lifted_piece_col = opponent_original_col;
+        lifted_piece = opponent_piece_type;
         
         // LED: steady red on opponent piece position
         led_clear_board_only();
-        led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0); // Solid red
+        led_set_pixel_safe(chess_pos_to_led_index(opponent_original_row, opponent_original_col), 255, 0, 0); // Solid red
         
         char success_msg[256];
         snprintf(success_msg, sizeof(success_msg), "✅ Opponent's piece lifted - return to %c%d", 
-                'a' + invalid_move_backup.from_col, invalid_move_backup.from_row + 1);
+                'a' + opponent_original_col, opponent_original_row + 1);
         game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        return;
+        
+    } else if (current_game_state == GAME_STATE_OPPONENT_PIECE_INVALID) {
+        if (from_row == opponent_current_row && from_col == opponent_current_col) {
+            // Zvedl figurku z nevalidní pozice
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            
+            // Nastav piece_lifted pro správné chování
+            piece_lifted = true;
+            lifted_piece_row = from_row;
+            lifted_piece_col = from_col;
+            lifted_piece = opponent_piece_type;
+            
+            // Přepni zpět na recovery stav s animací
+            current_game_state = GAME_STATE_OPPONENT_RETURN_ANIMATION;
+            
+            // LED: Zeleně na originál + animace
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_original_row, opponent_original_col), 0, 255, 0);
+            
+            // Spustit animaci směřující na originál
+            start_opponent_return_animation();
+            
+            char success_msg[256];
+            snprintf(success_msg, sizeof(success_msg), "↩️ Return to green square - follow animation");
+            game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        } else {
+            // Nesprávný UP
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_current_row, opponent_current_col), 255, 0, 0);
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Lift piece from red square only");
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+        }
         return;
         
     } else if (current_game_state == GAME_STATE_ERROR_RECOVERY_CASTLING_CANCEL) {
@@ -2467,46 +2526,112 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     
     // Handle different game states according to specification
     if (current_game_state == GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
-        // Handle opponent piece return
-        if (to_row == invalid_move_backup.from_row && to_col == invalid_move_backup.from_col) {
-            // Correct position - clear error state
-            ESP_LOGI(TAG, "✅ Opponent's piece returned to correct position");
+        // 1) Správné vrácení na originál
+        if (to_row == opponent_original_row && to_col == opponent_original_col) {
+            // Vrátit figurku na board
+            board[opponent_original_row][opponent_original_col] = opponent_piece_type;
             
-            // Clear error recovery state
-            error_recovery_active = false;
-            piece_lifted = false;
+            // Reset stavu
+            opponent_piece_moved = false;
             current_game_state = GAME_STATE_IDLE;
+            piece_lifted = false;
+            opponent_animation_active = false;
             
-            // FIXED: Reset error count after successful recovery
-            consecutive_error_count = 0;
-            ESP_LOGI(TAG, "✅ Error count reset to 0 after opponent piece return");
-            
-            // LED: Clear board and show valid moves for current player
+            // LED: zhasnout a ukázat validní tahy
             led_clear_board_only();
             game_highlight_movable_pieces();
             
             char success_msg[256];
-            snprintf(success_msg, sizeof(success_msg), "✅ Opponent's piece returned – your turn remains");
+            snprintf(success_msg, sizeof(success_msg), "✅ Opponent piece returned - continue");
             game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
-        } else {
-            // Wrong position - show error and maintain red highlighting
-            ESP_LOGW(TAG, "❌ Wrong return position - must return to [%d,%d]", 
-                     invalid_move_backup.from_row, invalid_move_backup.from_col);
+        }
+        // 2) Nesprávné DN - přesun na jinou pozici
+        else {
+            // Aktualizuj board - figurka je nyní na nové pozici
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            board[to_row][to_col] = opponent_piece_type;
+            opponent_current_row = to_row;
+            opponent_current_col = to_col;
+            
+            // Nastav stav "čeká na pickup z nevalidní pozice"
+            current_game_state = GAME_STATE_OPPONENT_PIECE_INVALID;
+            
+            // LED: červeně pod novou pozicí
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 255, 0, 0);
             
             char error_msg[256];
-            snprintf(error_msg, sizeof(error_msg), "❌ Return opponent's piece to highlighted square");
+            snprintf(error_msg, sizeof(error_msg), "❌ Invalid position - lift piece to see guidance");
             game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+        }
+        return;
+    }
+    
+    if (current_game_state == GAME_STATE_OPPONENT_PIECE_INVALID) {
+        // Pouze validní DN je zpět na originál
+        if (to_row == opponent_original_row && to_col == opponent_original_col) {
+            // Vymaž z nevalidní pozice, vrať na originál
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            board[opponent_original_row][opponent_original_col] = opponent_piece_type;
             
-            // LED: Clear board and blink red on correct position, then keep it red
+            // Reset
+            opponent_piece_moved = false;
+            current_game_state = GAME_STATE_IDLE;
+            piece_lifted = false;
+            opponent_animation_active = false;
+            
             led_clear_board_only();
-            for (int i = 0; i < 3; i++) {
-                led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
-                vTaskDelay(pdMS_TO_TICKS(200));
-                led_clear_board_only();
-                vTaskDelay(pdMS_TO_TICKS(200));
-            }
-            // Finally keep the red square highlighted
-            led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
+            game_highlight_movable_pieces();
+            
+            char success_msg[256];
+            snprintf(success_msg, sizeof(success_msg), "✅ Opponent piece returned - continue");
+            game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        } else {
+            // Další nevalidní DN - aktualizuj pozici
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            board[to_row][to_col] = opponent_piece_type;
+            opponent_current_row = to_row;
+            opponent_current_col = to_col;
+            
+            // LED: červeně na nové pozici
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 255, 0, 0);
+        }
+        return;
+    }
+    
+    if (current_game_state == GAME_STATE_OPPONENT_RETURN_ANIMATION) {
+        // Pouze validní DN je zpět na originál
+        if (to_row == opponent_original_row && to_col == opponent_original_col) {
+            // Vymaž z nevalidní pozice, vrať na originál
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            board[opponent_original_row][opponent_original_col] = opponent_piece_type;
+            
+            // Stop animation
+            stop_opponent_return_animation();
+            
+            // Reset
+            opponent_piece_moved = false;
+            current_game_state = GAME_STATE_IDLE;
+            piece_lifted = false;
+            opponent_animation_active = false;
+            
+            led_clear_board_only();
+            game_highlight_movable_pieces();
+            
+            char success_msg[256];
+            snprintf(success_msg, sizeof(success_msg), "✅ Opponent piece returned - continue");
+            game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        } else {
+            // Další nevalidní DN - aktualizuj pozici
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            board[to_row][to_col] = opponent_piece_type;
+            opponent_current_row = to_row;
+            opponent_current_col = to_col;
+            
+            // LED: červeně na nové pozici
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 255, 0, 0);
         }
         return;
     }
@@ -7285,6 +7410,21 @@ void game_initialize_board_enhanced(void) {
     position_repetition_count = 0;
     last_position_hash = 0;
     
+    // Initialize opponent return animation timer
+    opponent_return_timer = xTimerCreate(
+        "OpponentReturn",
+        pdMS_TO_TICKS(200), // 200ms interval
+        pdTRUE, // auto-reload
+        NULL,
+        opponent_return_animation_callback
+    );
+    
+    if (opponent_return_timer == NULL) {
+        ESP_LOGE(TAG, "Failed to create opponent return animation timer");
+    } else {
+        ESP_LOGI(TAG, "Opponent return animation timer created successfully");
+    }
+    
     ESP_LOGI(TAG, "Enhanced chess board initialized successfully");
     game_print_board_enhanced();
 }
@@ -7421,10 +7561,15 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col)
         // We can't check board state, so we'll start recovery and let the user handle it
         ESP_LOGW(TAG, "🔄 Matrix: Starting opponent piece recovery at %c%d", 'a' + col, row + 1);
         
-        // Start opponent lift recovery
+        // Start opponent lift recovery with board sync
+        opponent_piece_type = piece;
+        opponent_original_row = row;
+        opponent_original_col = col;
+        opponent_current_row = row;
+        opponent_current_col = col;
+        board[row][col] = PIECE_EMPTY;
+        opponent_piece_moved = true;
         current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
-        invalid_move_backup.from_row = row;
-        invalid_move_backup.from_col = col;
         
         // LED: solid red on opponent piece position
         led_clear_board_only();
@@ -7446,10 +7591,15 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col)
         // Start opponent lift recovery - same logic as UART command
         ESP_LOGW(TAG, "🔄 Starting opponent lift recovery for piece at %c%d", 'a' + col, row + 1);
         
-        // Set state to opponent lift recovery
+        // Set state to opponent lift recovery with board sync
+        opponent_piece_type = piece;
+        opponent_original_row = row;
+        opponent_original_col = col;
+        opponent_current_row = row;
+        opponent_current_col = col;
+        board[row][col] = PIECE_EMPTY;
+        opponent_piece_moved = true;
         current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
-        invalid_move_backup.from_row = row;
-        invalid_move_backup.from_col = col;
         
         // LED: solid red on opponent piece position
         led_clear_board_only();
@@ -7509,46 +7659,103 @@ void game_handle_piece_placed(uint8_t row, uint8_t col)
     if (current_game_state == GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT) {
         ESP_LOGI(TAG, "🔄 Matrix: Handling opponent piece return in recovery state");
         
-        // Use the same logic as drop command for consistency
-        if (row == invalid_move_backup.from_row && col == invalid_move_backup.from_col) {
-            // Correct position - clear error state
-            ESP_LOGI(TAG, "✅ Matrix: Opponent's piece returned to correct position");
+        // 1) Správné vrácení na originál
+        if (row == opponent_original_row && col == opponent_original_col) {
+            // Vrátit figurku na board
+            board[opponent_original_row][opponent_original_col] = opponent_piece_type;
             
-            // Clear error recovery state
-            error_recovery_active = false;
-            piece_lifted = false;
+            // Reset stavu
+            opponent_piece_moved = false;
             current_game_state = GAME_STATE_IDLE;
+            piece_lifted = false;
             
-            // FIXED: Reset error count after successful recovery
-            consecutive_error_count = 0;
-            ESP_LOGI(TAG, "✅ Error count reset to 0 after opponent piece return");
-            
-            // LED: Clear board and show valid moves for current player
+            // LED: zhasnout a ukázat validní tahy
             led_clear_board_only();
             game_highlight_movable_pieces();
             
-            // Send UART response
-            char success_msg[256];
-            snprintf(success_msg, sizeof(success_msg), "✅ Opponent's piece returned – your turn remains");
-            // Note: No response queue available in matrix events, so we'll just log
-            ESP_LOGI(TAG, "📤 %s", success_msg);
-        } else {
-            // Wrong position - show error and maintain red highlighting
-            ESP_LOGW(TAG, "❌ Matrix: Wrong return position - must return to [%d,%d]", 
-                     invalid_move_backup.from_row, invalid_move_backup.from_col);
+            ESP_LOGI(TAG, "✅ Matrix: Opponent piece returned - continue");
+        }
+        // 2) Nesprávné DN - přesun na jinou pozici
+        else {
+            // Aktualizuj board - figurka je nyní na nové pozici
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            board[row][col] = opponent_piece_type;
+            opponent_current_row = row;
+            opponent_current_col = col;
             
-            // LED: Clear board and blink red on correct position, then keep it red
+            // Nastav stav "čeká na pickup z nevalidní pozice"
+            current_game_state = GAME_STATE_OPPONENT_PIECE_INVALID;
+            
+            // LED: červeně pod novou pozicí
             led_clear_board_only();
-            for (int i = 0; i < 3; i++) {
-                led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
-                vTaskDelay(pdMS_TO_TICKS(200));
-                led_clear_board_only();
-                vTaskDelay(pdMS_TO_TICKS(200));
-            }
-            // Finally keep the red square highlighted
-            led_set_pixel_safe(chess_pos_to_led_index(invalid_move_backup.from_row, invalid_move_backup.from_col), 255, 0, 0);
+            led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0);
             
-            ESP_LOGW(TAG, "📤 ❌ Return opponent's piece to highlighted square");
+            ESP_LOGW(TAG, "❌ Matrix: Invalid position - lift piece to see guidance");
+        }
+        return;
+    }
+    
+    if (current_game_state == GAME_STATE_OPPONENT_PIECE_INVALID) {
+        // Pouze validní DN je zpět na originál
+        if (row == opponent_original_row && col == opponent_original_col) {
+            // Vymaž z nevalidní pozice, vrať na originál
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            board[opponent_original_row][opponent_original_col] = opponent_piece_type;
+            
+            // Reset
+            opponent_piece_moved = false;
+            current_game_state = GAME_STATE_IDLE;
+            piece_lifted = false;
+            opponent_animation_active = false;
+            
+            led_clear_board_only();
+            game_highlight_movable_pieces();
+            
+            ESP_LOGI(TAG, "✅ Matrix: Opponent piece returned - continue");
+        } else {
+            // Další nevalidní DN - aktualizuj pozici
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            board[row][col] = opponent_piece_type;
+            opponent_current_row = row;
+            opponent_current_col = col;
+            
+            // LED: červeně na nové pozici
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0);
+        }
+        return;
+    }
+    
+    if (current_game_state == GAME_STATE_OPPONENT_RETURN_ANIMATION) {
+        // Pouze validní DN je zpět na originál
+        if (row == opponent_original_row && col == opponent_original_col) {
+            // Vymaž z nevalidní pozice, vrať na originál
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            board[opponent_original_row][opponent_original_col] = opponent_piece_type;
+            
+            // Stop animation
+            stop_opponent_return_animation();
+            
+            // Reset
+            opponent_piece_moved = false;
+            current_game_state = GAME_STATE_IDLE;
+            piece_lifted = false;
+            opponent_animation_active = false;
+            
+            led_clear_board_only();
+            game_highlight_movable_pieces();
+            
+            ESP_LOGI(TAG, "✅ Matrix: Opponent piece returned - continue");
+        } else {
+            // Další nevalidní DN - aktualizuj pozici
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            board[row][col] = opponent_piece_type;
+            opponent_current_row = row;
+            opponent_current_col = col;
+            
+            // LED: červeně na nové pozici
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0);
         }
         return;
     }
@@ -8160,6 +8367,97 @@ void game_process_puzzle_verify_command(const chess_move_command_t* cmd)
     // Highlight both squares with verification colors
     led_set_pixel_safe(from_square, 255, 165, 0); // Orange for source
     led_set_pixel_safe(to_square, 0, 255, 0); // Green for destination
+}
+
+// ============================================================================
+// OPPONENT PIECE HANDLING FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Start opponent piece return animation
+ */
+void start_opponent_return_animation(void)
+{
+    if (opponent_return_timer == NULL) {
+        ESP_LOGE(TAG, "Opponent return timer not initialized");
+        return;
+    }
+    
+    opponent_animation_active = true;
+    xTimerStart(opponent_return_timer, 0);
+}
+
+/**
+ * @brief Stop opponent piece return animation
+ */
+void stop_opponent_return_animation(void)
+{
+    opponent_animation_active = false;
+    if (opponent_return_timer != NULL) {
+        xTimerStop(opponent_return_timer, 0);
+    }
+}
+
+/**
+ * @brief Animation callback for opponent piece return
+ * @param timer Timer handle
+ */
+void opponent_return_animation_callback(TimerHandle_t timer)
+{
+    if (!opponent_animation_active) return;
+    
+    // Use non-static variables to avoid race conditions
+    static int animation_step = 0;
+    static bool direction_forward = true;
+    static bool initialized = false;
+    
+    // Initialize on first call
+    if (!initialized) {
+        animation_step = 0;
+        direction_forward = true;
+        initialized = true;
+    }
+    
+    // Calculate distance from current to original position
+    // In OPPONENT_RETURN_ANIMATION state, opponent_current_row/col is where piece was lifted from
+    int row_diff = opponent_original_row - opponent_current_row;
+    int col_diff = opponent_original_col - opponent_current_col;
+    int total_steps = abs(row_diff) + abs(col_diff);
+    if (total_steps == 0) total_steps = 1;
+    
+    led_clear_board_only();
+    
+    // Draw trail from current to original
+    for (int i = 0; i <= animation_step && i <= total_steps; i++) {
+        float t = (float)i / total_steps;
+        int trail_row = opponent_current_row + (int)(row_diff * t);
+        int trail_col = opponent_current_col + (int)(col_diff * t);
+        
+        // Ensure coordinates are within bounds
+        if (trail_row < 0 || trail_row >= 8 || trail_col < 0 || trail_col >= 8) continue;
+        
+        uint8_t brightness = 255 - (i * 50); // Gradually dimmer
+        if (brightness < 50) brightness = 50;
+        
+        led_set_pixel_safe(chess_pos_to_led_index(trail_row, trail_col), 
+                          0, brightness, 0); // Green trail
+    }
+    
+    // Target square always bright green
+    led_set_pixel_safe(chess_pos_to_led_index(opponent_original_row, opponent_original_col), 
+                      0, 255, 0);
+    
+    // Animation logic - ping-pong effect
+    if (direction_forward) {
+        animation_step++;
+        if (animation_step >= total_steps) direction_forward = false;
+    } else {
+        animation_step--;
+        if (animation_step <= 0) {
+            direction_forward = true;
+            initialized = false; // Reset for next animation
+        }
+    }
 }
 
 
