@@ -171,6 +171,8 @@ static uint8_t opponent_original_row = 0;
 static uint8_t opponent_original_col = 0;
 static uint8_t opponent_current_row = 0;
 static uint8_t opponent_current_col = 0;
+static uint8_t opponent_lift_row = 0;  // Pozice pro UP command (kde se figurka nachází)
+static uint8_t opponent_lift_col = 0;  // Pozice pro UP command (kde se figurka nachází)
 static piece_t opponent_piece_type = PIECE_EMPTY;
 static bool opponent_animation_active = false;
 
@@ -621,6 +623,21 @@ void game_initialize_board(void)
     // Reset other counters (declared later in the file)
     // fifty_move_counter = 0;
     // position_history_count = 0;
+    
+    // Initialize opponent return animation timer
+    opponent_return_timer = xTimerCreate(
+        "OpponentReturn",
+        pdMS_TO_TICKS(200), // 200ms interval
+        pdTRUE, // auto-reload
+        NULL,
+        opponent_return_animation_callback
+    );
+    
+    if (opponent_return_timer == NULL) {
+        ESP_LOGE(TAG, "Failed to create opponent return animation timer");
+    } else {
+        ESP_LOGI(TAG, "Opponent return animation timer created successfully");
+    }
     
     ESP_LOGI(TAG, "Enhanced chess board initialized successfully");
     ESP_LOGI(TAG, "Initial position: White pieces at bottom, Black pieces at top");
@@ -1686,11 +1703,9 @@ bool game_execute_move(const chess_move_t* move)
         last_valid_move.timestamp = esp_timer_get_time() / 1000;
         has_last_valid_move = true;
         
-        // Update game state
+        // Update game state  
+        move_count++;
         last_move_time = esp_timer_get_time() / 1000;
-        
-        // FIXED: move_count++ and player switch are handled by game_execute_move_enhanced()
-        // No need to duplicate here
         
         ESP_LOGI(TAG, "Move executed successfully. %s to move", 
                   (current_player == PLAYER_WHITE) ? "White" : "Black");
@@ -2145,6 +2160,8 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
             opponent_original_col = from_col;
             opponent_current_row = from_row;
             opponent_current_col = from_col;
+            opponent_lift_row = from_row;  // Pozice pro UP command
+            opponent_lift_col = from_col;  // Pozice pro UP command
             board[from_row][from_col] = PIECE_EMPTY;
             opponent_piece_moved = true;
             
@@ -2161,6 +2178,7 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
             game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
             return;
         }
+        
         
         // Own piece - proceed normally
         current_game_state = GAME_STATE_WAITING_PIECE_DROP;
@@ -2272,7 +2290,7 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         return;
         
     } else if (current_game_state == GAME_STATE_OPPONENT_PIECE_INVALID) {
-        if (from_row == opponent_current_row && from_col == opponent_current_col) {
+        if (from_row == opponent_lift_row && from_col == opponent_lift_col) {
             // Zvedl figurku z nevalidní pozice
             board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
             
@@ -2281,6 +2299,10 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
             lifted_piece_row = from_row;
             lifted_piece_col = from_col;
             lifted_piece = opponent_piece_type;
+            
+            // Aktualizuj opponent_current_row/col pro animaci
+            opponent_current_row = from_row;
+            opponent_current_col = from_col;
             
             // Přepni zpět na recovery stav s animací
             current_game_state = GAME_STATE_OPPONENT_RETURN_ANIMATION;
@@ -2298,7 +2320,46 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         } else {
             // Nesprávný UP
             led_clear_board_only();
-            led_set_pixel_safe(chess_pos_to_led_index(opponent_current_row, opponent_current_col), 255, 0, 0);
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_lift_row, opponent_lift_col), 255, 0, 0);
+            char error_msg[256];
+            snprintf(error_msg, sizeof(error_msg), "❌ Lift piece from red square only");
+            game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+        }
+        return;
+        
+    } else if (current_game_state == GAME_STATE_OPPONENT_RETURN_ANIMATION) {
+        // UP v animačním stavu - pouze z aktuální pozice
+        if (from_row == opponent_lift_row && from_col == opponent_lift_col) {
+            // Zvedl figurku z aktuální pozice během animace
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            
+            // Nastav piece_lifted pro správné chování
+            piece_lifted = true;
+            lifted_piece_row = from_row;
+            lifted_piece_col = from_col;
+            lifted_piece = opponent_piece_type;
+            
+            // Aktualizuj opponent_current_row/col pro animaci
+            opponent_current_row = from_row;
+            opponent_current_col = from_col;
+            
+            // Zůstaň v animačním stavu
+            current_game_state = GAME_STATE_OPPONENT_RETURN_ANIMATION;
+            
+            // LED: Zeleně na originál + animace
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_original_row, opponent_original_col), 0, 255, 0);
+            
+            // Spustit animaci směřující na originál
+            start_opponent_return_animation();
+            
+            char success_msg[256];
+            snprintf(success_msg, sizeof(success_msg), "↩️ Return to green square - follow animation");
+            game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
+        } else {
+            // Nesprávný UP
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_lift_row, opponent_lift_col), 255, 0, 0);
             char error_msg[256];
             snprintf(error_msg, sizeof(error_msg), "❌ Lift piece from red square only");
             game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
@@ -2552,6 +2613,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             board[to_row][to_col] = opponent_piece_type;
             opponent_current_row = to_row;
             opponent_current_col = to_col;
+            opponent_lift_row = to_row;  // Aktualizuj pozici pro UP command
+            opponent_lift_col = to_col;  // Aktualizuj pozici pro UP command
+            
+            // FIXED: Reset opponent_piece_moved aby se opponent_original_row/col mohlo nastavit znovu
+            opponent_piece_moved = false;
             
             // Nastav stav "čeká na pickup z nevalidní pozice"
             current_game_state = GAME_STATE_OPPONENT_PIECE_INVALID;
@@ -2592,6 +2658,8 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             board[to_row][to_col] = opponent_piece_type;
             opponent_current_row = to_row;
             opponent_current_col = to_col;
+            opponent_lift_row = to_row;  // Aktualizuj pozici pro UP command
+            opponent_lift_col = to_col;  // Aktualizuj pozici pro UP command
             
             // LED: červeně na nové pozici
             led_clear_board_only();
@@ -2919,7 +2987,7 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             // Reset error count on successful move
             consecutive_error_count = 0;
             
-            // FIXED: move_count++ and player switch are handled by game_execute_move()
+            // FIXED: move_count++ is already handled by main validation flow above  
             // No need to duplicate here
             
             // Reset piece lifted state
@@ -5437,7 +5505,7 @@ void game_process_move_command(const void* move_cmd_ptr)
     // Update game state
     last_move_time = esp_timer_get_time() / 1000;
     
-    // FIXED: move_count++ and player switch are handled by game_execute_move()
+    // FIXED: move_count++ is already handled by main validation flow
     // No need to duplicate here
     
     // Store last valid move
@@ -7169,9 +7237,8 @@ bool game_execute_move_enhanced(chess_move_extended_t* move) {
         black_moves_count++;
     }
     
-    // Switch players and increment move count
+    // Switch players (move count already incremented in main execution flow)
     current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-    move_count++;  // FIXED: Increment move count when player changes
     
     return true;
 }
@@ -7410,20 +7477,7 @@ void game_initialize_board_enhanced(void) {
     position_repetition_count = 0;
     last_position_hash = 0;
     
-    // Initialize opponent return animation timer
-    opponent_return_timer = xTimerCreate(
-        "OpponentReturn",
-        pdMS_TO_TICKS(200), // 200ms interval
-        pdTRUE, // auto-reload
-        NULL,
-        opponent_return_animation_callback
-    );
-    
-    if (opponent_return_timer == NULL) {
-        ESP_LOGE(TAG, "Failed to create opponent return animation timer");
-    } else {
-        ESP_LOGI(TAG, "Opponent return animation timer created successfully");
-    }
+    // Timer initialization moved to game_initialize_board() to ensure it's called at startup
     
     ESP_LOGI(TAG, "Enhanced chess board initialized successfully");
     game_print_board_enhanced();
@@ -7548,6 +7602,42 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col)
 {
     ESP_LOGI(TAG, "🖐️ Matrix: Piece lifted from %c%d", 'a' + col, row + 1);
     
+    // Handle opponent piece states first
+    if (current_game_state == GAME_STATE_OPPONENT_PIECE_INVALID) {
+        if (row == opponent_lift_row && col == opponent_lift_col) {
+            // Zvedl figurku z nevalidní pozice
+            board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
+            
+            // Nastav piece_lifted pro správné chování
+            piece_lifted = true;
+            lifted_piece_row = row;
+            lifted_piece_col = col;
+            lifted_piece = opponent_piece_type;
+            
+            // Aktualizuj opponent_current_row/col pro animaci
+            opponent_current_row = row;
+            opponent_current_col = col;
+            
+            // Přepni zpět na recovery stav s animací
+            current_game_state = GAME_STATE_OPPONENT_RETURN_ANIMATION;
+            
+            // LED: Zeleně na originál + animace
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_original_row, opponent_original_col), 0, 255, 0);
+            
+            // Spustit animaci směřující na originál
+            start_opponent_return_animation();
+            
+            ESP_LOGI(TAG, "↩️ Matrix: Return to green square - follow animation");
+        } else {
+            // Nesprávný UP
+            led_clear_board_only();
+            led_set_pixel_safe(chess_pos_to_led_index(opponent_lift_row, opponent_lift_col), 255, 0, 0);
+            ESP_LOGW(TAG, "❌ Matrix: Lift piece from red square only");
+        }
+        return;
+    }
+    
     // Check if there's a piece at the square
     // NOTE: Matrix event occurs AFTER piece is lifted, so board[row][col] is already empty
     // We need to check if this was a valid lift by checking the piece that was there
@@ -7563,10 +7653,15 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col)
         
         // Start opponent lift recovery with board sync
         opponent_piece_type = piece;
-        opponent_original_row = row;
-        opponent_original_col = col;
+        // FIXED: Only set original position if not already set (first lift)
+        if (!opponent_piece_moved) {
+            opponent_original_row = row;
+            opponent_original_col = col;
+        }
         opponent_current_row = row;
         opponent_current_col = col;
+        opponent_lift_row = row;  // Pozice pro UP command
+        opponent_lift_col = col;  // Pozice pro UP command
         board[row][col] = PIECE_EMPTY;
         opponent_piece_moved = true;
         current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
@@ -7597,6 +7692,8 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col)
         opponent_original_col = col;
         opponent_current_row = row;
         opponent_current_col = col;
+        opponent_lift_row = row;  // Pozice pro UP command
+        opponent_lift_col = col;  // Pozice pro UP command
         board[row][col] = PIECE_EMPTY;
         opponent_piece_moved = true;
         current_game_state = GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT;
@@ -7682,6 +7779,11 @@ void game_handle_piece_placed(uint8_t row, uint8_t col)
             board[row][col] = opponent_piece_type;
             opponent_current_row = row;
             opponent_current_col = col;
+            opponent_lift_row = row;  // Aktualizuj pozici pro UP command
+            opponent_lift_col = col;  // Aktualizuj pozici pro UP command
+            
+            // FIXED: Reset opponent_piece_moved aby se opponent_original_row/col mohlo nastavit znovu
+            opponent_piece_moved = false;
             
             // Nastav stav "čeká na pickup z nevalidní pozice"
             current_game_state = GAME_STATE_OPPONENT_PIECE_INVALID;
@@ -7718,6 +7820,8 @@ void game_handle_piece_placed(uint8_t row, uint8_t col)
             board[row][col] = opponent_piece_type;
             opponent_current_row = row;
             opponent_current_col = col;
+            opponent_lift_row = row;  // Aktualizuj pozici pro UP command
+            opponent_lift_col = col;  // Aktualizuj pozici pro UP command
             
             // LED: červeně na nové pozici
             led_clear_board_only();
@@ -7752,6 +7856,8 @@ void game_handle_piece_placed(uint8_t row, uint8_t col)
             board[row][col] = opponent_piece_type;
             opponent_current_row = row;
             opponent_current_col = col;
+            opponent_lift_row = row;  // Aktualizuj pozici pro UP command
+            opponent_lift_col = col;  // Aktualizuj pozici pro UP command
             
             // LED: červeně na nové pozici
             led_clear_board_only();
