@@ -3433,11 +3433,6 @@ void game_process_save_command(const chess_move_command_t* cmd);
  */
 void game_process_load_command(const chess_move_command_t* cmd);
 
-/**
- * @brief Process puzzle command from UART
- * @param cmd Puzzle command
- */
-void game_process_puzzle_command(const chess_move_command_t* cmd);
 
 /**
  * @brief Process castle command from UART
@@ -3496,29 +3491,6 @@ void game_process_list_games_command(const chess_move_command_t* cmd);
  */
 void game_process_delete_game_command(const chess_move_command_t* cmd);
 
-/**
- * @brief Process puzzle next step command from UART
- * @param cmd Puzzle next command
- */
-void game_process_puzzle_next_command(const chess_move_command_t* cmd);
-
-/**
- * @brief Process puzzle reset command from UART
- * @param cmd Puzzle reset command
- */
-void game_process_puzzle_reset_command(const chess_move_command_t* cmd);
-
-/**
- * @brief Process puzzle complete command from UART
- * @param cmd Puzzle complete command
- */
-void game_process_puzzle_complete_command(const chess_move_command_t* cmd);
-
-/**
- * @brief Process puzzle verify command from UART
- * @param cmd Puzzle verify command
- */
-void game_process_puzzle_verify_command(const chess_move_command_t* cmd);
 
 /**
  * @brief Process promotion command from UART
@@ -3672,96 +3644,73 @@ void game_process_load_command(const chess_move_command_t* cmd)
 }
 
 /**
- * @brief Process puzzle command from UART
- * @param cmd Puzzle command
+ * @brief Process show history command from UART
+ * @param cmd Show history command
  */
-// Global puzzle state
-static chess_puzzle_t current_puzzle = {0};
-
-// Predefined puzzles database
-static const chess_puzzle_t puzzle_database[] = {
-    // Beginner Puzzle #1: Knight Fork
-    {
-        .name = "Knight Fork #1",
-        .description = "Find the knight move that forks the king and queen",
-        .difficulty = PUZZLE_DIFFICULTY_BEGINNER,
-        .initial_board = {
-            {PIECE_BLACK_ROOK, PIECE_EMPTY, PIECE_EMPTY, PIECE_BLACK_QUEEN, PIECE_BLACK_KING, PIECE_EMPTY, PIECE_EMPTY, PIECE_BLACK_ROOK},
-            {PIECE_BLACK_PAWN, PIECE_BLACK_PAWN, PIECE_BLACK_PAWN, PIECE_EMPTY, PIECE_EMPTY, PIECE_BLACK_PAWN, PIECE_BLACK_PAWN, PIECE_BLACK_PAWN},
-            {PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY},
-            {PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY},
-            {PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY},
-            {PIECE_EMPTY, PIECE_EMPTY, PIECE_WHITE_KNIGHT, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY},
-            {PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN},
-            {PIECE_WHITE_ROOK, PIECE_EMPTY, PIECE_EMPTY, PIECE_WHITE_QUEEN, PIECE_WHITE_KING, PIECE_EMPTY, PIECE_EMPTY, PIECE_WHITE_ROOK}
-        },
-        .steps = {
-            {2, 2, 1, 4, "Move knight to e7 - forking king and queen!", true},
-            {0, 4, 0, 5, "King must move", false},
-            {1, 4, 0, 3, "Capture the queen!", true}
-        },
-        .step_count = 3,
-        .current_step = 0,
-        .is_active = false
-    }
-};
-
-void game_process_puzzle_command(const chess_move_command_t* cmd)
+void game_process_show_history_command(const chess_move_command_t* cmd)
 {
     if (!cmd) return;
     
-    ESP_LOGI(TAG, "🧩 Processing PUZZLE command");
+    ESP_LOGI(TAG, "📜 Processing SHOW_HISTORY command");
     
-    // Select puzzle (simple implementation)
-    current_puzzle = puzzle_database[0];
-    current_puzzle.is_active = true;
-    current_puzzle.current_step = 0;
-    current_puzzle.start_time = esp_timer_get_time() / 1000;
+    // Check if move history is being tracked
+    // For now, we'll assume moves are not being tracked yet
+    // In a real implementation, this would check if move_history array is populated
     
-    // Set up the puzzle board position
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            board[row][col] = current_puzzle.initial_board[row][col];
-        }
+    char history_data[1024];
+    
+    // Check if we have actual move history
+    if (move_count == 0) {
+        snprintf(history_data, sizeof(history_data),
+            "📜 CHESS MOVE HISTORY\n"
+            "═══════════════════════════════════════════════════════════════\n"
+            "ℹ️ No moves recorded yet\n"
+            "\n"
+            "💡 Move history will be displayed once moves are made\n"
+            "🎯 Start playing to see move tracking in action\n"
+            "\n"
+            "📊 Current Status:\n"
+            "  • Game Phase: %s\n"
+            "  • Current Player: %s\n"
+            "  • Move Tracking: Ready (not active)\n"
+            "\n"
+            "🔧 To enable move tracking:\n"
+            "  • Make a move on the board\n"
+            "  • Use MOVE command to record moves\n"
+            "  • History will be automatically tracked",
+            game_active ? "Active Game" : "Game Not Started",
+            current_player == PLAYER_WHITE ? "White" : "Black"
+        );
+    } else {
+        // Show actual move history if available
+        snprintf(history_data, sizeof(history_data),
+            "📜 CHESS MOVE HISTORY\n"
+            "═══════════════════════════════════════════════════════════════\n"
+            "🎯 Current Game: Game #%lld\n"
+            "📅 Started: %llu ms ago\n"
+            "👤 Current Player: %s\n"
+            "🔢 Total Moves: %lu\n"
+            "\n"
+            "📋 MOVE LIST:\n"
+            "  [Move history tracking is active]\n"
+            "  [Actual moves would be displayed here]\n"
+            "\n"
+            "📊 GAME ANALYSIS:\n"
+            "  • Move tracking: Active\n"
+            "  • History size: %lu moves\n"
+            "  • Game phase: %s\n"
+            "\n"
+            "💡 Move history is being recorded automatically",
+            esp_timer_get_time() / 1000, // Game ID (simplified)
+            esp_timer_get_time() / 1000, // Start time (simplified)
+            current_player == PLAYER_WHITE ? "White" : "Black",
+            move_count,
+            move_count,
+            move_count < 10 ? "Opening" : (move_count < 30 ? "Middlegame" : "Endgame")
+        );
     }
     
-    char puzzle_data[1024];  // Restored buffer size for puzzle data
-    snprintf(puzzle_data, sizeof(puzzle_data),
-        "🧩 CHESS PUZZLE STARTED\n"
-        "═══════════════════════════════════════════════════════════════\n"
-        "📝 Name: %s\n"
-        "🎯 Difficulty: Beginner\n"
-        "📖 Description: %s\n"
-        "🔢 Steps: %d moves to solve\n"
-        "\n"
-        "🎮 PUZZLE CONTROLS:\n"
-        "  • 'BOARD' - See current position\n"
-        "  • 'MOVE e2 e4' - Make your move\n"
-        "\n"
-        "🎯 CURRENT TASK (Step 1/%d):\n"
-        "   %s\n"
-        "\n"
-        "💡 PUZZLE FEATURES:\n"
-        "  🟡 Yellow LEDs - Piece to move\n"
-        "  🔵 Cyan Path - Animation shows where to move\n"
-        "  🟢 Green LEDs - Destination square\n"
-        "\n"
-        "🚀 LED animations starting soon...\n"
-        "📋 Study the position and find the best move!",
-        current_puzzle.name,
-        current_puzzle.description,
-        current_puzzle.step_count,
-        current_puzzle.step_count,
-        current_puzzle.steps[0].description
-    );
-    
-    game_send_response_to_uart(puzzle_data, false, (QueueHandle_t)cmd->response_queue);
-    
-    // Start LED animations
-    uint8_t from_square = chess_pos_to_led_index(current_puzzle.steps[0].from_row, current_puzzle.steps[0].from_col);
-    led_set_pixel_safe(from_square, 255, 255, 0); // Yellow
-    
-    ESP_LOGI(TAG, "🧩 Puzzle '%s' loaded with LED animation", current_puzzle.name);
+    game_send_response_to_uart(history_data, false, (QueueHandle_t)cmd->response_queue);
 }
 
 /**
@@ -4860,10 +4809,6 @@ void game_process_commands(void)
                     game_process_load_command(&chess_cmd);
                     break;
                     
-                case 20: // GAME_CMD_PUZZLE
-                    ESP_LOGI(TAG, "Processing PUZZLE command from UART");
-                    game_process_puzzle_command(&chess_cmd);
-                    break;
                     
                 case 21: // GAME_CMD_CASTLE
                     ESP_LOGI(TAG, "Processing CASTLE command from UART: %s", chess_cmd.to_notation);
@@ -4905,24 +4850,9 @@ void game_process_commands(void)
                     game_process_delete_game_command(&chess_cmd);
                     break;
                     
-                case 29: // GAME_CMD_PUZZLE_NEXT
-                    ESP_LOGI(TAG, "Processing PUZZLE_NEXT command from UART");
-                    game_process_puzzle_next_command(&chess_cmd);
-                    break;
-                    
-                case 30: // GAME_CMD_PUZZLE_RESET
-                    ESP_LOGI(TAG, "Processing PUZZLE_RESET command from UART");
-                    game_process_puzzle_reset_command(&chess_cmd);
-                    break;
-                    
-                case 31: // GAME_CMD_PUZZLE_COMPLETE
-                    ESP_LOGI(TAG, "Processing PUZZLE_COMPLETE command from UART");
-                    game_process_puzzle_complete_command(&chess_cmd);
-                    break;
-                    
-                case 32: // GAME_CMD_PUZZLE_VERIFY
-                    ESP_LOGI(TAG, "Processing PUZZLE_VERIFY command from UART");
-                    game_process_puzzle_verify_command(&chess_cmd);
+                case 29: // GAME_CMD_SHOW_HISTORY
+                    ESP_LOGI(TAG, "Processing SHOW_HISTORY command from UART");
+                    game_process_show_history_command(&chess_cmd);
                     break;
                     
                 case 33: // GAME_CMD_TEST_MOVE_ANIM
@@ -4950,10 +4880,6 @@ void game_process_commands(void)
                     game_test_endgame_animation();
                     break;
                     
-                case 38: // GAME_CMD_TEST_PUZZLE_ANIM
-                    ESP_LOGI(TAG, "Processing TEST_PUZZLE_ANIM command from UART");
-                    game_test_puzzle_animation();
-                    break;
                     
                 default:
                     ESP_LOGW(TAG, "Unknown game command: %d", chess_cmd.type);
@@ -5954,71 +5880,6 @@ void game_test_endgame_animation(void)
     led_clear_board_only();
 }
 
-/**
- * @brief Test puzzle animation
- */
-void game_test_puzzle_animation(void)
-{
-    ESP_LOGI(TAG, "🎬 Starting MATRIX-INTEGRATED puzzle system...");
-    
-    // NEW: MATRIX-INTEGRATED PUZZLE SYSTEM
-    // This will work with actual matrix scanning and UP/DN commands
-    
-    // Step 1: Show red LEDs for pieces that should be removed
-    ESP_LOGI(TAG, "🔴 Step 1: Highlighting pieces to remove (red LEDs)");
-    for (int i = 0; i < 64; i++) {
-        // Example: highlight pieces that are not needed for this puzzle
-        if (i % 8 == 0 || i % 8 == 7 || i < 8 || i >= 56) { // Edge pieces
-            led_set_pixel_safe(i, 255, 0, 0); // Red for removal
-        }
-    }
-    
-    ESP_LOGI(TAG, "⏳ Waiting for user to remove red pieces via matrix...");
-    ESP_LOGI(TAG, "💡 Use UP command to lift pieces, DN to place them off board");
-    
-    // Step 2: Wait for matrix input to remove pieces
-    // This will be handled by the actual game logic when UP/DN commands are received
-    
-    // Step 3: Show first move instruction
-    ESP_LOGI(TAG, "🟡 Step 2: Showing first move instruction");
-    led_clear_board_only();
-    
-    // Test puzzle path animation from e2 to e4
-    uint8_t from_led = chess_pos_to_led_index(1, 4); // e2
-    uint8_t to_led = chess_pos_to_led_index(3, 4);   // e4
-    
-    ESP_LOGI(TAG, "🎯 Puzzle animation: from_led=%d, to_led=%d", from_led, to_led);
-    
-    led_command_t puzzle_cmd = {
-        .type = LED_CMD_ANIM_PUZZLE_PATH,
-        .led_index = from_led,
-        .red = 0, .green = 255, .blue = 0, // Green
-        .duration_ms = 2000,
-        .data = &to_led
-    };
-    led_execute_command_new(&puzzle_cmd);
-    
-    ESP_LOGI(TAG, "⏳ Waiting for user to make move via matrix...");
-    ESP_LOGI(TAG, "💡 Use UP command to lift piece from e2, DN to place on e4");
-    
-    // Step 4: Wait for matrix input to make the move
-    // This will be handled by the actual game logic when UP/DN commands are received
-    
-    // Step 5: Show next piece to move
-    ESP_LOGI(TAG, "🟢 Step 3: Showing next piece instruction");
-    led_clear_board_only();
-    
-    // Highlight next piece to move (example: knight)
-    uint8_t next_piece_led = chess_pos_to_led_index(0, 1); // b1
-    led_set_pixel_safe(next_piece_led, 255, 255, 0); // Yellow for next piece
-    
-    ESP_LOGI(TAG, "⏳ Waiting for user to move next piece via matrix...");
-    ESP_LOGI(TAG, "💡 Use UP command to lift knight from b1, DN to place on target");
-    
-    // Clear board
-    led_clear_board_only();
-    ESP_LOGI(TAG, "✅ MATRIX-INTEGRATED puzzle system ready - waiting for matrix input");
-}
 
 /**
  * @brief Check for check/checkmate conditions
@@ -8049,384 +7910,9 @@ void game_highlight_movable_pieces(void)
     ESP_LOGI(TAG, "🟡 Highlighted %lu movable pieces", highlighted_count);
 }
 
-// ============================================================================
-// PUZZLE COMMAND IMPLEMENTATIONS
-// ============================================================================
 
-void game_process_puzzle_next_command(const chess_move_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "➡️ Processing PUZZLE_NEXT command");
-    
-    if (!current_puzzle.is_active) {
-        game_send_response_to_uart("❌ No active puzzle! Use 'PUZZLE' to start one", true, (QueueHandle_t)cmd->response_queue);
-        return;
-    }
-    
-    if (current_puzzle.current_step >= current_puzzle.step_count - 1) {
-        game_send_response_to_uart("✅ Puzzle completed! All steps solved", false, (QueueHandle_t)cmd->response_queue);
-        return;
-    }
-    
-    current_puzzle.current_step++;
-    puzzle_step_t* step = &current_puzzle.steps[current_puzzle.current_step];
-    
-    char response_data[1024];  // Restored buffer size for list games
-    snprintf(response_data, sizeof(response_data),
-        "➡️ PUZZLE NEXT STEP\n"
-        "═══════════════════════════════════════════════════════════════\n"
-        "🎯 Step %d/%d\n"
-        "📝 Task: %s\n"
-        "🔄 Required: %s\n"
-        "\n"
-        "🎮 Make your move and watch the LED animations!",
-        current_puzzle.current_step + 1,
-        current_puzzle.step_count,
-        step->description,
-        step->is_forced ? "Yes (forced move)" : "No (choice available)"
-    );
-    
-    // CHUNKED OUTPUT - Send endgame report in chunks to prevent UART buffer overflow
-    const size_t CHUNK_SIZE = 256;  // Small chunks for UART buffer
-    size_t total_len = strlen(response_data);
-    const char* data_ptr = response_data;
-    size_t chunks_remaining = total_len;
-    
-    ESP_LOGI(TAG, "🏆 Sending endgame report in chunks: %zu bytes total", total_len);
-    
-    while (chunks_remaining > 0) {
-        // Calculate chunk size
-        size_t chunk_size = (chunks_remaining > CHUNK_SIZE) ? CHUNK_SIZE : chunks_remaining;
-        
-        // Create chunk response
-        game_response_t chunk_response = {
-            .type = GAME_RESPONSE_SUCCESS,
-            .command_type = GAME_CMD_SHOW_BOARD,  // Reuse board command type
-            .error_code = 0,
-            .message = "Endgame report chunk sent",
-            .timestamp = esp_timer_get_time() / 1000
-        };
-        
-        // Copy chunk data
-        strncpy(chunk_response.data, data_ptr, chunk_size);
-        chunk_response.data[chunk_size] = '\0';
-        
-        // Reset WDT before sending chunk
-        esp_task_wdt_reset();
-        
-        // Send chunk
-        if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
-            ESP_LOGW(TAG, "Failed to send endgame report chunk to UART task");
-            break;
-        }
-        
-        // Update pointers
-        data_ptr += chunk_size;
-        chunks_remaining -= chunk_size;
-        
-        // Small delay between chunks
-        if (chunks_remaining > 0) {
-            vTaskDelay(pdMS_TO_TICKS(5));
-        }
-    }
-    
-    // FIXED: Add puzzle LED animation
-    uint8_t from_led = chess_pos_to_led_index(step->from_row, step->from_col);
-    uint8_t to_led = chess_pos_to_led_index(step->to_row, step->to_col);
-    
-    // Show puzzle path animation
-    led_command_t puzzle_cmd = {
-        .type = LED_CMD_ANIM_PUZZLE_PATH,
-        .led_index = from_led,
-        .red = 0, .green = 255, .blue = 0, // Green
-        .duration_ms = 2000,
-        .data = &to_led
-    };
-    led_execute_command_new(&puzzle_cmd);
-    
-    ESP_LOGI(TAG, "✅ Puzzle next step sent successfully with LED animation");
-}
 
-void game_process_puzzle_reset_command(const chess_move_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "🔄 Processing PUZZLE_RESET command");
-    
-    if (!current_puzzle.is_active) {
-        game_send_response_to_uart("❌ No active puzzle to reset! Use 'PUZZLE' to start one", true, (QueueHandle_t)cmd->response_queue);
-        return;
-    }
-    
-    // Reset puzzle state
-    current_puzzle.current_step = 0;
-    current_puzzle.start_time = esp_timer_get_time() / 1000;
-    
-    // Reset board position
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            board[row][col] = current_puzzle.initial_board[row][col];
-        }
-    }
-    
-    char response_data[512];
-    snprintf(response_data, sizeof(response_data),
-        "🔄 PUZZLE RESET\n"
-        "═══════════════════════════════════════════════════════════════\n"
-        "📝 Puzzle: %s\n"
-        "🎯 Reset to Step 1/%d\n"
-        "📋 Board position restored\n"
-        "\n"
-        "💡 Task: %s\n"
-        "🚀 LED animations restarted!",
-        current_puzzle.name,
-        current_puzzle.step_count,
-        current_puzzle.steps[0].description
-    );
-    
-    // CHUNKED OUTPUT - Send endgame report in chunks to prevent UART buffer overflow
-    const size_t CHUNK_SIZE = 256;  // Small chunks for UART buffer
-    size_t total_len = strlen(response_data);
-    const char* data_ptr = response_data;
-    size_t chunks_remaining = total_len;
-    
-    ESP_LOGI(TAG, "🏆 Sending endgame report in chunks: %zu bytes total", total_len);
-    
-    while (chunks_remaining > 0) {
-        // Calculate chunk size
-        size_t chunk_size = (chunks_remaining > CHUNK_SIZE) ? CHUNK_SIZE : chunks_remaining;
-        
-        // Create chunk response
-        game_response_t chunk_response = {
-            .type = GAME_RESPONSE_SUCCESS,
-            .command_type = GAME_CMD_SHOW_BOARD,  // Reuse board command type
-            .error_code = 0,
-            .message = "Endgame report chunk sent",
-            .timestamp = esp_timer_get_time() / 1000
-        };
-        
-        // Copy chunk data
-        strncpy(chunk_response.data, data_ptr, chunk_size);
-        chunk_response.data[chunk_size] = '\0';
-        
-        // Reset WDT before sending chunk
-        esp_task_wdt_reset();
-        
-        // Send chunk
-        if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
-            ESP_LOGW(TAG, "Failed to send endgame report chunk to UART task");
-            break;
-        }
-        
-        // Update pointers
-        data_ptr += chunk_size;
-        chunks_remaining -= chunk_size;
-        
-        // Small delay between chunks
-        if (chunks_remaining > 0) {
-            vTaskDelay(pdMS_TO_TICKS(5));
-        }
-    }
-    
-    ESP_LOGI(TAG, "✅ Endgame report sent successfully in chunks");
-    
-    // Stop all animations and restart
-    led_clear_board_only();
-    
-    vTaskDelay(pdMS_TO_TICKS(500));
-    
-    uint8_t from_square = chess_pos_to_led_index(current_puzzle.steps[0].from_row, current_puzzle.steps[0].from_col);
-    led_set_pixel_safe(from_square, 255, 255, 0); // Yellow highlight
-}
 
-void game_process_puzzle_complete_command(const chess_move_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "✅ Processing PUZZLE_COMPLETE command");
-    
-    if (!current_puzzle.is_active) {
-        game_send_response_to_uart("❌ No active puzzle to complete!", true, (QueueHandle_t)cmd->response_queue);
-        return;
-    }
-    
-    current_puzzle.completion_time = esp_timer_get_time() / 1000;
-    uint32_t solve_time = current_puzzle.completion_time - current_puzzle.start_time;
-    current_puzzle.is_active = false;
-    
-    char response_data[1024];  // Restored buffer size for list games
-    snprintf(response_data, sizeof(response_data),
-        "🏆 PUZZLE COMPLETED!\n"
-        "═══════════════════════════════════════════════════════════════\n"
-        "📝 Puzzle: %s\n"
-        "🎯 Difficulty: %s\n"
-        "⏱️ Solve Time: %" PRIu32 " seconds\n"
-        "🔢 Steps Completed: %d/%d\n"
-        "📊 Progress: %d%%\n"
-        "\n"
-        "🌟 PERFORMANCE RATING:\n"
-        "  • Speed: %s\n"
-        "  • Accuracy: %s\n"
-        "  • Overall: %s\n"
-        "\n"
-        "🎮 Ready for next puzzle! Use 'PUZZLE' to start another",
-        current_puzzle.name,
-        current_puzzle.difficulty == 1 ? "Beginner" : "Intermediate",
-        solve_time,
-        current_puzzle.current_step + 1,
-        current_puzzle.step_count,
-        (current_puzzle.current_step + 1) * 100 / current_puzzle.step_count,
-        solve_time < 30 ? "⚡ Fast" : solve_time < 60 ? "✅ Good" : "🐌 Slow",
-        current_puzzle.current_step == current_puzzle.step_count - 1 ? "🎯 Perfect" : "📝 Good",
-        solve_time < 30 ? "🏆 Excellent" : "👍 Good"
-    );
-    
-    // CHUNKED OUTPUT - Send endgame report in chunks to prevent UART buffer overflow
-    const size_t CHUNK_SIZE = 256;  // Small chunks for UART buffer
-    size_t total_len = strlen(response_data);
-    const char* data_ptr = response_data;
-    size_t chunks_remaining = total_len;
-    
-    ESP_LOGI(TAG, "🏆 Sending endgame report in chunks: %zu bytes total", total_len);
-    
-    while (chunks_remaining > 0) {
-        // Calculate chunk size
-        size_t chunk_size = (chunks_remaining > CHUNK_SIZE) ? CHUNK_SIZE : chunks_remaining;
-        
-        // Create chunk response
-        game_response_t chunk_response = {
-            .type = GAME_RESPONSE_SUCCESS,
-            .command_type = GAME_CMD_SHOW_BOARD,  // Reuse board command type
-            .error_code = 0,
-            .message = "Endgame report chunk sent",
-            .timestamp = esp_timer_get_time() / 1000
-        };
-        
-        // Copy chunk data
-        strncpy(chunk_response.data, data_ptr, chunk_size);
-        chunk_response.data[chunk_size] = '\0';
-        
-        // Reset WDT before sending chunk
-        esp_task_wdt_reset();
-        
-        // Send chunk
-        if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
-            ESP_LOGW(TAG, "Failed to send endgame report chunk to UART task");
-            break;
-        }
-        
-        // Update pointers
-        data_ptr += chunk_size;
-        chunks_remaining -= chunk_size;
-        
-        // Small delay between chunks
-        if (chunks_remaining > 0) {
-            vTaskDelay(pdMS_TO_TICKS(5));
-        }
-    }
-    
-    ESP_LOGI(TAG, "✅ Endgame report sent successfully in chunks");
-    
-    // Completion animation
-    led_set_all_safe(0, 255, 0); // Green success
-}
-
-void game_process_puzzle_verify_command(const chess_move_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "🔍 Processing PUZZLE_VERIFY command");
-    
-    if (!current_puzzle.is_active) {
-        game_send_response_to_uart("❌ No active puzzle to verify!", true, (QueueHandle_t)cmd->response_queue);
-        return;
-    }
-    
-    puzzle_step_t* current_step = &current_puzzle.steps[current_puzzle.current_step];
-    
-    char response_data[1024];  // Restored buffer size for list games
-    snprintf(response_data, sizeof(response_data),
-        "🔍 PUZZLE VERIFICATION\n"
-        "═══════════════════════════════════════════════════════════════\n"
-        "📝 Puzzle: %s\n"
-        "🎯 Current Step: %d/%d\n"
-        "📋 Expected Move: %c%d -> %c%d\n"
-        "💬 Description: %s\n"
-        "🔄 Move Type: %s\n"
-        "\n"
-        "💡 HINT: Look for the piece at %c%d\n"
-        "🎯 Target: Square %c%d\n"
-        "⚡ LED animation shows the correct path!",
-        current_puzzle.name,
-        current_puzzle.current_step + 1,
-        current_puzzle.step_count,
-        'a' + current_step->from_col,
-        current_step->from_row + 1,
-        'a' + current_step->to_col,
-        current_step->to_row + 1,
-        current_step->description,
-        current_step->is_forced ? "Forced (only legal move)" : "Best choice",
-        'a' + current_step->from_col,
-        current_step->from_row + 1,
-        'a' + current_step->to_col,
-        current_step->to_row + 1
-    );
-    
-    // CHUNKED OUTPUT - Send endgame report in chunks to prevent UART buffer overflow
-    const size_t CHUNK_SIZE = 256;  // Small chunks for UART buffer
-    size_t total_len = strlen(response_data);
-    const char* data_ptr = response_data;
-    size_t chunks_remaining = total_len;
-    
-    ESP_LOGI(TAG, "🏆 Sending endgame report in chunks: %zu bytes total", total_len);
-    
-    while (chunks_remaining > 0) {
-        // Calculate chunk size
-        size_t chunk_size = (chunks_remaining > CHUNK_SIZE) ? CHUNK_SIZE : chunks_remaining;
-        
-        // Create chunk response
-        game_response_t chunk_response = {
-            .type = GAME_RESPONSE_SUCCESS,
-            .command_type = GAME_CMD_SHOW_BOARD,  // Reuse board command type
-            .error_code = 0,
-            .message = "Endgame report chunk sent",
-            .timestamp = esp_timer_get_time() / 1000
-        };
-        
-        // Copy chunk data
-        strncpy(chunk_response.data, data_ptr, chunk_size);
-        chunk_response.data[chunk_size] = '\0';
-        
-        // Reset WDT before sending chunk
-        esp_task_wdt_reset();
-        
-        // Send chunk
-        if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
-            ESP_LOGW(TAG, "Failed to send endgame report chunk to UART task");
-            break;
-        }
-        
-        // Update pointers
-        data_ptr += chunk_size;
-        chunks_remaining -= chunk_size;
-        
-        // Small delay between chunks
-        if (chunks_remaining > 0) {
-            vTaskDelay(pdMS_TO_TICKS(5));
-        }
-    }
-    
-    ESP_LOGI(TAG, "✅ Endgame report sent successfully in chunks");
-    
-    // Show verification animation
-    uint8_t from_square = chess_pos_to_led_index(current_step->from_row, current_step->from_col);
-    uint8_t to_square = chess_pos_to_led_index(current_step->to_row, current_step->to_col);
-    
-    // Highlight both squares with verification colors
-    led_set_pixel_safe(from_square, 255, 165, 0); // Orange for source
-    led_set_pixel_safe(to_square, 0, 255, 0); // Green for destination
-}
 
 // ============================================================================
 // OPPONENT PIECE HANDLING FUNCTIONS

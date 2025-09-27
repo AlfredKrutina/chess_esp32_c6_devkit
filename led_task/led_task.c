@@ -667,12 +667,6 @@ void led_process_commands(void)
 }
 
 // Forward declarations for animation functions
-void led_puzzle_start_animation(const led_command_t* cmd);
-void led_puzzle_highlight_piece(const led_command_t* cmd);
-void led_puzzle_path_animation(const led_command_t* cmd);
-void led_puzzle_destination_highlight(const led_command_t* cmd);
-void led_puzzle_complete_animation(const led_command_t* cmd);
-void led_puzzle_stop_all_animations(void);
 void led_anim_player_change(const led_command_t* cmd);
 void led_anim_move_path(const led_command_t* cmd);
 void led_anim_castle(const led_command_t* cmd);
@@ -752,35 +746,6 @@ void led_execute_command_new(const led_command_t* cmd)
             led_print_compact_status();
             break;
             
-        // Puzzle Animation Cases
-        case LED_CMD_PUZZLE_START:
-            ESP_LOGI(TAG, "🧩 Starting puzzle animation sequence");
-            led_puzzle_start_animation(cmd);
-            break;
-            
-        case LED_CMD_PUZZLE_HIGHLIGHT:
-            ESP_LOGI(TAG, "🟡 Highlighting puzzle piece at LED %d", cmd->led_index);
-            led_puzzle_highlight_piece(cmd);
-            break;
-            
-        case LED_CMD_PUZZLE_PATH:
-            ESP_LOGI(TAG, "🔵 Starting puzzle path animation %d -> target", cmd->led_index);
-            led_puzzle_path_animation(cmd);
-            break;
-            
-        case LED_CMD_PUZZLE_DESTINATION:
-            ESP_LOGI(TAG, "🟢 Highlighting puzzle destination at LED %d", cmd->led_index);
-            led_puzzle_destination_highlight(cmd);
-            break;
-            
-        case LED_CMD_PUZZLE_COMPLETE:
-            ESP_LOGI(TAG, "🏆 Starting puzzle completion animation");
-            led_puzzle_complete_animation(cmd);
-            break;
-            
-        case LED_CMD_PUZZLE_STOP:
-            ESP_LOGI(TAG, "⏹️ Stopping all puzzle animations");
-            led_puzzle_stop_all_animations();
             break;
             
         // Advanced Chess Animation Cases
@@ -819,9 +784,6 @@ void led_execute_command_new(const led_command_t* cmd)
             led_anim_checkmate(cmd);
             break;
             
-        case LED_CMD_ANIM_PUZZLE_PATH:
-            ESP_LOGI(TAG, "🧩 Puzzle path animation");
-            led_puzzle_path_animation(cmd);
             break;
             
         case LED_CMD_BUTTON_PROMOTION_AVAILABLE:
@@ -1700,17 +1662,6 @@ void led_task_start(void *pvParameters)
     }
 }
 
-// ============================================================================
-// PUZZLE ANIMATION IMPLEMENTATIONS
-// ============================================================================
-
-// Global puzzle animation state
-static TimerHandle_t puzzle_timer = NULL;
-static uint8_t puzzle_animation_frame = 0;
-static uint8_t puzzle_animation_total_frames = 0;
-static uint8_t puzzle_animation_source = 0;
-static uint8_t puzzle_animation_target = 0;
-static bool puzzle_animation_active = false;
 
 // Global endgame animation state
 static bool endgame_animation_active = false;
@@ -1718,236 +1669,7 @@ static player_t endgame_winner = PLAYER_WHITE;
 static uint8_t endgame_animation_style = 0;
 static uint32_t endgame_animation_frame = 0;
 
-/**
- * @brief Timer callback for puzzle animations
- */
-void puzzle_animation_timer_callback(TimerHandle_t xTimer) {
-    if (!puzzle_animation_active) return;
-    
-    puzzle_animation_frame++;
-    
-    if (puzzle_animation_frame >= puzzle_animation_total_frames) {
-        // Animation complete
-        puzzle_animation_active = false;
-        xTimerStop(puzzle_timer, 0);
-        ESP_LOGI(TAG, "🎯 Puzzle animation completed");
-        return;
-    }
-    
-    // Calculate animation progress
-    float progress = (float)puzzle_animation_frame / (float)puzzle_animation_total_frames;
-    
-    // Create path animation effect
-    uint8_t source_row = puzzle_animation_source / 8;
-    uint8_t source_col = puzzle_animation_source % 8;
-    uint8_t target_row = puzzle_animation_target / 8;
-    uint8_t target_col = puzzle_animation_target % 8;
-    
-    // Clear board first
-    led_clear_board_only();
-    
-    // IMPROVED: Multi-point trail animation with brightness effects
-    for (int trail = 0; trail < 3; trail++) {
-        float trail_progress = progress - (trail * 0.2f);
-        if (trail_progress < 0) continue;
-        if (trail_progress > 1) break;
-    
-    // Linear interpolation
-        float current_row = source_row + (target_row - source_row) * trail_progress;
-        float current_col = source_col + (target_col - source_col) * trail_progress;
-    
-    uint8_t current_square = chess_pos_to_led_index((uint8_t)current_row, (uint8_t)current_col);
-    
-    if (current_square < 64) {
-            // Progressive color change: Cyan -> Blue -> Purple
-            uint8_t red, green, blue;
-            if (trail_progress < 0.5f) {
-                // Cyan to Blue
-                float local_progress = trail_progress / 0.5f;
-                red = 0;
-                green = 255 - (uint8_t)(255 * local_progress);
-                blue = 255;
-            } else {
-                // Blue to Purple
-                float local_progress = (trail_progress - 0.5f) / 0.5f;
-                red = (uint8_t)(255 * local_progress);
-                green = 0;
-                blue = 255;
-            }
-            
-            // Trail brightness effect - each point gets dimmer
-            float trail_brightness = 1.0f - (trail * 0.3f);
-            red = (uint8_t)(red * trail_brightness);
-            green = (uint8_t)(green * trail_brightness);
-            blue = (uint8_t)(blue * trail_brightness);
-            
-            // Add pulsing effect
-            float pulse = 0.7f + 0.3f * sin(progress * 6.28f + trail * 2.09f);
-            red = (uint8_t)(red * pulse);
-            green = (uint8_t)(green * pulse);
-            blue = (uint8_t)(blue * pulse);
-            
-            led_set_pixel_internal(current_square, red, green, blue);
-        }
-    }
-}
 
-void led_puzzle_start_animation(const led_command_t* cmd) {
-    if (!cmd) return;
-    
-    // Simple welcome animation - single flash
-    for (int i = 0; i < 64; i++) {
-        led_set_pixel_internal(i, 0, 255, 255); // Cyan
-    }
-
-    vTaskDelay(pdMS_TO_TICKS(300));
-    
-    led_clear_all_highlights();
-    ESP_LOGI(TAG, "🧩 Puzzle welcome animation completed");
-}
-
-void led_puzzle_highlight_piece(const led_command_t* cmd) {
-    if (!cmd || cmd->led_index >= 64) return;
-    
-    // Simple highlight - just set yellow
-    led_set_pixel_internal(cmd->led_index, 255, 255, 0);
-
-    
-    ESP_LOGI(TAG, "🟡 Highlighted puzzle piece at LED %d", cmd->led_index);
-}
-
-void led_puzzle_path_animation(const led_command_t* cmd) {
-    if (!cmd || cmd->led_index >= 64) return;
-    
-    ESP_LOGI(TAG, "🧩 Starting enhanced puzzle path animation");
-    
-    uint8_t from_led = cmd->led_index;
-    uint8_t to_led = (cmd->data ? *((uint8_t*)cmd->data) : 63); // default to h8
-    
-    // Convert LED indices to row/col
-    uint8_t from_row = from_led / 8;
-    uint8_t from_col = from_led % 8;
-    uint8_t to_row = to_led / 8;
-    uint8_t to_col = to_led % 8;
-    
-    // STEP 1: Highlight starting position with pulsing effect
-    ESP_LOGI(TAG, "🎯 Step 1: Highlighting starting position");
-    for (int pulse = 0; pulse < 5; pulse++) {
-        led_clear_board_only();
-        float brightness = 0.5f + 0.5f * sin(pulse * 1.26f);
-        led_set_pixel_safe(from_led, (uint8_t)(255 * brightness), (uint8_t)(255 * brightness), 0); // Pulsing yellow
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-    
-    // STEP 2: Show path with step-by-step guidance
-    ESP_LOGI(TAG, "🎯 Step 2: Showing path step by step");
-    int steps = abs(to_row - from_row) + abs(to_col - from_col);
-    if (steps == 0) steps = 1;
-    
-    for (int step = 0; step <= steps; step++) {
-        led_clear_board_only();
-        
-        // Calculate current position
-        float progress = (float)step / steps;
-        float current_row = from_row + (to_row - from_row) * progress;
-        float current_col = from_col + (to_col - from_col) * progress;
-        
-        uint8_t current_led = chess_pos_to_led_index((uint8_t)current_row, (uint8_t)current_col);
-        
-        // Show all previous steps in dimmer color
-        for (int prev_step = 0; prev_step < step; prev_step++) {
-            float prev_progress = (float)prev_step / steps;
-            float prev_row = from_row + (to_row - from_row) * prev_progress;
-            float prev_col = from_col + (to_col - from_col) * prev_progress;
-            uint8_t prev_led = chess_pos_to_led_index((uint8_t)prev_row, (uint8_t)prev_col);
-            led_set_pixel_safe(prev_led, 0, 128, 0); // Dim green for previous steps
-        }
-        
-        // Highlight current step
-        if (step < steps) {
-            // Current step - bright cyan
-            led_set_pixel_safe(current_led, 0, 255, 255);
-        } else {
-            // Final destination - bright yellow
-            led_set_pixel_safe(current_led, 255, 255, 0);
-        }
-        
-        vTaskDelay(pdMS_TO_TICKS(200)); // Faster for better performance
-    }
-    
-    // STEP 3: Final confirmation with celebration
-    ESP_LOGI(TAG, "🎯 Step 3: Final confirmation");
-    for (int celebration = 0; celebration < 3; celebration++) {
-        led_clear_board_only();
-        
-        // Show complete path
-        for (int step = 0; step <= steps; step++) {
-            float progress = (float)step / steps;
-            float current_row = from_row + (to_row - from_row) * progress;
-            float current_col = from_col + (to_col - from_col) * progress;
-            uint8_t current_led = chess_pos_to_led_index((uint8_t)current_row, (uint8_t)current_col);
-            
-            // Celebration colors
-            uint8_t r, g, b;
-            if (celebration == 0) { r = 255; g = 0; b = 0; }      // Red
-            else if (celebration == 1) { r = 0; g = 255; b = 0; } // Green
-            else { r = 0; g = 0; b = 255; }                       // Blue
-            
-            led_set_pixel_safe(current_led, r, g, b);
-        }
-        
-        vTaskDelay(pdMS_TO_TICKS(300));
-    }
-    
-    // STEP 4: Clear and show final destination
-    led_clear_board_only();
-    led_set_pixel_safe(to_led, 255, 255, 0); // Final yellow highlight
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    led_clear_board_only();
-    
-    ESP_LOGI(TAG, "🧩 Enhanced puzzle path animation completed");
-}
-
-void led_puzzle_destination_highlight(const led_command_t* cmd) {
-    if (!cmd || cmd->led_index >= 64) return;
-    
-    // Simple highlight - just set green
-    led_set_pixel_internal(cmd->led_index, 0, 255, 0);
-
-    
-    ESP_LOGI(TAG, "🟢 Highlighted destination at LED %d", cmd->led_index);
-}
-
-void led_puzzle_complete_animation(const led_command_t* cmd) {
-    if (!cmd) return;
-    
-    // Simple success animation - flash green
-    for (int flash = 0; flash < 2; flash++) {
-        led_set_all_internal(0, 255, 0); // Green
-
-        vTaskDelay(pdMS_TO_TICKS(300));
-    
-        led_clear_all_highlights();
-
-        vTaskDelay(pdMS_TO_TICKS(300));
-    }
-    
-    ESP_LOGI(TAG, "🏆 Puzzle completion animation finished");
-}
-
-void led_puzzle_stop_all_animations(void) {
-    animation_active = false;
-    
-    if (puzzle_timer != NULL) {
-        xTimerStop(puzzle_timer, 0);
-    }
-    
-    // Clear all LEDs
-    led_clear_all_internal();
-
-    
-    ESP_LOGI(TAG, "⏹️ All puzzle animations stopped");
-}
 
 // ============================================================================
 // ADVANCED CHESS ANIMATION IMPLEMENTATIONS

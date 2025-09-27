@@ -122,6 +122,7 @@ command_result_t uart_cmd_memcheck(const char* args);
 command_result_t uart_cmd_show_mutexes(const char* args);
 command_result_t uart_cmd_show_fifos(const char* args);
 command_result_t uart_cmd_recover(const char* args);
+command_result_t uart_cmd_moves(const char* args);
 
 // Help functions
 void uart_display_main_help(void);

@@ -199,7 +199,6 @@ typedef enum {
     GAME_CMD_EVALUATE = 17,     // position evaluation
     GAME_CMD_SAVE = 18,         // save game
     GAME_CMD_LOAD = 19,         // load game
-    GAME_CMD_PUZZLE = 20,       // chess puzzle
     
     // Medium Priority Commands
     GAME_CMD_CASTLE = 21,       // castling
@@ -214,22 +213,17 @@ typedef enum {
     GAME_CMD_ENDGAME_BLACK = 26, // endgame black wins
     
     // Game Management Commands
+    GAME_CMD_SHOW_HISTORY = 29,  // show move history
     GAME_CMD_LIST_GAMES = 27,    // list saved games
     GAME_CMD_DELETE_GAME = 28,   // delete saved game
     
-    // Puzzle Commands
-    GAME_CMD_PUZZLE_NEXT = 29,   // Next puzzle step
-    GAME_CMD_PUZZLE_RESET = 30,  // Reset current puzzle
-    GAME_CMD_PUZZLE_COMPLETE = 31, // Complete current puzzle
-    GAME_CMD_PUZZLE_VERIFY = 32, // Verify puzzle move
     
     // Animation Test Commands
     GAME_CMD_TEST_MOVE_ANIM = 33,    // Test move animation
     GAME_CMD_TEST_PLAYER_ANIM = 34,  // Test player change animation
     GAME_CMD_TEST_CASTLE_ANIM = 35,  // Test castling animation
     GAME_CMD_TEST_PROMOTE_ANIM = 36, // Test promotion animation
-    GAME_CMD_TEST_ENDGAME_ANIM = 37, // Test endgame animation
-    GAME_CMD_TEST_PUZZLE_ANIM = 38   // Test puzzle animation
+    GAME_CMD_TEST_ENDGAME_ANIM = 37  // Test endgame animation
 } game_command_type_t;
 
 /**
@@ -292,13 +286,6 @@ typedef enum {
     LED_CMD_MATRIX_OFF = 11,    // Disable matrix scanning LED effects
     LED_CMD_MATRIX_ON = 12,     // Enable matrix scanning LED effects
     
-    // Puzzle Animation Commands
-    LED_CMD_PUZZLE_START = 13,   // Start puzzle animation sequence
-    LED_CMD_PUZZLE_HIGHLIGHT = 14, // Highlight source piece
-    LED_CMD_PUZZLE_PATH = 15,    // Show path from source to destination
-    LED_CMD_PUZZLE_DESTINATION = 16, // Highlight destination
-    LED_CMD_PUZZLE_COMPLETE = 17,   // Complete puzzle step animation
-    LED_CMD_PUZZLE_STOP = 18,    // Stop all puzzle animations
     
     // Advanced Chess Animations
     LED_CMD_ANIM_PLAYER_CHANGE = 19, // Player change animation (rays)
@@ -308,7 +295,6 @@ typedef enum {
     LED_CMD_ANIM_ENDGAME = 23,       // Endgame animation (waves)
     LED_CMD_ANIM_CHECK = 24,         // Check animation
     LED_CMD_ANIM_CHECKMATE = 25,     // Checkmate animation
-    LED_CMD_ANIM_PUZZLE_PATH = 26,   // Puzzle path animation
     
     // Component control commands
     LED_CMD_DISABLE = 25,            // Disable LED component
@@ -502,43 +488,7 @@ esp_err_t config_load_from_nvs(system_config_t* config);
 esp_err_t config_save_to_nvs(const system_config_t* config);
 esp_err_t config_apply_settings(const system_config_t* config);
 
-/**
- * @brief Puzzle difficulty levels
- */
-typedef enum {
-    PUZZLE_DIFFICULTY_BEGINNER = 1,   // 2-3 moves, basic tactics
-    PUZZLE_DIFFICULTY_INTERMEDIATE = 2, // 3-5 moves, complex tactics
-    PUZZLE_DIFFICULTY_ADVANCED = 3,   // 5+ moves, advanced combinations
-    PUZZLE_DIFFICULTY_MASTER = 4      // Complex endgames and studies
-} puzzle_difficulty_t;
 
-/**
- * @brief Puzzle step structure
- */
-typedef struct {
-    uint8_t from_row;
-    uint8_t from_col;
-    uint8_t to_row;
-    uint8_t to_col;
-    char description[64];  // Human readable description
-    bool is_forced;        // Whether this move is forced
-} puzzle_step_t;
-
-/**
- * @brief Complete puzzle structure
- */
-typedef struct {
-    char name[32];                    // Puzzle name
-    char description[128];            // Puzzle description
-    puzzle_difficulty_t difficulty;   // Difficulty level
-    piece_t initial_board[8][8];     // Initial board position
-    puzzle_step_t steps[16];         // Up to 16 moves
-    uint8_t step_count;              // Number of steps
-    uint8_t current_step;            // Current step index
-    bool is_active;                  // Whether puzzle is active
-    uint32_t start_time;             // Puzzle start timestamp
-    uint32_t completion_time;        // Completion timestamp
-} chess_puzzle_t;
 
 /**
  * @brief Animation state for LED effects
