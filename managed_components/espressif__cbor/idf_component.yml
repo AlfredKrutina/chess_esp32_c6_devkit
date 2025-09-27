@@ -1,9 +1,0 @@
-dependencies:
-  idf: '>=4.3'
-description: 'CBOR: Concise Binary Object Representation Library'
-repository: git://github.com/espressif/idf-extra-components.git
-repository_info:
-  commit_sha: 46473a1d27e23fc64c80876857b0aa52e3d85171
-  path: cbor
-url: https://github.com/espressif/idf-extra-components/tree/master/cbor
-version: 0.6.1~1

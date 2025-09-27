@@ -5936,26 +5936,19 @@ void game_test_endgame_animation(void)
     
     ESP_LOGI(TAG, "🏆 Starting test victory animation at position %d", king_pos);
     
-    // Spustit animaci s error handlingem
-    esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
-    if (result != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Failed to start test endgame animation: %s", esp_err_to_name(result));
-        
-        // Fallback na starý systém
-        ESP_LOGI(TAG, "🔄 Falling back to old animation system");
-        led_command_t endgame_cmd = {
-            .type = LED_CMD_ANIM_ENDGAME,
-            .led_index = king_pos,
-            .red = 255, .green = 215, .blue = 0, // Gold
-            .duration_ms = 3000,
-            .data = NULL
-        };
-        led_execute_command_new(&endgame_cmd);
-        vTaskDelay(pdMS_TO_TICKS(1500));
-    } else {
-        ESP_LOGI(TAG, "✅ Test endgame animation started successfully");
-        vTaskDelay(pdMS_TO_TICKS(3000)); // Wait for animation to complete
-    }
+    // Send endgame animation command directly to LED Task
+    led_command_t endgame_cmd = {
+        .type = LED_CMD_ANIM_ENDGAME,
+        .led_index = king_pos,
+        .red = 255, .green = 255, .blue = 0, // Yellow
+        .duration_ms = 0, // Endless
+        .data = NULL,
+        .response_queue = NULL
+    };
+    
+    led_execute_command_new(&endgame_cmd);
+    ESP_LOGI(TAG, "✅ Test endgame animation command sent to LED Task");
+    vTaskDelay(pdMS_TO_TICKS(3000)); // Wait for animation to complete
     
     // Clear board
     led_clear_board_only();
@@ -6273,10 +6266,18 @@ game_state_t game_check_end_game_conditions(void)
         ESP_LOGI(TAG, "🏆 Starting checkmate victory animation for %s at position %d", 
                  (winner == PLAYER_WHITE) ? "White" : "Black", king_pos);
         
-        esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
-        if (result != ESP_OK) {
-            ESP_LOGE(TAG, "❌ Failed to start checkmate animation: %s", esp_err_to_name(result));
-        }
+        // Send endgame animation command directly to LED Task
+        led_command_t endgame_cmd = {
+            .type = LED_CMD_ANIM_ENDGAME,
+            .led_index = king_pos,
+            .red = 255, .green = 255, .blue = 0, // Yellow
+            .duration_ms = 0, // Endless
+            .data = NULL,
+            .response_queue = NULL
+        };
+        
+        led_execute_command_new(&endgame_cmd);
+        ESP_LOGI(TAG, "✅ Checkmate animation command sent to LED Task");
         
         return GAME_STATE_FINISHED;
     } else if (!in_check && !has_moves) {

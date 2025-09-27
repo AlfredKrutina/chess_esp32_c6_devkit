@@ -26,6 +26,8 @@
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
 #include <math.h>
 
+// Note: board array is static in game_task.c, so we'll use cmd parameters instead
+
 // RGB color structure for enhanced animations
 typedef struct {
     uint8_t r;
@@ -1673,6 +1675,9 @@ void led_task_start(void *pvParameters)
         // Update animations
         led_update_animation();
         
+        // Update endgame wave animation
+        led_update_endgame_wave();
+        
         // Process button blink timers
         led_process_button_blink_timers();
         
@@ -2478,168 +2483,116 @@ void led_booting_animation(void)
     ESP_LOGI(TAG, "🌟 Booting animation completed");
 }
 
+// Endgame animation state structure
+typedef struct {
+    bool active;
+    uint8_t win_king_led;
+    uint8_t win_king_row;
+    uint8_t win_king_col;
+    uint8_t lose_king_row;
+    uint8_t lose_king_col;
+    uint8_t radius;
+    uint32_t last_update;
+    bool initialized;
+} endgame_wave_state_t;
+
+static endgame_wave_state_t endgame_wave = {0};
+
+/**
+ * @brief Initialize AVR-style wave endgame animation
+ */
 void led_anim_endgame(const led_command_t* cmd) {
     if (!cmd) return;
     
-    ESP_LOGI(TAG, "🏆 Starting ENDLESS endgame animation");
+    ESP_LOGI(TAG, "🏆 Starting AVR-style wave endgame animation");
     
-    // Get animation style from data (0=wave, 1=circles, 2=cascade, 3=fireworks)
-    uint8_t style = (cmd->data ? *((uint8_t*)cmd->data) : 0);
+    // Get winner king position from led_index
+    endgame_wave.win_king_led = cmd->led_index;
+    endgame_wave.win_king_row = endgame_wave.win_king_led / 8;
+    endgame_wave.win_king_col = endgame_wave.win_king_led % 8;
+    
+    // For simplicity, we'll just animate around the winner king
+    // The loser king position is not critical for the wave effect
+    endgame_wave.lose_king_row = 0;
+    endgame_wave.lose_king_col = 0;
+    
+    ESP_LOGI(TAG, "🎯 Winner king at (%d,%d) - wave animation around this position", 
+             endgame_wave.win_king_row, endgame_wave.win_king_col);
+    
+    // Initialize animation state
+    endgame_wave.radius = 1;
+    endgame_wave.last_update = xTaskGetTickCount();
+    endgame_wave.active = true;
+    endgame_wave.initialized = true;
     
     // Set global endgame state
     endgame_animation_active = true;
-    endgame_winner = PLAYER_WHITE; // Default winner, should be set by game logic
-    endgame_animation_style = style;
-    endgame_animation_frame = 0;
     
-    // Reset WDT at start
-    esp_task_wdt_reset();
-    
-    // ENHANCED colors for winner vs loser - more vibrant and clear
-    uint8_t winner_r = 255, winner_g = 215, winner_b = 0; // Bright Gold for winner
-    uint8_t loser_r = 100, loser_g = 100, loser_b = 100;  // Dark Gray for loser
-    // uint8_t celebration_r = 255, celebration_g = 0, celebration_b = 255; // Magenta celebration - unused
-    
-    // Start endless endgame animation
-    ESP_LOGI(TAG, "🔄 Starting endless endgame animation loop...");
-    
-    // Endless animation loop - runs until new game
-    while (endgame_animation_active) {
-        endgame_animation_frame++;
-        
-        if (style == 0) {
-            // ENDLESS Wave animation - interactive colors
-        for (int radius = 7; radius >= 0; radius--) {
-                if (!endgame_animation_active) break; // Check if still active
-                
-                led_clear_board_only();
-            
-            for (int row = 0; row < 8; row++) {
-                for (int col = 0; col < 8; col++) {
-                    int dist_to_edge = min(min(row, 7-row), min(col, 7-col));
-                    
-                    if (dist_to_edge == radius) {
-                        uint8_t square = chess_pos_to_led_index(row, col);
-                            
-                            // Interactive colors based on position
-                            float brightness = 0.5f + 0.5f * sin(endgame_animation_frame * 0.1f + radius * 0.5f);
-                            uint8_t r = (uint8_t)(winner_r * brightness);
-                            uint8_t g = (uint8_t)(winner_g * brightness);
-                            uint8_t b = (uint8_t)(winner_b * brightness);
-                            
-                            // Add pulsing effect
-                            float pulse = 0.7f + 0.3f * sin(endgame_animation_frame * 0.2f + radius * 0.8f);
-                            r = (uint8_t)(r * pulse);
-                            g = (uint8_t)(g * pulse);
-                            b = (uint8_t)(b * pulse);
-                            
-                            led_set_pixel_safe(square, r, g, b);
-                        }
-                    }
-                }
-                
-                vTaskDelay(pdMS_TO_TICKS(50)); // Slower for endless effect
-                esp_task_wdt_reset();
-            }
-        } else if (style == 1) {
-            // ENDLESS Circles animation - expanding with color transitions
-            uint8_t center_led = cmd->led_index;
-            for (int radius = 0; radius <= 7; radius++) {
-                if (!endgame_animation_active) break; // Check if still active
-                
-                led_clear_board_only();
-                
-                for (int row = 0; row < 8; row++) {
-                    for (int col = 0; col < 8; col++) {
-                        int dist = abs(row - (center_led / 8)) + abs(col - (center_led % 8));
-                        
-                        if (dist == radius) {
-                            uint8_t square = chess_pos_to_led_index(row, col);
-                            
-                            // Color transition based on distance from center
-                            float color_progress = (float)radius / 7.0f;
-                            uint8_t r = winner_r - (uint8_t)((winner_r - loser_r) * color_progress);
-                            uint8_t g = winner_g - (uint8_t)((winner_g - loser_g) * color_progress);
-                            uint8_t b = winner_b - (uint8_t)((winner_b - loser_b) * color_progress);
-                            
-                            // Brightness based on animation frame
-                            float brightness = 0.6f + 0.4f * sin(endgame_animation_frame * 0.1f + radius * 0.4f);
-                            r = (uint8_t)(r * brightness);
-                            g = (uint8_t)(g * brightness);
-                            b = (uint8_t)(b * brightness);
-                            
-                            led_set_pixel_safe(square, r, g, b);
-                        }
-                    }
-                }
-                
-                vTaskDelay(pdMS_TO_TICKS(50)); // Slower for endless effect
-                esp_task_wdt_reset();
-            }
-        } else if (style == 2) {
-            // ENDLESS Cascade animation - falling effect with color waves
-            for (int row = 0; row < 8; row++) {
-                if (!endgame_animation_active) break; // Check if still active
-                
-                led_clear_board_only();
-                
-                for (int col = 0; col < 8; col++) {
-                    int active_row = (row + endgame_animation_frame) % 8;
-                    uint8_t square = chess_pos_to_led_index(active_row, col);
-                    
-                    // Color wave effect
-                    float wave = 0.5f + 0.5f * sin(col * 0.8f + endgame_animation_frame * 0.1f);
-                    uint8_t r = (uint8_t)(winner_r * wave);
-                    uint8_t g = (uint8_t)(winner_g * wave);
-                    uint8_t b = (uint8_t)(winner_b * wave);
-                    
-                    // Add brightness variation
-                    float brightness = 0.7f + 0.3f * sin(active_row * 0.5f + col * 0.3f);
-                    r = (uint8_t)(r * brightness);
-                    g = (uint8_t)(g * brightness);
-                    b = (uint8_t)(b * brightness);
-                    
-                    led_set_pixel_safe(square, r, g, b);
-                }
-                
-                vTaskDelay(pdMS_TO_TICKS(50)); // Slower for endless effect
-                esp_task_wdt_reset();
-            }
-        } else {
-            // ENDLESS Fireworks animation - random bursts with color variety
-            led_clear_board_only();
-            
-            for (int i = 0; i < 12; i++) {
-                int row = (endgame_animation_frame * 3 + i * 2) % 8;
-                int col = (endgame_animation_frame * 5 + i * 3) % 8;
-                uint8_t square = chess_pos_to_led_index(row, col);
-                
-                // Random colors for fireworks
-                uint8_t r = (i * 23 + endgame_animation_frame * 17) % 256;
-                uint8_t g = (i * 37 + endgame_animation_frame * 29) % 256;
-                uint8_t b = (i * 41 + endgame_animation_frame * 31) % 256;
-                
-                // Add brightness variation
-                float brightness = 0.4f + 0.6f * sin(i * 0.5f + endgame_animation_frame * 0.1f);
-                r = (uint8_t)(r * brightness);
-                g = (uint8_t)(g * brightness);
-                b = (uint8_t)(b * brightness);
-                
-                led_set_pixel_safe(square, r, g, b);
-            }
-            
-            vTaskDelay(pdMS_TO_TICKS(100)); // Slower for endless effect
-            esp_task_wdt_reset();
-        }
-        
-        // Small delay between animation cycles
-            vTaskDelay(pdMS_TO_TICKS(200));
-        esp_task_wdt_reset();
+    ESP_LOGI(TAG, "🌊 AVR-style wave endgame animation initialized");
+}
+
+/**
+ * @brief Update AVR-style wave endgame animation (call from main LED loop)
+ */
+void led_update_endgame_wave(void) {
+    if (!endgame_wave.active || !endgame_wave.initialized) {
+        return;
     }
     
-    // Animation stopped - clear board
+    const uint32_t WAVE_STEP_MS = 100; // 100ms between wave steps
+    const uint8_t MAX_RADIUS = 10;
+    
+    // Check if it's time for next wave step
+    if (xTaskGetTickCount() - endgame_wave.last_update < pdMS_TO_TICKS(WAVE_STEP_MS)) {
+        return; // Not time yet
+    }
+    
+    endgame_wave.last_update = xTaskGetTickCount();
+    
+    // Clear board
     led_clear_board_only();
-    ESP_LOGI(TAG, "🏆 Endless endgame animation stopped");
+    
+    // Draw wave ring around winner king
+    for (int dy = -endgame_wave.radius; dy <= endgame_wave.radius; dy++) {
+        for (int dx = -endgame_wave.radius; dx <= endgame_wave.radius; dx++) {
+            // Calculate distance from center
+            float dist = sqrtf(dx * dx + dy * dy);
+            
+            // Check if this pixel is part of the wave ring
+            if (fabsf(dist - endgame_wave.radius) <= 0.5f) {
+                int row = endgame_wave.win_king_row + dy;
+                int col = endgame_wave.win_king_col + dx;
+                
+                // Check bounds
+                if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+                    uint8_t square = chess_pos_to_led_index(row, col);
+                    
+                    // Green for all squares in wave
+                    led_set_pixel_safe(square, 0, 255, 0);
+                }
+            }
+        }
+    }
+    
+    // Always highlight winner king in yellow
+    led_set_pixel_safe(endgame_wave.win_king_led, 255, 255, 0);
+    
+    // Increment radius
+    endgame_wave.radius++;
+    if (endgame_wave.radius > MAX_RADIUS) {
+        endgame_wave.radius = 1; // Reset to start new wave cycle
+    }
+}
+
+/**
+ * @brief Stop AVR-style wave endgame animation
+ */
+void led_stop_endgame_wave(void) {
+    endgame_wave.active = false;
+    endgame_wave.initialized = false;
+    endgame_animation_active = false;
+    led_clear_board_only();
+    ESP_LOGI(TAG, "🏆 AVR-style wave endgame animation stopped");
 }
 
 /**
@@ -2648,8 +2601,7 @@ void led_anim_endgame(const led_command_t* cmd) {
 void led_stop_endgame_animation(void)
 {
     ESP_LOGI(TAG, "🛑 Stopping endless endgame animation...");
-    endgame_animation_active = false;
-    led_clear_board_only();
+    led_stop_endgame_wave();
     ESP_LOGI(TAG, "✅ Endless endgame animation stopped");
 }
 

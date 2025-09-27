@@ -37,6 +37,10 @@ void led_set_button_press(uint8_t button_id);
 void led_set_button_release(uint8_t button_id);
 uint32_t led_get_button_color(uint8_t button_id);
 
+// Endgame wave animation functions
+void led_update_endgame_wave(void);
+void led_stop_endgame_wave(void);
+
 // New button LED logic functions
 void led_set_button_promotion_available(uint8_t button_id, bool available);
 // void led_set_button_pressed_state() - REMOVED: Duplicated led_set_button_pressed()

@@ -1156,11 +1156,8 @@ command_result_t uart_cmd_test_promote_anim(const char* args);
 command_result_t uart_cmd_test_endgame_anim(const char* args);
 command_result_t uart_cmd_test_puzzle_anim(const char* args);
 
-// Endgame Animation Style Commands
-command_result_t uart_cmd_endgame_wave(const char* args);
-command_result_t uart_cmd_endgame_circles(const char* args);
-command_result_t uart_cmd_endgame_cascade(const char* args);
-command_result_t uart_cmd_endgame_fireworks(const char* args);
+// Endgame Animation Command
+command_result_t uart_cmd_endgame_test(const char* args);
 
 // Puzzle Commands
 command_result_t uart_cmd_puzzle_1(const char* args);
@@ -1322,6 +1319,7 @@ void uart_cmd_help_game(void)
     if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
     uart_send_formatted("  ENDGAME_WHITE  - Simulate White victory");
     uart_send_formatted("  ENDGAME_BLACK  - Simulate Black victory");
+    uart_send_formatted("  ENDGAME_TEST   - Test AVR-style wave endgame animation");
     
     uart_send_formatted("");
     if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
@@ -1527,12 +1525,9 @@ void uart_cmd_help_debug(void)
         uart_send_formatted("  TEST_PUZZLE_ANIM  - Test puzzle animation");
         uart_send_formatted("");
         if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
-        uart_send_formatted("🎆 Endgame Animation Styles:");
+        uart_send_formatted("🏆 Endgame Animation:");
         if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
-        uart_send_formatted("  ENDGAME_WAVE      - Wave animation from edges");
-        uart_send_formatted("  ENDGAME_CIRCLES   - Expanding circles from center");
-        uart_send_formatted("  ENDGAME_CASCADE   - Falling lights animation");
-        uart_send_formatted("  ENDGAME_FIREWORKS - Random burst animation");
+        uart_send_formatted("  ENDGAME_TEST      - Test AVR-style wave animation");
         uart_send_formatted("");
         if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
         uart_send_formatted("🧩 Puzzle System:");
@@ -1830,11 +1825,8 @@ static const uart_command_t commands[] = {
     {"TEST_ENDGAME_ANIM", uart_cmd_test_endgame_anim, "Test endgame animation", "TEST_ENDGAME_ANIM", false, {"ENDGAME_TEST", "TEST_ENDGAME", "", "", ""}},
     {"TEST_PUZZLE_ANIM", uart_cmd_test_puzzle_anim, "Test puzzle animation", "TEST_PUZZLE_ANIM", false, {"PUZZLE_TEST", "TEST_PUZZLE", "", "", ""}},
     
-    // Endgame Animation Style Commands
-    {"ENDGAME_WAVE", uart_cmd_endgame_wave, "Endgame wave animation", "ENDGAME_WAVE", false, {"WAVE", "ENDGAME_0", "", "", ""}},
-    {"ENDGAME_CIRCLES", uart_cmd_endgame_circles, "Endgame circles animation", "ENDGAME_CIRCLES", false, {"CIRCLES", "ENDGAME_1", "", "", ""}},
-    {"ENDGAME_CASCADE", uart_cmd_endgame_cascade, "Endgame cascade animation", "ENDGAME_CASCADE", false, {"CASCADE", "ENDGAME_2", "", "", ""}},
-    {"ENDGAME_FIREWORKS", uart_cmd_endgame_fireworks, "Endgame fireworks animation", "ENDGAME_FIREWORKS", false, {"FIREWORKS", "ENDGAME_3", "", "", ""}},
+    // Endgame Animation Command
+    {"ENDGAME_TEST", uart_cmd_endgame_test, "Test AVR-style wave endgame animation", "ENDGAME_TEST", false, {"TEST_ENDGAME", "", "", "", ""}},
     
     // Puzzle Commands
     {"PUZZLE_1", uart_cmd_puzzle_1, "Load puzzle 1 (Easy)", "PUZZLE_1", false, {"P1", "EASY", "", "", ""}},
@@ -6012,76 +6004,22 @@ command_result_t uart_cmd_test_puzzle_anim(const char* args)
     return CMD_SUCCESS;
 }
 
-// Endgame Animation Style Commands
-command_result_t uart_cmd_endgame_wave(const char* args)
+// Endgame Animation Command
+command_result_t uart_cmd_endgame_test(const char* args)
 {
-    uart_send_line("🌊 Starting endgame wave animation...");
+    uart_send_line("🏆 Starting AVR-style wave endgame animation...");
     
-    uint8_t style = 0; // Wave
+    // Test with d4 position (27)
     led_command_t endgame_cmd = {
         .type = LED_CMD_ANIM_ENDGAME,
         .led_index = 27, // d4
-        .red = 255, .green = 215, .blue = 0,
-        .duration_ms = 3000,
-        .data = &style
+        .red = 255, .green = 255, .blue = 0, // Yellow
+        .duration_ms = 0, // Endless
+        .data = NULL
     };
     led_execute_command_new(&endgame_cmd);
     
-    uart_send_line("✅ Endgame wave animation started");
-    return CMD_SUCCESS;
-}
-
-command_result_t uart_cmd_endgame_circles(const char* args)
-{
-    uart_send_line("⭕ Starting endgame circles animation...");
-    
-    uint8_t style = 1; // Circles
-    led_command_t endgame_cmd = {
-        .type = LED_CMD_ANIM_ENDGAME,
-        .led_index = 27, // d4
-        .red = 255, .green = 215, .blue = 0,
-        .duration_ms = 3000,
-        .data = &style
-    };
-    led_execute_command_new(&endgame_cmd);
-    
-    uart_send_line("✅ Endgame circles animation started");
-    return CMD_SUCCESS;
-}
-
-command_result_t uart_cmd_endgame_cascade(const char* args)
-{
-    uart_send_line("💫 Starting endgame cascade animation...");
-    
-    uint8_t style = 2; // Cascade
-    led_command_t endgame_cmd = {
-        .type = LED_CMD_ANIM_ENDGAME,
-        .led_index = 27, // d4
-        .red = 255, .green = 215, .blue = 0,
-        .duration_ms = 3000,
-        .data = &style
-    };
-    led_execute_command_new(&endgame_cmd);
-    
-    uart_send_line("✅ Endgame cascade animation started");
-    return CMD_SUCCESS;
-}
-
-command_result_t uart_cmd_endgame_fireworks(const char* args)
-{
-    uart_send_line("🎆 Starting endgame fireworks animation...");
-    
-    uint8_t style = 3; // Fireworks
-    led_command_t endgame_cmd = {
-        .type = LED_CMD_ANIM_ENDGAME,
-        .led_index = 27, // d4
-        .red = 255, .green = 215, .blue = 0,
-        .duration_ms = 3000,
-        .data = &style
-    };
-    led_execute_command_new(&endgame_cmd);
-    
-    uart_send_line("✅ Endgame fireworks animation started");
+    uart_send_line("✅ AVR-style wave endgame animation started");
     return CMD_SUCCESS;
 }
 
