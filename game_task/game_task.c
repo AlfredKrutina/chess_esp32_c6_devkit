@@ -28,6 +28,7 @@
 #include "freertos_chess.h"
 #include "../led_task/include/led_task.h"  // ✅ FIX: Include led_task.h for led_clear_board_only()
 #include "game_led_animations.h"
+#include <math.h>  // For brightness gradient calculations
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -1707,8 +1708,19 @@ bool game_execute_move(const chess_move_t* move)
         move_count++;
         last_move_time = esp_timer_get_time() / 1000;
         
+        // CRITICAL: Switch player BEFORE checking endgame conditions
+        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        
         ESP_LOGI(TAG, "Move executed successfully. %s to move", 
                   (current_player == PLAYER_WHITE) ? "White" : "Black");
+        
+        // CRITICAL: Check for endgame conditions after move execution
+        game_state_t end_game_result = game_check_end_game_conditions();
+        if (end_game_result == GAME_STATE_FINISHED) {
+            ESP_LOGI(TAG, "🎯 Endgame detected after move execution");
+            current_game_state = GAME_STATE_FINISHED;
+            game_active = false;
+        }
     }
     
     return success;
@@ -2980,7 +2992,8 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             last_valid_position_row = move.to_row;
             last_valid_position_col = move.to_col;
             has_last_valid_position = true;
-            player_t previous_player = current_player;
+            // Show simple player change animation
+            game_show_player_change_animation(current_player);
             
             // last_valid_position set after successful move execution
             
@@ -2990,31 +3003,25 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             // FIXED: move_count++ is already handled by main validation flow above  
             // No need to duplicate here
             
-            // Reset piece lifted state
-            piece_lifted = false;
-            lifted_piece_row = 0;
-            lifted_piece_col = 0;
-            lifted_piece = PIECE_EMPTY;
-            
             // Convert coordinates back to notation for display
             char from_notation[4];
             convert_coords_to_notation(move.from_row, move.from_col, from_notation);
             
             ESP_LOGI(TAG, "✅ Move executed successfully: %s -> %s", from_notation, cmd->to_notation);
             
-            // Show player change animation
-            game_show_player_change_animation(previous_player, current_player);
+            // Reset lifted piece state BEFORE animation
+            piece_lifted = false;
+            lifted_piece_row = 0;
+            lifted_piece_col = 0;
+            lifted_piece = PIECE_EMPTY;
+            
+            // Show simple player change animation
+            game_show_player_change_animation(current_player);
             
             // Send success response
             char success_msg[256];
             snprintf(success_msg, sizeof(success_msg), "✅ Move completed: %s -> %s", from_notation, cmd->to_notation);
             game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
-            
-            // Reset lifted piece state
-            piece_lifted = false;
-            lifted_piece_row = 0;
-            lifted_piece_col = 0;
-            lifted_piece = PIECE_EMPTY;
             
             // Return to idle state
             current_game_state = GAME_STATE_IDLE;
@@ -3096,11 +3103,12 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                 lifted_piece = PIECE_EMPTY;
 
                 // Switch player
-                player_t previous_player = current_player;
+                // Show simple player change animation
+            game_show_player_change_animation(current_player);
                 current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
 
-                // FIXED: Vyvolat animaci změny hráče a vyčistit LED
-                game_show_player_change_animation(previous_player, current_player);
+                // Show simple player change animation
+            game_show_player_change_animation(current_player);
                 
                 // Vyčistit LED a zobrazit tahy nového hráče
                 led_clear_board_only();
@@ -3170,8 +3178,8 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
         led_clear_board_only();
     }
     
-    // Step 5: Player change animation and highlighting is handled in game_show_player_change_animation
-    // No need to call game_highlight_movable_pieces() here
+    // Step 5: Show simple player change animation
+    game_show_player_change_animation(current_player);
 }
 
 // ============================================================================
@@ -3995,8 +4003,7 @@ void game_process_promote_command(const chess_move_command_t* cmd)
     
     game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
     
-    // Switch player
-    current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    // Player already switched in game_execute_move()
 }
 
 /**
@@ -4379,8 +4386,21 @@ void game_process_endgame_black_command(const chess_move_command_t* cmd)
     stream_writeln("\n🎉 Congratulations to White player!");
     stream_writeln("🏆 White wins with brilliant endgame technique!");
     
-    // FIXED: Start endgame animation
-    start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, 27); // d4 square
+    // FIXED: Start endgame animation with dynamic king position
+    uint8_t king_pos = 27; // default d4
+    for (int i = 0; i < 64; i++) {
+        piece_t piece = board[i/8][i%8];
+        if (piece == PIECE_WHITE_KING) {
+            king_pos = i;
+            break;
+        }
+    }
+    esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
+    if (result != ESP_OK) {
+        ESP_LOGE(TAG, "❌ Failed to start endgame white animation: %s", esp_err_to_name(result));
+    } else {
+        ESP_LOGI(TAG, "✅ Endgame white animation started successfully at position %d", king_pos);
+    }
     
     // MEMORY OPTIMIZATION: Streaming output handles data transmission
     // No need for manual queue management or large buffers
@@ -4470,8 +4490,21 @@ void game_process_list_games_command(const chess_move_command_t* cmd)
         }
     }
     
-    // FIXED: Start endgame animation
-    start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, 27); // d4 square
+    // FIXED: Start endgame animation with dynamic king position
+    uint8_t king_pos = 27; // default d4
+    for (int i = 0; i < 64; i++) {
+        piece_t piece = board[i/8][i%8];
+        if (piece == PIECE_BLACK_KING) {
+            king_pos = i;
+            break;
+        }
+    }
+    esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
+    if (result != ESP_OK) {
+        ESP_LOGE(TAG, "❌ Failed to start endgame black animation: %s", esp_err_to_name(result));
+    } else {
+        ESP_LOGI(TAG, "✅ Endgame black animation started successfully at position %d", king_pos);
+    }
     
     ESP_LOGI(TAG, "✅ Endgame report sent successfully in chunks");
 }
@@ -4696,10 +4729,8 @@ void game_process_chess_move(const chess_move_command_t* cmd)
             // Give FreeRTOS scheduler time to process final LED commands
             vTaskDelay(pdMS_TO_TICKS(50));  // 50ms - enough for scheduler, not too long for watchdog
             
-            // FIXED: Show player change animation
-            player_t previous_player = current_player;
-            current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-            game_show_player_change_animation(previous_player, current_player);
+            // Show simple player change animation (player already switched in game_execute_move)
+            game_show_player_change_animation(current_player);
             
             // Send success response to UART
             char success_msg[256];
@@ -5057,8 +5088,7 @@ bool game_complete_castling_strict(void)
     vTaskDelay(pdMS_TO_TICKS(1000));
     led_clear_board_only();
     
-    // Switch player
-    current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    // Player already switched in game_execute_move()
     
     // Send success message
     char success_msg[256];
@@ -5128,8 +5158,7 @@ bool game_handle_castling_rook_move(uint8_t from_row, uint8_t from_col, uint8_t 
     vTaskDelay(pdMS_TO_TICKS(1000));
     led_clear_board_only();
     
-    // Switch player
-    current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    // Player already switched in game_execute_move()
     
     // Send success message
     char success_msg[256];
@@ -5579,22 +5608,8 @@ void game_process_move_command(const void* move_cmd_ptr)
         game_print_game_stats();
         ESP_LOGI(TAG, "💡 Commands: NEW GAME, ANALYZE, SAVE <name>");
         
-        // Když hra skončí, automaticky spustíme animaci
-        if (end_game_result == GAME_STATE_FINISHED) {
-            // Najdeme pozici krále vítěze
-            uint8_t king_pos = 28; // default e4
-            for (int i = 0; i < 64; i++) {
-                piece_t piece = board[i/8][i%8];
-                if ((current_player == PLAYER_WHITE && piece == PIECE_BLACK_KING) ||
-                    (current_player == PLAYER_BLACK && piece == PIECE_WHITE_KING)) {
-                    king_pos = i;
-                    break;
-                }
-            }
-            
-            ESP_LOGI(TAG, "🏆 Game ended, starting victory animation");
-            start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
-        }
+        // Animace se spouští přímo v game_check_end_game_conditions() při detekci šachmatu
+        // Žádná duplicitní logika zde není potřeba
         
         return;
     }
@@ -5677,170 +5692,123 @@ void game_show_move_animation(uint8_t from_row, uint8_t from_col,
  * @param previous_player Previous player
  * @param current_player Current player
  */
-void game_show_player_change_animation(player_t previous_player, player_t current_player)
+/**
+ * @brief Show simple player change animation
+ * @param current_player Current player (determines row lighting direction)
+ */
+void game_show_player_change_animation(player_t current_player)
 {
-    ESP_LOGI(TAG, "🔄 Showing player change animation: %s -> %s", 
-             previous_player == PLAYER_WHITE ? "White" : "Black",
+    ESP_LOGI(TAG, "🔄 Showing fast player change animation - passing scepter to %s", 
              current_player == PLAYER_WHITE ? "White" : "Black");
     
     // Clear board first
     led_clear_board_only();
-    vTaskDelay(pdMS_TO_TICKS(200));
+    vTaskDelay(pdMS_TO_TICKS(30)); // Zrychleno z 50ms na 30ms
     
-    // FIXED: Find all pieces first, then animate all columns simultaneously
-    int prev_pieces[8] = {-1, -1, -1, -1, -1, -1, -1, -1}; // Row positions for each column
-    int curr_pieces[8] = {-1, -1, -1, -1, -1, -1, -1, -1}; // Row positions for each column
-    
-    // Find closest pieces for all columns
-    for (int col = 0; col < 8; col++) {
-        // Find closest piece of previous player (closest to opponent's side)
-        if (previous_player == PLAYER_WHITE) {
-            // Look from top (row 7) down to find white piece closest to black side
-            for (int row = 7; row >= 0; row--) {
-                piece_t piece = board[row][col];
-                if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) {
-                    prev_pieces[col] = row;
-                    break;
-                }
-            }
-        } else {
-            // Look from bottom (row 0) up to find black piece closest to white side
-            for (int row = 0; row < 8; row++) {
-                piece_t piece = board[row][col];
-                if (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING) {
-                    prev_pieces[col] = row;
-                    break;
-                }
-            }
-        }
-        
-        // Find closest piece of current player (closest to previous player's side)
-        if (current_player == PLAYER_WHITE) {
-            // Look from bottom (row 0) up to find white piece closest to black side
-            for (int row = 0; row < 8; row++) {
-                piece_t piece = board[row][col];
-                if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) {
-                    curr_pieces[col] = row;
-                    break;
-                }
-            }
-        } else {
-            // Look from top (row 7) down to find black piece closest to white side
-            for (int row = 7; row >= 0; row--) {
-                piece_t piece = board[row][col];
-                if (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING) {
-                    curr_pieces[col] = row;
-                    break;
-                }
-            }
-        }
+    // Check if piece is lifted before animation
+    if (piece_lifted) {
+        ESP_LOGI(TAG, "🚫 Piece lifted during animation - interrupting animation");
+        game_highlight_movable_pieces();
+        return;
     }
     
-    // FIXED: Zrychlená animace - z 20 kroků na 10, z 12ms na 6ms
-    for (int step = 0; step < 10; step++) { // Zrychleno z 20 na 10 kroků
-        float progress = (float)step / 9.0f; // Zrychleno z 19 na 9
+    // REVERSED: Determine row lighting direction based on PREVIOUS player (passing scepter)
+    // This creates the effect of passing the scepter TO the current player
+    int start_row, end_row, step;
+    if (current_player == PLAYER_WHITE) {
+        // Passing scepter TO white: animate from black side (8) to white side (1)
+        start_row = 7; // Start from black side
+        end_row = 0;   // End at white side
+        step = -1;
+    } else {
+        // Passing scepter TO black: animate from white side (1) to black side (8)
+        start_row = 0; // Start from white side
+        end_row = 7;   // End at black side
+        step = 1;
+    }
+    
+    // Professional wave animation with S-curve and Gaussian distribution
+    const float wave_speed = 0.02f; // Wave movement speed (0.01-0.05)
+    const float wave_width = 2.5f;  // Narrower wave width for more focused effect
+    const int total_steps = 50;     // Reduced for faster animation
+    const int steps_per_position = 4; // Steps per wave position
+    
+    float wave_position = (float)start_row;
+    float target_position = (float)end_row;
+    
+    // Calculate total distance and step size
+    float total_distance = fabsf(target_position - wave_position);
+    float step_size = total_distance / (total_steps / steps_per_position);
+    
+    for (int frame = 0; frame < total_steps; frame++) {
+        // Check if piece is lifted during animation
+        if (piece_lifted) {
+            ESP_LOGI(TAG, "🚫 Piece lifted during wave animation - interrupting");
+            led_clear_board_only();
+            game_highlight_movable_pieces();
+            return;
+        }
         
         // Clear board first
         led_clear_board_only();
         
-        // Animate all columns at once with enhanced trail effect
-        for (int col = 0; col < 8; col++) {
-            if (prev_pieces[col] != -1 && curr_pieces[col] != -1) {
-                // Create enhanced trail effect with more trail points
-                for (int trail = 0; trail < 8; trail++) {
-                    float trail_progress = progress - (trail * 0.06f);
-                    if (trail_progress < 0) continue;
-                    if (trail_progress > 1) break;
-                    
-                    // Calculate intermediate position with advanced easing
-                    float eased_progress = trail_progress * trail_progress * trail_progress * (trail_progress * (trail_progress * 6.0f - 15.0f) + 10.0f); // Smooth step 5
-                    int inter_row = prev_pieces[col] + (curr_pieces[col] - prev_pieces[col]) * eased_progress;
-                    int inter_col = col;
-                    uint8_t inter_led = chess_pos_to_led_index(inter_row, inter_col);
-                    
-                    // Enhanced harmonious color transition with more phases
-                    uint8_t red, green, blue;
-                    if (trail_progress < 0.125f) {
-                        // Phase 1: Deep Blue to Royal Blue
-                        float local_progress = trail_progress / 0.125f;
-                        red = (uint8_t)(100 * local_progress);
-                        green = 0;
-                        blue = 255;
-                    } else if (trail_progress < 0.25f) {
-                        // Phase 2: Royal Blue to Purple
-                        float local_progress = (trail_progress - 0.125f) / 0.125f;
-                        red = 100 + (uint8_t)(155 * local_progress);
-                        green = 0;
-                        blue = 255;
-                    } else if (trail_progress < 0.375f) {
-                        // Phase 3: Purple to Magenta
-                        red = 255;
-                        green = 0;
-                        blue = 255;
-                    } else if (trail_progress < 0.5f) {
-                        // Phase 4: Magenta to Pink
-                        float local_progress = (trail_progress - 0.375f) / 0.125f;
-                        red = 255;
-                        green = (uint8_t)(100 * local_progress);
-                        blue = 255 - (uint8_t)(100 * local_progress);
-                    } else if (trail_progress < 0.625f) {
-                        // Phase 5: Pink to Coral
-                        float local_progress = (trail_progress - 0.5f) / 0.125f;
-                        red = 255;
-                        green = 100 + (uint8_t)(100 * local_progress);
-                        blue = 155 - (uint8_t)(100 * local_progress);
-                    } else if (trail_progress < 0.75f) {
-                        // Phase 6: Coral to Orange
-                        float local_progress = (trail_progress - 0.625f) / 0.125f;
-                        red = 255;
-                        green = 200 + (uint8_t)(55 * local_progress);
-                        blue = 55 - (uint8_t)(55 * local_progress);
-                    } else if (trail_progress < 0.875f) {
-                        // Phase 7: Orange to Gold
-                        float local_progress = (trail_progress - 0.75f) / 0.125f;
-                        red = 255;
-                        green = 255;
-                        blue = (uint8_t)(40 * (1.0f - local_progress));
-                    } else {
-                        // Phase 8: Gold to Bright White
-                        float local_progress = (trail_progress - 0.875f) / 0.125f;
-                        red = 255;
-                        green = 255;
-                        blue = 40 + (uint8_t)(215 * local_progress);
-                    }
-                    
-                    // Advanced trail brightness with exponential fade and gamma correction
-                    float trail_brightness = powf(1.0f - (trail * 0.12f), 2.2f); // Gamma correction for better visual perception
-                    
-                    // Multi-layered pulsing effect with different frequencies
-                    float pulse1 = 0.5f + 0.5f * sin(progress * 12.56f + trail * 1.26f); // Main pulse
-                    float pulse2 = 0.8f + 0.2f * sin(progress * 25.12f + trail * 2.51f); // Secondary pulse
-                    float pulse3 = 0.9f + 0.1f * sin(progress * 50.24f + trail * 3.77f); // Fine detail pulse
-                    float pulse4 = 0.95f + 0.05f * sin(progress * 100.48f + trail * 5.03f); // Micro pulse
-                    float combined_pulse = pulse1 * pulse2 * pulse3 * pulse4;
-                    
-                    // Apply brightness and pulsing with saturation boost
-                    float saturation_boost = 1.0f + 0.2f * sin(progress * 6.28f); // Subtle saturation variation
-                    red = (uint8_t)(red * trail_brightness * combined_pulse * saturation_boost);
-                    green = (uint8_t)(green * trail_brightness * combined_pulse * saturation_boost);
-                    blue = (uint8_t)(blue * trail_brightness * combined_pulse * saturation_boost);
-                    
-                    // Clamp values to valid range
-                    red = (red > 255) ? 255 : red;
-                    green = (green > 255) ? 255 : green;
-                    blue = (blue > 255) ? 255 : blue;
-                    
-                    led_set_pixel_safe(inter_led, red, green, blue);
+        // Calculate current wave position with S-curve easing
+        float progress = (float)frame / (float)(total_steps - 1);
+        float eased_progress = 0.5f * (1.0f - cosf(progress * M_PI)); // S-curve using cosine
+        
+        float current_wave_pos = wave_position + (target_position - wave_position) * eased_progress;
+        
+        // Add gradual startup effect - gradually increase overall brightness at the beginning
+        float startup_factor = 1.0f;
+        if (frame < 15) { // First 15 frames (180ms) for gradual startup
+            startup_factor = (float)frame / 15.0f; // 0.0 to 1.0
+            startup_factor = 0.5f * (1.0f - cosf(startup_factor * M_PI)); // S-curve for smooth startup
+        }
+        
+        // Render wave with Gaussian brightness distribution
+        for (int row = 0; row < 8; row++) {
+            // Calculate distance from wave center
+            float distance = fabsf((float)row - current_wave_pos);
+            
+            // Gaussian brightness distribution (exp(-distance²/(2σ²)))
+            float gaussian_factor = expf(-(distance * distance) / (2.0f * wave_width * wave_width));
+            
+            // Apply startup factor for gradual brightness increase
+            gaussian_factor *= startup_factor;
+            
+            // Apply brightness to entire row
+            for (int col = 0; col < 8; col++) {
+                uint8_t led_index = chess_pos_to_led_index(row, col);
+                
+                // Apply Gaussian brightness gradient with startup effect in dark gray
+                // RGB(31, 31, 31) - dark gray color
+                uint8_t red = (uint8_t)(31 * gaussian_factor);    // Dark gray red component
+                uint8_t green = (uint8_t)(31 * gaussian_factor);  // Dark gray green component
+                uint8_t blue = (uint8_t)(31 * gaussian_factor);   // Dark gray blue component
+                
+                // Add brightness threshold - only show if bright enough to be visible
+                if (gaussian_factor > 0.15f) { // Only show if > 15% brightness
+                    led_set_pixel_safe(led_index, red, green, blue);
                 }
+                // If too dim, leave LED off (don't set pixel)
             }
         }
         
-        vTaskDelay(pdMS_TO_TICKS(6)); // FIXED: Zrychleno z 12ms na 6ms - 10 kroků × 6ms = 60ms celkem
+        // Faster delay for quicker animation
+        vTaskDelay(pdMS_TO_TICKS(12)); // 12ms = ~83 FPS (faster)
+    }
+    
+    // Final check before completion
+    if (piece_lifted) {
+        ESP_LOGI(TAG, "🚫 Piece lifted at animation end - interrupting");
+        led_clear_board_only();
+        game_highlight_movable_pieces();
+        return;
     }
     
     // Clear board after animation
     led_clear_board_only();
-    vTaskDelay(pdMS_TO_TICKS(100)); // FIXED: Zrychleno z 200ms na 100ms
+    vTaskDelay(pdMS_TO_TICKS(30)); // Zrychleno z 50ms na 30ms
     
     // Finally, highlight movable pieces for current player
     game_highlight_movable_pieces();
@@ -5887,8 +5855,10 @@ void game_test_move_animation(void)
  */
 void game_test_player_change_animation(void)
 {
-    ESP_LOGI(TAG, "🎬 Testing player change animation...");
-    game_show_player_change_animation(PLAYER_WHITE, PLAYER_BLACK);
+    ESP_LOGI(TAG, "🎬 Testing simple player change animation...");
+    game_show_player_change_animation(PLAYER_WHITE);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    game_show_player_change_animation(PLAYER_BLACK);
 }
 
 /**
@@ -5959,20 +5929,33 @@ void game_test_promote_animation(void)
  */
 void game_test_endgame_animation(void)
 {
-    ESP_LOGI(TAG, "🎬 Testing endgame animation...");
+    ESP_LOGI(TAG, "🎬 Testing endgame animation with new system...");
     
-    // Test endgame animation using direct LED command
+    // Test endgame animation using new animation system
     uint8_t king_pos = 27; // d4 square
     
-    led_command_t endgame_cmd = {
-        .type = LED_CMD_ANIM_ENDGAME,
-        .led_index = king_pos,
-        .red = 255, .green = 215, .blue = 0, // Gold
-        .duration_ms = 3000,
-        .data = NULL
-    };
-    led_execute_command_new(&endgame_cmd);
-    vTaskDelay(pdMS_TO_TICKS(1500)); // Faster animation
+    ESP_LOGI(TAG, "🏆 Starting test victory animation at position %d", king_pos);
+    
+    // Spustit animaci s error handlingem
+    esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
+    if (result != ESP_OK) {
+        ESP_LOGE(TAG, "❌ Failed to start test endgame animation: %s", esp_err_to_name(result));
+        
+        // Fallback na starý systém
+        ESP_LOGI(TAG, "🔄 Falling back to old animation system");
+        led_command_t endgame_cmd = {
+            .type = LED_CMD_ANIM_ENDGAME,
+            .led_index = king_pos,
+            .red = 255, .green = 215, .blue = 0, // Gold
+            .duration_ms = 3000,
+            .data = NULL
+        };
+        led_execute_command_new(&endgame_cmd);
+        vTaskDelay(pdMS_TO_TICKS(1500));
+    } else {
+        ESP_LOGI(TAG, "✅ Test endgame animation started successfully");
+        vTaskDelay(pdMS_TO_TICKS(3000)); // Wait for animation to complete
+    }
     
     // Clear board
     led_clear_board_only();
@@ -6262,10 +6245,39 @@ game_state_t game_check_end_game_conditions(void)
     bool has_moves = game_has_legal_moves(current_player);
     
     if (in_check && !has_moves) {
-        // Checkmate
-        game_result = (current_player == PLAYER_WHITE) ? GAME_STATE_FINISHED : GAME_STATE_FINISHED;
+        // Checkmate - spustit endgame animaci
+        game_result = GAME_STATE_FINISHED;
+        player_t winner = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        
+        // Update statistics - KRITICKÉ!
+        if (winner == PLAYER_WHITE) {
+            white_wins++;
+        } else {
+            black_wins++;
+        }
+        
         ESP_LOGI(TAG, "🎯 CHECKMATE! %s wins in %" PRIu32 " moves!", 
-                 (current_player == PLAYER_WHITE) ? "Black" : "White", move_count);
+                 (winner == PLAYER_WHITE) ? "White" : "Black", move_count);
+        
+        // Najít pozici krále vítěze a spustit animaci
+        uint8_t king_pos = 28; // default e4
+        for (int i = 0; i < 64; i++) {
+            piece_t piece = board[i/8][i%8];
+            if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
+                (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
+                king_pos = i;
+                break;
+            }
+        }
+        
+        ESP_LOGI(TAG, "🏆 Starting checkmate victory animation for %s at position %d", 
+                 (winner == PLAYER_WHITE) ? "White" : "Black", king_pos);
+        
+        esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
+        if (result != ESP_OK) {
+            ESP_LOGE(TAG, "❌ Failed to start checkmate animation: %s", esp_err_to_name(result));
+        }
+        
         return GAME_STATE_FINISHED;
     } else if (!in_check && !has_moves) {
         // Stalemate
@@ -6462,6 +6474,14 @@ void game_task_start(void *pvParameters)
     
     // Initialize game
     game_initialize_board();
+    
+    // Initialize animation system for endgame animations
+    esp_err_t anim_result = game_led_animations_init();
+    if (anim_result != ESP_OK) {
+        ESP_LOGE(TAG, "❌ Failed to initialize animation system: %s", esp_err_to_name(anim_result));
+    } else {
+        ESP_LOGI(TAG, "✅ Animation system initialized successfully");
+    }
     
     // Main task loop
     uint32_t loop_count = 0;
@@ -7237,8 +7257,7 @@ bool game_execute_move_enhanced(chess_move_extended_t* move) {
         black_moves_count++;
     }
     
-    // Switch players (move count already incremented in main execution flow)
-    current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    // Player switching handled by calling game_execute_move()
     
     return true;
 }
@@ -7247,74 +7266,7 @@ bool game_execute_move_enhanced(chess_move_extended_t* move) {
 // GAME STATE ANALYSIS
 // ============================================================================
 
-/**
- * @brief Check for checkmate or stalemate
- */
-game_state_t game_analyze_position(player_t player) {
-    bool king_in_check = game_is_king_in_check(player);
-    uint32_t legal_moves = game_generate_legal_moves(player);
-    
-    if (legal_moves == 0) {
-        if (king_in_check) {
-            // Checkmate
-            game_result = GAME_STATE_FINISHED;
-            if (player == PLAYER_WHITE) {
-                black_wins++;
-                ESP_LOGI(TAG, "🎯 CHECKMATE! Black wins!");
-            } else {
-                white_wins++;
-                ESP_LOGI(TAG, "🎯 CHECKMATE! White wins!");
-            }
-            return GAME_STATE_FINISHED;
-        } else {
-            // Stalemate
-            draws++;
-            game_result = GAME_STATE_FINISHED;
-            ESP_LOGI(TAG, "🤝 STALEMATE! Game drawn!");
-            return GAME_STATE_FINISHED;
-        }
-    }
-    
-    // Check for fifty-move rule
-    if (fifty_move_counter >= 100) { // 50 moves per side
-        draws++;
-        game_result = GAME_STATE_FINISHED;
-        ESP_LOGI(TAG, "🤝 DRAW! Fifty-move rule!");
-        return GAME_STATE_FINISHED;
-    }
-    
-    // Check for insufficient material (simplified)
-    int white_pieces = 0, black_pieces = 0;
-    bool white_has_major = false, black_has_major = false;
-    
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            piece_t piece = board[row][col];
-            if (piece == PIECE_EMPTY) continue;
-            
-            if (game_is_white_piece(piece)) {
-                white_pieces++;
-                if (piece == PIECE_WHITE_QUEEN || piece == PIECE_WHITE_ROOK || piece == PIECE_WHITE_PAWN) {
-                    white_has_major = true;
-                }
-            } else {
-                black_pieces++;
-                if (piece == PIECE_BLACK_QUEEN || piece == PIECE_BLACK_ROOK || piece == PIECE_BLACK_PAWN) {
-                    black_has_major = true;
-                }
-            }
-        }
-    }
-    
-    if (white_pieces <= 2 && black_pieces <= 2 && !white_has_major && !black_has_major) {
-        draws++;
-        game_result = GAME_STATE_FINISHED;
-        ESP_LOGI(TAG, "🤝 DRAW! Insufficient material!");
-        return GAME_STATE_FINISHED;
-    }
-    
-    return GAME_STATE_ACTIVE;
-}
+// REMOVED: Duplicate function game_analyze_position() - using centralized game_check_end_game_conditions()
 
 // ============================================================================
 // ENHANCED BOARD DISPLAY

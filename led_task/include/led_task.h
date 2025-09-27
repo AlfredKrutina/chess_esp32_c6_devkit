@@ -57,6 +57,10 @@ void led_set_all_safe(uint8_t red, uint8_t green, uint8_t blue);
 // Force immediate LED update for critical operations
 void led_force_immediate_update(void);
 
+// Boot animation LED functions
+void led_boot_animation_step(uint8_t progress_percent);
+void led_boot_animation_fade_out(void);
+
 // LED layer management functions
 void led_clear_board_only(void);           // Clear only board LEDs (0-63)
 void led_clear_buttons_only(void);         // Clear only button LEDs (64-72)

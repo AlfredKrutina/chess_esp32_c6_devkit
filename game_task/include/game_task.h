@@ -356,11 +356,10 @@ void game_show_move_animation(uint8_t from_row, uint8_t from_col,
                              piece_t piece, piece_t captured);
 
 /**
- * @brief Show player change animation
- * @param previous_player Previous player
- * @param current_player Current player
+ * @brief Show simple player change animation
+ * @param current_player Current player (determines row lighting direction)
  */
-void game_show_player_change_animation(player_t previous_player, player_t current_player);
+void game_show_player_change_animation(player_t current_player);
 
 // Animation test functions
 void game_test_move_animation(void);

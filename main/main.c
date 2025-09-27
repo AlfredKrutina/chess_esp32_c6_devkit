@@ -654,7 +654,6 @@ void show_boot_animation_and_board(void)
         "System ready!"
     };
     const int num_messages = sizeof(status_messages) / sizeof(status_messages[0]);
-    int current_message = 0;
     
     for (int i = 0; i <= total_steps; i++) {
         int progress = (i * 100) / total_steps;
@@ -676,6 +675,9 @@ void show_boot_animation_and_board(void)
         printf("] %3d%% - %s", progress, status_messages[message_index]);
         fflush(stdout);
         
+        // ✅ NOVÉ: LED boot animace krok - simultánně s UART animací
+        led_boot_animation_step(progress);
+        
         // CRITICAL: Reset watchdog timer during loading (only if registered)
         esp_err_t wdt_ret = esp_task_wdt_reset();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
@@ -688,6 +690,10 @@ void show_boot_animation_and_board(void)
     }
     
     printf("\n\033[1;32m✓ Chess Engine Ready!\033[0m\n\n"); // Success message
+    
+    // ✅ NOVÉ: LED boot animace fade out - postupně ztlumí LED
+    ESP_LOGI(TAG, "🌟 Starting LED fade out animation...");
+    led_boot_animation_fade_out();
     
     // Chess board will be displayed by game task after initialization
     ESP_LOGI(TAG, "🎯 Chess board will be displayed by game task...");
@@ -795,7 +801,6 @@ void app_main(void)
     vTaskDelay(pdMS_TO_TICKS(200));
     
     // Main application loop
-    uint32_t loop_count = 0;
     uint32_t last_status_time = 0;
     
     ESP_LOGI(TAG, "🎯 Main application loop started");
@@ -830,8 +835,6 @@ void app_main(void)
                 last_demo_time = current_time;
             }
         }
-        
-        loop_count++;
         
         // CRITICAL: Main task delay - must be present for watchdog safety
         vTaskDelay(pdMS_TO_TICKS(1000)); // 1 second delay - CRITICAL for watchdog

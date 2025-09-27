@@ -2788,6 +2788,79 @@ void led_clear_buttons_only(void)
     }
 }
 
+// ============================================================================
+// BOOT ANIMATION LED FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief LED boot animation step - rozsvítí LED podle progress
+ * @param progress_percent Progress v procentech (0-100)
+ */
+void led_boot_animation_step(uint8_t progress_percent)
+{
+    // ✅ Bezpečnostní kontroly
+    if (!led_initialized || simulation_mode) {
+        ESP_LOGD(TAG, "LED boot: Progress %d%% - %s", progress_percent, 
+                 simulation_mode ? "simulation mode" : "not initialized");
+        return;
+    }
+    
+    // ✅ Omezit na 0-100%
+    if (progress_percent > 100) {
+        progress_percent = 100;
+    }
+    
+    // ✅ Vypočítat index LED (pouze board LEDs 0-63)
+    int led_index = (progress_percent * CHESS_LED_COUNT_BOARD) / 100;
+    if (led_index >= CHESS_LED_COUNT_BOARD) {
+        led_index = CHESS_LED_COUNT_BOARD - 1;
+    }
+    
+    // ✅ Rozsvítit LED světle zelenou
+    led_set_pixel_internal(led_index, 0, 128, 0);
+    
+    ESP_LOGD(TAG, "LED boot: Progress %d%% -> LED[%d] RGB(0,128,0)", progress_percent, led_index);
+}
+
+/**
+ * @brief LED boot animation fade out - postupně ztlumí všechny LED na 0
+ */
+void led_boot_animation_fade_out(void)
+{
+    // ✅ Bezpečnostní kontroly
+    if (!led_initialized || simulation_mode) {
+        ESP_LOGD(TAG, "LED boot fade out: %s", simulation_mode ? "simulation mode" : "not initialized");
+        return;
+    }
+    
+    ESP_LOGI(TAG, "🌟 Starting LED boot animation fade out...");
+    
+    // ✅ Postupné ztlumení z brightness 128 na 0
+    const int fade_steps = 20;  // 20 kroků pro plynulé ztlumení
+    const int step_delay_ms = 30; // 30ms mezi kroky
+    
+    for (int step = fade_steps; step >= 0; step--) {
+        // Vypočítat brightness (128 -> 0)
+        uint8_t brightness = (step * 128) / fade_steps;
+        
+        // Ztlumit všechny board LED (0-63)
+        for (int led_index = 0; led_index < CHESS_LED_COUNT_BOARD; led_index++) {
+            led_set_pixel_internal(led_index, 0, brightness, 0);
+        }
+        
+        // Krátká pauza pro plynulou animaci
+        vTaskDelay(pdMS_TO_TICKS(step_delay_ms));
+        
+        // Reset watchdog během animace
+        esp_task_wdt_reset();
+    }
+    
+    // ✅ Vymazat všechny board LED
+    led_clear_board_only();
+    
+    ESP_LOGI(TAG, "✅ LED boot animation fade out completed");
+}
+
 void led_preserve_buttons(void)
 {
     // This function preserves button states during board operations
