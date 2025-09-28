@@ -24,6 +24,7 @@
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
+#include "../game_task/include/game_task.h"  // ✅ Import game functions for board access
 #include <math.h>
 
 // Note: board array is static in game_task.c, so we'll use cmd parameters instead
@@ -2218,6 +2219,7 @@ typedef struct {
     uint8_t radius;
     uint32_t last_update;
     bool initialized;
+    piece_t winner_piece; // Store the actual winner piece for proper detection
 } endgame_wave_state_t;
 
 static endgame_wave_state_t endgame_wave = {0};
@@ -2235,13 +2237,16 @@ void led_anim_endgame(const led_command_t* cmd) {
     endgame_wave.win_king_row = endgame_wave.win_king_led / 8;
     endgame_wave.win_king_col = endgame_wave.win_king_led % 8;
     
+    // Get the actual winner piece from the board for proper detection
+    endgame_wave.winner_piece = game_get_piece(endgame_wave.win_king_row, endgame_wave.win_king_col);
+    
     // For simplicity, we'll just animate around the winner king
     // The loser king position is not critical for the wave effect
     endgame_wave.lose_king_row = 0;
     endgame_wave.lose_king_col = 0;
     
-    ESP_LOGI(TAG, "🎯 Winner king at (%d,%d) - wave animation around this position", 
-             endgame_wave.win_king_row, endgame_wave.win_king_col);
+    ESP_LOGI(TAG, "🎯 Winner king at (%d,%d) piece=%d - wave animation around this position", 
+             endgame_wave.win_king_row, endgame_wave.win_king_col, endgame_wave.winner_piece);
     
     // Initialize animation state
     endgame_wave.radius = 1;
@@ -2256,15 +2261,17 @@ void led_anim_endgame(const led_command_t* cmd) {
 }
 
 /**
- * @brief Update AVR-style wave endgame animation (call from main LED loop)
+ * @brief Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highlighting
  */
 void led_update_endgame_wave(void) {
     if (!endgame_wave.active || !endgame_wave.initialized) {
         return;
     }
     
-    const uint32_t WAVE_STEP_MS = 100; // 100ms between wave steps
-    const uint8_t MAX_RADIUS = 10;
+    const uint32_t WAVE_STEP_MS = 30; // Very high FPS for ultra-fluid effect
+    const uint8_t MAX_RADIUS = 14;    // Larger radius for better coverage
+    const float WAVE_THICKNESS = 1.2f; // Thinner waves for more precise effect
+    const int WAVE_LAYERS = 4;        // Fewer layers but with higher FPS
     
     // Check if it's time for next wave step
     if (xTaskGetTickCount() - endgame_wave.last_update < pdMS_TO_TICKS(WAVE_STEP_MS)) {
@@ -2276,30 +2283,79 @@ void led_update_endgame_wave(void) {
     // Clear board
     led_clear_board_only();
     
-    // Draw wave ring around winner king
-    for (int dy = -endgame_wave.radius; dy <= endgame_wave.radius; dy++) {
-        for (int dx = -endgame_wave.radius; dx <= endgame_wave.radius; dx++) {
-            // Calculate distance from center
-            float dist = sqrtf(dx * dx + dy * dy);
-            
-            // Check if this pixel is part of the wave ring
-            if (fabsf(dist - endgame_wave.radius) <= 0.5f) {
-                int row = endgame_wave.win_king_row + dy;
-                int col = endgame_wave.win_king_col + dx;
+    // Use stored winner piece for reliable detection
+    piece_t winner_king = endgame_wave.winner_piece;
+    bool winner_is_white = (winner_king == PIECE_WHITE_KING);
+    
+    // Draw multiple overlapping wave rings for ultra-smooth effect
+    for (int ring = 0; ring < WAVE_LAYERS; ring++) {
+        float current_radius = endgame_wave.radius - (ring * 0.3f);
+        if (current_radius < 0.2f) continue;
+        
+        for (int dy = -endgame_wave.radius; dy <= endgame_wave.radius; dy++) {
+            for (int dx = -endgame_wave.radius; dx <= endgame_wave.radius; dx++) {
+                // Calculate distance from center
+                float dist = sqrtf(dx * dx + dy * dy);
                 
-                // Check bounds
-                if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-                    uint8_t square = chess_pos_to_led_index(row, col);
+                // Check if this pixel is part of the wave ring with smooth gradient
+                float ring_distance = fabsf(dist - current_radius);
+                if (ring_distance <= WAVE_THICKNESS) {
+                    int row = endgame_wave.win_king_row + dy;
+                    int col = endgame_wave.win_king_col + dx;
                     
-                    // Green for all squares in wave
-                    led_set_pixel_safe(square, 0, 255, 0);
+                    // Check bounds
+                    if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+                        uint8_t square = chess_pos_to_led_index(row, col);
+                        
+                        // Get piece at this position
+                        piece_t piece = game_get_piece(row, col);
+                        
+                        // Calculate intensity based on distance from ring center (smooth gradient)
+                        float intensity = 1.0f - (ring_distance / WAVE_THICKNESS);
+                        intensity = fmaxf(0.15f, intensity); // Higher minimum brightness
+                        
+                        // Determine color based on piece type with better contrast
+                        uint8_t red, green, blue;
+                        
+                        if (piece != PIECE_EMPTY) {
+                            // Check if it's an opponent piece - use direct piece comparison for reliability
+                            bool is_opponent_piece = false;
+                            
+                            if (winner_is_white) {
+                                // Winner is white, check if piece is black
+                                is_opponent_piece = (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING);
+                            } else {
+                                // Winner is black, check if piece is white
+                                is_opponent_piece = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
+                            }
+                            
+                            if (is_opponent_piece) {
+                                // BRIGHT RED for opponent pieces - very visible!
+                                red = (uint8_t)(255 * intensity);
+                                green = (uint8_t)(30 * intensity);
+                                blue = (uint8_t)(30 * intensity);
+                            } else {
+                                // BRIGHT GREEN for own pieces - high contrast
+                                red = (uint8_t)(30 * intensity);
+                                green = (uint8_t)(255 * intensity);
+                                blue = (uint8_t)(80 * intensity);
+                            }
+                        } else {
+                            // BRIGHT BLUE for empty squares - very visible
+                            red = (uint8_t)(30 * intensity);
+                            green = (uint8_t)(100 * intensity);
+                            blue = (uint8_t)(255 * intensity);
+                        }
+                        
+                        led_set_pixel_safe(square, red, green, blue);
+                    }
                 }
             }
         }
     }
     
-    // Always highlight winner king in yellow
-    led_set_pixel_safe(endgame_wave.win_king_led, 255, 255, 0);
+    // Always highlight winner king in BRIGHT GOLD
+    led_set_pixel_safe(endgame_wave.win_king_led, 255, 215, 0);
     
     // Increment radius
     endgame_wave.radius++;

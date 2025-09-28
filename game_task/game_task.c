@@ -27,7 +27,7 @@
 #include "game_task.h"
 #include "freertos_chess.h"
 #include "../led_task/include/led_task.h"  // ✅ FIX: Include led_task.h for led_clear_board_only()
-#include "game_led_animations.h"
+// #include "game_led_animations.h" // REMOVED: Animation system not implemented
 #include "game_led_direct.h"  // ✅ FIX: Include for game_show_checkmate_direct()
 #include <math.h>  // For brightness gradient calculations
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
@@ -1049,32 +1049,24 @@ static void game_process_surrender(void)
     
     ESP_LOGI(TAG, "🎬 Starting endgame animation for winner at position %d", king_pos);
     
-    // Start victory animation for the winner
-    ESP_LOGI(TAG, "🎬 Attempting to start endgame animation at position %d", king_pos);
-    esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
-    if (result != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Failed to start endgame animation: %s", esp_err_to_name(result));
-        // Try alternative animation method - only clear board LEDs, preserve button LEDs
-        ESP_LOGI(TAG, "🔄 Trying alternative animation approach...");
-        led_clear_board_only(); // Only clear board LEDs, not button LEDs
-        led_set_pixel_safe(king_pos, 0, 255, 0); // Green for winner
-        led_force_immediate_update();
-    } else {
-        ESP_LOGI(TAG, "✅ Endgame animation started successfully at position %d", king_pos);
-        
-        // CRITICAL: Yield CPU to allow animation timer to run
-        taskYIELD();
-        vTaskDelay(pdMS_TO_TICKS(50)); // Give animation timer more time to start
-        
-        // CRITICAL: Wait for animation to actually start before proceeding
-        vTaskDelay(pdMS_TO_TICKS(100)); // Additional delay to ensure animation is running
-        
-        ESP_LOGI(TAG, "🎬 Endgame animation should now be running...");
-        
-        // DEBUG: Check if animation is actually running
-        vTaskDelay(pdMS_TO_TICKS(100));
-        ESP_LOGI(TAG, "🎬 Animation status check after 100ms delay...");
-    }
+    // Use same animation as checkmate - send endgame animation command
+    ESP_LOGI(TAG, "🏆 Starting checkmate-style victory animation at position %d", king_pos);
+    
+    // Stop conflicting timers to prevent LED overwrites
+    surrender_stop_conflicting_timers();
+    
+    // Send endgame animation command directly to LED Task (same as checkmate)
+    led_command_t endgame_cmd = {
+        .type = LED_CMD_ANIM_ENDGAME,
+        .led_index = king_pos,
+        .red = 255, .green = 255, .blue = 0, // Yellow (same as checkmate)
+        .duration_ms = 0, // Endless
+        .data = NULL,
+        .response_queue = NULL
+    };
+    
+    led_execute_command_new(&endgame_cmd);
+    ESP_LOGI(TAG, "✅ Surrender animation command sent to LED Task (same as checkmate)");
     
     // NOTE: Don't call checkmate animation here as it conflicts with endgame animation
     // The endgame animation already provides visual feedback for surrender
@@ -1082,9 +1074,7 @@ static void game_process_surrender(void)
     // Switch to the winner as current player
     current_player = (surrender_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
     
-    // CRITICAL FIX: Restart conflicting timers after surrender processing
-    // Add delay to ensure animation has time to start and LED countdown completes
-    vTaskDelay(pdMS_TO_TICKS(1000)); // Wait 1 second before restarting timers
+    // Restart conflicting timers after animation completes
     surrender_restart_conflicting_timers();
     
     // Reset game for next round
@@ -4956,12 +4946,12 @@ void game_process_endgame_black_command(const chess_move_command_t* cmd)
             break;
         }
     }
-    esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
-    if (result != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Failed to start endgame white animation: %s", esp_err_to_name(result));
-    } else {
-        ESP_LOGI(TAG, "✅ Endgame white animation started successfully at position %d", king_pos);
-    }
+    // Simple victory animation for white
+    ESP_LOGI(TAG, "🎬 Starting simple victory animation for white at position %d", king_pos);
+    led_clear_board_only();
+    led_set_pixel_safe(king_pos, 0, 255, 0); // Green for winner
+    led_force_immediate_update();
+    ESP_LOGI(TAG, "✅ White victory animation completed");
     
     // MEMORY OPTIMIZATION: Streaming output handles data transmission
     // No need for manual queue management or large buffers
@@ -5060,12 +5050,12 @@ void game_process_list_games_command(const chess_move_command_t* cmd)
             break;
         }
     }
-    esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
-    if (result != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Failed to start endgame black animation: %s", esp_err_to_name(result));
-    } else {
-        ESP_LOGI(TAG, "✅ Endgame black animation started successfully at position %d", king_pos);
-    }
+    // Simple victory animation for black
+    ESP_LOGI(TAG, "🎬 Starting simple victory animation for black at position %d", king_pos);
+    led_clear_board_only();
+    led_set_pixel_safe(king_pos, 0, 255, 0); // Green for winner
+    led_force_immediate_update();
+    ESP_LOGI(TAG, "✅ Black victory animation completed");
     
     ESP_LOGI(TAG, "✅ Endgame report sent successfully in chunks");
 }
@@ -6959,13 +6949,8 @@ void game_task_start(void *pvParameters)
     // Initialize game
     game_initialize_board();
     
-    // Initialize animation system for endgame animations
-    esp_err_t anim_result = game_led_animations_init();
-    if (anim_result != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Failed to initialize animation system: %s", esp_err_to_name(anim_result));
-    } else {
-        ESP_LOGI(TAG, "✅ Animation system initialized successfully");
-    }
+    // Animation system not implemented - using simple direct LED animations
+    ESP_LOGI(TAG, "✅ Using simple direct LED animations (no complex animation system)");
     
     // Main task loop
     uint32_t loop_count = 0;
