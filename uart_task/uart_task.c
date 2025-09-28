@@ -26,6 +26,8 @@
 #include "esp_chip_info.h"
 #include "esp_private/esp_clk.h"
 #include "esp_task_wdt.h"
+#include "nvs_flash.h"
+#include "nvs.h"
 
 #include "driver/uart.h"
 #include <stdio.h>
@@ -64,13 +66,13 @@ extern QueueHandle_t game_command_queue;
 
 // Component status tracking
 static bool matrix_component_enabled = true;
-static bool led_component_enabled = true;
 static bool wifi_component_enabled = false;
 
-// Configuration variables
-static uint8_t led_brightness = 100;  // 0-100%
-static uint8_t matrix_sensitivity = 50; // 0-100%
-static bool debug_mode_enabled = false;
+// Include LED task header for global LED control
+#include "led_task.h"
+
+// Configuration variables (now use system_config from config_manager)
+static system_config_t system_config;
 
 // UART response queue for game task responses (declared in freertos_chess.h)
 
@@ -310,7 +312,6 @@ static bool color_enabled = true;  // ANSI color support
 static bool echo_enabled = true;   // Echo support
 static input_buffer_t input_buffer;
 static command_history_t command_history;
-static system_config_t system_config;
 
 // UART message queue for centralized output
 QueueHandle_t uart_output_queue = NULL;
@@ -1436,7 +1437,6 @@ void uart_cmd_help_system(void)
     if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
     uart_send_formatted("  VERBOSE ON/OFF - Control logging verbosity");
     uart_send_formatted("  QUIET          - Toggle quiet mode");
-    uart_send_formatted("  ECHO ON/OFF    - Toggle command echo");
     uart_send_formatted("  CONFIG         - Show/set system configuration");
     uart_send_formatted("  CONFIG show    - Show current configuration");
     uart_send_formatted("  CONFIG key value - Set configuration key=value");
@@ -1567,8 +1567,6 @@ void uart_cmd_help_debug(void)
     uart_send_formatted("Testing:");
     if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
     uart_send_formatted("  SELF_TEST      - Run system self-test");
-    // Echo test removed - handled by terminal
-    uart_send_formatted("  TEST_GAME      - Test game engine");
     
     uart_send_formatted("");
     if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
@@ -1709,7 +1707,7 @@ command_result_t uart_cmd_status(const char* args)
     uart_send_formatted("");
     uart_send_formatted("🔧 Component Status:");
     uart_send_formatted("  Matrix Scanner: %s", matrix_component_enabled ? "ENABLED" : "DISABLED");
-    uart_send_formatted("  LED Control: %s", led_component_enabled ? "ENABLED" : "DISABLED");
+    uart_send_formatted("  LED Control: %s", g_led_system_enabled ? "ENABLED" : "DISABLED");
     uart_send_formatted("  WiFi: %s", wifi_component_enabled ? "ENABLED" : "DISABLED");
     uart_send_formatted("  UART: %s", "ENABLED");            // Always enabled
     uart_send_formatted("  Game Engine: %s", "ENABLED");     // Always enabled
@@ -1841,7 +1839,6 @@ static const uart_command_t commands[] = {
     
     // Debug commands
     {"SELF_TEST", uart_cmd_self_test, "Run system self-test", "", false, {"TEST", "", "", "", ""}},
-    {"TEST_GAME", uart_cmd_test_game, "Test game engine", "", false, {"GAME_TEST", "", "", "", ""}},
     {"DEBUG_STATUS", uart_cmd_debug_status, "Show debug information", "", false, {"DEBUG", "", "", "", ""}},
     {"DEBUG_GAME", uart_cmd_debug_game, "Show game debug info", "", false, {"GAME_DEBUG", "", "", "", ""}},
     {"DEBUG_BOARD", uart_cmd_debug_board, "Show board debug info", "", false, {"BOARD_DEBUG", "", "", "", ""}},
@@ -1916,49 +1913,39 @@ command_result_t uart_cmd_eval(const char* args)
     uart_send_colored_line(COLOR_INFO, "🔍 Position Evaluation");
     uart_send_formatted("═══════════════════════════════════════════════════════════════");
     
-    // Get current game state
-    uint32_t move_count = game_get_move_count();
-    player_t current_player = game_get_current_player();
-    
-    // Simulate position evaluation (in real system would call game analysis)
-    uart_send_formatted("📊 POSITION ANALYSIS:");
-    uart_send_formatted("");
-    
-    // Material evaluation (simplified)
-    uart_send_formatted("⚖️ MATERIAL BALANCE:");
-    uart_send_formatted("   • White pieces: 39 points (1 pawn missing)");
-    uart_send_formatted("   • Black pieces: 39 points (1 pawn missing)");
-    uart_send_formatted("   • Material advantage: Equal (0.0)");
-    
-    uart_send_formatted("");
-    uart_send_formatted("🎯 POSITIONAL FACTORS:");
-    uart_send_formatted("   • Center control: White slightly better (+0.3)");
-    uart_send_formatted("   • Piece activity: Balanced (0.0)");
-    uart_send_formatted("   • King safety: Both kings safe (0.0)");
-    uart_send_formatted("   • Pawn structure: White slightly better (+0.2)");
-    
-    uart_send_formatted("");
-    uart_send_formatted("📈 OVERALL EVALUATION:");
-    uart_send_formatted("   • Total score: +0.5 centipawns");
-    uart_send_formatted("   • Advantage: White (slight)");
-    uart_send_formatted("   • Game phase: %s", move_count < 20 ? "Opening" : "Middlegame");
-    uart_send_formatted("   • Current player: %s", current_player == PLAYER_WHITE ? "White" : "Black");
-    
-    uart_send_formatted("");
-    uart_send_formatted("💡 RECOMMENDATIONS:");
-    if (current_player == PLAYER_WHITE) {
-        uart_send_formatted("   • Develop knights to active squares");
-        uart_send_formatted("   • Control central squares (d4, e4, d5, e5)");
-        uart_send_formatted("   • Prepare for kingside or queenside castling");
-    } else {
-        uart_send_formatted("   • Challenge white's center control");
-        uart_send_formatted("   • Develop pieces harmoniously");
-        uart_send_formatted("   • Consider pawn breaks in center");
+    // Send evaluation request to game task
+    if (game_command_queue == NULL) {
+        uart_send_error("❌ Game command queue not available");
+        return CMD_ERROR_SYSTEM_ERROR;
     }
     
-    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    chess_move_command_t eval_cmd = {
+        .type = GAME_CMD_EVALUATE,
+        .from_notation = {0},
+        .to_notation = {0},
+        .player = PLAYER_WHITE, // Not relevant for evaluation
+        .response_queue = (void*)uart_response_queue,
+        .promotion_choice = 0
+    };
     
-    ESP_LOGI(TAG, "✅ Position evaluation completed");
+    if (xQueueSend(game_command_queue, &eval_cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+        uart_send_error("❌ Failed to send evaluation request to game task");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    uart_send_formatted("🔄 Requesting position analysis from game engine...");
+    
+    // Wait for response from game task
+    char response_buffer[1024];
+    if (xQueueReceive(uart_response_queue, response_buffer, pdMS_TO_TICKS(2000)) == pdTRUE) {
+        uart_send_formatted("📊 POSITION ANALYSIS:");
+        uart_send_formatted("%s", response_buffer);
+        uart_send_formatted("═══════════════════════════════════════════════════════════════");
+        ESP_LOGI(TAG, "✅ Position evaluation completed successfully");
+    } else {
+        uart_send_error("❌ Evaluation request timeout - game task may be busy");
+        return CMD_ERROR_TIMEOUT;
+    }
     return CMD_SUCCESS;
 }
 
@@ -2042,7 +2029,7 @@ command_result_t uart_cmd_ledtest(const char* args)
     uart_send_formatted("═══════════════════════════════════════════════════════════════");
     
     // Check if LED component is enabled
-    if (!led_component_enabled) {
+    if (!g_led_system_enabled) {
         uart_send_warning("⚠️ LED component is disabled");
         uart_send_formatted("💡 Use 'COMPONENT_ON led' to enable LED control");
         return CMD_ERROR_SYSTEM_ERROR;
@@ -2150,9 +2137,9 @@ command_result_t uart_cmd_config(const char* args)
         
         uart_send_formatted("");
         uart_send_formatted("🔧 System Settings:");
-        uart_send_formatted("  • LED brightness: %d%%", led_brightness);
-        uart_send_formatted("  • Matrix sensitivity: %d%%", matrix_sensitivity);
-        uart_send_formatted("  • Debug mode: %s", debug_mode_enabled ? "Enabled" : "Disabled");
+        uart_send_formatted("  • LED brightness: %d%%", system_config.led_brightness);
+        uart_send_formatted("  • Matrix sensitivity: %d%%", system_config.matrix_sensitivity);
+        uart_send_formatted("  • Debug mode: %s", system_config.debug_mode_enabled ? "Enabled" : "Disabled");
         
         uart_send_formatted("");
         uart_send_formatted("💡 Usage: CONFIG <key> <value> to set configuration");
@@ -2180,9 +2167,9 @@ command_result_t uart_cmd_config(const char* args)
             
             uart_send_formatted("");
             uart_send_formatted("🔧 System Settings:");
-            uart_send_formatted("  • LED brightness: %d%%", led_brightness);
-            uart_send_formatted("  • Matrix sensitivity: %d%%", matrix_sensitivity);
-            uart_send_formatted("  • Debug mode: %s", debug_mode_enabled ? "Enabled" : "Disabled");
+            uart_send_formatted("  • LED brightness: %d%%", system_config.led_brightness);
+            uart_send_formatted("  • Matrix sensitivity: %d%%", system_config.matrix_sensitivity);
+            uart_send_formatted("  • Debug mode: %s", system_config.debug_mode_enabled ? "Enabled" : "Disabled");
             
             uart_send_formatted("");
             uart_send_formatted("💡 Usage: CONFIG <key> <value> to set configuration");
@@ -2213,12 +2200,20 @@ command_result_t uart_cmd_config(const char* args)
     } else if (strcmp(key, "brightness") == 0) {
         int brightness = atoi(value);
         if (brightness >= 0 && brightness <= 100) {
-            led_brightness = (uint8_t)brightness;
-            uart_send_formatted("✅ LED brightness set to %d%%", brightness);
+            system_config.led_brightness = (uint8_t)brightness;
+            
+            // Save to NVS using config_manager
+            esp_err_t ret = config_save_to_nvs(&system_config);
+            if (ret == ESP_OK) {
+                uart_send_formatted("✅ LED brightness set to %d%% (saved)", brightness);
+            } else {
+                uart_send_formatted("✅ LED brightness set to %d%% (save failed: %s)", brightness, esp_err_to_name(ret));
+            }
+            
             uart_send_formatted("💡 Brightness change applied immediately to all LEDs");
             
             // Apply brightness immediately to all LEDs
-            if (led_component_enabled) {
+            if (g_led_system_enabled) {
                 uint8_t scaled_brightness = (brightness * 255) / 100;
                 for (int i = 0; i < 64; i++) {
                     // Get current LED color and apply brightness scaling
@@ -2235,8 +2230,15 @@ command_result_t uart_cmd_config(const char* args)
     } else if (strcmp(key, "sensitivity") == 0) {
         int sensitivity = atoi(value);
         if (sensitivity >= 0 && sensitivity <= 100) {
-            matrix_sensitivity = (uint8_t)sensitivity;
-            uart_send_formatted("✅ Matrix sensitivity set to %d%%", sensitivity);
+            system_config.matrix_sensitivity = (uint8_t)sensitivity;
+            
+            // Save to NVS using config_manager
+            esp_err_t ret = config_save_to_nvs(&system_config);
+            if (ret == ESP_OK) {
+                uart_send_formatted("✅ Matrix sensitivity set to %d%% (saved)", sensitivity);
+            } else {
+                uart_send_formatted("✅ Matrix sensitivity set to %d%% (save failed: %s)", sensitivity, esp_err_to_name(ret));
+            }
             uart_send_formatted("💡 Sensitivity change applied to matrix scanning");
             
             // Send sensitivity change to matrix task if queue exists
@@ -2250,18 +2252,26 @@ command_result_t uart_cmd_config(const char* args)
             return CMD_ERROR_INVALID_SYNTAX;
         }
     } else if (strcmp(key, "debug") == 0) {
+        bool new_debug_value = false;
         if (strcmp(value, "on") == 0) {
-            debug_mode_enabled = true;
-            uart_send_formatted("✅ Debug mode enabled");
-            uart_send_formatted("💡 Debug logging is now active");
+            new_debug_value = true;
         } else if (strcmp(value, "off") == 0) {
-            debug_mode_enabled = false;
-            uart_send_formatted("✅ Debug mode disabled");
-            uart_send_formatted("💡 Debug logging is now inactive");
+            new_debug_value = false;
         } else {
             uart_send_error("❌ Invalid debug value. Use 'on' or 'off'");
             return CMD_ERROR_INVALID_SYNTAX;
         }
+        
+        system_config.debug_mode_enabled = new_debug_value;
+        
+        // Save to NVS using config_manager
+        esp_err_t ret = config_save_to_nvs(&system_config);
+        if (ret == ESP_OK) {
+            uart_send_formatted("✅ Debug mode %s (saved)", system_config.debug_mode_enabled ? "enabled" : "disabled");
+        } else {
+            uart_send_formatted("✅ Debug mode %s (save failed: %s)", system_config.debug_mode_enabled ? "enabled" : "disabled", esp_err_to_name(ret));
+        }
+        uart_send_formatted("💡 Debug logging is now %s", system_config.debug_mode_enabled ? "active" : "inactive");
     } else {
         char error_msg[128];
         snprintf(error_msg, sizeof(error_msg), "❌ Unknown configuration key: %s", key);
@@ -2613,7 +2623,7 @@ command_result_t uart_cmd_component_off(const char* args)
         };
         // ✅ DIRECT LED CALL - No queue hell
         led_clear_all_safe();
-        led_component_enabled = false;
+        g_led_system_enabled = false;
         uart_send_formatted("✅ LED component turned OFF");
         uart_send_formatted("  • LED control: DISABLED");
         uart_send_formatted("  • Visual feedback: DISABLED");
@@ -2689,7 +2699,7 @@ command_result_t uart_cmd_component_on(const char* args)
             .data = NULL
         };
         // ✅ DIRECT LED CALL - No queue hell
-        led_component_enabled = true;
+        g_led_system_enabled = true;
         uart_send_formatted("✅ LED component turned ON");
         uart_send_formatted("  • LED control: ENABLED");
         uart_send_formatted("  • Visual feedback: ENABLED");
@@ -4453,20 +4463,6 @@ command_result_t uart_cmd_self_test(const char* args)
     return CMD_SUCCESS;
 }
 
-command_result_t uart_cmd_test_game(const char* args)
-{
-    (void)args; // Unused parameter
-    
-    uart_send_formatted("🎮 GAME ENGINE TEST");
-    uart_send_formatted("═══════════════════");
-    uart_send_formatted("✅ Game Task: Running");
-    uart_send_formatted("✅ Board State: Valid");
-    uart_send_formatted("✅ Move Validation: Available");
-    uart_send_formatted("⚠️  TODO: Complete game logic tests");
-    uart_send_formatted("📝 Status: BASIC TEST ONLY");
-    
-    return CMD_SUCCESS;
-}
 
 command_result_t uart_cmd_debug_status(const char* args)
 {

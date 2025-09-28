@@ -20,6 +20,9 @@
 #include <stdbool.h>
 #include "esp_err.h"
 
+// Global LED component control
+extern volatile bool g_led_system_enabled;
+
 
 
 void led_task_start(void *pvParameters);

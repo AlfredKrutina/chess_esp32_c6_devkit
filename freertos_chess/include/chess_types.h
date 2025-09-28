@@ -480,6 +480,10 @@ typedef struct {
     uint8_t log_level;          // Log level (ESP_LOG_*)
     uint32_t command_timeout_ms; // Command timeout in milliseconds
     bool echo_enabled;          // Character echo enabled
+    // Extended configuration for LED and Matrix
+    uint8_t led_brightness;     // LED brightness 0-100%
+    uint8_t matrix_sensitivity; // Matrix sensitivity 0-100%
+    bool debug_mode_enabled;    // Debug mode enabled/disabled
 } system_config_t;
 
 // Forward declarations for configuration functions

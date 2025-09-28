@@ -390,12 +390,12 @@ void matrix_test_scanning(void)
     matrix_reset();
     matrix_print_state();
     
-    // Test 2: Simulate piece placement
+    // Test 2: Simulate piece placement (using valid notation)
     ESP_LOGI(TAG, "Test 2: Simulating piece placement");
-    matrix_simulate_move("", "e2"); // Place piece on e2
-    matrix_simulate_move("", "e4"); // Place piece on e4
-    matrix_simulate_move("", "d7"); // Place piece on d7
-    matrix_simulate_move("", "d5"); // Place piece on d5
+    matrix_place_piece("e2"); // Place piece on e2
+    matrix_place_piece("e4"); // Place piece on e4
+    matrix_place_piece("d7"); // Place piece on d7
+    matrix_place_piece("d5"); // Place piece on d5
     matrix_print_state();
     
     // Test 3: Simulate piece movement
@@ -425,6 +425,24 @@ void matrix_test_scanning(void)
     // Reset after test
     matrix_reset();
     ESP_LOGI(TAG, "✅ Matrix test completed successfully");
+}
+
+void matrix_place_piece(const char* square)
+{
+    uint8_t square_index = matrix_notation_to_square(square);
+    
+    if (square_index == 255) {
+        ESP_LOGE(TAG, "Invalid square notation: %s", square);
+        return;
+    }
+    
+    ESP_LOGI(TAG, "Placing piece on square: %s (%d)", square, square_index);
+    
+    // Place piece at square
+    matrix_state[square_index] = 1;
+    
+    // Force change detection
+    matrix_changes[square_index] = 1;
 }
 
 void matrix_simulate_move(const char* from, const char* to)

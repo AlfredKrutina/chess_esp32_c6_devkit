@@ -28,6 +28,7 @@
 #include "freertos_chess.h"
 #include "../led_task/include/led_task.h"  // ✅ FIX: Include led_task.h for led_clear_board_only()
 #include "game_led_animations.h"
+#include "game_led_direct.h"  // ✅ FIX: Include for game_show_checkmate_direct()
 #include <math.h>  // For brightness gradient calculations
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
 #include "freertos/FreeRTOS.h"
@@ -35,9 +36,9 @@
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "freertos/timers.h"
+#include "esp_timer.h"
 #include "esp_log.h"
 #include "esp_system.h"
-#include "esp_timer.h"
 #include "esp_task_wdt.h"
 #include "driver/uart.h"
 #include <stdint.h>
@@ -81,6 +82,36 @@ static bool piece_lifted = false;
 static uint8_t lifted_piece_row = 0;
 static uint8_t lifted_piece_col = 0;
 static piece_t lifted_piece = PIECE_EMPTY;
+
+// Surrender timer variables
+static TimerHandle_t surrender_timer = NULL;
+static esp_timer_handle_t surrender_esp_timer = NULL;
+static esp_timer_handle_t surrender_countdown_timer = NULL;
+static esp_timer_handle_t surrender_dimming_timer = NULL;
+static player_t surrender_player = PLAYER_WHITE;
+static bool surrender_triggered = false;
+static int surrender_countdown_seconds = 4;
+
+// LED countdown state
+static uint32_t saved_button_colors[4] = {0}; // Save original colors for 4 player buttons
+static bool surrender_led_countdown_active = false;
+static int current_dimming_button = 0; // Which button is currently dimming (0-3)
+static int dimming_steps = 0; // Current dimming step (0-10, where 10 = 100%, 0 = 0%)
+
+// Timer handles for stopping conflicting tasks during countdown
+extern TimerHandle_t led_update_timer;
+extern TimerHandle_t matrix_scan_timer;
+
+// Function to get timer references from freertos_chess
+static void surrender_init_timer_references(void)
+{
+    // Get timer references from freertos_chess component
+    led_update_timer = led_update_timer; // This will be set by extern reference
+    matrix_scan_timer = matrix_scan_timer; // This will be set by extern reference
+    
+    ESP_LOGI(TAG, "🔗 Timer references: LED=%p, Matrix=%p", 
+             (void*)led_update_timer, (void*)matrix_scan_timer);
+}
 
 // Castling flags
 static bool white_king_moved = false;
@@ -561,6 +592,509 @@ static const char* piece_symbols[] = {
 
 
 // ============================================================================
+// SURRENDER TIMER FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Save current button LED colors for the surrendering player
+ * @param player Player who is surrendering
+ */
+static void surrender_save_button_colors(player_t player)
+{
+    // Buttons 0-3 are White player, 4-7 are Black player
+    int start_button = (player == PLAYER_WHITE) ? 0 : 4;
+    
+    for (int i = 0; i < 4; i++) {
+        uint8_t button_id = start_button + i;
+        saved_button_colors[i] = led_get_button_color(button_id);
+    }
+    
+    ESP_LOGI(TAG, "💾 Saved button colors for %s player", 
+             player == PLAYER_WHITE ? "White" : "Black");
+}
+
+/**
+ * @brief Restore button LED colors for the surrendering player
+ * @param player Player who was surrendering
+ */
+static void surrender_restore_button_colors(player_t player)
+{
+    // Buttons 0-3 are White player, 4-7 are Black player
+    int start_button = (player == PLAYER_WHITE) ? 0 : 4;
+    
+    for (int i = 0; i < 4; i++) {
+        uint8_t button_id = start_button + i;
+        uint32_t color = saved_button_colors[i];
+        
+        // Extract RGB components
+        uint8_t red = (color >> 16) & 0xFF;
+        uint8_t green = (color >> 8) & 0xFF;
+        uint8_t blue = color & 0xFF;
+        
+        // Restore the color - use internal function for button LEDs (64-72)
+        led_set_pixel_internal(CHESS_LED_COUNT_BOARD + button_id, red, green, blue);
+    }
+    
+    surrender_led_countdown_active = false;
+    ESP_LOGI(TAG, "🔄 Restored button colors for %s player", 
+             player == PLAYER_WHITE ? "White" : "Black");
+}
+
+/**
+ * @brief Dimming timer callback - gradually dims button LEDs
+ * @param arg Timer argument
+ */
+static void surrender_dimming_callback(void* arg)
+{
+    ESP_LOGI(TAG, "🔔 Dimming callback: active=%s, button=%d, steps=%d", 
+             surrender_led_countdown_active ? "true" : "false", 
+             current_dimming_button, dimming_steps);
+    
+    if (!surrender_led_countdown_active) {
+        ESP_LOGI(TAG, "❌ Dimming callback: countdown not active, returning");
+        return;
+    }
+    
+    // Buttons 0-3 are White player, 4-7 are Black player
+    int start_button = (surrender_player == PLAYER_WHITE) ? 0 : 4;
+    
+    // Calculate brightness (0-255) based on dimming steps (0-10)
+    uint8_t brightness = (dimming_steps * 255) / 10;
+    
+    // Get the current button being dimmed
+    uint8_t button_id = start_button + current_dimming_button;
+    uint32_t original_color = saved_button_colors[current_dimming_button];
+    
+    // Extract original RGB components
+    uint8_t orig_red = (original_color >> 16) & 0xFF;
+    uint8_t orig_green = (original_color >> 8) & 0xFF;
+    uint8_t orig_blue = original_color & 0xFF;
+    
+    // Apply brightness scaling
+    uint8_t red = (orig_red * brightness) / 255;
+    uint8_t green = (orig_green * brightness) / 255;
+    uint8_t blue = (orig_blue * brightness) / 255;
+    
+    // Set the dimmed color - use internal function for button LEDs (64-72)
+    led_set_pixel_internal(CHESS_LED_COUNT_BOARD + button_id, red, green, blue);
+    
+    // Log only significant progress
+    if (dimming_steps % 2 == 0) { // Log every 2 steps to reduce spam
+        ESP_LOGI(TAG, "💡 Dimming button %d: %d%% brightness", 
+                 current_dimming_button, (brightness * 100) / 255);
+    }
+    
+    dimming_steps--;
+    
+    if (dimming_steps < 0) {
+        // Current button is fully dimmed, move to next button
+        current_dimming_button++;
+        dimming_steps = 10; // Reset for next button
+        
+        ESP_LOGI(TAG, "🔄 Button %d fully dimmed, moving to button %d", 
+                 current_dimming_button - 1, current_dimming_button);
+        
+        if (current_dimming_button >= 4) {
+            // All buttons dimmed, stop the timer
+            esp_timer_stop(surrender_dimming_timer);
+            surrender_led_countdown_active = false; // Stop LED countdown
+            ESP_LOGI(TAG, "✅ All 4 buttons dimmed for surrender countdown");
+        } else {
+            // Start dimming next button
+            ESP_LOGI(TAG, "🔄 Starting dimming for button %d (LED %d)", 
+                     current_dimming_button, CHESS_LED_COUNT_BOARD + start_button + current_dimming_button);
+            esp_err_t result = esp_timer_start_once(surrender_dimming_timer, 100000); // 100ms intervals
+            if (result != ESP_OK) {
+                ESP_LOGE(TAG, "❌ Failed to restart dimming timer: %s", esp_err_to_name(result));
+            }
+        }
+    } else {
+        // Continue dimming current button
+        esp_err_t result = esp_timer_start_once(surrender_dimming_timer, 100000); // 100ms intervals
+        if (result != ESP_OK) {
+            ESP_LOGE(TAG, "❌ Failed to continue dimming timer: %s", esp_err_to_name(result));
+        }
+    }
+}
+
+/**
+ * @brief Stop conflicting timers during countdown
+ */
+static void surrender_stop_conflicting_timers(void)
+{
+    ESP_LOGI(TAG, "🛑 Stopping conflicting timers during countdown");
+    
+    // Stop LED update timer to prevent overwrites
+    if (led_update_timer != NULL) {
+        BaseType_t result = xTimerStop(led_update_timer, 0);
+        if (result == pdPASS) {
+            ESP_LOGI(TAG, "⏸️ LED update timer stopped");
+        } else {
+            ESP_LOGW(TAG, "⚠️ Failed to stop LED update timer");
+        }
+    } else {
+        ESP_LOGW(TAG, "⚠️ LED update timer is NULL");
+    }
+    
+    // Stop matrix scan timer to prevent board LED resets
+    if (matrix_scan_timer != NULL) {
+        BaseType_t result = xTimerStop(matrix_scan_timer, 0);
+        if (result == pdPASS) {
+            ESP_LOGI(TAG, "⏸️ Matrix scan timer stopped");
+        } else {
+            ESP_LOGW(TAG, "⚠️ Failed to stop matrix scan timer");
+        }
+    } else {
+        ESP_LOGW(TAG, "⚠️ Matrix scan timer is NULL");
+    }
+}
+
+/**
+ * @brief Restart conflicting timers after countdown
+ */
+static void surrender_restart_conflicting_timers(void)
+{
+    ESP_LOGI(TAG, "▶️ Restarting conflicting timers after countdown");
+    
+    // Restart LED update timer
+    if (led_update_timer != NULL) {
+        BaseType_t result = xTimerStart(led_update_timer, 0);
+        if (result == pdPASS) {
+            ESP_LOGI(TAG, "▶️ LED update timer restarted");
+        } else {
+            ESP_LOGW(TAG, "⚠️ Failed to restart LED update timer");
+        }
+    } else {
+        ESP_LOGW(TAG, "⚠️ LED update timer is NULL");
+    }
+    
+    // Restart matrix scan timer
+    if (matrix_scan_timer != NULL) {
+        BaseType_t result = xTimerStart(matrix_scan_timer, 0);
+        if (result == pdPASS) {
+            ESP_LOGI(TAG, "▶️ Matrix scan timer restarted");
+        } else {
+            ESP_LOGW(TAG, "⚠️ Failed to restart matrix scan timer");
+        }
+    } else {
+        ESP_LOGW(TAG, "⚠️ Matrix scan timer is NULL");
+    }
+}
+
+/**
+ * @brief Start the LED dimming countdown
+ * @param player Player who is surrendering
+ */
+static void surrender_start_led_countdown(player_t player)
+{
+    ESP_LOGI(TAG, "🚀 Starting LED dimming countdown for %s player", 
+             player == PLAYER_WHITE ? "White" : "Black");
+    
+    // Stop conflicting timers first
+    surrender_stop_conflicting_timers();
+    
+    surrender_player = player;
+    current_dimming_button = 0;
+    dimming_steps = 10; // Start at 100% brightness
+    
+    // DEBUG: Log button mapping
+    int start_button = (player == PLAYER_WHITE) ? 0 : 4;
+    ESP_LOGI(TAG, "🔍 Button mapping: %s player uses buttons %d-%d (LEDs %d-%d)", 
+             player == PLAYER_WHITE ? "White" : "Black", 
+             start_button, start_button + 3,
+             CHESS_LED_COUNT_BOARD + start_button, CHESS_LED_COUNT_BOARD + start_button + 3);
+    
+    // Start dimming the first button
+    if (surrender_dimming_timer != NULL) {
+        esp_err_t result = esp_timer_start_once(surrender_dimming_timer, 100000); // 100ms intervals
+        if (result == ESP_OK) {
+            ESP_LOGI(TAG, "💡 Started LED dimming countdown for %s player", 
+                     player == PLAYER_WHITE ? "White" : "Black");
+        } else {
+            ESP_LOGE(TAG, "❌ Failed to start dimming timer: %s", esp_err_to_name(result));
+        }
+    } else {
+        ESP_LOGE(TAG, "❌ Dimming timer is NULL!");
+    }
+}
+
+/**
+ * @brief Countdown timer callback - prints remaining time to UART and starts LED dimming
+ * @param arg Timer argument
+ */
+static void surrender_countdown_callback(void* arg)
+{
+    printf("⏰ Surrender in %d seconds...\n", surrender_countdown_seconds);
+    ESP_LOGI(TAG, "⏰ Surrender countdown: %d seconds", surrender_countdown_seconds);
+    
+    // Start LED dimming countdown on first call
+    if (surrender_countdown_seconds == 4) {
+        surrender_start_led_countdown(surrender_player);
+    }
+    
+    surrender_countdown_seconds--;
+    
+    if (surrender_countdown_seconds > 0) {
+        // Restart timer for next second
+        esp_timer_start_once(surrender_countdown_timer, 1000000); // 1 second in microseconds
+    } else {
+        // Countdown finished - but keep LED countdown active for dimming
+        ESP_LOGI(TAG, "⏰ UART countdown finished, LED dimming continues...");
+    }
+}
+
+/**
+ * @brief ESP timer callback - called after 10 seconds
+ * @param arg Timer argument
+ */
+static void surrender_esp_timer_callback(void* arg)
+{
+    // Simply set flag - all game logic will be handled in main game task
+    surrender_triggered = true;
+    ESP_LOGI(TAG, "🏳️ Surrender timer triggered for player %s", 
+             surrender_player == PLAYER_WHITE ? "White" : "Black");
+}
+
+/**
+ * @brief FreeRTOS timer callback - called after 10 seconds
+ * @param xTimer Timer handle
+ */
+static void surrender_timer_callback(TimerHandle_t xTimer)
+{
+    // Simply set flag - all game logic will be handled in main game task
+    surrender_triggered = true;
+    ESP_LOGI(TAG, "🏳️ Surrender timer triggered for player %s", 
+             surrender_player == PLAYER_WHITE ? "White" : "Black");
+}
+
+/**
+ * @brief Initialize surrender timer
+ */
+static void init_surrender_timer(void)
+{
+    // Create FreeRTOS timer (may fail due to priority issues)
+    surrender_timer = xTimerCreate(
+        "SurrenderTimer",
+        pdMS_TO_TICKS(10000), // 10 seconds
+        pdFALSE,              // One-shot timer
+        NULL,
+        surrender_timer_callback
+    );
+    
+    // Create ESP timer as primary (more reliable)
+    esp_timer_create_args_t esp_timer_args = {
+        .callback = surrender_esp_timer_callback,
+        .arg = NULL,
+        .name = "surrender_esp_timer"
+    };
+    
+    esp_err_t esp_timer_result = esp_timer_create(&esp_timer_args, &surrender_esp_timer);
+    if (esp_timer_result != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to create ESP surrender timer: %s", esp_err_to_name(esp_timer_result));
+    } else {
+        ESP_LOGI(TAG, "✅ Surrender timer created successfully");
+    }
+    
+    // Create countdown timer for last 4 seconds
+    esp_timer_create_args_t countdown_timer_args = {
+        .callback = surrender_countdown_callback,
+        .arg = NULL,
+        .name = "surrender_countdown_timer"
+    };
+    
+    esp_err_t countdown_result = esp_timer_create(&countdown_timer_args, &surrender_countdown_timer);
+    if (countdown_result != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to create surrender countdown timer: %s", esp_err_to_name(countdown_result));
+    } else {
+        ESP_LOGI(TAG, "✅ Surrender countdown timer created successfully");
+    }
+    
+    // Create dimming timer for LED countdown effect
+    esp_timer_create_args_t dimming_timer_args = {
+        .callback = surrender_dimming_callback,
+        .arg = NULL,
+        .name = "surrender_dimming_timer"
+    };
+    
+    esp_err_t dimming_result = esp_timer_create(&dimming_timer_args, &surrender_dimming_timer);
+    if (dimming_result != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to create surrender dimming timer: %s", esp_err_to_name(dimming_result));
+    } else {
+        ESP_LOGI(TAG, "✅ Surrender dimming timer created successfully");
+    }
+}
+
+/**
+ * @brief Start surrender timer when king is picked up
+ * @param player Current player
+ */
+static void on_king_pickup(player_t player)
+{
+    surrender_player = player;
+    surrender_countdown_seconds = 4; // Reset countdown
+    
+    // Stop any existing timers
+    if (surrender_timer != NULL) {
+        xTimerStop(surrender_timer, 0);
+    }
+    if (surrender_esp_timer != NULL) {
+        esp_timer_stop(surrender_esp_timer);
+    }
+    if (surrender_countdown_timer != NULL) {
+        esp_timer_stop(surrender_countdown_timer);
+    }
+    
+    // Save current button colors for restoration if surrender is cancelled
+    surrender_save_button_colors(player);
+    surrender_led_countdown_active = true;
+    
+    // Start ESP timer (primary, more reliable) - 10 seconds
+    if (surrender_esp_timer != NULL) {
+        esp_err_t result = esp_timer_start_once(surrender_esp_timer, 14000000); // 14 seconds in microseconds
+        if (result == ESP_OK) {
+            ESP_LOGI(TAG, "⏳ Surrender timer started for %s (14 seconds)", 
+                     player == PLAYER_WHITE ? "White" : "Black");
+        } else {
+            ESP_LOGE(TAG, "Failed to start surrender timer: %s", esp_err_to_name(result));
+        }
+    }
+    
+    // Start countdown timer after 10 seconds (so it starts counting down from 4)
+    if (surrender_countdown_timer != NULL) {
+        esp_err_t countdown_result = esp_timer_start_once(surrender_countdown_timer, 10000000); // 10 seconds in microseconds
+        if (countdown_result != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to start surrender countdown timer: %s", esp_err_to_name(countdown_result));
+        } else {
+            ESP_LOGI(TAG, "⏰ Surrender countdown timer started (will begin in 10 seconds)");
+        }
+    }
+}
+
+/**
+ * @brief Stop surrender timer when king is dropped
+ */
+static void on_king_drop(void)
+{
+    // Stop all timers
+    if (surrender_timer != NULL) {
+        xTimerStop(surrender_timer, 0);
+    }
+    if (surrender_esp_timer != NULL) {
+        esp_timer_stop(surrender_esp_timer);
+    }
+    if (surrender_countdown_timer != NULL) {
+        esp_timer_stop(surrender_countdown_timer);
+    }
+    if (surrender_dimming_timer != NULL) {
+        esp_timer_stop(surrender_dimming_timer);
+    }
+    
+    // Restore button LED colors if countdown was active
+    if (surrender_led_countdown_active) {
+        surrender_restore_button_colors(surrender_player);
+    }
+    
+    // CRITICAL FIX: Restart conflicting timers when countdown is cancelled
+    surrender_restart_conflicting_timers();
+    
+    ESP_LOGI(TAG, "✅ Surrender timer stopped (king returned)");
+}
+
+/**
+ * @brief Process surrender - called when surrender timer expires
+ */
+static void game_process_surrender(void)
+{
+    ESP_LOGI(TAG, "🏳️ Processing surrender for player %s", 
+             surrender_player == PLAYER_WHITE ? "White" : "Black");
+    
+    printf("🏳️ Player %s surrenders!\n", surrender_player == PLAYER_WHITE ? "White" : "Black");
+    
+    // DON'T clear surrender LED countdown state here - let dimming complete naturally
+    // surrender_led_countdown_active = false; // This was causing animation to stop!
+    
+    // CRITICAL FIX: Set game state to FINISHED to trigger proper endgame handling
+    current_game_state = GAME_STATE_FINISHED;
+    piece_lifted = false;
+    lifted_piece_row = 0;
+    lifted_piece_col = 0;
+    lifted_piece = PIECE_EMPTY;
+    
+    // Clear board LEDs
+    led_clear_board_only();
+    
+    // Update game statistics
+    if (surrender_player == PLAYER_WHITE) {
+        black_wins++;
+        printf("🏆 Black wins by surrender!\n");
+        ESP_LOGI(TAG, "🏆 Black wins by surrender!");
+    } else {
+        white_wins++;
+        printf("🏆 White wins by surrender!\n");
+        ESP_LOGI(TAG, "🏆 White wins by surrender!");
+    }
+    
+    // Start endgame animation based on who won
+    uint8_t king_pos = 27; // default d4
+    
+    // Find winning king position for animation
+    piece_t winning_king = (surrender_player == PLAYER_WHITE) ? PIECE_BLACK_KING : PIECE_WHITE_KING;
+    for (int i = 0; i < 64; i++) {
+        piece_t piece = board[i/8][i%8];
+        if (piece == winning_king) {
+            king_pos = i;
+            break;
+        }
+    }
+    
+    ESP_LOGI(TAG, "🎬 Starting endgame animation for winner at position %d", king_pos);
+    
+    // Start victory animation for the winner
+    ESP_LOGI(TAG, "🎬 Attempting to start endgame animation at position %d", king_pos);
+    esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
+    if (result != ESP_OK) {
+        ESP_LOGE(TAG, "❌ Failed to start endgame animation: %s", esp_err_to_name(result));
+        // Try alternative animation method - only clear board LEDs, preserve button LEDs
+        ESP_LOGI(TAG, "🔄 Trying alternative animation approach...");
+        led_clear_board_only(); // Only clear board LEDs, not button LEDs
+        led_set_pixel_safe(king_pos, 0, 255, 0); // Green for winner
+        led_force_immediate_update();
+    } else {
+        ESP_LOGI(TAG, "✅ Endgame animation started successfully at position %d", king_pos);
+        
+        // CRITICAL: Yield CPU to allow animation timer to run
+        taskYIELD();
+        vTaskDelay(pdMS_TO_TICKS(50)); // Give animation timer more time to start
+        
+        // CRITICAL: Wait for animation to actually start before proceeding
+        vTaskDelay(pdMS_TO_TICKS(100)); // Additional delay to ensure animation is running
+        
+        ESP_LOGI(TAG, "🎬 Endgame animation should now be running...");
+        
+        // DEBUG: Check if animation is actually running
+        vTaskDelay(pdMS_TO_TICKS(100));
+        ESP_LOGI(TAG, "🎬 Animation status check after 100ms delay...");
+    }
+    
+    // NOTE: Don't call checkmate animation here as it conflicts with endgame animation
+    // The endgame animation already provides visual feedback for surrender
+    
+    // Switch to the winner as current player
+    current_player = (surrender_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    
+    // CRITICAL FIX: Restart conflicting timers after surrender processing
+    // Add delay to ensure animation has time to start and LED countdown completes
+    vTaskDelay(pdMS_TO_TICKS(1000)); // Wait 1 second before restarting timers
+    surrender_restart_conflicting_timers();
+    
+    // Reset game for next round
+    vTaskDelay(pdMS_TO_TICKS(3000)); // Wait 3 seconds for animation
+    game_reset_game();
+    
+    ESP_LOGI(TAG, "🏳️ Surrender processed successfully");
+}
+
+// ============================================================================
 // GAME INITIALIZATION FUNCTIONS
 // ============================================================================
 
@@ -640,6 +1174,12 @@ void game_initialize_board(void)
         ESP_LOGI(TAG, "Opponent return animation timer created successfully");
     }
     
+    // Initialize surrender timer
+    init_surrender_timer();
+    
+    // Initialize timer references
+    surrender_init_timer_references();
+    
     ESP_LOGI(TAG, "Enhanced chess board initialized successfully");
     ESP_LOGI(TAG, "Initial position: White pieces at bottom, Black pieces at top");
     // Board will be displayed after all tasks are initialized
@@ -708,6 +1248,21 @@ void game_reset_game(void)
     
     // Reinitialize board
     game_initialize_board();
+    
+    // CRITICAL FIX: Restore button LED states to default availability
+    ESP_LOGI(TAG, "🔄 Restoring button LED states to default availability...");
+    
+    // Restore button LED states to default game state
+    // Promotion buttons (0-7) are unavailable (blue), reset button (8) is available (green)
+    for (int i = 0; i < 8; i++) {
+        // Promotion buttons - unavailable (blue)
+        led_set_pixel_internal(CHESS_LED_COUNT_BOARD + i, 0, 0, 255);
+    }
+    // Reset button - available (green)
+    led_set_pixel_internal(CHESS_LED_COUNT_BOARD + 8, 0, 255, 0);
+    
+    led_force_immediate_update();
+    ESP_LOGI(TAG, "✅ Button LED states restored to default availability");
     
     ESP_LOGI(TAG, "Game reset completed");
 }
@@ -2141,6 +2696,11 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         lifted_piece_col = invalid_move_backup.to_col;
         lifted_piece = invalid_move_backup.piece;
         current_game_state = GAME_STATE_WAITING_PIECE_DROP;
+        
+        // Start surrender timer if king is lifted in recovery
+        if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+            on_king_pickup(current_player);
+        }
 
         // 2. LED: žlutá na last_valid + zelené tahy z ní
         led_clear_board_only();
@@ -2208,6 +2768,9 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         
         // ENHANCED: Check if this is a king move that could be castling
         if (piece == PIECE_WHITE_KING || piece == PIECE_BLACK_KING) {
+            // Start surrender timer for king pickup
+            on_king_pickup(current_player);
+            
             // Check if castling is possible
             bool can_castle_kingside = game_can_castle_kingside(current_player);
             bool can_castle_queenside = game_can_castle_queenside(current_player);
@@ -2526,6 +3089,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
     
     // FIXED: Kontrola, zda se figurka vrátila na stejnou pozici - PŘED všemi speciálními stavy
     if (piece_lifted && lifted_piece_row == to_row && lifted_piece_col == to_col) {
+        // Stop surrender timer if king was returned to original position
+        if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+            on_king_drop();
+        }
+        
         // Figurka se vrátila na původní pozici - reset tahu
         piece_lifted = false;
         lifted_piece_row = 0;
@@ -2604,6 +3172,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             // Vrátit figurku na board
             board[opponent_original_row][opponent_original_col] = opponent_piece_type;
             
+            // Stop surrender timer if king was dropped
+            if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+                on_king_drop();
+            }
+            
             // Reset stavu
             opponent_piece_moved = false;
             current_game_state = GAME_STATE_IDLE;
@@ -2652,6 +3225,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             board[opponent_current_row][opponent_current_col] = PIECE_EMPTY;
             board[opponent_original_row][opponent_original_col] = opponent_piece_type;
             
+            // Stop surrender timer if king was dropped
+            if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+                on_king_drop();
+            }
+            
             // Reset
             opponent_piece_moved = false;
             current_game_state = GAME_STATE_IDLE;
@@ -2689,6 +3267,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             
             // Stop animation
             stop_opponent_return_animation();
+            
+            // Stop surrender timer if king was dropped
+            if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+                on_king_drop();
+            }
             
             // Reset
             opponent_piece_moved = false;
@@ -2795,6 +3378,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                 last_valid_position_row = to_row;
                 last_valid_position_col = to_col;
                 
+                // Stop surrender timer if king was dropped
+                if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+                    on_king_drop();
+                }
+                
                 // 4. Vyčistit recovery
                 error_recovery_active = false;
                 current_game_state = GAME_STATE_IDLE;
@@ -2825,6 +3413,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                 
                 // 2. Umísti figurku zpět na last_valid_position
                 board[last_valid_position_row][last_valid_position_col] = lifted_piece;
+                
+                // Stop surrender timer if king was dropped
+                if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+                    on_king_drop();
+                }
                 
                 // 3. Vyčistit recovery
                 error_recovery_active = false;
@@ -2915,6 +3508,10 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                     // FIXED: Start castling flow WITHOUT moving king in memory
                     if (game_start_castling_transaction_strict(is_kingside, lifted_piece_row, lifted_piece_col, to_row, to_col)) {
                         // Castling transaction started - wait for rook move
+                        // Stop surrender timer if king was dropped for castling
+                        if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+                            on_king_drop();
+                        }
                         piece_lifted = false;
                         lifted_piece_row = 0;
                         lifted_piece_col = 0;
@@ -3009,6 +3606,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
             
             ESP_LOGI(TAG, "✅ Move executed successfully: %s -> %s", from_notation, cmd->to_notation);
             
+            // Stop surrender timer if king was dropped
+            if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+                on_king_drop();
+            }
+            
             // Reset lifted piece state BEFORE animation
             piece_lifted = false;
             lifted_piece_row = 0;
@@ -3057,6 +3659,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                 led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, rook_from_col), 0, 0, 255); // Blue rook
                 led_set_pixel_safe(chess_pos_to_led_index(castling_king_row, rook_to_col), 0, 255, 0); // Green target
 
+                // Stop surrender timer if king was dropped for castling
+                if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+                    on_king_drop();
+                }
+                
                 // Přepnout do stavu "čeká na věž" - věž zůstává na původním místě!
                 piece_lifted = false;
                 lifted_piece_row = 0;
@@ -3094,6 +3701,11 @@ static void game_process_drop_command(const chess_move_command_t* cmd)
                 board[castling_king_row][castling_kingside ? 7 : 0] = PIECE_EMPTY; // Vymazat původní pozici
                 board[to_row][to_col] = lifted_piece; // Věž je na novém místě
 
+                // Stop surrender timer if king was dropped
+                if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+                    on_king_drop();
+                }
+                
                 // Dokončení rošády
                 castling_in_progress = false;
                 current_game_state = GAME_STATE_IDLE;
@@ -5112,6 +5724,11 @@ void game_cancel_castling_transaction(void)
         castling_rook_to_col = 0;
         castling_start_time = 0;
         
+        // Stop surrender timer if king was dropped
+        if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+            on_king_drop();
+        }
+        
         // Návrat do idle stavu
         current_game_state = GAME_STATE_IDLE;
         piece_lifted = false;
@@ -5170,6 +5787,11 @@ bool game_is_error_recovery_timeout(void)
 void game_cancel_recovery(void)
 {
     ESP_LOGW(TAG, "⏱️ Recovery timeout - cancelling recovery");
+    
+    // Stop surrender timer if king was dropped
+    if (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) {
+        on_king_drop();
+    }
     
     // Clear recovery state
     error_recovery_active = false;
@@ -6356,11 +6978,18 @@ void game_task_start(void *pvParameters)
             // Task not registered with TWDT yet - this is normal during startup
         }
         
+        
         // Process game commands
         game_process_commands();
         
+        // Yield after command processing
+        taskYIELD();
+        
         // Process matrix events (moves)
         game_process_matrix_events();
+        
+        // Yield after matrix processing
+        taskYIELD();
         
         // Check for error recovery timeout
         if (game_is_error_recovery_active() && game_is_error_recovery_timeout()) {
@@ -6373,6 +7002,16 @@ void game_task_start(void *pvParameters)
             ESP_LOGW(TAG, "⏰ Castling timeout - cancelling castling transaction");
             game_cancel_castling_transaction();
         }
+        
+        // Check for surrender trigger
+        if (surrender_triggered) {
+            surrender_triggered = false; // Reset flag
+            game_process_surrender();
+        }
+        
+        // CRITICAL: Yield CPU to allow Timer Service Task to run
+        taskYIELD();
+        
         
         // Periodic status update
         if (loop_count % 5000 == 0) { // Every 5 seconds

@@ -146,7 +146,7 @@ extern "C" {
 #define MATRIX_TASK_PRIORITY 6       // ✅ Hardware input
 #define BUTTON_TASK_PRIORITY 5       // ✅ User input
 #define UART_TASK_PRIORITY 3         // ✅ Communication
-#define GAME_TASK_PRIORITY 4         // ✅ OPRAVA: Sníženo z 5 na 4
+#define GAME_TASK_PRIORITY 0         // ✅ OPRAVA: Sníženo pod Timer Daemon (1)
 #define ANIMATION_TASK_PRIORITY 3    // ✅ Visual effects
 #define SCREEN_SAVER_TASK_PRIORITY 2 // ✅ Background
 #define TEST_TASK_PRIORITY 1         // ✅ Debug only

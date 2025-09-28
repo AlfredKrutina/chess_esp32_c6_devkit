@@ -29,7 +29,10 @@ static const system_config_t default_config = {
     .quiet_mode = false,
     .log_level = ESP_LOG_ERROR,
     .command_timeout_ms = 5000,
-    .echo_enabled = true
+    .echo_enabled = true,
+    .led_brightness = 100,
+    .matrix_sensitivity = 50,
+    .debug_mode_enabled = false
 };
 
 esp_err_t config_manager_init(void)

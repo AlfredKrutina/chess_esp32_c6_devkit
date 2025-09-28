@@ -174,10 +174,12 @@ static uint32_t animation_start_time = 0;
 static uint32_t animation_duration = 0;
 static uint8_t animation_pattern = 0;
 
+// Global LED system control
+volatile bool g_led_system_enabled = true;
+
 // Task state
 static bool task_running = false;
 static bool matrix_scanning_enabled = true;  // Component control
-static bool led_component_enabled = true;    // LED component enabled by default
 static bool simulation_mode = false; // Changed to false for real hardware operation
 
 // ✅ LED STRIP HARDWARE STATE - Using official driver
@@ -291,7 +293,7 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green, uint8
     }
     
     // Check if LED component is enabled
-    if (!led_component_enabled) {
+    if (!g_led_system_enabled) {
         ESP_LOGD(TAG, "LED component disabled - ignoring LED command for LED %d", led_index);
         return;
     }
