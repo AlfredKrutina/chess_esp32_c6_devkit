@@ -27,7 +27,7 @@ static const char *TAG = "BUFFER_POOL";
 // BUFFER POOL CONFIGURATION
 // ============================================================================
 
-#define BUFFER_POOL_SIZE 8          // Number of buffers in pool
+#define BUFFER_POOL_SIZE 4          // Number of buffers in pool (reduced from 8 to save ~8 KB)
 #define BUFFER_SIZE 2048            // Size of each buffer (was malloc(1536))
 #define MAX_BUFFER_WAIT_MS 5000     // Maximum wait time for buffer
 

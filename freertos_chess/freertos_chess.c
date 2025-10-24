@@ -94,9 +94,9 @@ QueueHandle_t animation_status_queue = NULL;
 QueueHandle_t screen_saver_command_queue = NULL;
 QueueHandle_t screen_saver_status_queue = NULL;
 
-// Matter control queues
-QueueHandle_t matter_command_queue = NULL;
-extern QueueHandle_t matter_status_queue;
+// DISABLED: Matter control queues - Matter not needed
+// QueueHandle_t matter_command_queue = NULL;
+// extern QueueHandle_t matter_status_queue;
 
 // Web server control queues
 QueueHandle_t web_command_queue = NULL;
@@ -554,8 +554,8 @@ esp_err_t chess_create_queues(void)
     
     // CRITICAL: Create UART output queue for centralized output  
     extern QueueHandle_t uart_output_queue;
-    ESP_LOGI(TAG, "  - UART Output Queue: %d items × %zu bytes", 50, 512);
-    SAFE_CREATE_QUEUE(uart_output_queue, 50, 512, "UART Output Queue");
+    ESP_LOGI(TAG, "  - UART Output Queue: %d items × %zu bytes", 20, 512);
+    SAFE_CREATE_QUEUE(uart_output_queue, 20, 512, "UART Output Queue");  // Reduced from 50 to 20 to save ~15 KB
     
     ESP_LOGI(TAG, "✅ UART queues created. Free heap: %zu bytes", esp_get_free_heap_size());
     
@@ -583,13 +583,15 @@ esp_err_t chess_create_queues(void)
     SAFE_CREATE_QUEUE(screen_saver_status_queue, SCREEN_SAVER_QUEUE_SIZE, sizeof(esp_err_t), "Screen Saver Status Queue");
     ESP_LOGI(TAG, "✅ Screen Saver queues created. Free heap: %zu bytes", esp_get_free_heap_size());
     
-    // Matter control queues
+    // DISABLED: Matter control queues - Matter not needed
+    /*
     ESP_LOGI(TAG, "🔄 Creating Matter queues...");
-    ESP_LOGI(TAG, "  - Matter Command Queue: %d items × %zu bytes", LED_QUEUE_SIZE, sizeof(uint8_t));
-    SAFE_CREATE_QUEUE(matter_command_queue, LED_QUEUE_SIZE, sizeof(uint8_t), "Matter Command Queue");
-    ESP_LOGI(TAG, "  - Matter Status Queue: %d items × %zu bytes", LED_QUEUE_SIZE, sizeof(esp_err_t));
-    SAFE_CREATE_QUEUE(matter_status_queue, LED_QUEUE_SIZE, sizeof(esp_err_t), "Matter Status Queue");
+    ESP_LOGI(TAG, "  - Matter Command Queue: %d items × %zu bytes", MATTER_QUEUE_SIZE, sizeof(uint8_t));
+    SAFE_CREATE_QUEUE(matter_command_queue, MATTER_QUEUE_SIZE, sizeof(uint8_t), "Matter Command Queue");
+    ESP_LOGI(TAG, "  - Matter Status Queue: %d items × %zu bytes", MATTER_QUEUE_SIZE, sizeof(esp_err_t));
+    SAFE_CREATE_QUEUE(matter_status_queue, MATTER_QUEUE_SIZE, sizeof(esp_err_t), "Matter Status Queue");
     ESP_LOGI(TAG, "✅ Matter queues created. Free heap: %zu bytes", esp_get_free_heap_size());
+    */
 
     // Web server control queues
     ESP_LOGI(TAG, "🔄 Creating Web Server queues...");
@@ -616,8 +618,9 @@ esp_err_t chess_create_queues(void)
     if (!matrix_event_queue || !matrix_command_queue ||
         !button_event_queue || !button_command_queue || !uart_command_queue || !uart_response_queue ||
         !game_command_queue || !game_status_queue || !animation_command_queue || !animation_status_queue ||
-        !screen_saver_command_queue || !screen_saver_status_queue || !matter_command_queue || 
-        !matter_status_queue || !web_command_queue || !web_server_command_queue || 
+        !screen_saver_command_queue || !screen_saver_status_queue || 
+        /* !matter_command_queue || !matter_status_queue || */  // DISABLED - Matter not needed
+        !web_command_queue || !web_server_command_queue || 
         !web_server_status_queue || !test_command_queue) {
         ESP_LOGE(TAG, "One or more queues failed to create - system initialization will fail");
         return ESP_ERR_NO_MEM;
@@ -716,12 +719,12 @@ esp_err_t chess_create_timers(void)
     }
     ESP_LOGI(TAG, "✓ LED update timer created (25ms period)");
     
-    // System health timer (30s period)
-    system_health_timer = xTimerCreate("SystemHealth", pdMS_TO_TICKS(30000), pdTRUE, NULL, NULL);
-    if (system_health_timer == NULL) {
-        ESP_LOGE(TAG, "Failed to create system health timer");
-        return ESP_ERR_NO_MEM;
-    }
+    // System health timer - DISABLED (was causing crashes with NULL callback)
+    // system_health_timer = xTimerCreate("SystemHealth", pdMS_TO_TICKS(30000), pdTRUE, NULL, NULL);
+    // if (system_health_timer == NULL) {
+    //     ESP_LOGE(TAG, "Failed to create system health timer");
+    //     return ESP_ERR_NO_MEM;
+    // }
     
     ESP_LOGI(TAG, "✓ All FreeRTOS timers created successfully");
     return ESP_OK;
@@ -759,14 +762,14 @@ esp_err_t chess_start_timers(void)
         ESP_LOGI(TAG, "✓ LED update timer started (25ms period)");
     }
     
-    // Start system health timer
-    if (system_health_timer != NULL) {
-        if (xTimerStart(system_health_timer, 0) != pdPASS) {
-            ESP_LOGE(TAG, "Failed to start system health timer");
-            return ESP_ERR_INVALID_STATE;
-        }
-        ESP_LOGI(TAG, "✓ System health timer started");
-    }
+    // System health timer - DISABLED (was causing crashes)
+    // if (system_health_timer != NULL) {
+    //     if (xTimerStart(system_health_timer, 0) != pdPASS) {
+    //         ESP_LOGE(TAG, "Failed to start system health timer");
+    //         return ESP_ERR_INVALID_STATE;
+    //     }
+    //     ESP_LOGI(TAG, "✓ System health timer started");
+    // }
     
     ESP_LOGI(TAG, "✓ All FreeRTOS timers started successfully");
     return ESP_OK;

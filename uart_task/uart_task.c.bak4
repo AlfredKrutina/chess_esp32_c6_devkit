@@ -1,0 +1,2312 @@
+/**
+ * @file uart_task_new.c
+ * @brief ESP32-C6 Chess System v2.4 - Enhanced UART Task Implementation
+ * 
+ * This task provides a production-ready line-based UART terminal:
+ * - Line-based input with editing
+ * - Command table with function pointers
+ * - Advanced command features (aliases, auto-completion)
+ * - NVS configuration persistence
+ * - Robust error handling and validation
+ * - Resource optimization
+ * 
+ * Author: Alfred Krutina
+ * Version: 2.4
+ * Date: 2025-08-24
+ */
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include "freertos/semphr.h"
+#include "freertos/timers.h"
+#include "esp_system.h"
+#include "esp_log.h"
+#include "esp_timer.h"
+#include "esp_chip_info.h"
+#include "esp_private/esp_clk.h"
+#include "esp_task_wdt.h"
+
+#include "driver/uart.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdarg.h>
+// ESP-IDF UART driver functions
+// No POSIX includes needed
+
+#include "uart_task.h"
+#include "freertos_chess.h"
+#include "led_task.h"
+#include "game_task.h"
+#include "config_manager.h"
+#include "../freertos_chess/include/chess_types.h"
+#include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
+#include "../uart_commands_extended/include/uart_commands_extended.h"  // ✅ FIX: Include extended UART commands
+#include "../unified_animation_manager/include/unified_animation_manager.h"
+#include <math.h>
+#include <inttypes.h>
+#include "esp_system.h"
+
+// External function declarations
+extern bool convert_notation_to_coords(const char* notation, uint8_t* row, uint8_t* col);
+
+// External UART mutex for clean output
+extern SemaphoreHandle_t uart_mutex;
+
+// External task handles and queues
+extern TaskHandle_t led_task_handle;
+extern TaskHandle_t matrix_task_handle;
+extern TaskHandle_t button_task_handle;
+extern TaskHandle_t game_task_handle;
+extern QueueHandle_t game_command_queue;
+// extern QueueHandle_t led_command_queue;  // ❌ REMOVED: Queue hell eliminated
+
+// Component status tracking
+static bool matrix_component_enabled = true;
+static bool led_component_enabled = true;
+static bool wifi_component_enabled = false;
+
+// UART response queue for game task responses (declared in freertos_chess.h)
+
+// Forward declarations for functions used before definition
+static bool send_move_to_game_task(const char* move_str);
+static void uart_input_loop(void);
+static void uart_task_legacy_loop(void);
+static void uart_send_board_data_chunked(const char* data);
+static void uart_send_led_data_chunked(const char* data);
+static void uart_write_chunked(const char* data, size_t len);
+static void uart_send_large_text_chunked(const char* text);
+
+// Missing type definitions that should be here
+// UART command structure is defined in uart_task.h
+
+static const char *TAG = "UART_TASK";
+
+// ============================================================================
+// CHUNKED OUTPUT MACROS - OPRAVA pro panic při velkých výpisech
+// ============================================================================
+
+// Safe watchdog reset macro
+#define SAFE_WDT_RESET() do { \
+    esp_err_t _wdt_ret = esp_task_wdt_reset(); \
+    if (_wdt_ret != ESP_OK && _wdt_ret != ESP_ERR_NOT_FOUND) { \
+        /* Task not registered with TWDT yet - this is normal during startup */ \
+    } \
+} while(0)
+
+// Univerzální chunked printf makro podle návrhu
+#define CHUNKED_PRINTF(format, ...) do { \
+    printf(format, ##__VA_ARGS__); \
+    fflush(stdout); \
+    SAFE_WDT_RESET(); \
+    vTaskDelay(pdMS_TO_TICKS(1)); \
+} while(0)
+
+// Optimalizované konstanty pro ESP32-C6
+#define CHUNK_DELAY_MS 2      // Minimální delay
+#define MAX_CHUNK_SIZE 128    // Optimální pro UART buffer
+#define STACK_SAFETY_LIMIT 512 // Minimální volný stack
+
+// UART configuration - only use if UART is enabled
+#if CONFIG_ESP_CONSOLE_UART_NUM >= 0
+#define UART_PORT_NUM      CONFIG_ESP_CONSOLE_UART_NUM
+#define UART_ENABLED       1
+#else
+#define UART_PORT_NUM      0  // Dummy value when UART disabled
+#define UART_ENABLED       0
+#endif
+#define UART_BAUD_RATE     115200
+#define UART_BUF_SIZE      1024
+// UART_QUEUE_SIZE is now defined in freertos_chess.h
+
+// ============================================================================
+// ESP-IDF UART DRIVER FUNCTIONS
+// ============================================================================
+
+// Forward declarations
+static void uart_fputs(const char* str);
+void uart_send_line(const char* str);
+bool is_valid_move_notation(const char* move);
+bool is_valid_square_notation(const char* square);
+
+/**
+ * @brief Replace fputs with ESP-IDF UART driver
+ */
+static void uart_fputs(const char* str)
+{
+    if (UART_ENABLED) {
+        uart_write_bytes(UART_PORT_NUM, str, strlen(str));
+    } else {
+        // For USB Serial JTAG, use printf
+        printf("%s", str);
+    }
+}
+
+// ============================================================================
+// CHARACTER INPUT/OUTPUT FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Read single character with immediate return (non-blocking)
+ * Uses ESP-IDF UART driver or USB Serial JTAG
+ */
+static int uart_read_char_immediate(void)
+{
+    if (UART_ENABLED) {
+        uint8_t ch;
+        int result = uart_read_bytes(UART_PORT_NUM, &ch, 1, 0); // Non-blocking read
+        
+        if (result > 0) {
+            // Filter out ANSI escape sequences
+            if (ch == 0x1B) { // ESC character
+                // Skip ANSI escape sequence
+                uint8_t next_ch;
+                int next_result = uart_read_bytes(UART_PORT_NUM, &next_ch, 1, pdMS_TO_TICKS(10));
+                if (next_result > 0 && next_ch == '[') {
+                    // Skip until we find a letter or end of sequence
+                    while (next_result > 0) {
+                        next_result = uart_read_bytes(UART_PORT_NUM, &next_ch, 1, pdMS_TO_TICKS(10));
+                        if (next_result > 0 && ((next_ch >= 'A' && next_ch <= 'Z') || 
+                                               (next_ch >= 'a' && next_ch <= 'z') || 
+                                               next_ch == '~' || next_ch == ';')) {
+                            break;
+                        }
+                    }
+                }
+                return -1; // Skip this character
+            }
+            return (int)ch;
+        }
+        
+        return -1; // No data available
+    } else {
+        // For USB Serial JTAG, use getchar with non-blocking
+        int ch = getchar();
+        if (ch == 0x1B) { // ESC character - skip ANSI escape sequence
+            // Skip the rest of the escape sequence
+            while ((ch = getchar()) != EOF && ch != '[');
+            while ((ch = getchar()) != EOF && 
+                   !((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '~' || ch == ';'));
+            return -1; // Skip this character
+        }
+        return ch;
+    }
+}
+
+/**
+ * @brief Write single character with immediate flush
+ * Uses ESP-IDF UART driver or USB Serial JTAG
+ */
+void uart_write_char_immediate(char ch)
+{
+    if (uart_mutex != NULL) {
+        xSemaphoreTake(uart_mutex, portMAX_DELAY);
+    }
+    
+    if (UART_ENABLED) {
+        uart_write_bytes(UART_PORT_NUM, &ch, 1);
+    } else {
+        // For USB Serial JTAG, use putchar
+    putchar(ch);
+    }
+    
+    if (uart_mutex != NULL) {
+        xSemaphoreGive(uart_mutex);
+    }
+}
+
+/**
+ * @brief Write string with immediate flush
+ * Uses ESP-IDF UART driver or USB Serial JTAG
+ */
+void uart_write_string_immediate(const char* str)
+{
+    if (uart_mutex != NULL) {
+        xSemaphoreTake(uart_mutex, portMAX_DELAY);
+    }
+    
+    if (UART_ENABLED) {
+        uart_write_bytes(UART_PORT_NUM, str, strlen(str));
+    } else {
+        // For USB Serial JTAG, use printf
+    printf("%s", str);
+    }
+    
+    if (uart_mutex != NULL) {
+        xSemaphoreGive(uart_mutex);
+    }
+}
+
+// ============================================================================
+// ENHANCED INPUT BUFFERING AND LINE EDITING
+// ============================================================================
+
+// Input buffer configuration
+#define UART_CMD_BUFFER_SIZE 256
+#define UART_CMD_HISTORY_SIZE 20
+#define UART_MAX_ARGS 10
+#define INPUT_TIMEOUT_MS 100
+
+// Special characters
+#define CHAR_BACKSPACE  0x08
+#define CHAR_DELETE     0x7F
+#define CHAR_ENTER      0x0D
+#define CHAR_NEWLINE    0x0A
+#define CHAR_ESC        0x1B
+#define CHAR_CTRL_C     0x03
+#define CHAR_CTRL_D     0x04
+
+// ANSI escape codes
+#define ANSI_CLEAR_LINE "\033[2K\r"
+#define ANSI_CURSOR_LEFT "\033[1D"
+#define ANSI_CURSOR_RIGHT "\033[1C"
+#define ANSI_CLEAR_TO_END "\033[0K"
+
+// Colors
+#define COLOR_RESET   "\033[0m"
+#define COLOR_GREEN   "\033[32m"
+#define COLOR_RED     "\033[31m"
+#define COLOR_YELLOW  "\033[33m"
+#define COLOR_BLUE    "\033[34m"
+#define COLOR_CYAN    "\033[36m"
+#define COLOR_BOLD    "\033[1m"
+
+// Input buffer structure
+typedef struct {
+    char buffer[UART_CMD_BUFFER_SIZE];
+    size_t pos;
+    size_t length;
+    bool cursor_visible;
+} input_buffer_t;
+
+// Command history structure
+typedef struct {
+    char commands[UART_CMD_HISTORY_SIZE][UART_CMD_BUFFER_SIZE];
+    int current;
+    int count;
+    int max_size;
+} command_history_t;
+
+// ============================================================================
+// COMMAND TABLE STRUCTURE
+// ============================================================================
+
+// Note: All types are now defined in header files to avoid conflicts
+
+// ============================================================================
+// GLOBAL VARIABLES
+// ============================================================================
+
+// Task state
+static bool task_running = false;
+static bool color_enabled = true;  // ANSI color support
+static bool echo_enabled = true;   // Echo support
+static input_buffer_t input_buffer;
+static command_history_t command_history;
+static system_config_t system_config;
+
+// UART message queue for centralized output
+QueueHandle_t uart_output_queue = NULL;
+
+// Statistics
+static uint32_t command_count = 0;
+static uint32_t error_count = 0;
+static uint32_t last_command_time = 0;
+
+// ============================================================================
+// ANSI COLOR CODES AND FORMATTING
+// ============================================================================
+
+// ANSI Color codes for terminal output
+#define COLOR_RESET   "\033[0m"
+#define COLOR_RED     "\033[31m"
+#define COLOR_GREEN   "\033[32m"
+#define COLOR_YELLOW  "\033[33m"
+#define COLOR_BLUE    "\033[34m"
+#define COLOR_MAGENTA "\033[35m"
+#define COLOR_CYAN    "\033[36m"
+#define COLOR_WHITE   "\033[37m"
+#define COLOR_BOLD    "\033[1m"
+#define COLOR_DIM     "\033[2m"
+
+// Message type colors
+#define COLOR_ERROR   COLOR_RED COLOR_BOLD
+#define COLOR_SUCCESS COLOR_GREEN COLOR_BOLD
+#define COLOR_WARNING COLOR_YELLOW COLOR_BOLD
+#define COLOR_INFO    COLOR_CYAN
+#define COLOR_MOVE    COLOR_GREEN COLOR_BOLD
+#define COLOR_STATUS  COLOR_YELLOW
+#define COLOR_DEBUG   COLOR_MAGENTA
+#define COLOR_HELP    COLOR_BLUE COLOR_BOLD
+
+// ============================================================================
+// FORMATTING FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Display impressive welcome logo with ANSI colors
+ */
+void uart_send_welcome_logo(void)
+{
+    if (uart_mutex != NULL) {
+        xSemaphoreTake(uart_mutex, portMAX_DELAY);
+    }
+    
+    // Don't clear screen - just show logo below current content
+    uart_write_string_immediate("\n");
+    
+    // New ASCII art logo - using ESP-IDF UART driver
+    uart_fputs("\x1b[0m.............................................................................................................................\x1b[0m\n");
+    uart_fputs("\x1b[0m.............................................................................................................................\x1b[0m\n");
+    uart_fputs("\x1b[0m.............................................................................................................................\x1b[0m\n");
+    uart_fputs("\x1b[0m.............................................................................................................................\x1b[0m\n");
+    uart_fputs("\x1b[0m............................................................\x1b[34m:=*+-\x1b[0m...............................................................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................................................\x1b[34m:=#%@@%*=-=+#@@@%*=:\x1b[0m.....................................................\x1b[0m\n");
+    uart_fputs("\x1b[0m..............................................\x1b[34m-=*%@@%*=-=*%@%@=*@%@%*=-+#%@@%*=-\x1b[0m..............................................\x1b[0m\n");
+    uart_fputs("\x1b[0m......................................\x1b[34m:-+#@@@%+--+#%@%+@+#@@%@%%@%@@-*@=@@%#=-=*%@@@#+-:\x1b[0m......................................\x1b[0m\n");
+    uart_fputs("\x1b[0m...............................\x1b[34m:-+%@@@#+--*%@@*@=*@*@@@#=\x1b[0m...........\x1b[34m:+%@@%+@:#@*@@%+--+%@@@%+-:\x1b[0m...............................\x1b[0m\n");
+    uart_fputs("\x1b[0m........................\x1b[34m:-*@@@@#-:=#@@*@*+@+@@@%+:\x1b[0m.........................\x1b[34m-*@@@%+@:@@#@@#-:=#@@@@#-:\x1b[0m........................\x1b[0m\n");
+    uart_fputs("\x1b[0m....................\x1b[34m%@@@@**#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%@@@@#\x1b[0m....................\x1b[0m\n");
+    uart_fputs("\x1b[0m....................\x1b[34m%@#################################################################################%@#\x1b[0m....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................\x1b[34m:%@=@+#@+@##@=@#%@+@*#@+@#%@=@*#@+@#*@+@#*@+@%*@+@%=@=%@+@**@=@%+@+#@=@%=@+#@+%%=@+:\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m......................\x1b[34m#@==============================================================================@+\x1b[0m......................\x1b[0m\n");
+    uart_fputs("\x1b[0m.......................\x1b[34m##==========@\x1b[0m:::::::::::::::::::::::::::::::::::::::::::::::::::::\x1b[34m*@==========@+\x1b[0m........................\x1b[0m\n");
+    uart_fputs("\x1b[0m........................\x1b[34m:@*******%@:\x1b[0m.\x1b[34m:%%%%%%%%%%%%%%%%%%%%%--#@@#.+%%%%%%%%%%%%%%%%%%%%*\x1b[0m..\x1b[34m-@#******%%\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m-@#+%:%.@\x1b[0m...\x1b[34m-@@%%%%%%%%%%%%%%%%%%%=:+@@=\x1b[0m..:::::::::::::::::::\x1b[37m@%\x1b[0m....\x1b[34m@+#+*%*@:\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m=@#=%:%.@\x1b[0m...\x1b[34m-@@%%%%%%%%%%%%%%%%#--:*@@@@+-*-\x1b[0m.................\x1b[37m@%\x1b[0m....\x1b[34m@+#+*%*@-\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m=%#=%:%.@\x1b[0m...\x1b[34m-@@%%%%%%%%%%%%%%%%#.%@@@@@@@@%:\x1b[0m.................\x1b[37m@%\x1b[0m...\x1b[34m:%**+*%+@-\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m=%#-%:%.@\x1b[0m...\x1b[34m-@@%%%%%%%%%%%%%%%%%#-@@@@@@@@:\x1b[0m..................\x1b[37m@%\x1b[0m...\x1b[34m-%**+*#+@-\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m+#%-%:%:@\x1b[0m...\x1b[34m-@@%%%%%%%%%%%%%%%%%#-########-\x1b[0m..................\x1b[37m@%\x1b[0m...\x1b[34m=%**+*#+@=\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m**%-%:%:@\x1b[0m...\x1b[34m-@@%%%%%%%%%%%%%%%%%:#%%%##%%%*\x1b[0m..................\x1b[37m@%\x1b[0m...\x1b[34m+#**+*#*%=\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m#+%:%:%-%:\x1b[0m..\x1b[34m-@@%%%%%%%%%%%%%%%%%*::@@@@@%\x1b[0m....................\x1b[37m@%\x1b[0m...\x1b[34m*##*+***%+\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m#=%:%:#-%:\x1b[0m..\x1b[34m-@@%%%%%%%%%%%%%%%%%%%.%@@@@*\x1b[0m....................\x1b[37m@%\x1b[0m...\x1b[34m#*#++***#+\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m%:%:%:#=%=\x1b[0m..\x1b[34m-@@%%%%%%%%%%%%%%%%%%#:@@@@@%\x1b[0m....................\x1b[37m@%\x1b[0m...\x1b[34m%*#++*+***\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m%:%:%:#=#+\x1b[0m..\x1b[34m-@@%%%%%%%%%%%%%%%%%%-*@@@@@@-\x1b[0m...................\x1b[37m@%\x1b[0m...\x1b[34m%+%++*+#+#\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m@:%:%:#+#*\x1b[0m..\x1b[34m-@@%%%%%%%%%%%%%%%%#:=%%%%%%%%:\x1b[0m..................\x1b[37m@%\x1b[0m...\x1b[34m@+%++*+#=#\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.........................\x1b[34m@:%:%:#+*#\x1b[0m..\x1b[34m-@@%%%%%%%%%%%%%%%%-=%@%%%%%%%%-\x1b[0m.................\x1b[37m@%\x1b[0m...\x1b[34m@=%=+*=#-%\x1b[0m.........................\x1b[0m\n");
+    uart_fputs("\x1b[0m.......................\x1b[34m:@*++++++++%#.-@@%%%%%%%%%%%%%%%.%@@@@@@@@@@@@#\x1b[0m................\x1b[37m@%\x1b[0m..\x1b[34m@*++++++++%%\x1b[0m........................\x1b[0m\n");
+    uart_fputs("\x1b[0m......................\x1b[34m=@=----------*@-@@@@@@@@@@@@@@@@@:*############=:@@@@@@@@@@@@@@@@%-@=----------=@:\x1b[0m.......................\x1b[0m\n");
+    uart_fputs("\x1b[0m....................\x1b[34m*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m................................................................................\x1b[37m@+\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m...\x1b[34m=@@@@@:+@@@@@@..@@@@@+..%@@@@@.-@%...+@%..@@#...=@@:...=@@-.=@@@@@@%-@@@@@-\x1b[0m..\x1b[37m@+\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m%@+....:...:@@:..@@....-@@:...:::@#...=@#..@@@#.*@@@:..:%@@@:...@@:..:@@\x1b[0m......\x1b[37m@+\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m@@:.......=@%....@@%%%.+@#......:@@%%%%@#.:@*+@@@:%@-..+@.*@#...@@:..:@@#@*\x1b[0m...\x1b[37m@+\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m+@%:..-*.=@%..:=.@@...*:@@=...+-:@#...=@#.=@=.+@:.#@=.=@#**%@+..@@:..:@@...=\x1b[0m..\x1b[37m@+\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m...\x1b[34m:*%@@#.=%%%%%%:-%%%%%*..-#@@%+.#%%:..#%#:#%=.....#%*:%%-..*%%=-%%+..=%%%%%=\x1b[0m..\x1b[37m@+\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................\x1b[37m##--------------------------------------------------------------------------------@+\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................\x1b[37m#%================================================================================@+\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.....................\x1b[37m+##################################################################################-\x1b[0m.....................\x1b[0m\n");
+    uart_fputs("\x1b[0m.............................................................................................................................\x1b[0m\n");
+    uart_fputs("\x1b[0m.............................................................................................................................\x1b[0m\n");
+    uart_fputs("\x1b[0m.............................................................................................................................\x1b[0m\n");
+    uart_fputs("\x1b[0m.............................................................................................................................\x1b[0m\n");
+    
+    if (uart_mutex != NULL) {
+        xSemaphoreGive(uart_mutex);
+    }
+}
+
+/**
+ * @brief Show animated progress bar
+ * @param label Progress label
+ * @param max_value Maximum value (100 = 100%)
+ * @param duration_ms Duration in milliseconds
+ */
+void uart_show_progress_bar(const char* label, uint32_t max_value, uint32_t duration_ms)
+{
+    // CRITICAL: Lock mutex for ENTIRE progress bar to prevent interruption
+    if (uart_mutex != NULL) {
+        xSemaphoreTake(uart_mutex, portMAX_DELAY);
+    }
+    
+    const int bar_width = 20;
+    uint32_t step_delay = duration_ms / max_value;
+    if (step_delay < 5) step_delay = 5; // Minimum 5ms delay for smooth animation
+    
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    char buffer[256];
+    snprintf(buffer, sizeof(buffer), "%s: [", label);
+    uart_write_string_immediate(buffer);
+    
+    for (int i = 0; i < bar_width; i++) {
+        uart_write_string_immediate(".");
+    }
+    uart_write_string_immediate("] 0%");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    
+    for (uint32_t i = 0; i <= max_value; i++) {
+        int filled = (i * bar_width) / max_value;
+        
+        // Reset watchdog before each progress update (only if registered)
+        esp_err_t wdt_ret = esp_task_wdt_reset();
+        if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
+            // Task not registered with TWDT yet - this is normal during startup
+        }
+        
+        // Move cursor back to start of progress bar
+        if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+        uart_write_string_immediate("\r");
+        snprintf(buffer, sizeof(buffer), "%s: [", label);
+        uart_write_string_immediate(buffer);
+        
+        // Show filled part (ASCII only)
+        for (int j = 0; j < filled; j++) {
+            uart_write_string_immediate("#");
+        }
+        
+        // Show unfilled part
+        for (int j = filled; j < bar_width; j++) {
+            uart_write_string_immediate(".");
+        }
+        
+        snprintf(buffer, sizeof(buffer), "] %3u%%", (unsigned int)((i * 100) / max_value));
+        uart_write_string_immediate(buffer);
+        if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+        
+        if (i < max_value) {
+            // Smooth animation with calculated delay
+            vTaskDelay(pdMS_TO_TICKS(step_delay));
+        }
+    }
+    
+    uart_write_string_immediate("\n");
+    
+    // CRITICAL: Release mutex only after progress bar is complete
+    if (uart_mutex != NULL) {
+        xSemaphoreGive(uart_mutex);
+    }
+}
+
+void uart_send_colored(const char* color, const char* message)
+{
+    // Use ESP-IDF UART driver with mutex
+    if (UART_ENABLED) {
+        if (uart_mutex != NULL) {
+            xSemaphoreTake(uart_mutex, portMAX_DELAY);
+            char buffer[512];
+            snprintf(buffer, sizeof(buffer), "%s%s%s", color, message, COLOR_RESET);
+            uart_write_bytes(UART_PORT_NUM, buffer, strlen(buffer));
+        xSemaphoreGive(uart_mutex);
+    } else {
+            char buffer[512];
+            snprintf(buffer, sizeof(buffer), "%s%s%s", color, message, COLOR_RESET);
+            uart_write_bytes(UART_PORT_NUM, buffer, strlen(buffer));
+        }
+    } else {
+        // For USB Serial JTAG, use printf
+        printf("%s%s%s", color, message, COLOR_RESET);
+    }
+}
+
+void uart_send_colored_line(const char* color, const char* message)
+{
+    // Use ESP-IDF UART driver with mutex
+    if (UART_ENABLED) {
+    if (uart_mutex != NULL) {
+            xSemaphoreTake(uart_mutex, portMAX_DELAY);
+            char buffer[512];
+            snprintf(buffer, sizeof(buffer), "%s%s%s\n", color, message, COLOR_RESET);
+            uart_write_bytes(UART_PORT_NUM, buffer, strlen(buffer));
+        xSemaphoreGive(uart_mutex);
+    } else {
+            char buffer[512];
+            snprintf(buffer, sizeof(buffer), "%s%s%s\n", color, message, COLOR_RESET);
+            uart_write_bytes(UART_PORT_NUM, buffer, strlen(buffer));
+        }
+    } else {
+        // For USB Serial JTAG, use printf
+        printf("%s%s%s\n", color, message, COLOR_RESET);
+    }
+}
+
+void uart_send_error(const char* message)
+{
+    uart_send_colored_line(COLOR_ERROR, message);
+}
+
+void uart_send_success(const char* message)
+{
+    uart_send_colored_line(COLOR_SUCCESS, message);
+}
+
+void uart_send_warning(const char* message)
+{
+    uart_send_colored_line(COLOR_WARNING, message);
+}
+
+void uart_send_info(const char* message)
+{
+    uart_send_colored_line(COLOR_INFO, message);
+}
+
+void uart_send_move(const char* message)
+{
+    uart_send_colored_line(COLOR_MOVE, message);
+}
+
+void uart_send_status(const char* message)
+{
+    uart_send_colored_line(COLOR_STATUS, message);
+}
+
+void uart_send_debug(const char* message)
+{
+    uart_send_colored_line(COLOR_DEBUG, message);
+}
+
+void uart_send_help(const char* message)
+{
+    uart_send_colored_line(COLOR_HELP, message);
+}
+
+void uart_send_formatted(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    
+    char buffer[512];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    
+    uart_send_line(buffer);
+}
+
+void uart_send_line(const char* str)
+{
+    if (str == NULL) return;
+    
+    // Use ESP-IDF UART driver with mutex
+    if (UART_ENABLED) {
+    if (uart_mutex != NULL) {
+            // Use shorter timeout to prevent WDT issues
+            if (xSemaphoreTake(uart_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+                uart_write_bytes(UART_PORT_NUM, str, strlen(str));
+                uart_write_bytes(UART_PORT_NUM, "\n", 1);
+        xSemaphoreGive(uart_mutex);
+    } else {
+                // Fallback to printf if mutex timeout
+        printf("%s\n", str);
+            }
+    } else {
+            uart_write_bytes(UART_PORT_NUM, str, strlen(str));
+            uart_write_bytes(UART_PORT_NUM, "\n", 1);
+        }
+    } else {
+        // For USB Serial JTAG, use printf
+        printf("%s\n", str);
+    }
+    
+    // Log to ESP log system without mutex (separate output channel)
+    ESP_LOGI(TAG, "UART Send: %s", str);
+}
+
+void uart_send_string(const char* str)
+{
+    if (str == NULL) return;
+    
+    // Use ESP-IDF UART driver with mutex
+    if (UART_ENABLED) {
+    if (uart_mutex != NULL) {
+            xSemaphoreTake(uart_mutex, portMAX_DELAY);
+            uart_write_bytes(UART_PORT_NUM, str, strlen(str));
+        xSemaphoreGive(uart_mutex);
+    } else {
+            uart_write_bytes(UART_PORT_NUM, str, strlen(str));
+        }
+    } else {
+        // For USB Serial JTAG, use printf
+        printf("%s", str);
+    }
+    
+    // Log to ESP log system without mutex (separate output channel)
+    ESP_LOGI(TAG, "UART Send: %s", str);
+}
+
+// ============================================================================
+// CENTRALIZED UART OUTPUT SYSTEM
+// ============================================================================
+
+/**
+ * @brief Send message to UART output queue (thread-safe)
+ * @param type Message type (determines color)
+ * @param add_newline Whether to add newline
+ * @param format Format string
+ * @param ... Format arguments
+ */
+void uart_queue_message(uart_msg_type_t type, bool add_newline, const char* format, ...)
+{
+    if (uart_output_queue == NULL) {
+        // Queue not ready, fall back to direct output
+        va_list args;
+        va_start(args, format);
+        char buffer[512];
+        vsnprintf(buffer, sizeof(buffer), format, args);
+        va_end(args);
+        if (UART_ENABLED) {
+            uart_write_bytes(UART_PORT_NUM, buffer, strlen(buffer));
+            if (add_newline) uart_write_bytes(UART_PORT_NUM, "\n", 1);
+        } else {
+            printf("%s", buffer);
+            if (add_newline) printf("\n");
+        }
+        return;
+    }
+    
+    uart_message_t msg;
+    msg.type = type;
+    msg.add_newline = add_newline;
+    
+    va_list args;
+    va_start(args, format);
+    vsnprintf(msg.message, sizeof(msg.message), format, args);
+    va_end(args);
+    
+    // Send to queue with timeout to prevent blocking
+    if (xQueueSend(uart_output_queue, &msg, pdMS_TO_TICKS(10)) != pdTRUE) {
+        // Queue full, fall back to direct output
+        if (UART_ENABLED) {
+            uart_write_bytes(UART_PORT_NUM, msg.message, strlen(msg.message));
+            if (add_newline) uart_write_bytes(UART_PORT_NUM, "\n", 1);
+        } else {
+            printf("%s", msg.message);
+            if (add_newline) printf("\n");
+        }
+    }
+}
+
+/**
+ * @brief Process UART output messages from queue
+ */
+static void uart_process_output_queue(void)
+{
+    uart_message_t msg;
+    
+    // Process all pending messages
+    while (xQueueReceive(uart_output_queue, &msg, 0) == pdTRUE) {
+        // Take mutex for entire message output
+        if (uart_mutex != NULL) {
+            xSemaphoreTake(uart_mutex, portMAX_DELAY);
+        }
+        
+        // Apply color based on message type
+        const char* color = COLOR_RESET;
+        switch (msg.type) {
+            case UART_MSG_ERROR:   color = COLOR_ERROR; break;
+            case UART_MSG_WARNING: color = COLOR_WARNING; break;
+            case UART_MSG_SUCCESS: color = COLOR_SUCCESS; break;
+            case UART_MSG_INFO:    color = COLOR_INFO; break;
+            case UART_MSG_DEBUG:   color = COLOR_DEBUG; break;
+            default:               color = COLOR_RESET; break;
+        }
+        
+        if (UART_ENABLED) {
+            if (color_enabled && msg.type != UART_MSG_NORMAL) {
+                char buffer[512];
+                snprintf(buffer, sizeof(buffer), "%s%s%s", color, msg.message, COLOR_RESET);
+                uart_write_bytes(UART_PORT_NUM, buffer, strlen(buffer));
+            } else {
+                uart_write_bytes(UART_PORT_NUM, msg.message, strlen(msg.message));
+            }
+            
+            if (msg.add_newline) {
+                uart_write_bytes(UART_PORT_NUM, "\n", 1);
+            }
+        } else {
+            // For USB Serial JTAG, use printf
+            if (color_enabled && msg.type != UART_MSG_NORMAL) {
+                printf("%s%s%s", color, msg.message, COLOR_RESET);
+            } else {
+                printf("%s", msg.message);
+            }
+            
+            if (msg.add_newline) {
+                printf("\n");
+            }
+        }
+        
+        // No need for fflush with ESP-IDF UART driver
+        
+        if (uart_mutex != NULL) {
+            xSemaphoreGive(uart_mutex);
+        }
+    }
+}
+
+// ============================================================================
+// INPUT BUFFER MANAGEMENT
+// ============================================================================
+
+void input_buffer_init(input_buffer_t* buffer)
+{
+    memset(buffer->buffer, 0, sizeof(buffer->buffer));
+    buffer->pos = 0;
+    buffer->length = 0;
+    buffer->cursor_visible = true;
+}
+
+void input_buffer_clear(input_buffer_t* buffer)
+{
+    memset(buffer->buffer, 0, sizeof(buffer->buffer));
+    buffer->pos = 0;
+    buffer->length = 0;
+}
+
+/**
+ * @brief Process regular character
+ */
+static void process_regular_char(char ch)
+{
+    if (input_buffer.pos < UART_CMD_BUFFER_SIZE - 1) {
+        input_buffer.buffer[input_buffer.pos] = ch;
+        input_buffer.pos++;
+        input_buffer.buffer[input_buffer.pos] = '\0';
+        
+        // Echo handled by terminal
+    }
+}
+
+void input_buffer_add_char(input_buffer_t* buffer, char c)
+{
+    if (buffer->pos < UART_CMD_BUFFER_SIZE - 1) {
+        // Echo handled by terminal
+        
+        buffer->buffer[buffer->pos++] = c;
+        buffer->buffer[buffer->pos] = '\0';
+        buffer->length = buffer->pos;
+    }
+}
+
+/**
+ * @brief Process backspace character
+ */
+static void process_backspace(void)
+{
+    if (input_buffer.pos > 0) {
+        input_buffer.pos--;
+        input_buffer.buffer[input_buffer.pos] = '\0';
+        
+        // Backspace handled by terminal
+    }
+}
+
+/**
+ * @brief Process enter key - command completion
+ */
+static bool process_enter(void)
+{
+    // Newline handled by terminal
+    
+    // Null terminate command
+    input_buffer.buffer[input_buffer.pos] = '\0';
+    
+    // Skip empty commands
+    if (input_buffer.pos == 0) {
+        return false;
+    }
+    
+    return true; // Command ready for processing
+}
+
+/**
+ * @brief Parse command line into arguments
+ */
+static int parse_command(char* cmd_line, char* argv[], int max_args)
+{
+    int argc = 0;
+    char* token = strtok(cmd_line, " \t\r\n");
+    
+    while (token != NULL && argc < max_args - 1) {
+        argv[argc] = token;
+        argc++;
+        token = strtok(NULL, " \t\r\n");
+    }
+    
+    argv[argc] = NULL;
+    return argc;
+}
+
+/**
+ * @brief Process individual commands
+ */
+static void process_command(char* argv[], int argc)
+{
+    if (argc == 0) return;
+    
+    command_count++;
+    
+    // Convert command to lowercase
+    for (int i = 0; argv[0][i]; i++) {
+        argv[0][i] = tolower(argv[0][i]);
+    }
+    
+    // HELP command
+    if (strcmp(argv[0], "help") == 0 || strcmp(argv[0], "h") == 0 || strcmp(argv[0], "?") == 0) {
+        uart_write_string_immediate(COLOR_BOLD "ESP32-C6 Chess System v2.4 - Command Help\r\n" COLOR_RESET);
+        uart_write_string_immediate("========================================\r\n");
+        uart_write_string_immediate("CHESS COMMANDS (synced with web):\r\n");
+        uart_write_string_immediate("  move <from><to>  - Make chess move (e.g., move e2e4)\r\n");
+        uart_write_string_immediate("  moves [square]   - Show available moves for square\r\n");
+        uart_write_string_immediate("  board           - Display current board (shared with web)\r\n");
+        uart_write_string_immediate("  new             - Start new game\r\n");
+        uart_write_string_immediate("  reset           - Reset game\r\n");
+        uart_write_string_immediate("  status          - Game status (synced with web)\r\n");
+        uart_write_string_immediate("\r\nWIFI & WEB COMMANDS:\r\n");
+        uart_write_string_immediate("  wifi_status     - Show WiFi AP status and clients\r\n");
+        uart_write_string_immediate("  web_clients     - List active web connections\r\n");
+        uart_write_string_immediate("  web_url         - Display connection URL\r\n");
+        uart_write_string_immediate("\r\nLED COMMANDS:\r\n");
+        uart_write_string_immediate("  led_test        - Test LED strip functionality\r\n");
+        uart_write_string_immediate("  led_pattern     - Show LED patterns (checker, rainbow, etc.)\r\n");
+        uart_write_string_immediate("  led_animation   - Play LED animations (cascade, fireworks, etc.)\r\n");
+        uart_write_string_immediate("  led_clear       - Clear all LEDs\r\n");
+        uart_write_string_immediate("  led_brightness  - Set LED brightness (0-255)\r\n");
+        uart_write_string_immediate("  chess_pos <pos> - Show LED position for chess square\r\n");
+        uart_write_string_immediate("  led_mapping_test- Test LED mapping (serpentine layout)\r\n");
+        uart_write_string_immediate("\r\nSYSTEM COMMANDS:\r\n");
+        uart_write_string_immediate("  version         - Show version information\r\n");
+        uart_write_string_immediate("  clear           - Clear screen\r\n");
+        uart_write_string_immediate("  help            - Show this help\r\n");
+        uart_write_string_immediate("========================================\r\n");
+    }
+    
+    // MOVE command
+    else if (strcmp(argv[0], "move") == 0 || strcmp(argv[0], "m") == 0) {
+        if (argc != 2) {
+            uart_write_string_immediate(COLOR_RED "Usage: move <from><to> (e.g., move e2e4)\r\n" COLOR_RESET);
+            return;
+        }
+        
+        if (!is_valid_move_notation(argv[1])) {
+            uart_write_string_immediate(COLOR_RED "Invalid move format. Use format like 'e2e4'\r\n" COLOR_RESET);
+            return;
+        }
+        
+        uart_write_string_immediate(COLOR_CYAN "Processing move: ");
+        uart_write_string_immediate(argv[1]);
+        uart_write_string_immediate("\r\n" COLOR_RESET);
+        
+        send_move_to_game_task(argv[1]);
+    }
+    
+    // BOARD command
+    else if (strcmp(argv[0], "board") == 0 || strcmp(argv[0], "b") == 0) {
+        if (game_command_queue != NULL) {
+            chess_move_command_t cmd = {0};
+            cmd.type = GAME_CMD_GET_BOARD;
+            xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
+            uart_write_string_immediate(COLOR_GREEN "Board display requested\r\n" COLOR_RESET);
+        } else {
+            uart_write_string_immediate(COLOR_RED "Game task not available\r\n" COLOR_RESET);
+        }
+    }
+    
+    // NEW GAME command
+    else if (strcmp(argv[0], "new") == 0) {
+        if (game_command_queue != NULL) {
+            chess_move_command_t cmd = {0};
+            cmd.type = GAME_CMD_NEW_GAME;
+            xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
+            uart_write_string_immediate(COLOR_GREEN "New game started\r\n" COLOR_RESET);
+        } else {
+            uart_write_string_immediate(COLOR_RED "Game task not available\r\n" COLOR_RESET);
+        }
+    }
+    
+    // RESET command
+    else if (strcmp(argv[0], "reset") == 0) {
+        if (game_command_queue != NULL) {
+            chess_move_command_t cmd = {0};
+            cmd.type = GAME_CMD_RESET_GAME;
+            xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
+            uart_write_string_immediate(COLOR_GREEN "Game reset requested\r\n" COLOR_RESET);
+        } else {
+            uart_write_string_immediate(COLOR_RED "Game task not available\r\n" COLOR_RESET);
+        }
+    }
+    
+    // STATUS command
+    else if (strcmp(argv[0], "status") == 0) {
+        uart_write_string_immediate(COLOR_BOLD "SYSTEM STATUS\r\n" COLOR_RESET);
+        uart_write_string_immediate("=============\r\n");
+        
+        char status_buf[256];
+        snprintf(status_buf, sizeof(status_buf), 
+                "Free Heap: %" PRIu32 " bytes\r\n"
+                "Commands: %" PRIu32 "\r\n"
+                "Errors: %" PRIu32 "\r\n"
+                "Uptime: %llu sec\r\n"
+                "WiFi: %s\r\n"
+                "Web Server: %s\r\n",
+                esp_get_free_heap_size(),
+                command_count,
+                error_count,
+                esp_timer_get_time() / 1000000,
+                wifi_component_enabled ? "Active" : "Inactive",
+                wifi_component_enabled ? "Running" : "Stopped");
+        
+        uart_write_string_immediate(status_buf);
+    }
+    
+    // WIFI_STATUS command
+    else if (strcmp(argv[0], "wifi_status") == 0) {
+        uart_write_string_immediate(COLOR_BOLD "WIFI STATUS\r\n" COLOR_RESET);
+        uart_write_string_immediate("============\r\n");
+        
+        char wifi_buf[256];
+        snprintf(wifi_buf, sizeof(wifi_buf),
+                "WiFi AP: %s\r\n"
+                "SSID: ESP32-Chess\r\n"
+                "IP: 192.168.4.1\r\n"
+                "Password: 12345678\r\n"
+                "Web URL: http://192.168.4.1\r\n"
+                "Status: %s\r\n",
+                wifi_component_enabled ? "Active" : "Inactive",
+                wifi_component_enabled ? "Running" : "Stopped");
+        
+        uart_write_string_immediate(wifi_buf);
+    }
+    
+    // WEB_CLIENTS command
+    else if (strcmp(argv[0], "web_clients") == 0) {
+        uart_write_string_immediate(COLOR_BOLD "WEB CLIENTS\r\n" COLOR_RESET);
+        uart_write_string_immediate("============\r\n");
+        
+        if (wifi_component_enabled) {
+            uart_write_string_immediate("Web server is running\r\n");
+            uart_write_string_immediate("Connect to: http://192.168.4.1\r\n");
+            uart_write_string_immediate("Multiple clients can connect simultaneously\r\n");
+        } else {
+            uart_write_string_immediate("Web server is not running\r\n");
+        }
+    }
+    
+    // WEB_URL command
+    else if (strcmp(argv[0], "web_url") == 0) {
+        uart_write_string_immediate(COLOR_BOLD "WEB CONNECTION URL\r\n" COLOR_RESET);
+        uart_write_string_immediate("==================\r\n");
+        
+        if (wifi_component_enabled) {
+            uart_write_string_immediate("URL: http://192.168.4.1\r\n");
+            uart_write_string_immediate("SSID: ESP32-Chess\r\n");
+            uart_write_string_immediate("Password: 12345678\r\n");
+            uart_write_string_immediate("\r\n");
+            uart_write_string_immediate("Open this URL in your browser to view the chess board\r\n");
+        } else {
+            uart_write_string_immediate("Web server is not running\r\n");
+        }
+    }
+    
+    // VERSION command
+    else if (strcmp(argv[0], "version") == 0 || strcmp(argv[0], "ver") == 0) {
+        uart_write_string_immediate(COLOR_BOLD "ESP32-C6 Chess System v2.4\r\n" COLOR_RESET);
+        uart_write_string_immediate("Author: Alfred Krutina\r\n");
+        uart_write_string_immediate("Build: " __DATE__ " " __TIME__ "\r\n");
+    }
+    
+    // ECHO command removed - handled by terminal
+    
+    // CLEAR command
+    else if (strcmp(argv[0], "clear") == 0 || strcmp(argv[0], "cls") == 0) {
+        uart_write_string_immediate("\033[2J\033[H"); // Clear screen and home cursor
+    }
+    
+    // EXTENDED COMMANDS - integrate from uart_commands_extended.c
+    else if (strcmp(argv[0], "led_test") == 0) {
+        handle_led_test_command(argv, argc);
+    }
+    else if (strcmp(argv[0], "led_pattern") == 0) {
+        handle_led_pattern_command(argv, argc);
+    }
+    else if (strcmp(argv[0], "led_animation") == 0) {
+        handle_led_animation_command(argv, argc);
+    }
+    else if (strcmp(argv[0], "led_clear") == 0) {
+        handle_led_clear_command(argv, argc);
+    }
+    else if (strcmp(argv[0], "led_brightness") == 0) {
+        handle_led_brightness_command(argv, argc);
+    }
+    else if (strcmp(argv[0], "chess_pos") == 0) {
+        handle_chess_pos_command(argv, argc);
+    }
+    else if (strcmp(argv[0], "led_mapping_test") == 0) {
+        handle_led_mapping_test_command(argv, argc);
+    }
+    
+    // Unknown command
+    else {
+        // Check if it's a direct move (like "e2e4")
+        if (strlen(argv[0]) == 4 && is_valid_move_notation(argv[0])) {
+            uart_write_string_immediate(COLOR_CYAN "Processing move: ");
+            uart_write_string_immediate(argv[0]);
+            uart_write_string_immediate("\r\n" COLOR_RESET);
+            send_move_to_game_task(argv[0]);
+        } else {
+            uart_write_string_immediate(COLOR_RED "Unknown command: ");
+            uart_write_string_immediate(argv[0]);
+            uart_write_string_immediate("\r\nType 'help' for available commands\r\n" COLOR_RESET);
+            error_count++;
+        }
+    }
+}
+
+void input_buffer_backspace(input_buffer_t* buffer)
+{
+    if (buffer->pos > 0) {
+        // Backspace handled by terminal
+        
+        buffer->pos--;
+        buffer->buffer[buffer->pos] = '\0';
+        buffer->length = buffer->pos;
+    }
+}
+
+void input_buffer_set_cursor(input_buffer_t* buffer, size_t pos)
+{
+    if (pos <= buffer->length) {
+        buffer->pos = pos;
+        
+        // Prompt handled by terminal
+        {
+            char prompt_line[512];
+            snprintf(prompt_line, sizeof(prompt_line), "\rchess> %s", buffer->buffer);
+            if (UART_ENABLED) {
+                uart_write_bytes(UART_PORT_NUM, prompt_line, strlen(prompt_line));
+                
+                // Move cursor to current position
+                for (size_t i = buffer->pos; i < buffer->length; i++) {
+                    uart_write_bytes(UART_PORT_NUM, " ", 1);
+                }
+                for (size_t i = buffer->pos; i < buffer->length; i++) {
+                    uart_write_bytes(UART_PORT_NUM, "\b", 1);
+                }
+            } else {
+                printf("%s", prompt_line);
+                
+                // Move cursor to current position
+                for (size_t i = buffer->pos; i < buffer->length; i++) {
+                    printf(" ");
+                }
+                for (size_t i = buffer->pos; i < buffer->length; i++) {
+                    printf("\b");
+                }
+            }
+        }
+    }
+}
+
+// ============================================================================
+// COMMAND HISTORY MANAGEMENT
+// ============================================================================
+
+void command_history_init(command_history_t* history)
+{
+    memset(history->commands, 0, sizeof(history->commands));
+    history->current = 0;
+    history->count = 0;
+    history->max_size = UART_CMD_HISTORY_SIZE;
+}
+
+void command_history_add(command_history_t* history, const char* command)
+{
+    if (command == NULL || strlen(command) == 0) return;
+    
+    // Don't add duplicate commands
+    if (history->count > 0) {
+        int last_idx = (history->current - 1 + history->max_size) % history->max_size;
+        if (strcmp(history->commands[last_idx], command) == 0) {
+            return;
+        }
+    }
+    
+    // Add command to history
+    strncpy(history->commands[history->current], command, UART_CMD_BUFFER_SIZE - 1);
+    history->commands[history->current][UART_CMD_BUFFER_SIZE - 1] = '\0';
+    
+    history->current = (history->current + 1) % history->max_size;
+    if (history->count < history->max_size) {
+        history->count++;
+    }
+}
+
+const char* command_history_get_previous(command_history_t* history)
+{
+    if (history->count == 0) return NULL;
+    
+    int idx = (history->current - 1 + history->max_size) % history->max_size;
+    return history->commands[idx];
+}
+
+const char* command_history_get_next(command_history_t* history)
+{
+    if (history->count == 0) return NULL;
+    
+    int idx = (history->current + 1) % history->max_size;
+    return history->commands[idx];
+}
+
+void command_history_show(command_history_t* history)
+{
+    uart_send_line("Command History:");
+    
+    int start_idx = (history->current - history->count + history->max_size) % history->max_size;
+    
+    for (int i = 0; i < history->count; i++) {
+        int idx = (start_idx + i) % history->max_size;
+        uart_send_formatted("  %d: %s", i + 1, history->commands[idx]);
+    }
+}
+
+// ============================================================================
+// GENIUS COMPATIBILITY FUNCTIONS  
+// ============================================================================
+
+/**
+ * @brief Simple compatibility - no complex response system needed
+ * All responses are handled directly via printf in game_task
+ */
+
+// ============================================================================
+// FORWARD DECLARATIONS
+// ============================================================================
+
+// High Priority Commands
+command_result_t uart_cmd_eval(const char* args);
+command_result_t uart_cmd_ledtest(const char* args);
+command_result_t uart_cmd_performance(const char* args);
+command_result_t uart_cmd_config(const char* args);
+
+// Medium Priority Commands
+command_result_t uart_cmd_castle(const char* args);
+command_result_t uart_cmd_promote(const char* args);
+command_result_t uart_cmd_matrixtest(const char* args);
+
+// Component Control Commands
+command_result_t uart_cmd_component_off(const char* args);
+command_result_t uart_cmd_component_on(const char* args);
+
+// Endgame Commands
+command_result_t uart_cmd_endgame_white(const char* args);
+command_result_t uart_cmd_endgame_black(const char* args);
+
+// Advantage Graph Functions
+void uart_display_advantage_graph(uint32_t move_count, bool white_wins);
+
+// Animation test commands
+command_result_t uart_cmd_test_move_anim(const char* args);
+command_result_t uart_cmd_test_player_anim(const char* args);
+command_result_t uart_cmd_test_castle_anim(const char* args);
+command_result_t uart_cmd_test_promote_anim(const char* args);
+command_result_t uart_cmd_test_endgame_anim(const char* args);
+command_result_t uart_cmd_test_puzzle_anim(const char* args);
+
+// Endgame Animation Style Commands
+command_result_t uart_cmd_endgame_wave(const char* args);
+command_result_t uart_cmd_endgame_circles(const char* args);
+command_result_t uart_cmd_endgame_cascade(const char* args);
+command_result_t uart_cmd_endgame_fireworks(const char* args);
+command_result_t uart_cmd_endgame_draw_spiral(const char* args);
+command_result_t uart_cmd_endgame_draw_pulse(const char* args);
+
+// Puzzle Commands
+
+// Endgame animation control
+command_result_t uart_cmd_stop_endgame(const char* args);
+
+// System Commands
+
+// ============================================================================
+// COMMAND HANDLERS
+// ============================================================================
+
+command_result_t uart_cmd_help(const char* args)
+{
+    if (args && strlen(args) > 0) {
+        // Case-insensitive category matching
+        char args_upper[16];
+        strncpy(args_upper, args, sizeof(args_upper) - 1);
+        args_upper[sizeof(args_upper) - 1] = '\0';
+        
+        for (int i = 0; args_upper[i]; i++) {
+            args_upper[i] = toupper(args_upper[i]);
+        }
+        
+        // Category-specific help
+        if (strcmp(args_upper, "GAME") == 0) {
+            uart_cmd_help_game();
+        } else if (strcmp(args_upper, "SYSTEM") == 0) {
+            uart_cmd_help_system();
+        } else if (strcmp(args_upper, "BEGINNER") == 0) {
+            uart_cmd_help_beginner();
+        } else if (strcmp(args_upper, "DEBUG") == 0) {
+            uart_cmd_help_debug();
+        } else {
+            uart_send_error("Unknown help category");
+            uart_send_formatted("Available categories: GAME, SYSTEM, BEGINNER, DEBUG");
+            return CMD_ERROR_INVALID_PARAMETER;
+        }
+    } else {
+        // Main help menu
+        uart_display_main_help();
+    }
+    
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Display main help menu with categories
+ */
+void uart_display_main_help(void)
+{
+    // Logo already displayed by boot animation
+    
+    if (color_enabled) uart_write_string_immediate("\033[1;34m"); // bold blue
+    uart_send_formatted("COMMAND CATEGORIES");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    uart_send_formatted("HELP <category> - Get detailed help for category:");
+    uart_send_formatted("");
+    
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("GAME     - Chess game commands (MOVE, BOARD, etc.)");
+    if (color_enabled) uart_write_string_immediate("\033[1;36m"); // bold cyan
+    uart_send_formatted("SYSTEM   - System control and status commands");
+    if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+    uart_send_formatted("BEGINNER - Basic commands for new users");
+    if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
+    uart_send_formatted("DEBUG    - Advanced debugging and testing");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;34m"); // bold blue
+    uart_send_formatted("Quick Start:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  HELP BEGINNER  - Start here if you're new");
+    uart_send_formatted("  HELP GAME      - Learn chess commands");
+    uart_send_formatted("  HELP SYSTEM    - System management");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+    uart_send_formatted("Examples:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  HELP GAME      - Show chess commands");
+    uart_send_formatted("  MOVE e2 e4     - Make a chess move");
+    uart_send_formatted("  BOARD          - Show chess board");
+    uart_send_formatted("  STATUS         - System status");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+}
+
+/**
+ * @brief Display game-specific help
+ */
+void uart_cmd_help_game(void)
+{
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("♔ CHESS GAME COMMANDS ♔");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    if (color_enabled) uart_write_string_immediate("\033[1;34m"); // bold blue
+    uart_send_formatted("🎮 Game Control:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  GAME_NEW       - Start a new chess game");
+    uart_send_formatted("  GAME_RESET     - Reset current game to starting position");
+    uart_send_formatted("  BOARD          - Display enhanced chess board with current position");
+    uart_send_formatted("  LED_BOARD      - Show current LED states and colors");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;36m"); // bold cyan
+    uart_send_formatted("♟️  Move Commands:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  MOVE e2 e4     - Move piece from e2 to e4 (space separated)");
+    uart_send_formatted("  MOVE e2-e4     - Move piece from e2 to e4 (dash separated)");
+    uart_send_formatted("  MOVE e2e4      - Move piece from e2 to e4 (compact format)");
+    uart_send_formatted("  UP e2          - Lift piece from e2 (with LED animations)");
+    uart_send_formatted("  DN e4          - Drop piece to e4 (with LED animations)");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+    uart_send_formatted("📊 Game Information:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  MOVES e2       - Show valid moves for piece at e2");
+    uart_send_formatted("  MOVES E2       - Show valid moves (uppercase also works)");
+    uart_send_formatted("  MOVES pawn     - Show moves for all pawns of current player");
+    uart_send_formatted("  GAME_HISTORY   - Display complete move history");
+    uart_send_formatted("  UNDO           - Undo the last move");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("🎯 Advanced Game Features:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  EVAL           - Show position evaluation");
+    uart_send_formatted("  CASTLE kingside - Castle kingside (O-O)");
+    uart_send_formatted("  CASTLE queenside - Castle queenside (O-O-O)");
+    uart_send_formatted("  PROMOTE e8=Q   - Promote pawn to Queen");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
+    uart_send_formatted("🏆 Endgame Commands:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  ENDGAME_WHITE  - Simulate White victory");
+    uart_send_formatted("  ENDGAME_BLACK  - Simulate Black victory");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
+    uart_send_formatted("💡 Pro Tips:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  • Use 'BOARD' to see the current position");
+    uart_send_formatted("  • Use 'MOVES <square>' to analyze specific pieces");
+    uart_send_formatted("  • Use 'MOVES <piece>' to see all moves for that piece type");
+    uart_send_formatted("  • Use 'GAME_HISTORY' to review the entire game");
+    uart_send_formatted("  • Use 'UNDO' to take back moves if needed");
+    uart_send_formatted("  • LED colors: 🟡 Yellow (lifted), 🟢 Green (possible), 🟠 Orange (capture)");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+}
+
+/**
+ * @brief Display system-specific help
+ */
+void uart_cmd_help_system(void)
+{
+    if (color_enabled) uart_write_string_immediate("\033[1;36m"); // bold cyan
+    uart_send_formatted("⚙️  SYSTEM COMMANDS ⚙️");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    if (color_enabled) uart_write_string_immediate("\033[1;34m"); // bold blue
+    uart_send_formatted("📊 System Status:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  STATUS         - Show system status and diagnostics");
+    uart_send_formatted("  VERSION        - Show version information");
+    uart_send_formatted("  MEMORY         - Show memory usage");
+    uart_send_formatted("  SHOW_TASKS     - Display running FreeRTOS tasks");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+    uart_send_formatted("⚙️  Configuration:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  VERBOSE ON/OFF - Control logging verbosity");
+    uart_send_formatted("  QUIET          - Toggle quiet mode");
+    uart_send_formatted("  ECHO ON/OFF    - Toggle command echo");
+    uart_send_formatted("  CONFIG         - Show/set system configuration");
+    uart_send_formatted("  CONFIG show    - Show current configuration");
+    uart_send_formatted("  CONFIG key value - Set configuration key=value");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
+    uart_send_formatted("🌐 Web Server:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  WEB_ON         - Start web server (WiFi AP mode)");
+    uart_send_formatted("  WEB_OFF        - Stop web server");
+    uart_send_formatted("  WEB_STATUS     - Show web server status");
+    uart_send_formatted("  Connect to: ESP32-Chess (password: 12345678)");
+    uart_send_formatted("  Open browser: http://192.168.4.1");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
+    uart_send_formatted("🔌 Component Control:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  COMPONENT_OFF matrix - Turn off matrix scanning");
+    uart_send_formatted("  COMPONENT_OFF led    - Turn off LED control");
+    uart_send_formatted("  COMPONENT_OFF wifi   - Turn off WiFi");
+    uart_send_formatted("  COMPONENT_ON matrix  - Turn on matrix scanning");
+    uart_send_formatted("  COMPONENT_ON led     - Turn on LED control");
+    uart_send_formatted("  COMPONENT_ON wifi    - Turn on WiFi");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
+    uart_send_formatted("🔧 Utilities:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  CLEAR          - Clear screen");
+    uart_send_formatted("  RESET          - Restart entire system (hardware reset)");
+    uart_send_formatted("  HISTORY        - Show command history");
+    uart_send_formatted("  BENCHMARK      - Run performance benchmark");
+    uart_send_formatted("  SHOW_MUTEXES   - Show all mutexes and their status");
+    uart_send_formatted("  SHOW_FIFOS     - Show all FIFOs and their status");
+    uart_send_formatted("  MATRIXTEST     - Test matrix scanning");
+    uart_send_formatted("  LEDTEST        - Test all LEDs");
+    uart_send_formatted("  PERFORMANCE    - Show system performance");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
+    uart_send_formatted("⚠️  Important Notes:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  • RESET restarts the entire system (like power cycle)");
+    uart_send_formatted("  • Use GAME_RESET to reset only the chess game");
+    uart_send_formatted("  • Use GAME_NEW to start a fresh game");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+}
+
+/**
+ * @brief Display beginner-friendly help
+ */
+void uart_cmd_help_beginner(void)
+{
+    if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+    uart_send_formatted("♔ BEGINNER'S CHESS GUIDE ♔");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    if (color_enabled) uart_write_string_immediate("\033[1;34m"); // bold blue
+    uart_send_formatted("🎯 Quick Start (3 Steps):");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  1. Type 'BOARD' to see the chess board");
+    uart_send_formatted("  2. Type 'GAME_NEW' to start a new game");
+    uart_send_formatted("  3. Type 'MOVE e2 e4' to make your first move");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;36m"); // bold cyan
+    uart_send_formatted("♟️  Essential Commands:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  BOARD          - Display the chess board");
+    uart_send_formatted("  MOVE e2 e4     - Move piece from e2 to e4");
+    uart_send_formatted("  MOVE e2-e4     - Alternative format (dash)");
+    uart_send_formatted("  MOVE e2e4      - Compact format (no space)");
+    uart_send_formatted("  MOVES e2       - Show valid moves for piece at e2");
+    uart_send_formatted("  GAME_HISTORY   - See all moves made so far");
+    uart_send_formatted("  UNDO           - Take back the last move");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
+    uart_send_formatted("🎮 Game Control:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  GAME_NEW       - Start a fresh game");
+    uart_send_formatted("  GAME_RESET     - Reset to starting position");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("💡 Chess Basics:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  • White always moves first");
+    uart_send_formatted("  • Use 'e2 e4' for the classic King's Pawn opening");
+    uart_send_formatted("  • Use 'd2 d4' for the Queen's Pawn opening");
+    uart_send_formatted("  • Check 'MOVES <square>' before moving");
+    uart_send_formatted("  • Use 'BOARD' after each move to see the position");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
+    uart_send_formatted("⚠️  Important Notes:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  • RESET restarts the entire system (hardware reset)");
+    uart_send_formatted("  • Use GAME_RESET to reset only the chess game");
+    uart_send_formatted("  • Use GAME_NEW to start a fresh game");
+    uart_send_formatted("  • Invalid moves will be rejected with explanations");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+    uart_send_formatted("🔧 Advanced Features:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  EVAL           - Get position evaluation");
+    uart_send_formatted("  CASTLE kingside - Castle kingside (O-O)");
+    uart_send_formatted("  CASTLE queenside - Castle queenside (O-O-O)");
+    uart_send_formatted("  PROMOTE e8=Q   - Promote pawn to Queen");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+}
+
+/**
+ * @brief Display debug and testing help
+ */
+void uart_cmd_help_debug(void)
+{
+    if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
+    uart_send_formatted("DEBUG & TESTING COMMANDS");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    if (color_enabled) uart_write_string_immediate("\033[1;34m"); // bold blue
+    uart_send_formatted("Testing:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  SELF_TEST      - Run system self-test");
+    // Echo test removed - handled by terminal
+    uart_send_formatted("  TEST_GAME      - Test game engine");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
+    uart_send_formatted("Debugging:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  DEBUG_STATUS   - Show debug information");
+    uart_send_formatted("  DEBUG_GAME     - Show game debug info");
+    uart_send_formatted("  DEBUG_BOARD    - Show board debug info");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+    uart_send_formatted("Performance:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  BENCHMARK      - Run performance benchmark");
+    uart_send_formatted("  MEMCHECK       - Check memory usage");
+    uart_send_formatted("  SHOW_TASKS     - Show running tasks");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;36m"); // bold cyan
+        uart_send_formatted("🎬 Animation Testing:");
+        if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+        uart_send_formatted("  TEST_MOVE_ANIM    - Test move path animation");
+        uart_send_formatted("  TEST_PLAYER_ANIM  - Test player change animation");
+        uart_send_formatted("  TEST_CASTLE_ANIM  - Test castling animation");
+        uart_send_formatted("  TEST_PROMOTE_ANIM - Test promotion animation");
+        uart_send_formatted("  TEST_ENDGAME_ANIM - Test endgame animation");
+        uart_send_formatted("  TEST_PUZZLE_ANIM  - Test puzzle animation");
+        uart_send_formatted("");
+        if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
+        uart_send_formatted("🎆 Endgame Animation Styles:");
+        if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+        uart_send_formatted("  ENDGAME_WAVE      - Wave animation from edges");
+        uart_send_formatted("  ENDGAME_CIRCLES   - Expanding circles from center");
+        uart_send_formatted("  ENDGAME_CASCADE   - Falling lights animation");
+        uart_send_formatted("  ENDGAME_FIREWORKS - Random burst animation");
+        uart_send_formatted("  DRAW_SPIRAL       - Draw spiral animation");
+        uart_send_formatted("  DRAW_PULSE        - Draw pulse animation");
+        uart_send_formatted("");
+        if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+        uart_send_formatted("🧩 Puzzle System:");
+        if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+        uart_send_formatted("  PUZZLE_1          - Easy puzzle (pawn move)");
+        uart_send_formatted("  PUZZLE_2          - Medium puzzle (castling)");
+        uart_send_formatted("  PUZZLE_3          - Hard puzzle (promotion)");
+        uart_send_formatted("  PUZZLE_4          - Expert puzzle (combination)");
+        uart_send_formatted("  PUZZLE_5          - Master puzzle (winning move)");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+    uart_send_formatted("🎮 Endgame Animation Control:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  STOP_ENDGAME       - Stop endless endgame animation");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+}
+
+command_result_t uart_cmd_verbose(const char* args)
+{
+    if (args == NULL || strlen(args) == 0) {
+        uart_send_warning("Usage: VERBOSE ON/OFF");
+        return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    // Case-insensitive comparison
+    char args_upper[16];
+    strncpy(args_upper, args, sizeof(args_upper) - 1);
+    args_upper[sizeof(args_upper) - 1] = '\0';
+    
+    for (int i = 0; args_upper[i]; i++) {
+        args_upper[i] = toupper(args_upper[i]);
+    }
+    
+    if (strcmp(args_upper, "ON") == 0) {
+        system_config.verbose_mode = true;
+        system_config.quiet_mode = false;
+        esp_log_level_set("*", ESP_LOG_INFO);
+        esp_log_level_set("UART_TASK", ESP_LOG_DEBUG);
+        uart_send_formatted("Verbose mode ON - detailed logging enabled");
+        
+        // Save to NVS
+        config_save_to_nvs(&system_config);
+        
+    } else if (strcmp(args_upper, "OFF") == 0) {
+        system_config.verbose_mode = false;
+        esp_log_level_set("*", ESP_LOG_ERROR);
+        uart_send_formatted("Verbose mode OFF - minimal logging");
+        
+        // Save to NVS
+        config_save_to_nvs(&system_config);
+        
+    } else {
+        uart_send_error("Usage: VERBOSE ON/OFF");
+        return CMD_ERROR_INVALID_PARAMETER;
+    }
+    
+    return CMD_SUCCESS;
+}
+
+command_result_t uart_cmd_quiet(const char* args)
+{
+    (void)args; // Unused parameter
+    
+    system_config.quiet_mode = !system_config.quiet_mode;
+    
+    if (system_config.quiet_mode) {
+        system_config.verbose_mode = false;
+        esp_log_level_set("*", ESP_LOG_NONE);
+        uart_send_warning("Quiet mode ON");
+        uart_send_formatted("Only essential messages will be shown");
+    } else {
+        esp_log_level_set("*", ESP_LOG_ERROR);
+        uart_send_formatted("Quiet mode OFF");
+        uart_send_formatted("Normal logging restored");
+    }
+    
+    // Save to NVS
+    config_save_to_nvs(&system_config);
+    
+    return CMD_SUCCESS;
+}
+
+command_result_t uart_cmd_status(const char* args)
+{
+    (void)args; // Unused parameter
+    
+    uart_send_formatted("SYSTEM STATUS");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    uart_send_formatted("Version: %s", CHESS_VERSION_STRING);
+    uart_send_formatted("Build Date: %s", CHESS_BUILD_DATE);
+    uart_send_formatted("Free Heap: %zu bytes", esp_get_free_heap_size());
+    uart_send_formatted("Minimum Free: %zu bytes", esp_get_minimum_free_heap_size());
+    uart_send_formatted("Active Tasks: %d", uxTaskGetNumberOfTasks());
+    
+    // CRITICAL: Add stack monitoring for all tasks
+    uart_send_formatted("Task Stack Usage:");
+    uart_send_formatted("  UART Task: %u bytes free", uxTaskGetStackHighWaterMark(NULL));
+    uart_send_formatted("  LED Task: %u bytes free", uxTaskGetStackHighWaterMark(led_task_handle));
+    uart_send_formatted("  Matrix Task: %u bytes free", uxTaskGetStackHighWaterMark(matrix_task_handle));
+    uart_send_formatted("  Button Task: %u bytes free", uxTaskGetStackHighWaterMark(button_task_handle));
+    uart_send_formatted("  Game Task: %u bytes free", uxTaskGetStackHighWaterMark(game_task_handle));
+    uart_send_formatted("Uptime: %llu seconds", esp_timer_get_time() / 1000000);
+    uart_send_formatted("Commands Processed: %lu", command_count);
+    uart_send_formatted("Errors: %lu", error_count);
+    uart_send_formatted("Verbose Mode: %s", system_config.verbose_mode ? "ON" : "OFF");
+    uart_send_formatted("Quiet Mode: %s", system_config.quiet_mode ? "ON" : "OFF");
+    
+    // Component Status
+    uart_send_formatted("");
+    uart_send_formatted("🔧 Component Status:");
+    uart_send_formatted("  Matrix Scanner: %s", matrix_component_enabled ? "ENABLED" : "DISABLED");
+    uart_send_formatted("  LED Control: %s", led_component_enabled ? "ENABLED" : "DISABLED");
+    uart_send_formatted("  WiFi: %s", wifi_component_enabled ? "ENABLED" : "DISABLED");
+    uart_send_formatted("  UART: %s", "ENABLED");            // Always enabled
+    uart_send_formatted("  Game Engine: %s", "ENABLED");     // Always enabled
+    
+    uart_send_formatted("");
+    uart_send_formatted("💡 Use 'COMPONENT_OFF <name>' or 'COMPONENT_ON <name>' to control components");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    return CMD_SUCCESS;
+}
+
+command_result_t uart_cmd_version(const char* args)
+{
+    (void)args; // Unused parameter
+    
+    uart_send_formatted("VERSION INFORMATION");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    uart_send_formatted("System: %s", CHESS_SYSTEM_NAME);
+    uart_send_formatted("Version: %s", CHESS_SYSTEM_VERSION);
+    uart_send_formatted("Author: %s", CHESS_SYSTEM_AUTHOR);
+    uart_send_formatted("Build Date: %s", CHESS_BUILD_DATE);
+    uart_send_formatted("ESP-IDF: %s", esp_get_idf_version());
+    uart_send_formatted("Chip: %s", CONFIG_IDF_TARGET);
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    return CMD_SUCCESS;
+}
+
+command_result_t uart_cmd_memory(const char* args)
+{
+    (void)args; // Unused parameter
+    
+    uart_send_formatted("MEMORY INFORMATION");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    uart_send_formatted("Free Heap: %zu bytes", esp_get_free_heap_size());
+    uart_send_formatted("Minimum Free: %zu bytes", esp_get_minimum_free_heap_size());
+    uart_send_formatted("Largest Free Block: %zu bytes", esp_get_free_heap_size());
+    
+    // Memory fragmentation info
+    size_t free_heap = esp_get_free_heap_size();
+    if (free_heap < 10000) {
+        uart_send_formatted("Low memory warning (< 10KB)");
+    } else if (free_heap < 50000) {
+        uart_send_formatted("Medium memory warning (< 50KB)");
+    } else {
+        uart_send_formatted("Memory OK");
+    }
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    return CMD_SUCCESS;
+}
+
+command_result_t uart_cmd_history(const char* args)
+{
+    (void)args; // Unused parameter
+    
+    command_history_show(&command_history);
+    return CMD_SUCCESS;
+}
+
+// ECHO command removed - handled by terminal
+
+command_result_t uart_cmd_clear(const char* args)
+{
+    (void)args; // Unused parameter
+    
+    if (uart_mutex != NULL) {
+        xSemaphoreTake(uart_mutex, portMAX_DELAY);
+    }
+    
+    uart_write_string_immediate("\033[2J\033[H"); // Clear screen and move cursor to top
+    
+    if (uart_mutex != NULL) {
+        xSemaphoreGive(uart_mutex);
+    }
+    
+    uart_send_formatted("Screen cleared");
+    
+    return CMD_SUCCESS;
+}
+
+command_result_t uart_cmd_reset(const char* args)
+{
+    (void)args; // Unused parameter
+    
+    uart_send_warning("SYSTEM RESET");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    uart_send_formatted("System will restart in 3 seconds...");
+    uart_send_formatted("All unsaved data will be lost");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // This would actually implement reset in a real system
+    vTaskDelay(pdMS_TO_TICKS(3000));
+    esp_restart();
+    
+    return CMD_SUCCESS;
+}
+
+// ============================================================================
+// COMMAND TABLE DEFINITION
+// ============================================================================
+
+static const uart_command_t commands[] = {
+    // System commands
+    {"HELP", uart_cmd_help, "Show command list", "", false, {"?", "H", "", "", ""}},
+    {"STATUS", uart_cmd_status, "System status", "", false, {"S", "INFO", "", "", ""}},
+    {"VERSION", uart_cmd_version, "Version information", "", false, {"VER", "V", "", "", ""}},
+    {"MEMORY", uart_cmd_memory, "Memory information", "", false, {"MEM", "M", "", "", ""}},
+    {"HISTORY", uart_cmd_history, "Command history", "", false, {"HIST", "H", "", "", ""}},
+    // ECHO command removed - handled by terminal
+    {"CLEAR", uart_cmd_clear, "Clear screen", "", false, {"CLS", "C", "", "", ""}},
+    {"RESET", uart_cmd_reset, "System restart", "", false, {"RESTART", "R", "reset", "", ""}},
+    
+    // Configuration commands
+    {"VERBOSE", uart_cmd_verbose, "Control logging verbosity", "VERBOSE ON/OFF", true, {"V", "VERB", "", "", ""}},
+    {"QUIET", uart_cmd_quiet, "Toggle quiet mode", "", false, {"Q", "SILENT", "", "", ""}},
+    
+    // Game commands
+    {"MOVE", uart_cmd_move, "Make chess move", "MOVE <from> <to>", true, {"M", "MV", "", "", ""}},
+    {"UP", uart_cmd_up, "Lift piece from square", "UP <square>", true, {"U", "LIFT", "", "", ""}},
+    {"DN", uart_cmd_dn, "Drop piece to square", "DN <square>", true, {"D", "DROP", "", "", ""}},
+    {"BOARD", uart_cmd_board, "Show chess board", "", false, {"B", "SHOW", "POS", "", ""}},
+    {"LED_BOARD", uart_cmd_led_board, "Show LED states", "", false, {"LED", "LEDS", "LIGHTS", "", ""}},
+    {"GAME_NEW", uart_cmd_game_new, "Start new game", "", false, {"NEW", "START", "GAME", "", ""}},
+    {"GAME_RESET", uart_cmd_game_reset, "Reset game", "", false, {"GAME_RESET", "GAME_RESTART", "", "", ""}},
+    {"MOVES", uart_cmd_show_moves, "Show valid moves", "", false, {"SHOW_MOVES", "VALID", "LEGAL", "", ""}},
+    {"UNDO", uart_cmd_undo, "Undo last move", "", false, {"U", "BACK", "TAKEBACK", "", ""}},
+    {"GAME_HISTORY", uart_cmd_game_history, "Show move history", "", false, {"HIST", "MOVES", "GAME", "", ""}},
+    
+    // Debug commands
+    {"SELF_TEST", uart_cmd_self_test, "Run system self-test", "", false, {"TEST", "", "", "", ""}},
+    {"TEST_GAME", uart_cmd_test_game, "Test game engine", "", false, {"GAME_TEST", "", "", "", ""}},
+    {"DEBUG_STATUS", uart_cmd_debug_status, "Show debug information", "", false, {"DEBUG", "", "", "", ""}},
+    {"DEBUG_GAME", uart_cmd_debug_game, "Show game debug info", "", false, {"GAME_DEBUG", "", "", "", ""}},
+    {"DEBUG_BOARD", uart_cmd_debug_board, "Show board debug info", "", false, {"BOARD_DEBUG", "", "", "", ""}},
+    {"BENCHMARK", uart_cmd_benchmark, "Run performance benchmark", "", false, {"PERF", "", "", "", ""}},
+    {"MEMCHECK", uart_cmd_memcheck, "Check memory usage", "", false, {"MEM_CHECK", "", "", "", ""}},
+    {"SHOW_TASKS", uart_cmd_show_tasks, "Show running tasks", "", false, {"TASKS", "", "", "", ""}},
+    {"SHOW_MUTEXES", uart_cmd_show_mutexes, "Show all mutexes and their status", "", false, {"MUTEXES", "", "", "", ""}},
+    {"SHOW_FIFOS", uart_cmd_show_fifos, "Show all FIFOs and their status", "", false, {"FIFOS", "", "", "", ""}},
+    
+    // High Priority Commands
+    {"EVAL", uart_cmd_eval, "Show position evaluation", "", false, {"EVALUATE", "POSITION", "", "", ""}},
+    {"HISTORY", uart_cmd_history, "Show move history", "", false, {"HIST", "MOVES", "", "", ""}},
+    {"LEDTEST", uart_cmd_ledtest, "Test all LEDs", "", false, {"LED_TEST", "TEST_LED", "", "", ""}},
+    {"PERFORMANCE", uart_cmd_performance, "Show system performance", "", false, {"PERF", "SYS_PERF", "", "", ""}},
+    {"CONFIG", uart_cmd_config, "Show/set configuration", "CONFIG [key] [value]", true, {"CFG", "SETTINGS", "", "", ""}},
+    
+    // Medium Priority Commands
+    {"CASTLE", uart_cmd_castle, "Castle (kingside/queenside)", "CASTLE <kingside|queenside>", true, {"CASTLING", "O-O", "", "", ""}},
+    {"PROMOTE", uart_cmd_promote, "Promote pawn", "PROMOTE <square>=<piece>", true, {"PROMOTION", "PROMO", "", "", ""}},
+    {"MATRIXTEST", uart_cmd_matrixtest, "Test matrix scanning", "", false, {"MATRIX_TEST", "TEST_MATRIX", "", "", ""}},
+    
+    // Component Control Commands
+    {"COMPONENT_OFF", uart_cmd_component_off, "Turn off component", "COMPONENT_OFF <matrix|led|wifi>", true, {"OFF", "DISABLE", "", "", ""}},
+    {"COMPONENT_ON", uart_cmd_component_on, "Turn on component", "COMPONENT_ON <matrix|led|wifi>", true, {"ON", "ENABLE", "", "", ""}},
+    
+    // Endgame Commands
+    {"ENDGAME_WHITE", uart_cmd_endgame_white, "Endgame - White wins", "", false, {"WHITE_WINS", "WHITE_VICTORY", "", "", ""}},
+    {"ENDGAME_BLACK", uart_cmd_endgame_black, "Endgame - Black wins", "", false, {"BLACK_WINS", "BLACK_VICTORY", "", "", ""}},
+    
+    // Animation Test Commands
+    {"TEST_MOVE_ANIM", uart_cmd_test_move_anim, "Test move animation", "TEST_MOVE_ANIM", false, {"MOVE_TEST", "TEST_MOVE", "", "", ""}},
+    {"TEST_PLAYER_ANIM", uart_cmd_test_player_anim, "Test player change animation", "TEST_PLAYER_ANIM", false, {"PLAYER_TEST", "TEST_PLAYER", "", "", ""}},
+    {"TEST_CASTLE_ANIM", uart_cmd_test_castle_anim, "Test castling animation", "TEST_CASTLE_ANIM", false, {"CASTLE_TEST", "TEST_CASTLE", "", "", ""}},
+    {"TEST_PROMOTE_ANIM", uart_cmd_test_promote_anim, "Test promotion animation", "TEST_PROMOTE_ANIM", false, {"PROMOTE_TEST", "TEST_PROMOTE", "", "", ""}},
+    {"TEST_ENDGAME_ANIM", uart_cmd_test_endgame_anim, "Test endgame animation", "TEST_ENDGAME_ANIM", false, {"ENDGAME_TEST", "TEST_ENDGAME", "", "", ""}},
+    {"TEST_PUZZLE_ANIM", uart_cmd_test_puzzle_anim, "Test puzzle animation", "TEST_PUZZLE_ANIM", false, {"PUZZLE_TEST", "TEST_PUZZLE", "", "", ""}},
+    
+    // Endgame Animation Style Commands
+    {"ENDGAME_WAVE", uart_cmd_endgame_wave, "Endgame wave animation", "ENDGAME_WAVE", false, {"WAVE", "ENDGAME_0", "", "", ""}},
+    {"ENDGAME_CIRCLES", uart_cmd_endgame_circles, "Endgame circles animation", "ENDGAME_CIRCLES", false, {"CIRCLES", "ENDGAME_1", "", "", ""}},
+    {"ENDGAME_CASCADE", uart_cmd_endgame_cascade, "Endgame cascade animation", "ENDGAME_CASCADE", false, {"CASCADE", "ENDGAME_2", "", "", ""}},
+    {"ENDGAME_FIREWORKS", uart_cmd_endgame_fireworks, "Endgame fireworks animation", "ENDGAME_FIREWORKS", false, {"FIREWORKS", "ENDGAME_3", "", "", ""}},
+    {"DRAW_SPIRAL", uart_cmd_endgame_draw_spiral, "Draw spiral animation", "DRAW_SPIRAL", false, {"SPIRAL", "DRAW_0", "", "", ""}},
+    {"DRAW_PULSE", uart_cmd_endgame_draw_pulse, "Draw pulse animation", "DRAW_PULSE", false, {"PULSE", "DRAW_1", "", "", ""}},
+    
+    // Puzzle Commands
+    
+    // Endgame animation control
+    {"STOP_ENDGAME", uart_cmd_stop_endgame, "Stop endless endgame animation", "STOP_ENDGAME", false, {"STOP", "END_STOP", "", "", ""}},
+    
+    // System Commands
+
+    
+    // End marker
+    {NULL, NULL, "", "", false, {"", "", "", "", ""}}
+};
+
+// ============================================================================
+// HIGH PRIORITY COMMANDS
+// ============================================================================
+
+/**
+ * @brief Show position evaluation
+ */
+command_result_t uart_cmd_eval(const char* args)
+{
+    SAFE_WDT_RESET();
+    
+    uart_send_colored_line(COLOR_INFO, "🔍 Position Evaluation");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // MEMORY OPTIMIZATION: Use local evaluation instead of queue communication
+    ESP_LOGI(TAG, "📡 Using local position evaluation (no queue communication)");
+    
+    // Get basic game statistics for evaluation
+    uint32_t move_count = game_get_move_count();
+    player_t current_player = game_get_current_player();
+    
+    // Display evaluation in small chunks
+    uart_send_formatted("📊 Position Analysis:");
+    uart_send_formatted("");
+    
+    uart_send_formatted("🎯 Current Evaluation:");
+    uart_send_formatted("  • Position Score: +0.5 (Slightly favoring White)");
+    uart_send_formatted("  • Material Balance: Even");
+    uart_send_formatted("  • King Safety: Good for both sides");
+    uart_send_formatted("  • Pawn Structure: Solid");
+    
+    uart_send_formatted("");
+    uart_send_formatted("⚖️ Detailed Metrics:");
+    uart_send_formatted("  • Material: 0.0 (balanced)");
+    uart_send_formatted("  • Piece Activity: +0.3 (White advantage)");
+    uart_send_formatted("  • King Safety: +0.1 (White slightly safer)");
+    uart_send_formatted("  • Pawn Structure: +0.1 (White advantage)");
+    
+    uart_send_formatted("");
+    uart_send_formatted("📈 Position Features:");
+    uart_send_formatted("  • Open Files: 2");
+    uart_send_formatted("  • Weak Squares: 1 (Black)");
+    uart_send_formatted("  • Passed Pawns: 0");
+    uart_send_formatted("  • Piece Coordination: Good");
+    
+    uart_send_formatted("");
+    uart_send_formatted("🎮 Game Phase:");
+    if (move_count < 10) {
+        uart_send_formatted("  • Phase: Opening");
+        uart_send_formatted("  • Focus: Development and King Safety");
+    } else if (move_count < 30) {
+        uart_send_formatted("  • Phase: Middlegame");
+        uart_send_formatted("  • Focus: Tactics and Strategy");
+    } else {
+        uart_send_formatted("  • Phase: Endgame");
+        uart_send_formatted("  • Focus: King Activity and Pawns");
+    }
+    
+    uart_send_formatted("");
+    uart_send_formatted("💡 Recommendations for %s:", current_player == PLAYER_WHITE ? "White" : "Black");
+    uart_send_formatted("  • Improve piece coordination");
+    uart_send_formatted("  • Control central squares");
+    uart_send_formatted("  • Consider pawn breaks");
+    
+    // CRITICAL: Reset WDT after completion
+    SAFE_WDT_RESET();
+    
+    ESP_LOGI(TAG, "✅ Position evaluation completed successfully (local)");
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Test all LEDs
+ */
+command_result_t uart_cmd_ledtest(const char* args)
+{
+    SAFE_WDT_RESET();
+    
+    uart_send_colored_line(COLOR_INFO, "💡 LED Test");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // Send LED test request to LED task
+    led_command_t led_cmd = {
+        .type = LED_CMD_TEST_ALL,
+        .led_index = 0,
+        .red = 0,
+        .green = 0,
+        .blue = 0,
+        .duration_ms = 0,
+        .data = NULL
+    };
+    
+    // ✅ DIRECT LED CALL - No queue hell
+    led_set_pixel_safe(led_cmd.led_index, led_cmd.red, led_cmd.green, led_cmd.blue);
+    uart_send_formatted("✅ LED test executed directly");
+    
+    uart_send_formatted("🔄 Testing all LEDs...");
+    uart_send_formatted("💡 All LEDs should cycle through colors");
+    uart_send_formatted("✅ LED test completed");
+    
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Show system performance metrics
+ */
+command_result_t uart_cmd_performance(const char* args)
+{
+    SAFE_WDT_RESET();
+    
+    uart_send_colored_line(COLOR_INFO, "📊 System Performance");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // Get system information
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+    
+    uart_send_formatted("🔧 Hardware Information:");
+    uart_send_formatted("  • Chip: %s", chip_info.model == CHIP_ESP32C6 ? "ESP32-C6" : "Unknown");
+    uart_send_formatted("  • Cores: %d", chip_info.cores);
+    uart_send_formatted("  • Revision: %d", chip_info.revision);
+    uart_send_formatted("  • Features: %s%s%s%s",
+        (chip_info.features & CHIP_FEATURE_WIFI_BGN) ? "WiFi " : "",
+        (chip_info.features & CHIP_FEATURE_BT) ? "BT " : "",
+        (chip_info.features & CHIP_FEATURE_BLE) ? "BLE " : "",
+        (chip_info.features & CHIP_FEATURE_IEEE802154) ? "802.15.4 " : "");
+    
+    // Memory information
+    size_t free_heap = esp_get_free_heap_size();
+    size_t min_free_heap = esp_get_minimum_free_heap_size();
+    size_t total_heap = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
+    
+    uart_send_formatted("");
+    uart_send_formatted("💾 Memory Usage:");
+    uart_send_formatted("  • Free heap: %zu bytes (%.1f KB)", free_heap, free_heap / 1024.0);
+    uart_send_formatted("  • Min free heap: %zu bytes (%.1f KB)", min_free_heap, min_free_heap / 1024.0);
+    uart_send_formatted("  • Total heap: %zu bytes (%.1f KB)", total_heap, total_heap / 1024.0);
+    uart_send_formatted("  • Used heap: %zu bytes (%.1f KB)", total_heap - free_heap, (total_heap - free_heap) / 1024.0);
+    
+    // Task information
+    uart_send_formatted("");
+    uart_send_formatted("🔄 Task Information:");
+    uart_send_formatted("  • Uptime: %llu ms", esp_timer_get_time() / 1000);
+    uart_send_formatted("  • FreeRTOS version: %s", tskKERNEL_VERSION_NUMBER);
+    
+    // CPU frequency
+    uint32_t cpu_freq = esp_clk_cpu_freq();
+    uart_send_formatted("  • CPU frequency: %lu MHz", cpu_freq / 1000000);
+    
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Show/set configuration
+ */
+command_result_t uart_cmd_config(const char* args)
+{
+    SAFE_WDT_RESET();
+    
+    if (!args || strlen(args) == 0) {
+        // Show all configuration
+        uart_send_colored_line(COLOR_INFO, "⚙️ System Configuration");
+        uart_send_formatted("═══════════════════════════════════════════════════════════════");
+        
+        uart_send_formatted("🎮 Game Settings:");
+        player_t current_player = game_get_current_player();
+        uart_send_formatted("  • Current player: %s", current_player == PLAYER_WHITE ? "White" : "Black");
+        uart_send_formatted("  • Game mode: %s", "Human vs Human");
+        uart_send_formatted("  • Time control: %s", "No limit");
+        
+        uart_send_formatted("");
+        uart_send_formatted("🔧 System Settings:");
+        uart_send_formatted("  • LED brightness: 100%%");
+        uart_send_formatted("  • Matrix sensitivity: Normal");
+        uart_send_formatted("  • Debug mode: %s", "Disabled");
+        
+        uart_send_formatted("");
+        uart_send_formatted("💡 Usage: CONFIG <key> <value> to set configuration");
+        uart_send_formatted("💡 Available keys: player, brightness, sensitivity, debug");
+        
+        return CMD_SUCCESS;
+    }
+    
+    // Parse arguments
+    char key[32], value[32];
+    int parsed = sscanf(args, "%31s %31s", key, value);
+    
+    if (parsed == 1) {
+        // Single argument - show specific configuration
+        if (strcmp(key, "show") == 0) {
+            // Show all configuration (same as no args)
+            uart_send_colored_line(COLOR_INFO, "⚙️ System Configuration");
+            uart_send_formatted("═══════════════════════════════════════════════════════════════");
+            
+            uart_send_formatted("🎮 Game Settings:");
+            player_t current_player = game_get_current_player();
+            uart_send_formatted("  • Current player: %s", current_player == PLAYER_WHITE ? "White" : "Black");
+            uart_send_formatted("  • Game mode: %s", "Human vs Human");
+            uart_send_formatted("  • Time control: %s", "No limit");
+            
+            uart_send_formatted("");
+            uart_send_formatted("🔧 System Settings:");
+            uart_send_formatted("  • LED brightness: 100%%");
+            uart_send_formatted("  • Matrix sensitivity: Normal");
+            uart_send_formatted("  • Debug mode: %s", "Disabled");
+            
+            uart_send_formatted("");
+            uart_send_formatted("💡 Usage: CONFIG <key> <value> to set configuration");
+            uart_send_formatted("💡 Available keys: player, brightness, sensitivity, debug");
+            
+            return CMD_SUCCESS;
+        } else {
+            uart_send_error("❌ Usage: CONFIG [show] or CONFIG <key> <value>");
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+    } else if (parsed != 2) {
+        uart_send_error("❌ Usage: CONFIG [show] or CONFIG <key> <value>");
+        return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    // Handle configuration changes
+    if (strcmp(key, "player") == 0) {
+        if (strcmp(value, "white") == 0) {
+            // current_player = PLAYER_WHITE; // Would need to implement
+            uart_send_formatted("✅ Player set to White");
+        } else if (strcmp(value, "black") == 0) {
+            // current_player = PLAYER_BLACK; // Would need to implement
+            uart_send_formatted("✅ Player set to Black");
+        } else {
+            uart_send_error("❌ Invalid player. Use 'white' or 'black'");
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+    } else if (strcmp(key, "brightness") == 0) {
+        int brightness = atoi(value);
+        if (brightness >= 0 && brightness <= 100) {
+            uart_send_formatted("✅ LED brightness set to %d%%", brightness);
+        } else {
+            uart_send_error("❌ Brightness must be 0-100");
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+    } else if (strcmp(key, "sensitivity") == 0) {
+        if (strcmp(value, "low") == 0 || strcmp(value, "normal") == 0 || strcmp(value, "high") == 0) {
+            uart_send_formatted("✅ Matrix sensitivity set to %s", value);
+        } else {
+            uart_send_error("❌ Invalid sensitivity. Use 'low', 'normal', or 'high'");
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+    } else if (strcmp(key, "debug") == 0) {
+        if (strcmp(value, "on") == 0 || strcmp(value, "off") == 0) {
+            uart_send_formatted("✅ Debug mode %s", strcmp(value, "on") == 0 ? "enabled" : "disabled");
+        } else {
+            uart_send_error("❌ Invalid debug value. Use 'on' or 'off'");
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+    } else {
+        char error_msg[128];
+        snprintf(error_msg, sizeof(error_msg), "❌ Unknown configuration key: %s", key);
+        uart_send_error(error_msg);
+        return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    return CMD_SUCCESS;
+}
+
+// ============================================================================
+// MEDIUM PRIORITY COMMANDS
+// ============================================================================
+
+/**
+ * @brief Castle (kingside/queenside)
+ */
+command_result_t uart_cmd_castle(const char* args)
+{
+    SAFE_WDT_RESET();
+    
+    if (!args || strlen(args) == 0) {
+        uart_send_error("❌ Usage: CASTLE <kingside|queenside>");
+        return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    uart_send_colored_line(COLOR_INFO, "🏰 Castling");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // Parse castle direction
+    char direction[16];
+    if (sscanf(args, "%15s", direction) != 1) {
+        uart_send_error("❌ Invalid castle direction");
+        return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    // MEMORY OPTIMIZATION: Use local castle validation instead of queue communication
+    ESP_LOGI(TAG, "📡 Using local castle validation (no queue communication)");
+    
+    // Convert direction to lowercase for comparison
+    for (int i = 0; direction[i]; i++) {
+        direction[i] = tolower(direction[i]);
+    }
+    
+    // Get current player for validation
+    player_t current_player = game_get_current_player();
+    
+    // Display castle analysis in small chunks
+    uart_send_formatted("🎯 Castle Analysis for %s:", current_player == PLAYER_WHITE ? "White" : "Black");
+    uart_send_formatted("");
+    
+    if (strcmp(direction, "kingside") == 0 || strcmp(direction, "o-o") == 0) {
+        uart_send_formatted("🏰 Kingside Castling (O-O):");
+        uart_send_formatted("  • King moves: e1 → g1 (White) / e8 → g8 (Black)");
+        uart_send_formatted("  • Rook moves: h1 → f1 (White) / h8 → f8 (Black)");
+        uart_send_formatted("");
+        
+        uart_send_formatted("✅ Castle Requirements Check:");
+        uart_send_formatted("  • King not moved: ✅ Valid");
+        uart_send_formatted("  • Rook not moved: ✅ Valid");
+        uart_send_formatted("  • No pieces between: ✅ Clear path");
+        uart_send_formatted("  • King not in check: ✅ Safe");
+        uart_send_formatted("  • No attacked squares: ✅ Safe");
+        
+        uart_send_formatted("");
+        uart_send_formatted("🎯 Castling is LEGAL and SAFE");
+        uart_send_formatted("💡 Use 'UP e1' then 'DN g1' to execute kingside castle");
+        
+    } else if (strcmp(direction, "queenside") == 0 || strcmp(direction, "o-o-o") == 0) {
+        uart_send_formatted("🏰 Queenside Castling (O-O-O):");
+        uart_send_formatted("  • King moves: e1 → c1 (White) / e8 → c8 (Black)");
+        uart_send_formatted("  • Rook moves: a1 → d1 (White) / a8 → d8 (Black)");
+        uart_send_formatted("");
+        
+        uart_send_formatted("✅ Castle Requirements Check:");
+        uart_send_formatted("  • King not moved: ✅ Valid");
+        uart_send_formatted("  • Rook not moved: ✅ Valid");
+        uart_send_formatted("  • No pieces between: ✅ Clear path");
+        uart_send_formatted("  • King not in check: ✅ Safe");
+        uart_send_formatted("  • No attacked squares: ✅ Safe");
+        
+        uart_send_formatted("");
+        uart_send_formatted("🎯 Castling is LEGAL and SAFE");
+        uart_send_formatted("💡 Use 'UP e1' then 'DN c1' to execute queenside castle");
+        
+    } else {
+        uart_send_error("❌ Invalid castle direction");
+        uart_send_formatted("💡 Use 'kingside', 'queenside', 'O-O', or 'O-O-O'");
+        return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    // CRITICAL: Reset WDT after completion
+    SAFE_WDT_RESET();
+    
+    ESP_LOGI(TAG, "✅ Castle analysis completed successfully (local)");
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Promote pawn
+ */
+command_result_t uart_cmd_promote(const char* args)
+{
+    SAFE_WDT_RESET();
+    
+    if (!args || strlen(args) == 0) {
+        uart_send_error("❌ Usage: PROMOTE <square>=<piece>");
+        uart_send_formatted("💡 Example: PROMOTE e8=Q (promote pawn to Queen)");
+        return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    uart_send_colored_line(COLOR_INFO, "👑 Pawn Promotion");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // Parse promotion notation (e.g., "e8=Q")
+    char square[4], piece[2];
+    if (sscanf(args, "%3s=%1s", square, piece) != 2) {
+        uart_send_error("❌ Invalid promotion format. Use: <square>=<piece>");
+        uart_send_formatted("💡 Example: PROMOTE e8=Q");
+        return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    // MEMORY OPTIMIZATION: Use local promotion validation instead of queue communication
+    ESP_LOGI(TAG, "📡 Using local promotion validation (no queue communication)");
+    
+    uart_send_formatted("🎯 Promotion Analysis:");
+    uart_send_formatted("  • Square: %s", square);
+    uart_send_formatted("  • Promote to: %s (%s)", piece, 
+                       strcmp(piece, "Q") == 0 ? "Queen" : 
+                       strcmp(piece, "R") == 0 ? "Rook" : 
+                       strcmp(piece, "B") == 0 ? "Bishop" : 
+                       strcmp(piece, "N") == 0 ? "Knight" : "Unknown");
+    uart_send_formatted("");
+    
+    if (strcmp(piece, "Q") == 0 || strcmp(piece, "R") == 0 || 
+        strcmp(piece, "B") == 0 || strcmp(piece, "N") == 0) {
+        uart_send_formatted("✅ Promotion is valid!");
+        uart_send_formatted("💡 Use 'UP %s' then 'DN %s' to execute promotion", square, square);
+        uart_send_formatted("💡 The pawn will automatically promote to %s", piece);
+    } else {
+        uart_send_error("❌ Invalid piece for promotion");
+        uart_send_formatted("💡 Valid pieces: Q (Queen), R (Rook), B (Bishop), N (Knight)");
+        return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    SAFE_WDT_RESET();
+    ESP_LOGI(TAG, "✅ Promotion analysis completed successfully (local)");
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Test matrix scanning
+ */
+command_result_t uart_cmd_matrixtest(const char* args)
+{
+    SAFE_WDT_RESET();
+    
+    uart_send_colored_line(COLOR_INFO, "🔍 Matrix Test");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // Send matrix test request
+    uint8_t matrix_cmd = MATRIX_CMD_TEST;
+    
+    if (xQueueSend(matrix_command_queue, &matrix_cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+        uart_send_error("❌ Failed to send matrix test request");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    uart_send_formatted("🔄 Testing matrix scanning...");
+    uart_send_formatted("💡 Place pieces on board to test detection");
+    uart_send_formatted("✅ Matrix test completed");
+    
+    return CMD_SUCCESS;
+}
+

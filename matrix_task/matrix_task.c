@@ -90,7 +90,8 @@ static uint8_t current_pattern = 1; // Start with pattern 1
 // ============================================================================
 
 
-void matrix_scan_row(uint8_t row)
+// Internal function - scans row WITHOUT mutex (caller must hold mutex)
+static void matrix_scan_row_internal(uint8_t row)
 {
     if (row >= 8) return;
     
@@ -100,42 +101,41 @@ void matrix_scan_row(uint8_t row)
     // Small delay for signal stabilization
     vTaskDelay(pdMS_TO_TICKS(1));
     
+    // Read all column pins for this row
+    for (int col = 0; col < 8; col++) {
+        int index = row * 8 + col;
+        int pin_level = gpio_get_level(matrix_col_pins[col]);
+        
+        // In simulation mode, use simulated values
+        if (simulation_mode) {
+            matrix_state[index] = simulation_patterns[current_pattern][index];
+        } else {
+            // Real hardware: reed switch closed = piece present
+            matrix_state[index] = (pin_level == 0) ? 1 : 0;
+        }
+    }
+    
+    // Set row back to low
+    gpio_set_level(matrix_row_pins[row], 0);
+}
+
+// Public function - scans row WITH mutex protection
+void matrix_scan_row(uint8_t row)
+{
+    if (row >= 8) return;
+    
     // CRITICAL: Protect matrix state with mutex
     if (matrix_mutex != NULL) {
-        if (xSemaphoreTake(matrix_mutex, pdMS_TO_TICKS(1000)) == pdTRUE) {
-            // Read all column pins for this row
-            for (int col = 0; col < 8; col++) {
-                int index = row * 8 + col;
-                int pin_level = gpio_get_level(matrix_col_pins[col]);
-                
-                // In simulation mode, use simulated values
-                if (simulation_mode) {
-                    matrix_state[index] = simulation_patterns[current_pattern][index];
-                } else {
-                    // Real hardware: reed switch closed = piece present
-                    matrix_state[index] = (pin_level == 0) ? 1 : 0;
-                }
-            }
+        if (xSemaphoreTake(matrix_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+            matrix_scan_row_internal(row);
             xSemaphoreGive(matrix_mutex);
         } else {
             ESP_LOGW(TAG, "Failed to acquire matrix mutex for scan row");
         }
     } else {
         // Fallback if mutex not available
-        for (int col = 0; col < 8; col++) {
-            int index = row * 8 + col;
-            int pin_level = gpio_get_level(matrix_col_pins[col]);
-            
-            if (simulation_mode) {
-                matrix_state[index] = simulation_patterns[current_pattern][index];
-            } else {
-                matrix_state[index] = (pin_level == 0) ? 1 : 0;
-            }
-        }
+        matrix_scan_row_internal(row);
     }
-    
-    // Set row back to low
-    gpio_set_level(matrix_row_pins[row], 0);
 }
 
 
@@ -149,12 +149,11 @@ void matrix_scan_all(void)
     
     // CRITICAL: Protect matrix state with mutex for change detection
     if (matrix_mutex != NULL) {
-        if (xSemaphoreTake(matrix_mutex, pdMS_TO_TICKS(1000)) == pdTRUE) {
-            // Scan each row
+        if (xSemaphoreTake(matrix_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+            // Scan each row (use internal function since we already hold mutex)
             for (int row = 0; row < 8; row++) {
                 // NOTE: Don't call WDT reset in timer callback context
-                matrix_scan_row(row);
-                vTaskDelay(pdMS_TO_TICKS(1)); // Small delay between rows
+                matrix_scan_row_internal(row);
             }
             
             // Detect changes
@@ -182,8 +181,7 @@ void matrix_scan_all(void)
     } else {
         // Fallback if mutex not available
         for (int row = 0; row < 8; row++) {
-            matrix_scan_row(row);
-            vTaskDelay(pdMS_TO_TICKS(1));
+            matrix_scan_row_internal(row);
         }
         
         for (int i = 0; i < 64; i++) {
@@ -390,12 +388,13 @@ void matrix_test_scanning(void)
     matrix_reset();
     matrix_print_state();
     
-    // Test 2: Simulate piece placement (using valid notation)
+    // Test 2: Simulate piece placement
     ESP_LOGI(TAG, "Test 2: Simulating piece placement");
-    matrix_place_piece("e2"); // Place piece on e2
-    matrix_place_piece("e4"); // Place piece on e4
-    matrix_place_piece("d7"); // Place piece on d7
-    matrix_place_piece("d5"); // Place piece on d5
+    // Place pieces directly on squares
+    matrix_state[1*8 + 4] = 1; // e2
+    matrix_state[3*8 + 4] = 1; // e4
+    matrix_state[6*8 + 3] = 1; // d7
+    matrix_state[4*8 + 3] = 1; // d5
     matrix_print_state();
     
     // Test 3: Simulate piece movement
@@ -406,17 +405,17 @@ void matrix_test_scanning(void)
     
     // Test 4: Simulate piece removal
     ESP_LOGI(TAG, "Test 4: Simulating piece removal");
-    matrix_simulate_move("e4", ""); // Remove piece from e4
-    matrix_simulate_move("d5", ""); // Remove piece from d5
+    // Remove pieces directly from squares
+    matrix_state[3*8 + 4] = 0; // e4
+    matrix_state[4*8 + 3] = 0; // d5
     matrix_print_state();
     
     // Test 5: Test all squares
     ESP_LOGI(TAG, "Test 5: Testing all squares");
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
-            char square[4];
-            snprintf(square, sizeof(square), "%c%d", 'a' + col, row + 1);
-            matrix_simulate_move("", square);
+            // Place piece directly on square
+            matrix_state[row * 8 + col] = 1;
             vTaskDelay(pdMS_TO_TICKS(10)); // Small delay
         }
     }
@@ -425,24 +424,6 @@ void matrix_test_scanning(void)
     // Reset after test
     matrix_reset();
     ESP_LOGI(TAG, "✅ Matrix test completed successfully");
-}
-
-void matrix_place_piece(const char* square)
-{
-    uint8_t square_index = matrix_notation_to_square(square);
-    
-    if (square_index == 255) {
-        ESP_LOGE(TAG, "Invalid square notation: %s", square);
-        return;
-    }
-    
-    ESP_LOGI(TAG, "Placing piece on square: %s (%d)", square, square_index);
-    
-    // Place piece at square
-    matrix_state[square_index] = 1;
-    
-    // Force change detection
-    matrix_changes[square_index] = 1;
 }
 
 void matrix_simulate_move(const char* from, const char* to)

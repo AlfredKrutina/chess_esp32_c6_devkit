@@ -2,5 +2,15 @@
 idf_component_register(
     SRCS "web_server_task.c"
     INCLUDE_DIRS "include"
-    REQUIRES freertos_chess driver esp_system esp_timer nvs_flash
+    REQUIRES 
+        freertos_chess 
+        driver 
+        esp_system 
+        esp_timer 
+        nvs_flash
+        esp_wifi
+        esp_netif
+        esp_http_server
+        esp_event
+        json
 )

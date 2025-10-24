@@ -116,11 +116,12 @@ extern "C" {
 #define LED_QUEUE_SIZE 50           // ✅ OPRAVA: Zvětšeno z 15 na 50 pro stabilitu
 #define MATRIX_QUEUE_SIZE 8      // Reduced from 15 to 8 (sufficient for scanning)
 #define BUTTON_QUEUE_SIZE 5      // Reduced from 8 to 5 (button events are infrequent)
-#define UART_QUEUE_SIZE 20       // Reduced from 30 to 20 (streaming reduces buffering)
+#define UART_QUEUE_SIZE 10       // Reduced from 20 to 10 to save ~38 KB memory
 #define GAME_QUEUE_SIZE 20       // Reduced from 30 to 20 (sufficient for game commands)
 #define ANIMATION_QUEUE_SIZE 5   // Reduced from 8 to 5 (simple animations)
 #define SCREEN_SAVER_QUEUE_SIZE 3 // Unchanged (already minimal)
 #define WEB_SERVER_QUEUE_SIZE 10 // Reduced from 15 to 10 (streaming reduces needs)
+// #define MATTER_QUEUE_SIZE 10     // DISABLED - Matter not needed
 
 // ============================================================================
 // TASK STACK SIZES AND PRIORITIES
@@ -132,12 +133,12 @@ extern "C" {
 #define MATRIX_TASK_STACK_SIZE (3 * 1024)       // 3KB (unchanged - already optimal)
 #define BUTTON_TASK_STACK_SIZE (3 * 1024)       // 3KB (unchanged - already optimal)
 #define UART_TASK_STACK_SIZE (6 * 1024)         // 6KB (UART task needs more stack for command processing and response handling)
-#define GAME_TASK_STACK_SIZE (12 * 1024)        // 12KB (increased for complex chess logic and error handling)
+#define GAME_TASK_STACK_SIZE (10 * 1024)        // ✅ OPRAVA: 10KB pro bezpečný error handling (zvětšeno z 6KB)
 #define ANIMATION_TASK_STACK_SIZE (2 * 1024)    // 2KB (reduced from 3KB - simple animations)
 #define SCREEN_SAVER_TASK_STACK_SIZE (2 * 1024) // 2KB (reduced from 3KB - simple patterns)
-#define TEST_TASK_STACK_SIZE (2 * 1024)         // 2KB (reduced from 3KB - debug only)
-#define MATTER_TASK_STACK_SIZE (8 * 1024)       // 8KB (increased for Matter protocol stability)
-#define WEB_SERVER_TASK_STACK_SIZE (6 * 1024)   // 6KB (reduced from 8KB - streaming reduces needs)
+#define TEST_TASK_STACK_SIZE (4 * 1024)         // 4KB (increased from 2KB to prevent stack overflow)
+// #define MATTER_TASK_STACK_SIZE (8 * 1024)       // DISABLED - Matter not needed
+#define WEB_SERVER_TASK_STACK_SIZE (20 * 1024)  // 20KB (increased for WiFi/HTTP server stability + HTML handling)
 #define RESET_BUTTON_TASK_STACK_SIZE (2 * 1024) // 2KB (unchanged)
 #define PROMOTION_BUTTON_TASK_STACK_SIZE (2 * 1024) // 2KB (unchanged)
 
@@ -146,11 +147,11 @@ extern "C" {
 #define MATRIX_TASK_PRIORITY 6       // ✅ Hardware input
 #define BUTTON_TASK_PRIORITY 5       // ✅ User input
 #define UART_TASK_PRIORITY 3         // ✅ Communication
-#define GAME_TASK_PRIORITY 0         // ✅ OPRAVA: Sníženo pod Timer Daemon (1)
+#define GAME_TASK_PRIORITY 4         // ✅ OPRAVA: Sníženo z 5 na 4
 #define ANIMATION_TASK_PRIORITY 3    // ✅ Visual effects
 #define SCREEN_SAVER_TASK_PRIORITY 2 // ✅ Background
 #define TEST_TASK_PRIORITY 1         // ✅ Debug only
-#define MATTER_TASK_PRIORITY 4       // ✅ IoT functionality
+// #define MATTER_TASK_PRIORITY 4       // DISABLED - Matter not needed
 #define WEB_SERVER_TASK_PRIORITY 3   // ✅ Communication
 #define RESET_BUTTON_TASK_PRIORITY 3 // ✅ User input
 #define PROMOTION_BUTTON_TASK_PRIORITY 3 // ✅ User input

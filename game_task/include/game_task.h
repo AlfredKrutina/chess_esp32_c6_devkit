@@ -67,6 +67,42 @@ bool convert_coords_to_notation(uint8_t row, uint8_t col, char* notation);
 void game_process_chess_move(const chess_move_command_t* cmd);
 
 // ============================================================================
+// WEB SERVER JSON EXPORT FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Export board state to JSON string
+ * @param buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_get_board_json(char* buffer, size_t size);
+
+/**
+ * @brief Export game status to JSON string
+ * @param buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_get_status_json(char* buffer, size_t size);
+
+/**
+ * @brief Export move history to JSON string
+ * @param buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_get_history_json(char* buffer, size_t size);
+
+/**
+ * @brief Export captured pieces to JSON string
+ * @param buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_get_captured_json(char* buffer, size_t size);
+
+// ============================================================================
 // TASK FUNCTION PROTOTYPES
 // ============================================================================
 
@@ -251,25 +287,6 @@ void game_display_move_error(move_error_t error, const chess_move_t* move);
 void game_show_move_suggestions(uint8_t row, uint8_t col);
 uint32_t game_get_available_moves(uint8_t row, uint8_t col, move_suggestion_t* suggestions, uint32_t max_suggestions);
 
-// Enhanced error handling functions
-void game_handle_invalid_move(move_error_t error, const chess_move_t* move);
-bool game_is_error_recovery_active(void);
-bool game_handle_piece_return(uint8_t row, uint8_t col);
-bool game_is_error_recovery_timeout(void);
-void game_clear_error_recovery(void);
-
-// Strict castling functions (no automatic moves)
-bool game_start_castling_transaction_strict(bool is_kingside, uint8_t king_from_row, uint8_t king_from_col, uint8_t king_to_row, uint8_t king_to_col);
-bool game_complete_castling_strict(void);
-uint32_t game_get_error_count(void);
-
-// Castling transaction functions
-bool game_handle_castling_king_move(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col);
-bool game_handle_castling_rook_move(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col);
-void game_cancel_castling_transaction(void);
-bool game_is_castling_in_progress(void);
-bool game_is_castling_timeout(void);
-
 
 // ============================================================================
 // MOVE EXECUTION FUNCTIONS
@@ -356,10 +373,11 @@ void game_show_move_animation(uint8_t from_row, uint8_t from_col,
                              piece_t piece, piece_t captured);
 
 /**
- * @brief Show simple player change animation
- * @param current_player Current player (determines row lighting direction)
+ * @brief Show player change animation
+ * @param previous_player Previous player
+ * @param current_player Current player
  */
-void game_show_player_change_animation(player_t current_player);
+void game_show_player_change_animation(player_t previous_player, player_t current_player);
 
 // Animation test functions
 void game_test_move_animation(void);
@@ -434,6 +452,138 @@ void game_process_matrix_events(void);
  * @brief Highlight all movable pieces for current player
  */
 void game_highlight_movable_pieces(void);
+
+/**
+ * @brief Detect if pieces are arranged in starting positions (rows 1, 2, 7, 8)
+ * @return true if pieces are in starting positions, false otherwise
+ */
+bool game_detect_new_game_setup(void);
+
+// ============================================================================
+// CASTLING ANIMATION SYSTEM
+// ============================================================================
+
+/**
+ * @brief Start castle animation - highlight rook that needs to be moved
+ * @param move Castle move (king has already moved)
+ */
+void game_start_castle_animation(const chess_move_extended_t* move);
+
+/**
+ * @brief Check if castle animation is active
+ * @return true if castle animation is waiting for rook move
+ */
+bool game_is_castle_animation_active(void);
+
+/**
+ * @brief Check if castling is expected (king lifted and about to be placed 2 squares away)
+ * @return true if castling is expected
+ */
+bool game_is_castling_expected(void);
+
+/**
+ * @brief Complete castle animation when rook is moved
+ * @param from_row Rook source row
+ * @param from_col Rook source column
+ * @param to_row Rook destination row
+ * @param to_col Rook destination column
+ * @return true if castle was completed successfully
+ */
+bool game_complete_castle_animation(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col);
+
+/**
+ * @brief Start repeating rook animation for castling
+ */
+void game_start_repeating_rook_animation(void);
+
+/**
+ * @brief Stop repeating rook animation for castling
+ */
+void game_stop_repeating_rook_animation(void);
+
+/**
+ * @brief Process drop command (DN)
+ * @param cmd Drop command
+ */
+void game_process_drop_command(const chess_move_command_t* cmd);
+
+/**
+ * @brief Timer callback for repeating rook animation
+ * @param xTimer Timer handle
+ */
+void rook_animation_timer_callback(TimerHandle_t xTimer);
+
+// ============================================================================
+// ENHANCED SMART ERROR HANDLING FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Enhanced smart error handling for invalid moves
+ * @param move Invalid move that was attempted
+ * @param error Type of error that occurred
+ */
+void game_handle_invalid_move_smart(const chess_move_t* move, move_error_t error);
+
+/**
+ * @brief Highlight invalid target area with red LEDs
+ * @param row Row of invalid target
+ * @param col Column of invalid target
+ */
+void game_highlight_invalid_target_area(uint8_t row, uint8_t col);
+
+/**
+ * @brief Highlight valid moves for a specific piece
+ * @param row Row of the piece
+ * @param col Column of the piece
+ */
+void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col);
+
+/**
+ * @brief Enhanced drop command processing with smart error handling
+ * @param cmd Drop command
+ */
+void game_process_drop_command_enhanced(const chess_move_command_t* cmd);
+
+/**
+ * @brief Final integrated drop command with all fixes
+ * @param cmd Drop command
+ */
+void game_process_drop_command_final(const chess_move_command_t* cmd);
+
+// ============================================================================
+// ENHANCED CASTLING SYSTEM FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Detect and handle castling in DROP command
+ * @param move Move that was attempted
+ */
+void game_detect_and_handle_castling(const chess_move_t* move);
+
+/**
+ * @brief Show LED guidance for castling rook move
+ */
+void game_show_castling_rook_guidance();
+
+/**
+ * @brief Check if castling is completed in DROP command
+ * @param move Move that was attempted
+ * @return true if castling was completed
+ */
+bool game_check_castling_completion(const chess_move_t* move);
+
+
+/**
+ * @brief Show castling completion animation
+ */
+void show_castling_completion_animation();
+
+/**
+ * @brief Show blinking red LED for invalid move error
+ * @param error_row Row of invalid position
+ * @param error_col Column of invalid position
+ */
+void game_show_invalid_move_error_with_blink(uint8_t error_row, uint8_t error_col);
 
 
 #endif // GAME_TASK_H

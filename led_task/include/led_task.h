@@ -20,9 +20,6 @@
 #include <stdbool.h>
 #include "esp_err.h"
 
-// Global LED component control
-extern volatile bool g_led_system_enabled;
-
 
 
 void led_task_start(void *pvParameters);
@@ -39,10 +36,6 @@ void led_set_button_feedback(uint8_t button_id, bool available);
 void led_set_button_press(uint8_t button_id);
 void led_set_button_release(uint8_t button_id);
 uint32_t led_get_button_color(uint8_t button_id);
-
-// Endgame wave animation functions
-void led_update_endgame_wave(void);
-void led_stop_endgame_wave(void);
 
 // New button LED logic functions
 void led_set_button_promotion_available(uint8_t button_id, bool available);
@@ -64,10 +57,6 @@ void led_set_all_safe(uint8_t red, uint8_t green, uint8_t blue);
 // Force immediate LED update for critical operations
 void led_force_immediate_update(void);
 
-// Boot animation LED functions
-void led_boot_animation_step(uint8_t progress_percent);
-void led_boot_animation_fade_out(void);
-
 // LED layer management functions
 void led_clear_board_only(void);           // Clear only board LEDs (0-63)
 void led_clear_buttons_only(void);         // Clear only button LEDs (64-72)
@@ -77,6 +66,7 @@ void led_update_button_availability_from_game(void); // Update button availabili
 // Error handling LED functions
 void led_error_invalid_move(const led_command_t* cmd);
 void led_error_return_piece(const led_command_t* cmd);
+void led_anim_endgame(const led_command_t* cmd);
 void led_error_recovery(const led_command_t* cmd);
 void led_show_legal_moves(const led_command_t* cmd);
 
@@ -97,11 +87,5 @@ void led_setup_animation_after_endgame(void);
 
 // Endgame animation control
 void led_stop_endgame_animation(void);
-
-// Enhanced brightness control functions
-esp_err_t led_set_pixel_enhanced(uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue, float brightness);
-void led_interpolate_color(const void* from_color, const void* to_color, float progress, void* result_color);
-void led_apply_breathing_effect(const void* base_color, float breath_phase, float intensity, void* result_color);
-void led_apply_multi_harmonic_pulse(const void* base_color, float pulse_phase, int harmonics, void* result_color);
 
 #endif // LED_TASK_H

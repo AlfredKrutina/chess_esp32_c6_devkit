@@ -38,8 +38,7 @@ typedef enum {
     CMD_ERROR_INVALID_SYNTAX = -1,
     CMD_ERROR_INVALID_PARAMETER = -2,
     CMD_ERROR_SYSTEM_ERROR = -3,
-    CMD_ERROR_NOT_FOUND = -4,
-    CMD_ERROR_TIMEOUT = -5
+    CMD_ERROR_NOT_FOUND = -4
 } command_result_t;
 
 // Command handler function type
@@ -122,8 +121,6 @@ command_result_t uart_cmd_debug_board(const char* args);
 command_result_t uart_cmd_memcheck(const char* args);
 command_result_t uart_cmd_show_mutexes(const char* args);
 command_result_t uart_cmd_show_fifos(const char* args);
-command_result_t uart_cmd_recover(const char* args);
-command_result_t uart_cmd_moves(const char* args);
 
 // Help functions
 void uart_display_main_help(void);

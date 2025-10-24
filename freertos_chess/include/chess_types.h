@@ -63,13 +63,10 @@ typedef enum {
     GAME_STATE_PAUSED = 3,
     GAME_STATE_FINISHED = 4,
     GAME_STATE_ERROR = 5,
-    GAME_STATE_WAITING_PIECE_DROP = 6,
-    GAME_STATE_CASTLING_IN_PROGRESS = 7,
-    GAME_STATE_ERROR_RECOVERY_OPPONENT_LIFT = 8,
-    GAME_STATE_OPPONENT_PIECE_INVALID = 9,
-    GAME_STATE_OPPONENT_RETURN_ANIMATION = 10,
-    GAME_STATE_ERROR_RECOVERY_GENERAL = 11,
-    GAME_STATE_ERROR_RECOVERY_CASTLING_CANCEL = 12
+    GAME_STATE_PLAYING = 6,
+    GAME_STATE_PROMOTION = 7,
+    GAME_STATE_ERROR_RECOVERY = 8,  // New state for error recovery
+    GAME_STATE_WAITING_FOR_RETURN = 9  // Waiting for piece to be returned
 } game_state_t;
 
 /**
@@ -104,8 +101,7 @@ typedef enum {
     MOVE_ERROR_GAME_NOT_ACTIVE = 16,
     MOVE_ERROR_INVALID_MOVE_STRUCTURE = 17,
     MOVE_ERROR_INVALID_COORDINATES = 18,
-    MOVE_ERROR_ILLEGAL_MOVE = 19,
-    MOVE_ERROR_INVALID_CASTLING = 20
+    MOVE_ERROR_ILLEGAL_MOVE = 19
 } move_error_t;
 
 // ============================================================================
@@ -199,6 +195,7 @@ typedef enum {
     GAME_CMD_EVALUATE = 17,     // position evaluation
     GAME_CMD_SAVE = 18,         // save game
     GAME_CMD_LOAD = 19,         // load game
+    GAME_CMD_PUZZLE = 20,       // chess puzzle
     
     // Medium Priority Commands
     GAME_CMD_CASTLE = 21,       // castling
@@ -213,17 +210,22 @@ typedef enum {
     GAME_CMD_ENDGAME_BLACK = 26, // endgame black wins
     
     // Game Management Commands
-    GAME_CMD_SHOW_HISTORY = 29,  // show move history
     GAME_CMD_LIST_GAMES = 27,    // list saved games
     GAME_CMD_DELETE_GAME = 28,   // delete saved game
     
+    // Puzzle Commands
+    GAME_CMD_PUZZLE_NEXT = 29,   // Next puzzle step
+    GAME_CMD_PUZZLE_RESET = 30,  // Reset current puzzle
+    GAME_CMD_PUZZLE_COMPLETE = 31, // Complete current puzzle
+    GAME_CMD_PUZZLE_VERIFY = 32, // Verify puzzle move
     
     // Animation Test Commands
     GAME_CMD_TEST_MOVE_ANIM = 33,    // Test move animation
     GAME_CMD_TEST_PLAYER_ANIM = 34,  // Test player change animation
     GAME_CMD_TEST_CASTLE_ANIM = 35,  // Test castling animation
     GAME_CMD_TEST_PROMOTE_ANIM = 36, // Test promotion animation
-    GAME_CMD_TEST_ENDGAME_ANIM = 37  // Test endgame animation
+    GAME_CMD_TEST_ENDGAME_ANIM = 37, // Test endgame animation
+    GAME_CMD_TEST_PUZZLE_ANIM = 38   // Test puzzle animation
 } game_command_type_t;
 
 /**
@@ -231,8 +233,8 @@ typedef enum {
  */
 typedef struct {
     uint8_t type;
-    char from_notation[4];
-    char to_notation[4];
+    char from_notation[8];  // ✅ OPRAVA: Zvětšeno z 4 na 8 pro bezpečnost
+    char to_notation[8];    // ✅ OPRAVA: Zvětšeno z 4 na 8 pro bezpečnost  
     uint8_t player;
     QueueHandle_t response_queue;
     uint8_t promotion_choice;  // For promotion commands
@@ -286,6 +288,13 @@ typedef enum {
     LED_CMD_MATRIX_OFF = 11,    // Disable matrix scanning LED effects
     LED_CMD_MATRIX_ON = 12,     // Enable matrix scanning LED effects
     
+    // Puzzle Animation Commands
+    LED_CMD_PUZZLE_START = 13,   // Start puzzle animation sequence
+    LED_CMD_PUZZLE_HIGHLIGHT = 14, // Highlight source piece
+    LED_CMD_PUZZLE_PATH = 15,    // Show path from source to destination
+    LED_CMD_PUZZLE_DESTINATION = 16, // Highlight destination
+    LED_CMD_PUZZLE_COMPLETE = 17,   // Complete puzzle step animation
+    LED_CMD_PUZZLE_STOP = 18,    // Stop all puzzle animations
     
     // Advanced Chess Animations
     LED_CMD_ANIM_PLAYER_CHANGE = 19, // Player change animation (rays)
@@ -295,6 +304,7 @@ typedef enum {
     LED_CMD_ANIM_ENDGAME = 23,       // Endgame animation (waves)
     LED_CMD_ANIM_CHECK = 24,         // Check animation
     LED_CMD_ANIM_CHECKMATE = 25,     // Checkmate animation
+    LED_CMD_ANIM_PUZZLE_PATH = 26,   // Puzzle path animation
     
     // Component control commands
     LED_CMD_DISABLE = 25,            // Disable LED component
@@ -318,6 +328,13 @@ typedef enum {
     LED_CMD_ERROR_RETURN_PIECE = 37,  // Force user to return piece
     LED_CMD_ERROR_RECOVERY = 38,      // Recovery from error state
     LED_CMD_SHOW_LEGAL_MOVES = 39,    // Show all legal moves for piece type
+    
+    // Enhanced Castling System commands
+    LED_CMD_CASTLING_GUIDANCE = 40,   // Show castling guidance (king/rook positions)
+    LED_CMD_CASTLING_ERROR = 41,      // Show castling error indication
+    LED_CMD_CASTLING_CELEBRATION = 42, // Show castling completion celebration
+    LED_CMD_CASTLING_TUTORIAL = 43,   // Show castling tutorial
+    LED_CMD_CASTLING_CLEAR = 44,      // Clear all castling indications
     
     LED_CMD_STATUS_ACTIVE = 97,
     LED_CMD_STATUS_COMPACT = 98,
@@ -480,10 +497,6 @@ typedef struct {
     uint8_t log_level;          // Log level (ESP_LOG_*)
     uint32_t command_timeout_ms; // Command timeout in milliseconds
     bool echo_enabled;          // Character echo enabled
-    // Extended configuration for LED and Matrix
-    uint8_t led_brightness;     // LED brightness 0-100%
-    uint8_t matrix_sensitivity; // Matrix sensitivity 0-100%
-    bool debug_mode_enabled;    // Debug mode enabled/disabled
 } system_config_t;
 
 // Forward declarations for configuration functions
@@ -492,7 +505,43 @@ esp_err_t config_load_from_nvs(system_config_t* config);
 esp_err_t config_save_to_nvs(const system_config_t* config);
 esp_err_t config_apply_settings(const system_config_t* config);
 
+/**
+ * @brief Puzzle difficulty levels
+ */
+typedef enum {
+    PUZZLE_DIFFICULTY_BEGINNER = 1,   // 2-3 moves, basic tactics
+    PUZZLE_DIFFICULTY_INTERMEDIATE = 2, // 3-5 moves, complex tactics
+    PUZZLE_DIFFICULTY_ADVANCED = 3,   // 5+ moves, advanced combinations
+    PUZZLE_DIFFICULTY_MASTER = 4      // Complex endgames and studies
+} puzzle_difficulty_t;
 
+/**
+ * @brief Puzzle step structure
+ */
+typedef struct {
+    uint8_t from_row;
+    uint8_t from_col;
+    uint8_t to_row;
+    uint8_t to_col;
+    char description[64];  // Human readable description
+    bool is_forced;        // Whether this move is forced
+} puzzle_step_t;
+
+/**
+ * @brief Complete puzzle structure
+ */
+typedef struct {
+    char name[32];                    // Puzzle name
+    char description[128];            // Puzzle description
+    puzzle_difficulty_t difficulty;   // Difficulty level
+    piece_t initial_board[8][8];     // Initial board position
+    puzzle_step_t steps[16];         // Up to 16 moves
+    uint8_t step_count;              // Number of steps
+    uint8_t current_step;            // Current step index
+    bool is_active;                  // Whether puzzle is active
+    uint32_t start_time;             // Puzzle start timestamp
+    uint32_t completion_time;        // Completion timestamp
+} chess_puzzle_t;
 
 /**
  * @brief Animation state for LED effects
