@@ -1,24 +1,30 @@
 /**
  * @file game_task.c
- * @brief ESP32-C6 Chess System v2.4 - Game Task Implementation
+ * @brief ESP32-C6 Chess System v2.4 - Implementace Game tasku
  * 
- * This task manages the chess game logic:
- * - Game state management
- * - Move validation and execution
- * - Game rules enforcement
- * - Player turn management
- * - Game status tracking
+ * Tento task spravuje logiku sachove hry:
+ * - Sprava stavu hry
+ * - Validace a vykonavani tahu
+ * - Vynucovani pravidel hry
+ * - Sprava tahu hracu
+ * - Sledovani stavu hry
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
  * 
- * Features:
- * - Standard chess rules
- * - Move validation
- * - Game state persistence
- * - Move history
- * - Game analysis
+ * @details
+ * Tento task je srdcem sachoveho systemu. Obsahuje vsechnu logiku
+ * pro hrani sachu vcetne pravidel, validace tahu a spravy stavu hry.
+ * Komunikuje s ostatnimi tasky pres fronty a poskytuje API pro
+ * ovladani hry.
+ * 
+ * Funkce:
+ * - Standardni sachova pravidla
+ * - Validace tahu
+ * - Persistence stavu hry
+ * - Historie tahu
+ * - Analyza hry
  */
 
 
@@ -53,6 +59,37 @@
 
 
 static const char *TAG = "GAME_TASK";
+
+// ============================================================================
+// WDT WRAPPER FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND
+ * 
+ * Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste
+ * registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.
+ * 
+ * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze)
+ * 
+ * @details
+ * Funkce je pouzivana pro bezpecny reset watchdog timeru behem game operaci.
+ * Zabranuje chybam pri startupu kdy task jeste neni registrovany.
+ */
+static esp_err_t game_task_wdt_reset_safe(void) {
+    esp_err_t ret = esp_task_wdt_reset();
+    
+    if (ret == ESP_ERR_NOT_FOUND) {
+        // Log as WARNING instead of ERROR - task not registered yet
+        ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
+        return ESP_OK; // Treat as success for our purposes
+    } else if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    return ESP_OK;
+}
 
 // External queue declarations - LED queues removed, using direct LED calls now
 
@@ -541,6 +578,19 @@ static const char* piece_symbols[] = {
 // ============================================================================
 
 
+/**
+ * @brief Inicializuje sachovnici do vychoziho stavu
+ * 
+ * Tato funkce nastavi sachovnici do standardniho vychoziho stavu.
+ * Umisti vsechny figurky na jejich vychozi pozice podle sachovych pravidel.
+ * 
+ * @details
+ * Funkce nastavi:
+ * - Bile figurky na radky 1 a 2
+ * - Cerne figurky na radky 7 a 8
+ * - Vsechny figurky na jejich standardni pozice
+ * - Resetuje vsechny stavy hry
+ */
 void game_initialize_board(void)
 {
     ESP_LOGI(TAG, "Initializing enhanced chess board...");
@@ -607,6 +657,22 @@ void game_initialize_board(void)
 }
 
 
+/**
+ * @brief Resetuje hru do vychoziho stavu
+ * 
+ * Tato funkce resetuje hru do vychoziho stavu. Vymaze vsechny tahy,
+ * resetuje stavy hry a inicializuje novou hru.
+ * 
+ * @details
+ * Funkce resetuje:
+ * - Stav hry na IDLE
+ * - Aktualni hrace na WHITE
+ * - Pocet tahu na 0
+ * - Vsechny castling flagy
+ * - En passant stav
+ * - Historie tahu
+ * - Error recovery stav
+ */
 void game_reset_game(void)
 {
     ESP_LOGI(TAG, "Resetting game...");
@@ -657,6 +723,21 @@ void game_reset_game(void)
 }
 
 
+/**
+ * @brief Spusti novou hru
+ * 
+ * Tato funkce spusti novou sachovou hru. Inicializuje sachovnici,
+ * resetuje vsechny stavy a pripravi hru pro hrani.
+ * 
+ * @details
+ * Funkce:
+ * - Inicializuje sachovnici do vychoziho stavu
+ * - Resetuje vsechny stavy hry
+ * - Nastavi prvni hrace na WHITE
+ * - Zastavi vsechny animace
+ * - Aktualizuje LED feedback
+ * - Zvysi pocet her
+ */
 void game_start_new_game(void)
 {
     ESP_LOGI(TAG, "Starting new game...");
@@ -2115,7 +2196,7 @@ static void game_send_board_to_uart(QueueHandle_t response_queue)
     }
     
     // Reset WDT before starting operation
-    esp_task_wdt_reset();
+    game_task_wdt_reset_safe();
     
     // MEMORY OPTIMIZATION: Use streaming output instead of malloc(3072)
     // This eliminates heap fragmentation and reduces memory usage
@@ -2137,7 +2218,7 @@ static void game_send_board_to_uart(QueueHandle_t response_queue)
     // Stream board rows
     for (int row = 7; row >= 0; row--) {
         // Reset watchdog every row to prevent timeouts
-        esp_task_wdt_reset();
+        game_task_wdt_reset_safe();
         
         stream_printf("%d |", row + 1);
         
@@ -2203,7 +2284,7 @@ static void game_send_board_to_uart(QueueHandle_t response_queue)
     ESP_LOGI(TAG, "✅ Board display streaming completed successfully");
     
     // Final WDT reset
-    esp_task_wdt_reset();
+    game_task_wdt_reset_safe();
 }
 
 // Function removed - using game_send_board_to_uart(QueueHandle_t) instead
@@ -3735,7 +3816,7 @@ void game_process_component_off_command(const chess_move_command_t* cmd)
         chunk_response.data[chunk_size] = '\0';
         
         // Reset WDT before sending chunk
-        esp_task_wdt_reset();
+        game_task_wdt_reset_safe();
         
         // Send chunk
         if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
@@ -3802,7 +3883,7 @@ void game_process_component_on_command(const chess_move_command_t* cmd)
         chunk_response.data[chunk_size] = '\0';
         
         // Reset WDT before sending chunk
-        esp_task_wdt_reset();
+        game_task_wdt_reset_safe();
         
         // Send chunk
         if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
@@ -4142,7 +4223,7 @@ void game_process_list_games_command(const chess_move_command_t* cmd)
         chunk_response.data[chunk_size] = '\0';
         
         // Reset WDT before sending chunk
-        esp_task_wdt_reset();
+        game_task_wdt_reset_safe();
         
         // Send chunk
         if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
@@ -4215,7 +4296,7 @@ void game_process_delete_game_command(const chess_move_command_t* cmd)
         chunk_response.data[chunk_size] = '\0';
         
         // Reset WDT before sending chunk
-        esp_task_wdt_reset();
+        game_task_wdt_reset_safe();
         
         // Send chunk
         if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
@@ -5909,8 +5990,13 @@ void game_task_start(void *pvParameters)
 {
     ESP_LOGI(TAG, "Game task started successfully");
     
-    // NOTE: Task is already registered with TWDT in main.c
-    // No need to register again here to avoid duplicate registration
+    // ✅ CRITICAL: Register with TWDT from within task
+    esp_err_t wdt_ret = esp_task_wdt_add(NULL);
+    if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
+        ESP_LOGE(TAG, "Failed to register Game task with TWDT: %s", esp_err_to_name(wdt_ret));
+    } else {
+        ESP_LOGI(TAG, "✅ Game task registered with TWDT");
+    }
     
     ESP_LOGI(TAG, "Features:");
     ESP_LOGI(TAG, "  • Standard chess rules");
@@ -5931,7 +6017,7 @@ void game_task_start(void *pvParameters)
     
     for (;;) {
         // CRITICAL: Reset watchdog for game task in every iteration (only if registered)
-        esp_err_t wdt_ret = esp_task_wdt_reset();
+        esp_err_t wdt_ret = game_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }
@@ -7543,7 +7629,7 @@ void game_process_puzzle_next_command(const chess_move_command_t* cmd)
         chunk_response.data[chunk_size] = '\0';
         
         // Reset WDT before sending chunk
-        esp_task_wdt_reset();
+        game_task_wdt_reset_safe();
         
         // Send chunk
         if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
@@ -7641,7 +7727,7 @@ void game_process_puzzle_reset_command(const chess_move_command_t* cmd)
         chunk_response.data[chunk_size] = '\0';
         
         // Reset WDT before sending chunk
-        esp_task_wdt_reset();
+        game_task_wdt_reset_safe();
         
         // Send chunk
         if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
@@ -7738,7 +7824,7 @@ void game_process_puzzle_complete_command(const chess_move_command_t* cmd)
         chunk_response.data[chunk_size] = '\0';
         
         // Reset WDT before sending chunk
-        esp_task_wdt_reset();
+        game_task_wdt_reset_safe();
         
         // Send chunk
         if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
@@ -7829,7 +7915,7 @@ void game_process_puzzle_verify_command(const chess_move_command_t* cmd)
         chunk_response.data[chunk_size] = '\0';
         
         // Reset WDT before sending chunk
-        esp_task_wdt_reset();
+        game_task_wdt_reset_safe();
         
         // Send chunk
         if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
@@ -8320,9 +8406,9 @@ esp_err_t game_get_status_json(char* buffer, size_t size)
     offset += snprintf(buffer + offset, size - offset, 
                       "{\"game_state\":\"%s\","
                       "\"current_player\":\"%s\","
-                      "\"move_count\":%lu,"
-                      "\"white_time\":%lu,"
-                      "\"black_time\":%lu,"
+                      "\"move_count\":%" PRIu32 ","
+                      "\"white_time\":%" PRIu32 ","
+                      "\"black_time\":%" PRIu32 ","
                       "\"in_check\":%s,"
                       "\"checkmate\":%s,"
                       "\"stalemate\":%s,",
@@ -8382,7 +8468,7 @@ esp_err_t game_get_history_json(char* buffer, size_t size)
         char piece_char = piece_to_char(move_history[i].piece);
         
         offset += snprintf(buffer + offset, size - offset,
-                          "{\"from\":\"%s\",\"to\":\"%s\",\"piece\":\"%c\",\"timestamp\":%lu}",
+                          "{\"from\":\"%s\",\"to\":\"%s\",\"piece\":\"%c\",\"timestamp\":%" PRIu32 "}",
                           from_notation, to_notation, piece_char, move_history[i].timestamp);
         
         if (i < history_index - 1 && i < MAX_MOVES_HISTORY - 1) {

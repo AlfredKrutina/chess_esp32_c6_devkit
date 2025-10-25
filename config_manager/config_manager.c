@@ -1,16 +1,21 @@
 /**
  * @file config_manager.c
- * @brief ESP32-C6 Chess System v2.4 - Configuration Management
+ * @brief ESP32-C6 Chess System v2.4 - Sprava konfigurace
  * 
- * This module handles system configuration persistence in NVS:
- * - Load/save configuration from/to NVS
- * - Apply configuration settings
- * - Default configuration management
- * - Configuration validation
+ * Tento modul zpracovava persistenci systemove konfigurace v NVS:
+ * - Nacteni/ulozeni konfigurace z/do NVS
+ * - Aplikace konfiguracnich nastaveni
+ * - Sprava vychozi konfigurace
+ * - Validace konfigurace
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
+ * 
+ * @details
+ * Tento modul umoznuje ulozeni a nacteni konfigurace systemu
+ * do/ze NVS flash pameti. Udrzuje vychozi hodnoty a validuje
+ * konfiguraci pred aplikaci.
  */
 
 #include "config_manager.h"

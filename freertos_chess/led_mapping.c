@@ -1,6 +1,14 @@
 /**
  * @file led_mapping.c  
- * @brief Správné mapování šachovnicové pozice na LED index (serpentine layout)
+ * @brief Spravne mapovani sachovnicove pozice na LED index (serpentine layout)
+ * 
+ * Tento modul obsahuje funkce pro prevod sachovnicovych pozic na LED indexy.
+ * Pouziva serpentine layout pro optimalni rozlozeni LED na sachovnici.
+ * 
+ * @details
+ * Serpentine layout znamena ze LED jsou rozlozeny v hadovitem vzoru:
+ * a1,b1,c1,d1,e1,f1,g1,h1, h2,g2,f2,e2,d2,c2,b2,a2, a3,b3,c3...
+ * Toto rozlozeni umoznuje jednoduchy prevod pozic na LED indexy.
  */
 
 #include "led_mapping.h"

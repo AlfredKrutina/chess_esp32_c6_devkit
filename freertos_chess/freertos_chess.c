@@ -1,37 +1,42 @@
 /**
  * @file freertos_chess.c
- * @brief ESP32-C6 Chess System v2.4 - FreeRTOS Chess Component Implementation
+ * @brief ESP32-C6 Chess System v2.4 - Implementace FreeRTOS Chess komponenty
  * 
- * This component provides the core FreeRTOS infrastructure for the chess system:
- * - Hardware initialization and GPIO configuration
- * - Queue and mutex creation and management
- * - System-wide utility functions
+ * Tato komponenta poskytuje zakladni FreeRTOS infrastrukturu pro sachovy system:
+ * - Inicializace hardware a GPIO konfigurace
+ * - Vytvareni a sprava front a mutexu
+ * - Systemove utility funkce
  * - Hardware abstraction layer
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
  * 
- * Hardware Features:
- * - WS2812B LED strip (73 LEDs: 64 board + 9 buttons)
- * - 8x8 Reed Switch Matrix for piece detection
- * - Button LED feedback system
- * - Time-multiplexed GPIO sharing
- * - USB Serial JTAG console
+ * @details
+ * Tato komponenta je srdcem FreeRTOS infrastruktury sachoveho systemu.
+ * Obsahuje inicializaci vsech hardware komponent, vytvareni front
+ * a mutexu, a poskytuje utility funkce pro cely system.
  * 
- * GPIO Mapping (ESP32-C6 DevKit):
- * - LED Data: GPIO7 (WS2812B) - Safe pin
- * - Matrix Rows: GPIO10,11,18,19,20,21,22,23 (8 outputs)
- * - Matrix Columns: GPIO0,1,2,3,6,14,16,17 (8 inputs with pull-up)
- * - Button Pins: Shared with matrix columns (time-multiplexed)
- * - Status LED: GPIO8 (separate from matrix)
- * - Reset Button: GPIO27 (separate pin)
- * - UART: USB Serial JTAG (built-in, no external pins)
+ * Hardware funkce:
+ * - WS2812B LED paska (73 LED: 64 sachovnice + 9 tlacitek)
+ * - 8x8 Reed Switch matice pro detekci figurek
+ * - Tlacitkove LED feedback system
+ * - Time-multiplexed GPIO sdileni
+ * - USB Serial JTAG konzole
  * 
- * Time-Multiplexing (30ms cycle):
- * - 0-20ms: Matrix scanning (8x8 reed switches)
- * - 20-25ms: Button scanning (9 buttons)
- * - 25-30ms: LED update (73 WS2812B LEDs)
+ * GPIO mapovani (ESP32-C6 DevKit):
+ * - LED Data: GPIO7 (WS2812B) - Bezpecny pin
+ * - Matrix Rows: GPIO10,11,18,19,20,21,22,23 (8 vystupu)
+ * - Matrix Columns: GPIO0,1,2,3,6,14,16,17 (8 vstupu s pull-up)
+ * - Tlacitkove piny: Sdilene s matrix columns (time-multiplexed)
+ * - Status LED: GPIO8 (samostatny od matice)
+ * - Reset tlacitko: GPIO27 (samostatny pin)
+ * - UART: USB Serial JTAG (vestavene, zadne externi piny)
+ * 
+ * Time-Multiplexing (30ms cyklus):
+ * - 0-20ms: Matrix skenovani (8x8 reed switchu)
+ * - 20-25ms: Tlacitkove skenovani (9 tlacitek)
+ * - 25-30ms: LED aktualizace (73 WS2812B LED)
  */
 
 
@@ -753,7 +758,8 @@ esp_err_t chess_start_timers(void)
         ESP_LOGI(TAG, "✓ Button scan timer started");
     }
     
-    // ✅ Start LED update timer
+    // ❌ DISABLED: LED update timer causes WDT errors (timer service task not registered with TWDT)
+    /*
     if (led_update_timer != NULL) {
         if (xTimerStart(led_update_timer, 0) != pdPASS) {
             ESP_LOGE(TAG, "Failed to start LED update timer");
@@ -761,6 +767,8 @@ esp_err_t chess_start_timers(void)
         }
         ESP_LOGI(TAG, "✓ LED update timer started (25ms period)");
     }
+    */
+    ESP_LOGI(TAG, "✓ LED update timer DISABLED (causes WDT errors)");
     
     // System health timer - DISABLED (was causing crashes)
     // if (system_health_timer != NULL) {

@@ -1,9 +1,19 @@
 /**
  * @file unified_animation_manager.c
- * @brief Unified Animation Manager Implementation
+ * @brief Implementace Unified Animation Manageru
+ * 
+ * Tento modul poskytuje jednotne rozhrani pro vsechny LED animace.
+ * Umožnuje spravovat vice animaci soucasne a poskytuje pokrocile
+ * funkce pro animace.
+ * 
  * @author Alfred Krutina
  * @version 2.5.0
  * @date 2025-09-06
+ * 
+ * @details
+ * Unified Animation Manager je centralni system pro spravu vsech
+ * LED animaci v systemu. Umožnuje spustit vice animaci soucasne,
+ * spravuje jejich zivotni cyklus a poskytuje pokrocile efekty.
  */
 
 #include "unified_animation_manager.h"

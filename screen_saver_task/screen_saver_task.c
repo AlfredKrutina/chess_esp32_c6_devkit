@@ -1,24 +1,29 @@
 /**
  * @file screen_saver_task.c
- * @brief ESP32-C6 Chess System v2.4 - Screen Saver Task Implementation
+ * @brief ESP32-C6 Chess System v2.4 - Implementace Screen Saver tasku
  * 
- * This task manages the screen saver functionality:
- * - Automatic screen saver activation
- * - Energy-saving LED patterns
- * - User activity detection
- * - Screen saver deactivation
- * - Custom screen saver patterns
+ * Tento task spravuje funkcionalitu screen saveru:
+ * - Automaticka aktivace screen saveru
+ * - Energeticky usporne LED vzory
+ * - Detekce aktivity uzivatele
+ * - Deaktivace screen saveru
+ * - Vlastni vzory screen saveru
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
  * 
- * Features:
- * - Configurable timeout periods
- * - Multiple screen saver patterns
- * - Motion detection integration
- * - Power management
- * - Smooth transitions
+ * @details
+ * Screen Saver task je zodpovedny za usporu energie pri neaktivite.
+ * Detekuje kdy uzivatel nehraje a aktivuje energeticky usporne
+ * LED vzory. Po detekci aktivity se screen saver vypne.
+ * 
+ * Funkce:
+ * - Konfigurovatelne timeout periody
+ * - Vice vzoru screen saveru
+ * - Integrace detekce pohybu
+ * - Sprava energie
+ * - Plynule prechody
  */
 
 

@@ -1,16 +1,21 @@
 /**
  * @file game_led_animations.c
- * @brief ESP32-C6 Chess System - Advanced LED Animations
+ * @brief ESP32-C6 Chess System - Pokrocile LED animace
  * 
- * Kompletní implementace pokročilých LED animací pro šachový systém:
- * - 5 endgame animací včetně vlnové animace
- * - Jemné animace pro figurky a tlačítka  
- * - Plný error handling
- * - RGB optimalizace pro hezké barevné přechody
+ * Kompletni implementace pokrocilych LED animaci pro sachovy system:
+ * - 5 endgame animaci vcetne vlnove animace
+ * - Jemne animace pro figurky a tlacitka  
+ * - Plny error handling
+ * - RGB optimalizace pro hezke barevne prechody
  * 
- * Author: Alfred Krutina
- * Version: 2.5 - ADVANCED ANIMATIONS
- * Date: 2025-09-04
+ * @author Alfred Krutina
+ * @version 2.5 - ADVANCED ANIMATIONS
+ * @date 2025-09-04
+ * 
+ * @details
+ * Tento modul obsahuje vsechny pokrocile LED animace pro sachovy system.
+ * Obsahuje endgame animace, jemne efekty a optimalizovane barevne prechody.
+ * Vsechny animace jsou plynule a efektivne z hlediska pameti.
  */
 
 #include "game_led_animations.h"

@@ -1,9 +1,19 @@
 /**
  * @file visual_error_system.c
- * @brief Visual Error System Implementation
+ * @brief Implementace Visual Error Systemu
+ * 
+ * Tento modul poskytuje vizualni indikaci chyb a navod pro uzivatele.
+ * Zobrazuje chybove stavy pres LED animace a poskytuje textove
+ * zpravy s navodem.
+ * 
  * @author Alfred Krutina
  * @version 2.5.0
  * @date 2025-09-06
+ * 
+ * @details
+ * Visual Error System je system pro vizualni indikaci chyb v sachovem
+ * systemu. Pouziva LED animace pro zobrazeni typu chyby a poskytuje
+ * textove zpravy s navodem pro reseni problemu.
  */
 
 #include "visual_error_system.h"

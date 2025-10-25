@@ -1,9 +1,19 @@
 /**
  * @file led_state_manager.c
- * @brief LED State Manager Implementation
+ * @brief Implementace LED State Manageru
+ * 
+ * Tento modul spravuje stav LED systemu a poskytuje pokrocile
+ * funkce pro ovladani LED. Umožnuje vrstveni efektu a spravu
+ * priority zobrazeni.
+ * 
  * @author Alfred Krutina
  * @version 2.5.0
  * @date 2025-09-06
+ * 
+ * @details
+ * LED State Manager je centralni system pro spravu stavu LED.
+ * Umožnuje vrstveni ruznych efektu, spravu priority a pokrocile
+ * funkce pro ovladani LED systemu.
  */
 
 #include "led_state_manager.h"

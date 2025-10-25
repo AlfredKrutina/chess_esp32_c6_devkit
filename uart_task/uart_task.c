@@ -1,18 +1,23 @@
 /**
- * @file uart_task_new.c
- * @brief ESP32-C6 Chess System v2.4 - Enhanced UART Task Implementation
+ * @file uart_task.c
+ * @brief ESP32-C6 Chess System v2.4 - Rozsirena implementace UART tasku
  * 
- * This task provides a production-ready line-based UART terminal:
- * - Line-based input with editing
- * - Command table with function pointers
- * - Advanced command features (aliases, auto-completion)
- * - NVS configuration persistence
- * - Robust error handling and validation
- * - Resource optimization
+ * Tento task poskytuje production-ready line-based UART terminal:
+ * - Line-based vstup s editaci
+ * - Tabulka prikazu s funkcnimi ukazateli
+ * - Pokrocile funkce prikazu (aliasy, auto-completion)
+ * - NVS konfigurace persistence
+ * - Robustni error handling a validace
+ * - Optimalizace zdroju
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
+ * 
+ * @details
+ * Tento task zpracovava vsechny UART prikazy a komunikaci s uzivatelem.
+ * Obsahuje rozsireny system prikazu pro ovladani sachoveho systemu.
+ * Podporuje aliasy, auto-completion a pokrocile funkce.
  */
 
 #include "freertos/FreeRTOS.h"
@@ -45,7 +50,7 @@
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
 #include "../uart_commands_extended/include/uart_commands_extended.h"  // ✅ FIX: Include extended UART commands
 #include "../unified_animation_manager/include/unified_animation_manager.h"
-#include "../enhanced_puzzle_system/include/enhanced_puzzle_system.h"  // Non-blocking endgame animations
+// Enhanced puzzle system removed
 #include <math.h>
 #include <inttypes.h>
 #include "esp_system.h"
@@ -55,6 +60,37 @@ extern bool convert_notation_to_coords(const char* notation, uint8_t* row, uint8
 
 // External UART mutex for clean output
 extern SemaphoreHandle_t uart_mutex;
+
+// ============================================================================
+// WDT WRAPPER FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND
+ * 
+ * Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste
+ * registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.
+ * 
+ * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze)
+ * 
+ * @details
+ * Funkce je pouzivana pro bezpecny reset watchdog timeru behem UART operaci.
+ * Zabranuje chybam pri startupu kdy task jeste neni registrovany.
+ */
+static esp_err_t uart_task_wdt_reset_safe(void) {
+    esp_err_t ret = esp_task_wdt_reset();
+    
+    if (ret == ESP_ERR_NOT_FOUND) {
+        // Log as WARNING instead of ERROR - task not registered yet
+        ESP_LOGW("UART_TASK", "WDT reset: task not registered yet (this is normal during startup)");
+        return ESP_OK; // Treat as success for our purposes
+    } else if (ret != ESP_OK) {
+        ESP_LOGE("UART_TASK", "WDT reset failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    return ESP_OK;
+}
 
 // External task handles and queues
 extern TaskHandle_t led_task_handle;
@@ -91,8 +127,8 @@ static const char *TAG = "UART_TASK";
 
 // Safe watchdog reset macro
 #define SAFE_WDT_RESET() do { \
-    esp_err_t _wdt_ret = esp_task_wdt_reset(); \
-    if (_wdt_ret != ESP_OK && _wdt_ret != ESP_ERR_NOT_FOUND) { \
+        esp_err_t _wdt_ret = esp_task_wdt_reset(); \
+        if (_wdt_ret != ESP_OK && _wdt_ret != ESP_ERR_NOT_FOUND) { \
         /* Task not registered with TWDT yet - this is normal during startup */ \
     } \
 } while(0)
@@ -133,7 +169,16 @@ bool is_valid_move_notation(const char* move);
 bool is_valid_square_notation(const char* square);
 
 /**
- * @brief Replace fputs with ESP-IDF UART driver
+ * @brief Nahradi fputs s ESP-IDF UART driverem
+ * 
+ * Tato funkce posila string pres UART. Pouziva ESP-IDF UART driver
+ * nebo USB Serial JTAG podle konfigurace.
+ * 
+ * @param str String k poslani pres UART
+ * 
+ * @details
+ * Funkce automaticky detekuje zda je UART povolen a pouzije
+ * odpovidajici metodu pro poslani dat.
  */
 static void uart_fputs(const char* str)
 {
@@ -150,8 +195,16 @@ static void uart_fputs(const char* str)
 // ============================================================================
 
 /**
- * @brief Read single character with immediate return (non-blocking)
- * Uses ESP-IDF UART driver or USB Serial JTAG
+ * @brief Cte jeden znak s okamzitym vracenim (non-blocking)
+ * 
+ * Tato funkce cte jeden znak z UART bez cekani. Pouziva ESP-IDF UART driver
+ * nebo USB Serial JTAG podle konfigurace. Filtruje ANSI escape sekvence.
+ * 
+ * @return Znak jako int, nebo -1 pokud neni dostupny zadny znak
+ * 
+ * @details
+ * Funkce je non-blocking, takze vrati -1 pokud neni dostupny zadny znak.
+ * Automaticky filtruje ANSI escape sekvence pro lepsi uzivatelsky zazitek.
  */
 static int uart_read_char_immediate(void)
 {
@@ -197,8 +250,16 @@ static int uart_read_char_immediate(void)
 }
 
 /**
- * @brief Write single character with immediate flush
- * Uses ESP-IDF UART driver or USB Serial JTAG
+ * @brief Zapise jeden znak s okamzitym flush
+ * 
+ * Tato funkce zapise jeden znak do UART s okamzitym flush.
+ * Pouziva ESP-IDF UART driver nebo USB Serial JTAG podle konfigurace.
+ * 
+ * @param ch Znak k zapsani
+ * 
+ * @details
+ * Funkce pouziva mutex pro thread-safe operace a automaticky
+ * detekuje zda je UART povolen.
  */
 void uart_write_char_immediate(char ch)
 {
@@ -219,8 +280,16 @@ void uart_write_char_immediate(char ch)
 }
 
 /**
- * @brief Write string with immediate flush
- * Uses ESP-IDF UART driver or USB Serial JTAG
+ * @brief Zapise string s okamzitym flush
+ * 
+ * Tato funkce zapise cely string do UART s okamzitym flush.
+ * Pouziva ESP-IDF UART driver nebo USB Serial JTAG podle konfigurace.
+ * 
+ * @param str String k zapsani
+ * 
+ * @details
+ * Funkce pouziva mutex pro thread-safe operace a automaticky
+ * detekuje zda je UART povolen. Je optimalizovana pro rychle zapisovani.
  */
 void uart_write_string_immediate(const char* str)
 {
@@ -349,6 +418,16 @@ static uint32_t last_command_time = 0;
 /**
  * @brief Display impressive welcome logo with ANSI colors
  */
+/**
+ * @brief Posle welcome logo pres UART
+ * 
+ * Tato funkce posle pekny ASCII logo systemu pres UART.
+ * Logo obsahuje nazev systemu a je barevne zformatovane.
+ * 
+ * @details
+ * Funkce pouziva mutex pro thread-safe operace a posila
+ * ASCII art logo s barevnym formatovanim pro lepsi vzhled.
+ */
 void uart_send_welcome_logo(void)
 {
     if (uart_mutex != NULL) {
@@ -410,10 +489,18 @@ void uart_send_welcome_logo(void)
 }
 
 /**
- * @brief Show animated progress bar
- * @param label Progress label
- * @param max_value Maximum value (100 = 100%)
- * @param duration_ms Duration in milliseconds
+ * @brief Zobrazi animovany progress bar
+ * 
+ * Tato funkce zobrazi animovany progress bar s labelem a procenty.
+ * Progress bar je barevny a plynule animovany.
+ * 
+ * @param label Popisek progress baru
+ * @param max_value Maximalni hodnota (100 = 100%)
+ * @param duration_ms Doba trvani v milisekundach
+ * 
+ * @details
+ * Funkce vytvori pekny animovany progress bar s barevnym formatovanim.
+ * Pouziva mutex pro thread-safe operace a plynule animuje progress.
  */
 void uart_show_progress_bar(const char* label, uint32_t max_value, uint32_t duration_ms)
 {
@@ -441,7 +528,7 @@ void uart_show_progress_bar(const char* label, uint32_t max_value, uint32_t dura
         int filled = (i * bar_width) / max_value;
         
         // Reset watchdog before each progress update (only if registered)
-        esp_err_t wdt_ret = esp_task_wdt_reset();
+        esp_err_t wdt_ret = uart_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }
@@ -480,6 +567,19 @@ void uart_show_progress_bar(const char* label, uint32_t max_value, uint32_t dura
     }
 }
 
+/**
+ * @brief Posle barevny text pres UART
+ * 
+ * Tato funkce posle text s barevnym formatovanim pres UART.
+ * Pouziva ANSI escape sekvence pro barvy.
+ * 
+ * @param color ANSI escape sekvence pro barvu
+ * @param message Text k poslani
+ * 
+ * @details
+ * Funkce automaticky pridava reset barvy na konec textu
+ * a pouziva mutex pro thread-safe operace.
+ */
 void uart_send_colored(const char* color, const char* message)
 {
     // Use ESP-IDF UART driver with mutex
@@ -501,6 +601,19 @@ void uart_send_colored(const char* color, const char* message)
     }
 }
 
+/**
+ * @brief Posle barevny text s novym radkem pres UART
+ * 
+ * Tato funkce posle text s barevnym formatovanim a novym radkem pres UART.
+ * Pouziva ANSI escape sekvence pro barvy.
+ * 
+ * @param color ANSI escape sekvence pro barvu
+ * @param message Text k poslani
+ * 
+ * @details
+ * Funkce automaticky pridava novy radek a reset barvy na konec textu
+ * a pouziva mutex pro thread-safe operace.
+ */
 void uart_send_colored_line(const char* color, const char* message)
 {
     // Use ESP-IDF UART driver with mutex
@@ -522,46 +635,114 @@ void uart_send_colored_line(const char* color, const char* message)
     }
 }
 
+/**
+ * @brief Posle chybovou zpravu pres UART
+ * 
+ * Tato funkce posle chybovou zpravu s cervenou barvou pres UART.
+ * 
+ * @param message Chybova zprava k poslani
+ */
 void uart_send_error(const char* message)
 {
     uart_send_colored_line(COLOR_ERROR, message);
 }
 
+/**
+ * @brief Posle uspesnou zpravu pres UART
+ * 
+ * Tato funkce posle uspesnou zpravu se zelenou barvou pres UART.
+ * 
+ * @param message Uspesna zprava k poslani
+ */
 void uart_send_success(const char* message)
 {
     uart_send_colored_line(COLOR_SUCCESS, message);
 }
 
+/**
+ * @brief Posle varovnou zpravu pres UART
+ * 
+ * Tato funkce posle varovnou zpravu se zlutou barvou pres UART.
+ * 
+ * @param message Varovna zprava k poslani
+ */
 void uart_send_warning(const char* message)
 {
     uart_send_colored_line(COLOR_WARNING, message);
 }
 
+/**
+ * @brief Posle informacni zpravu pres UART
+ * 
+ * Tato funkce posle informacni zpravu s modrou barvou pres UART.
+ * 
+ * @param message Informacni zprava k poslani
+ */
 void uart_send_info(const char* message)
 {
     uart_send_colored_line(COLOR_INFO, message);
 }
 
+/**
+ * @brief Posle zpravu o tahu pres UART
+ * 
+ * Tato funkce posle zpravu o tahu s specialni barvou pres UART.
+ * 
+ * @param message Zprava o tahu k poslani
+ */
 void uart_send_move(const char* message)
 {
     uart_send_colored_line(COLOR_MOVE, message);
 }
 
+/**
+ * @brief Posle status zpravu pres UART
+ * 
+ * Tato funkce posle status zpravu s specialni barvou pres UART.
+ * 
+ * @param message Status zprava k poslani
+ */
 void uart_send_status(const char* message)
 {
     uart_send_colored_line(COLOR_STATUS, message);
 }
 
+/**
+ * @brief Posle debug zpravu pres UART
+ * 
+ * Tato funkce posle debug zpravu s specialni barvou pres UART.
+ * 
+ * @param message Debug zprava k poslani
+ */
 void uart_send_debug(const char* message)
 {
     uart_send_colored_line(COLOR_DEBUG, message);
 }
 
+/**
+ * @brief Posle help zpravu pres UART
+ * 
+ * Tato funkce posle help zpravu s specialni barvou pres UART.
+ * 
+ * @param message Help zprava k poslani
+ */
 void uart_send_help(const char* message)
 {
     uart_send_colored_line(COLOR_HELP, message);
 }
 
+/**
+ * @brief Posle formatovanou zpravu pres UART
+ * 
+ * Tato funkce posle formatovanou zpravu s printf-style formatovanim pres UART.
+ * 
+ * @param format Format string pro printf
+ * @param ... Argumenty pro format string
+ * 
+ * @details
+ * Funkce pouziva vsnprintf pro bezpecne formatovani a automaticky
+ * pridava novy radek na konec zpravy.
+ */
 void uart_send_formatted(const char* format, ...)
 {
     va_list args;
@@ -574,6 +755,18 @@ void uart_send_formatted(const char* format, ...)
     uart_send_line(buffer);
 }
 
+/**
+ * @brief Posle radek textu pres UART
+ * 
+ * Tato funkce posle radek textu s novym radkem pres UART.
+ * Pouziva mutex pro thread-safe operace.
+ * 
+ * @param str String k poslani
+ * 
+ * @details
+ * Funkce automaticky pridava novy radek na konec textu
+ * a pouziva kratky timeout pro mutex aby se zabranilo WDT problemum.
+ */
 void uart_send_line(const char* str)
 {
     if (str == NULL) return;
@@ -1183,12 +1376,7 @@ command_result_t uart_cmd_config(const char* args);
 command_result_t uart_cmd_castle(const char* args);
 command_result_t uart_cmd_promote(const char* args);
 command_result_t uart_cmd_matrixtest(const char* args);
-command_result_t uart_cmd_puzzle(const char* args);
-command_result_t uart_cmd_puzzle_next(const char* args);
-command_result_t uart_cmd_puzzle_verify(const char* args);
-command_result_t uart_cmd_puzzle_reset(const char* args);
-command_result_t uart_cmd_puzzle_removal_test(const char* args);
-command_result_t uart_cmd_puzzle_complete(const char* args);
+// Puzzle commands removed
 
 // Component Control Commands
 command_result_t uart_cmd_component_off(const char* args);
@@ -1207,7 +1395,7 @@ command_result_t uart_cmd_test_player_anim(const char* args);
 command_result_t uart_cmd_test_castle_anim(const char* args);
 command_result_t uart_cmd_test_promote_anim(const char* args);
 command_result_t uart_cmd_test_endgame_anim(const char* args);
-command_result_t uart_cmd_test_puzzle_anim(const char* args);
+// Puzzle test command removed
 
 // Endgame Animation Style Commands
 command_result_t uart_cmd_endgame_wave(const char* args);
@@ -1218,11 +1406,7 @@ command_result_t uart_cmd_endgame_draw_spiral(const char* args);
 command_result_t uart_cmd_endgame_draw_pulse(const char* args);
 
 // Puzzle Commands
-command_result_t uart_cmd_puzzle_1(const char* args);
-command_result_t uart_cmd_puzzle_2(const char* args);
-command_result_t uart_cmd_puzzle_3(const char* args);
-command_result_t uart_cmd_puzzle_4(const char* args);
-command_result_t uart_cmd_puzzle_5(const char* args);
+// Puzzle level commands removed
 
 // Endgame animation control
 command_result_t uart_cmd_stop_endgame(const char* args);
@@ -1361,11 +1545,7 @@ void uart_cmd_help_game(void)
     uart_send_formatted("  CASTLE kingside - Castle kingside (O-O)");
     uart_send_formatted("  CASTLE queenside - Castle queenside (O-O-O)");
     uart_send_formatted("  PROMOTE e8=Q   - Promote pawn to Queen");
-    uart_send_formatted("  PUZZLE         - Start chess puzzle");
-    uart_send_formatted("  PUZZLE_NEXT    - Next puzzle step");
-    uart_send_formatted("  PUZZLE_VERIFY  - Verify puzzle move");
-    uart_send_formatted("  PUZZLE_RESET   - Reset puzzle");
-    uart_send_formatted("  PUZZLE_COMPLETE - Complete puzzle");
+    // Puzzle commands removed
     
     uart_send_formatted("");
     if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
@@ -1532,7 +1712,7 @@ void uart_cmd_help_beginner(void)
     uart_send_formatted("  CASTLE kingside - Castle kingside (O-O)");
     uart_send_formatted("  CASTLE queenside - Castle queenside (O-O-O)");
     uart_send_formatted("  PROMOTE e8=Q   - Promote pawn to Queen");
-    uart_send_formatted("  PUZZLE         - Try chess puzzles");
+    // Puzzle commands removed
     
     uart_send_formatted("");
     if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
@@ -1582,7 +1762,7 @@ void uart_cmd_help_debug(void)
         uart_send_formatted("  TEST_CASTLE_ANIM  - Test castling animation");
         uart_send_formatted("  TEST_PROMOTE_ANIM - Test promotion animation");
         uart_send_formatted("  TEST_ENDGAME_ANIM - Test endgame animation");
-        uart_send_formatted("  TEST_PUZZLE_ANIM  - Test puzzle animation");
+        // Puzzle test command removed
         uart_send_formatted("");
         if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
         uart_send_formatted("🎆 Endgame Animation Styles:");
@@ -1597,11 +1777,7 @@ void uart_cmd_help_debug(void)
         if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
         uart_send_formatted("🧩 Puzzle System:");
         if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
-        uart_send_formatted("  PUZZLE_1          - Easy puzzle (pawn move)");
-        uart_send_formatted("  PUZZLE_2          - Medium puzzle (castling)");
-        uart_send_formatted("  PUZZLE_3          - Hard puzzle (promotion)");
-        uart_send_formatted("  PUZZLE_4          - Expert puzzle (combination)");
-        uart_send_formatted("  PUZZLE_5          - Master puzzle (winning move)");
+        // Puzzle level commands removed
     
     uart_send_formatted("");
     if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
@@ -1862,11 +2038,7 @@ static const uart_command_t commands[] = {
     {"CASTLE", uart_cmd_castle, "Castle (kingside/queenside)", "CASTLE <kingside|queenside>", true, {"CASTLING", "O-O", "", "", ""}},
     {"PROMOTE", uart_cmd_promote, "Promote pawn", "PROMOTE <square>=<piece>", true, {"PROMOTION", "PROMO", "", "", ""}},
     {"MATRIXTEST", uart_cmd_matrixtest, "Test matrix scanning", "", false, {"MATRIX_TEST", "TEST_MATRIX", "", "", ""}},
-    {"PUZZLE", uart_cmd_puzzle, "Start chess puzzle", "", false, {"PUZZLE_START", "CHESS_PUZZLE", "", "", ""}},
-    {"PUZZLE_NEXT", uart_cmd_puzzle_next, "Next puzzle step", "PUZZLE_NEXT", false, {"NEXT", "STEP", "", "", ""}},
-    {"PUZZLE_VERIFY", uart_cmd_puzzle_verify, "Verify puzzle move", "PUZZLE_VERIFY", false, {"VERIFY", "CHECK", "", "", ""}},
-    {"PUZZLE_RESET", uart_cmd_puzzle_reset, "Reset puzzle", "PUZZLE_RESET", false, {"RESET", "RESTART", "", "", ""}},
-    {"PUZZLE_COMPLETE", uart_cmd_puzzle_complete, "Complete puzzle", "PUZZLE_COMPLETE", false, {"COMPLETE", "FINISH", "", "", ""}},
+    // Puzzle commands removed
     
     // Component Control Commands
     {"COMPONENT_OFF", uart_cmd_component_off, "Turn off component", "COMPONENT_OFF <matrix|led|wifi>", true, {"OFF", "DISABLE", "", "", ""}},
@@ -1882,7 +2054,7 @@ static const uart_command_t commands[] = {
     {"TEST_CASTLE_ANIM", uart_cmd_test_castle_anim, "Test castling animation", "TEST_CASTLE_ANIM", false, {"CASTLE_TEST", "TEST_CASTLE", "", "", ""}},
     {"TEST_PROMOTE_ANIM", uart_cmd_test_promote_anim, "Test promotion animation", "TEST_PROMOTE_ANIM", false, {"PROMOTE_TEST", "TEST_PROMOTE", "", "", ""}},
     {"TEST_ENDGAME_ANIM", uart_cmd_test_endgame_anim, "Test endgame animation", "TEST_ENDGAME_ANIM", false, {"ENDGAME_TEST", "TEST_ENDGAME", "", "", ""}},
-    {"TEST_PUZZLE_ANIM", uart_cmd_test_puzzle_anim, "Test puzzle animation", "TEST_PUZZLE_ANIM", false, {"PUZZLE_TEST", "TEST_PUZZLE", "", "", ""}},
+    // Puzzle test command removed
     
     // Endgame Animation Style Commands
     {"ENDGAME_WAVE", uart_cmd_endgame_wave, "Endgame wave animation", "ENDGAME_WAVE", false, {"WAVE", "ENDGAME_0", "", "", ""}},
@@ -1893,12 +2065,7 @@ static const uart_command_t commands[] = {
     {"DRAW_PULSE", uart_cmd_endgame_draw_pulse, "Draw pulse animation", "DRAW_PULSE", false, {"PULSE", "DRAW_1", "", "", ""}},
     
     // Puzzle Commands
-    {"PUZZLE_1", uart_cmd_puzzle_1, "Load puzzle 1 (Easy)", "PUZZLE_1", false, {"P1", "EASY", "", "", ""}},
-    {"PUZZLE_2", uart_cmd_puzzle_2, "Load puzzle 2 (Medium)", "PUZZLE_2", false, {"P2", "MEDIUM", "", "", ""}},
-    {"PUZZLE_3", uart_cmd_puzzle_3, "Load puzzle 3 (Hard)", "PUZZLE_3", false, {"P3", "HARD", "", "", ""}},
-    {"PUZZLE_4", uart_cmd_puzzle_4, "Load puzzle 4 (Expert)", "PUZZLE_4", false, {"P4", "EXPERT", "", "", ""}},
-    {"PUZZLE_5", uart_cmd_puzzle_5, "Load puzzle 5 (Master)", "PUZZLE_5", false, {"P5", "MASTER", "", "", ""}},
-    {"PUZZLE_REMOVAL_TEST", uart_cmd_puzzle_removal_test, "Test puzzle removal guidance", "PUZZLE_REMOVAL_TEST", false, {"REMOVAL_TEST", "TEST_REMOVAL", "", "", ""}},
+    // Puzzle level commands removed
     
     // Endgame animation control
     {"STOP_ENDGAME", uart_cmd_stop_endgame, "Stop endless endgame animation", "STOP_ENDGAME", false, {"STOP", "END_STOP", "", "", ""}},
@@ -2547,15 +2714,15 @@ command_result_t uart_cmd_component_off(const char* args)
         uart_send_formatted("🔴 Turning OFF LED component...");
         
         // Send command to LED task to disable control
-        led_command_t led_cmd = {
-            .type = LED_CMD_DISABLE,
-            .led_index = 0,
-            .red = 0,
-            .green = 0,
-            .blue = 0,
-            .duration_ms = 0,
-            .data = NULL
-        };
+        // led_command_t led_cmd = { // Unused variable removed
+        //     .type = LED_CMD_DISABLE,
+        //     .led_index = 0,
+        //     .red = 0,
+        //     .green = 0,
+        //     .blue = 0,
+        //     .duration_ms = 0,
+        //     .data = NULL
+        // };
         // ✅ DIRECT LED CALL - No queue hell
         led_clear_all_safe();
         led_component_enabled = false;
@@ -2624,15 +2791,15 @@ command_result_t uart_cmd_component_on(const char* args)
         uart_send_formatted("🟢 Turning ON LED component...");
         
         // Send command to LED task to enable control
-        led_command_t led_cmd = {
-            .type = LED_CMD_ENABLE,
-            .led_index = 0,
-            .red = 0,
-            .green = 0,
-            .blue = 0,
-            .duration_ms = 0,
-            .data = NULL
-        };
+        // led_command_t led_cmd = { // Unused variable removed
+        //     .type = LED_CMD_ENABLE,
+        //     .led_index = 0,
+        //     .red = 0,
+        //     .green = 0,
+        //     .blue = 0,
+        //     .duration_ms = 0,
+        //     .data = NULL
+        // };
         // ✅ DIRECT LED CALL - No queue hell
         led_component_enabled = true;
         uart_send_formatted("✅ LED component turned ON");
@@ -4947,8 +5114,13 @@ void uart_task_start(void *pvParameters)
 {
     ESP_LOGI(TAG, "🚀 Enhanced UART command interface starting...");
     
-    // NOTE: Task is already registered with TWDT in main.c
-    // No need to register again here to avoid duplicate registration
+    // ✅ CRITICAL: Register with TWDT from within task
+    esp_err_t wdt_ret = esp_task_wdt_add(NULL);
+    if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
+        ESP_LOGE(TAG, "Failed to register UART task with TWDT: %s", esp_err_to_name(wdt_ret));
+    } else {
+        ESP_LOGI(TAG, "✅ UART task registered with TWDT");
+    }
     
     // Initialize configuration manager
     config_manager_init();
@@ -5010,11 +5182,7 @@ void uart_task_start(void *pvParameters)
     
     task_running = true;
     
-    // CRITICAL: Register with Task Watchdog Timer BEFORE any operations
-    esp_err_t wdt_ret = esp_task_wdt_add(NULL);
-    if (wdt_ret != ESP_OK) {
-        ESP_LOGW(TAG, "WDT registration failed: %s, continuing anyway", esp_err_to_name(wdt_ret));
-    }
+    // WDT already registered above
     
     // Welcome message will be shown by centralized boot animation
     // uart_send_welcome_logo(); // Removed to prevent duplicate rendering
@@ -5125,20 +5293,10 @@ void uart_task_legacy_loop(void)
     TickType_t last_wake_time = xTaskGetTickCount();
     
     for (;;) {
-        // CRITICAL: Reset watchdog for UART task in every iteration (only if registered)
-        esp_err_t wdt_reset_ret = esp_task_wdt_reset();
+        // CRITICAL: Reset watchdog for UART task in every iteration
+        esp_err_t wdt_reset_ret = uart_task_wdt_reset_safe();
         if (wdt_reset_ret != ESP_OK && wdt_reset_ret != ESP_ERR_NOT_FOUND) {
             // WDT reset failed - this might indicate system issues
-            ESP_LOGW(TAG, "WDT reset failed: %s, continuing anyway", esp_err_to_name(wdt_reset_ret));
-            
-            // Increment error count for recovery tracking
-            error_count++;
-            
-            // Try to recover from WDT issues
-            if (error_count % 2 == 0) { // Every 2 errors
-                ESP_LOGW(TAG, "Multiple WDT errors detected, attempting recovery...");
-                uart_task_recover_from_error();
-            }
         }
         
         // CRITICAL: Process output queue first to ensure smooth output
@@ -6100,40 +6258,7 @@ command_result_t uart_cmd_puzzle_5(const char* args)
     return CMD_SUCCESS;
 }
 
-command_result_t uart_cmd_puzzle_removal_test(const char* args)
-{
-    uart_send_line("🔴 Testing Puzzle Removal Guidance...");
-    
-    // Initialize puzzle system if not already done
-    puzzle_system_config_t config = {
-        .max_puzzles = 5,
-        .removal_timeout_ms = 30000,
-        .hint_duration_ms = 3000,
-        .max_wrong_moves = 3,
-        .enable_visual_guidance = true,
-        .enable_sound_feedback = false,
-        .enable_progress_tracking = true
-    };
-    
-    esp_err_t init_result = puzzle_system_init(&config);
-    if (init_result != ESP_OK && init_result != ESP_ERR_INVALID_STATE) {
-        uart_send_formatted("❌ Failed to initialize puzzle system: %s", esp_err_to_name(init_result));
-        return CMD_ERROR_SYSTEM_ERROR;
-    }
-    
-    // Load puzzle 1 for testing
-    esp_err_t load_result = puzzle_load(1);
-    if (load_result != ESP_OK) {
-        uart_send_formatted("❌ Failed to load puzzle: %s", esp_err_to_name(load_result));
-        return CMD_ERROR_SYSTEM_ERROR;
-    }
-    
-    uart_send_line("✅ Puzzle loaded - showing pieces to remove in RED");
-    uart_send_line("💡 Remove the red pieces from the board and use matrix scanning");
-    uart_send_line("💡 This tests the puzzle setup guidance system");
-    
-    return CMD_SUCCESS;
-}
+// Puzzle removal test command removed
 
 command_result_t uart_cmd_stop_endgame(const char* args)
 {

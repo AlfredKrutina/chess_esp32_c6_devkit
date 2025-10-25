@@ -1,6 +1,6 @@
 /**
- * @file   reset_button_task.c
- * @brief  Reset button task: ovladani reset tlacitka pro restart hry
+ * @file reset_button_task.c
+ * @brief Reset button task: ovladani reset tlacitka pro restart hry
  *
  * Tento modul implementuje:
  *  - Inicializaci reset button tasku a FreeRTOS komponent
@@ -11,7 +11,12 @@
  *
  * @author Alfred Krutina
  * @version 2.0
- * @date   2025-08-16
+ * @date 2025-08-16
+ * 
+ * @details
+ * Tento task zpracovava reset tlacitko pro restart hry. Kdyz hrac
+ * stiskne reset tlacitko, hra se restartuje do vychoziho stavu.
+ * Task detekuje stisknuti tlacitka a posila prikaz do game tasku.
  */
 
 #include "reset_button_task.h"

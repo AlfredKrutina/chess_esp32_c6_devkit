@@ -1,6 +1,6 @@
 /**
- * @file   promotion_button_task.c
- * @brief  Promotion button task: ovladani tlacitek pro promoci pescu
+ * @file promotion_button_task.c
+ * @brief Promotion button task: ovladani tlacitek pro promoci pescu
  *
  * Tento modul implementuje:
  *  - Inicializaci promotion button tasku a FreeRTOS komponent
@@ -11,7 +11,13 @@
  *
  * @author Alfred Krutina
  * @version 2.0
- * @date   2025-08-16
+ * @date 2025-08-16
+ * 
+ * @details
+ * Tento task zpracovava tlacitka pro promoci pescu. Kdyz pesec
+ * dojde na konec sachovnice, hrac muze vybrat na co ho promenit
+ * pomoci tlacitek. Task detekuje stisknuti tlacitek a posila
+ * informaci do game tasku.
  */
 
 #include "promotion_button_task.h"

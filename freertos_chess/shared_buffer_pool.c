@@ -1,16 +1,21 @@
 /**
  * @file shared_buffer_pool.c
- * @brief ESP32-C6 Chess System - Shared Buffer Pool Implementation
+ * @brief ESP32-C6 Chess System - Implementace Shared Buffer Poolu
  * 
- * Replaces malloc/free calls with pre-allocated buffer pool to:
- * - Eliminate heap fragmentation
- * - Improve memory allocation performance  
- * - Prevent memory leaks
- * - Control memory usage
+ * Nahrazuje malloc/free volani predalokovanym buffer poolem pro:
+ * - Eliminaci heap fragmentace
+ * - Zlepseni performance alokace pameti
+ * - Prevenci memory leaku
+ * - Kontrolu pouziti pameti
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-01-27
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-01-27
+ * 
+ * @details
+ * Shared Buffer Pool je system pro efektivni spravu pameti v systemu.
+ * Misto dynamicke alokace pouziva predalokovane buffery, coz eliminuje
+ * fragmentaci heap a zlepsuje performance. Obsahuje 4 buffery o velikosti 2KB.
  */
 
 #include "freertos/FreeRTOS.h"

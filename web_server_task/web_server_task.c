@@ -1,16 +1,22 @@
-/*
- * ESP32-C6 Chess System v2.4 - Web Server Task Component
+/**
+ * @file web_server_task.c
+ * @brief ESP32-C6 Chess System v2.4 - Web Server Task komponenta
  * 
- * This component handles web server functionality:
- * - WiFi Access Point setup
- * - HTTP server for remote control
- * - Captive portal for automatic browser opening
- * - REST API endpoints for game state
- * - Web interface for chess game
+ * Tato komponenta zpracovava web server funkcionalitu:
+ * - WiFi Access Point nastaveni
+ * - HTTP server pro vzdalene ovladani
+ * - Captive portal pro automaticke otevreni prohlizece
+ * - REST API endpointy pro stav hry
+ * - Web rozhrani pro sachovou hru
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-01-XX
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-01-XX
+ * 
+ * @details
+ * Tento task vytvari WiFi hotspot a HTTP server pro vzdalene ovladani
+ * sachoveho systemu pres webove rozhrani. Uzivatel se muze pripojit
+ * k WiFi "ESP32-Chess" a ovladat hru pres prohlizec.
  */
 
 #include "web_server_task.h"
@@ -37,6 +43,37 @@ extern QueueHandle_t game_command_queue;
 // ============================================================================
 
 static const char* TAG = "WEB_SERVER_TASK";
+
+// ============================================================================
+// WDT WRAPPER FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND
+ * 
+ * Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste
+ * registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.
+ * 
+ * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze)
+ * 
+ * @details
+ * Funkce je pouzivana pro bezpecny reset watchdog timeru behem web server operaci.
+ * Zabranuje chybam pri startupu kdy task jeste neni registrovany.
+ */
+static esp_err_t web_server_task_wdt_reset_safe(void) {
+    esp_err_t ret = esp_task_wdt_reset();
+    
+    if (ret == ESP_ERR_NOT_FOUND) {
+        // Log as WARNING instead of ERROR - task not registered yet
+        ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
+        return ESP_OK; // Treat as success for our purposes
+    } else if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    return ESP_OK;
+}
 
 // WiFi configuration
 #define WIFI_AP_SSID "ESP32-Chess"
@@ -102,6 +139,18 @@ static esp_err_t http_get_connecttest_handler(httpd_req_t *req);
 // WIFI AP SETUP
 // ============================================================================
 
+/**
+ * @brief Inicializuje WiFi Access Point
+ * 
+ * Tato funkce inicializuje WiFi Access Point pro web server.
+ * Nastavi SSID, heslo a ostatni parametry pro WiFi hotspot.
+ * 
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * 
+ * @details
+ * Funkce inicializuje netif, event loop, WiFi a nastavi AP konfiguraci.
+ * Registruje event handler pro WiFi udalosti a spusti Access Point.
+ */
 static esp_err_t wifi_init_ap(void)
 {
     ESP_LOGI(TAG, "Initializing WiFi AP...");
@@ -199,6 +248,21 @@ static esp_err_t wifi_init_ap(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Obsluhuje WiFi eventy
+ * 
+ * Tato funkce obsluhuje WiFi eventy pro Access Point.
+ * Sleduje pripojeni a odpojeni klientu.
+ * 
+ * @param arg Argument (nepouzivany)
+ * @param event_base Typ eventu (WIFI_EVENT)
+ * @param event_id ID eventu
+ * @param event_data Data eventu
+ * 
+ * @details
+ * Funkce sleduje pripojeni a odpojeni klientu k WiFi hotspotu
+ * a aktualizuje pocet pripojenych klientu.
+ */
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                int32_t event_id, void* event_data)
 {
@@ -219,6 +283,23 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 // HTTP SERVER SETUP
 // ============================================================================
 
+/**
+ * @brief Spusti HTTP server
+ * 
+ * Tato funkce spusti HTTP server s REST API endpointy pro sachovy system.
+ * Registruje vsechny potrebne handlery pro web rozhrani.
+ * 
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * 
+ * @details
+ * Funkce vytvori HTTP server s konfiguraci a registruje handlery pro:
+ * - Hlavni stranku (/)
+ * - Stav sachovnice (/board)
+ * - Status hry (/status)
+ * - Historie tahu (/history)
+ * - Captured figurky (/captured)
+ * - Captive portal handlery
+ */
 static esp_err_t start_http_server(void)
 {
     if (httpd_handle != NULL) {
@@ -331,6 +412,15 @@ static esp_err_t start_http_server(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Zastavi HTTP server
+ * 
+ * Tato funkce zastavi HTTP server a uvolni prostredky.
+ * 
+ * @details
+ * Funkce zastavi HTTP server a nastavi handle na NULL.
+ * Pouziva se pri vypinani web serveru.
+ */
 static void stop_http_server(void)
 {
     if (httpd_handle != NULL) {
@@ -344,6 +434,19 @@ static void stop_http_server(void)
 // CAPTIVE PORTAL HANDLERS
 // ============================================================================
 
+/**
+ * @brief Handler pro generate_204 captive portal
+ * 
+ * Tato funkce obsluhuje generate_204 požadavky pro captive portal.
+ * Vraci HTTP 204 No Content pro detekci internetoveho pripojeni.
+ * 
+ * @param req HTTP request
+ * @return ESP_OK pri uspechu
+ * 
+ * @details
+ * Funkce je pouzivana pro captive portal detekci.
+ * Vraci HTTP 204 status pro indikaci ze neni internetove pripojeni.
+ */
 static esp_err_t http_get_generate_204_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "Android captive portal request");
@@ -1145,6 +1248,14 @@ void web_server_task_start(void *pvParameters)
 {
     ESP_LOGI(TAG, "Web server task starting...");
     
+    // ✅ CRITICAL: Register with TWDT
+    esp_err_t wdt_ret = esp_task_wdt_add(NULL);
+    if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
+        ESP_LOGE(TAG, "Failed to register web server task with TWDT: %s", esp_err_to_name(wdt_ret));
+    } else {
+        ESP_LOGI(TAG, "✅ Web server task registered with TWDT");
+    }
+    
     // NVS is already initialized in main.c - skip it here
     ESP_LOGI(TAG, "NVS already initialized, skipping...");
     
@@ -1183,7 +1294,7 @@ void web_server_task_start(void *pvParameters)
     
     while (task_running) {
         // Reset task watchdog timer
-        esp_err_t wdt_ret = esp_task_wdt_reset();
+        esp_err_t wdt_ret = web_server_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet
         }

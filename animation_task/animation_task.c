@@ -1,24 +1,29 @@
 /**
  * @file animation_task.c
- * @brief ESP32-C6 Chess System v2.4 - Animation Task Implementation
+ * @brief ESP32-C6 Chess System v2.4 - Implementace Animation tasku
  * 
- * This task handles LED animations and patterns:
- * - Chess piece movement animations
- * - Game state animations
- * - Button feedback animations
- * - System status animations
- * - Custom pattern animations
+ * Tento task zpracovava LED animace a vzory:
+ * - Animace pohybu sachovych figurek
+ * - Animace stavu hry
+ * - Animace feedback tlacitek
+ * - Animace stavu systemu
+ * - Vlastni vzory animaci
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
  * 
- * Features:
- * - 20+ animation patterns
- * - Configurable timing and colors
- * - Smooth transitions
- * - Memory-efficient frame storage
- * - Real-time animation control
+ * @details
+ * Tento task je zodpovedny za vsechny LED animace v systemu.
+ * Obsahuje 20+ animacnich vzoru pro ruzne situace v hre.
+ * Animace jsou plynule a efektivne z hlediska pameti.
+ * 
+ * Funkce:
+ * - 20+ animacnich vzoru
+ * - Konfigurovatelny timing a barvy
+ * - Plynule prechody
+ * - Efektivni ulozeni framu
+ * - Real-time ovladani animaci
  */
 
 
@@ -46,6 +51,28 @@
 
 static const char *TAG = "ANIMATION_TASK";
 
+// ============================================================================
+// WDT WRAPPER FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND
+ * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if task not registered (WARNING only)
+ */
+static esp_err_t animation_task_wdt_reset_safe(void) {
+    esp_err_t ret = esp_task_wdt_reset();
+    
+    if (ret == ESP_ERR_NOT_FOUND) {
+        // Log as WARNING instead of ERROR - task not registered yet
+        ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
+        return ESP_OK; // Treat as success for our purposes
+    } else if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    return ESP_OK;
+}
 
 // ============================================================================
 // LOCAL VARIABLES AND CONSTANTS
@@ -1026,8 +1053,13 @@ void animation_task_start(void *pvParameters)
 {
     ESP_LOGI(TAG, "Animation task started successfully");
     
-    // NOTE: Task is already registered with TWDT in main.c
-    // No need to register again here to avoid duplicate registration
+    // ✅ CRITICAL: Register with TWDT from within task
+    esp_err_t wdt_ret = esp_task_wdt_add(NULL);
+    if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
+        ESP_LOGE(TAG, "Failed to register Animation task with TWDT: %s", esp_err_to_name(wdt_ret));
+    } else {
+        ESP_LOGI(TAG, "✅ Animation task registered with TWDT");
+    }
     
     ESP_LOGI(TAG, "Features:");
     ESP_LOGI(TAG, "  • 20+ animation patterns");
@@ -1047,8 +1079,8 @@ void animation_task_start(void *pvParameters)
     TickType_t last_wake_time = xTaskGetTickCount();
     
     for (;;) {
-        // CRITICAL: Reset watchdog for animation task in every iteration (only if registered)
-        esp_err_t wdt_ret = esp_task_wdt_reset();
+        // CRITICAL: Reset watchdog for animation task in every iteration
+        esp_err_t wdt_ret = animation_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }

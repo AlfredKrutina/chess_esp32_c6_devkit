@@ -1,24 +1,29 @@
 /**
  * @file button_task.c
- * @brief ESP32-C6 Chess System v2.4 - Button Task Implementation
+ * @brief ESP32-C6 Chess System v2.4 - Implementace Button tasku
  * 
- * This task handles button input and feedback:
- * - 9 button states (promotion + reset)
- * - Button debouncing and event detection
- * - LED feedback for button states
- * - Button event generation
+ * Tento task zpracovava vstup z tlacitek a feedback:
+ * - 9 stavu tlacitek (promotion + reset)
+ * - Debouncing tlacitek a detekce udalosti
+ * - LED feedback pro stavy tlacitek
+ * - Generovani tlacitkovych udalosti
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
+ * 
+ * @details
+ * Tento task zpracovava vsechna tlacitka na sachovnici. Detekuje
+ * stisknuti tlacitek, provadi debouncing a posila udalosti do
+ * game tasku. Také ovladá LED feedback pro tlacitka.
  * 
  * Hardware:
- * - 9 buttons total
- * - Promotion buttons A: Queen, Rook, Bishop, Knight
- * - Promotion buttons B: Queen, Rook, Bishop, Knight
- * - Reset button: GPIO4 (separate pin)
- * - Button LEDs: WS2812B indices 64-72
- * - Simulation mode (no actual hardware required)
+ * - 9 tlacitek celkem
+ * - Promotion tlacitka A: Dama, Vez, Strelec, Kun
+ * - Promotion tlacitka B: Dama, Vez, Strelec, Kun
+ * - Reset tlacitko: GPIO4 (samostatny pin)
+ * - Tlacitkove LED: WS2812B indexy 64-72
+ * - Simulacni mod (neni potreba skutecny hardware)
  */
 
 
@@ -43,6 +48,28 @@
 
 static const char *TAG = "BUTTON_TASK";
 
+// ============================================================================
+// WDT WRAPPER FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND
+ * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if task not registered (WARNING only)
+ */
+static esp_err_t button_task_wdt_reset_safe(void) {
+    esp_err_t ret = esp_task_wdt_reset();
+    
+    if (ret == ESP_ERR_NOT_FOUND) {
+        // Log as WARNING instead of ERROR - task not registered yet
+        ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
+        return ESP_OK; // Treat as success for our purposes
+    } else if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    return ESP_OK;
+}
 
 // ============================================================================
 // LOCAL VARIABLES AND CONSTANTS
@@ -476,8 +503,13 @@ void button_task_start(void *pvParameters)
 {
     ESP_LOGI(TAG, "Button task started successfully");
     
-    // NOTE: Task is already registered with TWDT in main.c
-    // No need to register again here to avoid duplicate registration
+    // ✅ CRITICAL: Register with TWDT from within task
+    esp_err_t wdt_ret = esp_task_wdt_add(NULL);
+    if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
+        ESP_LOGE(TAG, "Failed to register Button task with TWDT: %s", esp_err_to_name(wdt_ret));
+    } else {
+        ESP_LOGI(TAG, "✅ Button task registered with TWDT");
+    }
     
     ESP_LOGI(TAG, "Features:");
     ESP_LOGI(TAG, "  • 9 button handling (promotion + reset)");
@@ -497,8 +529,8 @@ void button_task_start(void *pvParameters)
     TickType_t last_wake_time = xTaskGetTickCount();
     
     for (;;) {
-        // CRITICAL: Reset watchdog for button task in every iteration (only if registered)
-        esp_err_t wdt_ret = esp_task_wdt_reset();
+        // CRITICAL: Reset watchdog for button task in every iteration
+        esp_err_t wdt_ret = button_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }

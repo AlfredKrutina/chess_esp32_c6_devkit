@@ -1,15 +1,21 @@
-/*
- * ESP32-C6 Chess System v2.4 - Matter Task Component
+/**
+ * @file matter_task.c
+ * @brief ESP32-C6 Chess System v2.4 - Matter Task komponenta
  * 
- * This component handles Matter protocol integration:
- * - Matter device initialization
- * - Protocol communication
- * - Device state management
- * - Network connectivity
+ * Tato komponenta zpracovava integraci Matter protokolu:
+ * - Inicializace Matter zarizeni
+ * - Komunikace protokolu
+ * - Sprava stavu zarizeni
+ * - Sitova konektivita
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
+ * 
+ * @details
+ * Matter Task je zodpovedny za integraci s Matter protokolem.
+ * Umožnuje pripojeni k Matter siti a komunikaci s ostatnimi
+ * Matter zarizenimi. V soucasne dobe je DISABLED.
  */
 
 #include "matter_task.h"

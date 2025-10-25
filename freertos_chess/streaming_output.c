@@ -2,15 +2,20 @@
  * @file streaming_output.c
  * @brief ESP32-C6 Chess System - Streaming Output System
  * 
- * Replaces large string building with direct streaming output to:
- * - Eliminate need for large buffers (2KB+ strings)
- * - Reduce memory pressure and fragmentation
- * - Enable real-time output for better user experience
- * - Support both UART and future web server output
+ * Nahrazuje velke string building priamym streaming vystupem pro:
+ * - Eliminaci potreby velkych bufferu (2KB+ stringy)
+ * - Snizeni memory pressure a fragmentace
+ * - Umožneni real-time vystupu pro lepsi uzivatelsky zazitek
+ * - Podporu jak UART tak budoucich web server vystupu
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-01-27
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-01-27
+ * 
+ * @details
+ * Streaming Output System je system pro efektivni vypis velkych textu.
+ * Misto budovani velkych stringu posila data primo do vystupu,
+ * coz eliminuje potrebu velkych bufferu a zlepsuje performance.
  */
 
 #include "freertos/FreeRTOS.h"

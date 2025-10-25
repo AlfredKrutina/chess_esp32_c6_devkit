@@ -1,24 +1,29 @@
 /**
  * @file test_task.c
- * @brief ESP32-C6 Chess System v2.4 - Test Task Implementation
+ * @brief ESP32-C6 Chess System v2.4 - Implementace Test tasku
  * 
- * This task provides comprehensive system testing capabilities:
- * - Hardware component testing
- * - System integration testing
+ * Tento task poskytuje komplexni testovaci schopnosti systemu:
+ * - Testovani hardware komponent
+ * - Testovani systemove integrace
  * - Performance benchmarking
- * - Diagnostic functions
- * - Test result reporting
+ * - Diagnosticke funkce
+ * - Reportovani vysledku testu
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
  * 
- * Features:
- * - Automated test suites
- * - Manual test execution
- * - Performance metrics
- * - Error detection and reporting
- * - Test result logging
+ * @details
+ * Tento task obsahuje vsechny testy pro overeni funkcnosti systemu.
+ * Umožnuje testovani jednotlivych komponent i celeho systemu.
+ * Poskytuje detailni metriky a diagnostiku problemu.
+ * 
+ * Funkce:
+ * - Automatizovane testovaci sady
+ * - Manualni vykonavani testu
+ * - Performance metriky
+ * - Detekce a reportovani chyb
+ * - Logovani vysledku testu
  */
 
 
@@ -45,6 +50,28 @@
 
 static const char *TAG = "TEST_TASK";
 
+// ============================================================================
+// WDT WRAPPER FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND
+ * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if task not registered (WARNING only)
+ */
+static esp_err_t test_task_wdt_reset_safe(void) {
+    esp_err_t ret = esp_task_wdt_reset();
+    
+    if (ret == ESP_ERR_NOT_FOUND) {
+        // Log as WARNING instead of ERROR - task not registered yet
+        ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
+        return ESP_OK; // Treat as success for our purposes
+    } else if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    return ESP_OK;
+}
 
 // ============================================================================
 // LOCAL VARIABLES AND CONSTANTS
@@ -105,11 +132,11 @@ static uint32_t total_failed = 0;
 static uint32_t total_skipped = 0;
 static uint32_t test_start_time = 0;
 
-// Performance metrics
-static uint32_t memory_usage_start = 0;
-static uint32_t memory_usage_current = 0;
-static uint32_t cpu_usage_start = 0;
-static uint32_t cpu_usage_current = 0;
+// Performance metrics - unused variables removed
+// static uint32_t memory_usage_start = 0;
+// static uint32_t memory_usage_current = 0;
+// static uint32_t cpu_usage_start = 0;
+// static uint32_t cpu_usage_current = 0;
 
 
 // ============================================================================
@@ -274,7 +301,7 @@ void test_run_all_suites(void)
     ESP_LOGI(TAG, "Starting all test suites...");
     
     // CRITICAL: Reset WDT before starting long operation (only if registered)
-    esp_err_t wdt_ret = esp_task_wdt_reset();
+    esp_err_t wdt_ret = test_task_wdt_reset_safe();
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }
@@ -284,7 +311,7 @@ void test_run_all_suites(void)
     
     for (uint32_t suite_idx = 0; suite_idx < suite_count; suite_idx++) {
         // CRITICAL: Reset WDT for each suite (only if registered)
-        wdt_ret = esp_task_wdt_reset();
+        wdt_ret = test_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }
@@ -961,8 +988,13 @@ void test_task_start(void *pvParameters)
 {
     ESP_LOGI(TAG, "Test task started successfully");
     
-    // NOTE: Task is already registered with TWDT in main.c
-    // No need to register again here to avoid duplicate registration
+    // ✅ CRITICAL: Register with TWDT from within task
+    esp_err_t wdt_ret = esp_task_wdt_add(NULL);
+    if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
+        ESP_LOGE(TAG, "Failed to register Test task with TWDT: %s", esp_err_to_name(wdt_ret));
+    } else {
+        ESP_LOGI(TAG, "✅ Test task registered with TWDT");
+    }
     
     ESP_LOGI(TAG, "Features:");
     ESP_LOGI(TAG, "  • Automated test suites");
@@ -982,8 +1014,8 @@ void test_task_start(void *pvParameters)
     TickType_t last_wake_time = xTaskGetTickCount();
     
     for (;;) {
-        // CRITICAL: Reset watchdog for test task in every iteration (only if registered)
-        esp_err_t wdt_ret = esp_task_wdt_reset();
+        // CRITICAL: Reset watchdog for test task in every iteration
+        esp_err_t wdt_ret = test_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }

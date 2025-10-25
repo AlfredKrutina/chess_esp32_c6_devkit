@@ -1,26 +1,39 @@
 /**
  * @file main.c
- * @brief ESP32-C6 Chess System v2.4 - Main Application
+ * @brief ESP32-C6 Chess System v2.4 - Hlavni aplikace
  * 
- * This file contains the main application entry point and system initialization:
- * - FreeRTOS task creation and management
- * - System component initialization
- * - Task Watchdog Timer setup
- * - Startup sequence with ASCII chess art
- * - Demo mode integration
- * - Chess game initialization
+ * Tento soubor obsahuje hlavni vstupni bod aplikace a inicializaci systemu:
+ * - Vytvareni a spravu FreeRTOS tasku
+ * - Inicializaci systemovych komponent
+ * - Nastaveni Task Watchdog Timeru
+ * - Startup sekvenci s ASCII sachovym umenim
+ * - Integraci demo modu
+ * - Inicializaci sachove hry
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
  * 
- * Features:
- * - 8 FreeRTOS tasks for system components
- * - Task Watchdog Timer for system stability
- * - ASCII chess art welcome banner
- * - Automatic chess game initialization
- * - Demo mode with automatic moves
+ * Funkce:
+ * - 8 FreeRTOS tasku pro systemove komponenty
+ * - Task Watchdog Timer pro stabilitu systemu
+ * - ASCII sachove umeni welcome banner
+ * - Automaticka inicializace sachove hry
+ * - Demo mod s automatickymi tahy
  * - Production-ready error handling
+ * 
+ * @details
+ * Tento soubor je hlavnim vstupnim bodem pro ESP32-C6 sachovy system.
+ * Spousti se jako prvni a inicializuje vsechny potrebne komponenty.
+ * System pouziva FreeRTOS pro multitasking a ma 8 hlavnich tasku:
+ * - LED task: ovladani LED pasku
+ * - Matrix task: skenovani 8x8 matice
+ * - Button task: ovladani tlacitek
+ * - UART task: komunikace pres UART
+ * - Game task: logika sachove hry
+ * - Animation task: LED animace
+ * - Test task: testovani systemu
+ * - Web server task: web rozhrani
  */
 
 #include <stdio.h>
@@ -52,7 +65,7 @@
 #include "animation_task.h"
 // #include "screen_saver_task.h"  // DISABLED to prevent LED conflicts
 #include "test_task.h"
-#include "matter_task.h"
+// #include "matter_task.h"  // DISABLED - Matter not needed
 #include "web_server_task.h"
 #include "config_manager.h"
 #include "game_led_animations.h"
@@ -66,28 +79,66 @@ void show_boot_animation_and_board(void);
 
 static const char *TAG = "MAIN";
 
-// Global UART mutex for clean output
+// ============================================================================
+// WDT WRAPPER FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND
+ * 
+ * Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste
+ * registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.
+ * 
+ * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze)
+ */
+static esp_err_t main_task_wdt_reset_safe(void) {
+    esp_err_t ret = esp_task_wdt_reset();
+    
+    if (ret == ESP_ERR_NOT_FOUND) {
+        // Log as WARNING instead of ERROR - task not registered yet
+        ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
+        return ESP_OK; // Treat as success for our purposes
+    } else if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    return ESP_OK;
+}
+
+/** @brief Globalni UART mutex pro cisty vystup */
 SemaphoreHandle_t uart_mutex = NULL;
 
-// Task handles
+/** @brief Handle pro LED task */
 TaskHandle_t led_task_handle = NULL;
+/** @brief Handle pro Matrix task */
 TaskHandle_t matrix_task_handle = NULL;
+/** @brief Handle pro Button task */
 TaskHandle_t button_task_handle = NULL;
+/** @brief Handle pro UART task */
 TaskHandle_t uart_task_handle = NULL;
+/** @brief Handle pro Game task */
 TaskHandle_t game_task_handle = NULL;
+/** @brief Handle pro Animation task */
 TaskHandle_t animation_task_handle = NULL;
+/** @brief Handle pro Screen Saver task */
 TaskHandle_t screen_saver_task_handle = NULL;
+/** @brief Handle pro Test task */
 TaskHandle_t test_task_handle = NULL;
-TaskHandle_t matter_task_handle = NULL;
+// TaskHandle_t matter_task_handle = NULL;  // DISABLED - Matter not needed
+/** @brief Handle pro Web Server task */
 TaskHandle_t web_server_task_handle = NULL;
+/** @brief Handle pro Reset Button task */
 TaskHandle_t reset_button_task_handle = NULL;
+/** @brief Handle pro Promotion Button task */
 TaskHandle_t promotion_button_task_handle = NULL;
 
-// Demo mode configuration
+/** @brief Konfigurace demo modu - je demo mod zapnuty */
 static bool demo_mode_enabled = false;
+/** @brief Zpozdeni mezi demo tahy v milisekundach - vychozi 3 sekundy */
 static uint32_t demo_move_delay_ms = 3000; // Default 3 seconds
 
-// Predefined demo moves for automatic play
+/** @brief Preddefinovane demo tahy pro automaticke hrani */
 static const char* DEMO_MOVES[] = {
     "e2e4", "e7e5", "g1f3", "b8c6", "f1c4", "f8c5",
     "c2c3", "g8f6", "d2d4", "e5d4", "c3d4", "c5b4",
@@ -95,7 +146,9 @@ static const char* DEMO_MOVES[] = {
     "c4f7", "e8f7", "d3d8", "f7f8", "d8d8", "f8f7"
 };
 
+/** @brief Aktualni index v demo tahach */
 static int demo_move_index = 0;
+/** @brief Celkovy pocet demo tahu */
 static int demo_moves_count = sizeof(DEMO_MOVES) / sizeof(DEMO_MOVES[0]);
 
 // ============================================================================
@@ -103,8 +156,13 @@ static int demo_moves_count = sizeof(DEMO_MOVES) / sizeof(DEMO_MOVES[0]);
 // ============================================================================
 
 /**
- * @brief Initialize main application system components
- * @return ESP_OK on success, ESP_FAIL on failure
+ * @brief Inicializuje hlavni systemove komponenty aplikace
+ * 
+ * Tato funkce inicializuje vsechny systemove komponenty potrebne pro chod
+ * sachoveho systemu. Vytvari mutexy, inicializuje FreeRTOS chess komponentu,
+ * spousti timery a overuje dostupnost vsech front.
+ * 
+ * @return ESP_OK pri uspechu, ESP_FAIL pri chybe
  */
 esp_err_t main_system_init(void)
 {
@@ -164,11 +222,13 @@ esp_err_t main_system_init(void)
         return ESP_FAIL;
     }
     
-    // Verify Matter queues
+    // DISABLED: Verify Matter queues - Matter not needed
+    /*
     if (matter_command_queue == NULL || matter_status_queue == NULL) {
         ESP_LOGE(TAG, "Matter queues not available");
         return ESP_FAIL;
     }
+    */
     
     // Verify Web server queues
     if (web_command_queue == NULL || web_server_status_queue == NULL) {
@@ -222,7 +282,15 @@ esp_err_t main_system_init(void)
 // ============================================================================
 
 /**
- * @brief Initialize chess game and send new game command
+ * @brief Inicializuje sachovou hru a posle prikaz pro novou hru
+ * 
+ * Tato funkce spusti novou sachovou hru odeslanim prikazu GAME_CMD_NEW_GAME
+ * do game tasku. Po spusteni hry aktualizuje dostupnost tlacitek LED.
+ * 
+ * @details
+ * Funkce vytvori novou sachovou hru odeslanim prikazu do game tasku.
+ * Po uspesnem spusteni hry aktualizuje LED feedback pro tlacitka,
+ * aby uzivatel vedel ktera tlacitka jsou dostupna.
  */
 void initialize_chess_game(void)
 {
@@ -253,8 +321,18 @@ void initialize_chess_game(void)
 }
 
 /**
- * @brief Toggle demo mode on/off
- * @param enabled true to enable, false to disable
+ * @brief Prepina demo mod zapnuto/vypnuto
+ * 
+ * Tato funkce umoznuje zapnout nebo vypnout demo mod, ktery automaticky
+ * hraje preddefinovane tahy. Uzivatel muze zapnout demo mod prikazem
+ * "DEMO ON" a vypnout prikazem "DEMO OFF".
+ * 
+ * @param enabled true pro zapnuti, false pro vypnuti
+ * 
+ * @details
+ * Demo mod umoznuje automaticke hrani preddefinovanych tahu.
+ * Kdyz je zapnuty, system automaticky hraje tahy z pole DEMO_MOVES.
+ * Kdyz je vypnuty, uzivatel muze hrat manualne.
  */
 void toggle_demo_mode(bool enabled)
 {
@@ -273,7 +351,16 @@ void toggle_demo_mode(bool enabled)
 }
 
 /**
- * @brief Execute one demo move
+ * @brief Vykona jeden demo tah
+ * 
+ * Tato funkce vykona jeden tah z preddefinovane sekvence demo tahu.
+ * Tahy jsou ulozeny v poli DEMO_MOVES a jsou hrany postupne.
+ * Po dokonceni vsech tahu se sekvence resetuje.
+ * 
+ * @details
+ * Funkce vezme aktualni tah z pole DEMO_MOVES a posle ho do game tasku.
+ * Tahy jsou ve formatu "e2e4" (z pozice e2 na pozici e4).
+ * Po dokonceni vsech tahu se index resetuje na 0.
  */
 void execute_demo_move(void)
 {
@@ -312,7 +399,15 @@ void execute_demo_move(void)
 // ============================================================================
 
 /**
- * @brief Initialize console and UART
+ * @brief Inicializuje konzoli a UART
+ * 
+ * Tato funkce inicializuje NVS flash, konzoli a UART pro komunikaci.
+ * Pouziva USB Serial JTAG konzoli, takze neni potreba externi UART.
+ * 
+ * @details
+ * Funkce inicializuje NVS flash pamet pro ulozeni konfigurace,
+ * nastavi konzoli pro prijimani prikazu a registruje help prikaz.
+ * Vsechna komunikace probiha pres USB Serial JTAG.
  */
 static void init_console(void)
 {
@@ -343,8 +438,26 @@ static void init_console(void)
 }
 
 /**
- * @brief Create all system tasks
- * @return ESP_OK on success, error code on failure
+ * @brief Vytvori vsechny systemove tasky
+ * 
+ * Tato funkce vytvori vsechny FreeRTOS tasky potrebne pro chod systemu.
+ * Kazdy task ma svoji prioritu a velikost stacku. Po vytvoreni tasku
+ * se zobrazi boot animace a inicializuje se sachova hra.
+ * 
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * 
+ * @details
+ * Funkce vytvori 8 hlavnich tasku:
+ * - LED task: ovladani LED pasku
+ * - Matrix task: skenovani 8x8 matice
+ * - Button task: ovladani tlacitek
+ * - UART task: komunikace pres UART
+ * - Game task: logika sachove hry
+ * - Animation task: LED animace
+ * - Test task: testovani systemu
+ * - Web server task: web rozhrani
+ * 
+ * Po vytvoreni vsech tasku se zobrazi boot animace a inicializuje hra.
  */
 esp_err_t create_system_tasks(void)
 {
@@ -361,13 +474,8 @@ esp_err_t create_system_tasks(void)
         return ESP_FAIL;
     }
     
-    // CRITICAL: Register LED task with Task Watchdog Timer
-    esp_err_t ret = esp_task_wdt_add(led_task_handle);
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
-        ESP_LOGW(TAG, "Warning: LED task WDT registration failed: %s", esp_err_to_name(ret));
-        // Continue anyway - task will still work
-    }
-    ESP_LOGI(TAG, "✓ LED task created successfully (%dKB stack) and registered with TWDT", LED_TASK_STACK_SIZE / 1024);
+    // Task will register itself with TWDT internally
+    ESP_LOGI(TAG, "✓ LED task created successfully (%dKB stack) - will self-register with TWDT", LED_TASK_STACK_SIZE / 1024);
     
     // Create Matrix task
     result = xTaskCreate(
@@ -380,14 +488,8 @@ esp_err_t create_system_tasks(void)
         return ESP_FAIL;
     }
     
-    // CRITICAL: Register Matrix task with Task Watchdog Timer
-    ret = esp_task_wdt_add(matrix_task_handle);
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
-        ESP_LOGW(TAG, "Warning: Matrix task WDT registration failed: %s", esp_err_to_name(ret));
-        // Continue anyway - task will still work
-    }
-    // Suppress ESP_ERR_INVALID_ARG without logging (task already registered)
-    ESP_LOGI(TAG, "✓ Matrix task created successfully (%dKB stack) and registered with TWDT", MATRIX_TASK_STACK_SIZE / 1024);
+    // Task will register itself with TWDT internally
+    ESP_LOGI(TAG, "✓ Matrix task created successfully (%dKB stack) - will self-register with TWDT", MATRIX_TASK_STACK_SIZE / 1024);
     
     // Create Button task
     result = xTaskCreate(
@@ -400,14 +502,8 @@ esp_err_t create_system_tasks(void)
         return ESP_FAIL;
     }
     
-    // CRITICAL: Register Button task with Task Watchdog Timer
-    ret = esp_task_wdt_add(button_task_handle);
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
-        ESP_LOGW(TAG, "Warning: Button task WDT registration failed: %s", esp_err_to_name(ret));
-        // Continue anyway - task will still work
-    }
-    // Suppress ESP_ERR_INVALID_ARG without logging (task already registered)
-    ESP_LOGI(TAG, "✓ Button task created successfully (%dKB stack) and registered with TWDT", BUTTON_TASK_STACK_SIZE / 1024);
+    // Task will register itself with TWDT internally
+    ESP_LOGI(TAG, "✓ Button task created successfully (%dKB stack) - will self-register with TWDT", BUTTON_TASK_STACK_SIZE / 1024);
     
     // Create UART task (but suspend it until after boot animation)
     result = xTaskCreate(
@@ -423,14 +519,8 @@ esp_err_t create_system_tasks(void)
     // Suspend UART task until after boot animation
     vTaskSuspend(uart_task_handle);
     
-    // CRITICAL: Register UART task with Task Watchdog Timer
-    ret = esp_task_wdt_add(uart_task_handle);
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
-        ESP_LOGW(TAG, "Warning: UART task WDT registration failed: %s", esp_err_to_name(ret));
-    } else {
-        ESP_LOGI(TAG, "✅ UART task registered with TWDT");
-    }
-    ESP_LOGI(TAG, "✓ UART task created successfully (%dKB stack) - suspended until after boot animation", UART_TASK_STACK_SIZE / 1024);
+    // Task will register itself with TWDT internally
+    ESP_LOGI(TAG, "✓ UART task created successfully (%dKB stack) - suspended until after boot animation, will self-register with TWDT", UART_TASK_STACK_SIZE / 1024);
     
     // Create Game task
     result = xTaskCreate(
@@ -443,14 +533,8 @@ esp_err_t create_system_tasks(void)
         return ESP_FAIL;
     }
     
-    // CRITICAL: Register Game task with Task Watchdog Timer
-    ret = esp_task_wdt_add(game_task_handle);
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
-        ESP_LOGW(TAG, "Warning: Game task WDT registration failed: %s", esp_err_to_name(ret));
-        // Continue anyway - task will still work
-    }
-    // Suppress ESP_ERR_INVALID_ARG without logging (task already registered)
-    ESP_LOGI(TAG, "✓ Game task created successfully (%dKB stack) and registered with TWDT", GAME_TASK_STACK_SIZE / 1024);
+    // Task will register itself with TWDT internally
+    ESP_LOGI(TAG, "✓ Game task created successfully (%dKB stack) - will self-register with TWDT", GAME_TASK_STACK_SIZE / 1024);
     
     // Create Animation task
     result = xTaskCreate(
@@ -463,14 +547,8 @@ esp_err_t create_system_tasks(void)
         return ESP_FAIL;
     }
     
-    // CRITICAL: Register Animation task with Task Watchdog Timer
-    ret = esp_task_wdt_add(animation_task_handle);
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
-        ESP_LOGW(TAG, "Warning: Animation task WDT registration failed: %s", esp_err_to_name(ret));
-        // Continue anyway - task will still work
-    }
-    // Suppress ESP_ERR_INVALID_ARG without logging (task already registered)
-    ESP_LOGI(TAG, "✓ Animation task created successfully (%dKB stack) and registered with TWDT", ANIMATION_TASK_STACK_SIZE / 1024);
+    // Task will register itself with TWDT internally
+    ESP_LOGI(TAG, "✓ Animation task created successfully (%dKB stack) - will self-register with TWDT", ANIMATION_TASK_STACK_SIZE / 1024);
     
     // Create Screen Saver task - DISABLED to prevent LED conflicts
     // result = xTaskCreate(
@@ -504,16 +582,11 @@ esp_err_t create_system_tasks(void)
         return ESP_FAIL;
     }
     
-    // CRITICAL: Register Test task with Task Watchdog Timer
-    ret = esp_task_wdt_add(test_task_handle);
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
-        ESP_LOGW(TAG, "Warning: Test task WDT registration failed: %s", esp_err_to_name(ret));
-        // Continue anyway - task will still work
-    }
-    // Suppress ESP_ERR_INVALID_ARG without logging (task already registered)
-    ESP_LOGI(TAG, "✓ Test task created successfully (%dKB stack) and registered with TWDT", TEST_TASK_STACK_SIZE / 1024);
+    // Task will register itself with TWDT internally
+    ESP_LOGI(TAG, "✓ Test task created successfully (%dKB stack) - will self-register with TWDT", TEST_TASK_STACK_SIZE / 1024);
     
-    // Create Matter task
+    // DISABLED: Create Matter task - Matter not needed
+    /*
     result = xTaskCreate(
         (TaskFunction_t)matter_task_start, "matter_task", MATTER_TASK_STACK_SIZE, NULL,
         MATTER_TASK_PRIORITY, &matter_task_handle
@@ -524,14 +597,12 @@ esp_err_t create_system_tasks(void)
         return ESP_FAIL;
     }
     
-    // CRITICAL: Register Matter task with Task Watchdog Timer
     ret = esp_task_wdt_add(matter_task_handle);
     if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
         ESP_LOGW(TAG, "Warning: Matter task WDT registration failed: %s", esp_err_to_name(ret));
-        // Continue anyway - task will still work
     }
-    // Suppress ESP_ERR_INVALID_ARG without logging (task already registered)
     ESP_LOGI(TAG, "✓ Matter task created successfully (%dKB stack) and registered with TWDT", MATTER_TASK_STACK_SIZE / 1024);
+    */
     
     // Create Web Server task
     result = xTaskCreate(
@@ -544,14 +615,8 @@ esp_err_t create_system_tasks(void)
         return ESP_FAIL;
     }
     
-    // CRITICAL: Register Web Server task with Task Watchdog Timer
-    ret = esp_task_wdt_add(web_server_task_handle);
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
-        ESP_LOGW(TAG, "Warning: Web Server task WDT registration failed: %s", esp_err_to_name(ret));
-        // Continue anyway - task will still work
-    }
-    // Suppress ESP_ERR_INVALID_ARG without logging (task already registered)
-    ESP_LOGI(TAG, "✓ Web Server task created successfully (%dKB stack) and registered with TWDT", WEB_SERVER_TASK_STACK_SIZE / 1024);
+    // Task will register itself with TWDT internally
+    ESP_LOGI(TAG, "✓ Web Server task created successfully (%dKB stack) - will self-register with TWDT", WEB_SERVER_TASK_STACK_SIZE / 1024);
     
     ESP_LOGI(TAG, "All system tasks created successfully");
     
@@ -576,9 +641,16 @@ esp_err_t create_system_tasks(void)
 // ============================================================================
 
 /**
- * @brief Show centralized boot animation and chess board
- * This function is called after all tasks are initialized to avoid
- * duplicate rendering and ensure smooth animation timing
+ * @brief Zobrazi centralizovanou boot animaci a sachovnici
+ * 
+ * Tato funkce je volana po inicializaci vsech tasku, aby se zabranilo
+ * duplicitnimu renderovani a zajistil se plynuly timing animace.
+ * Zobrazi ASCII sachove umeni, progress bar a navod k pouziti.
+ * 
+ * @details
+ * Funkce zobrazi pekny ASCII banner s nazvem systemu, progress bar
+ * s animaci nacitani a navod k pouziti systemu. Vsechno je barevne
+ * a plynule animovane pro lepsi uzivatelsky zazitek.
  */
 void show_boot_animation_and_board(void)
 {
@@ -654,6 +726,7 @@ void show_boot_animation_and_board(void)
         "System ready!"
     };
     const int num_messages = sizeof(status_messages) / sizeof(status_messages[0]);
+    // int current_message = 0; // Unused variable removed
     
     for (int i = 0; i <= total_steps; i++) {
         int progress = (i * 100) / total_steps;
@@ -675,11 +748,8 @@ void show_boot_animation_and_board(void)
         printf("] %3d%% - %s", progress, status_messages[message_index]);
         fflush(stdout);
         
-        // ✅ NOVÉ: LED boot animace krok - simultánně s UART animací
-        led_boot_animation_step(progress);
-        
         // CRITICAL: Reset watchdog timer during loading (only if registered)
-        esp_err_t wdt_ret = esp_task_wdt_reset();
+        esp_err_t wdt_ret = main_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }
@@ -690,10 +760,6 @@ void show_boot_animation_and_board(void)
     }
     
     printf("\n\033[1;32m✓ Chess Engine Ready!\033[0m\n\n"); // Success message
-    
-    // ✅ NOVÉ: LED boot animace fade out - postupně ztlumí LED
-    ESP_LOGI(TAG, "🌟 Starting LED fade out animation...");
-    led_boot_animation_fade_out();
     
     // Chess board will be displayed by game task after initialization
     ESP_LOGI(TAG, "🎯 Chess board will be displayed by game task...");
@@ -720,6 +786,24 @@ void show_boot_animation_and_board(void)
 // MAIN APPLICATION FUNCTION
 // ============================================================================
 
+/**
+ * @brief Hlavni funkce aplikace
+ * 
+ * Tato funkce je hlavnim vstupnim bodem aplikace. Inicializuje system,
+ * vytvori tasky a spusti hlavni smycku aplikace. Obsahuje error handling
+ * a safe mode pro pripady chyb.
+ * 
+ * @details
+ * Funkce je volana jako prvni po spusteni ESP32. Inicializuje Task Watchdog
+ * Timer, vytvori vsechny systemove tasky a spusti hlavni smycku aplikace.
+ * Obsahuje error handling a safe mode pro pripady chyb pri inicializaci.
+ * 
+ * Hlavni smycka:
+ * - Resetuje watchdog timer
+ * - Loguje system status kazdych 60 sekund
+ * - Zpracovava demo mod pokud je zapnuty
+ * - Ceka 1 sekundu mezi iteracemi
+ */
 void app_main(void)
 {
     ESP_LOGI(TAG, "🎯 ESP32-C6 Chess System v2.4 starting...");
@@ -788,7 +872,7 @@ void app_main(void)
     }
     
     // CRITICAL: Reset watchdog AFTER task creation
-    esp_task_wdt_reset();
+    main_task_wdt_reset_safe();
     
     // PŘIDAT: Vrátit normální WDT timeout po inicializaci - OPTIMALIZOVÁNO pro web server
     twdt_config.timeout_ms = 8000;  // Zvýšeno na 8 sekund pro web server
@@ -801,13 +885,14 @@ void app_main(void)
     vTaskDelay(pdMS_TO_TICKS(200));
     
     // Main application loop
+    // uint32_t loop_count = 0; // Unused variable removed
     uint32_t last_status_time = 0;
     
     ESP_LOGI(TAG, "🎯 Main application loop started");
     
     for (;;) {
         // CRITICAL: Reset watchdog for main task in every iteration
-        esp_task_wdt_reset();
+        main_task_wdt_reset_safe();
         
         // Periodic system status logging (respects quiet_mode and verbose_mode)
         uint32_t current_time = esp_timer_get_time() / 1000000; // Convert to seconds
@@ -835,6 +920,8 @@ void app_main(void)
                 last_demo_time = current_time;
             }
         }
+        
+        // loop_count++; // Unused variable removed
         
         // CRITICAL: Main task delay - must be present for watchdog safety
         vTaskDelay(pdMS_TO_TICKS(1000)); // 1 second delay - CRITICAL for watchdog

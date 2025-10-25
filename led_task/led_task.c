@@ -1,22 +1,27 @@
 /**
  * @file led_task.c
- * @brief ESP32-C6 Chess System v2.4 - LED Task Implementation
+ * @brief ESP32-C6 Chess System v2.4 - Implementace LED tasku
  * 
- * This task handles all LED operations:
- * - WS2812B LED control (73 LEDs: 64 board + 9 buttons: 8 promotion + 1 reset)
- * - LED animations and patterns
- * - Button LED feedback
- * - Time-multiplexed updates
+ * Tento task zpracovava vsechny LED operace:
+ * - WS2812B LED ovladani (73 LED: 64 sachovnice + 9 tlacitek: 8 promotion + 1 reset)
+ * - LED animace a vzory
+ * - Tlacitkove LED feedback
+ * - Time-multiplexed aktualizace
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
+ * 
+ * @details
+ * Tento task je zodpovedny za vsechny LED operace v systemu.
+ * Ovladá 73 WS2812B LED: 64 pro sachovnici a 9 pro tlacitka.
+ * Obsahuje pokrocile animace a efekty pro lepsi uzivatelsky zazitek.
  * 
  * Hardware:
- * - WS2812B LED strip on GPIO7 (LED_DATA_PIN)
- * - 64 LEDs for chess board (8x8)
- * - 9 LEDs for button feedback (8 promotion + 1 reset)
- * - Simulation mode (no actual hardware required)
+ * - WS2812B LED paska na GPIO7 (LED_DATA_PIN)
+ * - 64 LED pro sachovnici (8x8)
+ * - 9 LED pro tlacitkove feedback (8 promotion + 1 reset)
+ * - Simulacni mod (neni potreba skutecny hardware)
  */
 
 
@@ -51,6 +56,29 @@
 
 
 static const char *TAG = "LED_TASK";
+
+// ============================================================================
+// WDT WRAPPER FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND
+ * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if task not registered (WARNING only)
+ */
+static esp_err_t led_task_wdt_reset_safe(void) {
+    esp_err_t ret = esp_task_wdt_reset();
+    
+    if (ret == ESP_ERR_NOT_FOUND) {
+        // Log as WARNING instead of ERROR - task not registered yet
+        ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
+        return ESP_OK; // Treat as success for our purposes
+    } else if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    return ESP_OK;
+}
 
 // ============================================================================
 // LED SYSTEM OPTIMIZATION CONSTANTS - NOVÉ PRO KOMPLETNÍ OPRAVU
@@ -1190,7 +1218,7 @@ static void led_send_status_to_uart_immediate(QueueHandle_t response_queue)
     }
     
     // Reset WDT before starting operation (only if registered)
-    esp_err_t wdt_ret = esp_task_wdt_reset();
+    esp_err_t wdt_ret = led_task_wdt_reset_safe();
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }
@@ -1216,7 +1244,7 @@ static void led_send_status_to_uart_immediate(QueueHandle_t response_queue)
     // Stream board LEDs in chessboard layout (8x8)
     for (int row = 7; row >= 0; row--) {  // Start from row 8 (top)
         // Reset watchdog every row to prevent timeouts (only if registered)
-        wdt_ret = esp_task_wdt_reset();
+        wdt_ret = led_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }
@@ -1288,7 +1316,7 @@ static void led_send_status_to_uart_immediate(QueueHandle_t response_queue)
     ESP_LOGI(TAG, "✅ LED status streaming completed immediately");
     
     // Final WDT reset (only if registered)
-    wdt_ret = esp_task_wdt_reset();
+    wdt_ret = led_task_wdt_reset_safe();
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }
@@ -1627,6 +1655,14 @@ void led_task_start(void *pvParameters)
 {
     ESP_LOGI(TAG, "🚀 LED task starting...");
     
+    // ✅ CRITICAL: Register with TWDT from within task
+    esp_err_t wdt_ret = esp_task_wdt_add(NULL);
+    if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
+        ESP_LOGE(TAG, "Failed to register LED task with TWDT: %s", esp_err_to_name(wdt_ret));
+    } else {
+        ESP_LOGI(TAG, "✅ LED task registered with TWDT");
+    }
+    
     // Initialize hardware
     esp_err_t hw_ret = led_hardware_init();
     if (hw_ret != ESP_OK) {
@@ -1641,9 +1677,6 @@ void led_task_start(void *pvParameters)
         simulation_mode = false;
         led_initialized = true;
     }
-    
-    // NOTE: Task is already registered with TWDT in main.c
-    // No need to register again here to avoid duplicate registration
     
     // BOOTING ANIMATION: Progressive LED illumination
     ESP_LOGI(TAG, "🌟 Starting booting animation...");
@@ -1701,7 +1734,7 @@ void led_task_start(void *pvParameters)
     
     for (;;) {
         // Reset watchdog - only if task is registered with WDT
-        esp_err_t wdt_ret = esp_task_wdt_reset();
+        esp_err_t wdt_ret = led_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }
@@ -2268,7 +2301,7 @@ void led_booting_animation(void)
         vTaskDelay(pdMS_TO_TICKS(50));
         
         // Reset WDT during animation
-        esp_task_wdt_reset();
+        led_task_wdt_reset_safe();
     }
     
     // Brief pause at full brightness
@@ -2296,7 +2329,7 @@ void led_booting_animation(void)
         
         led_strip_refresh(led_strip);
         vTaskDelay(pdMS_TO_TICKS(30));
-        esp_task_wdt_reset();
+        led_task_wdt_reset_safe();
     }
     
     // Clear all LEDs
@@ -2319,7 +2352,7 @@ void led_anim_endgame(const led_command_t* cmd) {
     endgame_animation_frame = 0;
     
     // Reset WDT at start
-    esp_task_wdt_reset();
+    led_task_wdt_reset_safe();
     
     // Actually create and start the animation using unified_animation_manager
     animation_type_t anim_type;
@@ -2725,7 +2758,7 @@ static void led_commit_pending_changes(void)
     }
     
     // ✅ Reset watchdog BEFORE critical section (only if registered)
-    esp_err_t wdt_ret = esp_task_wdt_reset();
+    esp_err_t wdt_ret = led_task_wdt_reset_safe();
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }
@@ -2747,7 +2780,7 @@ static void led_commit_pending_changes(void)
         
         // ✅ Watchdog reset every N LEDs for large updates (only if registered)
         if ((i % LED_WATCHDOG_RESET_INTERVAL) == 0) {
-            wdt_ret = esp_task_wdt_reset();
+            wdt_ret = led_task_wdt_reset_safe();
             if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
                 // Task not registered with TWDT yet - this is normal during startup
             }
@@ -2767,7 +2800,7 @@ static void led_commit_pending_changes(void)
     }
     
     // ✅ Final watchdog reset before refresh (only if registered)
-    wdt_ret = esp_task_wdt_reset();
+    wdt_ret = led_task_wdt_reset_safe();
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }
@@ -2785,7 +2818,7 @@ static void led_commit_pending_changes(void)
     }
     
     // ✅ Final reset after refresh (only if registered)
-    wdt_ret = esp_task_wdt_reset();
+    wdt_ret = led_task_wdt_reset_safe();
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }
@@ -2824,7 +2857,7 @@ static void led_privileged_batch_commit(void)
     }
     
     // ✅ Reset watchdog BEFORE critical section
-    esp_err_t wdt_ret = esp_task_wdt_reset();
+    esp_err_t wdt_ret = led_task_wdt_reset_safe();
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }
@@ -2845,7 +2878,7 @@ static void led_privileged_batch_commit(void)
         
         // ✅ Watchdog reset every N LEDs for large updates
         if ((i % LED_WATCHDOG_RESET_INTERVAL) == 0) {
-            wdt_ret = esp_task_wdt_reset();
+            wdt_ret = led_task_wdt_reset_safe();
             if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
                 // Task not registered with TWDT yet - this is normal during startup
             }
@@ -2865,7 +2898,7 @@ static void led_privileged_batch_commit(void)
     }
     
     // ✅ Final watchdog reset before refresh
-    wdt_ret = esp_task_wdt_reset();
+    wdt_ret = led_task_wdt_reset_safe();
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }
@@ -2883,7 +2916,7 @@ static void led_privileged_batch_commit(void)
     }
     
     // ✅ Final watchdog reset after refresh
-    wdt_ret = esp_task_wdt_reset();
+    wdt_ret = led_task_wdt_reset_safe();
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }

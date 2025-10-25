@@ -1,16 +1,21 @@
 /**
  * @file enhanced_castling_system.c
- * @brief Enhanced Castling System Implementation
+ * @brief Implementace Enhanced Castling Systemu
  * 
- * This module implements a comprehensive castling system with:
- * - Centralized state management
- * - Advanced LED guidance and error indication
- * - Intelligent error recovery
+ * Tento modul implementuje komplexni system pro rochadu s:
+ * - Centralizovanou spravou stavu
+ * - Pokrocilym LED navodem a indikaci chyb
+ * - Inteligentnim error recovery
  * - Timeout handling
- * - Visual player guidance
+ * - Vizualnim navodem pro hrace
  * 
  * @author ESP32 Chess Team
  * @date 2024
+ * 
+ * @details
+ * Enhanced Castling System je pokrocily system pro spravu rochady
+ * v sachovem systemu. Poskytuje vizualni navod pro hrace a pomaha
+ * s provedenim rochady podle pravidel.
  */
 
 #include "enhanced_castling_system.h"

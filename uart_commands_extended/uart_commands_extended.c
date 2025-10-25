@@ -1,12 +1,18 @@
 /**
  * @file uart_commands_extended.c
- * @brief ESP32-C6 Chess System - Rozšířené UART příkazy pro LED animace
+ * @brief ESP32-C6 Chess System - Rozsirene UART prikazy pro LED animace
  * 
- * Implementace nových příkazů pro endgame animace a jemné efekty
+ * Implementace novych prikazu pro endgame animace a jemne efekty.
+ * Obsahuje prikazy pro ovladani pokrocilych LED animaci a efektu.
  * 
- * Author: Alfred Krutina
- * Version: 2.5 - COMPLETE ANIMATIONS
- * Date: 2025-09-04
+ * @author Alfred Krutina
+ * @version 2.5 - COMPLETE ANIMATIONS
+ * @date 2025-09-04
+ * 
+ * @details
+ * Tento modul rozsiruje zakladni UART prikazy o pokrocile funkce
+ * pro ovladani LED animaci. Obsahuje prikazy pro endgame animace,
+ * jemne efekty a pokrocile vzory.
  */
 
 #include "uart_commands_extended.h"
