@@ -381,6 +381,14 @@ uint8_t matrix_notation_to_square(const char* notation)
 }
 
 
+void matrix_get_state(uint8_t* state_buffer)
+{
+    if (state_buffer == NULL) return;
+    
+    // Copy current matrix state to buffer
+    memcpy(state_buffer, matrix_state, 64);
+}
+
 void matrix_print_state(void)
 {
     ESP_LOGI(TAG, "Matrix State (8x8):");

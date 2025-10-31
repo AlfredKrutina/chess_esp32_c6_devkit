@@ -17,6 +17,7 @@ idf_component_register(
         unified_animation_manager
         led_state_manager
         visual_error_system
+        timer_system
     PRIV_REQUIRES
         spi_flash
         console

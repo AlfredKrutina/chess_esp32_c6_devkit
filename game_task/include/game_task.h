@@ -25,6 +25,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// Timer system integration
+#include "../../timer_system/include/timer_system.h"
+
 
 // ============================================================================
 // CONSTANTS AND DEFINITIONS
@@ -101,6 +104,14 @@ esp_err_t game_get_history_json(char* buffer, size_t size);
  * @return ESP_OK on success, error code on failure
  */
 esp_err_t game_get_captured_json(char* buffer, size_t size);
+
+/**
+ * @brief Export material advantage history to JSON string (pro graf výhody)
+ * @param buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_get_advantage_json(char* buffer, size_t size);
 
 // ============================================================================
 // TASK FUNCTION PROTOTYPES
@@ -422,6 +433,11 @@ void game_print_status(void);
 
 // New game statistics and end-game detection functions
 void game_print_game_stats(void);
+uint32_t game_get_white_wins(void);
+uint32_t game_get_black_wins(void);
+uint32_t game_get_draws(void);
+uint32_t game_get_total_games(void);
+const char* game_get_game_state_string(void);
 uint32_t game_calculate_position_hash(void);
 bool game_is_position_repeated(void);
 void game_add_position_to_history(void);
@@ -584,6 +600,137 @@ void show_castling_completion_animation();
  * @param error_col Column of invalid position
  */
 void game_show_invalid_move_error_with_blink(uint8_t error_row, uint8_t error_col);
+
+// ============================================================================
+// TIMER SYSTEM INTEGRATION FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Export timer state to JSON string
+ * @param buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_get_timer_json(char* buffer, size_t size);
+
+/**
+ * @brief Set time control for the game
+ * @param config Time control configuration
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_set_time_control(const time_control_config_t* config);
+
+/**
+ * @brief Start timer for current player's move
+ * @param is_white_turn Is it white player's turn
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_start_timer_move(bool is_white_turn);
+
+/**
+ * @brief End timer for current player's move
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_end_timer_move(void);
+
+/**
+ * @brief Pause the game timer
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_pause_timer(void);
+
+/**
+ * @brief Resume the game timer
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_resume_timer(void);
+
+/**
+ * @brief Reset the game timer
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_reset_timer(void);
+
+/**
+ * @brief Check if time has expired
+ * @return true if time has expired, false otherwise
+ */
+bool game_check_timer_timeout(void);
+
+/**
+ * @brief Get remaining time for player
+ * @param is_white_turn Is it white player's turn
+ * @return Remaining time in milliseconds
+ */
+uint32_t game_get_remaining_time(bool is_white_turn);
+
+/**
+ * @brief Get current timer state
+ * @param timer_data Pointer to timer state structure
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_get_timer_state(chess_timer_t* timer_data);
+
+/**
+ * @brief Initialize timer system in game task
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_init_timer_system(void);
+
+/**
+ * @brief Process timer commands from queue
+ * @param cmd Game command with timer operation
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_process_timer_command(const chess_move_command_t* cmd);
+
+/**
+ * @brief Handle time expiration
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_handle_time_expiration(void);
+
+/**
+ * @brief Update timer display and check warnings
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_update_timer_display(void);
+
+/**
+ * @brief Get available time controls
+ * @param controls Array to store time control configurations
+ * @param max_count Maximum number of controls to return
+ * @return Number of controls returned
+ */
+uint32_t game_get_available_time_controls(time_control_config_t* controls, uint32_t max_count);
+
+/**
+ * @brief Set custom time control
+ * @param minutes Number of minutes
+ * @param increment_seconds Increment in seconds
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_set_custom_time_control(uint32_t minutes, uint32_t increment_seconds);
+
+/**
+ * @brief Get timer statistics
+ * @param total_moves Pointer to store total moves count
+ * @param avg_move_time Pointer to store average move time
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_get_timer_stats(uint32_t* total_moves, uint32_t* avg_move_time);
+
+/**
+ * @brief Check if timer is active
+ * @return true if timer is active, false otherwise
+ */
+bool game_is_timer_active(void);
+
+/**
+ * @brief Get current time control type
+ * @return Current time control type
+ */
+time_control_type_t game_get_current_time_control_type(void);
 
 
 #endif // GAME_TASK_H

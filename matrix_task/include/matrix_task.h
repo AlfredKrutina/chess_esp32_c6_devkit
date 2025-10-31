@@ -36,6 +36,7 @@ void matrix_square_to_notation(uint8_t square, char* notation);
 uint8_t matrix_notation_to_square(const char* notation);
 void matrix_print_state(void);
 void matrix_simulate_move(const char* from, const char* to);
+void matrix_get_state(uint8_t* state_buffer);
 
 // Command processing functions
 void matrix_process_commands(void);

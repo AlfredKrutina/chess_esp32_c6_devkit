@@ -33,11 +33,14 @@
 #include "game_task.h"
 #include "freertos_chess.h"
 #include "../led_task/include/led_task.h"  // ✅ FIX: Include led_task.h for led_clear_board_only()
+#include "../button_task/include/button_task.h"  // ✅ FIX: Include button_task.h for button_set_led_color()
 #include "game_led_animations.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
 // Enhanced castling system - include after other includes to avoid redefinition
 #include "../enhanced_castling_system/include/enhanced_castling_system.h"
+// Timer system integration
+#include "../../timer_system/include/timer_system.h"
 // Note: animation_task.h is not included to avoid type conflicts with unified_animation_manager
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -189,11 +192,79 @@ typedef struct {
 
 static non_blocking_blink_state_t blink_state = {false, 0, 0, 10, 0, 300, false};
 
+// ============================================================================
+// KING RESIGNATION SYSTEM
+// ============================================================================
+
+typedef struct {
+    bool active;                     // Je resignation timer aktivní?
+    player_t player;                 // Který hráč drží krále
+    uint8_t king_row, king_col;      // Pozice krále
+    TimerHandle_t main_timer;        // Hlavní 10s timer
+    TimerHandle_t animation_timer;   // LED animation timer (50ms periodic)
+    uint64_t start_time_ms;          // Čas startu (pro výpočet elapsed)
+    uint8_t last_countdown_sec;      // Poslední vypsaná sekunda (pro countdown)
+} king_resignation_state_t;
+
+static king_resignation_state_t resignation_state = {
+    .active = false,
+    .player = PLAYER_WHITE,
+    .king_row = 0,
+    .king_col = 0,
+    .main_timer = NULL,
+    .animation_timer = NULL,
+    .start_time_ms = 0,
+    .last_countdown_sec = 10
+};
+
+// Forward declarations pro resignation
+static void resignation_main_timer_callback(TimerHandle_t xTimer);
+static void resignation_animation_timer_callback(TimerHandle_t xTimer);
+static void resignation_start(player_t player, uint8_t row, uint8_t col);
+static void resignation_stop(bool finalize);
+static void resignation_update_button_leds(uint32_t elapsed_ms);
+
 // Game statistics
 static uint32_t total_games = 0;
 static uint32_t white_wins = 0;
 static uint32_t black_wins = 0;
 static uint32_t draws = 0;
+
+// ✅ FIX: Flag pro endgame report request (místo volání z timer callbacku)
+static bool endgame_report_requested = false;
+
+// ✅ FIX: Typ konce hry pro lepší rozlišení v reportu
+typedef enum {
+    // Checkmate variations
+    ENDGAME_REASON_CHECKMATE = 0,
+    ENDGAME_REASON_CHECKMATE_EN_PASSANT = 1,     // Šachmat pomocí en passant
+    ENDGAME_REASON_CHECKMATE_CASTLING = 2,       // Šachmat pomocí rošády
+    ENDGAME_REASON_CHECKMATE_PROMOTION = 3,      // Šachmat po promoci pěšce
+    ENDGAME_REASON_CHECKMATE_DISCOVERED = 4,     // Šachmat odkrytým šachem
+    
+    // Draw conditions
+    ENDGAME_REASON_STALEMATE = 10,
+    ENDGAME_REASON_50_MOVE = 11,
+    ENDGAME_REASON_REPETITION = 12,
+    ENDGAME_REASON_INSUFFICIENT = 13,
+    
+    // Player actions
+    ENDGAME_REASON_TIMEOUT = 20,
+    ENDGAME_REASON_RESIGNATION = 21
+} endgame_reason_t;
+
+static endgame_reason_t current_endgame_reason = ENDGAME_REASON_CHECKMATE;
+
+// ✅ Typ posledního tahu pro detekci speciálních šachmatů
+typedef enum {
+    LAST_MOVE_NORMAL = 0,
+    LAST_MOVE_EN_PASSANT = 1,
+    LAST_MOVE_CASTLING = 2,
+    LAST_MOVE_PROMOTION = 3,
+    LAST_MOVE_DISCOVERED = 4
+} last_move_type_t;
+
+static last_move_type_t last_move_type = LAST_MOVE_NORMAL;
 
 // Extended game statistics
 static uint32_t game_start_time = 0;
@@ -218,6 +289,11 @@ static uint32_t black_captured_count = 0;
 static uint32_t white_captured_index = 0;
 static uint32_t black_captured_index = 0;
 
+// ✅ Material advantage tracking (pro graf výhody v průběhu hry)
+#define MAX_ADVANTAGE_HISTORY 200
+static int8_t material_advantage_history[MAX_ADVANTAGE_HISTORY];  // -127 až +127 (White positive, Black negative)
+static uint32_t advantage_history_count = 0;
+
 /**
  * @brief Convert piece_t to character representation
  */
@@ -239,6 +315,61 @@ static char piece_to_char(piece_t piece)
         case PIECE_BLACK_KING: return 'k';
         default: return ' ';
     }
+}
+
+/**
+ * @brief Vypočítat aktuální materiálovou výhodu na boardu
+ * @return Materiálová výhoda (kladná = White vede, záporná = Black vede)
+ */
+static int8_t game_calculate_material_advantage(void) {
+    int white_material = 0;
+    int black_material = 0;
+    
+    // Hodnoty figur
+    const int pawn_value = 1;
+    const int knight_value = 3;
+    const int bishop_value = 3;
+    const int rook_value = 5;
+    const int queen_value = 9;
+    
+    // Spočítat materiál na boardu
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            piece_t piece = board[row][col];
+            switch (piece) {
+                case PIECE_WHITE_PAWN: white_material += pawn_value; break;
+                case PIECE_WHITE_KNIGHT: white_material += knight_value; break;
+                case PIECE_WHITE_BISHOP: white_material += bishop_value; break;
+                case PIECE_WHITE_ROOK: white_material += rook_value; break;
+                case PIECE_WHITE_QUEEN: white_material += queen_value; break;
+                case PIECE_BLACK_PAWN: black_material += pawn_value; break;
+                case PIECE_BLACK_KNIGHT: black_material += knight_value; break;
+                case PIECE_BLACK_BISHOP: black_material += bishop_value; break;
+                case PIECE_BLACK_ROOK: black_material += rook_value; break;
+                case PIECE_BLACK_QUEEN: black_material += queen_value; break;
+                default: break;
+            }
+        }
+    }
+    
+    int advantage = white_material - black_material;
+    // Omezit na int8_t rozsah
+    if (advantage > 127) advantage = 127;
+    if (advantage < -127) advantage = -127;
+    
+    return (int8_t)advantage;
+}
+
+/**
+ * @brief Uložit aktuální materiálovou výhodu do historie
+ */
+static void game_record_material_advantage(void) {
+    if (advantage_history_count >= MAX_ADVANTAGE_HISTORY) {
+        return;  // Historie plná
+    }
+    
+    int8_t advantage = game_calculate_material_advantage();
+    material_advantage_history[advantage_history_count++] = advantage;
 }
 
 /**
@@ -274,6 +405,7 @@ static bool timer_enabled = true;
 static bool game_saved = false;
 static char saved_game_name[32] = "";
 static game_state_t game_result = GAME_STATE_IDLE;
+static game_result_type_t current_result_type = RESULT_WHITE_WINS; // Aktuální typ konce hry
 
 // Castling flags and en passant state
 // (declared later in the file)
@@ -458,6 +590,260 @@ void game_get_material_string(char* buffer, size_t buffer_size)
 // ============================================================================
 // GAME STATISTICS DISPLAY
 // ============================================================================
+
+/**
+ * @brief Update endgame statistics (centralized function)
+ * @param result_type Type of game result
+ */
+static void game_update_endgame_statistics(game_result_type_t result_type) {
+    switch (result_type) {
+        case RESULT_WHITE_WINS:
+            white_wins++;
+            ESP_LOGI(TAG, "📊 Statistics: White wins! (Total: %" PRIu32 ")", white_wins);
+            break;
+        case RESULT_BLACK_WINS:
+            black_wins++;
+            ESP_LOGI(TAG, "📊 Statistics: Black wins! (Total: %" PRIu32 ")", black_wins);
+            break;
+        case RESULT_DRAW_STALEMATE:
+        case RESULT_DRAW_50_MOVE:
+        case RESULT_DRAW_REPETITION:
+        case RESULT_DRAW_INSUFFICIENT:
+            draws++;
+            ESP_LOGI(TAG, "📊 Statistics: Draw! (Total: %" PRIu32 ")", draws);
+            break;
+    }
+    total_games++;
+    ESP_LOGI(TAG, "📊 Total games: %" PRIu32, total_games);
+}
+
+/**
+ * @brief Print simplified endgame report to UART
+ * @param result_type Type of game result
+ */
+static void game_print_endgame_report_uart(game_result_type_t result_type) {
+    uint32_t current_time = esp_timer_get_time() / 1000;
+    uint32_t game_duration = (game_start_time > 0) ? (current_time - game_start_time) : 0;
+    uint32_t minutes = game_duration / 60;
+    uint32_t seconds = game_duration % 60;
+    
+    // Buffer pro výpis (zvětšen pro více informací)
+    char report[2048];
+    int len = 0;
+    
+    // Print endgame announcement
+    len += snprintf(report + len, sizeof(report) - len, "\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "═══════════════════════════════════════════════════════════════\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "🏆 ENDGAME REPORT\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "═══════════════════════════════════════════════════════════════\r\n");
+    
+    // ✅ Určit výsledek a typ ukončení podle current_endgame_reason
+    const char* winner = "";
+    const char* loser = "";
+    const char* end_reason = "";
+    
+    // Nejprve určíme vítěze z result_type
+    if (result_type == RESULT_WHITE_WINS) {
+        winner = "White";
+        loser = "Black";
+    } else if (result_type == RESULT_BLACK_WINS) {
+        winner = "Black";
+        loser = "White";
+    } else {
+        winner = "Draw";
+        loser = "Draw";
+    }
+    
+    // Pak určíme důvod konce hry
+    switch (current_endgame_reason) {
+        // === CHECKMATE VARIATIONS ===
+        case ENDGAME_REASON_CHECKMATE:
+            len += snprintf(report + len, sizeof(report) - len, "🎯 Game Result: %s WINS BY CHECKMATE\r\n", 
+                          (result_type == RESULT_WHITE_WINS) ? "WHITE" : "BLACK");
+            end_reason = "Checkmate";
+            break;
+        case ENDGAME_REASON_CHECKMATE_EN_PASSANT:
+            len += snprintf(report + len, sizeof(report) - len, "⚔️ Game Result: %s WINS BY EN PASSANT CHECKMATE!\r\n", 
+                          (result_type == RESULT_WHITE_WINS) ? "WHITE" : "BLACK");
+            end_reason = "Checkmate (En Passant)";
+            break;
+        case ENDGAME_REASON_CHECKMATE_CASTLING:
+            len += snprintf(report + len, sizeof(report) - len, "🏰 Game Result: %s WINS BY CASTLING CHECKMATE!\r\n", 
+                          (result_type == RESULT_WHITE_WINS) ? "WHITE" : "BLACK");
+            end_reason = "Checkmate (Castling)";
+            break;
+        case ENDGAME_REASON_CHECKMATE_PROMOTION:
+            len += snprintf(report + len, sizeof(report) - len, "👑 Game Result: %s WINS BY PROMOTION CHECKMATE!\r\n", 
+                          (result_type == RESULT_WHITE_WINS) ? "WHITE" : "BLACK");
+            end_reason = "Checkmate (Promotion)";
+            break;
+        case ENDGAME_REASON_CHECKMATE_DISCOVERED:
+            len += snprintf(report + len, sizeof(report) - len, "💥 Game Result: %s WINS BY DISCOVERED CHECK CHECKMATE!\r\n", 
+                          (result_type == RESULT_WHITE_WINS) ? "WHITE" : "BLACK");
+            end_reason = "Checkmate (Discovered Check)";
+            break;
+            
+        // === PLAYER ACTIONS ===
+        case ENDGAME_REASON_RESIGNATION:
+            len += snprintf(report + len, sizeof(report) - len, "🏳️ Game Result: %s WINS BY RESIGNATION\r\n", 
+                          (result_type == RESULT_WHITE_WINS) ? "WHITE" : "BLACK");
+            end_reason = "Resignation";
+            break;
+        case ENDGAME_REASON_TIMEOUT:
+            len += snprintf(report + len, sizeof(report) - len, "⏰ Game Result: %s WINS BY TIMEOUT\r\n", 
+                          (result_type == RESULT_WHITE_WINS) ? "WHITE" : "BLACK");
+            end_reason = "Timeout";
+            break;
+            
+        // === DRAW CONDITIONS ===
+        case ENDGAME_REASON_STALEMATE:
+            len += snprintf(report + len, sizeof(report) - len, "🤝 Game Result: DRAW - Stalemate\r\n");
+            end_reason = "Stalemate";
+            break;
+        case ENDGAME_REASON_50_MOVE:
+            len += snprintf(report + len, sizeof(report) - len, "🤝 Game Result: DRAW - 50-move rule\r\n");
+            end_reason = "50-move rule";
+            break;
+        case ENDGAME_REASON_REPETITION:
+            len += snprintf(report + len, sizeof(report) - len, "🤝 Game Result: DRAW - Three-fold repetition\r\n");
+            end_reason = "Threefold repetition";
+            break;
+        case ENDGAME_REASON_INSUFFICIENT:
+            len += snprintf(report + len, sizeof(report) - len, "🤝 Game Result: DRAW - Insufficient material\r\n");
+            end_reason = "Insufficient material";
+            break;
+    }
+    
+    len += snprintf(report + len, sizeof(report) - len, "───────────────────────────────────────────────────────────────\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "📋 Game Summary:\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "  • Winner: %s\r\n", winner);
+    if (result_type != RESULT_DRAW_STALEMATE && 
+        result_type != RESULT_DRAW_50_MOVE && 
+        result_type != RESULT_DRAW_REPETITION && 
+        result_type != RESULT_DRAW_INSUFFICIENT) {
+        len += snprintf(report + len, sizeof(report) - len, "  • Loser: %s\r\n", loser);
+    }
+    len += snprintf(report + len, sizeof(report) - len, "  • End Reason: %s\r\n", end_reason);
+    len += snprintf(report + len, sizeof(report) - len, "  • Total Moves: %" PRIu32 "\r\n", move_count);
+    len += snprintf(report + len, sizeof(report) - len, "  • Game Duration: %" PRIu32 ":%02" PRIu32 " (mm:ss)\r\n", minutes, seconds);
+    // Vypočítat material advantage
+    int white_material = 0, black_material = 0;
+    for (uint32_t i = 0; i < white_captured_count; i++) {
+        piece_t p = white_captured_pieces[i];
+        if (p == PIECE_BLACK_PAWN) white_material += 1;
+        else if (p == PIECE_BLACK_KNIGHT || p == PIECE_BLACK_BISHOP) white_material += 3;
+        else if (p == PIECE_BLACK_ROOK) white_material += 5;
+        else if (p == PIECE_BLACK_QUEEN) white_material += 9;
+    }
+    for (uint32_t i = 0; i < black_captured_count; i++) {
+        piece_t p = black_captured_pieces[i];
+        if (p == PIECE_WHITE_PAWN) black_material += 1;
+        else if (p == PIECE_WHITE_KNIGHT || p == PIECE_WHITE_BISHOP) black_material += 3;
+        else if (p == PIECE_WHITE_ROOK) black_material += 5;
+        else if (p == PIECE_WHITE_QUEEN) black_material += 9;
+    }
+    int material_diff = white_material - black_material;
+    
+    len += snprintf(report + len, sizeof(report) - len, "───────────────────────────────────────────────────────────────\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "📊 Game Statistics:\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "  • White Moves: %" PRIu32 "\r\n", (move_count + 1) / 2);
+    len += snprintf(report + len, sizeof(report) - len, "  • Black Moves: %" PRIu32 "\r\n", move_count / 2);
+    if (game_duration > 0 && move_count > 0) {
+        len += snprintf(report + len, sizeof(report) - len, "  • Avg Time per Move: %" PRIu32 "s\r\n", game_duration / move_count);
+    }
+    len += snprintf(report + len, sizeof(report) - len, "───────────────────────────────────────────────────────────────\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "⚔️  Combat Statistics:\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "  • White Captures: %" PRIu32 " pieces (%d points)\r\n", white_captures, white_material);
+    len += snprintf(report + len, sizeof(report) - len, "  • Black Captures: %" PRIu32 " pieces (%d points)\r\n", black_captures, black_material);
+    if (material_diff > 0) {
+        len += snprintf(report + len, sizeof(report) - len, "  • Material Advantage: White +%d\r\n", material_diff);
+    } else if (material_diff < 0) {
+        len += snprintf(report + len, sizeof(report) - len, "  • Material Advantage: Black +%d\r\n", -material_diff);
+    } else {
+        len += snprintf(report + len, sizeof(report) - len, "  • Material Advantage: Equal (0)\r\n");
+    }
+    len += snprintf(report + len, sizeof(report) - len, "  • White Checks: %" PRIu32 "\r\n", white_checks);
+    len += snprintf(report + len, sizeof(report) - len, "  • Black Checks: %" PRIu32 "\r\n", black_checks);
+    
+    // Captured pieces vizuálně
+    if (white_captured_count > 0) {
+        len += snprintf(report + len, sizeof(report) - len, "  • White Captured: ");
+        for (uint32_t i = 0; i < white_captured_count && i < MAX_CAPTURED_PIECES; i++) {
+            char piece_char = piece_to_char(white_captured_pieces[i]);
+            len += snprintf(report + len, sizeof(report) - len, "%c ", piece_char);
+        }
+        len += snprintf(report + len, sizeof(report) - len, "\r\n");
+    }
+    if (black_captured_count > 0) {
+        len += snprintf(report + len, sizeof(report) - len, "  • Black Captured: ");
+        for (uint32_t i = 0; i < black_captured_count && i < MAX_CAPTURED_PIECES; i++) {
+            char piece_char = piece_to_char(black_captured_pieces[i]);
+            len += snprintf(report + len, sizeof(report) - len, "%c ", piece_char);
+        }
+        len += snprintf(report + len, sizeof(report) - len, "\r\n");
+    }
+    
+    // Castling info
+    len += snprintf(report + len, sizeof(report) - len, "  • White Castling: %s\r\n", white_castles > 0 ? "Yes" : "No");
+    len += snprintf(report + len, sizeof(report) - len, "  • Black Castling: %s\r\n", black_castles > 0 ? "Yes" : "No");
+    
+    len += snprintf(report + len, sizeof(report) - len, "───────────────────────────────────────────────────────────────\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "📈 Overall Statistics:\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "  • Total Games Played: %" PRIu32 "\r\n", total_games);
+    len += snprintf(report + len, sizeof(report) - len, "  • White Wins: %" PRIu32 " (%.0f%%)\r\n", white_wins, total_games > 0 ? (white_wins * 100.0f / total_games) : 0.0f);
+    len += snprintf(report + len, sizeof(report) - len, "  • Black Wins: %" PRIu32 " (%.0f%%)\r\n", black_wins, total_games > 0 ? (black_wins * 100.0f / total_games) : 0.0f);
+    len += snprintf(report + len, sizeof(report) - len, "  • Draws: %" PRIu32 " (%.0f%%)\r\n", draws, total_games > 0 ? (draws * 100.0f / total_games) : 0.0f);
+    len += snprintf(report + len, sizeof(report) - len, "═══════════════════════════════════════════════════════════════\r\n");
+    len += snprintf(report + len, sizeof(report) - len, "\r\n");
+    
+    // Vypsat buffer do UARTu - použít printf který je směrován správně
+    printf("%s", report);
+    
+    // Flush stdout pro okamžité zobrazení
+    fflush(stdout);
+}
+
+/**
+ * @brief Get white wins count
+ */
+uint32_t game_get_white_wins(void) {
+    return white_wins;
+}
+
+/**
+ * @brief Get black wins count
+ */
+uint32_t game_get_black_wins(void) {
+    return black_wins;
+}
+
+/**
+ * @brief Get draws count
+ */
+uint32_t game_get_draws(void) {
+    return draws;
+}
+
+/**
+ * @brief Get total games count
+ */
+uint32_t game_get_total_games(void) {
+    return total_games;
+}
+
+/**
+ * @brief Get game state as string
+ */
+const char* game_get_game_state_string(void) {
+    switch (current_game_state) {
+        case GAME_STATE_ACTIVE: return "Active";
+        case GAME_STATE_PAUSED: return "Paused";
+        case GAME_STATE_FINISHED: return "Finished";
+        case GAME_STATE_PROMOTION: return "Promotion";
+        case GAME_STATE_IDLE: return "Idle";
+        default: return "Unknown";
+    }
+}
 
 /**
  * @brief Print comprehensive game statistics
@@ -677,6 +1063,11 @@ void game_reset_game(void)
 {
     ESP_LOGI(TAG, "Resetting game...");
     
+    // ✅ OPRAVA: Zastavit resignation timer pokud běží
+    if (resignation_state.active) {
+        resignation_stop(false);
+    }
+    
     // Reset game state
     current_game_state = GAME_STATE_IDLE;
     current_player = PLAYER_WHITE;
@@ -700,6 +1091,9 @@ void game_reset_game(void)
     max_moves_without_capture = 0;
     position_history_count = 0;
     game_result = GAME_STATE_IDLE;
+    current_result_type = RESULT_WHITE_WINS;  // Reset pro novou hru
+    current_endgame_reason = ENDGAME_REASON_CHECKMATE;  // ✅ Reset endgame reason
+    last_move_type = LAST_MOVE_NORMAL;  // ✅ Reset last move type
     game_saved = false;
     saved_game_name[0] = '\0';
     
@@ -712,6 +1106,10 @@ void game_reset_game(void)
     black_captured_count = 0;
     white_captured_index = 0;
     black_captured_index = 0;
+    
+    // ✅ Clear material advantage history
+    advantage_history_count = 0;
+    memset(material_advantage_history, 0, sizeof(material_advantage_history));
     
     // Clear last move tracking
     has_last_move = false;
@@ -745,6 +1143,10 @@ void game_start_new_game(void)
     // Reset game
     game_reset_game();
     
+    // ✅ OPRAVA: Reset timer před novou hrou
+    game_reset_timer();
+    ESP_LOGI(TAG, "Timer reset for new game");
+    
     // Initialize enhanced castling system
     enhanced_castling_init();
     
@@ -753,6 +1155,12 @@ void game_start_new_game(void)
     game_active = true;
     game_start_time = esp_timer_get_time() / 1000;
     last_move_time = game_start_time;
+    
+    // Start timer for white player if time control is active
+    if (game_is_timer_active()) {
+        ESP_LOGI(TAG, "Starting timer for white player at game start");
+        game_start_timer_move(true); // Start timer for white
+    }
     
     // Initialize extended statistics
     white_time_total = 0;
@@ -1675,18 +2083,18 @@ game_state_t game_analyze_position(player_t player) {
         if (king_in_check) {
             // Checkmate
             game_result = GAME_STATE_FINISHED;
-            if (player == PLAYER_WHITE) {
-                black_wins++;
-                ESP_LOGI(TAG, "🎯 CHECKMATE! Black wins!");
-            } else {
-                white_wins++;
-                ESP_LOGI(TAG, "🎯 CHECKMATE! White wins!");
-            }
+            game_result_type_t result_type = player == PLAYER_WHITE ? RESULT_BLACK_WINS : RESULT_WHITE_WINS;
+            current_result_type = result_type;  // Uložit pro web API
+            game_update_endgame_statistics(result_type);
+            game_print_endgame_report_uart(result_type);
+            ESP_LOGI(TAG, "🎯 CHECKMATE! %s wins!", player == PLAYER_WHITE ? "Black" : "White");
             return GAME_STATE_FINISHED;
         } else {
             // Stalemate
-            draws++;
             game_result = GAME_STATE_FINISHED;
+            current_result_type = RESULT_DRAW_STALEMATE;  // Uložit pro web API
+            game_update_endgame_statistics(RESULT_DRAW_STALEMATE);
+            game_print_endgame_report_uart(RESULT_DRAW_STALEMATE);
             ESP_LOGI(TAG, "🤝 STALEMATE! Game drawn!");
             return GAME_STATE_FINISHED;
         }
@@ -1694,8 +2102,10 @@ game_state_t game_analyze_position(player_t player) {
     
     // Check for fifty-move rule
     if (fifty_move_counter >= 100) { // 50 moves per side
-        draws++;
         game_result = GAME_STATE_FINISHED;
+        current_result_type = RESULT_DRAW_50_MOVE;  // Uložit pro web API
+        game_update_endgame_statistics(RESULT_DRAW_50_MOVE);
+        game_print_endgame_report_uart(RESULT_DRAW_50_MOVE);
         ESP_LOGI(TAG, "🤝 DRAW! Fifty-move rule!");
         return GAME_STATE_FINISHED;
     }
@@ -1724,8 +2134,10 @@ game_state_t game_analyze_position(player_t player) {
     }
     
     if (white_pieces <= 2 && black_pieces <= 2 && !white_has_major && !black_has_major) {
-        draws++;
         game_result = GAME_STATE_FINISHED;
+        current_result_type = RESULT_DRAW_INSUFFICIENT;  // Uložit pro web API
+        game_update_endgame_statistics(RESULT_DRAW_INSUFFICIENT);
+        game_print_endgame_report_uart(RESULT_DRAW_INSUFFICIENT);
         ESP_LOGI(TAG, "🤝 DRAW! Insufficient material!");
         return GAME_STATE_FINISHED;
     }
@@ -1824,6 +2236,9 @@ bool game_execute_move(const chess_move_t* move)
         move_count++;
         last_move_time = esp_timer_get_time() / 1000;
         
+        // ✅ Record material advantage pro graf
+        game_record_material_advantage();
+        
         // ✅ ENHANCED CASTLING DETECTION
         if (extended_move.move_type == MOVE_TYPE_CASTLE_KING || extended_move.move_type == MOVE_TYPE_CASTLE_QUEEN) {
             ESP_LOGI(TAG, "🏰 CASTLING DETECTED! King moved 2 squares");
@@ -1909,10 +2324,18 @@ bool game_execute_move(const chess_move_t* move)
                 show_castling_completion_animation();
                 
                 // ✅ TEPRVE NYÍ změnit hráče po dokončení rošády
+                player_t previous_player = current_player;
                 current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
                 
                 ESP_LOGI(TAG, "🎉 Castling completed! Player changed to %s", 
                          current_player == PLAYER_WHITE ? "White" : "Black");
+                
+                // Timer integration: End timer for previous player and start for new player
+                ESP_LOGI(TAG, "🔄 Timer switch (castling): ending for %s, starting for %s", 
+                         previous_player == PLAYER_WHITE ? "White" : "Black",
+                         current_player == PLAYER_WHITE ? "White" : "Black");
+                game_end_timer_move();
+                game_start_timer_move(current_player == PLAYER_WHITE);
                 
                 // Resetovat castling state
                 castling_state.in_progress = false;
@@ -1927,11 +2350,19 @@ bool game_execute_move(const chess_move_t* move)
                 // Nezměnit hráče - stále čekáme na správný tah věže
             }
         } else {
-            // ✅ NORMÁLNÍ TAHY - změnit hráče
+            // ✅ NORMÁLNÍ TAHY - změnit hráče a přepnout timer
+            player_t previous_player = current_player;
             current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
             
             ESP_LOGI(TAG, "✅ Move executed successfully. %s to move", 
                      (current_player == PLAYER_WHITE) ? "White" : "Black");
+            
+            // Timer integration: End timer for previous player and start for new player
+            ESP_LOGI(TAG, "🔄 Timer switch: ending for %s, starting for %s", 
+                     previous_player == PLAYER_WHITE ? "White" : "Black",
+                     current_player == PLAYER_WHITE ? "White" : "Black");
+            game_end_timer_move();
+            game_start_timer_move(current_player == PLAYER_WHITE);
             
             // Check for checkmate, stalemate, or draw
             game_state_t game_state = game_analyze_position(current_player);
@@ -2430,6 +2861,24 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
         return;
     }
     
+    // ✅ KING RESIGNATION: Detekce zvednutí vlastního krále
+    if ((piece == PIECE_WHITE_KING && current_player == PLAYER_WHITE) ||
+        (piece == PIECE_BLACK_KING && current_player == PLAYER_BLACK)) {
+        // Hráč zvedl svého krále - spustit resignation timer
+        resignation_start(current_player, from_row, from_col);
+        
+        // Nastavit lifted piece (pro případné drop)
+        piece_lifted = true;
+        lifted_piece_row = from_row;
+        lifted_piece_col = from_col;
+        lifted_piece = piece;
+        
+        char msg[128];
+        snprintf(msg, sizeof(msg), "👑 King lifted - resignation timer started (10s)");
+        game_send_response_to_uart(msg, false, (QueueHandle_t)cmd->response_queue);
+        return;  // Nepokračovat s normálním pickup flow
+    }
+    
     // Check if enhanced castling is active and this is a king or rook
     if (enhanced_castling_is_active()) {
         castling_phase_t phase = enhanced_castling_get_phase();
@@ -2532,6 +2981,12 @@ void game_process_drop_command(const chess_move_command_t* cmd)
     
     ESP_LOGI(TAG, "🎯 Processing DROP command: %s", cmd->to_notation);
     
+    // ✅ KING RESIGNATION: Zrušit resignation pokud běží
+    if (resignation_state.active) {
+        resignation_stop(false);
+        // Pokračovat s normálním drop processingem
+    }
+    
     // Convert notation to coordinates
     uint8_t to_row, to_col;
     if (!convert_notation_to_coords(cmd->to_notation, &to_row, &to_col)) {
@@ -2601,8 +3056,16 @@ void game_process_drop_command(const chess_move_command_t* cmd)
                 // Úspěšný tah - resetovat error stav
                 game_reset_error_recovery_state();
                 
-                // Změnit hráče
+                // Změnit hráče a přepnout timer
+                player_t previous_player = current_player;
                 current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+                
+                // Timer integration: End timer for previous player and start for new player
+                ESP_LOGI(TAG, "🔄 Timer switch (correction): ending for %s, starting for %s", 
+                         previous_player == PLAYER_WHITE ? "White" : "Black",
+                         current_player == PLAYER_WHITE ? "White" : "Black");
+                game_end_timer_move();
+                game_start_timer_move(current_player == PLAYER_WHITE);
                 
                 // Vyčistit LED a ukázat nový stav
                 led_clear_board_only();
@@ -2680,8 +3143,16 @@ void game_process_drop_command(const chess_move_command_t* cmd)
         
         if (game_execute_move(&move)) {
             if (!is_castling) {
-                // Normal move - change player
+                // Normal move - change player and switch timer
+                player_t previous_player = current_player;
                 current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+                
+                // Timer integration: End timer for previous player and start for new player
+                ESP_LOGI(TAG, "🔄 Timer switch (drop): ending for %s, starting for %s", 
+                         previous_player == PLAYER_WHITE ? "White" : "Black",
+                         current_player == PLAYER_WHITE ? "White" : "Black");
+                game_end_timer_move();
+                game_start_timer_move(current_player == PLAYER_WHITE);
                 
                 // Show player change animation
                 led_clear_board_only();
@@ -3013,6 +3484,191 @@ static void game_generate_advantage_graph(char* buffer, size_t buffer_size, uint
     
     // Ensure null termination
     *ptr = '\0';
+}
+
+// ============================================================================
+// KING RESIGNATION IMPLEMENTATION
+// ============================================================================
+
+/**
+ * @brief Update button LEDs with fade animation
+ * @param elapsed_ms Milliseconds elapsed since resignation start
+ */
+static void resignation_update_button_leds(uint32_t elapsed_ms) {
+    // 4 tlačítka hráče (indexy 64-67 pro white, 68-71 pro black)
+    uint8_t button_start_index = (resignation_state.player == PLAYER_WHITE) ? 64 : 68;
+    
+    // Každé LED fáduje 2500ms (2.5s), s odstupem 2500ms mezi každým
+    const uint32_t FADE_DURATION_MS = 2500;
+    const uint32_t LED_OFFSET_MS = 2500;
+    
+    for (int i = 0; i < 4; i++) {
+        uint32_t led_start_time = i * LED_OFFSET_MS;
+        uint8_t brightness = 255;
+        
+        if (elapsed_ms >= led_start_time) {
+            uint32_t led_elapsed = elapsed_ms - led_start_time;
+            if (led_elapsed >= FADE_DURATION_MS) {
+                brightness = 0;  // Úplně zhaslé
+            } else {
+                // Lineární fade z 255 na 0
+                brightness = 255 - (led_elapsed * 255 / FADE_DURATION_MS);
+            }
+        }
+        
+        // Nastavit LED - oranžová barva s fade
+        uint8_t led_index = button_start_index + (3 - i);  // Zprava doleva
+        button_set_led_color(led_index, brightness, brightness / 2, 0);  // Oranžová
+    }
+}
+
+/**
+ * @brief Animation timer callback - volá se každých 50ms
+ */
+static void resignation_animation_timer_callback(TimerHandle_t xTimer) {
+    if (!resignation_state.active) return;
+    
+    uint64_t current_time = esp_timer_get_time() / 1000;  // ms
+    uint32_t elapsed_ms = (uint32_t)(current_time - resignation_state.start_time_ms);
+    
+    // Update button LEDs
+    resignation_update_button_leds(elapsed_ms);
+    
+    // Countdown v terminálu (každou sekundu)
+    uint8_t current_sec = 10 - (elapsed_ms / 1000);
+    if (current_sec != resignation_state.last_countdown_sec && current_sec < 10) {
+        printf("⏰ King resignation countdown: %d second%s remaining...\r\n", 
+               current_sec, current_sec == 1 ? "" : "s");
+        resignation_state.last_countdown_sec = current_sec;
+    }
+}
+
+/**
+ * @brief Hlavní timer callback - volá se po 10 sekundách
+ */
+static void resignation_main_timer_callback(TimerHandle_t xTimer) {
+    if (!resignation_state.active) return;
+    
+    const char* player_name = (resignation_state.player == PLAYER_WHITE) ? "White" : "Black";
+    const char* winner_name = (resignation_state.player == PLAYER_WHITE) ? "Black" : "White";
+    
+    printf("\r\n");
+    printf("═══════════════════════════════════════════════════════════════\r\n");
+    printf("🏳️ %s RESIGNED by lifting king for 10+ seconds!\r\n", player_name);
+    printf("🏆 %s WINS by resignation!\r\n", winner_name);
+    printf("═══════════════════════════════════════════════════════════════\r\n");
+    printf("\r\n");
+    
+    // Ukončit hru
+    current_game_state = GAME_STATE_FINISHED;
+    game_result = GAME_STATE_FINISHED;
+    current_result_type = (resignation_state.player == PLAYER_WHITE) ? RESULT_BLACK_WINS : RESULT_WHITE_WINS;
+    current_endgame_reason = ENDGAME_REASON_RESIGNATION;  // ✅ Označit jako resignation
+    game_active = false;
+    
+    // ✅ FIX: Místo přímého volání game_print_endgame_report_uart() (2KB stack!)
+    // pouze nastavíme flag - report se vypíše v game task s dostatečným stackem
+    game_update_endgame_statistics(current_result_type);
+    endgame_report_requested = true;  // ✅ Požadavek na report
+    
+    // Spustit victory animaci pro vítěze
+    uint8_t king_led = chess_pos_to_led_index(resignation_state.king_row, resignation_state.king_col);
+    start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_led);
+    
+    // Zastavit resignation (cleanup)
+    resignation_stop(false);  // false = už je finalizováno
+}
+
+/**
+ * @brief Spustit king resignation timer
+ */
+static void resignation_start(player_t player, uint8_t row, uint8_t col) {
+    // Zastavit existující timer pokud běží
+    if (resignation_state.active) {
+        resignation_stop(false);
+    }
+    
+    const char* player_name = (player == PLAYER_WHITE) ? "White" : "Black";
+    printf("\r\n⚠️ %s king lifted - hold for 10+ seconds to resign!\r\n", player_name);
+    printf("👑 Resignation timer started for %s player\r\n", player_name);
+    printf("🎨 Button LED animation started (4 buttons)\r\n\r\n");
+    
+    // Inicializovat stav
+    resignation_state.active = true;
+    resignation_state.player = player;
+    resignation_state.king_row = row;
+    resignation_state.king_col = col;
+    resignation_state.start_time_ms = esp_timer_get_time() / 1000;
+    resignation_state.last_countdown_sec = 10;
+    
+    // Červené podsvícení pozice krále
+    led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0);
+    
+    // Spustit tlačítka na plnou oranžovou
+    uint8_t button_start_index = (player == PLAYER_WHITE) ? 64 : 68;
+    for (int i = 0; i < 4; i++) {
+        button_set_led_color(button_start_index + i, 255, 128, 0);  // Plná oranžová
+    }
+    
+    // Vytvořit hlavní timer (10 sekund, one-shot)
+    resignation_state.main_timer = xTimerCreate(
+        "resignation_main",
+        pdMS_TO_TICKS(10000),  // 10 sekund
+        pdFALSE,  // One-shot
+        NULL,
+        resignation_main_timer_callback
+    );
+    
+    // Vytvořit animation timer (50ms, periodic)
+    resignation_state.animation_timer = xTimerCreate(
+        "resignation_anim",
+        pdMS_TO_TICKS(50),  // 50ms
+        pdTRUE,  // Periodic
+        NULL,
+        resignation_animation_timer_callback
+    );
+    
+    if (resignation_state.main_timer) {
+        xTimerStart(resignation_state.main_timer, 0);
+    }
+    
+    if (resignation_state.animation_timer) {
+        xTimerStart(resignation_state.animation_timer, 0);
+    }
+}
+
+/**
+ * @brief Zastavit king resignation timer
+ * @param finalize Pokud true, zobrazí se endgame report (pro timeout). Pokud false, jen cleanup.
+ */
+static void resignation_stop(bool finalize) {
+    if (!resignation_state.active) return;
+    
+    printf("✅ King placed - resignation cancelled!\r\n");
+    printf("🛑 Resignation timer stopped\r\n");
+    printf("🎨 Button LED animation stopped\r\n\r\n");
+    
+    // Zastavit a smazat timery
+    if (resignation_state.main_timer) {
+        xTimerStop(resignation_state.main_timer, 0);
+        xTimerDelete(resignation_state.main_timer, 0);
+        resignation_state.main_timer = NULL;
+    }
+    
+    if (resignation_state.animation_timer) {
+        xTimerStop(resignation_state.animation_timer, 0);
+        xTimerDelete(resignation_state.animation_timer, 0);
+        resignation_state.animation_timer = NULL;
+    }
+    
+    // Vypnout button LEDs
+    uint8_t button_start_index = (resignation_state.player == PLAYER_WHITE) ? 64 : 68;
+    for (int i = 0; i < 4; i++) {
+        button_set_led_color(button_start_index + i, 0, 0, 0);
+    }
+    
+    // Reset stavu
+    resignation_state.active = false;
 }
 
 // ============================================================================
@@ -3913,6 +4569,7 @@ void game_process_endgame_white_command(const chess_move_command_t* cmd)
     if (!cmd) return;
     
     ESP_LOGI(TAG, "🏆 Processing ENDGAME_WHITE command");
+    ESP_LOGI(TAG, "🧪 TEST MODE - Statistics will NOT be updated");
     
     // Get real game statistics
     uint32_t current_time = esp_timer_get_time() / 1000;
@@ -4021,6 +4678,10 @@ void game_process_endgame_white_command(const chess_move_command_t* cmd)
     // MEMORY OPTIMIZATION: Streaming output handles data transmission
     // No need for manual queue management or large buffers
     ESP_LOGI(TAG, "✅ Endgame report streaming completed successfully");
+    
+    // Add TEST MODE completion message
+    stream_writeln("\n🧪 TEST MODE COMPLETE - Game state unchanged");
+    ESP_LOGI(TAG, "✅ Test complete - Game state unchanged");
 
 }
 
@@ -4033,6 +4694,7 @@ void game_process_endgame_black_command(const chess_move_command_t* cmd)
     if (!cmd) return;
     
     ESP_LOGI(TAG, "🏆 Processing ENDGAME_BLACK command");
+    ESP_LOGI(TAG, "🧪 TEST MODE - Statistics will NOT be updated");
     
     // Get real game statistics
     uint32_t current_time = esp_timer_get_time() / 1000;
@@ -4156,6 +4818,10 @@ void game_process_endgame_black_command(const chess_move_command_t* cmd)
     // MEMORY OPTIMIZATION: Streaming output handles data transmission
     // No need for manual queue management or large buffers
     ESP_LOGI(TAG, "✅ Endgame report streaming completed successfully");
+    
+    // Add TEST MODE completion message
+    stream_writeln("\n🧪 TEST MODE COMPLETE - Game state unchanged");
+    ESP_LOGI(TAG, "✅ Test complete - Game state unchanged");
 }
 
 /**
@@ -4490,6 +5156,13 @@ void game_process_chess_move(const chess_move_command_t* cmd)
                 current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
                 game_show_player_change_animation(previous_player, current_player);
                 
+                // Timer integration: End timer for previous player and start for new player
+                ESP_LOGI(TAG, "🔄 Timer switch: ending for %s, starting for %s", 
+                         previous_player == PLAYER_WHITE ? "White" : "Black",
+                         current_player == PLAYER_WHITE ? "White" : "Black");
+                game_end_timer_move();
+                game_start_timer_move(current_player == PLAYER_WHITE);
+                
                 // ✅ OPRAVA: Zobrazit pohyblivé figurky pro nového hráče
                 game_highlight_movable_pieces();
                 
@@ -4716,6 +5389,37 @@ void game_process_commands(void)
                 case 38: // GAME_CMD_TEST_PUZZLE_ANIM
                     ESP_LOGI(TAG, "Processing TEST_PUZZLE_ANIM command from UART");
                     game_test_puzzle_animation();
+                    break;
+                    
+                // Timer System Commands
+                case GAME_CMD_SET_TIME_CONTROL: // 39
+                    ESP_LOGI(TAG, "Processing SET_TIME_CONTROL command");
+                    game_process_timer_command(&chess_cmd);
+                    break;
+                    
+                case GAME_CMD_PAUSE_TIMER: // 40
+                    ESP_LOGI(TAG, "Processing PAUSE_TIMER command");
+                    game_process_timer_command(&chess_cmd);
+                    break;
+                    
+                case GAME_CMD_RESUME_TIMER: // 41
+                    ESP_LOGI(TAG, "Processing RESUME_TIMER command");
+                    game_process_timer_command(&chess_cmd);
+                    break;
+                    
+                case GAME_CMD_RESET_TIMER: // 42
+                    ESP_LOGI(TAG, "Processing RESET_TIMER command");
+                    game_process_timer_command(&chess_cmd);
+                    break;
+                    
+                case GAME_CMD_GET_TIMER_STATE: // 43
+                    ESP_LOGI(TAG, "Processing GET_TIMER_STATE command");
+                    game_process_timer_command(&chess_cmd);
+                    break;
+                    
+                case GAME_CMD_TIMER_TIMEOUT: // 44
+                    ESP_LOGI(TAG, "Processing TIMER_TIMEOUT command");
+                    game_process_timer_command(&chess_cmd);
                     break;
                     
                 default:
@@ -5065,14 +5769,7 @@ void game_process_move_command(const void* move_cmd_ptr)
         game_active = false;
         
         // Update overall statistics
-        if (game_result == GAME_STATE_FINISHED) {
-            // Check if it was checkmate (game_result indicates finished game)
-            if (current_player == PLAYER_WHITE) {
-                black_wins++;
-            } else {
-                white_wins++;
-            }
-        }
+        // Statistics are already updated in game_analyze_position()
         
         ESP_LOGI(TAG, "🎉 Game finished! Final statistics:");
         game_print_game_stats();
@@ -5083,7 +5780,7 @@ void game_process_move_command(const void* move_cmd_ptr)
             // Určíme typ ukončení hry
             bool is_checkmate = false;
             bool is_draw = false;
-            bool white_wins = false;
+            bool white_player_wins = false;
             
             // Zkontrolujeme, zda šlo o šachmat nebo remízu
             bool in_check = game_is_king_in_check(current_player);
@@ -5092,7 +5789,7 @@ void game_process_move_command(const void* move_cmd_ptr)
             if (in_check && !has_moves) {
                 // Šachmat
                 is_checkmate = true;
-                white_wins = (current_player == PLAYER_BLACK); // Vítěz je opačný hráč
+                white_player_wins = (current_player == PLAYER_BLACK); // Vítěz je opačný hráč
             } else if (!in_check && !has_moves) {
                 // Pat (stalemate)
                 is_draw = true;
@@ -5115,12 +5812,12 @@ void game_process_move_command(const void* move_cmd_ptr)
             
             if (is_checkmate) {
                 ESP_LOGI(TAG, "🏆 Checkmate! Starting victory animation for %s", 
-                         white_wins ? "White" : "Black");
+                         white_player_wins ? "White" : "Black");
                 
                 // ✅ OPRAVA: Použít unified animation manager pro checkmate
                 uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_WAVE, ANIM_PRIORITY_HIGH);
                 if (anim_id != 0) {
-                    uint8_t winner_color = white_wins ? 0 : 1; // 0=white, 1=black
+                    uint8_t winner_color = white_player_wins ? 0 : 1; // 0=white, 1=black
                     esp_err_t ret = animation_start_endgame_wave(anim_id, king_pos, winner_color);
                     if (ret == ESP_OK) {
                         ESP_LOGI(TAG, "✅ Checkmate victory animation started (ID: %lu)", anim_id);
@@ -5133,6 +5830,18 @@ void game_process_move_command(const void* move_cmd_ptr)
                 
             } else if (is_draw) {
                 ESP_LOGI(TAG, "🤝 Draw! Starting draw animation");
+                
+                // Statistics are already updated in game_analyze_position()
+                ESP_LOGI(TAG, "🤝 DRAW! Game drawn in %" PRIu32 " moves", move_count);
+                
+                // Nastavit endgame stav pro web server
+                game_result = GAME_STATE_FINISHED;
+                current_game_state = GAME_STATE_FINISHED;
+                game_active = false;
+                
+                ESP_LOGI(TAG, "🎯 Game finished! Endgame conditions detected.");
+                ESP_LOGI(TAG, "🎉 Game finished! Final statistics:");
+                game_print_game_stats();
                 
                 // Spustíme draw animaci (spiral jako default)
                 uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_DRAW_SPIRAL, ANIM_PRIORITY_HIGH);
@@ -5793,14 +6502,49 @@ game_state_t game_check_end_game_conditions(void)
     bool has_moves = game_has_legal_moves(current_player);
     
     if (in_check && !has_moves) {
-        // Checkmate
-        game_result = (current_player == PLAYER_WHITE) ? GAME_STATE_FINISHED : GAME_STATE_FINISHED;
-        ESP_LOGI(TAG, "🎯 CHECKMATE! %s wins in %" PRIu32 " moves!", 
-                 (current_player == PLAYER_WHITE) ? "Black" : "White", move_count);
+        // Checkmate - určit typ podle posledního tahu
+        game_result = GAME_STATE_FINISHED;
+        current_result_type = (current_player == PLAYER_WHITE) ? RESULT_BLACK_WINS : RESULT_WHITE_WINS;
+        
+        // ✅ Rozlišit typ šachmatu podle posledního tahu
+        switch (last_move_type) {
+            case LAST_MOVE_EN_PASSANT:
+                current_endgame_reason = ENDGAME_REASON_CHECKMATE_EN_PASSANT;
+                ESP_LOGI(TAG, "🎯 CHECKMATE BY EN PASSANT! %s wins in %" PRIu32 " moves!", 
+                         (current_player == PLAYER_WHITE) ? "Black" : "White", move_count);
+                break;
+            case LAST_MOVE_CASTLING:
+                current_endgame_reason = ENDGAME_REASON_CHECKMATE_CASTLING;
+                ESP_LOGI(TAG, "🎯 CHECKMATE BY CASTLING! %s wins in %" PRIu32 " moves!", 
+                         (current_player == PLAYER_WHITE) ? "Black" : "White", move_count);
+                break;
+            case LAST_MOVE_PROMOTION:
+                current_endgame_reason = ENDGAME_REASON_CHECKMATE_PROMOTION;
+                ESP_LOGI(TAG, "🎯 CHECKMATE BY PROMOTION! %s wins in %" PRIu32 " moves!", 
+                         (current_player == PLAYER_WHITE) ? "Black" : "White", move_count);
+                break;
+            case LAST_MOVE_DISCOVERED:
+                current_endgame_reason = ENDGAME_REASON_CHECKMATE_DISCOVERED;
+                ESP_LOGI(TAG, "🎯 CHECKMATE BY DISCOVERED CHECK! %s wins in %" PRIu32 " moves!", 
+                         (current_player == PLAYER_WHITE) ? "Black" : "White", move_count);
+                break;
+            default:
+                current_endgame_reason = ENDGAME_REASON_CHECKMATE;
+                ESP_LOGI(TAG, "🎯 CHECKMATE! %s wins in %" PRIu32 " moves!", 
+                         (current_player == PLAYER_WHITE) ? "Black" : "White", move_count);
+                break;
+        }
+        
+        game_update_endgame_statistics(current_result_type);
+        endgame_report_requested = true;  // ✅ Požadavek na report
         return GAME_STATE_FINISHED;
     } else if (!in_check && !has_moves) {
         // Stalemate
         game_result = GAME_STATE_FINISHED;
+        current_result_type = RESULT_DRAW_STALEMATE;
+        current_endgame_reason = ENDGAME_REASON_STALEMATE;  // ✅ Označit jako stalemate
+        game_update_endgame_statistics(current_result_type);
+        endgame_report_requested = true;  // ✅ Požadavek na report
         ESP_LOGI(TAG, "🤝 STALEMATE! Game drawn in %" PRIu32 " moves", move_count);
         return GAME_STATE_FINISHED;
     }
@@ -5808,12 +6552,20 @@ game_state_t game_check_end_game_conditions(void)
     // Check for draw conditions
     if (moves_without_capture >= 50) {
         game_result = GAME_STATE_FINISHED;
+        current_result_type = RESULT_DRAW_50_MOVE;
+        current_endgame_reason = ENDGAME_REASON_50_MOVE;  // ✅ Označit jako 50-move rule
+        game_update_endgame_statistics(current_result_type);
+        endgame_report_requested = true;  // ✅ Požadavek na report
         ESP_LOGI(TAG, "🤝 DRAW! 50 moves without capture (50-move rule)");
         return GAME_STATE_FINISHED;
     }
     
     if (game_is_position_repeated()) {
         game_result = GAME_STATE_FINISHED;
+        current_result_type = RESULT_DRAW_REPETITION;
+        current_endgame_reason = ENDGAME_REASON_REPETITION;  // ✅ Označit jako threefold repetition
+        game_update_endgame_statistics(current_result_type);
+        endgame_report_requested = true;  // ✅ Požadavek na report
         ESP_LOGI(TAG, "🤝 DRAW! Position repeated (draw by repetition)");
         return GAME_STATE_FINISHED;
     }
@@ -5821,6 +6573,10 @@ game_state_t game_check_end_game_conditions(void)
     // Check for insufficient material
     if (game_is_insufficient_material()) {
         game_result = GAME_STATE_FINISHED;
+        current_result_type = RESULT_DRAW_INSUFFICIENT;
+        current_endgame_reason = ENDGAME_REASON_INSUFFICIENT;  // ✅ Označit jako insufficient material
+        game_update_endgame_statistics(current_result_type);
+        endgame_report_requested = true;  // ✅ Požadavek na report
         ESP_LOGI(TAG, "🤝 DRAW! Insufficient material to checkmate");
         return GAME_STATE_FINISHED;
     }
@@ -6004,9 +6760,16 @@ void game_task_start(void *pvParameters)
     ESP_LOGI(TAG, "  • Game state management");
     ESP_LOGI(TAG, "  • Move history tracking");
     ESP_LOGI(TAG, "  • Board visualization");
+    ESP_LOGI(TAG, "  • Timer system integration");
     ESP_LOGI(TAG, "  • 100ms command cycle");
     
     task_running = true;
+    
+    // Initialize timer system
+    esp_err_t timer_ret = game_init_timer_system();
+    if (timer_ret != ESP_OK) {
+        ESP_LOGW(TAG, "Timer system initialization failed, continuing without timer");
+    }
     
     // Initialize game
     game_initialize_board();
@@ -6027,6 +6790,15 @@ void game_task_start(void *pvParameters)
         
         // Process matrix events (moves)
         game_process_matrix_events();
+        
+        // Update timer display and check for timeout
+        game_update_timer_display();
+        
+        // ✅ FIX: Zpracovat endgame report request (s dostatečným stackem 10KB)
+        if (endgame_report_requested) {
+            endgame_report_requested = false;  // Reset flag
+            game_print_endgame_report_uart(current_result_type);
+        }
         
         // Periodic status update
         if (loop_count % 5000 == 0) { // Every 5 seconds
@@ -6681,31 +7453,37 @@ uint32_t game_generate_legal_moves(player_t player) {
 bool game_execute_move_enhanced(chess_move_extended_t* move) {
     if (move == NULL) return false;
     
-    // Handle special moves
+    // ✅ Nastavit typ posledního tahu pro detekci speciálních šachmatů
     switch (move->move_type) {
         case MOVE_TYPE_EN_PASSANT:
             // Remove the captured pawn
             board[en_passant_victim_row][en_passant_victim_col] = PIECE_EMPTY;
+            last_move_type = LAST_MOVE_EN_PASSANT;  // ✅ Označit jako en passant
+            ESP_LOGI(TAG, "⚔️ En passant move executed");
             break;
             
         case MOVE_TYPE_CASTLE_KING:
             // ✅ OPRAVA: Věž se nepřesunuje automaticky - hráč ji musí přesunout sám
             // Věž zůstává na původní pozici, animace donutí hráče ji přesunout
+            last_move_type = LAST_MOVE_CASTLING;  // ✅ Označit jako castling
             ESP_LOGI(TAG, "🏰 Kingside castling - rook stays in place, waiting for player to move it");
             break;
             
         case MOVE_TYPE_CASTLE_QUEEN:
             // ✅ OPRAVA: Věž se nepřesunuje automaticky - hráč ji musí přesunout sám
             // Věž zůstává na původní pozici, animace donutí hráče ji přesunout
+            last_move_type = LAST_MOVE_CASTLING;  // ✅ Označit jako castling
             ESP_LOGI(TAG, "🏰 Queenside castling - rook stays in place, waiting for player to move it");
             break;
             
         case MOVE_TYPE_PROMOTION:
             // Handle promotion - the piece will be set below
+            last_move_type = LAST_MOVE_PROMOTION;  // ✅ Označit jako promotion
             break;
             
         default:
             // Normal move or capture - nothing special needed
+            last_move_type = LAST_MOVE_NORMAL;  // ✅ Resetovat na normální tah
             break;
     }
     
@@ -7489,47 +8267,7 @@ void game_highlight_movable_pieces(void)
     ESP_LOGI(TAG, "🟡 Highlighting movable pieces for %s player", 
              current_player == PLAYER_WHITE ? "white" : "black");
     
-    // ✅ OPRAVA: Zkontrolovat, jestli není šachmat před zobrazením pohyblivých figurek
-    bool in_check = game_is_king_in_check(current_player);
-    bool has_moves = game_has_legal_moves(current_player);
-    
-    if (in_check && !has_moves) {
-        // Šachmat - nespouštět zobrazení pohyblivých figurek, ale endgame animaci
-        ESP_LOGI(TAG, "🏆 CHECKMATE detected! Starting endgame animation instead of highlighting pieces");
-        
-        // Spustit endgame animaci pro šachmat
-        uint8_t king_pos = 28; // default e4
-        for (int i = 0; i < 64; i++) {
-            piece_t piece = board[i/8][i%8];
-            if ((current_player == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
-                (current_player == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
-                king_pos = i;
-                break;
-            }
-        }
-        
-        // Určit vítěze (opačný hráč)
-        bool white_wins = (current_player == PLAYER_BLACK);
-        
-        ESP_LOGI(TAG, "🏆 Checkmate! Starting victory animation for %s", 
-                 white_wins ? "White" : "Black");
-        
-        // Spustit checkmate animaci
-        uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_WAVE, ANIM_PRIORITY_HIGH);
-        if (anim_id != 0) {
-            uint8_t winner_color = white_wins ? 0 : 1; // 0=white, 1=black
-            esp_err_t ret = animation_start_endgame_wave(anim_id, king_pos, winner_color);
-            if (ret == ESP_OK) {
-                ESP_LOGI(TAG, "✅ Checkmate victory animation started (ID: %lu)", anim_id);
-            } else {
-                ESP_LOGE(TAG, "❌ Failed to start checkmate animation: %s", esp_err_to_name(ret));
-            }
-        } else {
-            ESP_LOGE(TAG, "❌ Failed to create checkmate animation");
-        }
-        
-        return; // Ukončit funkci - nezobrazovat pohyblivé figurky
-    }
+    // Endgame detection is handled in game_analyze_position() called from game_execute_move()
     
     // LED command queue removed - using direct LED calls now
     
@@ -8411,7 +9149,7 @@ esp_err_t game_get_status_json(char* buffer, size_t size)
                       "\"black_time\":%" PRIu32 ","
                       "\"in_check\":%s,"
                       "\"checkmate\":%s,"
-                      "\"stalemate\":%s,",
+                      "\"stalemate\":%s",
                       game_state_str,
                       (current_player == PLAYER_WHITE) ? "white" : "black",
                       move_count,
@@ -8427,11 +9165,74 @@ esp_err_t game_get_status_json(char* buffer, size_t size)
         char notation[4] = {0};
         convert_coords_to_notation(lifted_piece_row, lifted_piece_col, notation);
         offset += snprintf(buffer + offset, size - offset,
-                          "\"piece_lifted\":{\"lifted\":true,\"row\":%d,\"col\":%d,\"piece\":\"%c\",\"notation\":\"%s\"}",
+                          ",\"piece_lifted\":{\"lifted\":true,\"row\":%d,\"col\":%d,\"piece\":\"%c\",\"notation\":\"%s\"}",
                           lifted_piece_row, lifted_piece_col, piece_char, notation);
     } else {
         offset += snprintf(buffer + offset, size - offset,
-                          "\"piece_lifted\":{\"lifted\":false,\"row\":0,\"col\":0,\"piece\":\" \",\"notation\":\"\"}");
+                          ",\"piece_lifted\":{\"lifted\":false,\"row\":0,\"col\":0,\"piece\":\" \",\"notation\":\"\"}");
+    }
+    
+    // ✅ Game end information - použít current_endgame_reason pro přesné rozlišení
+    if (current_game_state == GAME_STATE_FINISHED) {
+        const char* end_reason = "Unknown";
+        const char* winner = "None";
+        const char* loser = "None";
+        
+        // Nejprve určit vítěze
+        if (current_result_type == RESULT_WHITE_WINS) {
+            winner = "White";
+            loser = "Black";
+        } else if (current_result_type == RESULT_BLACK_WINS) {
+            winner = "Black";
+            loser = "White";
+        } else {
+            winner = "Draw";
+            loser = "Draw";
+        }
+        
+        // Pak určit důvod podle current_endgame_reason
+        switch (current_endgame_reason) {
+            case ENDGAME_REASON_CHECKMATE:
+                end_reason = "Checkmate";
+                break;
+            case ENDGAME_REASON_CHECKMATE_EN_PASSANT:
+                end_reason = "Checkmate (En Passant)";
+                break;
+            case ENDGAME_REASON_CHECKMATE_CASTLING:
+                end_reason = "Checkmate (Castling)";
+                break;
+            case ENDGAME_REASON_CHECKMATE_PROMOTION:
+                end_reason = "Checkmate (Promotion)";
+                break;
+            case ENDGAME_REASON_CHECKMATE_DISCOVERED:
+                end_reason = "Checkmate (Discovered Check)";
+                break;
+            case ENDGAME_REASON_RESIGNATION:
+                end_reason = "Resignation";
+                break;
+            case ENDGAME_REASON_TIMEOUT:
+                end_reason = "Timeout";
+                break;
+            case ENDGAME_REASON_STALEMATE:
+                end_reason = "Stalemate";
+                break;
+            case ENDGAME_REASON_50_MOVE:
+                end_reason = "50-move rule";
+                break;
+            case ENDGAME_REASON_REPETITION:
+                end_reason = "Threefold repetition";
+                break;
+            case ENDGAME_REASON_INSUFFICIENT:
+                end_reason = "Insufficient material";
+                break;
+        }
+        
+        offset += snprintf(buffer + offset, size - offset,
+                          ",\"game_end\":{\"ended\":true,\"reason\":\"%s\",\"winner\":\"%s\",\"loser\":\"%s\"}",
+                          end_reason, winner, loser);
+    } else {
+        offset += snprintf(buffer + offset, size - offset,
+                          ",\"game_end\":{\"ended\":false,\"reason\":\"\",\"winner\":\"\",\"loser\":\"\"}");
     }
     
     offset += snprintf(buffer + offset, size - offset, "}");
@@ -8529,6 +9330,351 @@ esp_err_t game_get_captured_json(char* buffer, size_t size)
     }
     
     return ESP_OK;
+}
+
+/**
+ * @brief Export material advantage history to JSON string (pro graf)
+ * @param buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
+ */
+esp_err_t game_get_advantage_json(char* buffer, size_t size)
+{
+    if (buffer == NULL || size == 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    // Thread-safe access
+    if (game_mutex != NULL) {
+        if (xSemaphoreTake(game_mutex, pdMS_TO_TICKS(1000)) != pdTRUE) {
+            return ESP_ERR_TIMEOUT;
+        }
+    }
+    
+    // Build JSON: {"history":[0,1,2,-1,0,...], "count":42, "white_checks":5, "black_checks":3, ...}
+    int offset = 0;
+    offset += snprintf(buffer + offset, size - offset, "{\"history\":[");
+    
+    // Add advantage values
+    for (uint32_t i = 0; i < advantage_history_count; i++) {
+        offset += snprintf(buffer + offset, size - offset, "%d", material_advantage_history[i]);
+        if (i < advantage_history_count - 1) {
+            offset += snprintf(buffer + offset, size - offset, ",");
+        }
+    }
+    
+    offset += snprintf(buffer + offset, size - offset, "],\"count\":%" PRIu32, advantage_history_count);
+    
+    // Přidat další statistiky
+    offset += snprintf(buffer + offset, size - offset, 
+                      ",\"white_checks\":%" PRIu32 ",\"black_checks\":%" PRIu32,
+                      white_checks, black_checks);
+    offset += snprintf(buffer + offset, size - offset,
+                      ",\"white_castles\":%" PRIu32 ",\"black_castles\":%" PRIu32,
+                      white_castles, black_castles);
+    
+    // Průměrný čas na tah
+    uint32_t current_time = esp_timer_get_time() / 1000;
+    uint32_t game_duration = (game_start_time > 0) ? (current_time - game_start_time) : 0;
+    uint32_t avg_time_per_move = (move_count > 0) ? (game_duration / move_count) : 0;
+    offset += snprintf(buffer + offset, size - offset,
+                      ",\"game_duration_ms\":%" PRIu32 ",\"avg_time_per_move_ms\":%" PRIu32,
+                      game_duration, avg_time_per_move);
+    
+    offset += snprintf(buffer + offset, size - offset, "}");
+    
+    if (game_mutex != NULL) {
+        xSemaphoreGive(game_mutex);
+    }
+    
+    return ESP_OK;
+}
+
+// ============================================================================
+// TIMER SYSTEM INTEGRATION IMPLEMENTATION
+// ============================================================================
+
+esp_err_t game_get_timer_json(char* buffer, size_t size)
+{
+    if (buffer == NULL || size == 0) {
+        ESP_LOGE(TAG, "Invalid buffer parameters");
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    return timer_get_json(buffer, size);
+}
+
+esp_err_t game_set_time_control(const time_control_config_t* config)
+{
+    if (config == NULL) {
+        ESP_LOGE(TAG, "Invalid config parameter");
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    esp_err_t ret = timer_set_time_control(config);
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "Time control set: %s", config->name);
+        
+        // Pokud je hra aktivní, spustit timer pro aktuálního hráče
+        if (current_game_state == GAME_STATE_ACTIVE) {
+            ESP_LOGI(TAG, "Game is active, starting timer for current player");
+            timer_start_move(current_player == PLAYER_WHITE);
+        } else {
+            ESP_LOGI(TAG, "Game state is %d (not active), timer will start on first move", current_game_state);
+        }
+    }
+    
+    return ret;
+}
+
+esp_err_t game_start_timer_move(bool is_white_turn)
+{
+    ESP_LOGI(TAG, "🎮 game_start_timer_move called: is_white_turn=%s, current_player=%s", 
+             is_white_turn ? "WHITE" : "BLACK",
+             current_player == PLAYER_WHITE ? "WHITE" : "BLACK");
+    esp_err_t ret = timer_start_move(is_white_turn);
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "✅ Timer started successfully for %s", is_white_turn ? "White" : "Black");
+    } else {
+        ESP_LOGE(TAG, "❌ Failed to start timer for %s: %s", is_white_turn ? "White" : "Black", esp_err_to_name(ret));
+    }
+    
+    return ret;
+}
+
+esp_err_t game_end_timer_move(void)
+{
+    esp_err_t ret = timer_end_move();
+    if (ret == ESP_OK) {
+        ESP_LOGD(TAG, "Timer ended for move");
+    }
+    
+    return ret;
+}
+
+esp_err_t game_pause_timer(void)
+{
+    esp_err_t ret = timer_pause();
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "Timer paused");
+    }
+    
+    return ret;
+}
+
+esp_err_t game_resume_timer(void)
+{
+    esp_err_t ret = timer_resume();
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "Timer resumed");
+    }
+    
+    return ret;
+}
+
+esp_err_t game_reset_timer(void)
+{
+    esp_err_t ret = timer_reset();
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "Timer reset");
+    }
+    
+    return ret;
+}
+
+bool game_check_timer_timeout(void)
+{
+    return timer_check_timeout();
+}
+
+uint32_t game_get_remaining_time(bool is_white_turn)
+{
+    return timer_get_remaining_time(is_white_turn);
+}
+
+esp_err_t game_get_timer_state(chess_timer_t* timer_data)
+{
+    if (timer_data == NULL) {
+        ESP_LOGE(TAG, "Invalid timer_data parameter");
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    return timer_get_state(timer_data);
+}
+
+esp_err_t game_init_timer_system(void)
+{
+    ESP_LOGI(TAG, "Initializing timer system in game task...");
+    
+    esp_err_t ret = timer_system_init();
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "Timer system initialized successfully");
+    } else {
+        ESP_LOGE(TAG, "Failed to initialize timer system: %s", esp_err_to_name(ret));
+    }
+    
+    return ret;
+}
+
+esp_err_t game_process_timer_command(const chess_move_command_t* cmd)
+{
+    if (cmd == NULL) {
+        ESP_LOGE(TAG, "Invalid command parameter");
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    esp_err_t ret = ESP_OK;
+    
+    switch (cmd->type) {
+        case GAME_CMD_SET_TIME_CONTROL:
+            {
+                time_control_config_t config;
+                time_control_type_t type = (time_control_type_t)cmd->timer_data.timer_config.time_control_type;
+                
+                if (type == TIME_CONTROL_CUSTOM) {
+                    // Vlastní časová kontrola
+                    ret = timer_set_custom_time_control(
+                        cmd->timer_data.timer_config.custom_minutes,
+                        cmd->timer_data.timer_config.custom_increment
+                    );
+                } else {
+                    // Předdefinovaná časová kontrola
+                    ret = timer_get_config_by_type(type, &config);
+                    if (ret == ESP_OK) {
+                        ret = timer_set_time_control(&config);
+                    }
+                }
+                
+                if (ret == ESP_OK) {
+                    ESP_LOGI(TAG, "Time control command processed successfully");
+                } else {
+                    ESP_LOGE(TAG, "Failed to process time control command");
+                }
+            }
+            break;
+            
+        case GAME_CMD_PAUSE_TIMER:
+            ret = game_pause_timer();
+            break;
+            
+        case GAME_CMD_RESUME_TIMER:
+            ret = game_resume_timer();
+            break;
+            
+        case GAME_CMD_RESET_TIMER:
+            ret = game_reset_timer();
+            break;
+            
+        case GAME_CMD_GET_TIMER_STATE:
+            // Timer state je získáván přes JSON API
+            ret = ESP_OK;
+            break;
+            
+        case GAME_CMD_TIMER_TIMEOUT:
+            ret = game_handle_time_expiration();
+            break;
+            
+        default:
+            ESP_LOGW(TAG, "Unknown timer command: %d", cmd->type);
+            ret = ESP_ERR_INVALID_ARG;
+            break;
+    }
+    
+    return ret;
+}
+
+esp_err_t game_handle_time_expiration(void)
+{
+    ESP_LOGW(TAG, "⏰ Time expired! Handling timeout...");
+    
+    // Získat stav timeru
+    chess_timer_t timer_data;
+    esp_err_t ret = timer_get_state(&timer_data);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to get timer state");
+        return ret;
+    }
+    
+    // Určit vítěze
+    player_t winner = timer_data.is_white_turn ? PLAYER_BLACK : PLAYER_WHITE;
+    const char* winner_name = (winner == PLAYER_WHITE) ? "White" : "Black";
+    const char* loser_name = (winner == PLAYER_WHITE) ? "Black" : "White";
+    
+    ESP_LOGW(TAG, "🏆 %s wins by timeout! %s ran out of time.", winner_name, loser_name);
+    
+    // Ukončit hru
+    current_game_state = GAME_STATE_FINISHED;
+    game_result = GAME_STATE_FINISHED;
+    current_result_type = (winner == PLAYER_WHITE) ? RESULT_WHITE_WINS : RESULT_BLACK_WINS;
+    current_endgame_reason = ENDGAME_REASON_TIMEOUT;  // ✅ Označit jako timeout
+    
+    // ✅ FIX: Požadavek na endgame report (stejný fix jako u resignation)
+    game_update_endgame_statistics(current_result_type);
+    endgame_report_requested = true;
+    
+    // Spustit endgame animaci
+    if (winner == PLAYER_WHITE) {
+        start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, 27); // d4 square
+    } else {
+        start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, 27); // d4 square
+    }
+    
+    // Zobrazit výsledek na LED (použít existující LED funkce)
+    // led_show_game_result(game_result); // Funkce neexistuje
+    
+    // Pozastavit timer
+    timer_pause();
+    
+    ESP_LOGI(TAG, "Game ended due to timeout. Winner: %s", winner_name);
+    
+    return ESP_OK;
+}
+
+esp_err_t game_update_timer_display(void)
+{
+    // Kontrola timeout
+    if (timer_check_timeout()) {
+        return game_handle_time_expiration();
+    }
+    
+    return ESP_OK;
+}
+
+uint32_t game_get_available_time_controls(time_control_config_t* controls, uint32_t max_count)
+{
+    if (controls == NULL || max_count == 0) {
+        return 0;
+    }
+    
+    return timer_get_available_controls(controls, max_count);
+}
+
+esp_err_t game_set_custom_time_control(uint32_t minutes, uint32_t increment_seconds)
+{
+    return timer_set_custom_time_control(minutes, increment_seconds);
+}
+
+esp_err_t game_get_timer_stats(uint32_t* total_moves, uint32_t* avg_move_time)
+{
+    if (total_moves == NULL || avg_move_time == NULL) {
+        ESP_LOGE(TAG, "Invalid parameters");
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    *total_moves = timer_get_total_moves();
+    *avg_move_time = timer_get_average_move_time();
+    
+    return ESP_OK;
+}
+
+bool game_is_timer_active(void)
+{
+    return timer_is_active();
+}
+
+time_control_type_t game_get_current_time_control_type(void)
+{
+    return timer_get_current_type();
 }
 
 

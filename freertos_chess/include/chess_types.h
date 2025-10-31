@@ -78,6 +78,18 @@ typedef enum {
 } player_t;
 
 /**
+ * @brief Game result types for statistics
+ */
+typedef enum {
+    RESULT_WHITE_WINS = 0,
+    RESULT_BLACK_WINS = 1,
+    RESULT_DRAW_STALEMATE = 2,
+    RESULT_DRAW_50_MOVE = 3,
+    RESULT_DRAW_REPETITION = 4,
+    RESULT_DRAW_INSUFFICIENT = 5
+} game_result_type_t;
+
+/**
  * @brief Move error types
  */
 typedef enum {
@@ -225,7 +237,15 @@ typedef enum {
     GAME_CMD_TEST_CASTLE_ANIM = 35,  // Test castling animation
     GAME_CMD_TEST_PROMOTE_ANIM = 36, // Test promotion animation
     GAME_CMD_TEST_ENDGAME_ANIM = 37, // Test endgame animation
-    GAME_CMD_TEST_PUZZLE_ANIM = 38   // Test puzzle animation
+    GAME_CMD_TEST_PUZZLE_ANIM = 38,  // Test puzzle animation
+    
+    // Timer System Commands
+    GAME_CMD_SET_TIME_CONTROL = 39,  // Set time control
+    GAME_CMD_PAUSE_TIMER = 40,        // Pause timer
+    GAME_CMD_RESUME_TIMER = 41,      // Resume timer
+    GAME_CMD_RESET_TIMER = 42,        // Reset timer
+    GAME_CMD_GET_TIMER_STATE = 43,    // Get timer state
+    GAME_CMD_TIMER_TIMEOUT = 44       // Timer timeout occurred
 } game_command_type_t;
 
 /**
@@ -238,6 +258,18 @@ typedef struct {
     uint8_t player;
     QueueHandle_t response_queue;
     uint8_t promotion_choice;  // For promotion commands
+    
+    // Timer system fields
+    union {
+        struct {
+            uint8_t time_control_type;  // For GAME_CMD_SET_TIME_CONTROL
+            uint32_t custom_minutes;    // For custom time control
+            uint32_t custom_increment;  // For custom time control
+        } timer_config;
+        struct {
+            bool is_white_turn;         // For timer operations
+        } timer_state;
+    } timer_data;
 } chess_move_command_t;
 
 /**

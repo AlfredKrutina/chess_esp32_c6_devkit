@@ -50,6 +50,8 @@
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
 #include "../uart_commands_extended/include/uart_commands_extended.h"  // ✅ FIX: Include extended UART commands
 #include "../unified_animation_manager/include/unified_animation_manager.h"
+#include "../matrix_task/include/matrix_task.h"  // ✅ FIX: Include matrix task functions
+#include "../timer_system/include/timer_system.h"
 // Enhanced puzzle system removed
 #include <math.h>
 #include <inttypes.h>
@@ -1046,6 +1048,13 @@ static void process_command(char* argv[], int argc)
         uart_write_string_immediate("  new             - Start new game\r\n");
         uart_write_string_immediate("  reset           - Reset game\r\n");
         uart_write_string_immediate("  status          - Game status (synced with web)\r\n");
+        uart_write_string_immediate("\r\nTIMER COMMANDS (like web):\r\n");
+        uart_write_string_immediate("  timer           - Show timer JSON\r\n");
+        uart_write_string_immediate("  timer_config X  - Set time control type 0..14\r\n");
+        uart_write_string_immediate("  timer_config custom <min> <inc> - Set custom\r\n");
+        uart_write_string_immediate("  timer_pause     - Pause timer\r\n");
+        uart_write_string_immediate("  timer_resume    - Resume timer\r\n");
+        uart_write_string_immediate("  timer_reset     - Reset timer\r\n");
         uart_write_string_immediate("\r\nWIFI & WEB COMMANDS:\r\n");
         uart_write_string_immediate("  wifi_status     - Show WiFi AP status and clients\r\n");
         uart_write_string_immediate("  web_clients     - List active web connections\r\n");
@@ -1192,18 +1201,38 @@ static void process_command(char* argv[], int argc)
         }
     }
     
-    // VERSION command
-    else if (strcmp(argv[0], "version") == 0 || strcmp(argv[0], "ver") == 0) {
-        uart_write_string_immediate(COLOR_BOLD "ESP32-C6 Chess System v2.4\r\n" COLOR_RESET);
-        uart_write_string_immediate("Author: Alfred Krutina\r\n");
-        uart_write_string_immediate("Build: " __DATE__ " " __TIME__ "\r\n");
-    }
+    // TIMER commands - handled by command table system
+
+    // VERSION command - handled by command table system
     
     // ECHO command removed - handled by terminal
     
-    // CLEAR command
-    else if (strcmp(argv[0], "clear") == 0 || strcmp(argv[0], "cls") == 0) {
-        uart_write_string_immediate("\033[2J\033[H"); // Clear screen and home cursor
+    // CLEAR command - handled by command table system
+    
+    // MOVES command
+    else if (strcmp(argv[0], "moves") == 0) {
+        if (argc < 2) {
+            uart_write_string_immediate(COLOR_RED "Usage: moves <square> (e.g., moves e2)\r\n" COLOR_RESET);
+            return;
+        }
+        
+        // Send command to game task to show moves
+        if (game_command_queue != NULL) {
+            chess_move_command_t cmd = {0};
+            cmd.type = GAME_CMD_GET_VALID_MOVES;
+            strncpy(cmd.from_notation, argv[1], sizeof(cmd.from_notation) - 1);
+            cmd.from_notation[sizeof(cmd.from_notation) - 1] = '\0';
+            
+            if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+                uart_write_string_immediate(COLOR_GREEN "Moves requested for ");
+                uart_write_string_immediate(argv[1]);
+                uart_write_string_immediate("\r\n" COLOR_RESET);
+            } else {
+                uart_write_string_immediate(COLOR_RED "Failed to request moves\r\n" COLOR_RESET);
+            }
+        } else {
+            uart_write_string_immediate(COLOR_RED "Game task not available\r\n" COLOR_RESET);
+        }
     }
     
     // EXTENDED COMMANDS - integrate from uart_commands_extended.c
@@ -1265,7 +1294,7 @@ void input_buffer_set_cursor(input_buffer_t* buffer, size_t pos)
         // Prompt handled by terminal
         {
             char prompt_line[512];
-            snprintf(prompt_line, sizeof(prompt_line), "\rchess> %s", buffer->buffer);
+            snprintf(prompt_line, sizeof(prompt_line), "\r%s", buffer->buffer);
             if (UART_ENABLED) {
                 uart_write_bytes(UART_PORT_NUM, prompt_line, strlen(prompt_line));
                 
@@ -1371,6 +1400,13 @@ command_result_t uart_cmd_eval(const char* args);
 command_result_t uart_cmd_ledtest(const char* args);
 command_result_t uart_cmd_performance(const char* args);
 command_result_t uart_cmd_config(const char* args);
+
+// Timer Commands
+command_result_t uart_cmd_timer(const char* args);
+command_result_t uart_cmd_timer_config(const char* args);
+command_result_t uart_cmd_timer_pause(const char* args);
+command_result_t uart_cmd_timer_resume(const char* args);
+command_result_t uart_cmd_timer_reset(const char* args);
 
 // Medium Priority Commands
 command_result_t uart_cmd_castle(const char* args);
@@ -1555,6 +1591,17 @@ void uart_cmd_help_game(void)
     uart_send_formatted("  ENDGAME_BLACK  - Simulate Black victory");
     
     uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+    uart_send_formatted("⏱️ Timer Commands:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  TIMER          - Show timer state (JSON)");
+    uart_send_formatted("  TIMER_CONFIG <type> - Set time control (0..14)");
+    uart_send_formatted("  TIMER_CONFIG custom <min> <inc> - Set custom time");
+    uart_send_formatted("  TIMER_PAUSE    - Pause timer");
+    uart_send_formatted("  TIMER_RESUME   - Resume timer");
+    uart_send_formatted("  TIMER_RESET    - Reset timer");
+    
+    uart_send_formatted("");
     if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
     uart_send_formatted("💡 Pro Tips:");
     if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
@@ -1595,7 +1642,6 @@ void uart_cmd_help_system(void)
     if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
     uart_send_formatted("  VERBOSE ON/OFF - Control logging verbosity");
     uart_send_formatted("  QUIET          - Toggle quiet mode");
-    uart_send_formatted("  ECHO ON/OFF    - Toggle command echo");
     uart_send_formatted("  CONFIG         - Show/set system configuration");
     uart_send_formatted("  CONFIG show    - Show current configuration");
     uart_send_formatted("  CONFIG key value - Set configuration key=value");
@@ -1604,9 +1650,6 @@ void uart_cmd_help_system(void)
     if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
     uart_send_formatted("🌐 Web Server:");
     if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
-    uart_send_formatted("  WEB_ON         - Start web server (WiFi AP mode)");
-    uart_send_formatted("  WEB_OFF        - Stop web server");
-    uart_send_formatted("  WEB_STATUS     - Show web server status");
     uart_send_formatted("  Connect to: ESP32-Chess (password: 12345678)");
     uart_send_formatted("  Open browser: http://192.168.4.1");
     
@@ -1891,6 +1934,16 @@ command_result_t uart_cmd_status(const char* args)
     uart_send_formatted("  Game Engine: %s", "ENABLED");     // Always enabled
     
     uart_send_formatted("");
+    uart_send_formatted("📊 GAME STATISTICS:");
+    uart_send_formatted("  Total Games: %" PRIu32, game_get_total_games());
+    uart_send_formatted("  White Wins: %" PRIu32, game_get_white_wins());
+    uart_send_formatted("  Black Wins: %" PRIu32, game_get_black_wins());
+    uart_send_formatted("  Draws: %" PRIu32, game_get_draws());
+    uart_send_formatted("  Current Game State: %s", game_get_game_state_string());
+    uart_send_formatted("  Move Count: %" PRIu32, game_get_move_count());
+    uart_send_formatted("  Current Player: %s", game_get_current_player() == PLAYER_WHITE ? "White" : "Black");
+    
+    uart_send_formatted("");
     uart_send_formatted("💡 Use 'COMPONENT_OFF <name>' or 'COMPONENT_ON <name>' to control components");
     uart_send_formatted("═══════════════════════════════════════════════════════════════");
     
@@ -1952,17 +2005,15 @@ command_result_t uart_cmd_clear(const char* args)
 {
     (void)args; // Unused parameter
     
-    if (uart_mutex != NULL) {
-        xSemaphoreTake(uart_mutex, portMAX_DELAY);
-    }
+    // CRITICAL: Reset WDT before any UART operations
+    SAFE_WDT_RESET();
     
+    // Simple clear without mutex to avoid WDT issues
     uart_write_string_immediate("\033[2J\033[H"); // Clear screen and move cursor to top
+    uart_write_string_immediate("Screen cleared\r\n");
     
-    if (uart_mutex != NULL) {
-        xSemaphoreGive(uart_mutex);
-    }
-    
-    uart_send_formatted("Screen cleared");
+    // CRITICAL: Reset WDT after UART operations
+    SAFE_WDT_RESET();
     
     return CMD_SUCCESS;
 }
@@ -2034,6 +2085,13 @@ static const uart_command_t commands[] = {
     {"PERFORMANCE", uart_cmd_performance, "Show system performance", "", false, {"PERF", "SYS_PERF", "", "", ""}},
     {"CONFIG", uart_cmd_config, "Show/set configuration", "CONFIG [key] [value]", true, {"CFG", "SETTINGS", "", "", ""}},
     
+    // Timer Commands (mirror web API)
+    {"TIMER", uart_cmd_timer, "Show timer state (JSON)", "", false, {"TMR", "", "", "", ""}},
+    {"TIMER_CONFIG", uart_cmd_timer_config, "Set time control", "TIMER_CONFIG <type|custom> [min inc]", true, {"TCONF", "TCFG", "", "", ""}},
+    {"TIMER_PAUSE", uart_cmd_timer_pause, "Pause timer", "", false, {"TPAUSE", "", "", "", ""}},
+    {"TIMER_RESUME", uart_cmd_timer_resume, "Resume timer", "", false, {"TRESUME", "", "", "", ""}},
+    {"TIMER_RESET", uart_cmd_timer_reset, "Reset timer", "", false, {"TRESET", "", "", "", ""}},
+    
     // Medium Priority Commands
     {"CASTLE", uart_cmd_castle, "Castle (kingside/queenside)", "CASTLE <kingside|queenside>", true, {"CASTLING", "O-O", "", "", ""}},
     {"PROMOTE", uart_cmd_promote, "Promote pawn", "PROMOTE <square>=<piece>", true, {"PROMOTION", "PROMO", "", "", ""}},
@@ -2102,25 +2160,36 @@ command_result_t uart_cmd_eval(const char* args)
     uart_send_formatted("📊 Position Analysis:");
     uart_send_formatted("");
     
+    // Get real material balance
+    int white_material, black_material;
+    int material_balance = game_calculate_material_balance(&white_material, &black_material);
+    
+    // Get real game statistics
+    uint32_t white_wins = game_get_white_wins();
+    uint32_t black_wins = game_get_black_wins();
+    uint32_t draws = game_get_draws();
+    uint32_t total_games = game_get_total_games();
+    
     uart_send_formatted("🎯 Current Evaluation:");
-    uart_send_formatted("  • Position Score: +0.5 (Slightly favoring White)");
-    uart_send_formatted("  • Material Balance: Even");
-    uart_send_formatted("  • King Safety: Good for both sides");
-    uart_send_formatted("  • Pawn Structure: Solid");
+    uart_send_formatted("  • Material Balance: %s", 
+                       material_balance > 0 ? "White Advantage" : 
+                       material_balance < 0 ? "Black Advantage" : "Even");
+    uart_send_formatted("  • White Material: %d points", white_material);
+    uart_send_formatted("  • Black Material: %d points", black_material);
+    uart_send_formatted("  • Material Difference: %+d", material_balance);
     
     uart_send_formatted("");
-    uart_send_formatted("⚖️ Detailed Metrics:");
-    uart_send_formatted("  • Material: 0.0 (balanced)");
-    uart_send_formatted("  • Piece Activity: +0.3 (White advantage)");
-    uart_send_formatted("  • King Safety: +0.1 (White slightly safer)");
-    uart_send_formatted("  • Pawn Structure: +0.1 (White advantage)");
+    uart_send_formatted("📊 Game Statistics:");
+    uart_send_formatted("  • Total Games: %" PRIu32, total_games);
+    uart_send_formatted("  • White Wins: %" PRIu32, white_wins);
+    uart_send_formatted("  • Black Wins: %" PRIu32, black_wins);
+    uart_send_formatted("  • Draws: %" PRIu32, draws);
     
     uart_send_formatted("");
     uart_send_formatted("📈 Position Features:");
-    uart_send_formatted("  • Open Files: 2");
-    uart_send_formatted("  • Weak Squares: 1 (Black)");
-    uart_send_formatted("  • Passed Pawns: 0");
-    uart_send_formatted("  • Piece Coordination: Good");
+    uart_send_formatted("  • Current Player: %s", current_player == PLAYER_WHITE ? "White" : "Black");
+    uart_send_formatted("  • Move Count: %" PRIu32, move_count);
+    uart_send_formatted("  • Game State: %s", game_get_game_state_string());
     
     uart_send_formatted("");
     uart_send_formatted("🎮 Game Phase:");
@@ -2342,6 +2411,310 @@ command_result_t uart_cmd_config(const char* args)
 }
 
 // ============================================================================
+// TIMER COMMANDS (mirror web API)
+// ============================================================================
+
+/**
+ * @brief Format time in milliseconds to MM:SS format
+ */
+static void format_time_mmss(char* buffer, size_t size, uint32_t time_ms)
+{
+    uint32_t total_seconds = time_ms / 1000;
+    uint32_t minutes = total_seconds / 60;
+    uint32_t seconds = total_seconds % 60;
+    snprintf(buffer, size, "%02u:%02u", (unsigned int)minutes, (unsigned int)seconds);
+}
+
+/**
+ * @brief Show timer state (human-readable format)
+ */
+command_result_t uart_cmd_timer(const char* args)
+{
+    (void)args; // Unused
+    SAFE_WDT_RESET();
+    
+    chess_timer_t timer_state;
+    if (timer_get_state(&timer_state) != ESP_OK) {
+        uart_send_error("❌ Failed to get timer state");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    uart_send_colored_line(COLOR_INFO, "⏱️ Timer State");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // Time control info
+    if (timer_state.config.type == TIME_CONTROL_NONE) {
+        uart_send_formatted("⏸️  Time Control: None (No time limit)");
+        uart_send_line("");
+        return CMD_SUCCESS;
+    }
+    
+    uart_send_formatted("📋 Time Control: %s", timer_state.config.name);
+    // Description is a const char* - check if it's not empty (skip NULL check as it's always set in TIME_CONTROLS array)
+    if (timer_state.config.description[0] != '\0') {
+        uart_send_formatted("   (%s)", timer_state.config.description);
+    }
+    
+    // Format increment info
+    if (timer_state.config.increment_ms > 0) {
+        char inc_str[32];
+        format_time_mmss(inc_str, sizeof(inc_str), timer_state.config.increment_ms);
+        uart_send_formatted("   Increment: %s per move", inc_str);
+    }
+    uart_send_line("");
+    
+    // Player times
+    char white_time_str[16], black_time_str[16];
+    format_time_mmss(white_time_str, sizeof(white_time_str), timer_state.white_time_ms);
+    format_time_mmss(black_time_str, sizeof(black_time_str), timer_state.black_time_ms);
+    
+    // Determine active player indicator
+    const char* white_indicator = timer_state.is_white_turn && timer_state.timer_running ? "⏱️ " : "   ";
+    const char* black_indicator = !timer_state.is_white_turn && timer_state.timer_running ? "⏱️ " : "   ";
+    
+    uart_send_formatted("%s White: %s", white_indicator, white_time_str);
+    if (timer_state.is_white_turn && timer_state.timer_running) {
+        uart_send_formatted(" (running)");
+    }
+    uart_send_line("");
+    
+    uart_send_formatted("%s Black: %s", black_indicator, black_time_str);
+    if (!timer_state.is_white_turn && timer_state.timer_running) {
+        uart_send_formatted(" (running)");
+    }
+    uart_send_line("");
+    
+    // Status
+    if (timer_state.game_paused) {
+        uart_send_colored_line(COLOR_WARNING, "⏸️  Timer: PAUSED");
+    } else if (timer_state.timer_running) {
+        uart_send_formatted("▶️  Timer: RUNNING");
+    } else {
+        uart_send_formatted("⏸️  Timer: STOPPED");
+    }
+    
+    if (timer_state.time_expired) {
+        uart_send_colored_line(COLOR_ERROR, "⚠️  TIME EXPIRED!");
+    }
+    
+    // Statistics
+    if (timer_state.total_moves > 0) {
+        uart_send_formatted("📊 Total moves: %lu", timer_state.total_moves);
+        if (timer_state.avg_move_time_ms > 0) {
+            char avg_time_str[16];
+            format_time_mmss(avg_time_str, sizeof(avg_time_str), timer_state.avg_move_time_ms);
+            uart_send_formatted(" | Avg move time: %s", avg_time_str);
+        }
+        uart_send_line("");
+    }
+    
+    uart_send_line("");
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Set time control or show available options
+ */
+command_result_t uart_cmd_timer_config(const char* args)
+{
+    SAFE_WDT_RESET();
+    
+    // If no args or "options", show all available time controls
+    if (!args || strlen(args) == 0 || 
+        strcmp(args, "options") == 0 || strcmp(args, "OPTIONS") == 0 ||
+        strcmp(args, "list") == 0 || strcmp(args, "LIST") == 0) {
+        
+        uart_send_colored_line(COLOR_INFO, "⏱️ Available Time Controls");
+        uart_send_formatted("═══════════════════════════════════════════════════════════════");
+        
+        time_control_config_t controls[16];
+        uint32_t count = timer_get_available_controls(controls, 16);
+        
+        for (uint32_t i = 0; i < count; i++) {
+            char time_str[32], increment_str[16];
+            
+            // Format time
+            uint32_t total_sec = controls[i].initial_time_ms / 1000;
+            uint32_t minutes = total_sec / 60;
+            uint32_t seconds = total_sec % 60;
+            if (minutes >= 60) {
+                unsigned long hours = (unsigned long)(minutes / 60);
+                unsigned long mins = (unsigned long)(minutes % 60);
+                snprintf(time_str, sizeof(time_str), "%luh %02lum", hours, mins);
+            } else if (seconds > 0) {
+                unsigned long mins = (unsigned long)minutes;
+                unsigned long secs = (unsigned long)seconds;
+                snprintf(time_str, sizeof(time_str), "%lum %02lus", mins, secs);
+            } else {
+                unsigned long mins = (unsigned long)minutes;
+                snprintf(time_str, sizeof(time_str), "%lum", mins);
+            }
+            
+            // Format increment
+            if (controls[i].increment_ms > 0) {
+                unsigned long inc_sec = (unsigned long)(controls[i].increment_ms / 1000);
+                snprintf(increment_str, sizeof(increment_str), "+%lus", inc_sec);
+            } else {
+                snprintf(increment_str, sizeof(increment_str), "+0s");
+            }
+            
+            // Display with format: ID: Name (time + increment) - Description
+            const char* speed_indicator = controls[i].is_fast ? "⚡" : "🕐";
+            
+            uart_send_formatted("%2lu: %s %s (%s %s)", 
+                             i, speed_indicator, controls[i].name, time_str, increment_str);
+            if (strlen(controls[i].description) > 0) {
+                uart_send_formatted("    %s", controls[i].description);
+            }
+        }
+        
+        uart_send_formatted("");
+        uart_send_formatted("Usage:");
+        uart_send_formatted("  TIMER_CONFIG <0-14>              - Set predefined time control");
+        uart_send_formatted("  TIMER_CONFIG custom <min> <inc>  - Set custom time (1-180 min, 0-60s increment)");
+        uart_send_formatted("");
+        uart_send_formatted("Examples:");
+        uart_send_formatted("  TIMER_CONFIG 1       - Set Bullet 1+0");
+        uart_send_formatted("  TIMER_CONFIG 8       - Set Rapid 10+0");
+        uart_send_formatted("  TIMER_CONFIG custom 15 5  - Set custom 15min + 5s increment");
+        uart_send_formatted("");
+        
+        return CMD_SUCCESS;
+    }
+    
+    if (game_command_queue == NULL) {
+        uart_send_error("❌ Game task not available");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    chess_move_command_t cmd = (chess_move_command_t){0};
+    cmd.type = GAME_CMD_SET_TIME_CONTROL;
+    
+    char arg1[32], arg2[32], arg3[32];
+    int parsed = sscanf(args, "%31s %31s %31s", arg1, arg2, arg3);
+    
+    if (strcmp(arg1, "custom") == 0 || strcmp(arg1, "CUSTOM") == 0) {
+        if (parsed < 3) {
+            uart_send_error("❌ Usage: TIMER_CONFIG custom <minutes> <increment_sec>");
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+        cmd.timer_data.timer_config.time_control_type = TIME_CONTROL_CUSTOM;
+        cmd.timer_data.timer_config.custom_minutes = (uint32_t)atoi(arg2);
+        cmd.timer_data.timer_config.custom_increment = (uint32_t)atoi(arg3);
+        
+        // Validate custom values
+        if (cmd.timer_data.timer_config.custom_minutes < 1 || 
+            cmd.timer_data.timer_config.custom_minutes > 180) {
+            uart_send_error("❌ Minutes must be between 1 and 180");
+            return CMD_ERROR_INVALID_PARAMETER;
+        }
+        if (cmd.timer_data.timer_config.custom_increment > 60) {
+            uart_send_error("❌ Increment must be between 0 and 60 seconds");
+            return CMD_ERROR_INVALID_PARAMETER;
+        }
+    } else {
+        int type = atoi(arg1);
+        if (type < 0 || type >= TIME_CONTROL_MAX) {
+            char error_msg[128];
+            snprintf(error_msg, sizeof(error_msg), 
+                    "❌ Invalid type. Use 0-%d or 'custom'. Use 'TIMER_CONFIG options' to see all.", 
+                    TIME_CONTROL_MAX - 1);
+            uart_send_error(error_msg);
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+        cmd.timer_data.timer_config.time_control_type = (uint8_t)type;
+        if (type == TIME_CONTROL_CUSTOM && parsed >= 3) {
+            cmd.timer_data.timer_config.custom_minutes = (uint32_t)atoi(arg2);
+            cmd.timer_data.timer_config.custom_increment = (uint32_t)atoi(arg3);
+        }
+    }
+    
+    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+        uart_send_formatted("✅ Time control update sent");
+    } else {
+        uart_send_error("❌ Failed to send time control");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Pause timer
+ */
+command_result_t uart_cmd_timer_pause(const char* args)
+{
+    (void)args; // Unused
+    SAFE_WDT_RESET();
+    
+    if (game_command_queue == NULL) {
+        uart_send_error("❌ Game task not available");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    chess_move_command_t cmd = (chess_move_command_t){0};
+    cmd.type = GAME_CMD_PAUSE_TIMER;
+    
+    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+        uart_send_formatted("✅ Timer pause requested");
+        return CMD_SUCCESS;
+    } else {
+        uart_send_error("❌ Failed to pause timer");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+}
+
+/**
+ * @brief Resume timer
+ */
+command_result_t uart_cmd_timer_resume(const char* args)
+{
+    (void)args; // Unused
+    SAFE_WDT_RESET();
+    
+    if (game_command_queue == NULL) {
+        uart_send_error("❌ Game task not available");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    chess_move_command_t cmd = (chess_move_command_t){0};
+    cmd.type = GAME_CMD_RESUME_TIMER;
+    
+    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+        uart_send_formatted("✅ Timer resume requested");
+        return CMD_SUCCESS;
+    } else {
+        uart_send_error("❌ Failed to resume timer");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+}
+
+/**
+ * @brief Reset timer
+ */
+command_result_t uart_cmd_timer_reset(const char* args)
+{
+    (void)args; // Unused
+    SAFE_WDT_RESET();
+    
+    if (game_command_queue == NULL) {
+        uart_send_error("❌ Game task not available");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    chess_move_command_t cmd = (chess_move_command_t){0};
+    cmd.type = GAME_CMD_RESET_TIMER;
+    
+    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+        uart_send_formatted("✅ Timer reset requested");
+        return CMD_SUCCESS;
+    } else {
+        uart_send_error("❌ Failed to reset timer");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+}
+
+// ============================================================================
 // MEDIUM PRIORITY COMMANDS
 // ============================================================================
 
@@ -2491,17 +2864,62 @@ command_result_t uart_cmd_matrixtest(const char* args)
     uart_send_colored_line(COLOR_INFO, "🔍 Matrix Test");
     uart_send_formatted("═══════════════════════════════════════════════════════════════");
     
-    // Send matrix test request
-    uint8_t matrix_cmd = MATRIX_CMD_TEST;
+    // Get current matrix state
+    uint8_t matrix_state[64];
+    matrix_get_state(matrix_state);
     
-    if (xQueueSend(matrix_command_queue, &matrix_cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-        uart_send_error("❌ Failed to send matrix test request");
-        return CMD_ERROR_SYSTEM_ERROR;
+    uart_send_formatted("📊 Current Matrix State:");
+    uart_send_formatted("");
+    
+    // Print matrix state in chess notation
+    for (int row = 7; row >= 0; row--) {
+        char line[64] = "";
+        char* ptr = line;
+        
+        ptr += sprintf(ptr, "%d ", row + 1);
+        
+        for (int col = 0; col < 8; col++) {
+            int index = row * 8 + col;
+            if (matrix_state[index]) {
+                ptr += sprintf(ptr, "[P] ");
+            } else {
+                ptr += sprintf(ptr, "[ ] ");
+            }
+        }
+        
+        uart_send_formatted("%s", line);
     }
     
-    uart_send_formatted("🔄 Testing matrix scanning...");
-    uart_send_formatted("💡 Place pieces on board to test detection");
-    uart_send_formatted("✅ Matrix test completed");
+    uart_send_formatted("   a   b   c   d   e   f   g   h");
+    uart_send_formatted("");
+    
+    // Count pieces and show positions
+    int piece_count = 0;
+    char piece_positions[512] = "";
+    char* pos_ptr = piece_positions;
+    
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            int index = row * 8 + col;
+            if (matrix_state[index]) {
+                piece_count++;
+                char notation[4];
+                matrix_square_to_notation(index, notation);
+                pos_ptr += sprintf(pos_ptr, "%s ", notation);
+            }
+        }
+    }
+    
+    uart_send_formatted("📈 Summary:");
+    uart_send_formatted("  • Pieces detected: %d", piece_count);
+    if (piece_count > 0) {
+        uart_send_formatted("  • Positions: %s", piece_positions);
+    } else {
+        uart_send_formatted("  • No pieces detected on board");
+    }
+    
+    uart_send_formatted("");
+    uart_send_formatted("💡 Place pieces on board and run MATRIXTEST again to see changes");
     
     return CMD_SUCCESS;
 }
@@ -3417,7 +3835,7 @@ void uart_task_recover_from_error(void)
     // Show recovery message with timeout protection
     uart_send_warning("🔄 UART recovered from WDT error, console is responsive again");
     uart_send_warning("💡 You can now continue typing commands normally");
-    uart_send_line("chess> ");
+    // Prompt removed
     
     // CRITICAL: Final WDT reset
     SAFE_WDT_RESET();
@@ -3481,7 +3899,7 @@ void uart_process_input(char c)
                 if (color_enabled) {
                     uart_write_bytes(UART_PORT_NUM, "\033[1;33m", 7); // bold yellow
                 }
-                uart_write_bytes(UART_PORT_NUM, "chess> ", 7);
+                // Prompt removed
                 if (color_enabled) {
                     uart_write_bytes(UART_PORT_NUM, "\033[0m", 4); // reset colors
                 }
@@ -3491,7 +3909,7 @@ void uart_process_input(char c)
                 if (color_enabled) {
                     uart_write_bytes(UART_PORT_NUM, "\033[1;33m", 7); // bold yellow
                 }
-                uart_write_bytes(UART_PORT_NUM, "chess> ", 7);
+                // Prompt removed
                 if (color_enabled) {
                     uart_write_bytes(UART_PORT_NUM, "\033[0m", 4); // reset colors
                 }
@@ -3501,7 +3919,7 @@ void uart_process_input(char c)
             if (color_enabled) {
                 printf("\033[1;33m"); // bold yellow
             }
-            printf("chess> ");
+            // Prompt removed
             if (color_enabled) {
                 printf("\033[0m"); // reset colors
             }
@@ -4878,6 +5296,12 @@ command_result_t uart_cmd_show_tasks(const char* args)
     extern TaskHandle_t led_task_handle;
     extern TaskHandle_t matrix_task_handle;
     extern TaskHandle_t button_task_handle;
+    extern TaskHandle_t animation_task_handle;
+    extern TaskHandle_t screen_saver_task_handle;
+    extern TaskHandle_t test_task_handle;
+    extern TaskHandle_t web_server_task_handle;
+    extern TaskHandle_t reset_button_task_handle;
+    extern TaskHandle_t promotion_button_task_handle;
     
     if (uart_task_handle) {
         const char* task_name = pcTaskGetName(uart_task_handle);
@@ -4912,6 +5336,50 @@ command_result_t uart_cmd_show_tasks(const char* args)
         uart_send_formatted("   Button Task: %s (Priority: %" PRIu32 ", Stack: %" PRIu32 ")", 
                           task_name, uxTaskPriorityGet(button_task_handle), 
                           uxTaskGetStackHighWaterMark(button_task_handle));
+    }
+    
+    if (animation_task_handle) {
+        const char* task_name = pcTaskGetName(animation_task_handle);
+        uart_send_formatted("   Animation Task: %s (Priority: %" PRIu32 ", Stack: %" PRIu32 ")", 
+                          task_name, uxTaskPriorityGet(animation_task_handle), 
+                          uxTaskGetStackHighWaterMark(animation_task_handle));
+    }
+    
+    if (screen_saver_task_handle) {
+        const char* task_name = pcTaskGetName(screen_saver_task_handle);
+        uart_send_formatted("   Screen Saver Task: %s (Priority: %" PRIu32 ", Stack: %" PRIu32 ")", 
+                          task_name, uxTaskPriorityGet(screen_saver_task_handle), 
+                          uxTaskGetStackHighWaterMark(screen_saver_task_handle));
+    } else {
+        uart_send_formatted("   Screen Saver Task: DISABLED");
+    }
+    
+    if (test_task_handle) {
+        const char* task_name = pcTaskGetName(test_task_handle);
+        uart_send_formatted("   Test Task: %s (Priority: %" PRIu32 ", Stack: %" PRIu32 ")", 
+                          task_name, uxTaskPriorityGet(test_task_handle), 
+                          uxTaskGetStackHighWaterMark(test_task_handle));
+    }
+    
+    if (web_server_task_handle) {
+        const char* task_name = pcTaskGetName(web_server_task_handle);
+        uart_send_formatted("   Web Server Task: %s (Priority: %" PRIu32 ", Stack: %" PRIu32 ")", 
+                          task_name, uxTaskPriorityGet(web_server_task_handle), 
+                          uxTaskGetStackHighWaterMark(web_server_task_handle));
+    }
+    
+    if (reset_button_task_handle) {
+        const char* task_name = pcTaskGetName(reset_button_task_handle);
+        uart_send_formatted("   Reset Button Task: %s (Priority: %" PRIu32 ", Stack: %" PRIu32 ")", 
+                          task_name, uxTaskPriorityGet(reset_button_task_handle), 
+                          uxTaskGetStackHighWaterMark(reset_button_task_handle));
+    }
+    
+    if (promotion_button_task_handle) {
+        const char* task_name = pcTaskGetName(promotion_button_task_handle);
+        uart_send_formatted("   Promotion Button Task: %s (Priority: %" PRIu32 ", Stack: %" PRIu32 ")", 
+                          task_name, uxTaskPriorityGet(promotion_button_task_handle), 
+                          uxTaskGetStackHighWaterMark(promotion_button_task_handle));
     }
     
     // CPU usage information
@@ -5195,32 +5663,14 @@ void uart_task_start(void *pvParameters)
     if (UART_ENABLED) {
         if (uart_mutex != NULL) {
             xSemaphoreTake(uart_mutex, portMAX_DELAY);
-            if (color_enabled) {
-                uart_write_bytes(UART_PORT_NUM, "\033[1;33m", 7); // bold yellow
-            }
-            uart_write_bytes(UART_PORT_NUM, "chess> ", 7);
-            if (color_enabled) {
-                uart_write_bytes(UART_PORT_NUM, "\033[0m", 4); // reset colors
-            }
+            // Prompt removed
             xSemaphoreGive(uart_mutex);
         } else {
-            if (color_enabled) {
-                uart_write_bytes(UART_PORT_NUM, "\033[1;33m", 7); // bold yellow
-            }
-            uart_write_bytes(UART_PORT_NUM, "chess> ", 7);
-            if (color_enabled) {
-                uart_write_bytes(UART_PORT_NUM, "\033[0m", 4); // reset colors
-            }
+            // Prompt removed
         }
     } else {
         // For USB Serial JTAG, use printf
-        if (color_enabled) {
-            printf("\033[1;33m"); // bold yellow
-        }
-        printf("chess> ");
-        if (color_enabled) {
-            printf("\033[0m"); // reset colors
-        }
+        // Prompt removed
     }
     
     // Start main input loop using original logic
@@ -5269,7 +5719,7 @@ static void uart_input_loop(void)
                 uart_write_string_immediate("^C\r\n");
                 input_buffer.pos = 0;
                 input_buffer.buffer[0] = '\0';
-                uart_write_string_immediate(COLOR_BOLD "chess> " COLOR_RESET);
+                // Prompt removed
                 break;
                 
             case CHAR_CTRL_D:
@@ -5382,7 +5832,7 @@ void uart_task_legacy_loop(void)
             if (processing_error) {
                 input_buffer_clear(&input_buffer);
                 uart_send_error("⚠️ Invalid input, buffer cleared");
-                uart_send_line("chess> ");
+                // Prompt removed
             }
         }
         
@@ -5404,7 +5854,7 @@ void uart_task_legacy_loop(void)
                 
                 // Show recovery message
                 uart_send_warning("🔄 UART input recovered, continuing...");
-                uart_send_line("chess> ");
+                // Prompt removed
             }
         }
         
