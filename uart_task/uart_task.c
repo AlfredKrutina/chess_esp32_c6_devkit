@@ -111,12 +111,8 @@ static bool wifi_component_enabled = false;
 
 // Forward declarations for functions used before definition
 static bool send_move_to_game_task(const char* move_str);
-static void uart_input_loop(void);
 static void uart_task_legacy_loop(void);
-static void uart_send_board_data_chunked(const char* data);
-static void uart_send_led_data_chunked(const char* data);
 static void uart_write_chunked(const char* data, size_t len);
-static void uart_send_large_text_chunked(const char* text);
 
 // Missing type definitions that should be here
 // UART command structure is defined in uart_task.h
@@ -1005,275 +1001,6 @@ static bool process_enter(void)
     return true; // Command ready for processing
 }
 
-/**
- * @brief Parse command line into arguments
- */
-static int parse_command(char* cmd_line, char* argv[], int max_args)
-{
-    int argc = 0;
-    char* token = strtok(cmd_line, " \t\r\n");
-    
-    while (token != NULL && argc < max_args - 1) {
-        argv[argc] = token;
-        argc++;
-        token = strtok(NULL, " \t\r\n");
-    }
-    
-    argv[argc] = NULL;
-    return argc;
-}
-
-/**
- * @brief Process individual commands
- */
-static void process_command(char* argv[], int argc)
-{
-    if (argc == 0) return;
-    
-    command_count++;
-    
-    // Convert command to lowercase
-    for (int i = 0; argv[0][i]; i++) {
-        argv[0][i] = tolower(argv[0][i]);
-    }
-    
-    // HELP command
-    if (strcmp(argv[0], "help") == 0 || strcmp(argv[0], "h") == 0 || strcmp(argv[0], "?") == 0) {
-        uart_write_string_immediate(COLOR_BOLD "ESP32-C6 Chess System v2.4 - Command Help\r\n" COLOR_RESET);
-        uart_write_string_immediate("========================================\r\n");
-        uart_write_string_immediate("CHESS COMMANDS (synced with web):\r\n");
-        uart_write_string_immediate("  move <from><to>  - Make chess move (e.g., move e2e4)\r\n");
-        uart_write_string_immediate("  moves [square]   - Show available moves for square\r\n");
-        uart_write_string_immediate("  board           - Display current board (shared with web)\r\n");
-        uart_write_string_immediate("  new             - Start new game\r\n");
-        uart_write_string_immediate("  reset           - Reset game\r\n");
-        uart_write_string_immediate("  status          - Game status (synced with web)\r\n");
-        uart_write_string_immediate("\r\nTIMER COMMANDS (like web):\r\n");
-        uart_write_string_immediate("  timer           - Show timer JSON\r\n");
-        uart_write_string_immediate("  timer_config X  - Set time control type 0..14\r\n");
-        uart_write_string_immediate("  timer_config custom <min> <inc> - Set custom\r\n");
-        uart_write_string_immediate("  timer_pause     - Pause timer\r\n");
-        uart_write_string_immediate("  timer_resume    - Resume timer\r\n");
-        uart_write_string_immediate("  timer_reset     - Reset timer\r\n");
-        uart_write_string_immediate("\r\nWIFI & WEB COMMANDS:\r\n");
-        uart_write_string_immediate("  wifi_status     - Show WiFi AP status and clients\r\n");
-        uart_write_string_immediate("  web_clients     - List active web connections\r\n");
-        uart_write_string_immediate("  web_url         - Display connection URL\r\n");
-        uart_write_string_immediate("\r\nLED COMMANDS:\r\n");
-        uart_write_string_immediate("  led_test        - Test LED strip functionality\r\n");
-        uart_write_string_immediate("  led_pattern     - Show LED patterns (checker, rainbow, etc.)\r\n");
-        uart_write_string_immediate("  led_animation   - Play LED animations (cascade, fireworks, etc.)\r\n");
-        uart_write_string_immediate("  led_clear       - Clear all LEDs\r\n");
-        uart_write_string_immediate("  led_brightness  - Set LED brightness (0-255)\r\n");
-        uart_write_string_immediate("  chess_pos <pos> - Show LED position for chess square\r\n");
-        uart_write_string_immediate("  led_mapping_test- Test LED mapping (serpentine layout)\r\n");
-        uart_write_string_immediate("\r\nSYSTEM COMMANDS:\r\n");
-        uart_write_string_immediate("  version         - Show version information\r\n");
-        uart_write_string_immediate("  clear           - Clear screen\r\n");
-        uart_write_string_immediate("  help            - Show this help\r\n");
-        uart_write_string_immediate("========================================\r\n");
-    }
-    
-    // MOVE command
-    else if (strcmp(argv[0], "move") == 0 || strcmp(argv[0], "m") == 0) {
-        if (argc != 2) {
-            uart_write_string_immediate(COLOR_RED "Usage: move <from><to> (e.g., move e2e4)\r\n" COLOR_RESET);
-            return;
-        }
-        
-        if (!is_valid_move_notation(argv[1])) {
-            uart_write_string_immediate(COLOR_RED "Invalid move format. Use format like 'e2e4'\r\n" COLOR_RESET);
-            return;
-        }
-        
-        uart_write_string_immediate(COLOR_CYAN "Processing move: ");
-        uart_write_string_immediate(argv[1]);
-        uart_write_string_immediate("\r\n" COLOR_RESET);
-        
-        send_move_to_game_task(argv[1]);
-    }
-    
-    // BOARD command
-    else if (strcmp(argv[0], "board") == 0 || strcmp(argv[0], "b") == 0) {
-        if (game_command_queue != NULL) {
-            chess_move_command_t cmd = {0};
-            cmd.type = GAME_CMD_GET_BOARD;
-            xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
-            uart_write_string_immediate(COLOR_GREEN "Board display requested\r\n" COLOR_RESET);
-        } else {
-            uart_write_string_immediate(COLOR_RED "Game task not available\r\n" COLOR_RESET);
-        }
-    }
-    
-    // NEW GAME command
-    else if (strcmp(argv[0], "new") == 0) {
-        if (game_command_queue != NULL) {
-            chess_move_command_t cmd = {0};
-            cmd.type = GAME_CMD_NEW_GAME;
-            xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
-            uart_write_string_immediate(COLOR_GREEN "New game started\r\n" COLOR_RESET);
-        } else {
-            uart_write_string_immediate(COLOR_RED "Game task not available\r\n" COLOR_RESET);
-        }
-    }
-    
-    // RESET command
-    else if (strcmp(argv[0], "reset") == 0) {
-        if (game_command_queue != NULL) {
-            chess_move_command_t cmd = {0};
-            cmd.type = GAME_CMD_RESET_GAME;
-            xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
-            uart_write_string_immediate(COLOR_GREEN "Game reset requested\r\n" COLOR_RESET);
-        } else {
-            uart_write_string_immediate(COLOR_RED "Game task not available\r\n" COLOR_RESET);
-        }
-    }
-    
-    // STATUS command
-    else if (strcmp(argv[0], "status") == 0) {
-        uart_write_string_immediate(COLOR_BOLD "SYSTEM STATUS\r\n" COLOR_RESET);
-        uart_write_string_immediate("=============\r\n");
-        
-        char status_buf[256];
-        snprintf(status_buf, sizeof(status_buf), 
-                "Free Heap: %" PRIu32 " bytes\r\n"
-                "Commands: %" PRIu32 "\r\n"
-                "Errors: %" PRIu32 "\r\n"
-                "Uptime: %llu sec\r\n"
-                "WiFi: %s\r\n"
-                "Web Server: %s\r\n",
-                esp_get_free_heap_size(),
-                command_count,
-                error_count,
-                esp_timer_get_time() / 1000000,
-                wifi_component_enabled ? "Active" : "Inactive",
-                wifi_component_enabled ? "Running" : "Stopped");
-        
-        uart_write_string_immediate(status_buf);
-    }
-    
-    // WIFI_STATUS command
-    else if (strcmp(argv[0], "wifi_status") == 0) {
-        uart_write_string_immediate(COLOR_BOLD "WIFI STATUS\r\n" COLOR_RESET);
-        uart_write_string_immediate("============\r\n");
-        
-        char wifi_buf[256];
-        snprintf(wifi_buf, sizeof(wifi_buf),
-                "WiFi AP: %s\r\n"
-                "SSID: ESP32-Chess\r\n"
-                "IP: 192.168.4.1\r\n"
-                "Password: 12345678\r\n"
-                "Web URL: http://192.168.4.1\r\n"
-                "Status: %s\r\n",
-                wifi_component_enabled ? "Active" : "Inactive",
-                wifi_component_enabled ? "Running" : "Stopped");
-        
-        uart_write_string_immediate(wifi_buf);
-    }
-    
-    // WEB_CLIENTS command
-    else if (strcmp(argv[0], "web_clients") == 0) {
-        uart_write_string_immediate(COLOR_BOLD "WEB CLIENTS\r\n" COLOR_RESET);
-        uart_write_string_immediate("============\r\n");
-        
-        if (wifi_component_enabled) {
-            uart_write_string_immediate("Web server is running\r\n");
-            uart_write_string_immediate("Connect to: http://192.168.4.1\r\n");
-            uart_write_string_immediate("Multiple clients can connect simultaneously\r\n");
-        } else {
-            uart_write_string_immediate("Web server is not running\r\n");
-        }
-    }
-    
-    // WEB_URL command
-    else if (strcmp(argv[0], "web_url") == 0) {
-        uart_write_string_immediate(COLOR_BOLD "WEB CONNECTION URL\r\n" COLOR_RESET);
-        uart_write_string_immediate("==================\r\n");
-        
-        if (wifi_component_enabled) {
-            uart_write_string_immediate("URL: http://192.168.4.1\r\n");
-            uart_write_string_immediate("SSID: ESP32-Chess\r\n");
-            uart_write_string_immediate("Password: 12345678\r\n");
-            uart_write_string_immediate("\r\n");
-            uart_write_string_immediate("Open this URL in your browser to view the chess board\r\n");
-        } else {
-            uart_write_string_immediate("Web server is not running\r\n");
-        }
-    }
-    
-    // TIMER commands - handled by command table system
-
-    // VERSION command - handled by command table system
-    
-    // ECHO command removed - handled by terminal
-    
-    // CLEAR command - handled by command table system
-    
-    // MOVES command
-    else if (strcmp(argv[0], "moves") == 0) {
-        if (argc < 2) {
-            uart_write_string_immediate(COLOR_RED "Usage: moves <square> (e.g., moves e2)\r\n" COLOR_RESET);
-            return;
-        }
-        
-        // Send command to game task to show moves
-        if (game_command_queue != NULL) {
-            chess_move_command_t cmd = {0};
-            cmd.type = GAME_CMD_GET_VALID_MOVES;
-            strncpy(cmd.from_notation, argv[1], sizeof(cmd.from_notation) - 1);
-            cmd.from_notation[sizeof(cmd.from_notation) - 1] = '\0';
-            
-            if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
-                uart_write_string_immediate(COLOR_GREEN "Moves requested for ");
-                uart_write_string_immediate(argv[1]);
-                uart_write_string_immediate("\r\n" COLOR_RESET);
-            } else {
-                uart_write_string_immediate(COLOR_RED "Failed to request moves\r\n" COLOR_RESET);
-            }
-        } else {
-            uart_write_string_immediate(COLOR_RED "Game task not available\r\n" COLOR_RESET);
-        }
-    }
-    
-    // EXTENDED COMMANDS - integrate from uart_commands_extended.c
-    else if (strcmp(argv[0], "led_test") == 0) {
-        handle_led_test_command(argv, argc);
-    }
-    else if (strcmp(argv[0], "led_pattern") == 0) {
-        handle_led_pattern_command(argv, argc);
-    }
-    else if (strcmp(argv[0], "led_animation") == 0) {
-        handle_led_animation_command(argv, argc);
-    }
-    else if (strcmp(argv[0], "led_clear") == 0) {
-        handle_led_clear_command(argv, argc);
-    }
-    else if (strcmp(argv[0], "led_brightness") == 0) {
-        handle_led_brightness_command(argv, argc);
-    }
-    else if (strcmp(argv[0], "chess_pos") == 0) {
-        handle_chess_pos_command(argv, argc);
-    }
-    else if (strcmp(argv[0], "led_mapping_test") == 0) {
-        handle_led_mapping_test_command(argv, argc);
-    }
-    
-    // Unknown command
-    else {
-        // Check if it's a direct move (like "e2e4")
-        if (strlen(argv[0]) == 4 && is_valid_move_notation(argv[0])) {
-            uart_write_string_immediate(COLOR_CYAN "Processing move: ");
-            uart_write_string_immediate(argv[0]);
-            uart_write_string_immediate("\r\n" COLOR_RESET);
-            send_move_to_game_task(argv[0]);
-        } else {
-            uart_write_string_immediate(COLOR_RED "Unknown command: ");
-            uart_write_string_immediate(argv[0]);
-            uart_write_string_immediate("\r\nType 'help' for available commands\r\n" COLOR_RESET);
-            error_count++;
-        }
-    }
-}
 
 void input_buffer_backspace(input_buffer_t* buffer)
 {
@@ -4015,20 +3742,47 @@ command_result_t uart_cmd_move(const char* args)
                 return up_result;
             }
             
-            // Step 2: Wait 1 second for animations
+            // Step 2: Wait 500ms for animations
             uart_send_colored_line(COLOR_INFO, "⏳ Waiting for animations...");
-            vTaskDelay(pdMS_TO_TICKS(1000));
+            vTaskDelay(pdMS_TO_TICKS(500));
             
-            // Step 3: Call DN command directly
+            // Step 3: Send DROP command WITH validation via EXISTING response queue
             uart_send_colored_line(COLOR_INFO, "🔄 Placing piece...");
-            command_result_t dn_result = uart_cmd_dn(to_square);
-            if (dn_result != CMD_SUCCESS) {
-                uart_send_error("❌ Failed to place piece");
-                return dn_result;
+            
+            // ✅ SPRÁVNÉ ŘEŠENÍ: Použít EXISTUJÍCÍ uart_response_queue (ne vytvářet novou!)
+            chess_move_command_t drop_cmd = {
+                .type = GAME_CMD_DROP,
+                .player = 0,
+                .response_queue = (QueueHandle_t)uart_response_queue  // ✅ Použít globální queue!
+            };
+            strcpy(drop_cmd.from_notation, "");
+            strncpy(drop_cmd.to_notation, to_square, sizeof(drop_cmd.to_notation) - 1);
+            drop_cmd.to_notation[sizeof(drop_cmd.to_notation) - 1] = '\0';
+            
+            // Send to game task
+            if (!send_to_game_task(&drop_cmd)) {
+                uart_send_error("❌ Failed to send DROP command");
+                return CMD_ERROR_SYSTEM_ERROR;
             }
             
-            uart_send_colored_line(COLOR_SUCCESS, "✅ Move completed");
-            return CMD_SUCCESS;
+            // Wait for validation response from game_task
+            game_response_t response;
+            if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(2000)) == pdTRUE) {
+                if (response.error_code != 0) {
+                    // Invalid move!
+                    uart_send_error(response.message);
+                    uart_send_error("❌ Invalid move - piece must be returned");
+                    return CMD_ERROR_INVALID_PARAMETER;
+                }
+                
+                // Valid move!
+                uart_send_colored_line(COLOR_INFO, "💡 LEDs: Blue flash (piece placed), then Yellow (movable pieces)");
+                uart_send_success("✅ Move completed");
+                return CMD_SUCCESS;
+            } else {
+                uart_send_error("❌ Timeout waiting for move validation");
+                return CMD_ERROR_SYSTEM_ERROR;
+            }
         } else {
             uart_send_error("Invalid chess squares");
             return CMD_ERROR_INVALID_PARAMETER;
@@ -4083,27 +3837,38 @@ command_result_t uart_cmd_up(const char* args)
         return CMD_ERROR_INVALID_SYNTAX;
     }
     
-    // Send pickup command to game task
+    // Send pickup command to game task WITH response queue
     chess_move_command_t cmd = {
         .type = GAME_CMD_PICKUP,
         .player = 0,  // Will be determined by game task
-        .response_queue = 0
+        .response_queue = (QueueHandle_t)uart_response_queue  // ✅ FIX: Použít existující queue!
     };
     strncpy(cmd.from_notation, square, sizeof(cmd.from_notation) - 1);
     cmd.from_notation[sizeof(cmd.from_notation) - 1] = '\0';
     strcpy(cmd.to_notation, "");
     
-    if (send_to_game_task(&cmd)) {
+    if (!send_to_game_task(&cmd)) {
+        uart_send_error("Internal error: failed to lift piece");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    // ✅ FIX: Čekat na response (může být error - např. žádná figurka, wrong color)
+    game_response_t response;
+    if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(2000)) == pdTRUE) {
+        if (response.error_code != 0) {
+            // Chyba při zvednutí!
+            uart_send_error(response.message);
+            return CMD_ERROR_INVALID_PARAMETER;
+        }
+        
+        // Úspěch!
         char msg[64];
         snprintf(msg, sizeof(msg), "🔄 Piece lifted from %s", square);
         uart_send_colored_line(COLOR_INFO, msg);
-        
-        // LED feedback description
         uart_send_colored_line(COLOR_INFO, "💡 LEDs: Yellow square (lifted piece), Green (possible moves), Orange (captures)");
-        
         return CMD_SUCCESS;
     } else {
-        uart_send_error("Internal error: failed to lift piece");
+        uart_send_error("❌ Timeout waiting for game response");
         return CMD_ERROR_SYSTEM_ERROR;
     }
 }
@@ -4141,27 +3906,38 @@ command_result_t uart_cmd_dn(const char* args)
         return CMD_ERROR_INVALID_SYNTAX;
     }
     
-    // Send drop command to game task
+    // Send drop command to game task WITH response queue for validation
     chess_move_command_t cmd = {
         .type = GAME_CMD_DROP,
         .player = 0,  // Will be determined by game task
-        .response_queue = 0
+        .response_queue = (QueueHandle_t)uart_response_queue  // ✅ FIX: Čekat na validaci!
     };
     strcpy(cmd.from_notation, "");
     strncpy(cmd.to_notation, square, sizeof(cmd.to_notation) - 1);
     cmd.to_notation[sizeof(cmd.to_notation) - 1] = '\0';
     
-    if (send_to_game_task(&cmd)) {
+    if (!send_to_game_task(&cmd)) {
+        uart_send_error("Internal error: failed to place piece");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    // ✅ FIX: Čekat na response z game_task (validace tahu!)
+    game_response_t response;
+    if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(2000)) == pdTRUE) {
+        if (response.error_code != 0) {
+            // Invalid move - game_task poslal error!
+            uart_send_error(response.message);
+            return CMD_ERROR_INVALID_PARAMETER;
+        }
+        
+        // Valid move!
         char msg[64];
         snprintf(msg, sizeof(msg), "🔄 Piece placed on %s", square);
         uart_send_colored_line(COLOR_INFO, msg);
-        
-        // LED feedback description
         uart_send_colored_line(COLOR_INFO, "💡 LEDs: Blue flash (piece placed), then Yellow (movable pieces)");
-        
         return CMD_SUCCESS;
     } else {
-        uart_send_error("Internal error: failed to place piece");
+        uart_send_error("❌ Timeout waiting for game validation");
         return CMD_ERROR_SYSTEM_ERROR;
     }
 }
@@ -5681,61 +5457,6 @@ void uart_task_start(void *pvParameters)
     vTaskDelete(NULL);
 }
 
-/**
- * @brief Main character input processing loop
- */
-static void uart_input_loop(void)
-{
-    
-    while (task_running) {
-        // Reset watchdog
-        SAFE_WDT_RESET();
-        
-        // Try to read character (non-blocking)
-        int ch = uart_read_char_immediate();
-        
-        if (ch == EOF) {
-            // No character available, small delay
-            vTaskDelay(pdMS_TO_TICKS(10));
-            continue;
-        }
-        
-        // Process character based on type
-        switch (ch) {
-            case CHAR_BACKSPACE:
-            case CHAR_DELETE:
-                process_backspace();
-                break;
-                
-            case CHAR_ENTER:
-            case CHAR_NEWLINE:
-                if (process_enter()) {
-                    // Command ready - process using uart_process_input to avoid duplication
-                    uart_process_input('\n');
-                }
-                break;
-                
-            case CHAR_CTRL_C:
-                uart_write_string_immediate("^C\r\n");
-                input_buffer.pos = 0;
-                input_buffer.buffer[0] = '\0';
-                // Prompt removed
-                break;
-                
-            case CHAR_CTRL_D:
-                uart_write_string_immediate("^D\r\n");
-                break;
-                
-            default:
-                // Regular printable character
-                if (ch >= 32 && ch <= 126) {
-                    process_regular_char((char)ch);
-                }
-                break;
-        }
-    }
-}
-
 // Legacy main loop (kept for compatibility)
 void uart_task_legacy_loop(void)
 {
@@ -5820,7 +5541,7 @@ void uart_task_legacy_loop(void)
             bool processing_error = false;
             
             // Validate input character before processing
-            if (c >= 0 && c <= 127) { // Valid ASCII range
+            if (c <= 127) { // Valid ASCII range (c is unsigned, so >= 0 is always true)
                 // Process the input
                 uart_process_input(c);
             } else {
@@ -6025,78 +5746,6 @@ void uart_display_led_board(void)
 // CHUNKED OUTPUT FUNCTIONS - OPRAVA pro panic při board/led_board příkazech
 // ============================================================================
 
-/**
- * @brief Send board data line by line to prevent panic and WDT timeout
- * @param data Board data string to send
- */
-static void uart_send_board_data_chunked(const char* data)
-{
-    if (!data) return;
-    
-    ESP_LOGI(TAG, "📊 Sending board data line by line");
-    
-    const char* line_start = data;
-    const char* line_end;
-    
-    while ((line_end = strchr(line_start, '\n')) != NULL) {
-        // Calculate line length
-        size_t line_len = line_end - line_start + 1;
-        
-        // Send line using existing safe function
-        uart_send_formatted("%.*s", line_len, line_start);
-        
-        // Move to next line
-        line_start = line_end + 1;
-        
-        // Reset watchdog and allow scheduler
-        SAFE_WDT_RESET();
-        vTaskDelay(pdMS_TO_TICKS(5));  // Small delay between lines
-    }
-    
-    // Send remaining data if any
-    if (*line_start != '\0') {
-        uart_send_formatted("%s", line_start);
-    }
-    
-    ESP_LOGI(TAG, "✅ Board data sent successfully line by line");
-}
-
-/**
- * @brief Send LED data line by line to prevent panic and WDT timeout
- * @param data LED data string to send
- */
-static void uart_send_led_data_chunked(const char* data)
-{
-    if (!data) return;
-    
-    ESP_LOGI(TAG, "💡 Sending LED data line by line");
-    
-    const char* line_start = data;
-    const char* line_end;
-    
-    while ((line_end = strchr(line_start, '\n')) != NULL) {
-        // Calculate line length
-        size_t line_len = line_end - line_start + 1;
-        
-        // Send line using existing safe function
-        uart_send_formatted("%.*s", line_len, line_start);
-        
-        // Move to next line
-        line_start = line_end + 1;
-        
-        // Reset watchdog and allow scheduler
-        SAFE_WDT_RESET();
-        vTaskDelay(pdMS_TO_TICKS(5));  // Small delay between lines
-    }
-    
-    // Send remaining data if any
-    if (*line_start != '\0') {
-        uart_send_formatted("%s", line_start);
-    }
-    
-    ESP_LOGI(TAG, "✅ LED data sent successfully line by line");
-}
-
 // ============================================================================
 // UNIVERSAL CHUNKED UART FUNCTIONS - OPRAVA pro UART buffer overflow
 // ============================================================================
@@ -6135,23 +5784,6 @@ static void uart_write_chunked(const char* data, size_t len)
             vTaskDelay(pdMS_TO_TICKS(2));  // Small delay for UART buffer
         }
     }
-}
-
-/**
- * @brief Send large text in chunks to prevent UART buffer overflow
- * @param text Text to send
- */
-static void uart_send_large_text_chunked(const char* text)
-{
-    if (!text) return;
-    
-    size_t len = strlen(text);
-    ESP_LOGI(TAG, "📤 Sending large text in chunks: %zu bytes", len);
-    
-    // Send in chunks
-    uart_write_chunked(text, len);
-    
-    ESP_LOGI(TAG, "✅ Large text sent successfully in chunks");
 }
 
 // ============================================================================

@@ -128,11 +128,11 @@ extern "C" {
 // ============================================================================
 
 // Task stack sizes (in bytes) - MEMORY OPTIMIZED PHASE 1
-// Total stack usage: 57KB → 37KB = 20KB savings (UART task increased to prevent stack overflow)
+// Total stack usage: 57KB → 41KB = 16KB savings (UART task increased to 10KB for game_response_t on stack)
 #define LED_TASK_STACK_SIZE (8 * 1024)          // 8KB (CRITICAL: LED task needs more stack for critical sections + large arrays)
 #define MATRIX_TASK_STACK_SIZE (3 * 1024)       // 3KB (unchanged - already optimal)
 #define BUTTON_TASK_STACK_SIZE (3 * 1024)       // 3KB (unchanged - already optimal)
-#define UART_TASK_STACK_SIZE (6 * 1024)         // 6KB (UART task needs more stack for command processing and response handling)
+#define UART_TASK_STACK_SIZE (10 * 1024)        // ✅ OPRAVA: 10KB (game_response_t je 3.8KB + overhead!)
 #define GAME_TASK_STACK_SIZE (10 * 1024)        // ✅ OPRAVA: 10KB pro bezpečný error handling (zvětšeno z 6KB)
 #define ANIMATION_TASK_STACK_SIZE (2 * 1024)    // 2KB (reduced from 3KB - simple animations)
 #define SCREEN_SAVER_TASK_STACK_SIZE (2 * 1024) // 2KB (reduced from 3KB - simple patterns)

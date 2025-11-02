@@ -168,14 +168,6 @@ bool game_is_valid_position(int row, int col);
 piece_t game_get_piece(int row, int col);
 
 /**
- * @brief Set piece at specified position
- * @param row Row index (0-7)
- * @param col Column index (0-7)
- * @param piece Piece to set
- */
-void game_set_piece(int row, int col, piece_t piece);
-
-/**
  * @brief Check if position is empty
  * @param row Row index (0-7)
  * @param col Column index (0-7)
@@ -205,26 +197,9 @@ bool game_is_black_piece(piece_t piece);
  */
 bool game_is_same_color(piece_t piece1, piece_t piece2);
 
-/**
- * @brief Check if piece belongs to opponent
- * @param piece Piece to check
- * @param player Current player
- * @return true if piece belongs to opponent
- */
-bool game_is_opponent_piece(piece_t piece, player_t player);
-
-
 // ============================================================================
 // MOVE VALIDATION FUNCTIONS
 // ============================================================================
-
-
-/**
- * @brief Check if move is valid
- * @param move Move to validate
- * @return true if move is valid
- */
-bool game_is_valid_move_bool(const chess_move_t* move);
 
 /**
  * @brief Validate move based on piece type
@@ -232,51 +207,7 @@ bool game_is_valid_move_bool(const chess_move_t* move);
  * @param piece Piece being moved
  * @return true if move is valid for piece type
  */
-bool game_validate_piece_move(const chess_move_t* move, piece_t piece);
-
-/**
- * @brief Validate pawn move
- * @param move Move to validate
- * @param piece Pawn piece
- * @return true if pawn move is valid
- */
-bool game_validate_pawn_move(const chess_move_t* move, piece_t piece);
-
-/**
- * @brief Validate knight move
- * @param move Move to validate
- * @return true if knight move is valid
- */
-bool game_validate_knight_move(const chess_move_t* move);
-
-/**
- * @brief Validate bishop move
- * @param move Move to validate
- * @return true if bishop move is valid
- */
-bool game_validate_bishop_move(const chess_move_t* move);
-
-/**
- * @brief Validate rook move
- * @param move Move to validate
- * @return true if rook move is valid
- */
-bool game_validate_rook_move(const chess_move_t* move);
-
-/**
- * @brief Validate queen move
- * @param move Move to validate
- * @return true if queen move is valid
- */
-bool game_validate_queen_move(const chess_move_t* move);
-
-/**
- * @brief Validate king move
- * @param move Move to validate
- * @return true if king move is valid
- */
-bool game_validate_king_move(const chess_move_t* move);
-
+// ✅ CLEANED: Removed old validate_*_move() functions (duplicates of _enhanced versions)
 // Enhanced move validation functions
 move_error_t game_is_valid_move(const chess_move_t* move);
 move_error_t game_validate_piece_move_enhanced(const chess_move_t* move, piece_t piece);
@@ -294,7 +225,6 @@ move_error_t game_validate_castling(const chess_move_t* move);
 bool game_is_insufficient_material(void);
 
 // Move error display and suggestions
-void game_display_move_error(move_error_t error, const chess_move_t* move);
 void game_show_move_suggestions(uint8_t row, uint8_t col);
 uint32_t game_get_available_moves(uint8_t row, uint8_t col, move_suggestion_t* suggestions, uint32_t max_suggestions);
 
@@ -341,11 +271,6 @@ uint32_t game_get_move_count(void);
 void game_print_board(void);
 
 /**
- * @brief Print move history
- */
-void game_print_move_history(void);
-
-/**
  * @brief Get piece name as string
  * @param piece Piece to get name for
  * @return Piece name string
@@ -363,25 +288,7 @@ const char* game_get_piece_name(piece_t piece);
  */
 void game_process_commands(void);
 
-/**
- * @brief Process move command from UART
- * @param move_cmd Move command structure with coordinates
- */
-void game_process_move_command(const void* move_cmd_ptr);
 void game_handle_invalid_move(move_error_t error, const chess_move_t* move);
-
-/**
- * @brief Show move animation with ASCII art
- * @param from_row Source row
- * @param from_col Source column  
- * @param to_row Destination row
- * @param to_col Destination column
- * @param piece Piece being moved
- * @param captured Piece captured (if any)
- */
-void game_show_move_animation(uint8_t from_row, uint8_t from_col, 
-                             uint8_t to_row, uint8_t to_col, 
-                             piece_t piece, piece_t captured);
 
 /**
  * @brief Show player change animation
@@ -398,17 +305,17 @@ void game_test_promote_animation(void);
 void game_test_endgame_animation(void);
 void game_test_puzzle_animation(void);
 
-// Direct LED functions (no queue)
+// Direct LED functions (no queue) - USED IN game_led_direct.c
 void game_show_move_direct(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col);
 void game_show_check_direct(uint8_t king_row, uint8_t king_col);
 void game_show_player_change_direct(player_t current_player);
 void game_clear_highlights_direct(void);
 
-// Jemné animační funkce (subtle animations)
+// Jemné animační funkce (subtle animations) - USED IN game_led_direct.c
 void game_show_piece_lift_direct(uint8_t row, uint8_t col);
 void game_show_valid_moves_direct(uint8_t *valid_positions, uint8_t count);
 
-// Error handling LED functions
+// Error handling LED functions - USED IN game_led_direct.c
 void game_show_invalid_move_error(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col);
 void game_show_button_error(uint8_t button_id);
 void game_show_castling_guidance(uint8_t king_row, uint8_t king_col, uint8_t rook_row, uint8_t rook_col, bool is_kingside);
@@ -448,10 +355,7 @@ bool game_has_legal_moves(player_t player);
 game_state_t game_check_end_game_conditions(void);
 
 // Game control functions
-void game_toggle_timer(bool enabled);
-void game_save_game(const char* game_name);
-void game_load_game(const char* game_name);
-void game_export_pgn(char* pgn_buffer, size_t buffer_size);
+// ✅ CLEANED: Removed unused game control functions (toggle_timer, save/load_game, export_pgn)
 
 
 // ============================================================================
@@ -478,12 +382,6 @@ bool game_detect_new_game_setup(void);
 // ============================================================================
 // CASTLING ANIMATION SYSTEM
 // ============================================================================
-
-/**
- * @brief Start castle animation - highlight rook that needs to be moved
- * @param move Castle move (king has already moved)
- */
-void game_start_castle_animation(const chess_move_extended_t* move);
 
 /**
  * @brief Check if castle animation is active
@@ -534,13 +432,6 @@ void rook_animation_timer_callback(TimerHandle_t xTimer);
 // ============================================================================
 
 /**
- * @brief Enhanced smart error handling for invalid moves
- * @param move Invalid move that was attempted
- * @param error Type of error that occurred
- */
-void game_handle_invalid_move_smart(const chess_move_t* move, move_error_t error);
-
-/**
  * @brief Highlight invalid target area with red LEDs
  * @param row Row of invalid target
  * @param col Column of invalid target
@@ -554,39 +445,14 @@ void game_highlight_invalid_target_area(uint8_t row, uint8_t col);
  */
 void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col);
 
-/**
- * @brief Enhanced drop command processing with smart error handling
- * @param cmd Drop command
- */
-void game_process_drop_command_enhanced(const chess_move_command_t* cmd);
-
-/**
- * @brief Final integrated drop command with all fixes
- * @param cmd Drop command
- */
-void game_process_drop_command_final(const chess_move_command_t* cmd);
-
 // ============================================================================
 // ENHANCED CASTLING SYSTEM FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Detect and handle castling in DROP command
- * @param move Move that was attempted
- */
-void game_detect_and_handle_castling(const chess_move_t* move);
-
-/**
  * @brief Show LED guidance for castling rook move
  */
 void game_show_castling_rook_guidance();
-
-/**
- * @brief Check if castling is completed in DROP command
- * @param move Move that was attempted
- * @return true if castling was completed
- */
-bool game_check_castling_completion(const chess_move_t* move);
 
 
 /**
@@ -612,13 +478,6 @@ void game_show_invalid_move_error_with_blink(uint8_t error_row, uint8_t error_co
  * @return ESP_OK on success, error code on failure
  */
 esp_err_t game_get_timer_json(char* buffer, size_t size);
-
-/**
- * @brief Set time control for the game
- * @param config Time control configuration
- * @return ESP_OK on success, error code on failure
- */
-esp_err_t game_set_time_control(const time_control_config_t* config);
 
 /**
  * @brief Start timer for current player's move
@@ -652,24 +511,11 @@ esp_err_t game_resume_timer(void);
 esp_err_t game_reset_timer(void);
 
 /**
- * @brief Check if time has expired
- * @return true if time has expired, false otherwise
- */
-bool game_check_timer_timeout(void);
-
-/**
  * @brief Get remaining time for player
  * @param is_white_turn Is it white player's turn
  * @return Remaining time in milliseconds
  */
 uint32_t game_get_remaining_time(bool is_white_turn);
-
-/**
- * @brief Get current timer state
- * @param timer_data Pointer to timer state structure
- * @return ESP_OK on success, error code on failure
- */
-esp_err_t game_get_timer_state(chess_timer_t* timer_data);
 
 /**
  * @brief Initialize timer system in game task
@@ -697,40 +543,10 @@ esp_err_t game_handle_time_expiration(void);
 esp_err_t game_update_timer_display(void);
 
 /**
- * @brief Get available time controls
- * @param controls Array to store time control configurations
- * @param max_count Maximum number of controls to return
- * @return Number of controls returned
- */
-uint32_t game_get_available_time_controls(time_control_config_t* controls, uint32_t max_count);
-
-/**
- * @brief Set custom time control
- * @param minutes Number of minutes
- * @param increment_seconds Increment in seconds
- * @return ESP_OK on success, error code on failure
- */
-esp_err_t game_set_custom_time_control(uint32_t minutes, uint32_t increment_seconds);
-
-/**
- * @brief Get timer statistics
- * @param total_moves Pointer to store total moves count
- * @param avg_move_time Pointer to store average move time
- * @return ESP_OK on success, error code on failure
- */
-esp_err_t game_get_timer_stats(uint32_t* total_moves, uint32_t* avg_move_time);
-
-/**
  * @brief Check if timer is active
  * @return true if timer is active, false otherwise
  */
 bool game_is_timer_active(void);
-
-/**
- * @brief Get current time control type
- * @return Current time control type
- */
-time_control_type_t game_get_current_time_control_type(void);
 
 
 #endif // GAME_TASK_H

@@ -1188,6 +1188,7 @@ void game_start_new_game(void)
     // ✅ OPRAVA: Zastavit všechny animace před novou hrou
     unified_animation_stop_all();
     led_stop_endgame_animation(); // Legacy endgame animations
+    stop_endgame_animation(); // ✅ FIX: Stop NEW endgame animations system
     ESP_LOGI(TAG, "✅ All animations stopped for new game");
     
     // ✅ OPRAVA: Zvýraznit pohyblivé figurky na začátku hry
@@ -3067,6 +3068,14 @@ void game_process_drop_command(const chess_move_command_t* cmd)
                 game_end_timer_move();
                 game_start_timer_move(current_player == PLAYER_WHITE);
                 
+                // ✅ KRITICKÁ OPRAVA: Kontrola checkmate/stalemate po correction tahu!
+                game_state_t end_game_result = game_check_end_game_conditions();
+                if (end_game_result == GAME_STATE_FINISHED) {
+                    current_game_state = GAME_STATE_FINISHED;
+                    game_active = false;
+                    ESP_LOGI(TAG, "🎉 Game finished detected in correction move!");
+                }
+                
                 // Vyčistit LED a ukázat nový stav
                 led_clear_board_only();
                 game_highlight_movable_pieces();
@@ -3142,6 +3151,12 @@ void game_process_drop_command(const chess_move_command_t* cmd)
                           abs((int)to_col - (int)lifted_piece_col) == 2;
         
         if (game_execute_move(&move)) {
+            // ✅ KRITICKÁ OPRAVA: Reset error state při jakémkoliv validním tahu!
+            if (error_recovery_state.waiting_for_move_correction) {
+                ESP_LOGI(TAG, "✅ Valid move - clearing error recovery state");
+                game_reset_error_recovery_state();
+            }
+            
             if (!is_castling) {
                 // Normal move - change player and switch timer
                 player_t previous_player = current_player;
@@ -3153,6 +3168,14 @@ void game_process_drop_command(const chess_move_command_t* cmd)
                          current_player == PLAYER_WHITE ? "White" : "Black");
                 game_end_timer_move();
                 game_start_timer_move(current_player == PLAYER_WHITE);
+                
+                // ✅ KRITICKÁ OPRAVA: Kontrola checkmate/stalemate po každém tahu!
+                game_state_t end_game_result = game_check_end_game_conditions();
+                if (end_game_result == GAME_STATE_FINISHED) {
+                    current_game_state = GAME_STATE_FINISHED;
+                    game_active = false;
+                    ESP_LOGI(TAG, "🎉 Game finished detected in DROP command!");
+                }
                 
                 // Show player change animation
                 led_clear_board_only();
@@ -3203,13 +3226,14 @@ void game_process_drop_command(const chess_move_command_t* cmd)
         error_recovery_state.invalid_row = to_row;    // h4 
         error_recovery_state.invalid_col = to_col;    // 7
         
-        // ✅ AKTUALIZOVAT board stav - figurka je nyní na neplatném poli
-        board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;  // a7 prázdné
-        board[to_row][to_col] = lifted_piece;  // h4 má černého pěšce
+        // ✅ AKTUALIZOVAT board stav - figurka je nyní na neplatném poli (fyzická realita)
+        // Board musí odpovídat fyzickému stavu, aby PICKUP fungoval správně!
+        board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;  // původní pole prázdné
+        board[to_row][to_col] = lifted_piece;  // neplatné pole má figurku
         
         // ✅ AKTUALIZOVAT lifted_piece tracking na novou neplatnou pozici
-        lifted_piece_row = to_row;    // h4
-        lifted_piece_col = to_col;    // 7
+        lifted_piece_row = to_row;
+        lifted_piece_col = to_col;
         // piece_lifted = true; // Zůstává true!
         
         // ✅ LED INDIKACE - červené blikání na neplatném poli
@@ -3352,13 +3376,10 @@ static void game_generate_advantage_graph(char* buffer, size_t buffer_size, uint
     
     // Generate graph data points based on move history and material balance
     int graph_data[GRAPH_WIDTH];
-    int time_points[GRAPH_WIDTH];
     
     // Simulate advantage curve based on real game data
     for (int i = 0; i < GRAPH_WIDTH; i++) {
         float progress = (float)i / (GRAPH_WIDTH - 1);
-        float time_minutes = progress * (game_duration / 60.0f);
-        time_points[i] = (int)(time_minutes * 10) / 10; // Round to 1 decimal
         
         // Calculate advantage based on material balance and move progression
         int white_material, black_material;
@@ -3570,6 +3591,9 @@ static void resignation_main_timer_callback(TimerHandle_t xTimer) {
     // pouze nastavíme flag - report se vypíše v game task s dostatečným stackem
     game_update_endgame_statistics(current_result_type);
     endgame_report_requested = true;  // ✅ Požadavek na report
+    
+    // ✅ Zastavit timer (hra skončila)
+    timer_pause();
     
     // Spustit victory animaci pro vítěze
     uint8_t king_led = chess_pos_to_led_index(resignation_state.king_row, resignation_state.king_col);
@@ -3790,7 +3814,6 @@ void game_process_component_on_command(const chess_move_command_t* cmd);
  * @param game_duration Game duration in seconds
  * @param total_moves Total number of moves
  */
-static void game_generate_advantage_graph(char* buffer, size_t buffer_size, uint32_t game_duration, uint32_t total_moves);
 
 /**
  * @brief Process endgame white command from UART
@@ -6537,6 +6560,10 @@ game_state_t game_check_end_game_conditions(void)
         
         game_update_endgame_statistics(current_result_type);
         endgame_report_requested = true;  // ✅ Požadavek na report
+        
+        // ✅ Zastavit timer (hra skončila)
+        timer_pause();
+        
         return GAME_STATE_FINISHED;
     } else if (!in_check && !has_moves) {
         // Stalemate
@@ -6545,6 +6572,10 @@ game_state_t game_check_end_game_conditions(void)
         current_endgame_reason = ENDGAME_REASON_STALEMATE;  // ✅ Označit jako stalemate
         game_update_endgame_statistics(current_result_type);
         endgame_report_requested = true;  // ✅ Požadavek na report
+        
+        // ✅ Zastavit timer (hra skončila)
+        timer_pause();
+        
         ESP_LOGI(TAG, "🤝 STALEMATE! Game drawn in %" PRIu32 " moves", move_count);
         return GAME_STATE_FINISHED;
     }
@@ -6556,6 +6587,10 @@ game_state_t game_check_end_game_conditions(void)
         current_endgame_reason = ENDGAME_REASON_50_MOVE;  // ✅ Označit jako 50-move rule
         game_update_endgame_statistics(current_result_type);
         endgame_report_requested = true;  // ✅ Požadavek na report
+        
+        // ✅ Zastavit timer (hra skončila)
+        timer_pause();
+        
         ESP_LOGI(TAG, "🤝 DRAW! 50 moves without capture (50-move rule)");
         return GAME_STATE_FINISHED;
     }
@@ -6566,6 +6601,10 @@ game_state_t game_check_end_game_conditions(void)
         current_endgame_reason = ENDGAME_REASON_REPETITION;  // ✅ Označit jako threefold repetition
         game_update_endgame_statistics(current_result_type);
         endgame_report_requested = true;  // ✅ Požadavek na report
+        
+        // ✅ Zastavit timer (hra skončila)
+        timer_pause();
+        
         ESP_LOGI(TAG, "🤝 DRAW! Position repeated (draw by repetition)");
         return GAME_STATE_FINISHED;
     }
@@ -6577,6 +6616,10 @@ game_state_t game_check_end_game_conditions(void)
         current_endgame_reason = ENDGAME_REASON_INSUFFICIENT;  // ✅ Označit jako insufficient material
         game_update_endgame_statistics(current_result_type);
         endgame_report_requested = true;  // ✅ Požadavek na report
+        
+        // ✅ Zastavit timer (hra skončila)
+        timer_pause();
+        
         ESP_LOGI(TAG, "🤝 DRAW! Insufficient material to checkmate");
         return GAME_STATE_FINISHED;
     }
@@ -6991,27 +7034,6 @@ bool game_is_square_attacked(uint8_t row, uint8_t col, player_t by_player) {
     
     return false;
 }
-
-/**
- * @brief Find king position
- */
-bool game_find_king(player_t player, uint8_t* king_row, uint8_t* king_col) {
-    piece_t king_piece = (player == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
-    
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            if (board[row][col] == king_piece) {
-                *king_row = row;
-                *king_col = col;
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-// This function is already defined earlier in the file
-// Removing duplicate definition to avoid conflicts
 
 // ============================================================================
 // MOVE VALIDATION AND SIMULATION
@@ -7648,172 +7670,6 @@ move_error_t game_validate_move_enhanced(uint8_t from_row, uint8_t from_col,
     return MOVE_ERROR_ILLEGAL_MOVE;
 }
 
-/**
- * @brief Enhanced game initialization
- */
-void game_initialize_board_enhanced(void) {
-    ESP_LOGI(TAG, "Initializing enhanced chess board...");
-    
-    // Clear board
-    memset(board, 0, sizeof(board));
-    
-    // Set up white pieces (row 0 = rank 1)
-    board[0][0] = PIECE_WHITE_ROOK;   // a1
-    board[0][1] = PIECE_WHITE_KNIGHT; // b1
-    board[0][2] = PIECE_WHITE_BISHOP; // c1
-    board[0][3] = PIECE_WHITE_QUEEN;  // d1
-    board[0][4] = PIECE_WHITE_KING;   // e1
-    board[0][5] = PIECE_WHITE_BISHOP; // f1
-    board[0][6] = PIECE_WHITE_KNIGHT; // g1
-    board[0][7] = PIECE_WHITE_ROOK;   // h1
-    
-    // Set up white pawns (row 1 = rank 2)
-    for (int col = 0; col < 8; col++) {
-        board[1][col] = PIECE_WHITE_PAWN;
-    }
-    
-    // Set up black pawns (row 6 = rank 7)
-    for (int col = 0; col < 8; col++) {
-        board[6][col] = PIECE_BLACK_PAWN;
-    }
-    
-    // Set up black pieces (row 7 = rank 8)
-    board[7][0] = PIECE_BLACK_ROOK;   // a8
-    board[7][1] = PIECE_BLACK_KNIGHT; // b8
-    board[7][2] = PIECE_BLACK_BISHOP; // c8
-    board[7][3] = PIECE_BLACK_QUEEN;  // d8
-    board[7][4] = PIECE_BLACK_KING;   // e8
-    board[7][5] = PIECE_BLACK_BISHOP; // f8
-    board[7][6] = PIECE_BLACK_KNIGHT; // g8
-    board[7][7] = PIECE_BLACK_ROOK;   // h8
-    
-    // Reset game state
-    current_player = PLAYER_WHITE;
-    current_game_state = GAME_STATE_ACTIVE;
-    move_count = 0;
-    
-    // Reset castling flags
-    white_king_moved = false;
-    white_rook_a_moved = false;
-    white_rook_h_moved = false;
-    black_king_moved = false;
-    black_rook_a_moved = false;
-    black_rook_h_moved = false;
-    
-    // Reset en passant
-    en_passant_available = false;
-    
-    // Reset other counters
-    fifty_move_counter = 0;
-    position_history_count = 0;
-    
-    ESP_LOGI(TAG, "Enhanced chess board initialized successfully");
-    game_print_board_enhanced();
-}
-
-/**
- * @brief Generate castling moves for king
- */
-void game_generate_castling_moves(uint8_t from_row, uint8_t from_col, player_t player) {
-    piece_t king = board[from_row][from_col];
-    
-    // Can't castle when in check
-    if (game_is_king_in_check(player)) return;
-    
-    if (player == PLAYER_WHITE && !white_king_moved) {
-        // Kingside castling (O-O)
-        if (!white_rook_h_moved && 
-            board[0][5] == PIECE_EMPTY && board[0][6] == PIECE_EMPTY &&
-            !game_is_square_attacked(0, 5, PLAYER_BLACK) &&
-            !game_is_square_attacked(0, 6, PLAYER_BLACK)) {
-            
-            if (legal_moves_count >= 128) return;
-            
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
-            move->from_row = from_row;
-            move->from_col = from_col;
-            move->to_row = 0;
-            move->to_col = 6;
-            move->piece = king;
-            move->captured_piece = PIECE_EMPTY;
-            move->move_type = MOVE_TYPE_CASTLE_KING;
-            
-            if (game_simulate_move_check(move, player)) {
-                legal_moves_count++;
-            }
-        }
-        
-        // Queenside castling (O-O-O)
-        if (!white_rook_a_moved && 
-            board[0][1] == PIECE_EMPTY && board[0][2] == PIECE_EMPTY && board[0][3] == PIECE_EMPTY &&
-            !game_is_square_attacked(0, 2, PLAYER_BLACK) &&
-            !game_is_square_attacked(0, 3, PLAYER_BLACK)) {
-            
-            if (legal_moves_count >= 128) return;
-            
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
-            move->from_row = from_row;
-            move->from_col = from_col;
-            move->to_row = 0;
-            move->to_col = 2;
-            move->piece = king;
-            move->captured_piece = PIECE_EMPTY;
-            move->move_type = MOVE_TYPE_CASTLE_QUEEN;
-            
-            if (game_simulate_move_check(move, player)) {
-                legal_moves_count++;
-            }
-        }
-    }
-    
-    if (player == PLAYER_BLACK && !black_king_moved) {
-        // Kingside castling (O-O)
-        if (!black_rook_h_moved && 
-            board[7][5] == PIECE_EMPTY && board[7][6] == PIECE_EMPTY &&
-            !game_is_square_attacked(7, 5, PLAYER_WHITE) &&
-            !game_is_square_attacked(7, 6, PLAYER_WHITE)) {
-            
-            if (legal_moves_count >= 128) return;
-            
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
-            move->from_row = from_row;
-            move->from_col = from_col;
-            move->to_row = 7;
-            move->to_col = 6;
-            move->piece = king;
-            move->captured_piece = PIECE_EMPTY;
-            move->move_type = MOVE_TYPE_CASTLE_KING;
-            
-            if (game_simulate_move_check(move, player)) {
-                legal_moves_count++;
-            }
-        }
-        
-        // Queenside castling (O-O-O)
-        if (!black_rook_a_moved && 
-            board[7][1] == PIECE_EMPTY && board[7][2] == PIECE_EMPTY && board[7][3] == PIECE_EMPTY &&
-            !game_is_square_attacked(7, 2, PLAYER_WHITE) &&
-            !game_is_square_attacked(7, 3, PLAYER_WHITE)) {
-            
-            if (legal_moves_count >= 128) return;
-            
-            chess_move_extended_t* move = &legal_moves_buffer[legal_moves_count];
-            move->from_row = from_row;
-            move->from_col = from_col;
-            move->to_row = 7;
-            move->to_col = 2;
-            move->piece = king;
-            move->captured_piece = PIECE_EMPTY;
-            move->move_type = MOVE_TYPE_CASTLE_QUEEN;
-            
-            if (game_simulate_move_check(move, player)) {
-                legal_moves_count++;
-            }
-        }
-    }
-}
-
-
 
 
 
@@ -8097,6 +7953,14 @@ void game_handle_matrix_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
     // Execute move if valid
     if (game_execute_move(&move)) {
         ESP_LOGI(TAG, "✅ Matrix move executed successfully");
+        
+        // ✅ KRITICKÁ OPRAVA: Kontrola checkmate/stalemate po každém tahu!
+        game_state_t end_game_result = game_check_end_game_conditions();
+        if (end_game_result == GAME_STATE_FINISHED) {
+            current_game_state = GAME_STATE_FINISHED;
+            game_active = false;
+            ESP_LOGI(TAG, "🎉 Game finished detected in matrix move!");
+        }
         
         if (is_castling) {
             // ✅ OPRAVA: Pro rosadu nespouštět game_highlight_opponent_pieces
@@ -9233,6 +9097,24 @@ esp_err_t game_get_status_json(char* buffer, size_t size)
     } else {
         offset += snprintf(buffer + offset, size - offset,
                           ",\"game_end\":{\"ended\":false,\"reason\":\"\",\"winner\":\"\",\"loser\":\"\"}");
+    }
+    
+    // ✅ Error recovery state pro vizuální indikaci na webu
+    if (error_recovery_state.waiting_for_move_correction) {
+        char invalid_notation[4] = {0};
+        char original_notation[4] = {0};
+        convert_coords_to_notation(error_recovery_state.invalid_row, error_recovery_state.invalid_col, invalid_notation);
+        convert_coords_to_notation(error_recovery_state.original_valid_row, error_recovery_state.original_valid_col, original_notation);
+        
+        offset += snprintf(buffer + offset, size - offset,
+                          ",\"error_state\":{\"active\":true,"
+                          "\"invalid_pos\":\"%s\","
+                          "\"original_pos\":\"%s\","
+                          "\"error_count\":%d}",
+                          invalid_notation, original_notation, error_recovery_state.error_count);
+    } else {
+        offset += snprintf(buffer + offset, size - offset,
+                          ",\"error_state\":{\"active\":false}");
     }
     
     offset += snprintf(buffer + offset, size - offset, "}");
