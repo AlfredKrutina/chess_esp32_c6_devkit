@@ -267,6 +267,16 @@ esp_err_t stream_writeln(const char* data)
 // BACKEND-SPECIFIC WRITE FUNCTIONS
 // ============================================================================
 
+/**
+ * @brief Zapis dat do UART/USB Serial JTAG
+ * 
+ * Interni funkce pro zapis dat primo do stdout (USB Serial JTAG nebo UART).
+ * Pouziva fwrite() pro primos zapis bez buffering.
+ * 
+ * @param data Ukazatel na data k zapsani
+ * @param len Delka dat v bytech
+ * @return ESP_OK pokud se zapsalo vse, ESP_FAIL pri chybe
+ */
 static esp_err_t stream_write_uart(const char* data, size_t len)
 {
     // Write directly to stdout for USB Serial JTAG or UART
@@ -282,6 +292,16 @@ static esp_err_t stream_write_uart(const char* data, size_t len)
     return (written == len) ? ESP_OK : ESP_FAIL;
 }
 
+/**
+ * @brief Zapis dat do web serveru
+ * 
+ * Interni funkce pro zapis dat do web server klienta.
+ * Zatim placeholder pro budouci implementaci - pouze loguje data.
+ * 
+ * @param data Ukazatel na data k zapsani
+ * @param len Delka dat v bytech
+ * @return ESP_OK vzdy (placeholder)
+ */
 static esp_err_t stream_write_web(const char* data, size_t len)
 {
     // Placeholder for future web server implementation
@@ -293,6 +313,18 @@ static esp_err_t stream_write_web(const char* data, size_t len)
     return ESP_OK;
 }
 
+/**
+ * @brief Zapis dat do FreeRTOS fronty
+ * 
+ * Interni funkce pro zapis dat do FreeRTOS fronty pro mezikomponentovou komunikaci.
+ * Data jsou rozdlena na bloky maximalne STREAM_QUEUE_CHUNK_SIZE a kazdy blok
+ * je odeslan do fronty s timeoutem 100ms.
+ * 
+ * @param data Ukazatel na data k zapsani
+ * @param len Delka dat v bytech
+ * @return ESP_OK pri uspechu, ESP_ERR_INVALID_STATE pokud fronta neni nastavena,
+ *         ESP_ERR_TIMEOUT pokud se nepodari odeslat vsechna data
+ */
 static esp_err_t stream_write_queue(const char* data, size_t len)
 {
     if (current_output.queue == NULL) {

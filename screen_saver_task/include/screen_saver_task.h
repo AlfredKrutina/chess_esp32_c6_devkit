@@ -1,15 +1,20 @@
 /**
  * @file screen_saver_task.h
- * @brief ESP32-C6 Chess System v2.4 - Screen Saver Task Header
+ * @brief ESP32-C6 Chess System v2.4 - Screen Saver Task Hlavicka
  * 
- * This header defines the interface for the screen saver task:
- * - Screen saver types and structures
- * - Screen saver task function prototypes
- * - Screen saver control and status functions
+ * Tato hlavicka definuje rozhrani pro screen saver task:
+ * - Typy a struktury screen saveru
+ * - Prototypy funkci screen saver tasku
+ * - Funkce pro ovladani a stav screen saveru
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
+ * 
+ * @details
+ * Screen Saver Task spravuje usporu energie pri neaktivite.
+ * Detekuje kdy uzivatel nehraje a aktivuje energeticky usporne
+ * LED vzory. Po detekci aktivity se screen saver automaticky vypne.
  */
 
 #ifndef SCREEN_SAVER_TASK_H
@@ -28,232 +33,244 @@
 
 
 // ============================================================================
-// CONSTANTS AND DEFINITIONS
+// KONSTANTY A DEFINICE
 // ============================================================================
 
 
-// LED count constants
-
-
-// Activity source types
+/**
+ * @brief Typy zdroju aktivity
+ */
 typedef enum {
-    ACTIVITY_MATRIX = 0,        // Matrix activity
-    ACTIVITY_BUTTON,            // Button activity
-    ACTIVITY_LED,               // LED activity
-    ACTIVITY_UART               // UART activity
+    ACTIVITY_MATRIX = 0,  ///< Aktivita matice (pohyb figurek)
+    ACTIVITY_BUTTON,      ///< Aktivita tlacitek
+    ACTIVITY_LED,         ///< Aktivita LED
+    ACTIVITY_UART         ///< Aktivita UART (prikazy)
 } activity_source_t;
 
-// Screen saver state types
+/**
+ * @brief Typy stavu screen saveru
+ */
 typedef enum {
-    SCREEN_SAVER_STATE_ACTIVE = 0,    // Screen saver is active
-    SCREEN_SAVER_STATE_INACTIVE,      // Screen saver is inactive
-    SCREEN_SAVER_STATE_TRANSITIONING  // Transitioning between states
+    SCREEN_SAVER_STATE_ACTIVE = 0,      ///< Screen saver je aktivni
+    SCREEN_SAVER_STATE_INACTIVE,        ///< Screen saver je neaktivni
+    SCREEN_SAVER_STATE_TRANSITIONING    ///< Prechod mezi stavy
 } screen_saver_state_t;
 
-// Screen saver pattern types
+/**
+ * @brief Typy vzoru screen saveru
+ */
 typedef enum {
-    PATTERN_FIREWORKS = 0,      // Fireworks effect
-    PATTERN_STARS,              // Twinkling stars
-    PATTERN_OCEAN,              // Ocean waves
-    PATTERN_FOREST,             // Forest animation
-    PATTERN_CITY,               // City lights
-    PATTERN_SPACE,              // Space theme
-    PATTERN_GEOMETRIC,          // Geometric patterns
-    PATTERN_MINIMAL             // Minimal energy pattern
+    PATTERN_FIREWORKS = 0,  ///< Efekt ohnostroje
+    PATTERN_STARS,          ///< Blikajici hvezdy
+    PATTERN_OCEAN,          ///< Oceanove vlny
+    PATTERN_FOREST,         ///< Lesni animace
+    PATTERN_CITY,           ///< Mestska svetla
+    PATTERN_SPACE,          ///< Vesmirne tema
+    PATTERN_GEOMETRIC,      ///< Geometricke vzory
+    PATTERN_MINIMAL         ///< Minimalni energeticky vzor
 } screen_saver_pattern_t;
 
-// Screen saver structure
+/**
+ * @brief Struktura screen saveru
+ */
 typedef struct {
-    screen_saver_state_t state;
-    screen_saver_pattern_t current_pattern;
-    uint32_t last_activity_time;
-    uint32_t timeout_ms;
-    uint32_t pattern_start_time;
-    uint32_t frame_count;
-    bool enabled;
-    uint8_t brightness;
-    uint8_t pattern_speed;
+    screen_saver_state_t state;        ///< Aktualni stav
+    screen_saver_pattern_t current_pattern; ///< Aktualni vzor
+    uint32_t last_activity_time;       ///< Cas posledni aktivity
+    uint32_t timeout_ms;               ///< Timeout v ms
+    uint32_t pattern_start_time;       ///< Cas startu vzoru
+    uint32_t frame_count;              ///< Pocet snimku
+    bool enabled;                      ///< Je screen saver povolen?
+    uint8_t brightness;                ///< Jas (0-100%)
+    uint8_t pattern_speed;             ///< Rychlost vzoru
 } screen_saver_t;
 
 // ============================================================================
-// TASK FUNCTION PROTOTYPES
+// PROTOTYPY TASK FUNKCI
 // ============================================================================
 
-
 /**
- * @brief Start the screen saver task
- * @param pvParameters Task parameters (unused)
+ * @brief Spusti screen saver task
+ * 
+ * @param pvParameters Parametry tasku (nepouzivane)
  */
 void screen_saver_task_start(void *pvParameters);
 
-
 // ============================================================================
-// SCREEN SAVER INITIALIZATION FUNCTIONS
+// INICIALIZACNI FUNKCE
 // ============================================================================
-
 
 /**
- * @brief Initialize the screen saver system
+ * @brief Inicializuj screen saver system
  */
 void screen_saver_initialize(void);
 
 /**
- * @brief Set screen saver timeout
- * @param timeout_ms Timeout in milliseconds
+ * @brief Nastav timeout screen saveru
+ * 
+ * @param timeout_ms Timeout v milisekundach (5000-300000)
  */
 void screen_saver_set_timeout(uint32_t timeout_ms);
 
 /**
- * @brief Set screen saver brightness
- * @param brightness Brightness percentage (0-100)
+ * @brief Nastav jas screen saveru
+ * 
+ * @param brightness Jas v procentech (0-100)
  */
 void screen_saver_set_brightness(uint8_t brightness);
 
 /**
- * @brief Set screen saver pattern
- * @param pattern Pattern type to use
+ * @brief Nastav vzor screen saveru
+ * 
+ * @param pattern Typ vzoru
  */
 void screen_saver_set_pattern(screen_saver_pattern_t pattern);
 
-
 // ============================================================================
-// ACTIVITY DETECTION FUNCTIONS
+// FUNKCE PRO DETEKCI AKTIVITY
 // ============================================================================
-
 
 /**
- * @brief Update activity timestamp
- * @param source Source of activity
+ * @brief Aktualizuj casovou znamku aktivity
+ * 
+ * @param source Zdroj aktivity
  */
 void screen_saver_update_activity(activity_source_t source);
 
 /**
- * @brief Check if timeout has occurred
- * @return true if timeout occurred
+ * @brief Overi zda vyprsel timeout
+ * 
+ * @return true pokud vyprsel timeout a screen saver by mel byt aktivovan
  */
 bool screen_saver_check_timeout(void);
 
-
 // ============================================================================
-// SCREEN SAVER STATE MANAGEMENT
+// SPRAVA STAVU SCREEN SAVERU
 // ============================================================================
-
 
 /**
- * @brief Activate screen saver
+ * @brief Aktivuj screen saver
  */
 void screen_saver_activate(void);
 
 /**
- * @brief Deactivate screen saver
+ * @brief Deaktivuj screen saver
  */
 void screen_saver_deactivate(void);
 
 /**
- * @brief Fade out display for screen saver
+ * @brief Fade out displeje pro screen saver
  */
 void screen_saver_fade_out(void);
 
 /**
- * @brief Fade in display from screen saver
+ * @brief Fade in displeje ze screen saveru
  */
 void screen_saver_fade_in(void);
 
 /**
- * @brief Set global brightness
- * @param brightness Brightness percentage (0-100)
+ * @brief Nastav globalni jas
+ * 
+ * @param brightness Jas v procentech (0-100)
  */
 void screen_saver_set_global_brightness(uint8_t brightness);
 
-
 // ============================================================================
-// SCREEN SAVER PATTERN FUNCTIONS
+// FUNKCE PRO GENEROVANI VZORU
 // ============================================================================
-
 
 /**
- * @brief Generate screen saver pattern
+ * @brief Generuj screen saver vzor
  */
 void screen_saver_generate_pattern(void);
 
 /**
- * @brief Generate fireworks pattern
- * @param time Current time
+ * @brief Generuj ohnostroj vzor
+ * 
+ * @param time Aktualni cas
  */
 void screen_saver_generate_fireworks(uint32_t time);
 
 /**
- * @brief Generate stars pattern
- * @param time Current time
+ * @brief Generuj hvezdny vzor
+ * 
+ * @param time Aktualni cas
  */
 void screen_saver_generate_stars(uint32_t time);
 
 /**
- * @brief Generate ocean pattern
- * @param time Current time
+ * @brief Generuj oceanovy vzor
+ * 
+ * @param time Aktualni cas
  */
 void screen_saver_generate_ocean(uint32_t time);
 
 /**
- * @brief Generate forest pattern
- * @param time Current time
+ * @brief Generuj lesni vzor
+ * 
+ * @param time Aktualni cas
  */
 void screen_saver_generate_forest(uint32_t time);
 
 /**
- * @brief Generate city pattern
- * @param time Current time
+ * @brief Generuj mestsky vzor
+ * 
+ * @param time Aktualni cas
  */
 void screen_saver_generate_city(uint32_t time);
 
 /**
- * @brief Generate space pattern
- * @param time Current time
+ * @brief Generuj vesmirny vzor
+ * 
+ * @param time Aktualni cas
  */
 void screen_saver_generate_space(uint32_t time);
 
 /**
- * @brief Generate geometric pattern
- * @param time Current time
+ * @brief Generuj geometricky vzor
+ * 
+ * @param time Aktualni cas
  */
 void screen_saver_generate_geometric(uint32_t time);
 
 /**
- * @brief Generate minimal pattern
- * @param time Current time
+ * @brief Generuj minimalni vzor
+ * 
+ * @param time Aktualni cas
  */
 void screen_saver_generate_minimal(uint32_t time);
 
 /**
- * @brief Apply brightness reduction to pattern
+ * @brief Aplikuj snizeni jasu na vzor
  */
 void screen_saver_apply_brightness(void);
 
 /**
- * @brief Send pattern to LEDs
+ * @brief Posli vzor do LED
  */
 void screen_saver_send_pattern_to_leds(void);
 
-
 // ============================================================================
-// COMMAND PROCESSING FUNCTIONS
+// FUNKCE PRO ZPRACOVANI PRIKAZU
 // ============================================================================
-
 
 /**
- * @brief Process screen saver commands from queue
+ * @brief Zpracuj screen saver prikazy z fronty
  */
 void screen_saver_process_commands(void);
 
 /**
- * @brief Print screen saver status
+ * @brief Vypis status screen saveru
  */
 void screen_saver_print_status(void);
 
 /**
- * @brief Test all screen saver patterns
+ * @brief Testuj vsechny screen saver vzory
  */
 void screen_saver_test_patterns(void);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // SCREEN_SAVER_TASK_H

@@ -33,6 +33,11 @@ static const char *TAG = "RESET_BUTTON_TASK";
 static bool reset_button_initialized = false;
 static uint32_t button_event_count = 0;
 
+/**
+ * @brief Inicializuj reset button task
+ * 
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
 esp_err_t reset_button_task_init(void)
 {
     if (reset_button_initialized) {
@@ -62,6 +67,11 @@ esp_err_t reset_button_task_init(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Hlavni funkce reset button tasku
+ * 
+ * @param pvParameters Parametry tasku (nepouzivane)
+ */
 void reset_button_task(void *pvParameters)
 {
     ESP_LOGI(TAG, "Reset button task started (SIMULATION MODE)");
@@ -80,6 +90,12 @@ void reset_button_task(void *pvParameters)
     }
 }
 
+/**
+ * @brief Zpracuj pozadavek na reset hry
+ * 
+ * @param reset_request True pokud ma byt hra resetovana
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
 esp_err_t process_reset_request(bool reset_request)
 {
     if (!reset_button_initialized) {
@@ -97,6 +113,12 @@ esp_err_t process_reset_request(bool reset_request)
     return ESP_OK;
 }
 
+/**
+ * @brief Simuluj stisknuti reset tlacitka (pro testovani)
+ * 
+ * @param pressed True pokud je tlacitko stisknuto
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
 esp_err_t simulate_reset_button_press(bool pressed)
 {
     if (!reset_button_initialized) {
@@ -110,11 +132,21 @@ esp_err_t simulate_reset_button_press(bool pressed)
     return ESP_OK;
 }
 
+/**
+ * @brief Overi zda je reset button task inicializovan
+ * 
+ * @return True pokud je task inicializovan
+ */
 bool reset_button_is_initialized(void)
 {
     return reset_button_initialized;
 }
 
+/**
+ * @brief Ziskej pocet zpracovanych tlacitkovych udalosti
+ * 
+ * @return Pocet udalosti
+ */
 uint32_t reset_button_get_event_count(void)
 {
     return button_event_count;

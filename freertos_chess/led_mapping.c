@@ -18,10 +18,12 @@
 static const char *TAG = "LED_MAPPING";
 
 /**
- * @brief Převod šachovnicové pozice na LED index (serpentine layout)
- * Layout: a1,b1,c1,d1,e1,f1,g1,h1, h2,g2,f2,e2,d2,c2,b2,a2, a3,b3,c3...
+ * @brief Prevod sachovnicove pozice na LED index (serpentine layout)
  * 
- * @param row Řádek (0-7, kde 0=rank 1, 7=rank 8)  
+ * Layout: a1,b1,c1,d1,e1,f1,g1,h1, h2,g2,f2,e2,d2,c2,b2,a2, a3,b3,c3...
+ * Sachovnice je otocena po Y ose (a1 je na h1 pozici).
+ * 
+ * @param row Radek (0-7, kde 0=rank 1, 7=rank 8)  
  * @param col Sloupec (0-7, kde 0=a, 7=h)
  * @return LED index (0-63)
  */
@@ -32,21 +34,28 @@ uint8_t chess_pos_to_led_index(uint8_t row, uint8_t col)
         return 0;
     }
     
-    // Oprava: Šachovnice je otočená po Y ose (a1 je na h1 pozici)
-    // Takže col=0 (a) musí být mapováno na LED pozici 7 (h)
+    // Oprava: Sachovnice je otocena po Y ose (a1 je na h1 pozici)
+    // Takze col=0 (a) musi byt mapovano na LED pozici 7 (h)
     uint8_t mapped_col = 7 - col;
     
     if (row % 2 == 0) {
-        // Sudé řádky (0,2,4,6): normální pořadí a->h (ale s otočenými sloupci)
+        // Sude radky (0,2,4,6): normalni poradi a->h (ale s otocenymi sloupci)
         return row * 8 + mapped_col;
     } else {
-        // Liché řádky (1,3,5,7): obrácené pořadí h->a (ale s otočenými sloupci)
+        // Liche radky (1,3,5,7): obracene poradi h->a (ale s otocenymi sloupci)
         return row * 8 + (7 - mapped_col);
     }
 }
 
 /**
- * @brief Převod LED indexu na šachovnicovou pozici (serpentine layout)
+ * @brief Prevod LED indexu na sachovnicovou pozici (serpentine layout)
+ * 
+ * Obracenou operaci k chess_pos_to_led_index(). Ze LED indexu vypocita
+ * pozici radku a sloupce na sachovnici.
+ * 
+ * @param led_index LED index (0-63)
+ * @param[out] row Ukazatel na radek (0-7)
+ * @param[out] col Ukazatel na sloupec (0-7)
  */
 void led_index_to_chess_pos(uint8_t led_index, uint8_t* row, uint8_t* col)
 {
@@ -61,16 +70,22 @@ void led_index_to_chess_pos(uint8_t led_index, uint8_t* row, uint8_t* col)
     uint8_t pos_in_row = led_index % 8;
     
     if (*row % 2 == 0) {
-        // Sudé řádky: normální pořadí (ale s otočenými sloupci)
+        // Sude radky: normalni poradi (ale s otocenymi sloupci)
         *col = 7 - pos_in_row;
     } else {
-        // Liché řádky: obrácené pořadí (ale s otočenými sloupci)
+        // Liche radky: obracene poradi (ale s otocenymi sloupci)
         *col = pos_in_row;
     }
 }
 
 /**
- * @brief Převod šachové notace na LED index
+ * @brief Prevod sachove notace na LED index
+ * 
+ * Preklada sachovou notaci (napr. "e2", "a1") na LED index.
+ * Notace musi byt ve formatu [a-h][1-8].
+ * 
+ * @param notation Sachova notace (napr. "e2")
+ * @return LED index (0-63) nebo 0 pri chybe
  */
 uint8_t chess_notation_to_led_index(const char* notation)
 {
@@ -94,26 +109,29 @@ uint8_t chess_notation_to_led_index(const char* notation)
 }
 
 /**
- * @brief Test LED mapování
+ * @brief Test LED mapovani
+ * 
+ * Testuje funkcnost LED mapovani na znamych pozicich.
+ * Kontroluje prevody notace->LED a LED->pozice.
  */
 void test_led_mapping(void)
 {
     ESP_LOGI(TAG, "=== LED MAPPING TEST ===");
     
-    // Test známých pozic
+    // Test znamych pozic
     struct {
         const char* notation;
         uint8_t expected_row;
         uint8_t expected_col;
         uint8_t expected_led;
     } test_cases[] = {
-        {"a1", 0, 0, 0},   // První LED
-        {"h1", 0, 7, 7},   // Osmá LED
-        {"h2", 1, 7, 8},   // Devátá LED (začátek druhého řádku)
-        {"a2", 1, 0, 15},  // Šestnáctá LED (konec druhého řádku)
-        {"a3", 2, 0, 16},  // Sedmnáctá LED
-        {"h8", 7, 7, 56},  // První LED osmého řádku
-        {"a8", 7, 0, 63}   // Poslední LED
+        {"a1", 0, 0, 0},   // Prvni LED
+        {"h1", 0, 7, 7},   // Osma LED
+        {"h2", 1, 7, 8},   // Devata LED (zacatek druheho radku)
+        {"a2", 1, 0, 15},  // Sestnacta LED (konec druheho radku)
+        {"a3", 2, 0, 16},  // Sedmnacta LED
+        {"h8", 7, 7, 56},  // Prvni LED osmeho radku
+        {"a8", 7, 0, 63}   // Posledni LED
     };
     
     for (int i = 0; i < sizeof(test_cases)/sizeof(test_cases[0]); i++) {

@@ -384,12 +384,20 @@ void handle_led_pattern_command(char* argv[], int argc) {
         printf("Checker pattern displayed\r\n");
     }
     else if (strcmp(argv[1], "rainbow") == 0) {
-        // Rainbow pattern
+        // Rainbow pattern - HSV to RGB konverze pro duhovy efekt
+        // Pro kazdy LED pixel vypocitame jinou barvu na duhove skale
         for (int i = 0; i < 64; i++) {
+            // Rozdelime 360° duhy mezi 64 LED (0-360°)
             int hue = (i * 360) / 64;
+            
+            // HSV -> RGB konverze (zjednodusena verze)
+            // Cervena: 0-60° plna, 60-120° klesa, jinak 0
             int r = (hue < 60) ? 255 : (hue < 120) ? 255 - ((hue - 60) * 255) / 60 : 0;
+            // Zelena: 0-60° roste, 60-180° plna, 180-240° klesa, jinak 0
             int g = (hue < 60) ? (hue * 255) / 60 : (hue < 180) ? 255 : 255 - ((hue - 180) * 255) / 60;
+            // Modra: 0-120° vypnuta, 120-240° roste, 240-360° plna
             int b = (hue < 120) ? 0 : (hue < 240) ? ((hue - 120) * 255) / 120 : 255;
+            
             led_set_pixel_safe(i, r, g, b);
         }
         printf("Rainbow pattern displayed\r\n");

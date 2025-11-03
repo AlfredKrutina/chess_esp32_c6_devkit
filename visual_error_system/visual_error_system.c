@@ -541,13 +541,34 @@ esp_err_t error_get_led_positions_for_square(uint8_t row, uint8_t col, uint8_t* 
     return ESP_OK;
 }
 
-// Internal helper functions
+// ============================================================================
+// INTERNI POMOCNE FUNKCE
+// ============================================================================
+
+/**
+ * @brief Vymaze LED na zadanych pozicich
+ * 
+ * @param led_positions Pole LED pozic k vymazani
+ * @param count Pocet pozic
+ */
 static void error_clear_leds(uint8_t* led_positions, uint8_t count) {
     for (uint8_t i = 0; i < count; i++) {
         led_set_pixel_layer(LED_LAYER_ERROR, led_positions[i], 0, 0, 0);
     }
 }
 
+/**
+ * @brief Blikani LED na zadanych pozicich
+ * 
+ * Provede sekvenci blikani (zapnuto/vypnuto) na zadanych LED pozicich.
+ * Pocet bliknuti je urcen konfiguraci (current_config.flash_count).
+ * 
+ * @param led_positions Pole LED pozic k blikani
+ * @param count Pocet pozic
+ * @param r Cervena komponenta (0-255)
+ * @param g Zelena komponenta (0-255)
+ * @param b Modra komponenta (0-255)
+ */
 static void error_flash_leds(uint8_t* led_positions, uint8_t count, uint8_t r, uint8_t g, uint8_t b) {
     for (uint8_t flash = 0; flash < current_config.flash_count; flash++) {
         // Flash on
@@ -564,6 +585,18 @@ static void error_flash_leds(uint8_t* led_positions, uint8_t count, uint8_t r, u
     }
 }
 
+/**
+ * @brief Pulzovani LED na zadanych pozicich
+ * 
+ * Provede pulzovani LED na zadanych pozicich. V plne implementaci
+ * pouziva animation manager pro plynuly efekt.
+ * 
+ * @param led_positions Pole LED pozic k pulzovani
+ * @param count Pocet pozic
+ * @param r Cervena komponenta (0-255)
+ * @param g Zelena komponenta (0-255)
+ * @param b Modra komponenta (0-255)
+ */
 static void error_pulse_leds(uint8_t* led_positions, uint8_t count, uint8_t r, uint8_t g, uint8_t b) {
     // Simple pulsing - in full implementation, use animation manager
     for (uint8_t i = 0; i < count; i++) {
@@ -572,6 +605,14 @@ static void error_pulse_leds(uint8_t* led_positions, uint8_t count, uint8_t r, u
     led_force_full_update();
 }
 
+/**
+ * @brief Ziska chybovou zpravu pro dany typ chyby
+ * 
+ * Vraci lidsky citelnou zpravu popisujici co se stalo.
+ * 
+ * @param type Typ vizualni chyby
+ * @return Ukazatel na textovou zpravu (konstanta)
+ */
 static const char* error_get_message_for_type(visual_error_type_t type) {
     switch (type) {
         case ERROR_VISUAL_INVALID_MOVE: return "Invalid move - this piece cannot move there";
@@ -587,6 +628,14 @@ static const char* error_get_message_for_type(visual_error_type_t type) {
     }
 }
 
+/**
+ * @brief Ziska napovedu pro dany typ chyby
+ * 
+ * Vraci uzivateli uzitecnou napovedu jak chybu vyresit.
+ * 
+ * @param type Typ vizualni chyby
+ * @return Ukazatel na text napovedy (konstanta)
+ */
 static const char* error_get_hint_for_type(visual_error_type_t type) {
     switch (type) {
         case ERROR_VISUAL_INVALID_MOVE: return "Try moving to a different square";
@@ -602,6 +651,23 @@ static const char* error_get_hint_for_type(visual_error_type_t type) {
     }
 }
 
+/**
+ * @brief Ziska barvu LED pro dany typ chyby
+ * 
+ * Kazdy typ chyby ma prirazenou specifickou barvu pro vizualni rozliseni:
+ * - INVALID_MOVE: cervena
+ * - PIECE_BLOCKING: oranzova
+ * - CHECK_VIOLATION: fialova
+ * - NO_PIECE: zluta
+ * - WRONG_TURN: modra
+ * - atd.
+ * 
+ * @param type Typ vizualni chyby
+ * @param[out] r Ukazatel na cervenou komponentu
+ * @param[out] g Ukazatel na zelenou komponentu
+ * @param[out] b Ukazatel na modrou komponentu
+ * @return ESP_OK pri uspechu, ESP_ERR_INVALID_ARG pokud jsou parametry NULL
+ */
 static esp_err_t error_get_color_for_type(visual_error_type_t type, uint8_t* r, uint8_t* g, uint8_t* b) {
     if (!r || !g || !b) {
         return ESP_ERR_INVALID_ARG;

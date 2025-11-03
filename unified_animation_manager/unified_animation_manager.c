@@ -619,6 +619,13 @@ static bool animation_update_smooth_interpolation(animation_state_t* anim) {
     return true;
 }
 
+/**
+ * @brief Aktualizuje trail efekt pro animaci
+ * 
+ * Vytvari sledujici efekt za pohybujicim se objektem pomoci sinus vlny.
+ * 
+ * @param anim Ukazatel na stav animace
+ */
 static void animation_update_trail_effect(animation_state_t* anim) {
     // Implement trail effect for move animations
     float wave = sinf(anim->progress * 2.0f * M_PI);
@@ -631,6 +638,15 @@ static void animation_update_trail_effect(animation_state_t* anim) {
     led_set_pixel_safe(anim->to_led, r, g, b);
 }
 
+/**
+ * @brief Aktualizuje pulzujici animaci
+ * 
+ * Vytvari plynuly pulzujici efekt pomoci sinus funkce.
+ * Intenzita se meni mezi 30% a 100%.
+ * 
+ * @param anim Ukazatel na stav animace
+ * @return true pokud animace pokracuje
+ */
 static bool animation_update_pulsing(animation_state_t* anim) {
     float pulse = (sinf(anim->progress * 4.0f * M_PI) + 1.0f) / 2.0f; // 0.0 to 1.0
     float intensity = 0.3f + 0.7f * pulse; // 0.3 to 1.0
@@ -643,6 +659,14 @@ static bool animation_update_pulsing(animation_state_t* anim) {
     return true;
 }
 
+/**
+ * @brief Aktualizuje blikajici animaci
+ * 
+ * Vytvari binarni blikajici efekt (zapnuto/vypnuto).
+ * 
+ * @param anim Ukazatel na stav animace
+ * @return true pokud animace pokracuje
+ */
 static bool animation_update_flashing(animation_state_t* anim) {
     float flash = (sinf(anim->progress * 8.0f * M_PI) + 1.0f) / 2.0f; // 0.0 to 1.0
     float intensity = flash > 0.5f ? 1.0f : 0.0f; // Binary flashing
@@ -655,6 +679,17 @@ static bool animation_update_flashing(animation_state_t* anim) {
     return true;
 }
 
+/**
+ * @brief Aktualizuje duhovou animaci
+ * 
+ * Provadi plynuly prechod pres vse
+
+chny barvy duhy pomoci HSV->RGB konverze.
+ * Obsahuje jemne pulzovani jasu pro dynamictejsi efekt.
+ * 
+ * @param anim Ukazatel na stav animace
+ * @return true pokud animace pokracuje
+ */
 static bool animation_update_rainbow(animation_state_t* anim) {
     float hue = anim->progress * 360.0f; // 0 to 360 degrees
     float saturation = 1.0f;

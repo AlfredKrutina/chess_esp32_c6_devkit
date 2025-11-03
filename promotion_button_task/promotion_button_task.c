@@ -34,6 +34,11 @@ static const char *TAG = "PROMOTION_BUTTON_TASK";  // Tag pro ESP-IDF logovani
 static bool promotion_button_initialized = false;   // Stav inicializace promotion button tasku
 static uint32_t button_event_count = 0;            // Pocet zpracovanych tlacitkovych udalosti
 
+/**
+ * @brief Inicializuj promotion button task
+ * 
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
 esp_err_t promotion_button_task_init(void)
 {
     if (promotion_button_initialized) {  // Kontrola ze task uz neni inicializovan
@@ -63,6 +68,11 @@ esp_err_t promotion_button_task_init(void)
     return ESP_OK;  // Uspech
 }
 
+/**
+ * @brief Hlavni funkce promotion button tasku
+ * 
+ * @param pvParameters Parametry tasku (nepouzivane)
+ */
 void promotion_button_task(void *pvParameters)
 {
     ESP_LOGI(TAG, "Promotion button task started (SIMULATION MODE)");
@@ -81,6 +91,12 @@ void promotion_button_task(void *pvParameters)
     }
 }
 
+/**
+ * @brief Zpracuj volbu promoci
+ * 
+ * @param choice Typ promoci (QUEEN, ROOK, BISHOP, KNIGHT)
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
 esp_err_t process_promotion_choice(promotion_choice_t choice)
 {
     if (!promotion_button_initialized) {  // Kontrola inicializace promotion button tasku
@@ -113,6 +129,12 @@ esp_err_t process_promotion_choice(promotion_choice_t choice)
     return ESP_OK;  // Uspech
 }
 
+/**
+ * @brief Simuluj stisknuti promotion tlacitka (pro testovani)
+ * 
+ * @param button_index Index tlacitka (0=QUEEN, 1=ROOK, 2=BISHOP, 3=KNIGHT)
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
 esp_err_t simulate_promotion_button_press(uint8_t button_index)
 {
     if (!promotion_button_initialized) {
@@ -140,11 +162,21 @@ esp_err_t simulate_promotion_button_press(uint8_t button_index)
     return ESP_OK;
 }
 
+/**
+ * @brief Overi zda je promotion button task inicializovan
+ * 
+ * @return True pokud je task inicializovan
+ */
 bool promotion_button_is_initialized(void)
 {
     return promotion_button_initialized;
 }
 
+/**
+ * @brief Ziskej pocet zpracovanych tlacitkovych udalosti
+ * 
+ * @return Pocet udalosti
+ */
 uint32_t promotion_button_get_event_count(void)
 {
     return button_event_count;

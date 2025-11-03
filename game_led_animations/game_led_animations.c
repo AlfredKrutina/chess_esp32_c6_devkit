@@ -89,8 +89,16 @@ static const rgb_color_t enemy_red_palette[] = {
 
 /**
  * @brief Interpolace mezi dvěma barvami
+ * 
+ * Pomocna funkce pro plynuly prechod mezi dvema barvami.
+ * Zatim nepouzivana, ale pripr avena pro budouci rozsireni animaci.
+ * 
+ * @param from Pocatecni barva
+ * @param to Koncova barva
+ * @param progress Pokrok (0.0-1.0)
+ * @return Interpolovana barva
  */
-static rgb_color_t interpolate_color(rgb_color_t from, rgb_color_t to, float progress) {
+__attribute__((unused)) static rgb_color_t interpolate_color(rgb_color_t from, rgb_color_t to, float progress) {
     rgb_color_t result;
     result.r = from.r + (to.r - from.r) * progress;
     result.g = from.g + (to.g - from.g) * progress;

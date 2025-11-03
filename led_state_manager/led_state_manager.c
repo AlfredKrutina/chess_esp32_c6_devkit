@@ -669,7 +669,18 @@ esp_err_t led_set_transition_duration(uint32_t duration_ms) {
     return ESP_OK;
 }
 
-// Internal helper functions
+// ============================================================================
+// INTERNI POMOCNE FUNKCE
+// ============================================================================
+
+/**
+ * @brief Provede kompozici vsech vrstev pro jeden LED pixel
+ * 
+ * Slouci vsechny aktivni vrstvy (od nejnizsi po nejvyssi) do finalniho
+ * RGB pixelu. Pouziva alpha blending pro spravu pruhlednosti vrstev.
+ * 
+ * @param led_index Index LED pixelu (0-72)
+ */
 static void led_composite_pixel(uint8_t led_index) {
     if (led_index >= 73) {
         return;
@@ -729,6 +740,17 @@ static void led_composite_pixel(uint8_t led_index) {
     led_clear_dirty(led_index);
 }
 
+/**
+ * @brief Aplikuje jas na RGB hodnoty
+ * 
+ * Aplikuje globalni jas i jas specificky pro dany pixel.
+ * Hodnoty jsou zmenseny proporcionalne podle nastaveni jasu.
+ * 
+ * @param led_index Index LED pixelu (0-72)
+ * @param[in,out] r Ukazatel na cervenou komponentu
+ * @param[in,out] g Ukazatel na zelenou komponentu
+ * @param[in,out] b Ukazatel na modrou komponentu
+ */
 static void led_apply_brightness(uint8_t led_index, uint8_t* r, uint8_t* g, uint8_t* b) {
     if (!r || !g || !b) {
         return;
@@ -739,18 +761,34 @@ static void led_apply_brightness(uint8_t led_index, uint8_t* r, uint8_t* g, uint
     *b = (*b * global_brightness) / 255;
 }
 
+/**
+ * @brief Oznaci pixel jako dirty (potrebuje update)
+ * 
+ * @param led_index Index LED pixelu (0-72)
+ */
 static void led_mark_dirty(uint8_t led_index) {
     if (led_index < 73) {
         dirty_count++;
     }
 }
 
+/**
+ * @brief Vymaze dirty flag pro pixel
+ * 
+ * @param led_index Index LED pixelu (0-72)
+ */
 static void led_clear_dirty(uint8_t led_index) {
     if (led_index < 73 && dirty_count > 0) {
         dirty_count--;
     }
 }
 
+/**
+ * @brief Overi zda je vrstva aktivni
+ * 
+ * @param layer Vrstva k overeni
+ * @return true pokud je vrstva aktivni
+ */
 static bool led_is_layer_enabled(led_layer_t layer) {
     if (layer >= LED_LAYER_COUNT) {
         return false;
@@ -759,6 +797,12 @@ static bool led_is_layer_enabled(led_layer_t layer) {
     return layers[layer].layer_enabled;
 }
 
+/**
+ * @brief Ziska jas vrstvy
+ * 
+ * @param layer Vrstva
+ * @return Jas vrstvy (0-255)
+ */
 static uint8_t led_get_layer_brightness(led_layer_t layer) {
     if (layer >= LED_LAYER_COUNT) {
         return 255;
