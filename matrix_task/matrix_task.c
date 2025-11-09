@@ -125,8 +125,11 @@ static void matrix_scan_row_internal(uint8_t row)
     // Set current row high
     gpio_set_level(matrix_row_pins[row], 1);
     
-    // Small delay for signal stabilization
-    vTaskDelay(pdMS_TO_TICKS(1));
+    // ✅ OPRAVA: Use esp_rom_delay_us instead of vTaskDelay in timer callback
+    // GPIO settling time: ~10 microseconds is plenty for ESP32-C6
+    // vTaskDelay() CANNOT be used in timer callbacks!
+    extern void esp_rom_delay_us(uint32_t us);
+    esp_rom_delay_us(50);  // 50 microseconds settling time
     
     // Read all column pins for this row
     for (int col = 0; col < 8; col++) {
@@ -555,6 +558,67 @@ void matrix_reset(void)
     scan_count = 0;
     
     ESP_LOGI(TAG, "Matrix reset completed");
+}
+
+
+// ============================================================================
+// TIME-MULTIPLEXING FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Uvolni matrix row piny pro button scanning
+ * 
+ * Nastavi vsechny row piny na HIGH (neaktivni stav) aby button task
+ * mohl cist column piny bez interference.
+ * 
+ * @details
+ * Tato funkce je volana pred button scan window (20-25ms).
+ * Vsechny row piny jsou nastaveny na HIGH (pulled up) takze
+ * column piny mohou byt bezpecne cteny pro button detection.
+ */
+void matrix_release_pins(void)
+{
+    // Set all row pins to HIGH (inactive/released state)
+    // This allows button task to read column pins without interference
+    for (int row = 0; row < 8; row++) {
+        gpio_set_level(matrix_row_pins[row], 1); // HIGH = inactive
+    }
+    
+    ESP_LOGD(TAG, "Matrix pins released for button scan");
+}
+
+/**
+ * @brief Znovu aktivuj matrix row piny pro matrix scanning
+ * 
+ * Obnovi normalni matrix scanning rezim po button scan window.
+ * 
+ * @details
+ * Tato funkce je volana po button scan window. Matrix muze pokracovat
+ * v normalnim skenovani.
+ */
+void matrix_acquire_pins(void)
+{
+    // Matrix scanning can resume normally
+    // Row pins will be set LOW/HIGH during normal scanning cycle
+    ESP_LOGD(TAG, "Matrix pins acquired for matrix scan");
+    
+    // No explicit action needed - matrix_scan_all() will handle pins
+}
+
+/**
+ * @brief Overi zda jsou matrix piny uvolnene
+ * 
+ * @return true pokud jsou vsechny row piny HIGH (uvolnene)
+ */
+bool matrix_pins_released(void)
+{
+    // Check if all row pins are HIGH (released)
+    for (int row = 0; row < 8; row++) {
+        if (gpio_get_level(matrix_row_pins[row]) == 0) {
+            return false; // At least one pin is LOW (active)
+        }
+    }
+    return true; // All pins are HIGH (released)
 }
 
 

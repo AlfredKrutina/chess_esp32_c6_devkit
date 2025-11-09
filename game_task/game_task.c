@@ -235,6 +235,23 @@ typedef struct {
 static non_blocking_blink_state_t blink_state = {false, 0, 0, 10, 0, 300, false};
 
 // ============================================================================
+// PROMOTION STATE - PHYSICAL BUTTON SUPPORT
+// ============================================================================
+
+/**
+ * @brief Stav promoce pesce
+ * 
+ * Sleduje zda je promoce mozna a kde se nachazi pesec k promoci.
+ * Pouziva se pro rizeni LED indikace tlacitek a zpracovani button eventu.
+ */
+static struct {
+    bool pending;           // Je promoce mozna/ceka se na ni?
+    uint8_t square_row;     // Radek s pescem k promoci (0 nebo 7)
+    uint8_t square_col;     // Sloupec s pescem k promoci (0-7)
+    player_t player;        // Hrac ktery ma promovat
+} promotion_state = {false, 0, 0, PLAYER_WHITE};
+
+// ============================================================================
 // KING RESIGNATION SYSTEM
 // ============================================================================
 
@@ -462,6 +479,12 @@ static game_result_type_t current_result_type = RESULT_WHITE_WINS; // Aktuální
 // ============================================================================
 // FORWARD DECLARATIONS
 // ============================================================================
+
+// Promotion functions - MUST BE FIRST (called from game_initialize_board)
+// Note: These are defined later in the file (around line 3800)
+static void game_check_promotion_needed(void);
+static void game_process_promotion_button(uint8_t button_id);
+static bool game_execute_promotion(promotion_choice_t choice);
 
 void game_print_board_enhanced(void);
 bool game_execute_move_enhanced(chess_move_extended_t* move);
@@ -1081,6 +1104,10 @@ void game_initialize_board(void)
     
     ESP_LOGI(TAG, "Enhanced chess board initialized successfully");
     ESP_LOGI(TAG, "Initial position: White pieces at bottom, Black pieces at top");
+    
+    // ✅ Update promotion LED indications
+    game_check_promotion_needed();
+    
     // Board will be displayed after all tasks are initialized
 }
 
@@ -1232,6 +1259,10 @@ void game_start_new_game(void)
     led_stop_endgame_animation(); // Legacy endgame animations
     stop_endgame_animation(); // ✅ FIX: Stop NEW endgame animations system
     ESP_LOGI(TAG, "✅ All animations stopped for new game");
+    
+    // ✅ OPRAVA: Update promotion LED indications
+    game_check_promotion_needed();
+    ESP_LOGI(TAG, "✅ Updated promotion button LED indications");
     
     // ✅ OPRAVA: Zvýraznit pohyblivé figurky na začátku hry
     vTaskDelay(pdMS_TO_TICKS(100)); // Krátká pauza pro stabilizaci
@@ -2725,6 +2756,11 @@ bool game_execute_move(const chess_move_t* move)
         }
     }
     
+    // ✅ Update promotion LED indications after move
+    if (success) {
+        game_check_promotion_needed();
+    }
+    
     return success;
 }
 
@@ -3077,6 +3113,28 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
 {
     if (!cmd) return;
     
+    // ✅ PROMOTION PROTECTION: Ignore matrix events during promotion
+    if (promotion_state.pending) {
+        ESP_LOGI(TAG, "⏸️  PICKUP ignored - promotion pending at %c%d. Please press promotion button first (green LEDs).",
+                 'a' + promotion_state.square_col, promotion_state.square_row + 1);
+        
+        // Send informative message to UART
+        char info_msg[512];  // ✅ Increased from 256 to 512 (message is ~320 bytes)
+        snprintf(info_msg, sizeof(info_msg),
+                 "⏸️  Physical piece movement ignored\n"
+                 "👑 Promotion pending at %c%d\n"
+                 "💡 Please press promotion button:\n"
+                 "   • QUEEN  (button 0) - green LED 64 or 68\n"
+                 "   • ROOK   (button 1) - green LED 65 or 69\n"
+                 "   • BISHOP (button 2) - green LED 66 or 70\n"
+                 "   • KNIGHT (button 3) - green LED 67 or 71\n"
+                 "📝 Or use UART: PROMOTE %c%d=Q",
+                 'a' + promotion_state.square_col, promotion_state.square_row + 1,
+                 'a' + promotion_state.square_col, promotion_state.square_row + 1);
+        game_send_response_to_uart(info_msg, false, (QueueHandle_t)cmd->response_queue);
+        return;
+    }
+    
     // ✅ PŘERUŠIT BLIKÁNÍ při zvednutí figurky
     game_stop_error_blink();
     
@@ -3330,6 +3388,28 @@ void game_process_drop_command(const chess_move_command_t* cmd)
     if (!cmd) return;
     
     ESP_LOGI(TAG, "🎯 Processing DROP command: %s", cmd->to_notation);
+    
+    // ✅ PROMOTION PROTECTION: Ignore matrix events during promotion
+    if (promotion_state.pending) {
+        ESP_LOGI(TAG, "⏸️  DROP ignored - promotion pending at %c%d. Please press promotion button first (green LEDs).",
+                 'a' + promotion_state.square_col, promotion_state.square_row + 1);
+        
+        // Send informative message to UART
+        char info_msg[512];  // ✅ Increased from 256 to 512 (message is ~320 bytes)
+        snprintf(info_msg, sizeof(info_msg),
+                 "⏸️  Physical piece movement ignored\n"
+                 "👑 Promotion pending at %c%d\n"
+                 "💡 Please press promotion button:\n"
+                 "   • QUEEN  (button 0) - green LED 64 or 68\n"
+                 "   • ROOK   (button 1) - green LED 65 or 69\n"
+                 "   • BISHOP (button 2) - green LED 66 or 70\n"
+                 "   • KNIGHT (button 3) - green LED 67 or 71\n"
+                 "📝 Or use UART: PROMOTE %c%d=Q",
+                 'a' + promotion_state.square_col, promotion_state.square_row + 1,
+                 'a' + promotion_state.square_col, promotion_state.square_row + 1);
+        game_send_response_to_uart(info_msg, false, (QueueHandle_t)cmd->response_queue);
+        return;
+    }
     
     // ✅ KING RESIGNATION: Zrušit resignation pokud běží
     if (resignation_state.active) {
@@ -3688,6 +3768,229 @@ void game_reset_error_recovery_state(void)
     error_recovery_state.piece_type = PIECE_EMPTY;
     
     ESP_LOGI(TAG, "✅ Error recovery state reset");
+}
+
+// ============================================================================
+// PROMOTION HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief Zkontroluje zda je promoce mozna a aktualizuje LED indikaci tlacitek
+ * 
+ * Tato funkce kontroluje vsechny pesce na promotion squares (row 0 a 7)
+ * a aktualizuje promotion_state. Nasledne aktualizuje LED indikaci vsech
+ * promotion tlacitek (zelena = aktivni, modra = neaktivni).
+ * 
+ * @details
+ * Funkce by mela byt volana:
+ * - Po kazdem tahu
+ * - Po promoci
+ * - Pri inicializaci hry
+ * 
+ * LED indikace:
+ * - Zelena (0,255,0): Promoce je mozna pro aktualniho hrace
+ * - Modra (0,0,255): Promoce neni mozna
+ * - Reset tlacitko (LED 72): Vzdy zelena
+ */
+static void game_check_promotion_needed(void)
+{
+    // Reset promotion state
+    promotion_state.pending = false;
+    promotion_state.square_row = 0;
+    promotion_state.square_col = 0;
+    promotion_state.player = current_player;
+    
+    // Check for pawns on promotion squares
+    for (int col = 0; col < 8; col++) {
+        // White pawn on rank 8 (row 7)
+        if (board[7][col] == PIECE_WHITE_PAWN) {
+            promotion_state.pending = true;
+            promotion_state.square_row = 7;
+            promotion_state.square_col = col;
+            promotion_state.player = PLAYER_WHITE;
+            
+            ESP_LOGI(TAG, "🎯 White promotion needed at %c%d", 'a' + col, 8);
+            
+            // Print promotion menu to UART
+            printf("\r\n");
+            printf("═══════════════════════════════════════════════════════════════\r\n");
+            printf("👑 PAWN PROMOTION AVAILABLE!\r\n");
+            printf("═══════════════════════════════════════════════════════════════\r\n");
+            printf("📍 Square: %c%d\r\n", 'a' + col, 8);
+            printf("🎮 Player: White\r\n");
+            printf("\r\n");
+            printf("🎯 Choose promotion piece:\r\n");
+            printf("\r\n");
+            printf("💡 PHYSICAL BUTTONS (press one):\r\n");
+            printf("   • Button 0 (LED 64 🟢) → QUEEN  (most powerful)\r\n");
+            printf("   • Button 1 (LED 65 🟢) → ROOK\r\n");
+            printf("   • Button 2 (LED 66 🟢) → BISHOP\r\n");
+            printf("   • Button 3 (LED 67 🟢) → KNIGHT\r\n");
+            printf("\r\n");
+            printf("📝 UART COMMANDS (alternative):\r\n");
+            printf("   • PROMOTE %c%d=Q  → Queen\r\n", 'a' + col, 8);
+            printf("   • PROMOTE %c%d=R  → Rook\r\n", 'a' + col, 8);
+            printf("   • PROMOTE %c%d=B  → Bishop\r\n", 'a' + col, 8);
+            printf("   • PROMOTE %c%d=N  → Knight\r\n", 'a' + col, 8);
+            printf("\r\n");
+            printf("⚠️  Note: Physical piece movements are PAUSED until promotion is completed\r\n");
+            printf("═══════════════════════════════════════════════════════════════\r\n");
+            printf("\r\n");
+            
+            break;
+        }
+        
+        // Black pawn on rank 1 (row 0)
+        if (board[0][col] == PIECE_BLACK_PAWN) {
+            promotion_state.pending = true;
+            promotion_state.square_row = 0;
+            promotion_state.square_col = col;
+            promotion_state.player = PLAYER_BLACK;
+            
+            ESP_LOGI(TAG, "🎯 Black promotion needed at %c%d", 'a' + col, 1);
+            
+            // Print promotion menu to UART
+            printf("\r\n");
+            printf("═══════════════════════════════════════════════════════════════\r\n");
+            printf("👑 PAWN PROMOTION AVAILABLE!\r\n");
+            printf("═══════════════════════════════════════════════════════════════\r\n");
+            printf("📍 Square: %c%d\r\n", 'a' + col, 1);
+            printf("🎮 Player: Black\r\n");
+            printf("\r\n");
+            printf("🎯 Choose promotion piece:\r\n");
+            printf("\r\n");
+            printf("💡 PHYSICAL BUTTONS (press one):\r\n");
+            printf("   • Button 0 (LED 68 🟢) → QUEEN  (most powerful)\r\n");
+            printf("   • Button 1 (LED 69 🟢) → ROOK\r\n");
+            printf("   • Button 2 (LED 70 🟢) → BISHOP\r\n");
+            printf("   • Button 3 (LED 71 🟢) → KNIGHT\r\n");
+            printf("\r\n");
+            printf("📝 UART COMMANDS (alternative):\r\n");
+            printf("   • PROMOTE %c%d=Q  → Queen\r\n", 'a' + col, 1);
+            printf("   • PROMOTE %c%d=R  → Rook\r\n", 'a' + col, 1);
+            printf("   • PROMOTE %c%d=B  → Bishop\r\n", 'a' + col, 1);
+            printf("   • PROMOTE %c%d=N  → Knight\r\n", 'a' + col, 1);
+            printf("\r\n");
+            printf("⚠️  Note: Physical piece movements are PAUSED until promotion is completed\r\n");
+            printf("═══════════════════════════════════════════════════════════════\r\n");
+            printf("\r\n");
+            
+            break;
+        }
+    }
+    
+    // Update LED indications for all promotion buttons
+    if (promotion_state.pending) {
+        if (promotion_state.player == PLAYER_WHITE) {
+            // White promotion buttons (64-67): GREEN
+            for (int i = 64; i <= 67; i++) {
+                led_set_pixel_safe(i, 0, 255, 0); // Green
+            }
+            // Black promotion buttons (68-71): BLUE
+            for (int i = 68; i <= 71; i++) {
+                led_set_pixel_safe(i, 0, 0, 255); // Blue
+            }
+        } else {
+            // White promotion buttons (64-67): BLUE
+            for (int i = 64; i <= 67; i++) {
+                led_set_pixel_safe(i, 0, 0, 255); // Blue
+            }
+            // Black promotion buttons (68-71): GREEN
+            for (int i = 68; i <= 71; i++) {
+                led_set_pixel_safe(i, 0, 255, 0); // Green
+            }
+        }
+    } else {
+        // No promotion pending - all promotion buttons BLUE
+        for (int i = 64; i <= 71; i++) {
+            led_set_pixel_safe(i, 0, 0, 255); // Blue
+        }
+    }
+    
+    // Reset button (LED 72): Always GREEN (always active)
+    led_set_pixel_safe(72, 0, 255, 0); // Green
+}
+
+/**
+ * @brief Zpracuje button event pro promoci
+ * 
+ * @param button_id ID tlacitka (0-7 pro promotion, 8 pro reset)
+ * 
+ * @details
+ * Mapovani tlacitek:
+ * - 0-3: White promotion (Queen, Rook, Bishop, Knight)
+ * - 4-7: Black promotion (Queen, Rook, Bishop, Knight)
+ * - 8: Reset button
+ * 
+ * Fyzicky jsou jen 4 tlacitka (QUEEN, ROOK, BISHOP, KNIGHT),
+ * ktere se mapuji na 0-3 nebo 4-7 podle current_player.
+ */
+static void game_process_promotion_button(uint8_t button_id)
+{
+    // Check if promotion is pending
+    if (!promotion_state.pending) {
+        ESP_LOGW(TAG, "⚠️  Promotion button %d pressed but no promotion pending", button_id);
+        return;
+    }
+    
+    // Map physical button ID (0-3) to promotion choice
+    // Physical buttons are shared between players:
+    // - Button 0: QUEEN (both white and black)
+    // - Button 1: ROOK (both white and black)
+    // - Button 2: BISHOP (both white and black)
+    // - Button 3: KNIGHT (both white and black)
+    promotion_choice_t choice;
+    const char* piece_name;
+    
+    if (button_id <= 3) {
+        // Valid physical button (0-3)
+        choice = (promotion_choice_t)button_id;
+    } else {
+        ESP_LOGW(TAG, "⚠️  Invalid promotion button ID: %d (expected 0-3)", button_id);
+        return;
+    }
+    
+    // Get piece name
+    switch (choice) {
+        case PROMOTION_QUEEN:  piece_name = "Queen"; break;
+        case PROMOTION_ROOK:   piece_name = "Rook"; break;
+        case PROMOTION_BISHOP: piece_name = "Bishop"; break;
+        case PROMOTION_KNIGHT: piece_name = "Knight"; break;
+        default: piece_name = "Unknown"; break;
+    }
+    
+    ESP_LOGI(TAG, "👑 Processing promotion button %d: %s", button_id, piece_name);
+    
+    // Execute promotion
+    if (game_execute_promotion(choice)) {
+        // Clear promotion state
+        promotion_state.pending = false;
+        
+        // Log success
+        printf("\r\n");
+        printf("═══════════════════════════════════════════════════════════════\r\n");
+        printf("👑 PAWN PROMOTION SUCCESSFUL!\r\n");
+        printf("  • Square: %c%d\r\n", 'a' + promotion_state.square_col, promotion_state.square_row + 1);
+        printf("  • Promoted to: %s\r\n", piece_name);
+        printf("  • Player: %s\r\n", promotion_state.player == PLAYER_WHITE ? "White" : "Black");
+        printf("═══════════════════════════════════════════════════════════════\r\n");
+        printf("\r\n");
+        
+        // Switch player
+        player_t previous_player = current_player;
+        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        
+        // Show player change animation
+        game_show_player_change_animation(previous_player, current_player);
+        
+        // Update LED indications
+        game_check_promotion_needed();
+        game_highlight_movable_pieces();
+        
+        ESP_LOGI(TAG, "✅ Promotion completed successfully");
+    } else {
+        ESP_LOGE(TAG, "❌ Promotion execution failed");
+    }
 }
 
 // ============================================================================
@@ -5356,13 +5659,6 @@ void game_process_delete_game_command(const chess_move_command_t* cmd)
 }
 
 /**
- * @brief Execute pawn promotion
- * @param choice Promotion choice
- * @return true if successful, false otherwise
- */
-bool game_execute_promotion(promotion_choice_t choice);
-
-/**
  * @brief Handle piece lifted event from matrix
  * @param row Row coordinate
  * @param col Column coordinate
@@ -5797,6 +6093,41 @@ void game_process_commands(void)
                 default:
                     ESP_LOGW(TAG, "Unknown game command: %d", chess_cmd.type);
                     break;
+            }
+        }
+    }
+    
+    // ============================================================================
+    // BUTTON EVENT PROCESSING - Physical button support
+    // ============================================================================
+    
+    // Process button events from button_task
+    if (button_event_queue != NULL) {
+        button_event_t button_event;
+        while (xQueueReceive(button_event_queue, &button_event, 0) == pdTRUE) {
+            
+            // Only process PRESS events (ignore release, long press, double press)
+            if (button_event.type == BUTTON_EVENT_PRESS) {
+                
+                ESP_LOGI(TAG, "🎮 Button pressed: ID=%d", button_event.button_id);
+                
+                // Reset button (ID 8)
+                if (button_event.button_id == 8) {
+                    ESP_LOGI(TAG, "🔄 Reset button pressed - resetting game");
+                    game_reset_game();
+                    game_check_promotion_needed(); // Update LED indications
+                    continue;
+                }
+                
+                // Promotion buttons (ID 0-3) - physical buttons
+                if (button_event.button_id <= 3) {
+                    ESP_LOGI(TAG, "👑 Promotion button %d pressed", button_event.button_id);
+                    game_process_promotion_button(button_event.button_id);
+                    continue;
+                }
+                
+                // Unknown button
+                ESP_LOGW(TAG, "⚠️  Unknown button ID: %d", button_event.button_id);
             }
         }
     }
@@ -8457,7 +8788,7 @@ void game_process_promotion_command(const chess_move_command_t* cmd)
  * - Opraveno: WHITE row==7 (8. rada), BLACK row==0 (1. rada)
  * - Promoce nyni funguje 100% spravne
  */
-bool game_execute_promotion(promotion_choice_t choice)
+static bool game_execute_promotion(promotion_choice_t choice)
 {
     ESP_LOGI(TAG, "👑 Executing pawn promotion: %d", choice);
     

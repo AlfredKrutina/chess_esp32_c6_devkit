@@ -159,6 +159,40 @@ void matrix_process_commands(void);
  */
 void matrix_reset(void);
 
+// ============================================================================
+// TIME-MULTIPLEXING FUNKCE
+// ============================================================================
+
+/**
+ * @brief Uvolni matrix row piny pro button scanning
+ * 
+ * Nastavi vsechny row piny na HIGH (neaktivni stav) aby button task
+ * mohl cist column piny bez interference. Vola se pred button scan window.
+ * 
+ * @details
+ * Tato funkce MUSI byt volana pred button_scan_all() aby nedoslo
+ * ke konfliktum na sdilenych column pinech (MATRIX_COL_0-7).
+ */
+void matrix_release_pins(void);
+
+/**
+ * @brief Znovu aktivuj matrix row piny pro matrix scanning
+ * 
+ * Obnovi normalni matrix scanning rezim. Vola se po button scan window.
+ * 
+ * @details
+ * Tato funkce obnovi matrix scanning po button scan window.
+ * Matrix muze pokracovat v normalnim skenovani.
+ */
+void matrix_acquire_pins(void);
+
+/**
+ * @brief Overi zda jsou matrix piny uvolnene pro button scan
+ * 
+ * @return true pokud jsou piny uvolnene (vsechny rows HIGH)
+ */
+bool matrix_pins_released(void);
+
 #ifdef __cplusplus
 }
 #endif

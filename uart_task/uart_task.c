@@ -3657,6 +3657,8 @@ void uart_process_input(char c)
     } else if (c >= 32 && c <= 126) {
         // Printable character
         input_buffer_add_char(&input_buffer, c);
+        uart_write_char_immediate(c);
+        fflush(stdout);
     }
 }
 

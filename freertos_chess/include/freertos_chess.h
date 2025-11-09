@@ -62,8 +62,8 @@ extern "C" {
 
 /** @brief Pin pro WS2812B LED data (GPIO7) */
 #define LED_DATA_PIN GPIO_NUM_7        // WS2812B data line
-/** @brief Pin pro stavovy LED indikator (GPIO8 - bezpecny pin) */
-#define STATUS_LED_PIN GPIO_NUM_8      // Status indicator (safe pin - changed from GPIO5 to avoid strapping pin)
+/** @brief Pin pro stavovy LED indikator (GPIO5 - bezpecny pin) */
+#define STATUS_LED_PIN GPIO_NUM_5      // Status indicator (safe pin - GPIO8 is boot strapping pin!)
 
 // Piny pro radky matice (vystupy) - potreba 8 pinu
 /** @brief Pin pro radek 0 matice (GPIO10 - vystup) */

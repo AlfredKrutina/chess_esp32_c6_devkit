@@ -101,13 +101,12 @@ static const char* button_names[] = {
     "Reset"                                                                                                // 8: Reset button
 };
 
-// Button LED indices (WS2812B LEDs 64-72)
-// ✅ OPRAVA: 8 promotion buttons (64-71) + 1 reset button (72)
-static const uint8_t button_led_indices[] = {
-    64, 65, 66, 67,  // White promotion buttons (Queen, Rook, Bishop, Knight)
-    68, 69, 70, 71,  // Black promotion buttons (Queen, Rook, Bishop, Knight)
-    72               // Reset button (poslední LED)
-};
+// Button LED indices - REMOVED
+// LED indications are now controlled by game_task via game_check_promotion_needed()
+// LED mapping:
+//   64-67: White promotion buttons (Queen, Rook, Bishop, Knight)
+//   68-71: Black promotion buttons (Queen, Rook, Bishop, Knight)
+//   72:    Reset button
 
 // Button colors (RGB values) - kept for reference, not used in new LED logic
 // static const uint32_t button_colors[] = {
@@ -164,20 +163,39 @@ void button_scan_all(void)
     }
     
     // REAL HARDWARE BUTTON SCANNING
-    // Scan all button pins and update button_states
+    // Scan physical button pins and update button_states
+    // 
+    // Physical buttons:
+    // - 4 promotion buttons (MATRIX_COL_0-3): button_id 0-3
+    // - 1 reset button (GPIO27): button_id 8
+    // 
+    // LED indications (9 LEDs):
+    // - LED 64-67: White promotion (button_id 0-3 visual)
+    // - LED 68-71: Black promotion (button_id 4-7 visual)  
+    // - LED 72: Reset (button_id 8)
+    
     for (int i = 0; i < CHESS_BUTTON_COUNT; i++) {
         bool current_state = false;
         
-        if (i == 4) { // Reset button (GPIO27)
-            current_state = (gpio_get_level(BUTTON_RESET) == 0); // Active low
-        } else if (i < 4) {
-            // First 4 buttons (promotion buttons) use matrix column pins
-            // These are time-multiplexed and scanned by matrix_task
-            // For now, we'll get their state from matrix events
-            // In a complete implementation, we'd need to coordinate with matrix_task
-            current_state = false; // Will be updated by matrix button events
+        if (i == 8) {
+            // Reset button (GPIO27) - active low
+            current_state = (gpio_get_level(BUTTON_RESET) == 0);
+            
+        } else if (i >= 0 && i <= 3) {
+            // Promotion buttons (0-3): MATRIX_COL_0-3
+            // These pins are time-multiplexed with matrix columns
+            // During button scan window (20-25ms), they can be read as buttons
+            // Active low (pulled up, buttons pull to ground)
+            const gpio_num_t promotion_pins[] = {
+                BUTTON_QUEEN,  // MATRIX_COL_0
+                BUTTON_ROOK,   // MATRIX_COL_1
+                BUTTON_BISHOP, // MATRIX_COL_2
+                BUTTON_KNIGHT  // MATRIX_COL_3
+            };
+            current_state = (gpio_get_level(promotion_pins[i]) == 0);
+            
         } else {
-            // Other buttons (if any) - placeholder for future expansion
+            // button_id 4-7: No physical buttons (only LED indications)
             current_state = false;
         }
         
@@ -372,29 +390,17 @@ void button_send_event(uint8_t button_id, button_event_type_t event_type, uint32
 
 void button_update_led_feedback(uint8_t button_id, bool pressed)
 {
-    if (button_id >= CHESS_BUTTON_COUNT) return;
+    // ✅ LED feedback is now controlled by game_check_promotion_needed()
+    // LED indications are:
+    // - Green (0,255,0): Promotion is possible / button is active
+    // - Blue (0,0,255): Promotion not possible / button is inactive
+    // - Reset button (LED 72): Always green (always active)
+    //
+    // This function is kept empty to avoid interfering with game_task LED control
+    // LED state is updated by game_check_promotion_needed() after each move
     
-    uint8_t led_index = button_led_indices[button_id];
-    
-    if (pressed) {
-        // Při stisknutí - pulzující červená
-        static uint8_t press_pulse = 0;
-        press_pulse = (press_pulse + 1) % 16;
-        uint8_t red_intensity = 200 + press_pulse * 3;
-        uint8_t orange_mix = red_intensity * 0.3; // Jemný orange mix
-        
-        led_set_pixel_safe(led_index, red_intensity, orange_mix, 0);
-        ESP_LOGD(TAG, "Button %d PRESSED - LED %d pulsing red", button_id, led_index);
-    } else {
-        // Při uvolnění - jemně pulzující zelená
-        static uint8_t release_pulse = 0;
-        release_pulse = (release_pulse + 1) % 24;
-        uint8_t green_intensity = 180 + release_pulse * 2;
-        uint8_t lime_mix = green_intensity * 0.4; // Jemný lime mix
-        
-        led_set_pixel_safe(led_index, lime_mix, green_intensity, 0);
-        ESP_LOGD(TAG, "Button %d RELEASED - LED %d gentle green", button_id, led_index);
-    }
+    (void)button_id;  // Suppress unused parameter warning
+    (void)pressed;    // Suppress unused parameter warning
 }
 
 

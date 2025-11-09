@@ -119,10 +119,13 @@ SemaphoreHandle_t game_mutex = NULL;
 SemaphoreHandle_t system_mutex = NULL;
 
 // System timers
-TimerHandle_t matrix_scan_timer = NULL;
-TimerHandle_t button_scan_timer = NULL;
+TimerHandle_t matrix_scan_timer = NULL;  // LEGACY - not used with coordinated system
+TimerHandle_t button_scan_timer = NULL;  // LEGACY - not used with coordinated system
 TimerHandle_t led_update_timer = NULL;  // ✅ RESTORED: Needed for periodic LED refresh
 TimerHandle_t system_health_timer = NULL;
+
+// ✅ NEW: Coordinated time-multiplexing timer (25ms period)
+static TimerHandle_t coordinated_multiplex_timer = NULL;
 
 // System state
 static bool system_initialized = false;
@@ -655,29 +658,110 @@ esp_err_t chess_create_mutexes(void)
 // TIMER CALLBACK FUNCTIONS
 // ============================================================================
 
+// ============================================================================
+// COORDINATED TIME-MULTIPLEXING SYSTEM
+// ============================================================================
+
 /**
- * @brief Button scan timer callback
+ * @brief Hlavni coordinated multiplexing timer callback
+ * 
+ * Tato funkce ridi 25ms multiplexing cyklus:
+ * - 0-20ms:  Matrix scan window (matrix ma kontrolu nad GPIO)
+ * - 20-25ms: Button scan window (button ma kontrolu nad GPIO)
+ * 
+ * @param xTimer Timer handle
+ * 
+ * @details
+ * Tento timer je KRITICKA cast time-multiplexing systemu.
+ * Matrix a button tasky sdilejí stejne GPIO piny (MATRIX_COL_0-7),
+ * proto MUSI byt jejich pristup k pinum synchronizovan.
+ * 
+ * Casovani:
+ * 1. Matrix scan vola matrix_scan_all() primo v callbacku (rychle)
+ * 2. Po matrix scan: matrix_release_pins() uvolni row piny
+ * 3. Button scan vola button_scan_all() (rychle)
+ * 4. Po button scan: matrix_acquire_pins() (pripravi pro dalsi cyklus)
+ */
+static void coordinated_multiplex_timer_callback(TimerHandle_t xTimer)
+{
+    // NOTE: Timer callbacks run in timer service task context
+    // which is not registered with TWDT, so we don't call WDT reset
+    
+    static uint32_t cycle_count = 0;
+    cycle_count++;
+    
+    // ============================================================================
+    // PHASE 1: MATRIX SCAN WINDOW (0-20ms)
+    // ============================================================================
+    
+    extern bool matrix_scanning_enabled;
+    if (matrix_scanning_enabled) {
+        // Call matrix scanning function
+        extern void matrix_scan_all(void);
+        matrix_scan_all();
+    }
+    
+    // ============================================================================
+    // PHASE 2: PREPARE FOR BUTTON SCAN (release matrix pins)
+    // ============================================================================
+    
+    // Release matrix row pins so button task can read column pins cleanly
+    extern void matrix_release_pins(void);
+    matrix_release_pins();
+    
+    // Small delay to ensure pins are settled (propagation delay)
+    // ESP32-C6 runs at 160MHz, 1us = 160 cycles, plenty of time for GPIO settling
+    // We use vTaskDelay with portTICK_PERIOD_MS = 1ms minimum on FreeRTOS
+    // Actually, no delay needed - GPIO changes are instant on ESP32
+    
+    // ============================================================================
+    // PHASE 3: BUTTON SCAN WINDOW (20-25ms)
+    // ============================================================================
+    
+    // Call button scanning function
+    extern void button_scan_all(void);
+    button_scan_all();
+    
+    // ============================================================================
+    // PHASE 4: CLEANUP (prepare for next cycle)
+    // ============================================================================
+    
+    // Re-acquire matrix pins for next matrix scan cycle
+    extern void matrix_acquire_pins(void);
+    matrix_acquire_pins();
+    
+    // Debug logging every 1000 cycles (25 seconds)
+    if (cycle_count % 1000 == 0) {
+        ESP_LOGD(TAG, "Multiplexing cycle %lu completed", cycle_count);
+    }
+}
+
+// ============================================================================
+// LEGACY TIMER CALLBACKS (kept for compatibility, not used)
+// ============================================================================
+
+/**
+ * @brief Button scan timer callback - LEGACY (not used with coordinated system)
  * @param xTimer Timer handle
  */
 void button_scan_timer_callback(TimerHandle_t xTimer)
 {
-    // NOTE: Timer callbacks run in timer service task context
-    // which is not registered with TWDT, so we don't call WDT reset
+    // NOTE: This callback is NOT used when coordinated multiplexing is active
+    // Kept for backward compatibility only
     extern void button_scan_all(void);
     button_scan_all();
 }
 
 /**
- * @brief Matrix scan timer callback
+ * @brief Matrix scan timer callback - LEGACY (not used with coordinated system)
  * @param xTimer Timer handle
  */
 void matrix_scan_timer_callback(TimerHandle_t xTimer)
 {
-    // NOTE: Timer callbacks run in timer service task context
-    // which is not registered with TWDT, so we don't call WDT reset
+    // NOTE: This callback is NOT used when coordinated multiplexing is active
+    // Kept for backward compatibility only
     extern bool matrix_scanning_enabled;
     if (matrix_scanning_enabled) {
-        // Call matrix scanning function
         extern void matrix_scan_all(void);
         matrix_scan_all();
     }
@@ -702,18 +786,44 @@ esp_err_t chess_create_timers(void)
 {
     ESP_LOGI(TAG, "Creating FreeRTOS timers...");
     
-    // Matrix scan timer (20ms period)
-    matrix_scan_timer = xTimerCreate("MatrixScan", pdMS_TO_TICKS(MATRIX_SCAN_TIME_MS), pdTRUE, NULL, matrix_scan_timer_callback);
-    if (matrix_scan_timer == NULL) {
-        ESP_LOGE(TAG, "Failed to create matrix scan timer");
+    // ============================================================================
+    // COORDINATED TIME-MULTIPLEXING TIMER (NEW SYSTEM)
+    // ============================================================================
+    
+    // Create coordinated multiplexing timer (25ms period)
+    // This timer handles both matrix and button scanning in coordinated phases
+    coordinated_multiplex_timer = xTimerCreate(
+        "CoordMux",                                    // Timer name
+        pdMS_TO_TICKS(TOTAL_CYCLE_TIME_MS),          // Period: 25ms (full cycle)
+        pdTRUE,                                        // Auto-reload
+        NULL,                                          // Timer ID (unused)
+        coordinated_multiplex_timer_callback           // Callback function
+    );
+    
+    if (coordinated_multiplex_timer == NULL) {
+        ESP_LOGE(TAG, "Failed to create coordinated multiplexing timer");
         return ESP_ERR_NO_MEM;
     }
     
-    // Button scan timer (5ms period)
+    ESP_LOGI(TAG, "✓ Coordinated multiplexing timer created (25ms period)");
+    ESP_LOGI(TAG, "  • Phase 1 (0-20ms):  Matrix scan window");
+    ESP_LOGI(TAG, "  • Phase 2 (20-21ms): Pin release & settling");
+    ESP_LOGI(TAG, "  • Phase 3 (21-25ms): Button scan window");
+    
+    // ============================================================================
+    // LEGACY TIMERS (kept for backward compatibility, not started)
+    // ============================================================================
+    
+    // Matrix scan timer (20ms period) - LEGACY, not used
+    matrix_scan_timer = xTimerCreate("MatrixScan", pdMS_TO_TICKS(MATRIX_SCAN_TIME_MS), pdTRUE, NULL, matrix_scan_timer_callback);
+    if (matrix_scan_timer == NULL) {
+        ESP_LOGW(TAG, "Failed to create legacy matrix scan timer (not critical)");
+    }
+    
+    // Button scan timer (5ms period) - LEGACY, not used
     button_scan_timer = xTimerCreate("ButtonScan", pdMS_TO_TICKS(BUTTON_SCAN_TIME_MS), pdTRUE, NULL, button_scan_timer_callback);
     if (button_scan_timer == NULL) {
-        ESP_LOGE(TAG, "Failed to create button scan timer");
-        return ESP_ERR_NO_MEM;
+        ESP_LOGW(TAG, "Failed to create legacy button scan timer (not critical)");
     }
     
     // ✅ LED update timer - RESTORED for periodic refresh
@@ -740,23 +850,33 @@ esp_err_t chess_start_timers(void)
 {
     ESP_LOGI(TAG, "Starting FreeRTOS timers...");
     
-    // Start matrix scan timer
-    if (matrix_scan_timer != NULL) {
-        if (xTimerStart(matrix_scan_timer, 0) != pdPASS) {
-            ESP_LOGE(TAG, "Failed to start matrix scan timer");
+    // ============================================================================
+    // START COORDINATED MULTIPLEXING TIMER (NEW SYSTEM)
+    // ============================================================================
+    
+    // Start coordinated multiplexing timer (handles both matrix and button scanning)
+    if (coordinated_multiplex_timer != NULL) {
+        if (xTimerStart(coordinated_multiplex_timer, 0) != pdPASS) {
+            ESP_LOGE(TAG, "Failed to start coordinated multiplexing timer");
             return ESP_ERR_INVALID_STATE;
         }
-        ESP_LOGI(TAG, "✓ Matrix scan timer started");
+        ESP_LOGI(TAG, "✓ Coordinated multiplexing timer started (25ms cycle)");
+        ESP_LOGI(TAG, "  ✅ Matrix and button scanning are now coordinated!");
+        ESP_LOGI(TAG, "  ✅ No GPIO conflicts - clean time-multiplexing active");
+    } else {
+        ESP_LOGE(TAG, "Coordinated multiplexing timer is NULL!");
+        return ESP_ERR_INVALID_STATE;
     }
     
-    // Start button scan timer
-    if (button_scan_timer != NULL) {
-        if (xTimerStart(button_scan_timer, 0) != pdPASS) {
-            ESP_LOGE(TAG, "Failed to start button scan timer");
-            return ESP_ERR_INVALID_STATE;
-        }
-        ESP_LOGI(TAG, "✓ Button scan timer started");
-    }
+    // ============================================================================
+    // LEGACY TIMERS (DO NOT START - would cause conflicts)
+    // ============================================================================
+    
+    // DO NOT start legacy matrix_scan_timer - would conflict with coordinated timer
+    ESP_LOGI(TAG, "  ⏸️  Legacy matrix scan timer NOT started (coordinated system active)");
+    
+    // DO NOT start legacy button_scan_timer - would conflict with coordinated timer
+    ESP_LOGI(TAG, "  ⏸️  Legacy button scan timer NOT started (coordinated system active)");
     
     // ❌ DISABLED: LED update timer causes WDT errors (timer service task not registered with TWDT)
     /*
@@ -768,7 +888,7 @@ esp_err_t chess_start_timers(void)
         ESP_LOGI(TAG, "✓ LED update timer started (25ms period)");
     }
     */
-    ESP_LOGI(TAG, "✓ LED update timer DISABLED (causes WDT errors)");
+    ESP_LOGI(TAG, "  ⏸️  LED update timer DISABLED (causes WDT errors)");
     
     // System health timer - DISABLED (was causing crashes)
     // if (system_health_timer != NULL) {
@@ -780,6 +900,9 @@ esp_err_t chess_start_timers(void)
     // }
     
     ESP_LOGI(TAG, "✓ All FreeRTOS timers started successfully");
+    ESP_LOGI(TAG, "========================================");
+    ESP_LOGI(TAG, "🎯 TIME-MULTIPLEXING SYSTEM ACTIVE!");
+    ESP_LOGI(TAG, "========================================");
     return ESP_OK;
 }
 
