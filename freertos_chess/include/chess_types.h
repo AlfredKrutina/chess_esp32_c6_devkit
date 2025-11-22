@@ -246,7 +246,7 @@ typedef enum {
     GAME_CMD_EVALUATE = 17,           ///< Evaluace pozice (vyhodnoceni)
     GAME_CMD_SAVE = 18,               ///< Uloz hru do pameti
     GAME_CMD_LOAD = 19,               ///< Nahraj hru z pameti
-    GAME_CMD_PUZZLE = 20,             ///< Sachova uloha (puzzle)
+    GAME_CMD_RESERVED_SLOT_20 = 20, ///< Rezervovano (legacy slot)
     
     // Stredneprioritni prikazy
     GAME_CMD_CASTLE = 21,             ///< Rosada (castle)
@@ -264,11 +264,11 @@ typedef enum {
     GAME_CMD_LIST_GAMES = 27,         ///< Vypis ulozenych her
     GAME_CMD_DELETE_GAME = 28,        ///< Smaz ulozenou hru
     
-    // Puzzle prikazy
-    GAME_CMD_PUZZLE_NEXT = 29,        ///< Dalsi krok puzzle
-    GAME_CMD_PUZZLE_RESET = 30,       ///< Reset aktualniho puzzle
-    GAME_CMD_PUZZLE_COMPLETE = 31,    ///< Dokonceni aktualniho puzzle
-    GAME_CMD_PUZZLE_VERIFY = 32,      ///< Overeni puzzle tahu
+    // Rezervovane prikazy (legacy)
+    GAME_CMD_RESERVED_SLOT_29 = 29,        ///< Rezervovano (legacy slot)
+    GAME_CMD_RESERVED_SLOT_30 = 30,        ///< Rezervovano (legacy slot)
+    GAME_CMD_RESERVED_SLOT_31 = 31,        ///< Rezervovano (legacy slot)
+    GAME_CMD_RESERVED_SLOT_32 = 32,        ///< Rezervovano (legacy slot)
     
     // Prikazy pro testovani animaci
     GAME_CMD_TEST_MOVE_ANIM = 33,     ///< Test animace tahu
@@ -276,7 +276,7 @@ typedef enum {
     GAME_CMD_TEST_CASTLE_ANIM = 35,   ///< Test animace rosady
     GAME_CMD_TEST_PROMOTE_ANIM = 36,  ///< Test animace promoci
     GAME_CMD_TEST_ENDGAME_ANIM = 37,  ///< Test animace konce hry
-    GAME_CMD_TEST_PUZZLE_ANIM = 38,   ///< Test animace puzzle
+    GAME_CMD_RESERVED_SLOT_38 = 38,   ///< Rezervovano (legacy slot)
     
     // Prikazy pro casovy system
     GAME_CMD_SET_TIME_CONTROL = 39,   ///< Nastav casovou kontrolu
@@ -353,8 +353,8 @@ typedef struct {
  * @brief Typy LED prikazu
  * 
  * Kompletni seznam vsech prikazu pro ovladani LED systemu.
- * Obsahuje zakladni prikazy, animace, puzzle animace, error handling
- * a pokrocile sachove animace.
+ * Obsahuje zakladni prikazy, animace, error handling a pokrocile
+ * sachove animace. Nektere legacy hodnoty jsou rezervovane.
  */
 typedef enum {
     LED_CMD_SET_PIXEL = 0,      ///< Nastav barvu jedne LED
@@ -371,13 +371,13 @@ typedef enum {
     LED_CMD_MATRIX_OFF = 11,    ///< Vypni LED efekty pri skenovani matice
     LED_CMD_MATRIX_ON = 12,     ///< Zapni LED efekty pri skenovani matice
     
-    // Puzzle animacni prikazy
-    LED_CMD_PUZZLE_START = 13,       ///< Spust puzzle animacni sekvenci
-    LED_CMD_PUZZLE_HIGHLIGHT = 14,   ///< Zvyrazni zdrojovou figurku
-    LED_CMD_PUZZLE_PATH = 15,        ///< Zobraz cestu ze zdroje do cile
-    LED_CMD_PUZZLE_DESTINATION = 16, ///< Zvyrazni cil
-    LED_CMD_PUZZLE_COMPLETE = 17,    ///< Dokonci puzzle krok animaci
-    LED_CMD_PUZZLE_STOP = 18,        ///< Zastav vsechny puzzle animace
+    // Rezervovane legacy animacni prikazy
+    LED_CMD_RESERVED_SLOT_13 = 13,       ///< Rezervovano (legacy slot)
+    LED_CMD_RESERVED_SLOT_14 = 14,       ///< Rezervovano (legacy slot)
+    LED_CMD_RESERVED_SLOT_15 = 15,       ///< Rezervovano (legacy slot)
+    LED_CMD_RESERVED_SLOT_16 = 16,       ///< Rezervovano (legacy slot)
+    LED_CMD_RESERVED_SLOT_17 = 17,       ///< Rezervovano (legacy slot)
+    LED_CMD_RESERVED_SLOT_18 = 18,       ///< Rezervovano (legacy slot)
     
     // Pokrocile sachove animace
     LED_CMD_ANIM_PLAYER_CHANGE = 19, ///< Animace zmeny hrace (paprsky)
@@ -387,7 +387,7 @@ typedef enum {
     LED_CMD_ANIM_ENDGAME = 23,       ///< Animace konce hry (vlny)
     LED_CMD_ANIM_CHECK = 24,         ///< Animace sachu
     LED_CMD_ANIM_CHECKMATE = 25,     ///< Animace matu
-    LED_CMD_ANIM_PUZZLE_PATH = 26,   ///< Animace puzzle cesty
+    LED_CMD_RESERVED_SLOT_26 = 26,   ///< Rezervovano (legacy slot)
     
     // Prikazy pro ovladani komponent
     LED_CMD_DISABLE = 25,            ///< Vypni LED komponentu
@@ -664,52 +664,6 @@ esp_err_t config_save_to_nvs(const system_config_t* config);
  * @return ESP_OK pri uspechu
  */
 esp_err_t config_apply_settings(const system_config_t* config);
-
-/**
- * @brief Urovne obtiznosti puzzle
- * 
- * Definuje urovne obtiznosti pro sachove puzzle (ulohy).
- */
-typedef enum {
-    PUZZLE_DIFFICULTY_BEGINNER = 1,     ///< Zacatecnik (2-3 tahy, zakladni taktiky)
-    PUZZLE_DIFFICULTY_INTERMEDIATE = 2, ///< Pokrocily (3-5 tahu, slozite taktiky)
-    PUZZLE_DIFFICULTY_ADVANCED = 3,     ///< Expert (5+ tahu, pokrocile kombinace)
-    PUZZLE_DIFFICULTY_MASTER = 4        ///< Mistr (slozite endgames a studie)
-} puzzle_difficulty_t;
-
-/**
- * @brief Struktura kroku puzzle
- * 
- * Obsahuje informace o jednom kroku v puzzle (zdrojova a cilova pozice,
- * popis a zda je tah vynuceny).
- */
-typedef struct {
-    uint8_t from_row;      ///< Zdrojovy radek (0-7)
-    uint8_t from_col;      ///< Zdrojovy sloupec (0-7)
-    uint8_t to_row;        ///< Cilovy radek (0-7)
-    uint8_t to_col;        ///< Cilovy sloupec (0-7)
-    char description[64];  ///< Citelny popis kroku pro uzivatele
-    bool is_forced;        ///< Je tento tah vynuceny? (jedina moznost)
-} puzzle_step_t;
-
-/**
- * @brief Kompletni struktura puzzle
- * 
- * Obsahuje vsechny informace o sachovem puzzle vcetne nazvu,
- * popisu, obtiznosti, pocatecni pozice a kroku reseni.
- */
-typedef struct {
-    char name[32];                   ///< Nazev puzzle
-    char description[128];           ///< Popis puzzle pro uzivatele
-    puzzle_difficulty_t difficulty;  ///< Uroven obtiznosti
-    piece_t initial_board[8][8];     ///< Pocatecni pozice na sachovnici
-    puzzle_step_t steps[16];         ///< Kroky reseni (max 16 tahu)
-    uint8_t step_count;              ///< Pocet kroku
-    uint8_t current_step;            ///< Index aktualniho kroku
-    bool is_active;                  ///< Je puzzle aktivni?
-    uint32_t start_time;             ///< Casova znamka startu puzzle
-    uint32_t completion_time;        ///< Casova znamka dokonceni
-} chess_puzzle_t;
 
 /**
  * @brief Stav animace pro LED efekty

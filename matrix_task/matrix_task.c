@@ -117,21 +117,62 @@ static uint8_t current_pattern = 1; // Start with pattern 1
 // ============================================================================
 
 
-// Internal function - scans row WITHOUT mutex (caller must hold mutex)
+/**
+ * @brief Skenuje jeden radek matice (interni funkce bez mutexu)
+ * 
+ * Tato funkce skenuje jeden radek 8x8 reed switch matice. Pred skenovanim
+ * nastavi vsechny row piny na HIGH (neaktivni), pak aktivuje aktualni radek
+ * nastavenim na LOW, ceka 5 ms pro stabilizaci signalu, precte column piny
+ * a nastavi radek zpet na HIGH.
+ * 
+ * @param row Cislo radku (0-7)
+ * 
+ * @details
+ * Hardware logika:
+ * - Row piny jsou DRIVE (vystupni) - aktivne nastavujes stav
+ * - Column piny jsou SENSE (vstupni s pull-up) - ctes je
+ * - Aktivni row = LOW (stahne column pin na LOW pokud je figurka/reed switch uzavreny)
+ * - Neaktivni row = HIGH (column pin zustane HIGH pokud neni figurka)
+ * 
+ * Kriticka oprava: Pred aktivaci aktualniho radku se vsechny row piny nastavi
+ * na HIGH. Toto zajistuje, ze ostatni row piny nebudou interferovat s ctenim
+ * column pinu. Bez tohoto by figurkami v jednom sloupci na ruznych radcich
+ * mohly zpusobit falesnou detekci (pokud by row pin zustal LOW, column pin
+ * by byl LOW i kdyz skenujeme jiny radek).
+ * 
+ * Stabilizacni cekani: Po aktivaci row pinu na LOW se ceka 5 ms pro spravne
+ * ustaleni napetoveho stavu. Bez tohoto cekani by mohlo dochazet k nespravnemu
+ * cteni stavu column pinu kvuli elektromagnetickym interferencim a kapacitnim
+ * efektum.
+ * 
+ * @note Volajici musi drzet matrix_mutex pred volanim teto funkce
+ */
 static void matrix_scan_row_internal(uint8_t row)
 {
     if (row >= 8) return;
     
-    // Set current row high
-    gpio_set_level(matrix_row_pins[row], 1);
+    // CRITICAL: Nastav vsechny row piny na HIGH (neaktivni) pred aktivaci aktualniho radku
+    // Toto zajistuje, ze ostatni row piny nebudou interferovat s ctenim column pinu
+    // Bez tohoto by figurkami v jednom sloupci na ruznych radcich mohly zpusobit
+    // falesnou detekci (pokud by row pin zustal LOW, column pin by byl LOW i kdyz
+    // skenujeme jiny radek)
+    for (int i = 0; i < 8; i++) {
+        gpio_set_level(matrix_row_pins[i], 1); // HIGH = neaktivni
+    }
+    
+    // Nastav aktualni row pin na LOW (aktivace) - toto stahne column pin na LOW
+    // pokud je na tomto krizeni figurka (reed switch uzavreny)
+    gpio_set_level(matrix_row_pins[row], 0); // LOW = aktivni
     
     // ✅ OPRAVA: Use esp_rom_delay_us instead of vTaskDelay in timer callback
-    // GPIO settling time: ~10 microseconds is plenty for ESP32-C6
+    // GPIO settling time: ~5 ms pro spravne ustaleni signalu
     // vTaskDelay() CANNOT be used in timer callbacks!
     extern void esp_rom_delay_us(uint32_t us);
-    esp_rom_delay_us(50);  // 50 microseconds settling time
+    esp_rom_delay_us(5000);  // 5 ms settling time pro stabilizaci napetoveho stavu
     
     // Read all column pins for this row
+    // Column piny maji pull-up, takze bez figury budou HIGH
+    // Pokud je figurka (reed switch uzavreny), column pin bude LOW
     for (int col = 0; col < 8; col++) {
         int index = row * 8 + col;
         int pin_level = gpio_get_level(matrix_col_pins[col]);
@@ -141,12 +182,13 @@ static void matrix_scan_row_internal(uint8_t row)
             matrix_state[index] = simulation_patterns[current_pattern][index];
         } else {
             // Real hardware: reed switch closed = piece present
+            // pin_level == 0 znamena, ze column pin je stazeny na LOW (figurka je pritomna)
             matrix_state[index] = (pin_level == 0) ? 1 : 0;
         }
     }
     
-    // Set row back to low
-    gpio_set_level(matrix_row_pins[row], 0);
+    // Nastav aktualni row pin zpet na HIGH (neaktivni) pro dalsi cyklus
+    gpio_set_level(matrix_row_pins[row], 1); // HIGH = neaktivni
 }
 
 // Public function - scans row WITH mutex protection

@@ -230,29 +230,6 @@ esp_err_t error_show_check_escape_options(uint8_t king_row, uint8_t king_col) {
     return ESP_OK;
 }
 
-esp_err_t error_show_puzzle_guidance(const char* puzzle_hint) {
-    if (!system_initialized) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    
-    if (!puzzle_hint) {
-        return ESP_ERR_INVALID_ARG;
-    }
-    
-    // Store puzzle guidance
-    last_error.error_type = ERROR_VISUAL_PUZZLE_WRONG_MOVE;
-    last_error.error_led_count = 0; // No specific LEDs for puzzle guidance
-    strncpy(last_error.user_message, "Puzzle guidance", sizeof(last_error.user_message) - 1);
-    strncpy(last_error.recovery_hint, puzzle_hint, sizeof(last_error.recovery_hint) - 1);
-    
-    displaying_error = true;
-    active_error_count++;
-    
-    ESP_LOGI(TAG, "Showing puzzle guidance: %s", puzzle_hint);
-    
-    return ESP_OK;
-}
-
 esp_err_t error_clear_all_indicators(void) {
     if (!system_initialized) {
         return ESP_ERR_INVALID_STATE;
@@ -352,29 +329,6 @@ esp_err_t error_guide_valid_destinations(uint8_t from_row, uint8_t from_col) {
     return ESP_OK;
 }
 
-esp_err_t error_guide_puzzle_removal(uint8_t* pieces_to_remove, uint8_t count) {
-    if (!system_initialized) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    
-    if (!pieces_to_remove || count == 0) {
-        return ESP_ERR_INVALID_ARG;
-    }
-    
-    // Pulse pieces to remove in red
-    error_pulse_leds(pieces_to_remove, count, 255, 0, 0); // Red for pieces to remove
-    
-    // Store guidance information
-    last_error.guidance_led_count = count;
-    memcpy(last_error.guidance_led_positions, pieces_to_remove, count);
-    
-    strncpy(last_error.recovery_hint, "Remove these pieces from the board", sizeof(last_error.recovery_hint) - 1);
-    
-    ESP_LOGI(TAG, "Showing puzzle removal guidance for %d pieces", count);
-    
-    return ESP_OK;
-}
-
 const char* error_get_last_message(void) {
     if (!system_initialized) {
         return "Error system not initialized";
@@ -398,8 +352,6 @@ const char* error_get_error_type_name(visual_error_type_t type) {
         case ERROR_VISUAL_CHECK_VIOLATION: return "Check Violation";
         case ERROR_VISUAL_NO_PIECE: return "No Piece";
         case ERROR_VISUAL_WRONG_TURN: return "Wrong Turn";
-        case ERROR_VISUAL_PUZZLE_WRONG_MOVE: return "Puzzle Wrong Move";
-        case ERROR_VISUAL_PUZZLE_WRONG_REMOVAL: return "Puzzle Wrong Removal";
         case ERROR_VISUAL_SYSTEM_ERROR: return "System Error";
         case ERROR_VISUAL_INVALID_SYNTAX: return "Invalid Syntax";
         default: return "Unknown Error";
@@ -620,8 +572,6 @@ static const char* error_get_message_for_type(visual_error_type_t type) {
         case ERROR_VISUAL_CHECK_VIOLATION: return "King is in check - this move is not allowed";
         case ERROR_VISUAL_NO_PIECE: return "No piece on this square";
         case ERROR_VISUAL_WRONG_TURN: return "It's not your turn to move";
-        case ERROR_VISUAL_PUZZLE_WRONG_MOVE: return "Wrong move for this puzzle";
-        case ERROR_VISUAL_PUZZLE_WRONG_REMOVAL: return "This piece should not be removed";
         case ERROR_VISUAL_SYSTEM_ERROR: return "System error occurred";
         case ERROR_VISUAL_INVALID_SYNTAX: return "Invalid command syntax";
         default: return "Unknown error occurred";
@@ -643,8 +593,6 @@ static const char* error_get_hint_for_type(visual_error_type_t type) {
         case ERROR_VISUAL_CHECK_VIOLATION: return "Move the king out of check or block the attacking piece";
         case ERROR_VISUAL_NO_PIECE: return "Select a square that contains a piece";
         case ERROR_VISUAL_WRONG_TURN: return "Wait for your opponent to move";
-        case ERROR_VISUAL_PUZZLE_WRONG_MOVE: return "Follow the puzzle instructions carefully";
-        case ERROR_VISUAL_PUZZLE_WRONG_REMOVAL: return "Only remove pieces that are highlighted in red";
         case ERROR_VISUAL_SYSTEM_ERROR: return "Try again or restart the system";
         case ERROR_VISUAL_INVALID_SYNTAX: return "Check the command format and try again";
         default: return "Try a different approach";
@@ -688,12 +636,6 @@ static esp_err_t error_get_color_for_type(visual_error_type_t type, uint8_t* r, 
             break;
         case ERROR_VISUAL_WRONG_TURN:
             *r = 0; *g = 0; *b = 255; // Blue
-            break;
-        case ERROR_VISUAL_PUZZLE_WRONG_MOVE:
-            *r = 255; *g = 192; *b = 203; // Pink
-            break;
-        case ERROR_VISUAL_PUZZLE_WRONG_REMOVAL:
-            *r = 255; *g = 0; *b = 0; // Red
             break;
         case ERROR_VISUAL_SYSTEM_ERROR:
             *r = 255; *g = 255; *b = 255; // White

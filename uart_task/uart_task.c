@@ -52,7 +52,6 @@
 #include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "../matrix_task/include/matrix_task.h"  // ✅ FIX: Include matrix task functions
 #include "../timer_system/include/timer_system.h"
-// Enhanced puzzle system removed
 #include <math.h>
 #include <inttypes.h>
 #include "esp_system.h"
@@ -1823,7 +1822,6 @@ static const uart_command_t commands[] = {
     {"CASTLE", uart_cmd_castle, "Castle (kingside/queenside)", "CASTLE <kingside|queenside>", true, {"CASTLING", "O-O", "", "", ""}},
     {"PROMOTE", uart_cmd_promote, "Promote pawn", "PROMOTE <square>=<piece>", true, {"PROMOTION", "PROMO", "", "", ""}},
     {"MATRIXTEST", uart_cmd_matrixtest, "Test matrix scanning", "", false, {"MATRIX_TEST", "TEST_MATRIX", "", "", ""}},
-    // Puzzle commands removed
     
     // Component Control Commands
     {"COMPONENT_OFF", uart_cmd_component_off, "Turn off component", "COMPONENT_OFF <matrix|led|wifi>", true, {"OFF", "DISABLE", "", "", ""}},
@@ -1839,7 +1837,6 @@ static const uart_command_t commands[] = {
     {"TEST_CASTLE_ANIM", uart_cmd_test_castle_anim, "Test castling animation", "TEST_CASTLE_ANIM", false, {"CASTLE_TEST", "TEST_CASTLE", "", "", ""}},
     {"TEST_PROMOTE_ANIM", uart_cmd_test_promote_anim, "Test promotion animation", "TEST_PROMOTE_ANIM", false, {"PROMOTE_TEST", "TEST_PROMOTE", "", "", ""}},
     {"TEST_ENDGAME_ANIM", uart_cmd_test_endgame_anim, "Test endgame animation", "TEST_ENDGAME_ANIM", false, {"ENDGAME_TEST", "TEST_ENDGAME", "", "", ""}},
-    // Puzzle test command removed
     
     // Endgame Animation Style Commands
     {"ENDGAME_WAVE", uart_cmd_endgame_wave, "Endgame wave animation", "ENDGAME_WAVE", false, {"WAVE", "ENDGAME_0", "", "", ""}},
@@ -1848,9 +1845,6 @@ static const uart_command_t commands[] = {
     {"ENDGAME_FIREWORKS", uart_cmd_endgame_fireworks, "Endgame fireworks animation", "ENDGAME_FIREWORKS", false, {"FIREWORKS", "ENDGAME_3", "", "", ""}},
     {"DRAW_SPIRAL", uart_cmd_endgame_draw_spiral, "Draw spiral animation", "DRAW_SPIRAL", false, {"SPIRAL", "DRAW_0", "", "", ""}},
     {"DRAW_PULSE", uart_cmd_endgame_draw_pulse, "Draw pulse animation", "DRAW_PULSE", false, {"PULSE", "DRAW_1", "", "", ""}},
-    
-    // Puzzle Commands
-    // Puzzle level commands removed
     
     // Endgame animation control
     {"STOP_ENDGAME", uart_cmd_stop_endgame, "Stop endless endgame animation", "STOP_ENDGAME", false, {"STOP", "END_STOP", "", "", ""}},
@@ -2026,7 +2020,33 @@ command_result_t uart_cmd_performance(const char* args)
 }
 
 /**
- * @brief Show/set configuration
+ * @brief Zobrazi nebo nastavi systemovou konfiguraci
+ * 
+ * Tento prikaz umoznuje zobrazit aktualni systemovou konfiguraci nebo nastavit
+ * jednotlive konfiguracni hodnoty. Vsechny zmeny se ukladaji do NVS flash
+ * a aplikuji se okamzite.
+ * 
+ * @param args Argumenty prikazu:
+ *   - Bez argumentu: Zobrazi vsechny konfiguracni hodnoty
+ *   - "show": Zobrazi vsechny konfiguracni hodnoty (stejne jako bez argumentu)
+ *   - "<key> <value>": Nastavi konfiguracni hodnotu
+ * 
+ * @return CMD_SUCCESS pri uspechu, chybovy kod pri selhani
+ * 
+ * @details
+ * Podporovane konfiguracni klice:
+ * - verbose: Zapne/vypne verbose mode (on/off)
+ * - quiet: Zapne/vypne quiet mode (on/off)
+ * - log_level: Nastavi uroven logovani (NONE, ERROR, WARN, INFO, DEBUG, VERBOSE)
+ * - timeout: Nastavi timeout prikazu v milisekundach (1-60000)
+ * - echo: Zapne/vypne echo znaku (on/off)
+ * 
+ * Pri zmene konfiguracni hodnoty se automaticky:
+ * 1. Ulozi hodnota do NVS flash pomoci config_save_to_nvs()
+ * 2. Aplikuje se na system pomoci config_apply_settings()
+ * 
+ * @note Verbose a quiet mode jsou vzajemne exkluzivni - zapnuti jednoho
+ *       automaticky vypne druhy.
  */
 command_result_t uart_cmd_config(const char* args)
 {
@@ -2045,13 +2065,26 @@ command_result_t uart_cmd_config(const char* args)
         
         uart_send_formatted("");
         uart_send_formatted("🔧 System Settings:");
-        uart_send_formatted("  • LED brightness: 100%%");
-        uart_send_formatted("  • Matrix sensitivity: Normal");
-        uart_send_formatted("  • Debug mode: %s", "Disabled");
+        uart_send_formatted("  • Verbose mode: %s", system_config.verbose_mode ? "ON" : "OFF");
+        uart_send_formatted("  • Quiet mode: %s", system_config.quiet_mode ? "ON" : "OFF");
+        
+        // Convert log level to string
+        const char* log_level_str = "UNKNOWN";
+        switch (system_config.log_level) {
+            case ESP_LOG_NONE: log_level_str = "NONE"; break;
+            case ESP_LOG_ERROR: log_level_str = "ERROR"; break;
+            case ESP_LOG_WARN: log_level_str = "WARN"; break;
+            case ESP_LOG_INFO: log_level_str = "INFO"; break;
+            case ESP_LOG_DEBUG: log_level_str = "DEBUG"; break;
+            case ESP_LOG_VERBOSE: log_level_str = "VERBOSE"; break;
+        }
+        uart_send_formatted("  • Log level: %s", log_level_str);
+        uart_send_formatted("  • Command timeout: %lu ms", system_config.command_timeout_ms);
+        uart_send_formatted("  • Echo enabled: %s", system_config.echo_enabled ? "ON" : "OFF");
         
         uart_send_formatted("");
         uart_send_formatted("💡 Usage: CONFIG <key> <value> to set configuration");
-        uart_send_formatted("💡 Available keys: player, brightness, sensitivity, debug");
+        uart_send_formatted("💡 Available keys: verbose, quiet, log_level, timeout, echo");
         
         return CMD_SUCCESS;
     }
@@ -2075,13 +2108,26 @@ command_result_t uart_cmd_config(const char* args)
             
             uart_send_formatted("");
             uart_send_formatted("🔧 System Settings:");
-            uart_send_formatted("  • LED brightness: 100%%");
-            uart_send_formatted("  • Matrix sensitivity: Normal");
-            uart_send_formatted("  • Debug mode: %s", "Disabled");
+            uart_send_formatted("  • Verbose mode: %s", system_config.verbose_mode ? "ON" : "OFF");
+            uart_send_formatted("  • Quiet mode: %s", system_config.quiet_mode ? "ON" : "OFF");
+            
+            // Convert log level to string
+            const char* log_level_str = "UNKNOWN";
+            switch (system_config.log_level) {
+                case ESP_LOG_NONE: log_level_str = "NONE"; break;
+                case ESP_LOG_ERROR: log_level_str = "ERROR"; break;
+                case ESP_LOG_WARN: log_level_str = "WARN"; break;
+                case ESP_LOG_INFO: log_level_str = "INFO"; break;
+                case ESP_LOG_DEBUG: log_level_str = "DEBUG"; break;
+                case ESP_LOG_VERBOSE: log_level_str = "VERBOSE"; break;
+            }
+            uart_send_formatted("  • Log level: %s", log_level_str);
+            uart_send_formatted("  • Command timeout: %lu ms", system_config.command_timeout_ms);
+            uart_send_formatted("  • Echo enabled: %s", system_config.echo_enabled ? "ON" : "OFF");
             
             uart_send_formatted("");
             uart_send_formatted("💡 Usage: CONFIG <key> <value> to set configuration");
-            uart_send_formatted("💡 Available keys: player, brightness, sensitivity, debug");
+            uart_send_formatted("💡 Available keys: verbose, quiet, log_level, timeout, echo");
             
             return CMD_SUCCESS;
         } else {
@@ -2094,44 +2140,114 @@ command_result_t uart_cmd_config(const char* args)
     }
     
     // Handle configuration changes
-    if (strcmp(key, "player") == 0) {
-        if (strcmp(value, "white") == 0) {
-            // current_player = PLAYER_WHITE; // Would need to implement
-            uart_send_formatted("✅ Player set to White");
-        } else if (strcmp(value, "black") == 0) {
-            // current_player = PLAYER_BLACK; // Would need to implement
-            uart_send_formatted("✅ Player set to Black");
+    bool config_changed = false;
+    
+    if (strcmp(key, "verbose") == 0) {
+        if (strcmp(value, "on") == 0 || strcmp(value, "ON") == 0) {
+            system_config.verbose_mode = true;
+            system_config.quiet_mode = false;
+            config_changed = true;
+            uart_send_formatted("✅ Verbose mode set to ON");
+        } else if (strcmp(value, "off") == 0 || strcmp(value, "OFF") == 0) {
+            system_config.verbose_mode = false;
+            config_changed = true;
+            uart_send_formatted("✅ Verbose mode set to OFF");
         } else {
-            uart_send_error("❌ Invalid player. Use 'white' or 'black'");
+            uart_send_error("❌ Invalid value. Use 'on' or 'off'");
             return CMD_ERROR_INVALID_SYNTAX;
         }
-    } else if (strcmp(key, "brightness") == 0) {
-        int brightness = atoi(value);
-        if (brightness >= 0 && brightness <= 100) {
-            uart_send_formatted("✅ LED brightness set to %d%%", brightness);
+    } else if (strcmp(key, "quiet") == 0) {
+        if (strcmp(value, "on") == 0 || strcmp(value, "ON") == 0) {
+            system_config.quiet_mode = true;
+            system_config.verbose_mode = false;
+            config_changed = true;
+            uart_send_formatted("✅ Quiet mode set to ON");
+        } else if (strcmp(value, "off") == 0 || strcmp(value, "OFF") == 0) {
+            system_config.quiet_mode = false;
+            config_changed = true;
+            uart_send_formatted("✅ Quiet mode set to OFF");
         } else {
-            uart_send_error("❌ Brightness must be 0-100");
+            uart_send_error("❌ Invalid value. Use 'on' or 'off'");
             return CMD_ERROR_INVALID_SYNTAX;
         }
-    } else if (strcmp(key, "sensitivity") == 0) {
-        if (strcmp(value, "low") == 0 || strcmp(value, "normal") == 0 || strcmp(value, "high") == 0) {
-            uart_send_formatted("✅ Matrix sensitivity set to %s", value);
+    } else if (strcmp(key, "log_level") == 0) {
+        esp_log_level_t new_level = ESP_LOG_ERROR;
+        bool valid = false;
+        
+        if (strcmp(value, "NONE") == 0 || strcmp(value, "none") == 0) {
+            new_level = ESP_LOG_NONE;
+            valid = true;
+        } else if (strcmp(value, "ERROR") == 0 || strcmp(value, "error") == 0) {
+            new_level = ESP_LOG_ERROR;
+            valid = true;
+        } else if (strcmp(value, "WARN") == 0 || strcmp(value, "warn") == 0) {
+            new_level = ESP_LOG_WARN;
+            valid = true;
+        } else if (strcmp(value, "INFO") == 0 || strcmp(value, "info") == 0) {
+            new_level = ESP_LOG_INFO;
+            valid = true;
+        } else if (strcmp(value, "DEBUG") == 0 || strcmp(value, "debug") == 0) {
+            new_level = ESP_LOG_DEBUG;
+            valid = true;
+        } else if (strcmp(value, "VERBOSE") == 0 || strcmp(value, "verbose") == 0) {
+            new_level = ESP_LOG_VERBOSE;
+            valid = true;
+        }
+        
+        if (valid) {
+            system_config.log_level = new_level;
+            config_changed = true;
+            uart_send_formatted("✅ Log level set to %s", value);
         } else {
-            uart_send_error("❌ Invalid sensitivity. Use 'low', 'normal', or 'high'");
+            uart_send_error("❌ Invalid log level. Use: NONE, ERROR, WARN, INFO, DEBUG, VERBOSE");
             return CMD_ERROR_INVALID_SYNTAX;
         }
-    } else if (strcmp(key, "debug") == 0) {
-        if (strcmp(value, "on") == 0 || strcmp(value, "off") == 0) {
-            uart_send_formatted("✅ Debug mode %s", strcmp(value, "on") == 0 ? "enabled" : "disabled");
+    } else if (strcmp(key, "timeout") == 0) {
+        int timeout = atoi(value);
+        if (timeout > 0 && timeout <= 60000) { // 1ms to 60s
+            system_config.command_timeout_ms = (uint32_t)timeout;
+            config_changed = true;
+            uart_send_formatted("✅ Command timeout set to %d ms", timeout);
         } else {
-            uart_send_error("❌ Invalid debug value. Use 'on' or 'off'");
+            uart_send_error("❌ Timeout must be between 1 and 60000 ms");
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+    } else if (strcmp(key, "echo") == 0) {
+        if (strcmp(value, "on") == 0 || strcmp(value, "ON") == 0) {
+            system_config.echo_enabled = true;
+            config_changed = true;
+            uart_send_formatted("✅ Echo enabled");
+        } else if (strcmp(value, "off") == 0 || strcmp(value, "OFF") == 0) {
+            system_config.echo_enabled = false;
+            config_changed = true;
+            uart_send_formatted("✅ Echo disabled");
+        } else {
+            uart_send_error("❌ Invalid value. Use 'on' or 'off'");
             return CMD_ERROR_INVALID_SYNTAX;
         }
     } else {
         char error_msg[128];
         snprintf(error_msg, sizeof(error_msg), "❌ Unknown configuration key: %s", key);
         uart_send_error(error_msg);
+        uart_send_formatted("💡 Available keys: verbose, quiet, log_level, timeout, echo");
         return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    // If configuration changed, save to NVS and apply settings
+    if (config_changed) {
+        esp_err_t ret = config_save_to_nvs(&system_config);
+        if (ret != ESP_OK) {
+            uart_send_error("❌ Failed to save configuration to NVS");
+            return CMD_ERROR_SYSTEM_ERROR;
+        }
+        
+        ret = config_apply_settings(&system_config);
+        if (ret != ESP_OK) {
+            uart_send_error("❌ Failed to apply configuration settings");
+            return CMD_ERROR_SYSTEM_ERROR;
+        }
+        
+        uart_send_formatted("💾 Configuration saved and applied");
     }
     
     return CMD_SUCCESS;
@@ -2648,164 +2764,6 @@ command_result_t uart_cmd_matrixtest(const char* args)
     uart_send_formatted("");
     uart_send_formatted("💡 Place pieces on board and run MATRIXTEST again to see changes");
     
-    return CMD_SUCCESS;
-}
-
-/**
- * @brief Start chess puzzle
- */
-command_result_t uart_cmd_puzzle(const char* args)
-{
-    SAFE_WDT_RESET();
-    
-    uart_send_colored_line(COLOR_INFO, "🧩 Chess Puzzle");
-    uart_send_formatted("═══════════════════════════════════════════════════════════════");
-    
-    // MEMORY OPTIMIZATION: Use local puzzle generation instead of queue communication
-    ESP_LOGI(TAG, "📡 Using local puzzle generation (no queue communication)");
-    
-    uart_send_formatted("🧩 Chess Puzzle #%d", 42);
-    uart_send_formatted("");
-    
-    uart_send_formatted("📋 Puzzle Information:");
-    uart_send_formatted("  • Difficulty: Intermediate");
-    uart_send_formatted("  • Theme: Tactics");
-    uart_send_formatted("  • Moves to solve: 2");
-    uart_send_formatted("  • Time limit: 5 minutes");
-    uart_send_formatted("");
-    
-    uart_send_formatted("🎯 Objective:");
-    uart_send_formatted("  • Find the best move for White");
-    uart_send_formatted("  • Look for tactical opportunities");
-    uart_send_formatted("  • Consider all piece interactions");
-    uart_send_formatted("");
-    
-    uart_send_formatted("💡 Hints:");
-    uart_send_formatted("  • Check for pins and skewers");
-    uart_send_formatted("  • Look for discovered attacks");
-    uart_send_formatted("  • Consider piece sacrifices");
-    uart_send_formatted("");
-    
-    uart_send_formatted("🎮 Puzzle Setup:");
-    uart_send_formatted("  • White to move");
-    uart_send_formatted("  • Material: Even");
-    uart_send_formatted("  • King safety: Good");
-    uart_send_formatted("");
-    
-    uart_send_formatted("✅ Puzzle loaded successfully!");
-    uart_send_formatted("💡 Use 'BOARD' to see the puzzle position");
-    uart_send_formatted("💡 Use 'MOVES <square>' to analyze possible moves");
-    
-    SAFE_WDT_RESET();
-    ESP_LOGI(TAG, "✅ Puzzle generation completed successfully (local)");
-    return CMD_SUCCESS;
-}
-
-/**
- * @brief Next puzzle step
- */
-command_result_t uart_cmd_puzzle_next(const char* args)
-{
-    SAFE_WDT_RESET();
-    
-    uart_send_colored_line(COLOR_INFO, "➡️ Puzzle Next Step");
-    
-    // Send command to game task
-    chess_move_command_t cmd = {
-        .type = GAME_CMD_PUZZLE_NEXT,
-        .from_notation = "",
-        .to_notation = "",
-        .player = 0,
-        .response_queue = NULL
-    };
-    
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-        uart_send_colored_line(COLOR_ERROR, "❌ Failed to send puzzle next command");
-        return CMD_ERROR_INVALID_PARAMETER;
-    }
-    
-    uart_send_colored_line(COLOR_SUCCESS, "✅ Puzzle next step command sent");
-    return CMD_SUCCESS;
-}
-
-/**
- * @brief Verify puzzle move
- */
-command_result_t uart_cmd_puzzle_verify(const char* args)
-{
-    SAFE_WDT_RESET();
-    
-    uart_send_colored_line(COLOR_INFO, "🔍 Puzzle Verification");
-    
-    // Send command to game task
-    chess_move_command_t cmd = {
-        .type = GAME_CMD_PUZZLE_VERIFY,
-        .from_notation = "",
-        .to_notation = "",
-        .player = 0,
-        .response_queue = NULL
-    };
-    
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-        uart_send_colored_line(COLOR_ERROR, "❌ Failed to send puzzle verify command");
-        return CMD_ERROR_INVALID_PARAMETER;
-    }
-    
-    uart_send_colored_line(COLOR_SUCCESS, "✅ Puzzle verify command sent");
-    return CMD_SUCCESS;
-}
-
-/**
- * @brief Reset puzzle
- */
-command_result_t uart_cmd_puzzle_reset(const char* args)
-{
-    SAFE_WDT_RESET();
-    
-    uart_send_colored_line(COLOR_INFO, "🔄 Puzzle Reset");
-    
-    // Send command to game task
-    chess_move_command_t cmd = {
-        .type = GAME_CMD_PUZZLE_RESET,
-        .from_notation = "",
-        .to_notation = "",
-        .player = 0,
-        .response_queue = NULL
-    };
-    
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-        uart_send_colored_line(COLOR_ERROR, "❌ Failed to send puzzle reset command");
-        return CMD_ERROR_INVALID_PARAMETER;
-    }
-    
-    uart_send_colored_line(COLOR_SUCCESS, "✅ Puzzle reset command sent");
-    return CMD_SUCCESS;
-}
-
-/**
- * @brief Complete puzzle
- */
-command_result_t uart_cmd_puzzle_complete(const char* args)
-{
-    SAFE_WDT_RESET();
-    
-    uart_send_colored_line(COLOR_INFO, "✅ Puzzle Complete");
-    
-    // Send command to game task
-    chess_move_command_t cmd = {
-        .type = GAME_CMD_PUZZLE_COMPLETE,
-        .from_notation = "",
-        .to_notation = "",
-        .player = 0,
-        .response_queue = NULL
-    };
-    
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-        uart_send_colored_line(COLOR_ERROR, "❌ Failed to send puzzle complete command");
-        return CMD_ERROR_INVALID_PARAMETER;
-    }
-    
-    uart_send_colored_line(COLOR_SUCCESS, "✅ Puzzle complete command sent");
     return CMD_SUCCESS;
 }
 
@@ -6085,32 +6043,6 @@ command_result_t uart_cmd_test_endgame_anim(const char* args)
     return CMD_SUCCESS;
 }
 
-command_result_t uart_cmd_test_puzzle_anim(const char* args)
-{
-    uart_send_line("🎬 Testing puzzle animation...");
-    
-    // Send command to game task
-    chess_move_command_t cmd = {
-        .type = GAME_CMD_TEST_PUZZLE_ANIM,
-        .from_notation = "",
-        .to_notation = "",
-        .player = 0,
-        .response_queue = NULL
-    };
-    
-    if (game_command_queue) {
-        if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
-            uart_send_line("✅ Puzzle animation test started");
-        } else {
-            uart_send_error("❌ Failed to send animation test command");
-        }
-    } else {
-        uart_send_error("❌ Game command queue not available");
-    }
-    
-    return CMD_SUCCESS;
-}
-
 // Endgame Animation Style Commands
 command_result_t uart_cmd_endgame_wave(const char* args)
 {
@@ -6241,104 +6173,6 @@ command_result_t uart_cmd_endgame_draw_pulse(const char* args)
         return CMD_ERROR_SYSTEM_ERROR;
     }
     
-    return CMD_SUCCESS;
-}
-
-// Puzzle Commands
-command_result_t uart_cmd_puzzle_1(const char* args)
-{
-    uart_send_line("🧩 Loading Puzzle 1 (Easy)...");
-    uart_send_line("📋 Move the pawn from e2 to e4");
-    
-    // Start puzzle guidance
-    uint8_t from_led = chess_pos_to_led_index(1, 4); // e2
-    uint8_t to_led = chess_pos_to_led_index(3, 4);   // e4
-    
-    led_command_t puzzle_cmd = {
-        .type = LED_CMD_ANIM_PUZZLE_PATH,
-        .led_index = from_led,
-        .red = 0, .green = 255, .blue = 0,
-        .duration_ms = 2000,
-        .data = &to_led
-    };
-    led_execute_command_new(&puzzle_cmd);
-    
-    uart_send_line("✅ Puzzle 1 loaded - follow the LED guidance");
-    return CMD_SUCCESS;
-}
-
-command_result_t uart_cmd_puzzle_2(const char* args)
-{
-    uart_send_line("🧩 Loading Puzzle 2 (Medium)...");
-    uart_send_line("📋 Castle kingside");
-    
-    // Castle guidance
-    uint8_t king_from = chess_pos_to_led_index(0, 4); // e1
-    uint8_t king_to = chess_pos_to_led_index(0, 6);   // g1
-    
-    led_command_t castle_cmd = {
-        .type = LED_CMD_ANIM_CASTLE,
-        .led_index = king_from,
-        .red = 255, .green = 215, .blue = 0,
-        .duration_ms = 2000,
-        .data = &king_to
-    };
-    led_execute_command_new(&castle_cmd);
-    
-    uart_send_line("✅ Puzzle 2 loaded - follow the LED guidance");
-    return CMD_SUCCESS;
-}
-
-command_result_t uart_cmd_puzzle_3(const char* args)
-{
-    uart_send_line("🧩 Loading Puzzle 3 (Hard)...");
-    uart_send_line("📋 Promote pawn to queen");
-    
-    // Promotion guidance
-    uint8_t promote_led = chess_pos_to_led_index(7, 0); // a8
-    
-    led_command_t promote_cmd = {
-        .type = LED_CMD_ANIM_PROMOTE,
-        .led_index = promote_led,
-        .red = 255, .green = 215, .blue = 0,
-        .duration_ms = 2000,
-        .data = NULL
-    };
-    led_execute_command_new(&promote_cmd);
-    
-    uart_send_line("✅ Puzzle 3 loaded - follow the LED guidance");
-    return CMD_SUCCESS;
-}
-
-command_result_t uart_cmd_puzzle_4(const char* args)
-{
-    uart_send_line("🧩 Loading Puzzle 4 (Expert)...");
-    uart_send_line("📋 Complex combination - multiple moves");
-    
-    // Complex guidance - show multiple positions
-    for (int i = 0; i < 3; i++) {
-        uint8_t pos = (i * 13) % 64;
-        led_set_pixel_safe(pos, 255, 255, 0); // Yellow
-        vTaskDelay(pdMS_TO_TICKS(500));
-    }
-    
-    uart_send_line("✅ Puzzle 4 loaded - follow the LED guidance");
-    return CMD_SUCCESS;
-}
-
-command_result_t uart_cmd_puzzle_5(const char* args)
-{
-    uart_send_line("🧩 Loading Puzzle 5 (Master)...");
-    uart_send_line("📋 Master level - find the winning move");
-    
-    // Master guidance - show all possible moves
-    for (int i = 0; i < 8; i++) {
-        uint8_t pos = (i * 8) % 64;
-        led_set_pixel_safe(pos, 255, 0, 255); // Magenta
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-    
-    uart_send_line("✅ Puzzle 5 loaded - follow the LED guidance");
     return CMD_SUCCESS;
 }
 

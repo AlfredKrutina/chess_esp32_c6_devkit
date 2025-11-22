@@ -84,16 +84,13 @@
 // Timer system integration
 #include "../../timer_system/include/timer_system.h"
 // Note: animation_task.h is not included to avoid type conflicts with unified_animation_manager
-#include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "freertos/timers.h"
 #include "esp_log.h"
-#include "esp_system.h"
 #include "esp_timer.h"
 #include "esp_task_wdt.h"
-#include "driver/uart.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -186,6 +183,14 @@ static bool piece_lifted = false;
 static uint8_t lifted_piece_row = 0;
 static uint8_t lifted_piece_col = 0;
 static piece_t lifted_piece = PIECE_EMPTY;
+
+// ✅ OPRAVA: Proměnné pro tracking opponent piece (když se zvedne figurka nehrajícího hráče)
+static bool opponent_piece_moved = false;
+static piece_t opponent_piece_type = PIECE_EMPTY;
+static uint8_t opponent_original_row = 0;
+static uint8_t opponent_original_col = 0;
+static uint8_t opponent_current_row = 0;
+static uint8_t opponent_current_col = 0;
 
 // Castling flags
 static bool white_king_moved = false;
@@ -1182,6 +1187,17 @@ void game_reset_game(void)
     
     // Clear last move tracking
     has_last_move = false;
+    
+    // ✅ OPRAVA: Reset opponent piece recovery state
+    opponent_piece_moved = false;
+    opponent_piece_type = PIECE_EMPTY;
+    opponent_original_row = 0;
+    opponent_original_col = 0;
+    opponent_current_row = 0;
+    opponent_current_col = 0;
+    
+    // ✅ OPRAVA: Zastavit endgame animaci při resetu hry
+    led_stop_endgame_animation();
     
     // Reinitialize board
     game_initialize_board();
@@ -2596,6 +2612,9 @@ bool game_execute_move(const chess_move_t* move)
     // Execute the enhanced move
     bool success = game_execute_move_enhanced(&extended_move);
     
+    ESP_LOGI(TAG, "🔍 game_execute_move: success=%d, current_player before change=%s", 
+             success, current_player == PLAYER_WHITE ? "White" : "Black");
+    
     if (success) {
         // Update last move tracking for future en passant detection
         last_move_from_row = move->from_row;
@@ -2658,7 +2677,7 @@ bool game_execute_move(const chess_move_t* move)
                      'a' + castling_state.rook_to_col, castling_state.rook_to_row + 1);
             ESP_LOGI(TAG, "🏰 Castling in progress - player remains %s", 
                      current_player == PLAYER_WHITE ? "White" : "Black");
-            return success; // Return success but don't change player
+            return success; // Return success but don't change player - hráč se změní až po dokončení rošády
         }
         
         // Check for promotion - start promotion animation
@@ -2718,41 +2737,103 @@ bool game_execute_move(const chess_move_t* move)
                 game_end_timer_move();
                 game_start_timer_move(current_player == PLAYER_WHITE);
                 
-                // Resetovat castling state
-                castling_state.in_progress = false;
+                // ✅ KRITICKÉ: Endgame kontrola PŘED player change animací!
+                // Pokud je endgame, player change se NESPOUŠTÍ
+                game_state_t end_game_result = game_check_end_game_conditions();
+                if (end_game_result == GAME_STATE_FINISHED) {
+                    current_game_state = GAME_STATE_FINISHED;
+                    game_active = false;
+                    
+                    // Najít pozici krále vítěze pro endgame animaci
+                    player_t winner = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+                    uint8_t king_pos = 28; // default e4
+                    for (int i = 0; i < 64; i++) {
+                        piece_t piece = board[i/8][i%8];
+                        if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
+                            (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
+                            king_pos = i;
+                            break;
+                        }
+                    }
+                    
+                    ESP_LOGI(TAG, "🎯 Game finished after castling! Starting endgame animation at position %d", king_pos);
+                    
+                    // Spustit endgame animaci (wave z krále vítěze)
+                    led_command_t endgame_cmd = {
+                        .type = LED_CMD_ANIM_ENDGAME,
+                        .led_index = king_pos,
+                        .red = 255, .green = 255, .blue = 0, // Yellow
+                        .duration_ms = 0, // Endless
+                        .data = NULL
+                    };
+                    led_execute_command_new(&endgame_cmd);
+                    
+                    ESP_LOGI(TAG, "✅ Endgame animation started - player change animation SKIPPED");
+                } else {
+                    // Není endgame - spustit player change animaci
+                    uint8_t player_color = (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
+                    led_command_t player_change_cmd = {
+                        .type = LED_CMD_ANIM_PLAYER_CHANGE,  // ✅ OPRAVA: Použít ANIM_PLAYER_CHANGE místo PLAYER_CHANGE
+                        .led_index = 0,
+                        .red = 0, .green = 0, .blue = 0,
+                        .duration_ms = 0,
+                        .data = &player_color  // Předat barvu hráče
+                    };
+                    led_execute_command_new(&player_change_cmd);
+                    
+                    // Resetovat castling state
+                    castling_state.in_progress = false;
+                    
+                    // Zobrazit pohyblivé figury pro nového hráče
+                    led_clear_board_only();
+                    game_highlight_movable_pieces();
+                    
+                    // Zkontrolovat, zda je nový hráč v šachu
+                    bool in_check = game_is_king_in_check(current_player);
+                    if (in_check) {
+                        // Spustit check animaci
+                        led_command_t check_cmd = {
+                            .type = LED_CMD_ANIM_CHECK,
+                            .led_index = 0,
+                            .red = 255, .green = 0, .blue = 0, // Red
+                            .duration_ms = 2000,
+                            .data = NULL
+                        };
+                        led_execute_command_new(&check_cmd);
+                        ESP_LOGI(TAG, "⚠️ CHECK! %s is in check", 
+                                 current_player == PLAYER_WHITE ? "White" : "Black");
+                    }
+                }
                 
-                // Zobrazit pohyblivé figury pro nového hráče
-                led_clear_board_only();
-                game_highlight_movable_pieces();
+                // ✅ RETURN po dokončení rošády - hráč se už změnil
+                return success;
             } else {
                 ESP_LOGE(TAG, "❌ Wrong move during castling - expected rook from %c%d to %c%d", 
                          'a' + castling_state.rook_from_col, castling_state.rook_from_row + 1,
                          'a' + castling_state.rook_to_col, castling_state.rook_to_row + 1);
                 // Nezměnit hráče - stále čekáme na správný tah věže
+                return success; // Return success but don't change player
             }
-        } else {
-            // ✅ NORMÁLNÍ TAHY - změnit hráče a přepnout timer
-            player_t previous_player = current_player;
-            current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-            
-            ESP_LOGI(TAG, "✅ Move executed successfully. %s to move", 
-                     (current_player == PLAYER_WHITE) ? "White" : "Black");
-            
-            // Timer integration: End timer for previous player and start for new player
-            ESP_LOGI(TAG, "🔄 Timer switch: ending for %s, starting for %s", 
-                     previous_player == PLAYER_WHITE ? "White" : "Black",
-                     current_player == PLAYER_WHITE ? "White" : "Black");
-            game_end_timer_move();
-            game_start_timer_move(current_player == PLAYER_WHITE);
-            
-            // Check for checkmate, stalemate, or draw
-            game_state_t game_state = game_analyze_position(current_player);
-            if (game_state == GAME_STATE_FINISHED) {
-                current_game_state = GAME_STATE_FINISHED;
-                game_active = false;
-                ESP_LOGI(TAG, "🎯 Game finished! Result: %s", 
-                         game_result == GAME_STATE_FINISHED ? "Checkmate/Stalemate/Draw" : "Unknown");
-            }
+        }
+        
+        // ✅ NORMÁLNÍ TAHY - změnit hráče (move animace se spouští v game_process_drop_command)
+        // CRITICAL: Switch player BEFORE checking endgame conditions (podle starého projektu)
+        player_t previous_player = current_player;
+        ESP_LOGI(TAG, "🔄 Changing player from %s to %s", 
+                 previous_player == PLAYER_WHITE ? "White" : "Black",
+                 (previous_player == PLAYER_WHITE) ? "Black" : "White");
+        current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        
+        ESP_LOGI(TAG, "✅ Move executed successfully. %s to move (current_player=%s)", 
+                 (current_player == PLAYER_WHITE) ? "White" : "Black",
+                 current_player == PLAYER_WHITE ? "White" : "Black");
+        
+        // CRITICAL: Check for endgame conditions after move execution (podle starého projektu)
+        game_state_t end_game_result = game_check_end_game_conditions();
+        if (end_game_result == GAME_STATE_FINISHED) {
+            ESP_LOGI(TAG, "🎯 Endgame detected after move execution");
+            current_game_state = GAME_STATE_FINISHED;
+            game_active = false;
         }
     }
     
@@ -3254,15 +3335,41 @@ static void game_process_pickup_command(const chess_move_command_t* cmd)
     
     if ((current_player == PLAYER_WHITE && !is_white_piece) ||
         (current_player == PLAYER_BLACK && !is_black_piece)) {
-        // ✅ OPRAVA: Safe string handling - prevent buffer overflow (array je vždy != NULL)
+        // ✅ OPRAVA: Handling zvednutí figurky nehrajícího hráče - donutit hráče vrátit figurku zpět
         const char* safe_notation = (strlen(cmd->from_notation) > 0) ? cmd->from_notation : "??";
-        ESP_LOGE(TAG, "❌ Cannot lift opponent's piece at %s", safe_notation);
+        ESP_LOGW(TAG, "⚠️ Opponent's piece lifted at %s - starting recovery", safe_notation);
         
-        char error_msg[128];
-        int written = snprintf(error_msg, sizeof(error_msg), "❌ Cannot lift opponent's piece at %s", safe_notation);
+        // Uložit informace o opponent piece
+        opponent_piece_type = piece;
+        opponent_original_row = from_row;
+        opponent_original_col = from_col;
+        opponent_current_row = from_row;
+        opponent_current_col = from_col;
+        opponent_piece_moved = true;
+        
+        // ✅ KRITICKÉ: Odstranit figurku z boardu (byla zvednuta)
+        board[from_row][from_col] = PIECE_EMPTY;
+        
+        // Nastavit recovery stav
+        current_game_state = GAME_STATE_WAITING_FOR_RETURN;
+        
+        // ✅ LED: Zobrazit červenou LED na původní pozici (kde má být figurka vrácena)
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 0, 0); // Solid red
+        
+        // Nastavit lifted piece state pro případné drop
+        piece_lifted = true;
+        lifted_piece_row = from_row;
+        lifted_piece_col = from_col;
+        lifted_piece = piece;
+        
+        char error_msg[256];
+        int written = snprintf(error_msg, sizeof(error_msg), 
+                               "⚠️ Opponent's piece lifted at %s\n"
+                               "🔴 Return piece to RED square (%s) to continue", 
+                               safe_notation, safe_notation);
         if (written >= sizeof(error_msg)) {
-            // Buffer overflow protection
-            strcpy(error_msg, "❌ Cannot lift opponent's piece");
+            strcpy(error_msg, "⚠️ Return opponent's piece to RED square");
         }
         
         game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
@@ -3425,6 +3532,76 @@ void game_process_drop_command(const chess_move_command_t* cmd)
         return;
     }
     
+    // ✅ OPRAVA: Kontrola, zda se vrací opponent piece
+    if (current_game_state == GAME_STATE_WAITING_FOR_RETURN && opponent_piece_moved) {
+        ESP_LOGI(TAG, "🔄 Processing opponent piece return");
+        
+        // ✅ SPRÁVNÉ VRÁCENÍ: Figurka se vrací na původní pozici
+        if (to_row == opponent_original_row && to_col == opponent_original_col) {
+            ESP_LOGI(TAG, "✅ Opponent piece returned to original position %c%d", 
+                     'a' + to_col, to_row + 1);
+            
+            // Vrátit figurku na board
+            board[to_row][to_col] = opponent_piece_type;
+            
+            // Resetovat recovery stav
+            opponent_piece_moved = false;
+            opponent_piece_type = PIECE_EMPTY;
+            opponent_original_row = 0;
+            opponent_original_col = 0;
+            opponent_current_row = 0;
+            opponent_current_col = 0;
+            current_game_state = GAME_STATE_ACTIVE;
+            
+            // Resetovat lifted piece state
+            piece_lifted = false;
+            lifted_piece_row = 0;
+            lifted_piece_col = 0;
+            lifted_piece = PIECE_EMPTY;
+            
+            // Vyčistit LED a ukázat normální stav
+            led_clear_board_only();
+            game_highlight_movable_pieces();
+            
+            game_send_response_to_uart("✅ Opponent piece returned - continue game", false, 
+                                     (QueueHandle_t)cmd->response_queue);
+            return;
+        }
+        
+        // ✅ NESPRÁVNÉ POLOŽENÍ: Figurka se pokládá na jinou pozici
+        ESP_LOGW(TAG, "⚠️ Opponent piece placed at wrong position %c%d (should be %c%d)", 
+                 'a' + to_col, to_row + 1,
+                 'a' + opponent_original_col, opponent_original_row + 1);
+        
+        // Aktualizovat aktuální pozici
+        opponent_current_row = to_row;
+        opponent_current_col = to_col;
+        
+        // Aktualizovat board (figurka je nyní na nové pozici)
+        board[to_row][to_col] = opponent_piece_type;
+        
+        // Aktualizovat lifted piece state pro další pokus
+        lifted_piece_row = to_row;
+        lifted_piece_col = to_col;
+        
+        // ✅ LED: Zobrazit červenou LED na původní pozici (kde má být figurka vrácena)
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(opponent_original_row, opponent_original_col), 255, 0, 0); // Solid red
+        
+        char error_msg[256];
+        int written = snprintf(error_msg, sizeof(error_msg), 
+                               "⚠️ Opponent piece at wrong position %c%d\n"
+                               "🔴 Return to RED square (%c%d) to continue", 
+                               'a' + to_col, to_row + 1,
+                               'a' + opponent_original_col, opponent_original_row + 1);
+        if (written >= sizeof(error_msg)) {
+            strcpy(error_msg, "⚠️ Return opponent piece to RED square");
+        }
+        
+        game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
+        return;
+    }
+    
     // ✅ KONTROLA: Je figurka v error recovery stavu?
     if (error_recovery_state.waiting_for_move_correction) {
         ESP_LOGI(TAG, "🔄 Processing move correction from error state");
@@ -3579,7 +3756,13 @@ void game_process_drop_command(const chess_move_command_t* cmd)
         bool is_castling = (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING) &&
                           abs((int)to_col - (int)lifted_piece_col) == 2;
         
-        if (game_execute_move(&move)) {
+        ESP_LOGI(TAG, "🔍 game_process_drop_command: BEFORE game_execute_move, current_player=%s", 
+                 current_player == PLAYER_WHITE ? "White" : "Black");
+        bool move_success = game_execute_move(&move);
+        ESP_LOGI(TAG, "🔍 game_process_drop_command: AFTER game_execute_move, move_success=%d, current_player=%s", 
+                 move_success, current_player == PLAYER_WHITE ? "White" : "Black");
+        
+        if (move_success) {
             // ✅ KRITICKÁ OPRAVA: Reset error state při jakémkoliv validním tahu!
             if (error_recovery_state.waiting_for_move_correction) {
                 ESP_LOGI(TAG, "✅ Valid move - clearing error recovery state");
@@ -3587,26 +3770,92 @@ void game_process_drop_command(const chess_move_command_t* cmd)
             }
             
             if (!is_castling) {
-                // Normal move - change player and switch timer
-                player_t previous_player = current_player;
-                current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+                // ✅ Spustit move path animaci PŘED změnou hráče (podle starého projektu)
+                uint8_t from_led = chess_pos_to_led_index(move.from_row, move.from_col);
+                uint8_t to_led = chess_pos_to_led_index(move.to_row, move.to_col);
+                led_command_t move_path_cmd = {
+                    .type = LED_CMD_ANIM_MOVE_PATH,
+                    .led_index = from_led,
+                    .red = 255, .green = 255, .blue = 0, // Yellow
+                    .duration_ms = 1000,
+                    .data = &to_led  // Cílová pozice v data
+                };
+                led_execute_command_new(&move_path_cmd);
                 
+                // ✅ POČKAT na dokončení move path animace (25 frameů × 2ms = 50ms + 8×20ms breathing = 210ms)
+                vTaskDelay(pdMS_TO_TICKS(210));
+                
+                // ✅ HRÁČ SE UŽ ZMĚNIL V game_execute_move() - použít aktuálního hráče
                 // Timer integration: End timer for previous player and start for new player
+                player_t previous_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
                 ESP_LOGI(TAG, "🔄 Timer switch (drop): ending for %s, starting for %s", 
                          previous_player == PLAYER_WHITE ? "White" : "Black",
                          current_player == PLAYER_WHITE ? "White" : "Black");
                 game_end_timer_move();
                 game_start_timer_move(current_player == PLAYER_WHITE);
                 
-                // ✅ KRITICKÁ OPRAVA: Kontrola checkmate/stalemate po každém tahu!
+                // ✅ KRITICKÉ: Endgame kontrola PŘED player change animací!
+                // Pokud je endgame, player change se NESPOUŠTÍ
                 game_state_t end_game_result = game_check_end_game_conditions();
                 if (end_game_result == GAME_STATE_FINISHED) {
                     current_game_state = GAME_STATE_FINISHED;
                     game_active = false;
-                    ESP_LOGI(TAG, "🎉 Game finished detected in DROP command!");
+                    
+                    // Najít pozici krále vítěze pro endgame animaci
+                    player_t winner = previous_player; // Vítěz je předchozí hráč (ten, kdo udělal tah)
+                    uint8_t king_pos = 28; // default e4
+                    for (int i = 0; i < 64; i++) {
+                        piece_t piece = board[i/8][i%8];
+                        if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
+                            (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
+                            king_pos = i;
+                            break;
+                        }
+                    }
+                    
+                    ESP_LOGI(TAG, "🎯 Game finished in DROP command! Starting endgame animation at position %d", king_pos);
+                    
+                    // Spustit endgame animaci (wave z krále vítěze)
+                    led_command_t endgame_cmd = {
+                        .type = LED_CMD_ANIM_ENDGAME,
+                        .led_index = king_pos,
+                        .red = 255, .green = 255, .blue = 0, // Yellow
+                        .duration_ms = 0, // Endless
+                        .data = &winner  // Pass winner color to animation
+                    };
+                    led_execute_command_new(&endgame_cmd);
+                    
+                    ESP_LOGI(TAG, "✅ Endgame animation started - player change animation SKIPPED");
+                } else {
+                    // Není endgame - spustit player change animaci s NOVÝM hráčem (current_player)
+                    uint8_t player_color = (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
+                    led_command_t player_change_cmd = {
+                        .type = LED_CMD_ANIM_PLAYER_CHANGE,  // ✅ OPRAVA: Použít ANIM_PLAYER_CHANGE místo PLAYER_CHANGE
+                        .led_index = 0,
+                        .red = 0, .green = 0, .blue = 0,
+                        .duration_ms = 0,
+                        .data = &player_color  // Předat barvu NOVÉHO hráče
+                    };
+                    led_execute_command_new(&player_change_cmd);
+                    
+                    // Zkontrolovat, zda je nový hráč v šachu
+                    bool in_check = game_is_king_in_check(current_player);
+                    if (in_check) {
+                        // Spustit check animaci
+                        led_command_t check_cmd = {
+                            .type = LED_CMD_ANIM_CHECK,
+                            .led_index = 0,
+                            .red = 255, .green = 0, .blue = 0, // Red
+                            .duration_ms = 2000,
+                            .data = NULL
+                        };
+                        led_execute_command_new(&check_cmd);
+                        ESP_LOGI(TAG, "⚠️ CHECK! %s is in check", 
+                                 current_player == PLAYER_WHITE ? "White" : "Black");
+                    }
                 }
                 
-                // Show player change animation
+                // Show movable pieces
                 led_clear_board_only();
                 game_highlight_movable_pieces();
             }
@@ -3977,15 +4226,72 @@ static void game_process_promotion_button(uint8_t button_id)
         printf("\r\n");
         
         // Switch player
-        player_t previous_player = current_player;
         current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
         
-        // Show player change animation
-        game_show_player_change_animation(previous_player, current_player);
+        // ✅ KRITICKÉ: Endgame kontrola PŘED player change animací!
+        // Pokud je endgame, player change se NESPOUŠTÍ
+        game_state_t end_game_result = game_check_end_game_conditions();
+        if (end_game_result == GAME_STATE_FINISHED) {
+            current_game_state = GAME_STATE_FINISHED;
+            game_active = false;
+            
+            // Najít pozici krále vítěze pro endgame animaci
+            player_t winner = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+            uint8_t king_pos = 28; // default e4
+            for (int i = 0; i < 64; i++) {
+                piece_t piece = board[i/8][i%8];
+                if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
+                    (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
+                    king_pos = i;
+                    break;
+                }
+            }
+            
+            ESP_LOGI(TAG, "🎯 Game finished after promotion! Starting endgame animation at position %d", king_pos);
+            
+            // Spustit endgame animaci (wave z krále vítěze)
+            led_command_t endgame_cmd = {
+                .type = LED_CMD_ANIM_ENDGAME,
+                .led_index = king_pos,
+                .red = 255, .green = 255, .blue = 0, // Yellow
+                .duration_ms = 0, // Endless
+                .data = NULL
+            };
+            led_execute_command_new(&endgame_cmd);
+            
+            ESP_LOGI(TAG, "✅ Endgame animation started - player change animation SKIPPED");
+        } else {
+            // Není endgame - spustit player change animaci
+            uint8_t player_color = (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
+            led_command_t player_change_cmd = {
+                .type = LED_CMD_ANIM_PLAYER_CHANGE,  // ✅ OPRAVA: Použít ANIM_PLAYER_CHANGE místo PLAYER_CHANGE
+                .led_index = 0,
+                .red = 0, .green = 0, .blue = 0,
+                .duration_ms = 0,
+                .data = &player_color  // Předat barvu hráče
+            };
+            led_execute_command_new(&player_change_cmd);
+            
+            // Update LED indications
+            game_check_promotion_needed();
+            game_highlight_movable_pieces();
+        }
         
-        // Update LED indications
-        game_check_promotion_needed();
-        game_highlight_movable_pieces();
+        // Zkontrolovat, zda je nový hráč v šachu
+        bool in_check = game_is_king_in_check(current_player);
+        if (in_check) {
+            // Spustit check animaci
+            led_command_t check_cmd = {
+                .type = LED_CMD_ANIM_CHECK,
+                .led_index = 0,
+                .red = 255, .green = 0, .blue = 0, // Red
+                .duration_ms = 2000,
+                .data = NULL
+            };
+            led_execute_command_new(&check_cmd);
+            ESP_LOGI(TAG, "⚠️ CHECK! %s is in check", 
+                     current_player == PLAYER_WHITE ? "White" : "Black");
+        }
         
         ESP_LOGI(TAG, "✅ Promotion completed successfully");
     } else {
@@ -4430,12 +4736,6 @@ void game_process_save_command(const chess_move_command_t* cmd);
 void game_process_load_command(const chess_move_command_t* cmd);
 
 /**
- * @brief Process puzzle command from UART
- * @param cmd Puzzle command
- */
-void game_process_puzzle_command(const chess_move_command_t* cmd);
-
-/**
  * @brief Process castle command from UART
  * @param cmd Castle command
  */
@@ -4490,30 +4790,6 @@ void game_process_list_games_command(const chess_move_command_t* cmd);
  * @param cmd Delete game command
  */
 void game_process_delete_game_command(const chess_move_command_t* cmd);
-
-/**
- * @brief Process puzzle next step command from UART
- * @param cmd Puzzle next command
- */
-void game_process_puzzle_next_command(const chess_move_command_t* cmd);
-
-/**
- * @brief Process puzzle reset command from UART
- * @param cmd Puzzle reset command
- */
-void game_process_puzzle_reset_command(const chess_move_command_t* cmd);
-
-/**
- * @brief Process puzzle complete command from UART
- * @param cmd Puzzle complete command
- */
-void game_process_puzzle_complete_command(const chess_move_command_t* cmd);
-
-/**
- * @brief Process puzzle verify command from UART
- * @param cmd Puzzle verify command
- */
-void game_process_puzzle_verify_command(const chess_move_command_t* cmd);
 
 /**
  * @brief Process promotion command from UART
@@ -4664,99 +4940,6 @@ void game_process_load_command(const chess_move_command_t* cmd)
     );
     
     game_send_response_to_uart(load_data, false, (QueueHandle_t)cmd->response_queue);
-}
-
-/**
- * @brief Process puzzle command from UART
- * @param cmd Puzzle command
- */
-// Global puzzle state
-static chess_puzzle_t current_puzzle = {0};
-
-// Predefined puzzles database
-static const chess_puzzle_t puzzle_database[] = {
-    // Beginner Puzzle #1: Knight Fork
-    {
-        .name = "Knight Fork #1",
-        .description = "Find the knight move that forks the king and queen",
-        .difficulty = PUZZLE_DIFFICULTY_BEGINNER,
-        .initial_board = {
-            {PIECE_BLACK_ROOK, PIECE_EMPTY, PIECE_EMPTY, PIECE_BLACK_QUEEN, PIECE_BLACK_KING, PIECE_EMPTY, PIECE_EMPTY, PIECE_BLACK_ROOK},
-            {PIECE_BLACK_PAWN, PIECE_BLACK_PAWN, PIECE_BLACK_PAWN, PIECE_EMPTY, PIECE_EMPTY, PIECE_BLACK_PAWN, PIECE_BLACK_PAWN, PIECE_BLACK_PAWN},
-            {PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY},
-            {PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY},
-            {PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY},
-            {PIECE_EMPTY, PIECE_EMPTY, PIECE_WHITE_KNIGHT, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY, PIECE_EMPTY},
-            {PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN, PIECE_WHITE_PAWN},
-            {PIECE_WHITE_ROOK, PIECE_EMPTY, PIECE_EMPTY, PIECE_WHITE_QUEEN, PIECE_WHITE_KING, PIECE_EMPTY, PIECE_EMPTY, PIECE_WHITE_ROOK}
-        },
-        .steps = {
-            {2, 2, 1, 4, "Move knight to e7 - forking king and queen!", true},
-            {0, 4, 0, 5, "King must move", false},
-            {1, 4, 0, 3, "Capture the queen!", true}
-        },
-        .step_count = 3,
-        .current_step = 0,
-        .is_active = false
-    }
-};
-
-void game_process_puzzle_command(const chess_move_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "🧩 Processing PUZZLE command");
-    
-    // Select puzzle (simple implementation)
-    current_puzzle = puzzle_database[0];
-    current_puzzle.is_active = true;
-    current_puzzle.current_step = 0;
-    current_puzzle.start_time = esp_timer_get_time() / 1000;
-    
-    // Set up the puzzle board position
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            board[row][col] = current_puzzle.initial_board[row][col];
-        }
-    }
-    
-    char puzzle_data[1024];  // Puzzle data needs more space for full description
-    snprintf(puzzle_data, sizeof(puzzle_data),
-        "🧩 CHESS PUZZLE STARTED\n"
-        "═══════════════════════════════════════════════════════════════\n"
-        "📝 Name: %s\n"
-        "🎯 Difficulty: Beginner\n"
-        "📖 Description: %s\n"
-        "🔢 Steps: %d moves to solve\n"
-        "\n"
-        "🎮 PUZZLE CONTROLS:\n"
-        "  • 'BOARD' - See current position\n"
-        "  • 'MOVE e2 e4' - Make your move\n"
-        "\n"
-        "🎯 CURRENT TASK (Step 1/%d):\n"
-        "   %s\n"
-        "\n"
-        "💡 PUZZLE FEATURES:\n"
-        "  🟡 Yellow LEDs - Piece to move\n"
-        "  🔵 Cyan Path - Animation shows where to move\n"
-        "  🟢 Green LEDs - Destination square\n"
-        "\n"
-        "🚀 LED animations starting soon...\n"
-        "📋 Study the position and find the best move!",
-        current_puzzle.name,
-        current_puzzle.description,
-        current_puzzle.step_count,
-        current_puzzle.step_count,
-        current_puzzle.steps[0].description
-    );
-    
-    game_send_response_to_uart(puzzle_data, false, (QueueHandle_t)cmd->response_queue);
-    
-    // Start LED animations
-    uint8_t from_square = chess_pos_to_led_index(current_puzzle.steps[0].from_row, current_puzzle.steps[0].from_col);
-    led_set_pixel_safe(from_square, 255, 255, 0); // Yellow
-    
-    ESP_LOGI(TAG, "🧩 Puzzle '%s' loaded with LED animation", current_puzzle.name);
 }
 
 /**
@@ -5016,7 +5199,7 @@ void game_process_promote_command(const chess_move_command_t* cmd)
             promotion_piece = is_white_pawn ? PIECE_WHITE_KNIGHT : PIECE_BLACK_KNIGHT;
             piece_name = "Knight";
             break;
-        default:
+        default: {
             char error_msg[1024];
             snprintf(error_msg, sizeof(error_msg),
                 "❌ Invalid promotion piece: '%s'\n"
@@ -5038,6 +5221,7 @@ void game_process_promote_command(const chess_move_command_t* cmd)
             );
             game_send_response_to_uart(error_msg, true, (QueueHandle_t)cmd->response_queue);
             return;
+        }
     }
     
     // FIXED: Add LED animations for promotion
@@ -5819,10 +6003,84 @@ void game_process_chess_move(const chess_move_command_t* cmd)
                 // ✅ OPRAVA: Odstraněno modré bliknutí - animace se řeší v game_process_drop_command
                 // LED se zhasínají v game_process_drop_command po úspěšném tahu
                 
-                // FIXED: Show player change animation
-                player_t previous_player = current_player;
-                current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-                game_show_player_change_animation(previous_player, current_player);
+                // ✅ Spustit move path animaci PŘED změnou hráče (podle starého projektu)
+                uint8_t from_led = chess_pos_to_led_index(move.from_row, move.from_col);
+                uint8_t to_led = chess_pos_to_led_index(move.to_row, move.to_col);
+                led_command_t move_path_cmd = {
+                    .type = LED_CMD_ANIM_MOVE_PATH,
+                    .led_index = from_led,
+                    .red = 255, .green = 255, .blue = 0, // Yellow
+                    .duration_ms = 1000,
+                    .data = &to_led  // Cílová pozice v data
+                };
+                led_execute_command_new(&move_path_cmd);
+                
+                // ✅ POČKAT na dokončení move path animace (25 frameů × 2ms = 50ms + 8×20ms breathing = 210ms)
+                vTaskDelay(pdMS_TO_TICKS(210));
+                
+                // ✅ HRÁČ SE UŽ ZMĚNIL V game_execute_move() - použít aktuálního hráče
+                player_t previous_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+                
+                // ✅ KRITICKÉ: Endgame kontrola PŘED player change animací!
+                // Pokud je endgame, player change se NESPOUŠTÍ
+                game_state_t end_game_result = game_check_end_game_conditions();
+                if (end_game_result == GAME_STATE_FINISHED) {
+                    current_game_state = GAME_STATE_FINISHED;
+                    game_active = false;
+                    
+                    // Najít pozici krále vítěze pro endgame animaci
+                    player_t winner = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+                    uint8_t king_pos = 28; // default e4
+                    for (int i = 0; i < 64; i++) {
+                        piece_t piece = board[i/8][i%8];
+                        if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
+                            (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
+                            king_pos = i;
+                            break;
+                        }
+                    }
+                    
+                    ESP_LOGI(TAG, "🎯 Game finished in UART move! Starting endgame animation at position %d", king_pos);
+                    
+                    // Spustit endgame animaci (wave z krále vítěze)
+                    led_command_t endgame_cmd = {
+                        .type = LED_CMD_ANIM_ENDGAME,
+                        .led_index = king_pos,
+                        .red = 255, .green = 255, .blue = 0, // Yellow
+                        .duration_ms = 0, // Endless
+                        .data = NULL
+                    };
+                    led_execute_command_new(&endgame_cmd);
+                    
+                    ESP_LOGI(TAG, "✅ Endgame animation started - player change animation SKIPPED");
+                } else {
+                    // Není endgame - spustit player change animaci
+                    uint8_t player_color = (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
+                    led_command_t player_change_cmd = {
+                        .type = LED_CMD_ANIM_PLAYER_CHANGE,  // ✅ OPRAVA: Použít ANIM_PLAYER_CHANGE místo PLAYER_CHANGE
+                        .led_index = 0,
+                        .red = 0, .green = 0, .blue = 0,
+                        .duration_ms = 0,
+                        .data = &player_color  // Předat barvu hráče
+                    };
+                    led_execute_command_new(&player_change_cmd);
+                    
+                    // Zkontrolovat, zda je nový hráč v šachu
+                    bool in_check = game_is_king_in_check(current_player);
+                    if (in_check) {
+                        // Spustit check animaci
+                        led_command_t check_cmd = {
+                            .type = LED_CMD_ANIM_CHECK,
+                            .led_index = 0,
+                            .red = 255, .green = 0, .blue = 0, // Red
+                            .duration_ms = 2000,
+                            .data = NULL
+                        };
+                        led_execute_command_new(&check_cmd);
+                        ESP_LOGI(TAG, "⚠️ CHECK! %s is in check", 
+                             current_player == PLAYER_WHITE ? "White" : "Black");
+                    }
+                }
                 
                 // Timer integration: End timer for previous player and start for new player
                 ESP_LOGI(TAG, "🔄 Timer switch: ending for %s, starting for %s", 
@@ -5840,12 +6098,10 @@ void game_process_chess_move(const chess_move_command_t* cmd)
                         cmd->from_notation, cmd->to_notation);
                 game_send_response_to_uart(success_msg, false, (QueueHandle_t)cmd->response_queue);
             }
-            
         } else {
             ESP_LOGE(TAG, "❌ Failed to execute UART move");
             game_send_response_to_uart("Failed to execute move", true, (QueueHandle_t)cmd->response_queue);
         }
-        
     } else {
         ESP_LOGE(TAG, "❌ Invalid UART move: error %d", error);
         ESP_LOGI(TAG, "🚨 CALLING SMART ERROR HANDLING...");
@@ -5964,9 +6220,14 @@ void game_process_commands(void)
                     game_process_load_command(&chess_cmd);
                     break;
                     
-                case 20: // GAME_CMD_PUZZLE
-                    ESP_LOGI(TAG, "Processing PUZZLE command from UART");
-                    game_process_puzzle_command(&chess_cmd);
+                case 20: // GAME_CMD_RESERVED_SLOT_20
+                case 29: // GAME_CMD_RESERVED_SLOT_29
+                case 30: // GAME_CMD_RESERVED_SLOT_30
+                case 31: // GAME_CMD_RESERVED_SLOT_31
+                case 32: // GAME_CMD_RESERVED_SLOT_32
+                case 38: // GAME_CMD_RESERVED_SLOT_38
+                    ESP_LOGW(TAG, "Ignored legacy puzzle command: %d", chess_cmd.type);
+                    game_send_response_to_uart("❌ Puzzle system neni dostupny", true, (QueueHandle_t)chess_cmd.response_queue);
                     break;
                     
                 case 21: // GAME_CMD_CASTLE
@@ -6009,26 +6270,6 @@ void game_process_commands(void)
                     game_process_delete_game_command(&chess_cmd);
                     break;
                     
-                case 29: // GAME_CMD_PUZZLE_NEXT
-                    ESP_LOGI(TAG, "Processing PUZZLE_NEXT command from UART");
-                    game_process_puzzle_next_command(&chess_cmd);
-                    break;
-                    
-                case 30: // GAME_CMD_PUZZLE_RESET
-                    ESP_LOGI(TAG, "Processing PUZZLE_RESET command from UART");
-                    game_process_puzzle_reset_command(&chess_cmd);
-                    break;
-                    
-                case 31: // GAME_CMD_PUZZLE_COMPLETE
-                    ESP_LOGI(TAG, "Processing PUZZLE_COMPLETE command from UART");
-                    game_process_puzzle_complete_command(&chess_cmd);
-                    break;
-                    
-                case 32: // GAME_CMD_PUZZLE_VERIFY
-                    ESP_LOGI(TAG, "Processing PUZZLE_VERIFY command from UART");
-                    game_process_puzzle_verify_command(&chess_cmd);
-                    break;
-                    
                 case 33: // GAME_CMD_TEST_MOVE_ANIM
                     ESP_LOGI(TAG, "Processing TEST_MOVE_ANIM command from UART");
                     game_test_move_animation();
@@ -6052,11 +6293,6 @@ void game_process_commands(void)
                 case 37: // GAME_CMD_TEST_ENDGAME_ANIM
                     ESP_LOGI(TAG, "Processing TEST_ENDGAME_ANIM command from UART");
                     game_test_endgame_animation();
-                    break;
-                    
-                case 38: // GAME_CMD_TEST_PUZZLE_ANIM
-                    ESP_LOGI(TAG, "Processing TEST_PUZZLE_ANIM command from UART");
-                    game_test_puzzle_animation();
                     break;
                     
                 // Timer System Commands
@@ -6403,8 +6639,85 @@ void game_process_move_command(const void* move_cmd_ptr)
     // Update game state
     last_move_time = esp_timer_get_time() / 1000;
     
-    // Switch player
+    // ✅ Spustit move path animaci PŘED změnou hráče (podle starého projektu)
+    uint8_t from_led = chess_pos_to_led_index(move_cmd->from_row, move_cmd->from_col);
+    uint8_t to_led = chess_pos_to_led_index(move_cmd->to_row, move_cmd->to_col);
+    led_command_t move_path_cmd = {
+        .type = LED_CMD_ANIM_MOVE_PATH,
+        .led_index = from_led,
+        .red = 255, .green = 255, .blue = 0, // Yellow
+        .duration_ms = 1000,
+        .data = &to_led  // Cílová pozice v data
+    };
+    led_execute_command_new(&move_path_cmd);
+    
+    // ✅ POČKAT na dokončení move path animace (25 frameů × 2ms = 50ms + 8×20ms breathing = 210ms)
+    vTaskDelay(pdMS_TO_TICKS(210));
+    
+    // Switch player (podle starého projektu - změna hráče po move animaci)
+    player_t previous_player = current_player;
     current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    
+    // ✅ KRITICKÉ: Endgame kontrola PŘED player change animací!
+    // Pokud je endgame, player change se NESPOUŠTÍ
+    game_state_t end_game_result = game_check_end_game_conditions();
+    if (end_game_result == GAME_STATE_FINISHED) {
+        current_game_state = GAME_STATE_FINISHED;
+        game_active = false;
+        
+        // Najít pozici krále vítěze pro endgame animaci
+        player_t winner = previous_player; // Vítěz je předchozí hráč (ten, kdo udělal tah)
+        uint8_t king_pos = 28; // default e4
+        for (int i = 0; i < 64; i++) {
+            piece_t piece = board[i/8][i%8];
+            if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
+                (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
+                king_pos = i;
+                break;
+            }
+        }
+        
+        ESP_LOGI(TAG, "🎯 Game finished in move command! Starting endgame animation at position %d", king_pos);
+        
+        // Spustit endgame animaci (wave z krále vítěze)
+        led_command_t endgame_cmd = {
+            .type = LED_CMD_ANIM_ENDGAME,
+            .led_index = king_pos,
+            .red = 255, .green = 255, .blue = 0, // Yellow
+            .duration_ms = 0, // Endless
+            .data = NULL
+        };
+        led_execute_command_new(&endgame_cmd);
+        
+        ESP_LOGI(TAG, "✅ Endgame animation started - player change animation SKIPPED");
+    } else {
+        // Není endgame - spustit player change animaci s NOVÝM hráčem (current_player)
+        uint8_t player_color = (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
+        led_command_t player_change_cmd = {
+            .type = LED_CMD_ANIM_PLAYER_CHANGE,  // ✅ OPRAVA: Použít ANIM_PLAYER_CHANGE místo PLAYER_CHANGE
+            .led_index = 0,
+            .red = 0, .green = 0, .blue = 0,
+            .duration_ms = 0,
+            .data = &player_color  // Předat barvu NOVÉHO hráče
+        };
+        led_execute_command_new(&player_change_cmd);
+        
+        // Zkontrolovat, zda je nový hráč v šachu
+        bool in_check = game_is_king_in_check(current_player);
+        if (in_check) {
+            // Spustit check animaci
+            led_command_t check_cmd = {
+                .type = LED_CMD_ANIM_CHECK,
+                .led_index = 0,
+                .red = 255, .green = 0, .blue = 0, // Red
+                .duration_ms = 2000,
+                .data = NULL
+            };
+            led_execute_command_new(&check_cmd);
+            ESP_LOGI(TAG, "⚠️ CHECK! %s is in check", 
+                     current_player == PLAYER_WHITE ? "White" : "Black");
+        }
+    }
     
     // Add to move history
     if (history_index < MAX_MOVES_HISTORY) {
@@ -6465,104 +6778,8 @@ void game_process_move_command(const void* move_cmd_ptr)
     // Update position history for draw detection
     game_add_position_to_history();
     
-    // Check for end-game conditions
-    game_state_t end_game_result = game_check_end_game_conditions();
-    if (end_game_result == GAME_STATE_FINISHED) {
-        current_game_state = GAME_STATE_FINISHED;
-        game_active = false;
-        
-        // Update overall statistics
-        // Statistics are already updated in game_analyze_position()
-        
-        ESP_LOGI(TAG, "🎉 Game finished! Final statistics:");
-        game_print_game_stats();
-        ESP_LOGI(TAG, "💡 Commands: NEW GAME, ANALYZE, SAVE <name>");
-        
-        // Když hra skončí, automaticky spustíme animaci
-        if (end_game_result == GAME_STATE_FINISHED) {
-            // Určíme typ ukončení hry
-            bool is_checkmate = false;
-            bool is_draw = false;
-            bool white_player_wins = false;
-            
-            // Zkontrolujeme, zda šlo o šachmat nebo remízu
-            bool in_check = game_is_king_in_check(current_player);
-            bool has_moves = game_has_legal_moves(current_player);
-            
-            if (in_check && !has_moves) {
-                // Šachmat
-                is_checkmate = true;
-                white_player_wins = (current_player == PLAYER_BLACK); // Vítěz je opačný hráč
-            } else if (!in_check && !has_moves) {
-                // Pat (stalemate)
-                is_draw = true;
-            } else if (moves_without_capture >= 50 || game_is_position_repeated()) {
-                // Jiné typy remízy
-                is_draw = true;
-            }
-            
-            // Najdeme pozici krále pro animaci
-            uint8_t king_pos = 28; // default e4
-            for (int i = 0; i < 64; i++) {
-                piece_t piece = board[i/8][i%8];
-                if ((is_checkmate && current_player == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
-                    (is_checkmate && current_player == PLAYER_BLACK && piece == PIECE_BLACK_KING) ||
-                    (is_draw && piece == PIECE_WHITE_KING)) { // Pro remízu použijeme bílého krále
-                    king_pos = i;
-                    break;
-                }
-            }
-            
-            if (is_checkmate) {
-                ESP_LOGI(TAG, "🏆 Checkmate! Starting victory animation for %s", 
-                         white_player_wins ? "White" : "Black");
-                
-                // ✅ OPRAVA: Použít unified animation manager pro checkmate
-                uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_WAVE, ANIM_PRIORITY_HIGH);
-                if (anim_id != 0) {
-                    uint8_t winner_color = white_player_wins ? 0 : 1; // 0=white, 1=black
-                    esp_err_t ret = animation_start_endgame_wave(anim_id, king_pos, winner_color);
-                    if (ret == ESP_OK) {
-                        ESP_LOGI(TAG, "✅ Checkmate victory animation started (ID: %lu)", anim_id);
-                    } else {
-                        ESP_LOGE(TAG, "❌ Failed to start checkmate animation: %s", esp_err_to_name(ret));
-                    }
-                } else {
-                    ESP_LOGE(TAG, "❌ Failed to create checkmate animation");
-                }
-                
-            } else if (is_draw) {
-                ESP_LOGI(TAG, "🤝 Draw! Starting draw animation");
-                
-                // Statistics are already updated in game_analyze_position()
-                ESP_LOGI(TAG, "🤝 DRAW! Game drawn in %" PRIu32 " moves", move_count);
-                
-                // Nastavit endgame stav pro web server
-                game_result = GAME_STATE_FINISHED;
-                current_game_state = GAME_STATE_FINISHED;
-                game_active = false;
-                
-                ESP_LOGI(TAG, "🎯 Game finished! Endgame conditions detected.");
-                ESP_LOGI(TAG, "🎉 Game finished! Final statistics:");
-                game_print_game_stats();
-                
-                // Spustíme draw animaci (spiral jako default)
-                uint32_t anim_id = unified_animation_create(ANIM_TYPE_ENDGAME_DRAW_SPIRAL, ANIM_PRIORITY_HIGH);
-                if (anim_id != 0) {
-                    esp_err_t ret = animation_start_endgame_draw_spiral(anim_id, king_pos);
-                    if (ret == ESP_OK) {
-                        ESP_LOGI(TAG, "✅ Draw spiral animation started (ID: %lu)", anim_id);
-                    } else {
-                        ESP_LOGE(TAG, "❌ Failed to start draw animation: %s", esp_err_to_name(ret));
-                    }
-                } else {
-                    ESP_LOGE(TAG, "❌ Failed to create draw animation");
-                }
-            }
-        }
-        
-        return;
-    }
+    // Note: End-game conditions already checked earlier in this function (line 6612)
+    // If game finished, it was already handled with endgame animation
     
     // Check if king is in check
     if (game_is_king_in_check(current_player)) {
@@ -6919,72 +7136,6 @@ void game_test_endgame_animation(void)
     
     // Clear board
     led_clear_board_only();
-}
-
-/**
- * @brief Test puzzle animation
- */
-void game_test_puzzle_animation(void)
-{
-    ESP_LOGI(TAG, "🎬 Starting MATRIX-INTEGRATED puzzle system...");
-    
-    // NEW: MATRIX-INTEGRATED PUZZLE SYSTEM
-    // This will work with actual matrix scanning and UP/DN commands
-    
-    // Step 1: Show red LEDs for pieces that should be removed
-    ESP_LOGI(TAG, "🔴 Step 1: Highlighting pieces to remove (red LEDs)");
-    for (int i = 0; i < 64; i++) {
-        // Example: highlight pieces that are not needed for this puzzle
-        if (i % 8 == 0 || i % 8 == 7 || i < 8 || i >= 56) { // Edge pieces
-            led_set_pixel_safe(i, 255, 0, 0); // Red for removal
-        }
-    }
-    
-    ESP_LOGI(TAG, "⏳ Waiting for user to remove red pieces via matrix...");
-    ESP_LOGI(TAG, "💡 Use UP command to lift pieces, DN to place them off board");
-    
-    // Step 2: Wait for matrix input to remove pieces
-    // This will be handled by the actual game logic when UP/DN commands are received
-    
-    // Step 3: Show first move instruction
-    ESP_LOGI(TAG, "🟡 Step 2: Showing first move instruction");
-    led_clear_board_only();
-    
-    // Test puzzle path animation from e2 to e4
-    uint8_t from_led = chess_pos_to_led_index(1, 4); // e2
-    uint8_t to_led = chess_pos_to_led_index(3, 4);   // e4
-    
-    ESP_LOGI(TAG, "🎯 Puzzle animation: from_led=%d, to_led=%d", from_led, to_led);
-    
-    led_command_t puzzle_cmd = {
-        .type = LED_CMD_ANIM_PUZZLE_PATH,
-        .led_index = from_led,
-        .red = 0, .green = 255, .blue = 0, // Green
-        .duration_ms = 2000,
-        .data = &to_led
-    };
-    led_execute_command_new(&puzzle_cmd);
-    
-    ESP_LOGI(TAG, "⏳ Waiting for user to make move via matrix...");
-    ESP_LOGI(TAG, "💡 Use UP command to lift piece from e2, DN to place on e4");
-    
-    // Step 4: Wait for matrix input to make the move
-    // This will be handled by the actual game logic when UP/DN commands are received
-    
-    // Step 5: Show next piece to move
-    ESP_LOGI(TAG, "🟢 Step 3: Showing next piece instruction");
-    led_clear_board_only();
-    
-    // Highlight next piece to move (example: knight)
-    uint8_t next_piece_led = chess_pos_to_led_index(0, 1); // b1
-    led_set_pixel_safe(next_piece_led, 255, 255, 0); // Yellow for next piece
-    
-    ESP_LOGI(TAG, "⏳ Waiting for user to move next piece via matrix...");
-    ESP_LOGI(TAG, "💡 Use UP command to lift knight from b1, DN to place on target");
-    
-    // Clear board
-    led_clear_board_only();
-    ESP_LOGI(TAG, "✅ MATRIX-INTEGRATED puzzle system ready - waiting for matrix input");
 }
 
 /**
@@ -8268,8 +8419,8 @@ bool game_execute_move_enhanced(chess_move_extended_t* move) {
         black_moves_count++;
     }
     
-    // Switch players
-    current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    // ✅ OPRAVA: NEMĚNIT HRÁČE ZDE - hráč se mění v game_execute_move() po dokončení tahu
+    // Switch players - REMOVED: player is switched in game_execute_move() after move execution
     
     return true;
 }
@@ -8750,16 +8901,75 @@ void game_process_promotion_command(const chess_move_command_t* cmd)
         current_game_state = 6;
         
         // Switch to next player
+        player_t previous_player = current_player;
         current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
         
-        // Print updated board
-        game_print_board();
-        
-        // Check for end game conditions
-        game_check_end_game_conditions();
-        
-        // Highlight pieces that the new current player can move
-        game_highlight_opponent_pieces();
+        // ✅ KRITICKÉ: Endgame kontrola PŘED player change animací!
+        // Pokud je endgame, player change se NESPOUŠTÍ
+        game_state_t end_game_result = game_check_end_game_conditions();
+        if (end_game_result == GAME_STATE_FINISHED) {
+            current_game_state = GAME_STATE_FINISHED;
+            game_active = false;
+            
+            // Najít pozici krále vítěze pro endgame animaci
+            player_t winner = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+            uint8_t king_pos = 28; // default e4
+            for (int i = 0; i < 64; i++) {
+                piece_t piece = board[i/8][i%8];
+                if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
+                    (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
+                    king_pos = i;
+                    break;
+                }
+            }
+            
+            ESP_LOGI(TAG, "🎯 Game finished after promotion command! Starting endgame animation at position %d", king_pos);
+            
+            // Spustit endgame animaci (wave z krále vítěze)
+            led_command_t endgame_cmd = {
+                .type = LED_CMD_ANIM_ENDGAME,
+                .led_index = king_pos,
+                .red = 255, .green = 255, .blue = 0, // Yellow
+                .duration_ms = 0, // Endless
+                .data = NULL
+            };
+            led_execute_command_new(&endgame_cmd);
+            
+            ESP_LOGI(TAG, "✅ Endgame animation started - player change animation SKIPPED");
+        } else {
+            // Není endgame - spustit player change animaci
+            uint8_t player_color = (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
+            led_command_t player_change_cmd = {
+                .type = LED_CMD_ANIM_PLAYER_CHANGE,  // ✅ OPRAVA: Použít ANIM_PLAYER_CHANGE místo PLAYER_CHANGE
+                .led_index = 0,
+                .red = 0, .green = 0, .blue = 0,
+                .duration_ms = 0,
+                .data = &player_color  // Předat barvu hráče
+            };
+            led_execute_command_new(&player_change_cmd);
+            
+            // Print updated board
+            game_print_board();
+            
+            // Highlight pieces that the new current player can move
+            game_highlight_opponent_pieces();
+            
+            // Zkontrolovat, zda je nový hráč v šachu
+            bool in_check = game_is_king_in_check(current_player);
+            if (in_check) {
+                // Spustit check animaci
+                led_command_t check_cmd = {
+                    .type = LED_CMD_ANIM_CHECK,
+                    .led_index = 0,
+                    .red = 255, .green = 0, .blue = 0, // Red
+                    .duration_ms = 2000,
+                    .data = NULL
+                };
+                led_execute_command_new(&check_cmd);
+                ESP_LOGI(TAG, "⚠️ CHECK! %s is in check", 
+                         current_player == PLAYER_WHITE ? "White" : "Black");
+            }
+        }
         
     } else {
         ESP_LOGE(TAG, "❌ Failed to execute promotion");
@@ -8831,16 +9041,41 @@ static bool game_execute_promotion(promotion_choice_t choice)
                          choice == PROMOTION_QUEEN ? "Queen" :
                          choice == PROMOTION_ROOK ? "Rook" :
                          choice == PROMOTION_BISHOP ? "Bishop" : "Knight");
+                
+                // ✅ Spustit promotion animaci
+                uint8_t promotion_led = chess_pos_to_led_index(row, col);
+                led_command_t promote_cmd = {
+                    .type = LED_CMD_ANIM_PROMOTE,
+                    .led_index = promotion_led,
+                    .red = 255, .green = 215, .blue = 0, // Gold
+                    .duration_ms = 2000,
+                    .data = NULL
+                };
+                led_execute_command_new(&promote_cmd);
+                
                 return true;
-            } 
+            }
+            
             // ✅ OPRAVENO: Černý pěšec povyšuje na row 0 (1. řada a1-h1)
-            else if (current_player == PLAYER_BLACK && piece == PIECE_BLACK_PAWN && row == 0) {
+            if (current_player == PLAYER_BLACK && piece == PIECE_BLACK_PAWN && row == 0) {
                 // Black pawn on rank 1 (row 0) - promote
                 board[row][col] = promoted_piece;
                 ESP_LOGI(TAG, "✅ Promoted black pawn at %c%d to %s", 'a' + col, row + 1,
                          choice == PROMOTION_QUEEN ? "Queen" :
                          choice == PROMOTION_ROOK ? "Rook" :
                          choice == PROMOTION_BISHOP ? "Bishop" : "Knight");
+                
+                // ✅ Spustit promotion animaci
+                uint8_t promotion_led = chess_pos_to_led_index(row, col);
+                led_command_t promote_cmd = {
+                    .type = LED_CMD_ANIM_PROMOTE,
+                    .led_index = promotion_led,
+                    .red = 255, .green = 215, .blue = 0, // Gold
+                    .duration_ms = 2000,
+                    .data = NULL
+                };
+                led_execute_command_new(&promote_cmd);
+                
                 return true;
             }
         }
@@ -8897,381 +9132,6 @@ void game_highlight_movable_pieces(void)
 // ============================================================================
 // PUZZLE COMMAND IMPLEMENTATIONS
 // ============================================================================
-
-void game_process_puzzle_next_command(const chess_move_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "➡️ Processing PUZZLE_NEXT command");
-    
-    if (!current_puzzle.is_active) {
-        game_send_response_to_uart("❌ No active puzzle! Use 'PUZZLE' to start one", true, (QueueHandle_t)cmd->response_queue);
-        return;
-    }
-    
-    if (current_puzzle.current_step >= current_puzzle.step_count - 1) {
-        game_send_response_to_uart("✅ Puzzle completed! All steps solved", false, (QueueHandle_t)cmd->response_queue);
-        return;
-    }
-    
-    current_puzzle.current_step++;
-    puzzle_step_t* step = &current_puzzle.steps[current_puzzle.current_step];
-    
-    char response_data[1024];
-    snprintf(response_data, sizeof(response_data),
-        "➡️ PUZZLE NEXT STEP\n"
-        "═══════════════════════════════════════════════════════════════\n"
-        "🎯 Step %d/%d\n"
-        "📝 Task: %s\n"
-        "🔄 Required: %s\n"
-        "\n"
-        "🎮 Make your move and watch the LED animations!",
-        current_puzzle.current_step + 1,
-        current_puzzle.step_count,
-        step->description,
-        step->is_forced ? "Yes (forced move)" : "No (choice available)"
-    );
-    
-    // CHUNKED OUTPUT - Send endgame report in chunks to prevent UART buffer overflow
-    const size_t CHUNK_SIZE = 256;  // Small chunks for UART buffer
-    size_t total_len = strlen(response_data);
-    const char* data_ptr = response_data;
-    size_t chunks_remaining = total_len;
-    
-    ESP_LOGI(TAG, "🏆 Sending endgame report in chunks: %zu bytes total", total_len);
-    
-    while (chunks_remaining > 0) {
-        // Calculate chunk size
-        size_t chunk_size = (chunks_remaining > CHUNK_SIZE) ? CHUNK_SIZE : chunks_remaining;
-        
-        // Create chunk response
-        game_response_t chunk_response = {
-            .type = GAME_RESPONSE_SUCCESS,
-            .command_type = GAME_CMD_SHOW_BOARD,  // Reuse board command type
-            .error_code = 0,
-            .message = "Endgame report chunk sent",
-            .timestamp = esp_timer_get_time() / 1000
-        };
-        
-        // Copy chunk data
-        strncpy(chunk_response.data, data_ptr, chunk_size);
-        chunk_response.data[chunk_size] = '\0';
-        
-        // Reset WDT before sending chunk
-        game_task_wdt_reset_safe();
-        
-        // Send chunk
-        if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
-            ESP_LOGW(TAG, "Failed to send endgame report chunk to UART task");
-            break;
-        }
-        
-        // Update pointers
-        data_ptr += chunk_size;
-        chunks_remaining -= chunk_size;
-        
-        // Small delay between chunks
-        if (chunks_remaining > 0) {
-            vTaskDelay(pdMS_TO_TICKS(5));
-        }
-    }
-    
-    // FIXED: Add puzzle LED animation
-    uint8_t from_led = chess_pos_to_led_index(step->from_row, step->from_col);
-    uint8_t to_led = chess_pos_to_led_index(step->to_row, step->to_col);
-    
-    // Show puzzle path animation
-    led_command_t puzzle_cmd = {
-        .type = LED_CMD_ANIM_PUZZLE_PATH,
-        .led_index = from_led,
-        .red = 0, .green = 255, .blue = 0, // Green
-        .duration_ms = 2000,
-        .data = &to_led
-    };
-    led_execute_command_new(&puzzle_cmd);
-    
-    ESP_LOGI(TAG, "✅ Puzzle next step sent successfully with LED animation");
-}
-
-void game_process_puzzle_reset_command(const chess_move_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "🔄 Processing PUZZLE_RESET command");
-    
-    if (!current_puzzle.is_active) {
-        game_send_response_to_uart("❌ No active puzzle to reset! Use 'PUZZLE' to start one", true, (QueueHandle_t)cmd->response_queue);
-        return;
-    }
-    
-    // Reset puzzle state
-    current_puzzle.current_step = 0;
-    current_puzzle.start_time = esp_timer_get_time() / 1000;
-    
-    // Reset board position
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            board[row][col] = current_puzzle.initial_board[row][col];
-        }
-    }
-    
-    char response_data[512];
-    snprintf(response_data, sizeof(response_data),
-        "🔄 PUZZLE RESET\n"
-        "═══════════════════════════════════════════════════════════════\n"
-        "📝 Puzzle: %s\n"
-        "🎯 Reset to Step 1/%d\n"
-        "📋 Board position restored\n"
-        "\n"
-        "💡 Task: %s\n"
-        "🚀 LED animations restarted!",
-        current_puzzle.name,
-        current_puzzle.step_count,
-        current_puzzle.steps[0].description
-    );
-    
-    // CHUNKED OUTPUT - Send endgame report in chunks to prevent UART buffer overflow
-    const size_t CHUNK_SIZE = 256;  // Small chunks for UART buffer
-    size_t total_len = strlen(response_data);
-    const char* data_ptr = response_data;
-    size_t chunks_remaining = total_len;
-    
-    ESP_LOGI(TAG, "🏆 Sending endgame report in chunks: %zu bytes total", total_len);
-    
-    while (chunks_remaining > 0) {
-        // Calculate chunk size
-        size_t chunk_size = (chunks_remaining > CHUNK_SIZE) ? CHUNK_SIZE : chunks_remaining;
-        
-        // Create chunk response
-        game_response_t chunk_response = {
-            .type = GAME_RESPONSE_SUCCESS,
-            .command_type = GAME_CMD_SHOW_BOARD,  // Reuse board command type
-            .error_code = 0,
-            .message = "Endgame report chunk sent",
-            .timestamp = esp_timer_get_time() / 1000
-        };
-        
-        // Copy chunk data
-        strncpy(chunk_response.data, data_ptr, chunk_size);
-        chunk_response.data[chunk_size] = '\0';
-        
-        // Reset WDT before sending chunk
-        game_task_wdt_reset_safe();
-        
-        // Send chunk
-        if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
-            ESP_LOGW(TAG, "Failed to send endgame report chunk to UART task");
-            break;
-        }
-        
-        // Update pointers
-        data_ptr += chunk_size;
-        chunks_remaining -= chunk_size;
-        
-        // Small delay between chunks
-        if (chunks_remaining > 0) {
-            vTaskDelay(pdMS_TO_TICKS(5));
-        }
-    }
-    
-    ESP_LOGI(TAG, "✅ Endgame report sent successfully in chunks");
-    
-    // Stop all animations and restart
-    led_clear_board_only();
-    
-    vTaskDelay(pdMS_TO_TICKS(500));
-    
-    uint8_t from_square = chess_pos_to_led_index(current_puzzle.steps[0].from_row, current_puzzle.steps[0].from_col);
-    led_set_pixel_safe(from_square, 255, 255, 0); // Yellow highlight
-}
-
-void game_process_puzzle_complete_command(const chess_move_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "✅ Processing PUZZLE_COMPLETE command");
-    
-    if (!current_puzzle.is_active) {
-        game_send_response_to_uart("❌ No active puzzle to complete!", true, (QueueHandle_t)cmd->response_queue);
-        return;
-    }
-    
-    current_puzzle.completion_time = esp_timer_get_time() / 1000;
-    uint32_t solve_time = current_puzzle.completion_time - current_puzzle.start_time;
-    current_puzzle.is_active = false;
-    
-    char response_data[1024];
-    snprintf(response_data, sizeof(response_data),
-        "🏆 PUZZLE COMPLETED!\n"
-        "═══════════════════════════════════════════════════════════════\n"
-        "📝 Puzzle: %s\n"
-        "🎯 Difficulty: %s\n"
-        "⏱️ Solve Time: %" PRIu32 " seconds\n"
-        "🔢 Steps Completed: %d/%d\n"
-        "📊 Progress: %d%%\n"
-        "\n"
-        "🌟 PERFORMANCE RATING:\n"
-        "  • Speed: %s\n"
-        "  • Accuracy: %s\n"
-        "  • Overall: %s\n"
-        "\n"
-        "🎮 Ready for next puzzle! Use 'PUZZLE' to start another",
-        current_puzzle.name,
-        current_puzzle.difficulty == 1 ? "Beginner" : "Intermediate",
-        solve_time,
-        current_puzzle.current_step + 1,
-        current_puzzle.step_count,
-        (current_puzzle.current_step + 1) * 100 / current_puzzle.step_count,
-        solve_time < 30 ? "⚡ Fast" : solve_time < 60 ? "✅ Good" : "🐌 Slow",
-        current_puzzle.current_step == current_puzzle.step_count - 1 ? "🎯 Perfect" : "📝 Good",
-        solve_time < 30 ? "🏆 Excellent" : "👍 Good"
-    );
-    
-    // CHUNKED OUTPUT - Send endgame report in chunks to prevent UART buffer overflow
-    const size_t CHUNK_SIZE = 256;  // Small chunks for UART buffer
-    size_t total_len = strlen(response_data);
-    const char* data_ptr = response_data;
-    size_t chunks_remaining = total_len;
-    
-    ESP_LOGI(TAG, "🏆 Sending endgame report in chunks: %zu bytes total", total_len);
-    
-    while (chunks_remaining > 0) {
-        // Calculate chunk size
-        size_t chunk_size = (chunks_remaining > CHUNK_SIZE) ? CHUNK_SIZE : chunks_remaining;
-        
-        // Create chunk response
-        game_response_t chunk_response = {
-            .type = GAME_RESPONSE_SUCCESS,
-            .command_type = GAME_CMD_SHOW_BOARD,  // Reuse board command type
-            .error_code = 0,
-            .message = "Endgame report chunk sent",
-            .timestamp = esp_timer_get_time() / 1000
-        };
-        
-        // Copy chunk data
-        strncpy(chunk_response.data, data_ptr, chunk_size);
-        chunk_response.data[chunk_size] = '\0';
-        
-        // Reset WDT before sending chunk
-        game_task_wdt_reset_safe();
-        
-        // Send chunk
-        if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
-            ESP_LOGW(TAG, "Failed to send endgame report chunk to UART task");
-            break;
-        }
-        
-        // Update pointers
-        data_ptr += chunk_size;
-        chunks_remaining -= chunk_size;
-        
-        // Small delay between chunks
-        if (chunks_remaining > 0) {
-            vTaskDelay(pdMS_TO_TICKS(5));
-        }
-    }
-    
-    ESP_LOGI(TAG, "✅ Endgame report sent successfully in chunks");
-    
-    // Completion animation
-    led_set_all_safe(0, 255, 0); // Green success
-}
-
-void game_process_puzzle_verify_command(const chess_move_command_t* cmd)
-{
-    if (!cmd) return;
-    
-    ESP_LOGI(TAG, "🔍 Processing PUZZLE_VERIFY command");
-    
-    if (!current_puzzle.is_active) {
-        game_send_response_to_uart("❌ No active puzzle to verify!", true, (QueueHandle_t)cmd->response_queue);
-        return;
-    }
-    
-    puzzle_step_t* current_step = &current_puzzle.steps[current_puzzle.current_step];
-    
-    char response_data[1024];
-    snprintf(response_data, sizeof(response_data),
-        "🔍 PUZZLE VERIFICATION\n"
-        "═══════════════════════════════════════════════════════════════\n"
-        "📝 Puzzle: %s\n"
-        "🎯 Current Step: %d/%d\n"
-        "📋 Expected Move: %c%d -> %c%d\n"
-        "💬 Description: %s\n"
-        "🔄 Move Type: %s\n"
-        "\n"
-        "💡 HINT: Look for the piece at %c%d\n"
-        "🎯 Target: Square %c%d\n"
-        "⚡ LED animation shows the correct path!",
-        current_puzzle.name,
-        current_puzzle.current_step + 1,
-        current_puzzle.step_count,
-        'a' + current_step->from_col,
-        current_step->from_row + 1,
-        'a' + current_step->to_col,
-        current_step->to_row + 1,
-        current_step->description,
-        current_step->is_forced ? "Forced (only legal move)" : "Best choice",
-        'a' + current_step->from_col,
-        current_step->from_row + 1,
-        'a' + current_step->to_col,
-        current_step->to_row + 1
-    );
-    
-    // CHUNKED OUTPUT - Send endgame report in chunks to prevent UART buffer overflow
-    const size_t CHUNK_SIZE = 256;  // Small chunks for UART buffer
-    size_t total_len = strlen(response_data);
-    const char* data_ptr = response_data;
-    size_t chunks_remaining = total_len;
-    
-    ESP_LOGI(TAG, "🏆 Sending endgame report in chunks: %zu bytes total", total_len);
-    
-    while (chunks_remaining > 0) {
-        // Calculate chunk size
-        size_t chunk_size = (chunks_remaining > CHUNK_SIZE) ? CHUNK_SIZE : chunks_remaining;
-        
-        // Create chunk response
-        game_response_t chunk_response = {
-            .type = GAME_RESPONSE_SUCCESS,
-            .command_type = GAME_CMD_SHOW_BOARD,  // Reuse board command type
-            .error_code = 0,
-            .message = "Endgame report chunk sent",
-            .timestamp = esp_timer_get_time() / 1000
-        };
-        
-        // Copy chunk data
-        strncpy(chunk_response.data, data_ptr, chunk_size);
-        chunk_response.data[chunk_size] = '\0';
-        
-        // Reset WDT before sending chunk
-        game_task_wdt_reset_safe();
-        
-        // Send chunk
-        if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response, pdMS_TO_TICKS(100)) != pdTRUE) {
-            ESP_LOGW(TAG, "Failed to send endgame report chunk to UART task");
-            break;
-        }
-        
-        // Update pointers
-        data_ptr += chunk_size;
-        chunks_remaining -= chunk_size;
-        
-        // Small delay between chunks
-        if (chunks_remaining > 0) {
-            vTaskDelay(pdMS_TO_TICKS(5));
-        }
-    }
-    
-    ESP_LOGI(TAG, "✅ Endgame report sent successfully in chunks");
-    
-    // Show verification animation
-    uint8_t from_square = chess_pos_to_led_index(current_step->from_row, current_step->from_col);
-    uint8_t to_square = chess_pos_to_led_index(current_step->to_row, current_step->to_col);
-    
-    // Highlight both squares with verification colors
-    led_set_pixel_safe(from_square, 255, 165, 0); // Orange for source
-    led_set_pixel_safe(to_square, 0, 255, 0); // Green for destination
-}
 
 // ============================================================================
 // ENHANCED CASTLING SYSTEM
@@ -9382,15 +9242,76 @@ bool game_check_castling_completion(const chess_move_t* move)
         // Změnit hráče TEPRVE TEĎ
         current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
         
-        // Vyčistit stav rošády
-        memset(&castling_state, 0, sizeof(castling_state));
-        
-        // Zobrazit pohyblivé figury pro nového hráče
-        led_clear_board_only();
-        game_highlight_movable_pieces();
-        
-        ESP_LOGI(TAG, "🏰 Castling completed! %s to move", 
-                 (current_player == PLAYER_WHITE) ? "White" : "Black");
+        // ✅ KRITICKÉ: Endgame kontrola PŘED player change animací!
+        // Pokud je endgame, player change se NESPOUŠTÍ
+        game_state_t end_game_result = game_check_end_game_conditions();
+        if (end_game_result == GAME_STATE_FINISHED) {
+            current_game_state = GAME_STATE_FINISHED;
+            game_active = false;
+            
+            // Najít pozici krále vítěze pro endgame animaci
+            player_t winner = (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+            uint8_t king_pos = 28; // default e4
+            for (int i = 0; i < 64; i++) {
+                piece_t piece = board[i/8][i%8];
+                if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
+                    (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
+                    king_pos = i;
+                    break;
+                }
+            }
+            
+            ESP_LOGI(TAG, "🎯 Game finished after castling completion! Starting endgame animation at position %d", king_pos);
+            
+            // Spustit endgame animaci (wave z krále vítěze)
+            led_command_t endgame_cmd = {
+                .type = LED_CMD_ANIM_ENDGAME,
+                .led_index = king_pos,
+                .red = 255, .green = 255, .blue = 0, // Yellow
+                .duration_ms = 0, // Endless
+                .data = NULL
+            };
+            led_execute_command_new(&endgame_cmd);
+            
+            ESP_LOGI(TAG, "✅ Endgame animation started - player change animation SKIPPED");
+        } else {
+            // Není endgame - spustit player change animaci
+            uint8_t player_color = (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
+            led_command_t player_change_cmd = {
+                .type = LED_CMD_ANIM_PLAYER_CHANGE,  // ✅ OPRAVA: Použít ANIM_PLAYER_CHANGE místo PLAYER_CHANGE
+                .led_index = 0,
+                .red = 0, .green = 0, .blue = 0,
+                .duration_ms = 0,
+                .data = &player_color  // Předat barvu hráče
+            };
+            led_execute_command_new(&player_change_cmd);
+            
+            // Vyčistit stav rošády
+            memset(&castling_state, 0, sizeof(castling_state));
+            
+            // Zobrazit pohyblivé figury pro nového hráče
+            led_clear_board_only();
+            game_highlight_movable_pieces();
+            
+            ESP_LOGI(TAG, "🏰 Castling completed! %s to move", 
+                     (current_player == PLAYER_WHITE) ? "White" : "Black");
+            
+            // Zkontrolovat, zda je nový hráč v šachu
+            bool in_check = game_is_king_in_check(current_player);
+            if (in_check) {
+                // Spustit check animaci
+                led_command_t check_cmd = {
+                    .type = LED_CMD_ANIM_CHECK,
+                    .led_index = 0,
+                    .red = 255, .green = 0, .blue = 0, // Red
+                    .duration_ms = 2000,
+                    .data = NULL
+                };
+                led_execute_command_new(&check_cmd);
+                ESP_LOGI(TAG, "⚠️ CHECK! %s is in check", 
+                         current_player == PLAYER_WHITE ? "White" : "Black");
+            }
+        }
         
         return true;
     } else {

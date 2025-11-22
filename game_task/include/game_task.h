@@ -465,8 +465,6 @@ void game_test_castle_animation(void);
 void game_test_promote_animation(void);
 /** @brief Testuj animaci konce hry */
 void game_test_endgame_animation(void);
-/** @brief Testuj animaci puzzle */
-void game_test_puzzle_animation(void);
 
 // ============================================================================
 // PRIME LED FUNKCE (bez front) - POUZIVANO V game_led_direct.c

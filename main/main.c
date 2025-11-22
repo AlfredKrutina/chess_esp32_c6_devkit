@@ -748,6 +748,9 @@ void show_boot_animation_and_board(void)
         printf("] %3d%% - %s", progress, status_messages[message_index]);
         fflush(stdout);
         
+        // ✅ Spustit LED boot animaci podle progress
+        led_boot_animation_step((uint8_t)progress);
+        
         // CRITICAL: Reset watchdog timer during loading (only if registered)
         esp_err_t wdt_ret = main_task_wdt_reset_safe();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
@@ -758,6 +761,9 @@ void show_boot_animation_and_board(void)
             vTaskDelay(pdMS_TO_TICKS(step_delay));
         }
     }
+    
+    // ✅ Po dokončení boot animace - fade out
+    led_boot_animation_fade_out();
     
     printf("\n\033[1;32m✓ Chess Engine Ready!\033[0m\n\n"); // Success message
     

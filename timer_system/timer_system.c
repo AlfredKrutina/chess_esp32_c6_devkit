@@ -20,6 +20,7 @@
  */
 
 #include "include/timer_system.h"
+#include "../led_task/include/led_task.h"  // Pro timeout animace
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "nvs.h"
@@ -488,6 +489,20 @@ bool timer_check_timeout(void)
         
         ESP_LOGW(TAG, "⏰ Time expired for %s!", 
                  current_timer.is_white_turn ? "White" : "Black");
+        
+        // Spustit timeout animaci - blikani cervenou barvou
+        led_command_t timeout_cmd = {
+            .type = LED_CMD_ANIM_CHECK,  // Pouzit check animaci pro timeout (blikani cervenou)
+            .led_index = 0,
+            .red = 255,
+            .green = 0,
+            .blue = 0,
+            .duration_ms = 2000,  // 2 sekundy blikani
+            .data = NULL,
+            .response_queue = NULL
+        };
+        led_execute_command_new(&timeout_cmd);
+        ESP_LOGI(TAG, "⏰ Timeout animation triggered");
         
         return true;
     }

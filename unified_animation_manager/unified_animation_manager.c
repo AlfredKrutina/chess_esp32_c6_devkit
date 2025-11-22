@@ -22,7 +22,6 @@
 #include "esp_timer.h"
 #include "string.h"
 #include "math.h"
-#include "freertos_chess.h"
 #include "led_mapping.h"
 
 // Define min macro if not available
@@ -41,7 +40,6 @@ static uint32_t last_update_time = 0;
 
 // Forward declarations
 static bool animation_update_smooth_interpolation(animation_state_t* anim);
-static void animation_update_trail_effect(animation_state_t* anim);
 static bool animation_update_pulsing(animation_state_t* anim);
 static bool animation_update_flashing(animation_state_t* anim);
 static bool animation_update_rainbow(animation_state_t* anim);
@@ -59,24 +57,6 @@ static void animation_cleanup(animation_state_t* anim);
 // Smooth interpolation functions
 static float ease_in_out_cubic(float t) {
     return t < 0.5f ? 4.0f * t * t * t : 1.0f - powf(-2.0f * t + 2.0f, 3.0f) / 2.0f;
-}
-
-static float ease_out_bounce(float t) {
-    const float n1 = 7.5625f;
-    const float d1 = 2.75f;
-    
-    if (t < 1.0f / d1) {
-        return n1 * t * t;
-    } else if (t < 2.0f / d1) {
-        t -= 1.5f / d1;
-        return n1 * t * t + 0.75f;
-    } else if (t < 2.5f / d1) {
-        t -= 2.25f / d1;
-        return n1 * t * t + 0.9375f;
-    } else {
-        t -= 2.625f / d1;
-        return n1 * t * t + 0.984375f;
-    }
 }
 
 static void interpolate_color(uint8_t from_r, uint8_t from_g, uint8_t from_b,
@@ -253,28 +233,6 @@ esp_err_t animation_start_error(uint32_t anim_id, uint8_t led_index, uint32_t fl
     
     ESP_LOGD(TAG, "Started error animation %d: LED %d (%d flashes)", 
              anim_id, led_index, flash_count);
-    
-    return ESP_OK;
-}
-
-esp_err_t animation_start_puzzle_removal(uint32_t anim_id, uint8_t* pieces_to_remove, uint8_t count) {
-    animation_state_t* anim = animation_find_by_id(anim_id);
-    if (!anim || !pieces_to_remove || count == 0) {
-        return ESP_ERR_INVALID_ARG;
-    }
-    
-    anim->from_led = pieces_to_remove[0];
-    anim->to_led = pieces_to_remove[0];
-    anim->duration_ms = 5000; // 5 second pulsing
-    anim->start_time = esp_timer_get_time() / 1000;
-    anim->progress = 0.0f;
-    anim->update_func = animation_update_pulsing;
-    
-    // Red pulsing for pieces to remove
-    anim->color_start.r = 255; anim->color_start.g = 0; anim->color_start.b = 0;
-    anim->color_end.r = 255; anim->color_end.g = 100; anim->color_end.b = 100;
-    
-    ESP_LOGD(TAG, "Started puzzle removal animation %d for %d pieces", anim_id, count);
     
     return ESP_OK;
 }
@@ -617,25 +575,6 @@ static bool animation_update_smooth_interpolation(animation_state_t* anim) {
         }
     }
     return true;
-}
-
-/**
- * @brief Aktualizuje trail efekt pro animaci
- * 
- * Vytvari sledujici efekt za pohybujicim se objektem pomoci sinus vlny.
- * 
- * @param anim Ukazatel na stav animace
- */
-static void animation_update_trail_effect(animation_state_t* anim) {
-    // Implement trail effect for move animations
-    float wave = sinf(anim->progress * 2.0f * M_PI);
-    float intensity = (wave + 1.0f) / 2.0f; // 0.0 to 1.0
-    
-    uint8_t r = (uint8_t)(anim->color_start.r * intensity);
-    uint8_t g = (uint8_t)(anim->color_start.g * intensity);
-    uint8_t b = (uint8_t)(anim->color_start.b * intensity);
-    
-    led_set_pixel_safe(anim->to_led, r, g, b);
 }
 
 /**
@@ -1046,14 +985,12 @@ const char* animation_get_type_name(animation_type_t type) {
         case ANIM_TYPE_PIECE_GUIDANCE: return "Piece Guidance";
         case ANIM_TYPE_VALID_MOVES: return "Valid Moves";
         case ANIM_TYPE_ERROR_FLASH: return "Error Flash";
-        case ANIM_TYPE_PUZZLE_SETUP: return "Puzzle Setup";
         case ANIM_TYPE_CAPTURE_EFFECT: return "Capture Effect";
         case ANIM_TYPE_CHECK_WARNING: return "Check Warning";
         case ANIM_TYPE_GAME_END: return "Game End";
         case ANIM_TYPE_PLAYER_CHANGE: return "Player Change";
         case ANIM_TYPE_CASTLE: return "Castle";
         case ANIM_TYPE_PROMOTION: return "Promotion";
-        case ANIM_TYPE_PUZZLE_PATH: return "Puzzle Path";
         case ANIM_TYPE_CONFIRMATION: return "Confirmation";
         default: return "Unknown";
     }

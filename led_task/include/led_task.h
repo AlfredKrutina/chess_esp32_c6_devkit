@@ -351,6 +351,28 @@ void led_setup_animation_after_endgame(void);
  */
 void led_stop_endgame_animation(void);
 
+// ============================================================================
+// BOOT ANIMATION LED FUNKCE
+// ============================================================================
+
+/**
+ * @brief LED boot animation step - rozsviti LED podle progress
+ * 
+ * @param progress_percent Progress v procentech (0-100)
+ * @details
+ * Rozsviti LED podle progress boot procesu. Pouziva se pro zobrazeni
+ * postupu inicializace systemu. Rozsviti LED svetle zelenou barvou.
+ */
+void led_boot_animation_step(uint8_t progress_percent);
+
+/**
+ * @brief LED boot animation fade out - postupne ztlumi vsechny LED na 0
+ * @details
+ * Postupne ztlumi vsechny board LED z brightness 128 na 0.
+ * Pouziva se na konci boot procesu pro plynule ztlumeni.
+ */
+void led_boot_animation_fade_out(void);
+
 #ifdef __cplusplus
 }
 #endif

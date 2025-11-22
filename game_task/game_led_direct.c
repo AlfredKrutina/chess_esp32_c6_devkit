@@ -151,22 +151,6 @@ void game_show_state_direct(piece_t *board) {
 }
 
 /**
- * @brief Show puzzle with direct LED calls
- * ✅ PŘÍMÉ VOLÁNÍ - žádný queue
- */
-void game_show_puzzle_direct(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col) {
-    uint8_t from_led = chess_pos_to_led_index(from_row, from_col);
-    uint8_t to_led = chess_pos_to_led_index(to_row, to_col);
-    
-    // ✅ PŘÍMÉ VOLÁNÍ - žádný queue
-    led_set_pixel_safe(from_led, 255, 165, 0);  // Orange pro source
-    led_set_pixel_safe(to_led, 0, 255, 0);      // Zelená pro destination
-    
-    ESP_LOGI(TAG, "Puzzle shown: %d,%d -> %d,%d (LEDs %d -> %d)", 
-             from_row, from_col, to_row, to_col, from_led, to_led);
-}
-
-/**
  * @brief Show check with direct LED calls
  * ✅ PŘÍMÉ VOLÁNÍ - žádný queue
  */

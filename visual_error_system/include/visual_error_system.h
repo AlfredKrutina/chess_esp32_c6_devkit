@@ -52,8 +52,6 @@ typedef enum {
     ERROR_VISUAL_NO_PIECE,             ///< Figurka nenalezena
     ERROR_VISUAL_PIECE_BLOCKING,       ///< Figurka blokovana
     ERROR_VISUAL_CHECK_VIOLATION,      ///< Sach nereseny
-    ERROR_VISUAL_PUZZLE_WRONG_MOVE,    ///< Spatny tah v puzzle
-    ERROR_VISUAL_PUZZLE_WRONG_REMOVAL, ///< Spatne odstraneni v puzzle
     ERROR_VISUAL_SYSTEM_ERROR,         ///< Systemova chyba
     ERROR_VISUAL_INVALID_SYNTAX,       ///< Neplatna syntaxe
     
@@ -359,14 +357,6 @@ esp_err_t error_show_blocking_path(uint8_t from_row, uint8_t from_col, uint8_t t
 esp_err_t error_show_check_escape_options(uint8_t king_row, uint8_t king_col);
 
 /**
- * @brief Zobraz puzzle navod
- * 
- * @param puzzle_hint Napoveda
- * @return ESP_OK pri uspechu
- */
-esp_err_t error_show_puzzle_guidance(const char* puzzle_hint);
-
-/**
  * @brief Navod na spravny tah
  * 
  * @param correct_move Spravny tah (chess_move_t*)
@@ -391,15 +381,6 @@ esp_err_t error_guide_piece_selection(uint8_t* movable_pieces, uint8_t count);
  * @return ESP_OK pri uspechu
  */
 esp_err_t error_guide_valid_destinations(uint8_t from_row, uint8_t from_col);
-
-/**
- * @brief Navod na odstraneni puzzle figurek
- * 
- * @param pieces_to_remove Figurky k odstraneni
- * @param count Pocet
- * @return ESP_OK pri uspechu
- */
-esp_err_t error_guide_puzzle_removal(uint8_t* pieces_to_remove, uint8_t count);
 
 /**
  * @brief Ziskej posledni chybovou zpravu

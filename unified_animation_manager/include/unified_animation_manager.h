@@ -73,14 +73,12 @@ typedef enum {
     ANIM_TYPE_PIECE_GUIDANCE,    ///< Navod pro figurku
     ANIM_TYPE_VALID_MOVES,       ///< Zobrazeni platnych tahu
     ANIM_TYPE_ERROR_FLASH,       ///< Chybove bliknuti
-    ANIM_TYPE_PUZZLE_SETUP,      ///< Setup puzzle
     ANIM_TYPE_CAPTURE_EFFECT,    ///< Efekt sebrani
     ANIM_TYPE_CHECK_WARNING,     ///< Varovani sachu
     ANIM_TYPE_GAME_END,          ///< Konec hry
     ANIM_TYPE_PLAYER_CHANGE,     ///< Zmena hrace
     ANIM_TYPE_CASTLE,            ///< Rosada
     ANIM_TYPE_PROMOTION,         ///< Promoce
-    ANIM_TYPE_PUZZLE_PATH,       ///< Cesta puzzle
     ANIM_TYPE_CONFIRMATION,      ///< Potvrzeni
     
     // Endgame animace

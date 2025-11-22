@@ -66,10 +66,10 @@ extern "C" {
 #define STATUS_LED_PIN GPIO_NUM_5      // Status indicator (safe pin - GPIO8 is boot strapping pin!)
 
 // Piny pro radky matice (vystupy) - potreba 8 pinu
-/** @brief Pin pro radek 0 matice (GPIO10 - vystup) */
-#define MATRIX_ROW_0 GPIO_NUM_10
-/** @brief Pin pro radek 1 matice (GPIO11 - vystup) */
-#define MATRIX_ROW_1 GPIO_NUM_11  
+/** @brief Pin pro radek 0 matice (GPIO4 - vystup, zmeneno z GPIO10 pro ESP32-C6 DevKit) */
+#define MATRIX_ROW_0 GPIO_NUM_4
+/** @brief Pin pro radek 1 matice (GPIO16 - vystup, zmeneno z GPIO11/15 pro ESP32-C6 DevKit, UART TX) */
+#define MATRIX_ROW_1 GPIO_NUM_16  
 /** @brief Pin pro radek 2 matice (GPIO18 - vystup) */
 #define MATRIX_ROW_2 GPIO_NUM_18
 /** @brief Pin pro radek 3 matice (GPIO19 - vystup) */
@@ -96,13 +96,13 @@ extern "C" {
 #define MATRIX_COL_4 GPIO_NUM_6        // Safe pin
 /** @brief Pin pro sloupec 5 matice (GPIO14 - vstup s pull-up, bezpecny pin, zmeneno z GPIO9) */
 #define MATRIX_COL_5 GPIO_NUM_14       // Safe pin (changed from GPIO9 to avoid strapping pin)
-/** @brief Pin pro sloupec 6 matice (GPIO16 - vstup s pull-up, bezpecny pin, zmeneno z GPIO13) */
-#define MATRIX_COL_6 GPIO_NUM_16       // Safe pin (changed from GPIO13)
-/** @brief Pin pro sloupec 7 matice (GPIO17 - vstup s pull-up, bezpecny pin, zmeneno z GPIO14) */
-#define MATRIX_COL_7 GPIO_NUM_17       // Safe pin (changed from GPIO14)
+/** @brief Pin pro sloupec 6 matice (GPIO17 - vstup s pull-up, zmeneno z GPIO12, UART RX - JTAG safe) */
+#define MATRIX_COL_6 GPIO_NUM_17       // Changed from GPIO12 - UART RX pin, safe for JTAG usage
+/** @brief Pin pro sloupec 7 matice (GPIO27 - vstup s pull-up, zmeneno z GPIO13, SPI Flash pin - JTAG safe) */
+#define MATRIX_COL_7 GPIO_NUM_27       // Changed from GPIO13 - SPI Flash pin but usable for I/O, safe for JTAG
 
-/** @brief Pin pro reset tlacitko (GPIO27 - bezpecny pin, zmeneno z GPIO4) */
-#define BUTTON_RESET GPIO_NUM_27       // Safe pin (changed from GPIO4 to avoid strapping pin)
+/** @brief Pin pro reset tlacitko (GPIO4 - zmeneno z GPIO27 pro ESP32-C6 DevKit, sdileno s ROW_0 - time-multiplexed) */
+#define BUTTON_RESET GPIO_NUM_4       // Changed from GPIO27 for ESP32-C6 DevKit, shared with ROW_0 via time-multiplexing
 
 // Definice tlacitek (time-multiplexed se sloupci matice)
 /** @brief Tlacitko pro promoci na damu (sdileno s MATRIX_COL_0) */

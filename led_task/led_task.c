@@ -30,6 +30,7 @@
 #include "../freertos_chess/include/streaming_output.h"
 #include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
 #include "../unified_animation_manager/include/unified_animation_manager.h"  // Non-blocking endgame animations
+#include "../game_task/include/game_task.h"  // For game_get_piece() function
 
 // Define min macro if not available
 #ifndef min
@@ -53,6 +54,11 @@
 #include <math.h>
 #include <inttypes.h>
 #include "freertos_chess.h"
+
+// Define M_PI if not available
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 
 static const char *TAG = "LED_TASK";
@@ -686,17 +692,12 @@ void led_process_commands(void)
 }
 
 // Forward declarations for animation functions
-void led_puzzle_start_animation(const led_command_t* cmd);
-void led_puzzle_highlight_piece(const led_command_t* cmd);
-void led_puzzle_path_animation(const led_command_t* cmd);
-void led_puzzle_destination_highlight(const led_command_t* cmd);
-void led_puzzle_complete_animation(const led_command_t* cmd);
-void led_puzzle_stop_all_animations(void);
 void led_anim_player_change(const led_command_t* cmd);
 void led_anim_move_path(const led_command_t* cmd);
 void led_anim_castle(const led_command_t* cmd);
 void led_anim_promote(const led_command_t* cmd);
 void led_anim_endgame(const led_command_t* cmd);
+void led_update_endgame_wave(void);  // Update endgame wave animation (non-blocking)
 void led_anim_check(const led_command_t* cmd);
 void led_anim_checkmate(const led_command_t* cmd);
 
@@ -778,37 +779,6 @@ void led_execute_command_new(const led_command_t* cmd)
             led_print_compact_status();
             break;
             
-        // Puzzle Animation Cases
-        case LED_CMD_PUZZLE_START:
-            ESP_LOGI(TAG, "🧩 Starting puzzle animation sequence");
-            led_puzzle_start_animation(cmd);
-            break;
-            
-        case LED_CMD_PUZZLE_HIGHLIGHT:
-            ESP_LOGI(TAG, "🟡 Highlighting puzzle piece at LED %d", cmd->led_index);
-            led_puzzle_highlight_piece(cmd);
-            break;
-            
-        case LED_CMD_PUZZLE_PATH:
-            ESP_LOGI(TAG, "🔵 Starting puzzle path animation %d -> target", cmd->led_index);
-            led_puzzle_path_animation(cmd);
-            break;
-            
-        case LED_CMD_PUZZLE_DESTINATION:
-            ESP_LOGI(TAG, "🟢 Highlighting puzzle destination at LED %d", cmd->led_index);
-            led_puzzle_destination_highlight(cmd);
-            break;
-            
-        case LED_CMD_PUZZLE_COMPLETE:
-            ESP_LOGI(TAG, "🏆 Starting puzzle completion animation");
-            led_puzzle_complete_animation(cmd);
-            break;
-            
-        case LED_CMD_PUZZLE_STOP:
-            ESP_LOGI(TAG, "⏹️ Stopping all puzzle animations");
-            led_puzzle_stop_all_animations();
-            break;
-            
         // Advanced Chess Animation Cases
         case LED_CMD_ANIM_PLAYER_CHANGE:
             ESP_LOGI(TAG, "🌟 Player change animation");
@@ -843,11 +813,6 @@ void led_execute_command_new(const led_command_t* cmd)
         case LED_CMD_ANIM_CHECKMATE:
             ESP_LOGI(TAG, "☠️ Checkmate animation");
             led_anim_checkmate(cmd);
-            break;
-            
-        case LED_CMD_ANIM_PUZZLE_PATH:
-            ESP_LOGI(TAG, "🧩 Puzzle path animation");
-            led_puzzle_path_animation(cmd);
             break;
             
         case LED_CMD_BUTTON_PROMOTION_AVAILABLE:
@@ -1750,8 +1715,8 @@ void led_task_start(void *pvParameters)
         // Update animations
         led_update_animation();
         
-        // Update unified animation manager (non-blocking endgame animations)
-        animation_manager_update();
+        // Update endgame wave animation (non-blocking, podle starého projektu)
+        led_update_endgame_wave();
         
         // Process button blink timers
         led_process_button_blink_timers();
@@ -1775,312 +1740,109 @@ void led_task_start(void *pvParameters)
     }
 }
 
-// ============================================================================
-// PUZZLE ANIMATION IMPLEMENTATIONS
-// ============================================================================
-
-// Global puzzle animation state
-static TimerHandle_t puzzle_timer = NULL;
-static uint8_t puzzle_animation_frame = 0;
-static uint8_t puzzle_animation_total_frames = 0;
-static uint8_t puzzle_animation_source = 0;
-static uint8_t puzzle_animation_target = 0;
-static bool puzzle_animation_active = false;
-
 // Global endgame animation state
 static bool endgame_animation_active = false;
-static player_t endgame_winner = PLAYER_WHITE;
-static uint8_t endgame_animation_style = 0;
-static uint32_t endgame_animation_frame = 0;
-
-/**
- * @brief Timer callback for puzzle animations
- */
-void puzzle_animation_timer_callback(TimerHandle_t xTimer) {
-    if (!puzzle_animation_active) return;
-    
-    puzzle_animation_frame++;
-    
-    if (puzzle_animation_frame >= puzzle_animation_total_frames) {
-        // Animation complete
-        puzzle_animation_active = false;
-        xTimerStop(puzzle_timer, 0);
-        ESP_LOGI(TAG, "🎯 Puzzle animation completed");
-        return;
-    }
-    
-    // Calculate animation progress
-    float progress = (float)puzzle_animation_frame / (float)puzzle_animation_total_frames;
-    
-    // Create path animation effect
-    uint8_t source_row = puzzle_animation_source / 8;
-    uint8_t source_col = puzzle_animation_source % 8;
-    uint8_t target_row = puzzle_animation_target / 8;
-    uint8_t target_col = puzzle_animation_target % 8;
-    
-    // Clear board first
-    led_clear_board_only();
-    
-    // IMPROVED: Multi-point trail animation with brightness effects
-    for (int trail = 0; trail < 3; trail++) {
-        float trail_progress = progress - (trail * 0.2f);
-        if (trail_progress < 0) continue;
-        if (trail_progress > 1) break;
-    
-    // Linear interpolation
-        float current_row = source_row + (target_row - source_row) * trail_progress;
-        float current_col = source_col + (target_col - source_col) * trail_progress;
-    
-    uint8_t current_square = chess_pos_to_led_index((uint8_t)current_row, (uint8_t)current_col);
-    
-    if (current_square < 64) {
-            // Progressive color change: Cyan -> Blue -> Purple
-            uint8_t red, green, blue;
-            if (trail_progress < 0.5f) {
-                // Cyan to Blue
-                float local_progress = trail_progress / 0.5f;
-                red = 0;
-                green = 255 - (uint8_t)(255 * local_progress);
-                blue = 255;
-            } else {
-                // Blue to Purple
-                float local_progress = (trail_progress - 0.5f) / 0.5f;
-                red = (uint8_t)(255 * local_progress);
-                green = 0;
-                blue = 255;
-            }
-            
-            // Trail brightness effect - each point gets dimmer
-            float trail_brightness = 1.0f - (trail * 0.3f);
-            red = (uint8_t)(red * trail_brightness);
-            green = (uint8_t)(green * trail_brightness);
-            blue = (uint8_t)(blue * trail_brightness);
-            
-            // Add pulsing effect
-            float pulse = 0.7f + 0.3f * sin(progress * 6.28f + trail * 2.09f);
-            red = (uint8_t)(red * pulse);
-            green = (uint8_t)(green * pulse);
-            blue = (uint8_t)(blue * pulse);
-            
-            led_set_pixel_internal(current_square, red, green, blue);
-        }
-    }
-}
-
-void led_puzzle_start_animation(const led_command_t* cmd) {
-    if (!cmd) return;
-    
-    // Simple welcome animation - single flash
-    for (int i = 0; i < 64; i++) {
-        led_set_pixel_internal(i, 0, 255, 255); // Cyan
-    }
-
-    vTaskDelay(pdMS_TO_TICKS(300));
-    
-    led_clear_all_highlights();
-    ESP_LOGI(TAG, "🧩 Puzzle welcome animation completed");
-}
-
-void led_puzzle_highlight_piece(const led_command_t* cmd) {
-    if (!cmd || cmd->led_index >= 64) return;
-    
-    // Simple highlight - just set yellow
-    led_set_pixel_internal(cmd->led_index, 255, 255, 0);
-
-    
-    ESP_LOGI(TAG, "🟡 Highlighted puzzle piece at LED %d", cmd->led_index);
-}
-
-void led_puzzle_path_animation(const led_command_t* cmd) {
-    if (!cmd || cmd->led_index >= 64) return;
-    
-    ESP_LOGI(TAG, "🧩 Starting enhanced puzzle path animation");
-    
-    uint8_t from_led = cmd->led_index;
-    uint8_t to_led = (cmd->data ? *((uint8_t*)cmd->data) : 63); // default to h8
-    
-    // Convert LED indices to row/col
-    uint8_t from_row = from_led / 8;
-    uint8_t from_col = from_led % 8;
-    uint8_t to_row = to_led / 8;
-    uint8_t to_col = to_led % 8;
-    
-    // STEP 1: Highlight starting position with pulsing effect
-    ESP_LOGI(TAG, "🎯 Step 1: Highlighting starting position");
-    for (int pulse = 0; pulse < 5; pulse++) {
-        led_clear_board_only();
-        float brightness = 0.5f + 0.5f * sin(pulse * 1.26f);
-        led_set_pixel_safe(from_led, (uint8_t)(255 * brightness), (uint8_t)(255 * brightness), 0); // Pulsing yellow
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-    
-    // STEP 2: Show path with step-by-step guidance
-    ESP_LOGI(TAG, "🎯 Step 2: Showing path step by step");
-    int steps = abs(to_row - from_row) + abs(to_col - from_col);
-    if (steps == 0) steps = 1;
-    
-    for (int step = 0; step <= steps; step++) {
-        led_clear_board_only();
-        
-        // Calculate current position
-        float progress = (float)step / steps;
-        float current_row = from_row + (to_row - from_row) * progress;
-        float current_col = from_col + (to_col - from_col) * progress;
-        
-        uint8_t current_led = chess_pos_to_led_index((uint8_t)current_row, (uint8_t)current_col);
-        
-        // Show all previous steps in dimmer color
-        for (int prev_step = 0; prev_step < step; prev_step++) {
-            float prev_progress = (float)prev_step / steps;
-            float prev_row = from_row + (to_row - from_row) * prev_progress;
-            float prev_col = from_col + (to_col - from_col) * prev_progress;
-            uint8_t prev_led = chess_pos_to_led_index((uint8_t)prev_row, (uint8_t)prev_col);
-            led_set_pixel_safe(prev_led, 0, 128, 0); // Dim green for previous steps
-        }
-        
-        // Highlight current step
-        if (step < steps) {
-            // Current step - bright cyan
-            led_set_pixel_safe(current_led, 0, 255, 255);
-        } else {
-            // Final destination - bright yellow
-            led_set_pixel_safe(current_led, 255, 255, 0);
-        }
-        
-        vTaskDelay(pdMS_TO_TICKS(200)); // Faster for better performance
-    }
-    
-    // STEP 3: Final confirmation with celebration
-    ESP_LOGI(TAG, "🎯 Step 3: Final confirmation");
-    for (int celebration = 0; celebration < 3; celebration++) {
-        led_clear_board_only();
-        
-        // Show complete path
-        for (int step = 0; step <= steps; step++) {
-            float progress = (float)step / steps;
-            float current_row = from_row + (to_row - from_row) * progress;
-            float current_col = from_col + (to_col - from_col) * progress;
-            uint8_t current_led = chess_pos_to_led_index((uint8_t)current_row, (uint8_t)current_col);
-            
-            // Celebration colors
-            uint8_t r, g, b;
-            if (celebration == 0) { r = 255; g = 0; b = 0; }      // Red
-            else if (celebration == 1) { r = 0; g = 255; b = 0; } // Green
-            else { r = 0; g = 0; b = 255; }                       // Blue
-            
-            led_set_pixel_safe(current_led, r, g, b);
-        }
-        
-        vTaskDelay(pdMS_TO_TICKS(300));
-    }
-    
-    // STEP 4: Clear and show final destination
-    led_clear_board_only();
-    led_set_pixel_safe(to_led, 255, 255, 0); // Final yellow highlight
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    led_clear_board_only();
-    
-    ESP_LOGI(TAG, "🧩 Enhanced puzzle path animation completed");
-}
-
-void led_puzzle_destination_highlight(const led_command_t* cmd) {
-    if (!cmd || cmd->led_index >= 64) return;
-    
-    // Simple highlight - just set green
-    led_set_pixel_internal(cmd->led_index, 0, 255, 0);
-
-    
-    ESP_LOGI(TAG, "🟢 Highlighted destination at LED %d", cmd->led_index);
-}
-
-void led_puzzle_complete_animation(const led_command_t* cmd) {
-    if (!cmd) return;
-    
-    // Simple success animation - flash green
-    for (int flash = 0; flash < 2; flash++) {
-        led_set_all_internal(0, 255, 0); // Green
-
-        vTaskDelay(pdMS_TO_TICKS(300));
-    
-        led_clear_all_highlights();
-
-        vTaskDelay(pdMS_TO_TICKS(300));
-    }
-    
-    ESP_LOGI(TAG, "🏆 Puzzle completion animation finished");
-}
-
-void led_puzzle_stop_all_animations(void) {
-    animation_active = false;
-    
-    if (puzzle_timer != NULL) {
-        xTimerStop(puzzle_timer, 0);
-    }
-    
-    // Clear all LEDs
-    led_clear_all_internal();
-
-    
-    ESP_LOGI(TAG, "⏹️ All puzzle animations stopped");
-}
-
 // ============================================================================
 // ADVANCED CHESS ANIMATION IMPLEMENTATIONS
 // ============================================================================
 
+/**
+ * @brief Player change animation - wave animation podle starého projektu
+ * 
+ * Profesionální wave animace s Gaussian distribucí, která prochází přes šachovnici.
+ * Animace jde od předchozího hráče k novému hráči (passing scepter effect).
+ * 
+ * @param cmd LED command s data pointerem na player_t (0=white, 1=black)
+ */
 void led_anim_player_change(const led_command_t* cmd) {
     if (!cmd) return;
     
-    // Rays emanating from center
-    uint8_t center = 27; // d4 square
+    // Získat barvu nového hráče z data (1=white, 0=black)
+    uint8_t player_color_data = cmd->data ? (*((uint8_t*)cmd->data)) : 1;
+    player_t current_player = (player_color_data == 1) ? PLAYER_WHITE : PLAYER_BLACK;
     
-    // White or black color based on data (default to white)
-    bool is_white = cmd->data ? (*((uint8_t*)cmd->data) != 0) : true;
-    uint8_t r = is_white ? 255 : 100;
-    uint8_t g = is_white ? 255 : 100;
-    uint8_t b = is_white ? 255 : 100;
+    ESP_LOGI(TAG, "🔄 Starting player change animation - passing scepter to %s", 
+             current_player == PLAYER_WHITE ? "White" : "Black");
     
-    for (int step = 0; step < 4; step++) {
-        led_clear_all_internal();
+    // Clear board first
+    led_clear_board_only();
+    vTaskDelay(pdMS_TO_TICKS(30));
+    
+    // REVERSED: Determine row lighting direction based on PREVIOUS player (passing scepter)
+    // This creates the effect of passing the scepter TO the current player
+    int start_row, end_row;
+    if (current_player == PLAYER_WHITE) {
+        // Passing scepter TO white: animate from black side (8) to white side (1)
+        start_row = 7; // Start from black side
+        end_row = 0;   // End at white side
+    } else {
+        // Passing scepter TO black: animate from white side (1) to black side (8)
+        start_row = 0; // Start from white side
+        end_row = 7;   // End at black side
+    }
+    
+    // Professional wave animation with S-curve and Gaussian distribution
+    const float wave_width = 2.5f;  // Narrower wave width for more focused effect
+    const int total_steps = 50;     // Reduced for faster animation
+    
+    float wave_position = (float)start_row;
+    float target_position = (float)end_row;
+    
+    for (int frame = 0; frame < total_steps; frame++) {
+        // Clear board first
+        led_clear_board_only();
         
-        // Draw rays in 8 directions
-        for (int dir = 0; dir < 8; dir++) {
-            int dx[] = {-1, -1, -1, 0, 0, 1, 1, 1};
-            int dy[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+        // Calculate current wave position with S-curve easing
+        float progress = (float)frame / (float)(total_steps - 1);
+        float eased_progress = 0.5f * (1.0f - cosf(progress * M_PI)); // S-curve using cosine
+        
+        float current_wave_pos = wave_position + (target_position - wave_position) * eased_progress;
+        
+        // Add gradual startup effect - gradually increase overall brightness at the beginning
+        float startup_factor = 1.0f;
+        if (frame < 15) { // First 15 frames (180ms) for gradual startup
+            startup_factor = (float)frame / 15.0f; // 0.0 to 1.0
+            startup_factor = 0.5f * (1.0f - cosf(startup_factor * M_PI)); // S-curve for smooth startup
+        }
+        
+        // Render wave with Gaussian brightness distribution
+        for (int row = 0; row < 8; row++) {
+            // Calculate distance from wave center
+            float distance = fabsf((float)row - current_wave_pos);
             
-            int center_row = center / 8;
-            int center_col = center % 8;
+            // Gaussian brightness distribution (exp(-distance²/(2σ²)))
+            float gaussian_factor = expf(-(distance * distance) / (2.0f * wave_width * wave_width));
             
-            for (int len = 0; len <= step; len++) {
-                int row = center_row + dx[dir] * len;
-                int col = center_col + dy[dir] * len;
+            // Apply startup factor for gradual brightness increase
+            gaussian_factor *= startup_factor;
+            
+            // Apply brightness to entire row
+            for (int col = 0; col < 8; col++) {
+                uint8_t led_index = chess_pos_to_led_index(row, col);
                 
-                if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-                    uint8_t square = chess_pos_to_led_index(row, col);
-                    led_set_pixel_internal(square, r, g, b);
+                // Apply Gaussian brightness gradient with startup effect in dark gray
+                // RGB(31, 31, 31) - dark gray color
+                uint8_t red = (uint8_t)(31 * gaussian_factor);    // Dark gray red component
+                uint8_t green = (uint8_t)(31 * gaussian_factor);  // Dark gray green component
+                uint8_t blue = (uint8_t)(31 * gaussian_factor);   // Dark gray blue component
+                
+                // Add brightness threshold - only show if bright enough to be visible
+                if (gaussian_factor > 0.15f) { // Only show if > 15% brightness
+                    led_set_pixel_safe(led_index, red, green, blue);
                 }
+                // If too dim, leave LED off (don't set pixel)
             }
         }
         
-
-        vTaskDelay(pdMS_TO_TICKS(150));
+        // Faster delay for quicker animation
+        vTaskDelay(pdMS_TO_TICKS(12)); // 12ms = ~83 FPS (faster)
     }
     
-    // Fade out
-    for (int brightness = 255; brightness >= 0; brightness -= 20) {
-        for (int i = 0; i < 64; i++) {
-            led_set_pixel_internal(i, (r * brightness) / 255, 
-                                   (g * brightness) / 255, 
-                                   (b * brightness) / 255);
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(30));
-    }
+    // Clear board after animation
+    led_clear_board_only();
+    vTaskDelay(pdMS_TO_TICKS(30));
     
-    led_clear_all_internal();
-
-    
-    ESP_LOGI(TAG, "🌟 Player change animation completed");
+    ESP_LOGI(TAG, "✅ Player change animation completed");
 }
 
 void led_anim_move_path(const led_command_t* cmd) {
@@ -2089,59 +1851,90 @@ void led_anim_move_path(const led_command_t* cmd) {
     uint8_t from_led = cmd->led_index;
     uint8_t to_led = (cmd->data ? *((uint8_t*)cmd->data) : 63);  // default to h8
     
-    ESP_LOGI(TAG, "🎬 Move path animation: %d -> %d", from_led, to_led);
+    ESP_LOGI(TAG, "🎬 Enhanced move path animation: %d -> %d", from_led, to_led);
     
-    // Calculate path with smooth interpolation
-    uint8_t from_row = from_led / 8;
-    uint8_t from_col = from_led % 8;
-    uint8_t to_row = to_led / 8;
-    uint8_t to_col = to_led % 8;
+    // ✅ OPRAVA: Použít led_index_to_chess_pos() místo jednoduchého dělení (kvůli serpentine layoutu)
+    uint8_t from_row, from_col, to_row, to_col;
+    led_index_to_chess_pos(from_led, &from_row, &from_col);
+    led_index_to_chess_pos(to_led, &to_row, &to_col);
     
-    // ULTRA-FAST: Move animation optimized for 30 FPS (33ms total)
-    for (int frame = 0; frame < 15; frame++) { // More frames for smoothness
+    // ENHANCED: Ultra-smooth move animation with brightness control (25 frames, 6 trails)
+    for (int frame = 0; frame < 25; frame++) { // More frames for ultra-smoothness
         led_clear_board_only();
         
-        float progress = (float)frame / 14.0f;
+        float progress = (float)frame / 24.0f;
         
-        // Create smooth trail effect
-        for (int trail = 0; trail < 3; trail++) {
-            float trail_progress = progress - (trail * 0.2f);
+        // Create enhanced trail effect with multiple brightness levels (6 trails)
+        for (int trail = 0; trail < 6; trail++) {
+            float trail_progress = progress - (trail * 0.08f);
             if (trail_progress < 0) continue;
             if (trail_progress > 1) break;
             
-            // Calculate current position with smooth interpolation
-            float current_row = from_row + (to_row - from_row) * trail_progress;
-            float current_col = from_col + (to_col - from_col) * trail_progress;
+            // Calculate current position with smooth easing
+            float eased_progress = trail_progress * trail_progress * (3.0f - 2.0f * trail_progress); // Smooth step
+            float current_row = from_row + (to_row - from_row) * eased_progress;
+            float current_col = from_col + (to_col - from_col) * eased_progress;
             
             uint8_t current_led = chess_pos_to_led_index((uint8_t)current_row, (uint8_t)current_col);
             
-            // Smooth color transition: Green -> Blue
-            uint8_t red = 0;
-            uint8_t green = 255 - (uint8_t)(255 * trail_progress);
-            uint8_t blue = (uint8_t)(255 * trail_progress);
+            // ✅ OPRAVA: Modrá barva pro move animaci (podle požadavku uživatele)
+            // Modrá s různou intenzitou podle pozice v trailu
+            uint8_t red, green, blue;
             
-            // Trail brightness with smooth fade
-            float trail_brightness = 1.0f - (trail * 0.25f);
-            red = (uint8_t)(red * trail_brightness);
-            green = (uint8_t)(green * trail_brightness);
-            blue = (uint8_t)(blue * trail_brightness);
+            // Modrá barva s brightness gradientem podle trail_progress
+            float blue_intensity = 1.0f;
+            if (trail_progress < 0.2f) {
+                // Začátek: tmavší modrá
+                blue_intensity = 0.5f + (trail_progress / 0.2f) * 0.5f; // 0.5 -> 1.0
+            } else if (trail_progress > 0.8f) {
+                // Konec: jasnější modrá
+                blue_intensity = 1.0f;
+            }
             
-            // Add smooth pulsing effect
-            float pulse = 0.8f + 0.2f * sin(progress * 6.28f + trail * 1.57f);
-            red = (uint8_t)(red * pulse);
-            green = (uint8_t)(green * pulse);
-            blue = (uint8_t)(blue * pulse);
+            red = 0;
+            green = 0;
+            blue = (uint8_t)(255 * blue_intensity);
+            
+            // Enhanced trail brightness with exponential fade
+            float trail_brightness = powf(1.0f - (trail * 0.15f), 1.5f);
+            
+            // Advanced pulsing with multiple harmonics
+            float pulse1 = 0.6f + 0.4f * sin(progress * 12.56f + trail * 1.26f);
+            float pulse2 = 0.8f + 0.2f * sin(progress * 25.12f + trail * 2.51f);
+            float pulse3 = 0.9f + 0.1f * sin(progress * 50.24f + trail * 3.77f);
+            float combined_pulse = pulse1 * pulse2 * pulse3;
+            
+            // Apply brightness and pulsing
+            red = (uint8_t)(red * trail_brightness * combined_pulse);
+            green = (uint8_t)(green * trail_brightness * combined_pulse);
+            blue = (uint8_t)(blue * trail_brightness * combined_pulse);
             
             led_set_pixel_safe(current_led, red, green, blue);
         }
         
-        vTaskDelay(pdMS_TO_TICKS(2)); // 30 FPS: 15 frames × 2ms = 30ms total
+        // ✅ KRITICKÉ: Okamžitě aktualizovat LED po každém frame (jako ve starém projektu)
+        led_force_immediate_update();
+        
+        vTaskDelay(pdMS_TO_TICKS(2)); // Optimized timing: 25 frames × 2ms = 50ms total for better responsiveness
     }
     
-    // Quick final highlight (no burst effect)
-    led_clear_board_only();
-    led_set_pixel_safe(to_led, 0, 0, 255); // Blue destination
-    vTaskDelay(pdMS_TO_TICKS(50)); // Quick highlight
+    // Enhanced final destination effect with breathing (8 breaths)
+    for (int breath = 0; breath < 8; breath++) {
+        led_clear_board_only();
+        
+        float breath_intensity = 0.5f + 0.5f * sin(breath * 0.785f); // Breathing effect
+        // ✅ OPRAVA: Modrá barva pro final destination (podle požadavku uživatele)
+        uint8_t final_red = 0;
+        uint8_t final_green = 0;
+        uint8_t final_blue = (uint8_t)(255 * breath_intensity);
+        
+        led_set_pixel_safe(to_led, final_red, final_green, final_blue);
+        
+        // ✅ KRITICKÉ: Okamžitě aktualizovat LED po každém breath frame
+        led_force_immediate_update();
+        
+        vTaskDelay(pdMS_TO_TICKS(20)); // Optimized breathing timing
+    }
     
     led_clear_board_only();
 }
@@ -2337,50 +2130,160 @@ void led_booting_animation(void)
     ESP_LOGI(TAG, "🌟 Booting animation completed");
 }
 
+// Endgame animation state structure (podle starého projektu)
+typedef struct {
+    bool active;
+    uint8_t win_king_led;
+    uint8_t win_king_row;
+    uint8_t win_king_col;
+    uint8_t lose_king_row;
+    uint8_t lose_king_col;
+    uint8_t radius;
+    uint32_t last_update;
+    bool initialized;
+    piece_t winner_piece; // Store the actual winner piece for proper detection
+} endgame_wave_state_t;
+
+static endgame_wave_state_t endgame_wave = {0};
+
+/**
+ * @brief Initialize AVR-style wave endgame animation (podle starého projektu)
+ */
 void led_anim_endgame(const led_command_t* cmd) {
     if (!cmd) return;
     
-    ESP_LOGI(TAG, "🏆 Starting NON-BLOCKING endgame animation");
+    ESP_LOGI(TAG, "🏆 Starting AVR-style wave endgame animation");
     
-    // Get animation style from data (0=wave, 1=circles, 2=cascade, 3=fireworks)
-    uint8_t style = (cmd->data ? *((uint8_t*)cmd->data) : 0);
+    // Get winner king position from led_index
+    endgame_wave.win_king_led = cmd->led_index;
+    // ✅ OPRAVA: Použít led_index_to_chess_pos() místo jednoduchého dělení (kvůli serpentine layoutu)
+    led_index_to_chess_pos(endgame_wave.win_king_led, &endgame_wave.win_king_row, &endgame_wave.win_king_col);
+    
+    // Get the actual winner piece from the board for proper detection
+    endgame_wave.winner_piece = game_get_piece(endgame_wave.win_king_row, endgame_wave.win_king_col);
+    
+    // For simplicity, we'll just animate around the winner king
+    // The loser king position is not critical for the wave effect
+    endgame_wave.lose_king_row = 0;
+    endgame_wave.lose_king_col = 0;
+    
+    ESP_LOGI(TAG, "🎯 Winner king at (%d,%d) piece=%d - wave animation around this position", 
+             endgame_wave.win_king_row, endgame_wave.win_king_col, endgame_wave.winner_piece);
+    
+    // Initialize animation state
+    endgame_wave.radius = 1;
+    endgame_wave.last_update = xTaskGetTickCount();
+    endgame_wave.active = true;
+    endgame_wave.initialized = true;
     
     // Set global endgame state
     endgame_animation_active = true;
-    endgame_winner = PLAYER_WHITE; // Default winner, should be set by game logic
-    endgame_animation_style = style;
-    endgame_animation_frame = 0;
     
-    // Reset WDT at start
-    led_task_wdt_reset_safe();
-    
-    // Actually create and start the animation using unified_animation_manager
-    animation_type_t anim_type;
-    switch (style) {
-        case 0: anim_type = ANIM_TYPE_ENDGAME_WAVE; break;
-        case 1: anim_type = ANIM_TYPE_ENDGAME_CIRCLES; break;
-        case 2: anim_type = ANIM_TYPE_ENDGAME_CASCADE; break;
-        case 3: anim_type = ANIM_TYPE_ENDGAME_FIREWORKS; break;
-        default: anim_type = ANIM_TYPE_ENDGAME_WAVE; break;
+    ESP_LOGI(TAG, "🌊 AVR-style wave endgame animation initialized");
+}
+
+/**
+ * @brief Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highlighting (podle starého projektu)
+ */
+void led_update_endgame_wave(void) {
+    if (!endgame_wave.active || !endgame_wave.initialized) {
+        return;
     }
     
-    uint32_t anim_id = unified_animation_create(anim_type, ANIM_PRIORITY_HIGH);
-    if (anim_id != 0) {
-        esp_err_t ret = ESP_OK;
-        switch (style) {
-            case 0: ret = animation_start_endgame_wave(anim_id, 27, 0); break;
-            case 1: ret = animation_start_endgame_circles(anim_id, 27, 0); break;
-            case 2: ret = animation_start_endgame_cascade(anim_id, 27, 0); break;
-            case 3: ret = animation_start_endgame_fireworks(anim_id, 27, 0); break;
-        }
+    const uint32_t WAVE_STEP_MS = 100; // ✅ OPRAVA: Pomalejší animace (100ms místo 30ms)
+    const uint8_t MAX_RADIUS = 14;    // Larger radius for better coverage
+    const float WAVE_THICKNESS = 1.2f; // Thinner waves for more precise effect
+    const int WAVE_LAYERS = 4;        // Fewer layers but with higher FPS
+    
+    // Check if it's time for next wave step
+    if (xTaskGetTickCount() - endgame_wave.last_update < pdMS_TO_TICKS(WAVE_STEP_MS)) {
+        return; // Not time yet
+    }
+    
+    endgame_wave.last_update = xTaskGetTickCount();
+    
+    // Clear board
+    led_clear_board_only();
+    
+    // Use stored winner piece for reliable detection
+    piece_t winner_king = endgame_wave.winner_piece;
+    bool winner_is_white = (winner_king == PIECE_WHITE_KING);
+    
+    // Draw multiple overlapping wave rings for ultra-smooth effect
+    for (int ring = 0; ring < WAVE_LAYERS; ring++) {
+        float current_radius = endgame_wave.radius - (ring * 0.3f);
+        if (current_radius < 0.2f) continue;
         
-        if (ret == ESP_OK) {
-            ESP_LOGI(TAG, "✅ Endgame animation started successfully (ID: %lu, style: %d)", anim_id, style);
-        } else {
-            ESP_LOGE(TAG, "❌ Failed to start endgame animation: %s", esp_err_to_name(ret));
+        for (int dy = -endgame_wave.radius; dy <= endgame_wave.radius; dy++) {
+            for (int dx = -endgame_wave.radius; dx <= endgame_wave.radius; dx++) {
+                // Calculate distance from center
+                float dist = sqrtf(dx * dx + dy * dy);
+                
+                // Check if this pixel is part of the wave ring with smooth gradient
+                float ring_distance = fabsf(dist - current_radius);
+                if (ring_distance <= WAVE_THICKNESS) {
+                    int row = endgame_wave.win_king_row + dy;
+                    int col = endgame_wave.win_king_col + dx;
+                    
+                    // Check bounds
+                    if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+                        uint8_t square = chess_pos_to_led_index(row, col);
+                        
+                        // Get piece at this position
+                        piece_t piece = game_get_piece(row, col);
+                        
+                        // ✅ OPRAVA: Použít intensity místo gradientu (jako ve starém projektu)
+                        // Calculate intensity based on distance from ring center (smooth gradient)
+                        float intensity = 1.0f - (ring_distance / WAVE_THICKNESS);
+                        intensity = fmaxf(0.15f, intensity); // Higher minimum brightness
+                        
+                        // ✅ OPRAVA: Barvy podle starého projektu - všechny barvy se násobí intensity
+                        uint8_t red, green, blue;
+                        
+                        if (piece != PIECE_EMPTY) {
+                            // Check if it's an opponent piece - use direct piece comparison for reliability
+                            bool is_opponent_piece = false;
+                            
+                            if (winner_is_white) {
+                                // Winner is white, check if piece is black
+                                is_opponent_piece = (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING);
+                            } else {
+                                // Winner is black, check if piece is white
+                                is_opponent_piece = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
+                            }
+                            
+                            if (is_opponent_piece) {
+                                // BRIGHT RED for opponent pieces - very visible!
+                                red = (uint8_t)(255 * intensity);
+                                green = (uint8_t)(30 * intensity);
+                                blue = (uint8_t)(30 * intensity);
+                            } else {
+                                // BRIGHT GREEN for own pieces - high contrast
+                                red = (uint8_t)(30 * intensity);
+                                green = (uint8_t)(255 * intensity);
+                                blue = (uint8_t)(80 * intensity);
+                            }
+                        } else {
+                            // BRIGHT BLUE for empty squares - very visible
+                            red = (uint8_t)(30 * intensity);
+                            green = (uint8_t)(100 * intensity);
+                            blue = (uint8_t)(255 * intensity);
+                        }
+                        
+                        led_set_pixel_safe(square, red, green, blue);
+                    }
+                }
+            }
         }
-    } else {
-        ESP_LOGE(TAG, "❌ Failed to create endgame animation - no free slots");
+    }
+    
+    // ✅ OPRAVA: Always highlight winner king in BRIGHT GOLD (mimo wave loop, jako ve starém projektu)
+    led_set_pixel_safe(endgame_wave.win_king_led, 255, 215, 0);
+    
+    // Increment radius for next wave
+    endgame_wave.radius++;
+    if (endgame_wave.radius > MAX_RADIUS) {
+        endgame_wave.radius = 1; // Reset for continuous wave effect
     }
 }
 
@@ -2391,6 +2294,12 @@ void led_stop_endgame_animation(void)
 {
     ESP_LOGI(TAG, "🛑 Stopping endless endgame animation...");
     endgame_animation_active = false;
+    
+    // ✅ OPRAVA: Zastavit endgame wave animaci
+    endgame_wave.active = false;
+    endgame_wave.initialized = false;
+    endgame_wave.radius = 0;
+    
     led_clear_board_only();
     ESP_LOGI(TAG, "✅ Endless endgame animation stopped");
 }
@@ -3161,4 +3070,85 @@ void led_enhanced_castling_clear(void)
 {
     ESP_LOGI(TAG, "🧹 Clearing enhanced castling indications");
     led_clear_board_only();
+}
+
+// ============================================================================
+// BOOT ANIMATION LED FUNCTIONS
+// ============================================================================
+
+/**
+ * @brief LED boot animation step - rozsviti LED podle progress
+ * @param progress_percent Progress v procentech (0-100)
+ * @details
+ * Rozsviti LED podle progress boot procesu. Pouziva se pro zobrazeni
+ * postupu inicializace systemu. Rozsviti LED svetle zelenou barvou.
+ * @note Funkce je bezpecna - kontroluje inicializaci a simulation mode
+ */
+void led_boot_animation_step(uint8_t progress_percent)
+{
+    // Bezpecnostni kontroly
+    if (!led_initialized || simulation_mode) {
+        ESP_LOGD(TAG, "LED boot: Progress %d%% - %s", progress_percent, 
+                 simulation_mode ? "simulation mode" : "not initialized");
+        return;
+    }
+    
+    // Omezit na 0-100%
+    if (progress_percent > 100) {
+        progress_percent = 100;
+    }
+    
+    // Vypocitat index LED (pouze board LEDs 0-63)
+    int led_index = (progress_percent * CHESS_LED_COUNT_BOARD) / 100;
+    if (led_index >= CHESS_LED_COUNT_BOARD) {
+        led_index = CHESS_LED_COUNT_BOARD - 1;
+    }
+    
+    // Rozsvitit LED svetle zelenou
+    led_set_pixel_internal(led_index, 0, 128, 0);
+    
+    ESP_LOGD(TAG, "LED boot: Progress %d%% -> LED[%d] RGB(0,128,0)", progress_percent, led_index);
+}
+
+/**
+ * @brief LED boot animation fade out - postupne ztlumi vsechny LED na 0
+ * @details
+ * Postupne ztlumi vsechny board LED z brightness 128 na 0.
+ * Pouziva se na konci boot procesu pro plynule ztlumeni.
+ * @note Funkce je bezpecna - kontroluje inicializaci a simulation mode
+ */
+void led_boot_animation_fade_out(void)
+{
+    // Bezpecnostni kontroly
+    if (!led_initialized || simulation_mode) {
+        ESP_LOGD(TAG, "LED boot fade out: %s", simulation_mode ? "simulation mode" : "not initialized");
+        return;
+    }
+    
+    ESP_LOGI(TAG, "🌟 Starting LED boot animation fade out...");
+    
+    // Postupne ztlumeni z brightness 128 na 0
+    const int fade_steps = 20;  // 20 kroku pro plynule ztlumeni
+    const int step_delay_ms = 30; // 30ms mezi kroky
+    
+    for (int step = fade_steps; step >= 0; step--) {
+        // Vypocitat brightness (128 -> 0)
+        uint8_t brightness = (step * 128) / fade_steps;
+        
+        // Ztlumit vsechny board LED (0-63)
+        for (int led_index = 0; led_index < CHESS_LED_COUNT_BOARD; led_index++) {
+            led_set_pixel_internal(led_index, 0, brightness, 0);
+        }
+        
+        // Kratka pauza pro plynulou animaci
+        vTaskDelay(pdMS_TO_TICKS(step_delay_ms));
+        
+        // Reset watchdog behem animace
+        led_task_wdt_reset_safe();
+    }
+    
+    // Vymazat vsechny board LED
+    led_clear_board_only();
+    
+    ESP_LOGI(TAG, "✅ LED boot animation fade out completed");
 }

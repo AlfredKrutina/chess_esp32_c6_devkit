@@ -260,7 +260,7 @@ static esp_err_t validate_gpio_pin(gpio_num_t pin, const char* pin_name) {
                         i, pin_number, esp_err_to_name(ret));
                 return ret; // Return error instead of continuing
             } else {
-                gpio_set_level(matrix_row_pins[i], 0); // Set all rows low initially
+                gpio_set_level(matrix_row_pins[i], 1); // Set all rows HIGH initially (inactive state)
                 ESP_LOGI(TAG, "gpio_set_level done for GPIO%d", pin_number);
             }
         }

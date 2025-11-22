@@ -104,20 +104,6 @@ void game_clear_highlights_direct(void);
 void game_show_state_direct(piece_t *board);
 
 /**
- * @brief Zobraz puzzle s primymi LED volanimi
- * 
- * Zobrazi navod pro reseni puzzle (zdrojova a cilova pozice).
- * 
- * @param from_row Zdrojovy radek (0-7)
- * @param from_col Zdrojovy sloupec (0-7)
- * @param to_row Cilovy radek (0-7)
- * @param to_col Cilovy sloupec (0-7)
- * 
- * @note PRIME VOLANI - zadny queue
- */
-void game_show_puzzle_direct(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col);
-
-/**
  * @brief Zobraz sach s primymi LED volanimi
  * 
  * Zobrazi cervenou blikajici LED na pozici krale v sachu.
