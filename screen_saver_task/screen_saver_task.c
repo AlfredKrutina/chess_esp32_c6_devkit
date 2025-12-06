@@ -30,7 +30,7 @@
 #include "screen_saver_task.h"
 #include "freertos_chess.h"
 #include "led_task_simple.h"
-#include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
+#include "led_mapping.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -287,7 +287,7 @@ void screen_saver_fade_in(void)
 void screen_saver_set_global_brightness(uint8_t brightness)
 {
     // Send brightness command to LED task
-    // ✅ DIRECT LED CALL - No queue hell
+    // Přímé volání LED funkce
     led_set_all_safe(brightness, brightness, brightness);
 }
 
@@ -670,7 +670,7 @@ void screen_saver_task_start(void *pvParameters)
     TickType_t last_wake_time = xTaskGetTickCount();
     
     for (;;) {
-        // CRITICAL: Reset watchdog for screen saver task in every iteration (only if registered)
+        // Reset watchdog timeru pro screen saver task v každé iteraci (pouze pokud je registrován)
         esp_err_t wdt_ret = esp_task_wdt_reset();
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup

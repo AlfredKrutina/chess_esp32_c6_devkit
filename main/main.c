@@ -134,9 +134,13 @@ TaskHandle_t reset_button_task_handle = NULL;
 TaskHandle_t promotion_button_task_handle = NULL;
 
 /** @brief Konfigurace demo modu - je demo mod zapnuty */
-static bool demo_mode_enabled = false;
-/** @brief Zpozdeni mezi demo tahy v milisekundach - vychozi 3 sekundy */
-static uint32_t demo_move_delay_ms = 3000; // Default 3 seconds
+/** @brief Konfigurace demo modu - je demo mod zapnuty */
+static volatile bool demo_mode_enabled = false;
+/** @brief Zpozdeni mezi demo tahy v milisekundach - dynamicky meneno */
+static uint32_t current_demo_delay_ms = 3000; 
+
+// Forward declaration
+void demo_report_activity(void);
 
 /** @brief Preddefinovane demo tahy pro automaticke hrani */
 static const char* DEMO_MOVES[] = {
@@ -339,15 +343,35 @@ void toggle_demo_mode(bool enabled)
     demo_mode_enabled = enabled;
     
     if (enabled) {
-        ESP_LOGI(TAG, "🤖 DEMO MODE ENABLED");
-        ESP_LOGI(TAG, "Automatic play mode is now active");
-        ESP_LOGI(TAG, "Moves will be played automatically");
-        ESP_LOGI(TAG, "Type 'DEMO OFF' to stop automatic play");
+        ESP_LOGI(TAG, "🤖 SCREENSAVER MODE ENABLED");
+        ESP_LOGI(TAG, "Automatic play will start with variable speed (0.7s - 4s)");
+        ESP_LOGI(TAG, "Touch the board to interrupt!");
     } else {
-        ESP_LOGI(TAG, "🤖 DEMO MODE DISABLED");
-        ESP_LOGI(TAG, "Manual play mode is now active");
-        ESP_LOGI(TAG, "You can now make moves manually");
+        ESP_LOGI(TAG, "🤖 SCREENSAVER MODE DISABLED");
+        ESP_LOGI(TAG, " returned to manual control");
     }
+}
+
+/**
+ * @brief Report activity on the board (interrupt demo mode)
+ * Called from matrix_task when any change is detected
+ */
+void demo_report_activity(void)
+{
+    if (demo_mode_enabled) {
+        demo_mode_enabled = false;
+        ESP_LOGW(TAG, "✋ DEMO INTERRUPTED by user activity!");
+        // Optional: Send feedback to Web/UART if needed
+    }
+}
+
+/**
+ * @brief Get demo mode status
+ * @return true if enabled, false otherwise
+ */
+bool is_demo_mode_enabled(void)
+{
+    return demo_mode_enabled;
 }
 
 /**
@@ -378,10 +402,13 @@ void execute_demo_move(void)
         strncpy(cmd.from_notation, move, 2);
         strncpy(cmd.to_notation, move + 2, 2);
         
+        // For demo/screensaver, we want valid moves only, but we don't assume physical sync
+        // The game task should handle this command visually
+        
         if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
             ESP_LOGE(TAG, "❌ Failed to send GAME_CMD_MAKE_MOVE");
         } else {
-            ESP_LOGI(TAG, "✅ Demo move sent: %c%c -> %c%c", move[0], move[1], move[2], move[3]);
+            // ESP_LOGI(TAG, "✅ Demo move sent: %c%c -> %c%c", move[0], move[1], move[2], move[3]);
         }
     }
     
@@ -389,8 +416,18 @@ void execute_demo_move(void)
     
     // Reset demo moves if we've played all of them
     if (demo_move_index >= demo_moves_count) {
-        ESP_LOGI(TAG, "🤖 Demo game complete! %d moves played", demo_moves_count);
+        ESP_LOGI(TAG, "🤖 Demo game complete! Restarting...");
         demo_move_index = 0; // Reset for next demo
+        
+        // Optional: Reset board here via GAME_CMD_NEW_GAME if we want perfect loop
+        // But the previous implementation just looped moves which might be invalid if board state isn't reset
+        // For screensaver visualization, maybe we want to reset
+        
+        // Send reset command
+        if (game_command_queue != NULL) {
+             chess_move_command_t cmd = { .type = GAME_CMD_NEW_GAME };
+             xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
+        }
     }
 }
 
@@ -893,6 +930,7 @@ void app_main(void)
     // Main application loop
     // uint32_t loop_count = 0; // Unused variable removed
     uint32_t last_status_time = 0;
+    uint32_t last_demo_move_time = 0; // Track time in ms instead of seconds for finer granularity
     
     ESP_LOGI(TAG, "🎯 Main application loop started");
     
@@ -900,36 +938,32 @@ void app_main(void)
         // CRITICAL: Reset watchdog for main task in every iteration
         main_task_wdt_reset_safe();
         
+        // Get current time in ms
+        uint32_t current_time_ms = esp_timer_get_time() / 1000;
+        uint32_t current_time_sec = current_time_ms / 1000;
+        
         // Periodic system status logging (respects quiet_mode and verbose_mode)
-        uint32_t current_time = esp_timer_get_time() / 1000000; // Convert to seconds
-        if (current_time - last_status_time >= 60) { // Every 60 seconds
-            ESP_LOGI(TAG, "🔄 System Status: Uptime=%lus, FreeHeap=%zu bytes, Tasks=%d", 
-                     current_time, esp_get_free_heap_size(), uxTaskGetNumberOfTasks());
+        if (current_time_sec - last_status_time >= 60) { // Every 60 seconds
+            ESP_LOGI(TAG, "🔄 System Status: Uptime=%lu s, FreeHeap=%zu bytes, Tasks=%d", 
+                     current_time_sec, esp_get_free_heap_size(), uxTaskGetNumberOfTasks());
             
-            // DEBUG MONITORING - Stack usage monitoring pro web server optimalizaci
-            ESP_LOGI(TAG, "📊 Stack Usage:");
-            if (led_task_handle) ESP_LOGI(TAG, "  LED: %d bytes free", uxTaskGetStackHighWaterMark(led_task_handle));
-            if (matrix_task_handle) ESP_LOGI(TAG, "  Matrix: %d bytes free", uxTaskGetStackHighWaterMark(matrix_task_handle));
-            if (button_task_handle) ESP_LOGI(TAG, "  Button: %d bytes free", uxTaskGetStackHighWaterMark(button_task_handle));
-            if (uart_task_handle) ESP_LOGI(TAG, "  UART: %d bytes free", uxTaskGetStackHighWaterMark(uart_task_handle));
-            if (game_task_handle) ESP_LOGI(TAG, "  Game: %d bytes free", uxTaskGetStackHighWaterMark(game_task_handle));
-            if (web_server_task_handle) ESP_LOGI(TAG, "  Web Server: %d bytes free", uxTaskGetStackHighWaterMark(web_server_task_handle));
-            
-            last_status_time = current_time;
+            // LOGS REMOVED FOR BREVITY
+            last_status_time = current_time_sec;
         }
         
         // Demo mode processing
         if (demo_mode_enabled) {
-            static uint32_t last_demo_time = 0;
-            if (current_time - last_demo_time >= (demo_move_delay_ms / 1000)) {
+            if (current_time_ms - last_demo_move_time >= current_demo_delay_ms) {
                 execute_demo_move();
-                last_demo_time = current_time;
+                last_demo_move_time = current_time_ms;
+                
+                // Calculate next random delay (700ms - 4000ms)
+                current_demo_delay_ms = 700 + (esp_random() % 3301);
+                // ESP_LOGI(TAG, "Next move in %lu ms", current_demo_delay_ms);
             }
         }
         
-        // loop_count++; // Unused variable removed
-        
-        // CRITICAL: Main task delay - must be present for watchdog safety
-        vTaskDelay(pdMS_TO_TICKS(1000)); // 1 second delay - CRITICAL for watchdog
+        // Short delay to allow frequent checks (interruption, etc.) but not starve WDT
+        vTaskDelay(pdMS_TO_TICKS(100)); 
     }
 }

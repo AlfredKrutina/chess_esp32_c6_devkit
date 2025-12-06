@@ -15,7 +15,7 @@
  * 
  * @details
  * Tento task zpracovava reset tlacitko pro restart hry. Kdyz hrac
- * stiskne reset tlacitko (GPIO27), hra se restartuje do vychoziho stavu.
+ * stiskne reset tlacitko (GPIO15), hra se restartuje do vychoziho stavu.
  * Task detekuje stisknuti a posila prikaz game tasku.
  */
 #ifndef RESET_BUTTON_TASK_H

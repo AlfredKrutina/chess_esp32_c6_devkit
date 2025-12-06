@@ -77,7 +77,6 @@ void promotion_button_task(void *pvParameters)
 {
     ESP_LOGI(TAG, "Promotion button task started (SIMULATION MODE)");
     
-    promotion_choice_t choice;                    // Buffer pro volbu promoci
     TickType_t last_wake_time = xTaskGetTickCount(); // Cas posledniho probuzeni pro periodicke spousteni
     
     while (1) {

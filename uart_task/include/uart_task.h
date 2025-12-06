@@ -4,7 +4,7 @@
  * 
  * Tato hlavicka definuje rozhrani UART tasku s podporou pro spravne echo:
  * - USB Serial JTAG konzolove rozhrani s linenoise echo
- * - Non-blocking znakovy vstup s okamzitym echem
+ * - Znakovy vstup bez blokovani s okamzitym echem
  * - Parsovani a vykonavani prikazu
  * - Systemove testovani a diagnostika
  * - Formatovani a vystup odpovedi
@@ -15,12 +15,12 @@
  * 
  * @details
  * UART Task zpracovava vsechnu komunikaci s uzivatelem pres USB Serial JTAG.
- * Poskytuje line-based terminal s history, auto-completion a barevnym vystupem.
+ * Poskytuje radkovy terminal s histori, automatickym dokoncenim a barevnym vystupem.
  * 
  * Klicova vylepseni:
  * - Pouziva ESP-IDF linenoise komponentu pro spravne echo
- * - Non-blocking I/O s vestavenou podporou echo
- * - Lepsi error handling
+ * - I/O bez blokovani s vestavenou podporou echo
+ * - Lepsi zpracovani chyb
  * - Zjednodusene zpracovani vstupu
  */
 

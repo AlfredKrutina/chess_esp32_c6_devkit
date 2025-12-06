@@ -12,7 +12,7 @@
  * @date 2025-08-24
  * 
  * @details
- * Game task je srdcem sachoveho systemu. Spravuje cely stav hry,
+ * Game task je stredem sachoveho systemu. Spravuje cely stav hry,
  * provadi validaci tahu, vynucuje sachova pravidla a komunikuje
  * s ostatnimi tasky pres fronty.
  * 
@@ -21,10 +21,10 @@
  * - Specialni tahy (rosada, en passant, promoce)
  * - Detekce sachu, matu a patu
  * - Historie tahu a undo funkcionalita
- * - Statistiky hry a material balance
- * - Integrace s LED pro vizualni feedback
+ * - Statistiky hry a materialni rovnovaha
+ * - Integrace s LED pro vizualni zpetnou vazbu
  * - Integrace s casovym systemem
- * - JSON export pro web rozhrani
+ * - JSON export pro webove rozhrani
  */
 
 #ifndef GAME_TASK_H
@@ -128,7 +128,7 @@ esp_err_t game_get_history_json(char* buffer, size_t size);
 esp_err_t game_get_captured_json(char* buffer, size_t size);
 
 /**
- * @brief Exportuj historii material advantage do JSON (pro graf vyhody)
+ * @brief Exportuj historii materialni vyhody do JSON (pro graf vyhody)
  * 
  * @param[out] buffer Vystupni buffer pro JSON retezec
  * @param size Velikost bufferu

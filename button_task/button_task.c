@@ -53,16 +53,21 @@ static const char *TAG = "BUTTON_TASK";
 // ============================================================================
 
 /**
- * @brief Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND
- * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if task not registered (WARNING only)
+ * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND
+ * 
+ * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze)
+ * 
+ * @details
+ * Funkce je pouzivana pro bezpecny reset watchdog timeru behem button operaci.
+ * Zabranuje chybam pri startupu kdy task jeste neni registrovany.
  */
 static esp_err_t button_task_wdt_reset_safe(void) {
     esp_err_t ret = esp_task_wdt_reset();
     
     if (ret == ESP_ERR_NOT_FOUND) {
-        // Log as WARNING instead of ERROR - task not registered yet
+        // Logovat jako WARNING misto ERROR - task jeste neni registrovany
         ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
-        return ESP_OK; // Treat as success for our purposes
+        return ESP_OK; // Povazovat za uspech pro nase ucely
     } else if (ret != ESP_OK) {
         ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
         return ret;
@@ -72,29 +77,29 @@ static esp_err_t button_task_wdt_reset_safe(void) {
 }
 
 // ============================================================================
-// LOCAL VARIABLES AND CONSTANTS
+// LOKALNI PROMENNE A KONSTANTY
 // ============================================================================
 
 
-// Button configuration
-#define BUTTON_DEBOUNCE_MS       50      // Debounce time
-#define BUTTON_LONG_PRESS_MS     1000    // Long press threshold
-#define BUTTON_DOUBLE_PRESS_MS   300     // Double press window
+// Konfigurace tlacitek
+#define BUTTON_DEBOUNCE_MS       50      // Cas debounce
+#define BUTTON_LONG_PRESS_MS     1000    // Prah dlouheho stisku
+#define BUTTON_DOUBLE_PRESS_MS   300     // Okno pro dvojity stisk
 
-// Button state tracking
-static bool button_states[CHESS_BUTTON_COUNT] = {false}; // Current button states
-static bool button_previous[CHESS_BUTTON_COUNT] = {false}; // Previous button states
-static uint32_t button_press_time[CHESS_BUTTON_COUNT] = {0}; // Press start time
-static uint32_t button_release_time[CHESS_BUTTON_COUNT] = {0}; // Release time
-static uint8_t button_press_count[CHESS_BUTTON_COUNT] = {0}; // Press count for double press
-static bool button_long_press_sent[CHESS_BUTTON_COUNT] = {false}; // Long press event sent
+// Sledovani stavu tlacitek
+static bool button_states[CHESS_BUTTON_COUNT] = {false}; // Aktualni stavy tlacitek
+static bool button_previous[CHESS_BUTTON_COUNT] = {false}; // Predchozi stavy tlacitek
+static uint32_t button_press_time[CHESS_BUTTON_COUNT] = {0}; // Cas zacatku stisku
+static uint32_t button_release_time[CHESS_BUTTON_COUNT] = {0}; // Cas uvolneni
+static uint8_t button_press_count[CHESS_BUTTON_COUNT] = {0}; // Pocet stisku pro dvojity stisk
+static bool button_long_press_sent[CHESS_BUTTON_COUNT] = {false}; // Udalost dlouheho stisku odeslana
 
-// Task state
+// Stav tasku
 static bool task_running = false;
-static bool simulation_mode = false; // Changed to false for real hardware operation
+static bool simulation_mode = false; // Zmeneno na false pro realny hardware
 
-// Button names for logging
-// ✅ OPRAVA: 8 promotion buttons (4 for each player) + 1 reset button
+// Nazvy tlacitek pro logovani
+// 8 promotion tlacitek (4 pro kazdeho hrace) + 1 reset tlacitko
 static const char* button_names[] = {
     "White Promotion Queen", "White Promotion Rook", "White Promotion Bishop", "White Promotion Knight",  // 0-3: White promotion buttons
     "Black Promotion Queen", "Black Promotion Rook", "Black Promotion Bishop", "Black Promotion Knight",  // 4-7: Black promotion buttons
@@ -167,7 +172,7 @@ void button_scan_all(void)
     // 
     // Physical buttons:
     // - 4 promotion buttons (MATRIX_COL_0-3): button_id 0-3
-    // - 1 reset button (GPIO27): button_id 8
+    // - 1 reset button (GPIO15): button_id 8
     // 
     // LED indications (9 LEDs):
     // - LED 64-67: White promotion (button_id 0-3 visual)
@@ -178,7 +183,7 @@ void button_scan_all(void)
         bool current_state = false;
         
         if (i == 8) {
-            // Reset button (GPIO27) - active low
+            // Reset button (GPIO15) - active low
             current_state = (gpio_get_level(BUTTON_RESET) == 0);
             
         } else if (i >= 0 && i <= 3) {

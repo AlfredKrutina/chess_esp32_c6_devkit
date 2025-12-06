@@ -27,6 +27,7 @@
 
 #include "matrix_task.h"
 #include "freertos_chess.h"
+#include "chess_types.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -44,6 +45,10 @@
 #include <ctype.h>
 
 
+
+// External function to report activity (implemented in main.c)
+extern void demo_report_activity(void);
+
 static const char *TAG = "MATRIX_TASK";
 
 // ============================================================================
@@ -51,16 +56,21 @@ static const char *TAG = "MATRIX_TASK";
 // ============================================================================
 
 /**
- * @brief Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND
- * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if task not registered (WARNING only)
+ * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND
+ * 
+ * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze)
+ * 
+ * @details
+ * Funkce je pouzivana pro bezpecny reset watchdog timeru behem matrix operaci.
+ * Zabranuje chybam pri startupu kdy task jeste neni registrovany.
  */
 static esp_err_t matrix_task_wdt_reset_safe(void) {
     esp_err_t ret = esp_task_wdt_reset();
     
     if (ret == ESP_ERR_NOT_FOUND) {
-        // Log as WARNING instead of ERROR - task not registered yet
+        // Logovat jako WARNING misto ERROR - task jeste neni registrovany
         ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
-        return ESP_OK; // Treat as success for our purposes
+        return ESP_OK; // Povazovat za uspech pro nase ucely
     } else if (ret != ESP_OK) {
         ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
         return ret;
@@ -70,31 +80,31 @@ static esp_err_t matrix_task_wdt_reset_safe(void) {
 }
 
 // ============================================================================
-// LOCAL VARIABLES AND CONSTANTS
+// LOKALNI PROMENNE A KONSTANTY
 // ============================================================================
 
 
-// Matrix state
-static uint8_t matrix_state[64] = {0}; // Current matrix state
-static uint8_t matrix_previous[64] = {0}; // Previous matrix state
-static uint8_t matrix_changes[64] = {0}; // Change detection
+// Stav matice
+static uint8_t matrix_state[64] = {0}; // Aktualni stav matice
+static uint8_t matrix_previous[64] = {0}; // Predchozi stav matice
+static uint8_t matrix_changes[64] = {0}; // Detekce zmen
 
-// Task state
+// Stav tasku
 static bool task_running = false;
-static bool simulation_mode = false; // Changed to false for real hardware operation
-bool matrix_scanning_enabled = true; // Matrix scanning enabled by default (extern for timer callback)
+static bool simulation_mode = false; // Zmeneno na false pro realny hardware
+bool matrix_scanning_enabled = true; // Skenovani matice povoleno ve vychozim nastaveni (extern pro timer callback)
 
-// Scanning state
+// Stav skenovani
 static uint8_t current_row = 0;
 static uint32_t last_scan_time = 0;
 static uint32_t scan_count = 0;
 
-// Move detection
-static uint8_t last_piece_lifted = 255; // No piece
-static uint8_t last_piece_placed = 255; // No piece
+// Detekce tahu
+static uint8_t last_piece_lifted = 255; // Zadna figurka
+static uint8_t last_piece_placed = 255; // Zadna figurka
 static uint32_t move_detection_timeout = 0;
 
-// Matrix patterns for simulation
+// Vzory matice pro simulaci
 static const uint8_t simulation_patterns[][64] = {
     // Pattern 0: Empty board
     {0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
@@ -109,11 +119,11 @@ static const uint8_t simulation_patterns[][64] = {
      0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,2}
 };
 
-static uint8_t current_pattern = 1; // Start with pattern 1
+static uint8_t current_pattern = 1; // Zacit s vzorem 1
 
 
 // ============================================================================
-// MATRIX SCANNING FUNCTIONS
+// FUNKCE PRO SKENOVANI MATICE
 // ============================================================================
 
 
@@ -134,7 +144,7 @@ static uint8_t current_pattern = 1; // Start with pattern 1
  * - Aktivni row = LOW (stahne column pin na LOW pokud je figurka/reed switch uzavreny)
  * - Neaktivni row = HIGH (column pin zustane HIGH pokud neni figurka)
  * 
- * Kriticka oprava: Pred aktivaci aktualniho radku se vsechny row piny nastavi
+ * Pred aktivaci aktualniho radku se vsechny row piny nastavi
  * na HIGH. Toto zajistuje, ze ostatni row piny nebudou interferovat s ctenim
  * column pinu. Bez tohoto by figurkami v jednom sloupci na ruznych radcich
  * mohly zpusobit falesnou detekci (pokud by row pin zustal LOW, column pin
@@ -151,30 +161,48 @@ static void matrix_scan_row_internal(uint8_t row)
 {
     if (row >= 8) return;
     
-    // CRITICAL: Nastav vsechny row piny na HIGH (neaktivni) pred aktivaci aktualniho radku
-    // Toto zajistuje, ze ostatni row piny nebudou interferovat s ctenim column pinu
-    // Bez tohoto by figurkami v jednom sloupci na ruznych radcich mohly zpusobit
-    // falesnou detekci (pokud by row pin zustal LOW, column pin by byl LOW i kdyz
-    // skenujeme jiny radek)
+    // ✅ IMPROVED: Přepni všechny řádky na INPUT před aktivací aktuálního řádku
+    // Toto je bezpečnější než jen nastavení HIGH, protože zabraňuje konfliktům
+    // při přepínání mezi řádky (jako v referenčním kódu)
     for (int i = 0; i < 8; i++) {
-        gpio_set_level(matrix_row_pins[i], 1); // HIGH = neaktivni
+        gpio_config_t io_conf = {
+            .pin_bit_mask = (1ULL << matrix_row_pins[i]),
+            .mode = GPIO_MODE_INPUT,
+            .pull_up_en = GPIO_PULLUP_DISABLE,
+            .pull_down_en = GPIO_PULLDOWN_DISABLE,
+            .intr_type = GPIO_INTR_DISABLE
+        };
+        gpio_config(&io_conf);
     }
     
-    // Nastav aktualni row pin na LOW (aktivace) - toto stahne column pin na LOW
-    // pokud je na tomto krizeni figurka (reed switch uzavreny)
-    gpio_set_level(matrix_row_pins[row], 0); // LOW = aktivni
-    
-    // ✅ OPRAVA: Use esp_rom_delay_us instead of vTaskDelay in timer callback
-    // GPIO settling time: ~5 ms pro spravne ustaleni signalu
-    // vTaskDelay() CANNOT be used in timer callbacks!
+    // ✅ IMPROVED: Použij esp_rom_delay_us místo vTaskDelay (timer callback context)
     extern void esp_rom_delay_us(uint32_t us);
-    esp_rom_delay_us(5000);  // 5 ms settling time pro stabilizaci napetoveho stavu
+    esp_rom_delay_us(1000);  // 1 ms settling time pro stabilizaci při přepínání
+    
+    // Nastav aktuální řádek na OUTPUT a LOW (aktivace)
+    // Toto stáhne column pin na LOW pokud je na tomto křížení figurka (reed switch uzavřený)
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << matrix_row_pins[row]),
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    gpio_config(&io_conf);
+    gpio_set_level(matrix_row_pins[row], 0); // LOW = aktivní
+    
+    // ✅ GPIO settling time: ~5 ms pro správné ustálení signálu
+    esp_rom_delay_us(5000);  // 5 ms settling time pro stabilizaci napěťového stavu
     
     // Read all column pins for this row
-    // Column piny maji pull-up, takze bez figury budou HIGH
-    // Pokud je figurka (reed switch uzavreny), column pin bude LOW
+    // Column piny mají pull-up, takže bez figury budou HIGH
+    // Pokud je figurka (reed switch uzavřený), column pin bude LOW
     for (int col = 0; col < 8; col++) {
-        int index = row * 8 + col;
+        // ✅ FIX: Invert column index to fix GPIO physical wiring (H→A instead of A→H)
+        // GPIO pins are wired in reverse: pin 0 = column H, pin 7 = column A
+        // So we invert: col 0 → index 7 (H), col 1 → index 6 (G), ..., col 7 → index 0 (A)
+        int inverted_col = 7 - col;
+        int index = row * 8 + inverted_col;
         int pin_level = gpio_get_level(matrix_col_pins[col]);
         
         // In simulation mode, use simulated values
@@ -182,13 +210,18 @@ static void matrix_scan_row_internal(uint8_t row)
             matrix_state[index] = simulation_patterns[current_pattern][index];
         } else {
             // Real hardware: reed switch closed = piece present
-            // pin_level == 0 znamena, ze column pin je stazeny na LOW (figurka je pritomna)
+            // pin_level == 0 znamená, že column pin je stažený na LOW (figurka je přítomna)
             matrix_state[index] = (pin_level == 0) ? 1 : 0;
         }
     }
     
-    // Nastav aktualni row pin zpet na HIGH (neaktivni) pro dalsi cyklus
-    gpio_set_level(matrix_row_pins[row], 1); // HIGH = neaktivni
+    // ✅ IMPROVED: Přepni řádek zpět na INPUT po scanování (bezpečnější)
+    io_conf.pin_bit_mask = (1ULL << matrix_row_pins[row]);
+    io_conf.mode = GPIO_MODE_INPUT;
+    gpio_config(&io_conf);
+    
+    // ✅ Malé čekání před dalším řádkem pro stabilizaci
+    esp_rom_delay_us(2000);  // 2 ms delay před dalším řádkem
 }
 
 // Public function - scans row WITH mutex protection
@@ -235,9 +268,20 @@ void matrix_scan_all(void)
                 } else {
                     matrix_changes[i] = 0;
                 }
+                
+                // Demo reporting: If anything changed, report activity
+                if (matrix_changes[i]) {
+                    demo_report_activity();
+                }
             }
             
-            // Update previous state
+            // ✅ CRITICAL: Detect moves BEFORE updating previous state
+            // This must be done while we still hold the mutex and before
+            // matrix_previous is overwritten, so matrix_detect_moves() can
+            // compare matrix_previous with matrix_state
+            matrix_detect_moves();
+            
+            // Update previous state (AFTER move detection)
             memcpy(matrix_previous, matrix_state, sizeof(matrix_state));
             
             last_scan_time = current_time;
@@ -262,7 +306,16 @@ void matrix_scan_all(void)
             } else {
                 matrix_changes[i] = 0;
             }
+
+            // Demo reporting: If anything changed, report activity
+            if (matrix_changes[i]) {
+                demo_report_activity();
+            }
         }
+        
+        // ✅ CRITICAL: Detect moves BEFORE updating previous state
+        // This must be done before matrix_previous is overwritten
+        matrix_detect_moves();
         
         memcpy(matrix_previous, matrix_state, sizeof(matrix_state));
         last_scan_time = current_time;
@@ -280,9 +333,119 @@ void matrix_scan_all(void)
 // MOVE DETECTION FUNCTIONS
 // ============================================================================
 
+/**
+ * @brief Helper function to send PICKUP command to game_command_queue
+ * @param square Square index (0-63)
+ */
+static void matrix_send_pickup_command(uint8_t square)
+{
+    extern QueueHandle_t game_command_queue;
+    
+    if (game_command_queue == NULL) {
+        ESP_LOGW(TAG, "game_command_queue not available - cannot send PICKUP command");
+        return;
+    }
+    
+    char notation[4];
+    matrix_square_to_notation(square, notation);
+    
+    chess_move_command_t cmd = {
+        .type = GAME_CMD_PICKUP,
+        .player = 0,  // Will be determined by game task
+        .response_queue = NULL  // Matrix events don't have response queue
+    };
+    strncpy(cmd.from_notation, notation, sizeof(cmd.from_notation) - 1);
+    cmd.from_notation[sizeof(cmd.from_notation) - 1] = '\0';
+    strcpy(cmd.to_notation, "");
+    
+    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+        ESP_LOGI(TAG, "PICKUP command sent to game_command_queue: %s", notation);
+    } else {
+        ESP_LOGW(TAG, "Failed to send PICKUP command to game_command_queue");
+    }
+}
+
+/**
+ * @brief Helper function to send DROP command to game_command_queue
+ * @param square Square index (0-63)
+ */
+static void matrix_send_drop_command(uint8_t square)
+{
+    extern QueueHandle_t game_command_queue;
+    
+    if (game_command_queue == NULL) {
+        ESP_LOGW(TAG, "game_command_queue not available - cannot send DROP command");
+        return;
+    }
+    
+    char notation[4];
+    matrix_square_to_notation(square, notation);
+    
+    chess_move_command_t cmd = {
+        .type = GAME_CMD_DROP,
+        .player = 0,  // Will be determined by game task
+        .response_queue = NULL  // Matrix events don't have response queue
+    };
+    strncpy(cmd.to_notation, notation, sizeof(cmd.to_notation) - 1);
+    cmd.to_notation[sizeof(cmd.to_notation) - 1] = '\0';
+    strcpy(cmd.from_notation, "");
+    
+    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+        ESP_LOGI(TAG, "DROP command sent to game_command_queue: %s", notation);
+    } else {
+        ESP_LOGW(TAG, "Failed to send DROP command to game_command_queue");
+    }
+}
+
+/**
+ * @brief Helper function to send DROP command with from/to notation to game_command_queue
+ * @param from_square Source square index (0-63)
+ * @param to_square Destination square index (0-63)
+ */
+static void matrix_send_drop_command_with_from(uint8_t from_square, uint8_t to_square)
+{
+    extern QueueHandle_t game_command_queue;
+    
+    if (game_command_queue == NULL) {
+        ESP_LOGW(TAG, "game_command_queue not available - cannot send DROP command with from");
+        return;
+    }
+    
+    char from_notation[4], to_notation[4];
+    matrix_square_to_notation(from_square, from_notation);
+    matrix_square_to_notation(to_square, to_notation);
+    
+    chess_move_command_t cmd = {
+        .type = GAME_CMD_DROP,
+        .player = 0,  // Will be determined by game task
+        .response_queue = NULL  // Matrix events don't have response queue
+    };
+    strncpy(cmd.from_notation, from_notation, sizeof(cmd.from_notation) - 1);
+    cmd.from_notation[sizeof(cmd.from_notation) - 1] = '\0';
+    strncpy(cmd.to_notation, to_notation, sizeof(cmd.to_notation) - 1);
+    cmd.to_notation[sizeof(cmd.to_notation) - 1] = '\0';
+    
+    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+        ESP_LOGI(TAG, "DROP command with from sent to game_command_queue: %s -> %s", from_notation, to_notation);
+    } else {
+        ESP_LOGW(TAG, "Failed to send DROP command with from to game_command_queue");
+    }
+}
+
 
 void matrix_detect_moves(void)
 {
+    // ✅ FIX: Check for move timeout - change from RESET to WARNING + EXTEND
+    if (last_piece_lifted != 255) {
+        uint32_t current_time = esp_timer_get_time() / 1000;
+        if (current_time > move_detection_timeout) {
+            ESP_LOGW(TAG, "⏰ Move taking longer than 5s - piece from %d still in air", last_piece_lifted);
+            // ✅ DON'T reset last_piece_lifted - allow longer moves
+            // Just extend timeout to give player more time
+            move_detection_timeout = current_time + 5000; // Give another 5 seconds
+        }
+    }
+
     // Look for piece lifted (1->0 transition)
     uint8_t piece_lifted = 255;
     for (int i = 0; i < 64; i++) {
@@ -306,57 +469,39 @@ void matrix_detect_moves(void)
         last_piece_lifted = piece_lifted;
         move_detection_timeout = esp_timer_get_time() / 1000 + 5000; // 5 second timeout
         
-        ESP_LOGI(TAG, "Piece lifted from square %d", piece_lifted);
+        // Convert square index to row/col
+        uint8_t from_row = piece_lifted / 8;
+        uint8_t from_col = piece_lifted % 8;
         
-        // Send matrix event
-        if (matrix_event_queue != NULL) {
-            matrix_event_t event = {
-                .type = MATRIX_EVENT_PIECE_LIFTED,
-                .from_square = piece_lifted,
-                .to_square = 255,
-                .piece_type = 1,
-                .timestamp = esp_timer_get_time() / 1000
-            };
-            
-            if (xQueueSend(matrix_event_queue, &event, pdMS_TO_TICKS(100)) == pdTRUE) {
-                ESP_LOGI(TAG, "Piece lifted event sent to queue");
-            }
-        }
+        ESP_LOGI(TAG, "Piece lifted from square %d (%c%d)", piece_lifted, 'a' + from_col, from_row + 1);
+        
+        // ✅ UNIFIED FLOW: Send PICKUP command to game_command_queue (same as UART)
+        matrix_send_pickup_command(piece_lifted);
     }
     
     if (piece_placed != 255) {
         last_piece_placed = piece_placed;
         
-        ESP_LOGI(TAG, "Piece placed on square %d", piece_placed);
+        // Convert square index to row/col
+        uint8_t to_row = piece_placed / 8;
+        uint8_t to_col = piece_placed % 8;
         
-        // Send matrix event
-        if (matrix_event_queue != NULL) {
-            matrix_event_t event = {
-                .type = MATRIX_EVENT_PIECE_PLACED,
-                .from_square = 255,
-                .to_square = piece_placed,
-                .piece_type = 1,
-                .timestamp = esp_timer_get_time() / 1000
-            };
-            
-            if (xQueueSend(matrix_event_queue, &event, pdMS_TO_TICKS(100)) == pdTRUE) {
-                ESP_LOGI(TAG, "Piece placed event sent to queue");
-            }
-        }
+        ESP_LOGI(TAG, "Piece placed on square %d (%c%d)", piece_placed, 'a' + to_col, to_row + 1);
         
         // Check if this completes a move
-        if (last_piece_lifted != 255 && last_piece_lifted != piece_placed) {
-            matrix_detect_complete_move(last_piece_lifted, piece_placed);
+        if (last_piece_lifted != 255) {
+            if (last_piece_lifted == piece_placed) {
+                // Return to same square - send with from=to
+                ESP_LOGI(TAG, "Piece returned to same square - sending DROP with from=to");
+                matrix_send_drop_command_with_from(last_piece_lifted, piece_placed);
+            } else {
+                // Complete move - send with from/to
+                matrix_send_drop_command_with_from(last_piece_lifted, piece_placed);
+            }
             last_piece_lifted = 255; // Reset
-        }
-    }
-    
-    // Check for move timeout
-    if (last_piece_lifted != 255) {
-        uint32_t current_time = esp_timer_get_time() / 1000;
-        if (current_time > move_detection_timeout) {
-            ESP_LOGW(TAG, "Move detection timeout - piece lifted from %d", last_piece_lifted);
-            last_piece_lifted = 255; // Reset
+        } else {
+            // Piece placed without lift - IGNORE
+            ESP_LOGW(TAG, "Piece placed without previous lift (square %d) - ignoring", piece_placed);
         }
     }
 }
@@ -364,29 +509,16 @@ void matrix_detect_moves(void)
 
 void matrix_detect_complete_move(uint8_t from_square, uint8_t to_square)
 {
-    ESP_LOGI(TAG, "Complete move detected: %d -> %d", from_square, to_square);
-    
     // Convert square indices to chess notation
     char from_notation[4], to_notation[4];
     matrix_square_to_notation(from_square, from_notation);
     matrix_square_to_notation(to_square, to_notation);
     
-    ESP_LOGI(TAG, "Move: %s -> %s", from_notation, to_notation);
+    ESP_LOGI(TAG, "Complete move detected: %d -> %d (%s -> %s)", 
+             from_square, to_square, from_notation, to_notation);
     
-    // Send complete move event
-    if (matrix_event_queue != NULL) {
-        matrix_event_t event = {
-            .type = MATRIX_EVENT_MOVE_DETECTED,
-            .from_square = from_square,
-            .to_square = to_square,
-            .piece_type = 1, // Pawn for now
-            .timestamp = esp_timer_get_time() / 1000
-        };
-        
-        if (xQueueSend(matrix_event_queue, &event, pdMS_TO_TICKS(100)) == pdTRUE) {
-            ESP_LOGI(TAG, "Complete move event sent to queue");
-        }
-    }
+    // ✅ UNIFIED FLOW: Send complete move as DROP with from/to to game_command_queue (same as UART)
+    matrix_send_drop_command_with_from(from_square, to_square);
 }
 
 
@@ -474,7 +606,7 @@ void matrix_test_scanning(void)
     matrix_state[1*8 + 4] = 1; // e2
     matrix_state[3*8 + 4] = 1; // e4
     matrix_state[6*8 + 3] = 1; // d7
-    matrix_state[4*8 + 3] = 1; // d5
+    matrix_state[4*8 + 3] = 1; // d5    
     matrix_print_state();
     
     // Test 3: Simulate piece movement

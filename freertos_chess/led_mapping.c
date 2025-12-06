@@ -34,7 +34,7 @@ uint8_t chess_pos_to_led_index(uint8_t row, uint8_t col)
         return 0;
     }
     
-    // Oprava: Sachovnice je otocena po Y ose (a1 je na h1 pozici)
+    // Sachovnice je otocena po Y ose (a1 je na h1 pozici)
     // Takze col=0 (a) musi byt mapovano na LED pozici 7 (h)
     uint8_t mapped_col = 7 - col;
     

@@ -31,28 +31,28 @@ extern "C" {
 #endif
 
 // ============================================================================
-// CONSTANTS AND TYPES
+// KONSTANTY A TYPY
 // ============================================================================
 
 /**
  * @brief Typy casovych kontrol
  */
 typedef enum {
-    TIME_CONTROL_NONE = 0,           // Bez casove kontroly
-    TIME_CONTROL_BULLET_1_0,         // Bullet 1+0 (1 minuta)
-    TIME_CONTROL_BULLET_1_1,         // Bullet 1+1 (1 min + 1s increment)
-    TIME_CONTROL_BULLET_2_1,         // Bullet 2+1 (2 min + 1s increment)
-    TIME_CONTROL_BLITZ_3_0,          // Blitz 3+0 (3 minuty)
-    TIME_CONTROL_BLITZ_3_2,          // Blitz 3+2 (3 min + 2s increment)
-    TIME_CONTROL_BLITZ_5_0,          // Blitz 5+0 (5 minut)
-    TIME_CONTROL_BLITZ_5_3,          // Blitz 5+3 (5 min + 3s increment)
-    TIME_CONTROL_RAPID_10_0,         // Rapid 10+0 (10 minut)
-    TIME_CONTROL_RAPID_10_5,         // Rapid 10+5 (10 min + 5s increment)
-    TIME_CONTROL_RAPID_15_10,        // Rapid 15+10 (15 min + 10s increment)
-    TIME_CONTROL_RAPID_30_0,         // Rapid 30+0 (30 minut)
-    TIME_CONTROL_CLASSICAL_60_0,     // Classical 60+0 (1 hodina)
-    TIME_CONTROL_CLASSICAL_90_30,     // Classical 90+30 (90 min + 30s increment)
-    TIME_CONTROL_CUSTOM,             // Vlastni nastaveni
+    TIME_CONTROL_NONE = 0,           ///< Bez casove kontroly
+    TIME_CONTROL_BULLET_1_0,         ///< Bullet 1+0 (1 minuta)
+    TIME_CONTROL_BULLET_1_1,         ///< Bullet 1+1 (1 min + 1s increment)
+    TIME_CONTROL_BULLET_2_1,         ///< Bullet 2+1 (2 min + 1s increment)
+    TIME_CONTROL_BLITZ_3_0,          ///< Blitz 3+0 (3 minuty)
+    TIME_CONTROL_BLITZ_3_2,          ///< Blitz 3+2 (3 min + 2s increment)
+    TIME_CONTROL_BLITZ_5_0,          ///< Blitz 5+0 (5 minut)
+    TIME_CONTROL_BLITZ_5_3,          ///< Blitz 5+3 (5 min + 3s increment)
+    TIME_CONTROL_RAPID_10_0,         ///< Rapid 10+0 (10 minut)
+    TIME_CONTROL_RAPID_10_5,         ///< Rapid 10+5 (10 min + 5s increment)
+    TIME_CONTROL_RAPID_15_10,        ///< Rapid 15+10 (15 min + 10s increment)
+    TIME_CONTROL_RAPID_30_0,         ///< Rapid 30+0 (30 minut)
+    TIME_CONTROL_CLASSICAL_60_0,     ///< Classical 60+0 (1 hodina)
+    TIME_CONTROL_CLASSICAL_90_30,     ///< Classical 90+30 (90 min + 30s increment)
+    TIME_CONTROL_CUSTOM,             ///< Vlastni nastaveni
     TIME_CONTROL_MAX
 } time_control_type_t;
 
@@ -60,12 +60,12 @@ typedef enum {
  * @brief Konfigurace casove kontroly
  */
 typedef struct {
-    time_control_type_t type;        // Typ casove kontroly
-    uint32_t initial_time_ms;       // Pocatecni cas v milisekundach
-    uint32_t increment_ms;          // Increment po tahu v milisekundach
-    char name[32];                  // Nazev casove kontroly
-    char description[64];           // Popis pro uzivatele
-    bool is_fast;                   // Je-li rychla hra (< 10 min)
+    time_control_type_t type;        ///< Typ casove kontroly
+    uint32_t initial_time_ms;       ///< Pocatecni cas v milisekundach
+    uint32_t increment_ms;          ///< Increment po tahu v milisekundach
+    char name[32];                  ///< Nazev casove kontroly
+    char description[64];           ///< Popis pro uzivatele
+    bool is_fast;                   ///< Je-li rychla hra (< 10 min)
 } time_control_config_t;
 
 /**
@@ -73,32 +73,32 @@ typedef struct {
  */
 typedef struct {
     // Casove udaje
-    uint32_t white_time_ms;         // Zbyvajici cas bileho
-    uint32_t black_time_ms;         // Zbyvajici cas cerneho
-    uint32_t move_start_time;       // Cas zacatku tahu (esp_timer_get_time())
-    uint32_t last_move_time;        // Cas posledniho tahu
+    uint32_t white_time_ms;         ///< Zbyvajici cas bileho
+    uint32_t black_time_ms;         ///< Zbyvajici cas cerneho
+    uint32_t move_start_time;       ///< Cas zacatku tahu (esp_timer_get_time())
+    uint32_t last_move_time;        ///< Cas posledniho tahu
     
     // Stav timeru
-    bool timer_running;             // Je-li timer aktivni
-    bool is_white_turn;             // Je-li na tahu bily
-    bool game_paused;               // Je-li hra pozastavena
-    bool time_expired;              // Vyprsel-li cas
+    bool timer_running;             ///< Je-li timer aktivni
+    bool is_white_turn;             ///< Je-li na tahu bily
+    bool game_paused;               ///< Je-li hra pozastavena
+    bool time_expired;              ///< Vyprsel-li cas
     
     // Konfigurace
-    time_control_config_t config;   // Aktualni konfigurace
+    time_control_config_t config;   ///< Aktualni konfigurace
     
     // Statistiky
-    uint32_t total_moves;           // Celkovy pocet tahu
-    uint32_t avg_move_time_ms;      // Prumerny cas na tah
+    uint32_t total_moves;           ///< Celkovy pocet tahu
+    uint32_t avg_move_time_ms;      ///< Prumerny cas na tah
     
     // Upozorneni
-    bool warning_30s_shown;          // Upozorneni na 30s bylo zobrazeno
-    bool warning_10s_shown;          // Upozorneni na 10s bylo zobrazeno
-    bool warning_5s_shown;           // Upozorneni na 5s bylo zobrazeno
+    bool warning_30s_shown;          ///< Upozorneni na 30s bylo zobrazeno
+    bool warning_10s_shown;          ///< Upozorneni na 10s bylo zobrazeno
+    bool warning_5s_shown;           ///< Upozorneni na 5s bylo zobrazeno
 } chess_timer_t;
 
 // ============================================================================
-// PUBLIC API FUNCTIONS
+// VEREJNE API FUNKCE
 // ============================================================================
 
 /**
@@ -185,7 +185,7 @@ uint32_t timer_get_remaining_time(bool is_white_turn);
 esp_err_t timer_get_config_by_type(time_control_type_t type, time_control_config_t* config);
 
 /**
- * @brief Vytvori JSON reprezentaci stavu timeru
+ * @brief Vytvori JSON reprezentaci stavu casoveho systemu
  * 
  * @param buffer Buffer pro JSON data
  * @param buffer_size Velikost bufferu

@@ -2,7 +2,7 @@
  * @file visual_error_system.h
  * @brief Visual Error System - Vizualni indikace chyb a navod pro uzivatele
  * 
- * Tento modul poskytuje vizualni error handling system:
+ * Tento modul poskytuje vizualni system pro zpracovani chyb:
  * - Indikace chyb pomoci LED
  * - Textovy popis chyb
  * - Uzivatelsky navod pro napravu
@@ -14,7 +14,7 @@
  * @date 2025-08-24
  * 
  * @details
- * Visual Error System poskytuje komplexni system pro zobrazovani
+ * Vizualni system pro zpracovani chyb poskytuje komplexni system pro zobrazovani
  * chyb uzivateli. Kombinuje LED indikace s textovym popisem
  * a poskytuje jasny navod jak chybu opravit.
  * 
@@ -22,7 +22,7 @@
  * - Jasne LED indikace chyb
  * - Preklady chyb do cestiny
  * - Krok-po-kroku navod pro opravu
- * - Automaticke fade-out po oprave
+ * - Automaticke zmizeni po oprave
  * - Podpora pro vice chyb soucasne
  */
 

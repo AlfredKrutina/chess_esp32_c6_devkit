@@ -17,7 +17,7 @@
 
 #include "uart_commands_extended.h"
 #include "game_led_animations.h"
-#include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
+#include "led_mapping.h"
 #include "led_task.h"  // For LED control functions
 #include "esp_log.h"
 #include <string.h>

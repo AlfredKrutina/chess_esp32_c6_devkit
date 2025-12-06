@@ -66,10 +66,10 @@ extern "C" {
 #define STATUS_LED_PIN GPIO_NUM_5      // Status indicator (safe pin - GPIO8 is boot strapping pin!)
 
 // Piny pro radky matice (vystupy) - potreba 8 pinu
-/** @brief Pin pro radek 0 matice (GPIO4 - vystup, zmeneno z GPIO10 pro ESP32-C6 DevKit) */
-#define MATRIX_ROW_0 GPIO_NUM_4
-/** @brief Pin pro radek 1 matice (GPIO16 - vystup, zmeneno z GPIO11/15 pro ESP32-C6 DevKit, UART TX) */
-#define MATRIX_ROW_1 GPIO_NUM_16  
+/** @brief Pin pro radek 0 matice (GPIO10 - vystup) */
+#define MATRIX_ROW_0 GPIO_NUM_10
+/** @brief Pin pro radek 1 matice (GPIO11 - vystup) */
+#define MATRIX_ROW_1 GPIO_NUM_11  
 /** @brief Pin pro radek 2 matice (GPIO18 - vystup) */
 #define MATRIX_ROW_2 GPIO_NUM_18
 /** @brief Pin pro radek 3 matice (GPIO19 - vystup) */
@@ -94,15 +94,15 @@ extern "C" {
 #define MATRIX_COL_3 GPIO_NUM_3        // Safe pin
 /** @brief Pin pro sloupec 4 matice (GPIO6 - vstup s pull-up, bezpecny pin) */
 #define MATRIX_COL_4 GPIO_NUM_6        // Safe pin
-/** @brief Pin pro sloupec 5 matice (GPIO14 - vstup s pull-up, bezpecny pin, zmeneno z GPIO9) */
-#define MATRIX_COL_5 GPIO_NUM_14       // Safe pin (changed from GPIO9 to avoid strapping pin)
-/** @brief Pin pro sloupec 6 matice (GPIO17 - vstup s pull-up, zmeneno z GPIO12, UART RX - JTAG safe) */
-#define MATRIX_COL_6 GPIO_NUM_17       // Changed from GPIO12 - UART RX pin, safe for JTAG usage
-/** @brief Pin pro sloupec 7 matice (GPIO27 - vstup s pull-up, zmeneno z GPIO13, SPI Flash pin - JTAG safe) */
-#define MATRIX_COL_7 GPIO_NUM_27       // Changed from GPIO13 - SPI Flash pin but usable for I/O, safe for JTAG
+/** @brief Pin pro sloupec 5 matice (GPIO4 - vstup s pull-up, bezpecny pin, zmeneno z GPIO9) */
+#define MATRIX_COL_5 GPIO_NUM_4       // Safe pin (changed from GPIO9 to GPIO4 to avoid strapping pin)
+/** @brief Pin pro sloupec 6 matice (GPIO16 - vstup s pull-up) */
+#define MATRIX_COL_6 GPIO_NUM_16       // Column G
+/** @brief Pin pro sloupec 7 matice (GPIO17 - vstup s pull-up) */
+#define MATRIX_COL_7 GPIO_NUM_17       // Column H
 
-/** @brief Pin pro reset tlacitko (GPIO4 - zmeneno z GPIO27 pro ESP32-C6 DevKit, sdileno s ROW_0 - time-multiplexed) */
-#define BUTTON_RESET GPIO_NUM_4       // Changed from GPIO27 for ESP32-C6 DevKit, shared with ROW_0 via time-multiplexing
+/** @brief Pin pro reset tlacitko (GPIO15 - vstup s pull-up, strapping pin pro ROM messages, bezpecny pro button) */
+#define BUTTON_RESET GPIO_NUM_15       // Reset button (GPIO27 neni dostupny na LaskaKit desce)
 
 // Definice tlacitek (time-multiplexed se sloupci matice)
 /** @brief Tlacitko pro promoci na damu (sdileno s MATRIX_COL_0) */
@@ -143,15 +143,15 @@ extern "C" {
 
 // WS2812B optimalni casove konstanty
 /** @brief Bezpecny timeout pro LED prikazy v milisekundach (500ms misto 10-100ms) */
-#define LED_COMMAND_TIMEOUT_MS      500   // ✅ Bezpečný timeout pro příkazy (místo 10-100ms)
+#define LED_COMMAND_TIMEOUT_MS      500   // Bezpečný timeout pro příkazy
 /** @brief Timeout pro LED mutex v milisekundach (200ms) */
-#define LED_MUTEX_TIMEOUT_MS        200   // ✅ Mutex timeout
+#define LED_MUTEX_TIMEOUT_MS        200   // Timeout pro mutex
 /** @brief Bezpecny interval LED aktualizace v milisekundach (300ms = 3.3Hz pro lidske oko) */
-#define LED_HARDWARE_UPDATE_MS      300   // ✅ BEZPEČNÝ interval - 300ms (3.3Hz) pro lidské oko
+#define LED_HARDWARE_UPDATE_MS      300   // Bezpečný interval - 300ms (3.3Hz) pro lidské oko
 /** @brief Bezpecna mezera mezi LED framy v milisekundach (200ms) */
-#define LED_FRAME_SPACING_MS        200   // ✅ BEZPEČNÁ mezera - 200ms mezi frames
+#define LED_FRAME_SPACING_MS        200   // Bezpečná mezera - 200ms mezi frames
 /** @brief Bezpecny reset cas pro WS2812B v mikrosekundach (500μs = 10x vice nez minimum) */
-#define LED_RESET_TIME_US           500   // ✅ BEZPEČNÝ reset - 500μs (10x více než minimum)
+#define LED_RESET_TIME_US           500   // Bezpečný reset - 500μs (10x více než minimum)
 
 // LED synchronizacni konstanty
 /** @brief Bezpecny timeout pro LED operace v FreeRTOS tickach */
@@ -166,7 +166,7 @@ extern "C" {
 // PAMETI OPTIMALIZOVANE VELIKOSTI FRONT - Faze 1
 // Celkova pamet front: 8KB → 5KB = 3KB uspora
 /** @brief Velikost LED fronty (50 prvku, zvetseno z 15 na 50 pro stabilitu) */
-#define LED_QUEUE_SIZE 50           // ✅ OPRAVA: Zvětšeno z 15 na 50 pro stabilitu
+#define LED_QUEUE_SIZE 50           // Velikost LED fronty (50 prvků pro stabilitu)
 /** @brief Velikost matrix fronty (8 prvku, snizeno z 15 na 8, dostatecne pro skenovani) */
 #define MATRIX_QUEUE_SIZE 8      // Reduced from 15 to 8 (sufficient for scanning)
 /** @brief Velikost button fronty (5 prvku, snizeno z 8 na 5, udalosti jsou vzacne) */
@@ -191,14 +191,14 @@ extern "C" {
 // Celkove pouziti stacku: 57KB → 41KB = 16KB uspora (UART task zvysen na 10KB pro game_response_t na stacku)
 /** @brief Velikost stacku LED tasku (8KB - KRITICKE: LED task potrebuje vice stacku pro critical sections + velka pole) */
 #define LED_TASK_STACK_SIZE (8 * 1024)          // 8KB (CRITICAL: LED task needs more stack for critical sections + large arrays)
-/** @brief Velikost stacku Matrix tasku (3KB - nezmeneno, jiz optimalni) */
-#define MATRIX_TASK_STACK_SIZE (3 * 1024)       // 3KB (unchanged - already optimal)
+/** @brief Velikost stacku Matrix tasku (8KB - zvyseno pro game_response_t na stacku) */
+#define MATRIX_TASK_STACK_SIZE (8 * 1024)       // 8KB (increased for game_response_t on stack)
 /** @brief Velikost stacku Button tasku (3KB - nezmeneno, jiz optimalni) */
 #define BUTTON_TASK_STACK_SIZE (3 * 1024)       // 3KB (unchanged - already optimal)
 /** @brief Velikost stacku UART tasku (10KB - game_response_t je 3.8KB + overhead) */
-#define UART_TASK_STACK_SIZE (10 * 1024)        // ✅ OPRAVA: 10KB (game_response_t je 3.8KB + overhead!)
-/** @brief Velikost stacku Game tasku (10KB pro bezpecny error handling, zvetseno z 6KB) */
-#define GAME_TASK_STACK_SIZE (10 * 1024)        // ✅ OPRAVA: 10KB pro bezpečný error handling (zvětšeno z 6KB)
+#define UART_TASK_STACK_SIZE (10 * 1024)        // 10KB (game_response_t je 3.8KB + overhead)
+/** @brief Velikost stacku Game tasku (10KB pro bezpecny error handling) */
+#define GAME_TASK_STACK_SIZE (10 * 1024)        // 10KB pro bezpečný error handling
 /** @brief Velikost stacku Animation tasku (2KB, snizeno z 3KB, jednoduche animace) */
 #define ANIMATION_TASK_STACK_SIZE (2 * 1024)    // 2KB (reduced from 3KB - simple animations)
 /** @brief Velikost stacku Screen Saver tasku (2KB, snizeno z 3KB, jednoduche vzory) */
@@ -215,28 +215,28 @@ extern "C" {
 
 // Priority tasku
 /** @brief Priorita LED tasku (7 - nejvyssi priorita pro LED timing) */
-#define LED_TASK_PRIORITY 7          // ✅ OPRAVA: Nejvyšší priorita pro LED timing
+#define LED_TASK_PRIORITY 7          // Nejvyšší priorita pro LED timing
 /** @brief Priorita Matrix tasku (6 - hardware vstup) */
-#define MATRIX_TASK_PRIORITY 6       // ✅ Hardware input
+#define MATRIX_TASK_PRIORITY 6       // Hardware vstup
 /** @brief Priorita Button tasku (5 - uzivatelsky vstup) */
-#define BUTTON_TASK_PRIORITY 5       // ✅ User input
+#define BUTTON_TASK_PRIORITY 5       // Uživatelský vstup
 /** @brief Priorita UART tasku (3 - komunikace) */
-#define UART_TASK_PRIORITY 3         // ✅ Communication
-/** @brief Priorita Game tasku (4 - snizeno z 5 na 4) */
-#define GAME_TASK_PRIORITY 4         // ✅ OPRAVA: Sníženo z 5 na 4
+#define UART_TASK_PRIORITY 3         // Komunikace
+/** @brief Priorita Game tasku (4) */
+#define GAME_TASK_PRIORITY 4         // Priorita game tasku
 /** @brief Priorita Animation tasku (3 - vizualni efekty) */
-#define ANIMATION_TASK_PRIORITY 3    // ✅ Visual effects
+#define ANIMATION_TASK_PRIORITY 3    // Vizuální efekty
 /** @brief Priorita Screen Saver tasku (2 - pozadi) */
-#define SCREEN_SAVER_TASK_PRIORITY 2 // ✅ Background
+#define SCREEN_SAVER_TASK_PRIORITY 2 // Pozadí
 /** @brief Priorita Test tasku (1 - pouze pro debug) */
-#define TEST_TASK_PRIORITY 1         // ✅ Debug only
+#define TEST_TASK_PRIORITY 1         // Pouze pro debug
 // #define MATTER_TASK_PRIORITY 4       // DISABLED - Matter not needed
 /** @brief Priorita Web Server tasku (3 - komunikace) */
-#define WEB_SERVER_TASK_PRIORITY 3   // ✅ Communication
+#define WEB_SERVER_TASK_PRIORITY 3   // Komunikace
 /** @brief Priorita Reset Button tasku (3 - uzivatelsky vstup) */
-#define RESET_BUTTON_TASK_PRIORITY 3 // ✅ User input
+#define RESET_BUTTON_TASK_PRIORITY 3 // Uživatelský vstup
 /** @brief Priorita Promotion Button tasku (3 - uzivatelsky vstup) */
-#define PROMOTION_BUTTON_TASK_PRIORITY 3 // ✅ User input
+#define PROMOTION_BUTTON_TASK_PRIORITY 3 // Uživatelský vstup
 
 // ============================================================================
 // GLOBALNI QUEUE HANDLES
@@ -249,6 +249,8 @@ extern "C" {
 extern QueueHandle_t matrix_event_queue;
 /** @brief Fronta pro matrix prikazy (scan, reset, test) */
 extern QueueHandle_t matrix_command_queue;
+/** @brief Fronta pro matrix odpovedi (odpovedi ze systemu) */
+extern QueueHandle_t matrix_response_queue;
 /** @brief Fronta pro button udalosti (press, release, long press) */
 extern QueueHandle_t button_event_queue;
 /** @brief Fronta pro button prikazy (reset, status, test) */

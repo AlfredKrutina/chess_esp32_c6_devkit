@@ -29,15 +29,17 @@
 #include "esp_netif.h"
 #include "esp_http_server.h"
 #include "esp_event.h"
+#include "nvs_flash.h"
+#include "nvs.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-// External queue declaration
+// Externi deklarace fronty
 extern QueueHandle_t game_command_queue;
 
 // ============================================================================
-// LOCAL VARIABLES AND CONSTANTS
+// LOKALNI PROMENNE A KONSTANTY
 // ============================================================================
 
 static const char* TAG = "WEB_SERVER_TASK";
@@ -62,9 +64,9 @@ static esp_err_t web_server_task_wdt_reset_safe(void) {
     esp_err_t ret = esp_task_wdt_reset();
     
     if (ret == ESP_ERR_NOT_FOUND) {
-        // Log as WARNING instead of ERROR - task not registered yet
+        // Logovat jako WARNING misto ERROR - task jeste neni registrovany
         ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
-        return ESP_OK; // Treat as success for our purposes
+        return ESP_OK; // Povazovat za uspech pro nase ucely
     } else if (ret != ESP_OK) {
         ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
         return ret;
@@ -73,7 +75,7 @@ static esp_err_t web_server_task_wdt_reset_safe(void) {
     return ESP_OK;
 }
 
-// WiFi configuration
+// Konfigurace WiFi
 #define WIFI_AP_SSID "ESP32-CzechMate"
 #define WIFI_AP_PASSWORD "12345678"
 #define WIFI_AP_CHANNEL 1
@@ -82,48 +84,70 @@ static esp_err_t web_server_task_wdt_reset_safe(void) {
 #define WIFI_AP_GATEWAY "192.168.4.1"
 #define WIFI_AP_NETMASK "255.255.255.0"
 
-// HTTP server configuration
+// NVS konfigurace pro WiFi STA
+#define WIFI_NVS_NAMESPACE "wifi_config"
+#define WIFI_NVS_KEY_SSID "sta_ssid"
+#define WIFI_NVS_KEY_PASSWORD "sta_password"
+
+// NVS konfigurace pro Web Lock
+#define WEB_NVS_NAMESPACE "web_config"
+#define WEB_NVS_KEY_LOCKED "locked"
+
+// Konfigurace HTTP serveru
 #define HTTP_SERVER_PORT 80
 #define HTTP_SERVER_MAX_URI_LEN 512
 #define HTTP_SERVER_MAX_HEADERS 8
 #define HTTP_SERVER_MAX_CLIENTS 4
 
-// JSON buffer sizes
-#define JSON_BUFFER_SIZE 2048  // Original size
+// Velikosti JSON bufferu
+#define JSON_BUFFER_SIZE 2048  // Puvodni velikost
 
-// Web server state tracking
+// Sledovani stavu web serveru
 static bool task_running = false;
 static bool web_server_active = false;
 static bool wifi_ap_active = false;
 static uint32_t web_server_start_time = 0;
-static uint32_t client_count = 0;
+uint32_t client_count = 0; // Externi pro UART prikazy
 
-// HTTP server handle
+// Handle HTTP serveru
 static httpd_handle_t httpd_handle = NULL;
 
-// Netif handle
+// Handle netif
 static esp_netif_t* ap_netif = NULL;
+static esp_netif_t* sta_netif = NULL;
 
-// External variables
+// STA status promenne
+static bool sta_connected = false;
+static bool sta_connecting = false; // Flag pro sledovani stavu pripojovani (zabranuje race condition)
+static bool web_locked = false; // Flag pro lock web rozhrani
+char sta_ip[16] = {0}; // Externi pro UART prikazy
+static char sta_ssid[33] = {0};
+static int last_disconnect_reason = 0; // Posledni disconnection reason pro error handling
+
+// Externi promenne
 QueueHandle_t web_server_status_queue = NULL;
 QueueHandle_t web_server_command_queue = NULL;
 
-// JSON buffer pool (reusable)
+// Extern funcions from main.c for Demo Mode
+extern void toggle_demo_mode(bool enabled);
+extern bool is_demo_mode_enabled(void);
+
+// JSON buffer pool (znovupouzitelny)
 static char json_buffer[JSON_BUFFER_SIZE];
 
 // ============================================================================
-// FORWARD DECLARATIONS
+// PREDBEZNE DEKLARACE
 // ============================================================================
 
-static esp_err_t wifi_init_ap(void);
+static esp_err_t wifi_init_apsta(void);
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
 static esp_err_t start_http_server(void);
 static void stop_http_server(void);
 
-// HTTP handlers
+// HTTP handlery
 static esp_err_t http_get_root_handler(httpd_req_t *req);
 static esp_err_t http_get_chess_js_handler(httpd_req_t *req);  // chess_app.js file
-static esp_err_t http_get_test_handler(httpd_req_t *req);  // Test page for timer
+static esp_err_t http_get_test_handler(httpd_req_t *req);  // Testovaci stranka pro timer
 static esp_err_t http_get_board_handler(httpd_req_t *req);
 static esp_err_t http_get_status_handler(httpd_req_t *req);
 static esp_err_t http_get_history_handler(httpd_req_t *req);
@@ -134,34 +158,451 @@ static esp_err_t http_post_timer_config_handler(httpd_req_t *req);
 static esp_err_t http_post_timer_pause_handler(httpd_req_t *req);
 static esp_err_t http_post_timer_resume_handler(httpd_req_t *req);
 static esp_err_t http_post_timer_reset_handler(httpd_req_t *req);
-// static esp_err_t http_post_move_handler(httpd_req_t *req);  // DISABLED - web je 100% READ-ONLY
+// static esp_err_t http_post_move_handler(httpd_req_t *req);  // VYPNUTO - web je 100% READ-ONLY
 
-// Captive portal handlers
+// WiFi API handlery
+static esp_err_t http_post_wifi_config_handler(httpd_req_t *req);
+static esp_err_t http_post_wifi_connect_handler(httpd_req_t *req);
+static esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req);
+static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req);
+static esp_err_t http_get_wifi_status_handler(httpd_req_t *req);
+static esp_err_t http_get_wifi_status_handler(httpd_req_t *req);
+static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req);
+
+// Handlery pro Demo API
+static esp_err_t http_post_demo_config_handler(httpd_req_t *req);
+static esp_err_t http_get_demo_status_handler(httpd_req_t *req);
+
+// Handlery pro captive portal
 static esp_err_t http_get_generate_204_handler(httpd_req_t *req);
 static esp_err_t http_get_hotspot_handler(httpd_req_t *req);
 static esp_err_t http_get_connecttest_handler(httpd_req_t *req);
 
+// WiFi NVS funkce
+esp_err_t wifi_load_config_from_nvs(char* ssid, size_t ssid_len, char* password, size_t password_len)
+{
+    if (ssid == NULL || password == NULL || ssid_len == 0 || password_len == 0) {
+        ESP_LOGE(TAG, "Invalid parameters for wifi_load_config_from_nvs");
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    nvs_handle_t nvs_handle;
+    esp_err_t ret = nvs_open(WIFI_NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    // Nacist SSID
+    size_t required_size = ssid_len;
+    ret = nvs_get_str(nvs_handle, WIFI_NVS_KEY_SSID, ssid, &required_size);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to get SSID from NVS: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    // Nacist password
+    required_size = password_len;
+    ret = nvs_get_str(nvs_handle, WIFI_NVS_KEY_PASSWORD, password, &required_size);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to get password from NVS: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    nvs_close(nvs_handle);
+    ESP_LOGI(TAG, "WiFi config loaded from NVS: SSID=%s", ssid);
+    
+    return ESP_OK;
+}
+
+// WiFi STA funkce (static pro interni pouziti)
+static esp_err_t wifi_get_sta_status_json(char* buffer, size_t buffer_size);
+
+// Gettery pro externi pouziti
+esp_err_t wifi_get_sta_ip(char* buffer, size_t max_len)
+{
+    if (buffer == NULL || max_len == 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    strncpy(buffer, sta_ip, max_len - 1);
+    buffer[max_len - 1] = '\0';
+    return ESP_OK;
+}
+
+esp_err_t wifi_get_sta_ssid(char* buffer, size_t max_len)
+{
+    if (buffer == NULL || max_len == 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    strncpy(buffer, sta_ssid, max_len - 1);
+    buffer[max_len - 1] = '\0';
+    return ESP_OK;
+}
+
+// Externi WiFi funkce (pro UART prikazy)
+esp_err_t wifi_save_config_to_nvs(const char* ssid, const char* password)
+{
+    if (ssid == NULL || password == NULL) {
+        ESP_LOGE(TAG, "Invalid parameters: ssid or password is NULL");
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    size_t ssid_len = strlen(ssid);
+    size_t password_len = strlen(password);
+    
+    if (ssid_len == 0 || ssid_len > 32) {
+        ESP_LOGE(TAG, "Invalid SSID length: %zu (must be 1-32)", ssid_len);
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    if (password_len == 0 || password_len > 64) {
+        ESP_LOGE(TAG, "Invalid password length: %zu (must be 1-64)", password_len);
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    nvs_handle_t nvs_handle;
+    esp_err_t ret = nvs_open(WIFI_NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    ret = nvs_set_str(nvs_handle, WIFI_NVS_KEY_SSID, ssid);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to set SSID in NVS: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    ret = nvs_set_str(nvs_handle, WIFI_NVS_KEY_PASSWORD, password);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to set password in NVS: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    ret = nvs_commit(nvs_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to commit NVS: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    nvs_close(nvs_handle);
+    ESP_LOGI(TAG, "WiFi config saved to NVS: SSID=%s", ssid);
+    
+    // Pokud je pripojeny a SSID se zmenil, odpojit
+    if (sta_connected && strcmp(sta_ssid, ssid) != 0) {
+        ESP_LOGI(TAG, "SSID changed from '%s' to '%s', disconnecting...", sta_ssid, ssid);
+        wifi_disconnect_sta();
+    }
+    
+    return ESP_OK;
+}
+
+esp_err_t wifi_connect_sta(void)
+{
+    // Kontrola: pokud uz je pripojeny, vratit uspech
+    if (sta_connected) {
+        ESP_LOGI(TAG, "Already connected to WiFi: %s (IP: %s)", sta_ssid, sta_ip);
+        return ESP_OK;
+    }
+    
+    // Kontrola: pokud se prave pripojuje, vratit chybu (race condition protection)
+    if (sta_connecting) {
+        ESP_LOGW(TAG, "WiFi connection already in progress");
+        return ESP_ERR_INVALID_STATE;
+    }
+    
+    char ssid[33] = {0};
+    char password[65] = {0};
+    
+    // Nacist konfiguraci z NVS
+    esp_err_t ret = wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to load WiFi config from NVS: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    ESP_LOGI(TAG, "Connecting to WiFi: SSID=%s", ssid);
+    sta_connecting = true; // Nastavit flag pripojovani
+    
+    // Nastavit WiFi STA konfiguraci
+    wifi_config_t wifi_config = {0};
+    strncpy((char*)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid) - 1);
+    strncpy((char*)wifi_config.sta.password, password, sizeof(wifi_config.sta.password) - 1);
+    wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+    wifi_config.sta.pmf_cfg.capable = true;
+    wifi_config.sta.pmf_cfg.required = false;
+    
+    ret = esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to set WiFi STA config: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    // Spustit pripojeni
+    ret = esp_wifi_connect();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to start WiFi connection: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    // Cekat na pripojeni (max 30 sekund)
+    int retry_count = 0;
+    const int max_retries = 30; // 30 sekund (1 sekunda per retry)
+    
+    while (retry_count < max_retries) {
+        // Resetovat WDT aby se zabranilo timeoutu (funkce muze blokovat az 30 sekund)
+        web_server_task_wdt_reset_safe();
+        
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        
+        if (sta_connected) {
+            ESP_LOGI(TAG, "WiFi connected successfully! IP: %s", sta_ip);
+            sta_connecting = false; // Resetovat flag
+            return ESP_OK;
+        }
+        
+        retry_count++;
+        if (retry_count % 5 == 0) {
+            ESP_LOGI(TAG, "Waiting for WiFi connection... (%d/%d)", retry_count, max_retries);
+        }
+    }
+    
+    ESP_LOGE(TAG, "WiFi connection timeout after %d seconds", max_retries);
+    esp_wifi_disconnect();
+    sta_connecting = false; // Resetovat flag pri timeout
+    
+    // Vratit specificky error code podle disconnection reason
+    // WIFI_REASON_NO_AP_FOUND = 201
+    // WIFI_REASON_AUTH_FAIL = 202
+    // WIFI_REASON_ASSOC_FAIL = 203
+    // WIFI_REASON_HANDSHAKE_TIMEOUT = 204
+    if (last_disconnect_reason == 201) {
+        return ESP_ERR_NOT_FOUND; // Network not found
+    } else if (last_disconnect_reason == 202 || last_disconnect_reason == 203 || last_disconnect_reason == 204) {
+        return ESP_ERR_INVALID_RESPONSE; // Authentication/association failed (wrong password)
+    }
+    
+    return ESP_ERR_TIMEOUT; // General timeout
+}
+
+esp_err_t wifi_disconnect_sta(void)
+{
+    // Pokud neni pripojeny a nepripojuje se, vratit uspech
+    if (!sta_connected && !sta_connecting) {
+        ESP_LOGI(TAG, "WiFi already disconnected");
+        return ESP_OK;
+    }
+    
+    ESP_LOGI(TAG, "Disconnecting from WiFi...");
+    
+    // Pokud se prave pripojuje, zrusit pripojeni
+    if (sta_connecting) {
+        ESP_LOGW(TAG, "Cancelling WiFi connection in progress");
+        sta_connecting = false;
+    }
+    
+    esp_err_t ret = esp_wifi_disconnect();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to disconnect WiFi: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    // Cekat na odpojeni (max 5 sekund)
+    int retry_count = 0;
+    const int max_retries = 5;
+    
+    while (retry_count < max_retries && sta_connected) {
+        // Resetovat WDT aby se zabranilo timeoutu
+        web_server_task_wdt_reset_safe();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        retry_count++;
+    }
+    
+    if (!sta_connected) {
+        ESP_LOGI(TAG, "WiFi disconnected successfully");
+    } else {
+        ESP_LOGW(TAG, "WiFi disconnect timeout, but continuing");
+    }
+    
+    return ESP_OK;
+}
+
+esp_err_t wifi_clear_config_from_nvs(void)
+{
+    nvs_handle_t nvs_handle;
+    esp_err_t ret = nvs_open(WIFI_NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    ret = nvs_erase_key(nvs_handle, WIFI_NVS_KEY_SSID);
+    if (ret != ESP_OK && ret != ESP_ERR_NVS_NOT_FOUND) {
+        ESP_LOGE(TAG, "Failed to erase SSID: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    ret = nvs_erase_key(nvs_handle, WIFI_NVS_KEY_PASSWORD);
+    if (ret != ESP_OK && ret != ESP_ERR_NVS_NOT_FOUND) {
+        ESP_LOGE(TAG, "Failed to erase password: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    ret = nvs_commit(nvs_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to commit NVS: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    nvs_close(nvs_handle);
+    ESP_LOGI(TAG, "WiFi config cleared from NVS");
+    
+    return ESP_OK;
+}
+
+bool wifi_is_sta_connected(void)
+{
+    return sta_connected;
+}
+
 // ============================================================================
-// WIFI AP SETUP
+// WEB LOCK NVS FUNKCE
 // ============================================================================
 
 /**
- * @brief Inicializuje WiFi Access Point
+ * @brief Ulozi lock stav do NVS
  * 
- * Tato funkce inicializuje WiFi Access Point pro web server.
- * Nastavi SSID, heslo a ostatni parametry pro WiFi hotspot.
+ * @param locked True pro lock, false pro unlock
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
+static esp_err_t web_lock_save_to_nvs(bool locked)
+{
+    nvs_handle_t nvs_handle;
+    esp_err_t ret = nvs_open(WEB_NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    uint8_t locked_value = locked ? 1 : 0;
+    ret = nvs_set_blob(nvs_handle, WEB_NVS_KEY_LOCKED, &locked_value, sizeof(locked_value));
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to set web lock: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    ret = nvs_commit(nvs_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to commit NVS: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    nvs_close(nvs_handle);
+    ESP_LOGI(TAG, "Web lock saved to NVS: %s", locked ? "locked" : "unlocked");
+    
+    return ESP_OK;
+}
+
+/**
+ * @brief Nacte lock stav z NVS
+ * 
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
+esp_err_t web_lock_load_from_nvs(void)
+{
+    nvs_handle_t nvs_handle;
+    esp_err_t ret = nvs_open(WEB_NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
+    if (ret != ESP_OK) {
+        // Pokud NVS namespace neexistuje, pouzit default (unlocked)
+        if (ret == ESP_ERR_NVS_NOT_FOUND) {
+            web_locked = false;
+            ESP_LOGI(TAG, "Web lock NVS namespace not found, using default: unlocked");
+            return ESP_OK;
+        }
+        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    uint8_t locked_value = 0;
+    size_t required_size = sizeof(locked_value);
+    ret = nvs_get_blob(nvs_handle, WEB_NVS_KEY_LOCKED, &locked_value, &required_size);
+    if (ret == ESP_ERR_NVS_NOT_FOUND) {
+        // Klic neexistuje, pouzit default (unlocked)
+        web_locked = false;
+        ESP_LOGI(TAG, "Web lock key not found, using default: unlocked");
+        nvs_close(nvs_handle);
+        return ESP_OK;
+    } else if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to get web lock: %s", esp_err_to_name(ret));
+        nvs_close(nvs_handle);
+        return ret;
+    }
+    
+    web_locked = (locked_value != 0);
+    nvs_close(nvs_handle);
+    ESP_LOGI(TAG, "Web lock loaded from NVS: %s", web_locked ? "locked" : "unlocked");
+    
+    return ESP_OK;
+}
+
+/**
+ * @brief Zjisti, zda je web rozhrani zamcene
+ * 
+ * @return true pokud je zamcene, false pokud je odemcene
+ */
+bool web_is_locked(void)
+{
+    return web_locked;
+}
+
+/**
+ * @brief Nastavi lock stav a ulozi do NVS
+ * 
+ * @param locked True pro lock, false pro unlock
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
+esp_err_t web_lock_set(bool locked)
+{
+    web_locked = locked;
+    esp_err_t ret = web_lock_save_to_nvs(locked);
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "Web interface %s", locked ? "locked" : "unlocked");
+    }
+    return ret;
+}
+
+// ============================================================================
+// WIFI APSTA SETUP
+// ============================================================================
+
+/**
+ * @brief Inicializuje WiFi Access Point a Station (APSTA)
+ * 
+ * Tato funkce inicializuje WiFi v APSTA rezimu - soucasne jako Access Point
+ * pro web server a jako Station pro pripojeni k internetu.
  * 
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
  * 
  * @details
- * Funkce inicializuje netif, event loop, WiFi a nastavi AP konfiguraci.
+ * Funkce inicializuje netif, event loop, WiFi a nastavi AP i STA konfiguraci.
  * Registruje event handler pro WiFi udalosti a spusti Access Point.
+ * Station interface je pripraven pro pripojeni k WiFi siti.
  */
-static esp_err_t wifi_init_ap(void)
+static esp_err_t wifi_init_apsta(void)
 {
-    ESP_LOGI(TAG, "Initializing WiFi AP...");
+    ESP_LOGI(TAG, "Initializing WiFi APSTA...");
     
-    // CRITICAL: Initialize netif BEFORE creating default netif
+    // Dulezite: Inicializovat netif PRED vytvorenim default netif
     ESP_LOGI(TAG, "Initializing netif...");
     esp_err_t ret = esp_netif_init();
     if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
@@ -172,7 +613,7 @@ static esp_err_t wifi_init_ap(void)
         ESP_LOGI(TAG, "Netif already initialized");
     }
     
-    // CRITICAL: Create default event loop BEFORE WiFi init
+    // Dulezite: Vytvorit default event loop PRED inicializaci WiFi
     ESP_LOGI(TAG, "Creating default event loop...");
     ret = esp_event_loop_create_default();
     if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
@@ -185,7 +626,7 @@ static esp_err_t wifi_init_ap(void)
         ESP_LOGI(TAG, "Event loop ready");
     }
     
-    // Create default netif for AP
+    // Vytvorit default netif pro AP
     ESP_LOGI(TAG, "Creating default WiFi AP netif...");
     ap_netif = esp_netif_create_default_wifi_ap();
     if (ap_netif == NULL) {
@@ -193,7 +634,15 @@ static esp_err_t wifi_init_ap(void)
         return ESP_FAIL;
     }
     
-    // Initialize WiFi with default config
+    // Vytvorit default netif pro STA
+    ESP_LOGI(TAG, "Creating default WiFi STA netif...");
+    sta_netif = esp_netif_create_default_wifi_sta();
+    if (sta_netif == NULL) {
+        ESP_LOGE(TAG, "Failed to create STA netif");
+        return ESP_FAIL;
+    }
+    
+    // Inicializovat WiFi s vychozi konfiguraci
     ESP_LOGI(TAG, "Initializing WiFi...");
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ret = esp_wifi_init(&cfg);
@@ -202,7 +651,7 @@ static esp_err_t wifi_init_ap(void)
         return ret;
     }
     
-    // Register WiFi event handler
+    // Registrovat WiFi event handler
     ret = esp_event_handler_instance_register(WIFI_EVENT,
                                               ESP_EVENT_ANY_ID,
                                               &wifi_event_handler,
@@ -213,7 +662,28 @@ static esp_err_t wifi_init_ap(void)
         return ret;
     }
     
-    // Configure WiFi AP
+    // Registrovat IP event handler pro STA
+    ret = esp_event_handler_instance_register(IP_EVENT,
+                                              IP_EVENT_STA_GOT_IP,
+                                              &wifi_event_handler,
+                                              NULL,
+                                              NULL);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to register IP event handler: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    ret = esp_event_handler_instance_register(IP_EVENT,
+                                              IP_EVENT_STA_LOST_IP,
+                                              &wifi_event_handler,
+                                              NULL,
+                                              NULL);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to register IP lost event handler: %s", esp_err_to_name(ret));
+        return ret;
+    }
+    
+    // Konfigurovat WiFi AP
     wifi_config_t wifi_config = {
         .ap = {
             .ssid = WIFI_AP_SSID,
@@ -225,31 +695,32 @@ static esp_err_t wifi_init_ap(void)
         },
     };
     
-    // Set WiFi mode to AP
-    ret = esp_wifi_set_mode(WIFI_MODE_AP);
+    // Nastavit WiFi mod na APSTA
+    ret = esp_wifi_set_mode(WIFI_MODE_APSTA);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to set WiFi mode: %s", esp_err_to_name(ret));
         return ret;
     }
     
-    // Set WiFi configuration
+    // Nastavit WiFi konfiguraci
     ret = esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to set WiFi config: %s", esp_err_to_name(ret));
         return ret;
     }
     
-    // Start WiFi
+    // Spustit WiFi
     ret = esp_wifi_start();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to start WiFi: %s", esp_err_to_name(ret));
         return ret;
     }
     
-    ESP_LOGI(TAG, "WiFi AP initialized successfully");
-    ESP_LOGI(TAG, "SSID: %s", WIFI_AP_SSID);
-    ESP_LOGI(TAG, "Password: %s", WIFI_AP_PASSWORD);
-    ESP_LOGI(TAG, "IP: %s", WIFI_AP_IP);
+    ESP_LOGI(TAG, "WiFi APSTA initialized successfully");
+    ESP_LOGI(TAG, "AP SSID: %s", WIFI_AP_SSID);
+    ESP_LOGI(TAG, "AP Password: %s", WIFI_AP_PASSWORD);
+    ESP_LOGI(TAG, "AP IP: %s", WIFI_AP_IP);
+    ESP_LOGI(TAG, "STA interface ready for connection");
     
     return ESP_OK;
 }
@@ -257,32 +728,215 @@ static esp_err_t wifi_init_ap(void)
 /**
  * @brief Obsluhuje WiFi eventy
  * 
- * Tato funkce obsluhuje WiFi eventy pro Access Point.
- * Sleduje pripojeni a odpojeni klientu.
+ * Tato funkce obsluhuje WiFi eventy pro Access Point i Station.
+ * Sleduje pripojeni a odpojeni klientu k AP a stav STA pripojeni.
  * 
  * @param arg Argument (nepouzivany)
- * @param event_base Typ eventu (WIFI_EVENT)
+ * @param event_base Typ eventu (WIFI_EVENT nebo IP_EVENT)
  * @param event_id ID eventu
  * @param event_data Data eventu
  * 
  * @details
- * Funkce sleduje pripojeni a odpojeni klientu k WiFi hotspotu
- * a aktualizuje pocet pripojenych klientu.
+ * Funkce sleduje:
+ * - Pripojeni a odpojeni klientu k WiFi hotspotu (AP)
+ * - Pripojeni a odpojeni STA k WiFi siti
+ * - Ziskani IP adresy pro STA
  */
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                int32_t event_id, void* event_data)
 {
+    // AP eventy - pripojeni klientu k hotspotu
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED) {
         wifi_event_ap_staconnected_t* event = (wifi_event_ap_staconnected_t*) event_data;
-        ESP_LOGI(TAG, "Station connected, AID=%d", event->aid);
+        ESP_LOGI(TAG, "AP: Station connected, AID=%d", event->aid);
         client_count++;
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED) {
         wifi_event_ap_stadisconnected_t* event = (wifi_event_ap_stadisconnected_t*) event_data;
-        ESP_LOGI(TAG, "Station disconnected, AID=%d", event->aid);
+        ESP_LOGI(TAG, "AP: Station disconnected, AID=%d", event->aid);
         if (client_count > 0) {
             client_count--;
         }
     }
+    // STA eventy - pripojeni k WiFi siti
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+        ESP_LOGI(TAG, "STA: Started");
+    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
+        wifi_event_sta_connected_t* event = (wifi_event_sta_connected_t*) event_data;
+        ESP_LOGI(TAG, "STA: Connected to SSID: %s", event->ssid);
+        strncpy(sta_ssid, (char*)event->ssid, sizeof(sta_ssid) - 1);
+        sta_ssid[sizeof(sta_ssid) - 1] = '\0';
+    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+        wifi_event_sta_disconnected_t* event = (wifi_event_sta_disconnected_t*) event_data;
+        last_disconnect_reason = event->reason;
+        ESP_LOGI(TAG, "STA: Disconnected, reason: %d", event->reason);
+        sta_connected = false;
+        sta_connecting = false; // Resetovat flag pripojovani
+        sta_ip[0] = '\0';
+    }
+    // IP eventy - ziskani IP adresy
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+        ESP_LOGI(TAG, "STA: Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
+        snprintf(sta_ip, sizeof(sta_ip), IPSTR, IP2STR(&event->ip_info.ip));
+        sta_connected = true;
+        sta_connecting = false; // Resetovat flag pripojovani
+    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_LOST_IP) {
+        ESP_LOGI(TAG, "STA: Lost IP");
+        sta_connected = false;
+        sta_connecting = false; // Resetovat flag pripojovani
+        sta_ip[0] = '\0';
+    }
+}
+
+// ============================================================================
+// WIFI NVS FUNKCE
+// ============================================================================
+
+// Duplicitni implementace odstranena - pouzivaji se externi funkce definovane vyse
+
+/**
+ * @brief Vytvori JSON s WiFi statusem (AP i STA)
+ * 
+ * Tato funkce vytvori JSON string s aktualnim stavem WiFi (AP i STA).
+ * 
+ * @param buffer Buffer pro JSON string
+ * @param buffer_size Velikost bufferu
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * 
+ * @details
+ * Funkce vytvori JSON s informacemi o AP (SSID, IP, clients)
+ * a STA (SSID, IP, connected status).
+ */
+static esp_err_t wifi_get_sta_status_json(char* buffer, size_t buffer_size)
+{
+    if (buffer == NULL || buffer_size == 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+    // Ziskat AP IP adresu
+    esp_netif_ip_info_t ip_info;
+    const char* ap_ip_str = WIFI_AP_IP;
+    if (ap_netif != NULL) {
+        esp_err_t ret = esp_netif_get_ip_info(ap_netif, &ip_info);
+        if (ret == ESP_OK) {
+            char ap_ip[16];
+            snprintf(ap_ip, sizeof(ap_ip), IPSTR, IP2STR(&ip_info.ip));
+            ap_ip_str = ap_ip;
+        }
+    }
+    
+    // Ziskat STA SSID z NVS (pokud existuje)
+    char saved_ssid[33] = {0};
+    char saved_password[65] = {0};
+    esp_err_t nvs_ret = wifi_load_config_from_nvs(saved_ssid, sizeof(saved_ssid), saved_password, sizeof(saved_password));
+    const char* sta_ssid_display = (nvs_ret == ESP_OK) ? saved_ssid : "Not configured";
+    
+    // Zjistit online status: STA connected a ma IP adresu
+    bool online = sta_connected && sta_ip[0] != '\0';
+    
+    int len = snprintf(buffer, buffer_size,
+        "{"
+        "\"ap_ssid\":\"%s\","
+        "\"ap_ip\":\"%s\","
+        "\"ap_clients\":%lu,"
+        "\"sta_ssid\":\"%s\","
+        "\"sta_ip\":\"%s\","
+        "\"sta_connected\":%s,"
+        "\"online\":%s,"
+        "\"locked\":%s"
+        "}",
+        WIFI_AP_SSID,
+        ap_ip_str,
+        (unsigned long)client_count,
+        sta_ssid_display,
+        (sta_connected && sta_ip[0] != '\0') ? sta_ip : "Not connected",
+        sta_connected ? "true" : "false",
+        online ? "true" : "false",
+        web_locked ? "true" : "false"
+    );
+    
+    if (len < 0 || len >= (int)buffer_size) {
+        ESP_LOGE(TAG, "Failed to create WiFi status JSON (buffer too small)");
+        return ESP_ERR_NO_MEM;
+    }
+    
+    return ESP_OK;
+}
+
+/**
+ * @brief Handler pro GET /api/web/lock-status
+ * 
+ * Vraci JSON s lock statusem web rozhrani.
+ * 
+ * @param req HTTP request
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
+static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "GET /api/web/lock-status");
+    
+    char response[128];
+    int len = snprintf(response, sizeof(response),
+        "{\"locked\":%s}",
+        web_locked ? "true" : "false"
+    );
+    
+    if (len < 0 || len >= (int)sizeof(response)) {
+        httpd_resp_set_status(req, "500 Internal Server Error");
+        httpd_resp_send(req, "Failed to create response", -1);
+        return ESP_FAIL;
+    }
+    
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, resp_str, strlen(resp_str)); // Using 'resp_str' and strlen
+    return ESP_OK;
+}
+
+// ============================================================================
+// DEMO MODE API HANDLERS
+// ============================================================================
+
+static esp_err_t http_post_demo_config_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "POST /api/demo/config");
+    
+    if (web_is_locked()) {
+        httpd_resp_set_status(req, "403 Forbidden");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
+        return ESP_OK;
+    }
+    
+    char content[100];
+    int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+    if (ret <= 0) {
+        httpd_resp_set_status(req, "400 Bad Request");
+        httpd_resp_send(req, "No data", -1);
+        return ESP_FAIL;
+    }
+    content[ret] = '\0';
+    
+    // Simple JSON parsing for {"enabled": true/false}
+    bool enabled = (strstr(content, "\"enabled\":true") != NULL) || (strstr(content, "\"enabled\": true") != NULL);
+    
+    toggle_demo_mode(enabled);
+    
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":true}", -1);
+    return ESP_OK;
+}
+
+static esp_err_t http_get_demo_status_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "GET /api/demo/status");
+    
+    bool enabled = is_demo_mode_enabled();
+    
+    char resp_str[64];
+    snprintf(resp_str, sizeof(resp_str), "{\"enabled\":%s}", enabled ? "true" : "false");
+    
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, resp_str, strlen(resp_str));
+    return ESP_OK;
 }
 
 // ============================================================================
@@ -315,29 +969,29 @@ static esp_err_t start_http_server(void)
     
     ESP_LOGI(TAG, "Starting HTTP server...");
     
-    // Configure HTTP server
+    // Konfigurovat HTTP server
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.server_port = HTTP_SERVER_PORT;
-    config.max_uri_handlers = 16; // ensure enough slots for all registered endpoints
-    config.max_open_sockets = 4;  // Max allowed: LWIP_MAX_SOCKETS(7) - 3 internal = 4
+    config.max_uri_handlers = 25; // zajistit dostatek slotu pro vsechny registrovane endpointy (včetně WiFi API)
+    config.max_open_sockets = 4;  // Maximalni povoleno: LWIP_MAX_SOCKETS(7) - 3 interni = 4
     config.lru_purge_enable = true;
     config.recv_wait_timeout = 10;
-    config.send_wait_timeout = 1000;  // 1 second timeout for 6-chunk HTML (6×50ms delays + transfer time)
+    config.send_wait_timeout = 1000;  // 1 sekunda timeout pro 6-cast HTML (6×50ms zpozdeni + cas prenosu)
     config.max_resp_headers = 8;
     config.backlog_conn = 5;
-    config.stack_size = 8192;  // Increased stack size for HTTP server task
+    config.stack_size = 8192;  // Zvysena velikost stacku pro HTTP server task
     
-    // Start HTTP server
+    // Spustit HTTP server
     esp_err_t ret = httpd_start(&httpd_handle, &config);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to start HTTP server: %s", esp_err_to_name(ret));
         return ret;
     }
     
-    // Register URI handlers
+    // Registrovat URI handlery
     ESP_LOGI(TAG, "Registering URI handlers...");
     
-    // Chess JavaScript file handler
+    // Handler pro Chess JavaScript soubor
     httpd_uri_t chess_js_uri = {
         .uri = "/chess_app.js",
         .method = HTTP_GET,
@@ -346,7 +1000,7 @@ static esp_err_t start_http_server(void)
     };
     httpd_register_uri_handler(httpd_handle, &chess_js_uri);
     
-    // Test page handler (minimal timer test)
+    // Handler pro testovaci stranku (minimalni timer test)
     httpd_uri_t test_uri = {
         .uri = "/test",
         .method = HTTP_GET,
@@ -355,7 +1009,7 @@ static esp_err_t start_http_server(void)
     };
     httpd_register_uri_handler(httpd_handle, &test_uri);
     
-    // Root handler (HTML page)
+    // Handler pro root (HTML stranka)
     httpd_uri_t root_uri = {
         .uri = "/",
         .method = HTTP_GET,
@@ -364,7 +1018,7 @@ static esp_err_t start_http_server(void)
     };
     httpd_register_uri_handler(httpd_handle, &root_uri);
     
-    // API handlers
+    // Handlery pro API
     httpd_uri_t board_uri = {
         .uri = "/api/board",
         .method = HTTP_GET,
@@ -405,7 +1059,7 @@ static esp_err_t start_http_server(void)
     };
     httpd_register_uri_handler(httpd_handle, &advantage_uri);
     
-    // Timer API handlers
+    // Handlery pro Timer API
     httpd_uri_t timer_uri = {
         .uri = "/api/timer",
         .method = HTTP_GET,
@@ -446,16 +1100,74 @@ static esp_err_t start_http_server(void)
     };
     httpd_register_uri_handler(httpd_handle, &timer_reset_uri);
     
-    // POST /api/move handler DISABLED - web je 100% READ-ONLY
-    // httpd_uri_t move_uri = {
-    //     .uri = "/api/move",
-    //     .method = HTTP_POST,
-    //     .handler = http_post_move_handler,
-    //     .user_ctx = NULL
-    // };
-    // httpd_register_uri_handler(httpd_handle, &move_uri);
+    // Handlery pro WiFi API
+    httpd_uri_t wifi_config_uri = {
+        .uri = "/api/wifi/config",
+        .method = HTTP_POST,
+        .handler = http_post_wifi_config_handler,
+        .user_ctx = NULL
+    };
+    httpd_register_uri_handler(httpd_handle, &wifi_config_uri);
     
-    // Captive portal handlers
+    httpd_uri_t wifi_connect_uri = {
+        .uri = "/api/wifi/connect",
+        .method = HTTP_POST,
+        .handler = http_post_wifi_connect_handler,
+        .user_ctx = NULL
+    };
+    httpd_register_uri_handler(httpd_handle, &wifi_connect_uri);
+    
+    httpd_uri_t wifi_disconnect_uri = {
+        .uri = "/api/wifi/disconnect",
+        .method = HTTP_POST,
+        .handler = http_post_wifi_disconnect_handler,
+        .user_ctx = NULL
+    };
+    httpd_register_uri_handler(httpd_handle, &wifi_disconnect_uri);
+    
+    httpd_uri_t wifi_clear_uri = {
+        .uri = "/api/wifi/clear",
+        .method = HTTP_POST,
+        .handler = http_post_wifi_clear_handler,
+        .user_ctx = NULL
+    };
+    httpd_register_uri_handler(httpd_handle, &wifi_clear_uri);
+    
+    httpd_uri_t wifi_status_uri = {
+        .uri = "/api/wifi/status",
+        .method = HTTP_GET,
+        .handler = http_get_wifi_status_handler,
+        .user_ctx = NULL
+    };
+    httpd_register_uri_handler(httpd_handle, &wifi_status_uri);
+    
+    // Handler pro web lock status
+    httpd_uri_t web_lock_status_uri = {
+        .uri = "/api/web/lock-status",
+        .method = HTTP_GET,
+        .handler = http_get_web_lock_status_handler,
+        .user_ctx = NULL
+    };
+    httpd_register_uri_handler(httpd_handle, &web_lock_status_uri);
+    
+    // Handlery pro Demo Mode
+    httpd_uri_t demo_config_uri = {
+        .uri = "/api/demo/config",
+        .method = HTTP_POST,
+        .handler = http_post_demo_config_handler,
+        .user_ctx = NULL
+    };
+    httpd_register_uri_handler(httpd_handle, &demo_config_uri);
+
+    httpd_uri_t demo_status_uri = {
+        .uri = "/api/demo/status",
+        .method = HTTP_GET,
+        .handler = http_get_demo_status_handler,
+        .user_ctx = NULL
+    };
+    httpd_register_uri_handler(httpd_handle, &demo_status_uri);
+
+    // Handlery pro captive portal
     httpd_uri_t generate_204_uri = {
         .uri = "/generate_204",
         .method = HTTP_GET,
@@ -554,7 +1266,7 @@ static esp_err_t http_get_board_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "GET /api/board");
     
-    // Get board state from game task
+    // Ziskat stav sachovnice z game tasku
     esp_err_t ret = game_get_board_json(json_buffer, sizeof(json_buffer));
     if (ret != ESP_OK) {
         httpd_resp_set_status(req, "500 Internal Server Error");
@@ -572,7 +1284,7 @@ static esp_err_t http_get_status_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "GET /api/status");
     
-    // Get game status from game task
+    // Ziskat stav hry z game tasku
     esp_err_t ret = game_get_status_json(json_buffer, sizeof(json_buffer));
     if (ret != ESP_OK) {
         httpd_resp_set_status(req, "500 Internal Server Error");
@@ -590,7 +1302,7 @@ static esp_err_t http_get_history_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "GET /api/history");
     
-    // Get move history from game task
+    // Ziskat historii tahu z game tasku
     esp_err_t ret = game_get_history_json(json_buffer, sizeof(json_buffer));
     if (ret != ESP_OK) {
         httpd_resp_set_status(req, "500 Internal Server Error");
@@ -608,7 +1320,7 @@ static esp_err_t http_get_captured_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "GET /api/captured");
     
-    // Get captured pieces from game task
+    // Ziskat sebrane figurky z game tasku
     esp_err_t ret = game_get_captured_json(json_buffer, sizeof(json_buffer));
     if (ret != ESP_OK) {
         httpd_resp_set_status(req, "500 Internal Server Error");
@@ -626,7 +1338,7 @@ static esp_err_t http_get_advantage_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "GET /api/advantage");
     
-    // Get advantage history from game task
+    // Ziskat historii material advantage z game tasku
     esp_err_t ret = game_get_advantage_json(json_buffer, sizeof(json_buffer));
     if (ret != ESP_OK) {
         httpd_resp_set_status(req, "500 Internal Server Error");
@@ -640,13 +1352,6 @@ static esp_err_t http_get_advantage_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-// DISABLED: POST /api/move handler - web je 100% READ-ONLY
-/*
-static esp_err_t http_post_move_handler(httpd_req_t *req)
-{
-    // ... celá funkce zakomentována ...
-}
-*/
 
 // ============================================================================
 // TIMER API HANDLERS
@@ -656,7 +1361,7 @@ static esp_err_t http_get_timer_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "GET /api/timer");
     
-    // Get timer state from game task using a local buffer to avoid races with other endpoints
+    // Ziskat stav timeru z game tasku pouzitim lokalniho bufferu pro zabraneni race conditions s jinymi endpointy
     char local_json[JSON_BUFFER_SIZE];
     esp_err_t ret = game_get_timer_json(local_json, sizeof(local_json));
     if (ret != ESP_OK) {
@@ -665,7 +1370,7 @@ static esp_err_t http_get_timer_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
     
-    // Prevent caching timer responses in the browser
+    // Zabranit cachovani timer odpovedi v prohlizeci
     httpd_resp_set_hdr(req, "Cache-Control", "no-store");
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, local_json, strlen(local_json));
@@ -677,7 +1382,16 @@ static esp_err_t http_post_timer_config_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "POST /api/timer/config");
     
-    // Read JSON data
+    // Kontrola web lock
+    if (web_is_locked()) {
+        ESP_LOGW(TAG, "Timer config blocked: web interface is locked");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_status(req, "403 Forbidden");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
+        return ESP_OK;
+    }
+    
+    // Precist JSON data
     char content[256];
     int ret = httpd_req_recv(req, content, sizeof(content) - 1);
     if (ret <= 0) {
@@ -687,12 +1401,12 @@ static esp_err_t http_post_timer_config_handler(httpd_req_t *req)
     }
     content[ret] = '\0';
     
-    // Parse JSON and send command to game task
+    // Parsovat JSON a odeslat prikaz do game tasku
     chess_move_command_t cmd = { 0 };
     cmd.type = GAME_CMD_SET_TIME_CONTROL;
     
-    // Improved JSON parsing using sscanf for more reliable parsing
-    // First find the "type" field
+    // Vylepsene JSON parsovani pouzitim sscanf pro spolehlivejsi parsovani
+    // Nejprve najit pole "type"
     char *type_str = strstr(content, "\"type\":");
     if (type_str == NULL) {
         httpd_resp_set_status(req, "400 Bad Request");
@@ -700,7 +1414,7 @@ static esp_err_t http_post_timer_config_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
     
-    // Parse type value
+    // Parsovat hodnotu type
     int type_value;
     if (sscanf(type_str, "\"type\":%d", &type_value) != 1) {
         httpd_resp_set_status(req, "400 Bad Request");
@@ -716,7 +1430,7 @@ static esp_err_t http_post_timer_config_handler(httpd_req_t *req)
     
     cmd.timer_data.timer_config.time_control_type = (uint8_t)type_value;
     
-    // Parse custom time values if type is CUSTOM
+    // Parsovat vlastni casove hodnoty pokud je type CUSTOM
     if (type_value == 14) { // TIME_CONTROL_CUSTOM
         char *minutes_str = strstr(content, "\"custom_minutes\":");
         char *increment_str = strstr(content, "\"custom_increment\":");
@@ -747,7 +1461,7 @@ static esp_err_t http_post_timer_config_handler(httpd_req_t *req)
             }
         }
         
-        // Validate that custom values were provided
+        // Overit ze byly poskytnuty vlastni hodnoty
         if (minutes_str == NULL || increment_str == NULL) {
             httpd_resp_set_status(req, "400 Bad Request");
             httpd_resp_send(req, "Custom time control requires minutes and increment", -1);
@@ -755,7 +1469,7 @@ static esp_err_t http_post_timer_config_handler(httpd_req_t *req)
         }
     }
     
-    // Send command to game task
+    // Odeslat prikaz do game tasku
     if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
         httpd_resp_set_status(req, "500 Internal Server Error");
         httpd_resp_send(req, "Failed to set time control", -1);
@@ -771,6 +1485,15 @@ static esp_err_t http_post_timer_config_handler(httpd_req_t *req)
 static esp_err_t http_post_timer_pause_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "POST /api/timer/pause");
+    
+    // Kontrola web lock
+    if (web_is_locked()) {
+        ESP_LOGW(TAG, "Timer pause blocked: web interface is locked");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_status(req, "403 Forbidden");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
+        return ESP_OK;
+    }
     
     chess_move_command_t cmd = { 0 };
     cmd.type = GAME_CMD_PAUSE_TIMER;
@@ -791,6 +1514,15 @@ static esp_err_t http_post_timer_resume_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "POST /api/timer/resume");
     
+    // Kontrola web lock
+    if (web_is_locked()) {
+        ESP_LOGW(TAG, "Timer resume blocked: web interface is locked");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_status(req, "403 Forbidden");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
+        return ESP_OK;
+    }
+    
     chess_move_command_t cmd = { 0 };
     cmd.type = GAME_CMD_RESUME_TIMER;
     
@@ -810,6 +1542,15 @@ static esp_err_t http_post_timer_reset_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "POST /api/timer/reset");
     
+    // Kontrola web lock
+    if (web_is_locked()) {
+        ESP_LOGW(TAG, "Timer reset blocked: web interface is locked");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_status(req, "403 Forbidden");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
+        return ESP_OK;
+    }
+    
     chess_move_command_t cmd = { 0 };
     cmd.type = GAME_CMD_RESET_TIMER;
     
@@ -821,6 +1562,324 @@ static esp_err_t http_post_timer_reset_handler(httpd_req_t *req)
     
     httpd_resp_set_status(req, "200 OK");
     httpd_resp_send(req, "Timer reset", -1);
+    
+    return ESP_OK;
+}
+
+// ============================================================================
+// WIFI API HANDLERS
+// ============================================================================
+
+/**
+ * @brief Handler pro POST /api/wifi/config
+ * 
+ * Ulozi WiFi konfiguraci (SSID a heslo) do NVS.
+ * 
+ * @param req HTTP request
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * 
+ * @details
+ * Ocekava JSON: {"ssid": "...", "password": "..."}
+ * Vraci JSON: {"success": true/false, "message": "..."}
+ */
+static esp_err_t http_post_wifi_config_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "POST /api/wifi/config");
+    
+    // Kontrola web lock
+    if (web_is_locked()) {
+        ESP_LOGW(TAG, "WiFi config blocked: web interface is locked");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_status(req, "403 Forbidden");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
+        return ESP_OK;
+    }
+    
+    // Nacist JSON z request body
+    char content[256] = {0};
+    int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+    if (ret <= 0) {
+        httpd_resp_set_status(req, "400 Bad Request");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"No data received\"}", -1);
+        return ESP_FAIL;
+    }
+    content[ret] = '\0';
+    
+    // Jednoduchy JSON parser (hleda "ssid" a "password")
+    char ssid[33] = {0};
+    char password[65] = {0};
+    
+    // Najit "ssid"
+    const char* ssid_start = strstr(content, "\"ssid\"");
+    if (ssid_start != NULL) {
+        ssid_start = strchr(ssid_start, ':');
+        if (ssid_start != NULL) {
+            ssid_start++; // Preskocit ':'
+            while (*ssid_start == ' ' || *ssid_start == '\"') ssid_start++;
+            const char* ssid_end = strchr(ssid_start, '\"');
+            if (ssid_end != NULL && ssid_end > ssid_start) {
+                size_t len = ssid_end - ssid_start;
+                if (len < sizeof(ssid)) {
+                    strncpy(ssid, ssid_start, len);
+                    ssid[len] = '\0';
+                }
+            }
+        }
+    }
+    
+    // Najit "password"
+    const char* password_start = strstr(content, "\"password\"");
+    if (password_start != NULL) {
+        password_start = strchr(password_start, ':');
+        if (password_start != NULL) {
+            password_start++; // Preskocit ':'
+            while (*password_start == ' ' || *password_start == '\"') password_start++;
+            const char* password_end = strchr(password_start, '\"');
+            if (password_end != NULL && password_end > password_start) {
+                size_t len = password_end - password_start;
+                if (len < sizeof(password)) {
+                    strncpy(password, password_start, len);
+                    password[len] = '\0';
+                }
+            }
+        }
+    }
+    
+    // Validovat SSID
+    size_t ssid_len = strlen(ssid);
+    size_t password_len = strlen(password);
+    
+    if (ssid_len == 0) {
+        httpd_resp_set_status(req, "400 Bad Request");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"SSID is required\"}", -1);
+        return ESP_FAIL;
+    }
+    if (ssid_len > 32) {
+        httpd_resp_set_status(req, "400 Bad Request");
+        httpd_resp_set_type(req, "application/json");
+        char error_msg[128];
+        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"SSID must be 1-32 characters (current: %zu)\"}", ssid_len);
+        httpd_resp_send(req, error_msg, -1);
+        return ESP_FAIL;
+    }
+    
+    // Validovat password
+    if (password_len == 0) {
+        httpd_resp_set_status(req, "400 Bad Request");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"Password is required\"}", -1);
+        return ESP_FAIL;
+    }
+    if (password_len > 64) {
+        httpd_resp_set_status(req, "400 Bad Request");
+        httpd_resp_set_type(req, "application/json");
+        char error_msg[128];
+        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"Password must be 1-64 characters (current: %zu)\"}", password_len);
+        httpd_resp_send(req, error_msg, -1);
+        return ESP_FAIL;
+    }
+    
+    // Ulozit do NVS
+    esp_err_t err = wifi_save_config_to_nvs(ssid, password);
+    if (err != ESP_OK) {
+        httpd_resp_set_status(req, "500 Internal Server Error");
+        httpd_resp_set_type(req, "application/json");
+        char error_msg[128];
+        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"Failed to save: %s\"}", esp_err_to_name(err));
+        httpd_resp_send(req, error_msg, -1);
+        return ESP_FAIL;
+    }
+    
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":true,\"message\":\"WiFi config saved\"}", -1);
+    
+    return ESP_OK;
+}
+
+/**
+ * @brief Handler pro POST /api/wifi/connect
+ * 
+ * Pripoji ESP32 k WiFi site s ulozenou konfiguraci.
+ * 
+ * @param req HTTP request
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * 
+ * @details
+ * Vraci JSON: {"success": true/false, "message": "..."}
+ */
+static esp_err_t http_post_wifi_connect_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "POST /api/wifi/connect");
+    
+    // Kontrola web lock
+    if (web_is_locked()) {
+        ESP_LOGW(TAG, "WiFi connect blocked: web interface is locked");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_status(req, "403 Forbidden");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
+        return ESP_OK;
+    }
+    
+    // Zkontrolovat, zda existuje konfigurace
+    char ssid[33] = {0};
+    char password[65] = {0};
+    esp_err_t load_ret = wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
+    if (load_ret != ESP_OK) {
+        httpd_resp_set_status(req, "400 Bad Request");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"No WiFi configuration found. Please save SSID and password first.\"}", -1);
+        return ESP_FAIL;
+    }
+    
+    esp_err_t err = wifi_connect_sta();
+    if (err != ESP_OK) {
+        httpd_resp_set_status(req, "500 Internal Server Error");
+        httpd_resp_set_type(req, "application/json");
+        char error_msg[256];
+        const char* user_message = NULL;
+        
+        // Prevest ESP error kody na uzivatelsky pristupne zpravy
+        if (err == ESP_ERR_INVALID_STATE) {
+            user_message = "Connection already in progress. Please wait...";
+        } else if (err == ESP_ERR_NOT_FOUND) {
+            user_message = "Network not found. Please check SSID and ensure the network is in range.";
+        } else if (err == ESP_ERR_INVALID_RESPONSE) {
+            user_message = "Authentication failed. Please check password and try again.";
+        } else if (err == ESP_ERR_TIMEOUT) {
+            user_message = "Connection timeout. The network may be too far or not responding.";
+        } else if (err == ESP_ERR_NVS_NOT_FOUND) {
+            user_message = "WiFi configuration not found. Please save SSID and password first.";
+        } else {
+            user_message = "Connection failed. Please check SSID, password, and network availability.";
+        }
+        
+        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"%s\"}", user_message);
+        httpd_resp_send(req, error_msg, -1);
+        return ESP_FAIL;
+    }
+    
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":true,\"message\":\"Connected to WiFi\"}", -1);
+    
+    return ESP_OK;
+}
+
+/**
+ * @brief Handler pro POST /api/wifi/disconnect
+ * 
+ * Odpoji ESP32 od WiFi site.
+ * 
+ * @param req HTTP request
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * 
+ * @details
+ * Vraci JSON: {"success": true/false, "message": "..."}
+ */
+static esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "POST /api/wifi/disconnect");
+    
+    // Kontrola web lock
+    if (web_is_locked()) {
+        ESP_LOGW(TAG, "WiFi disconnect blocked: web interface is locked");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_status(req, "403 Forbidden");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
+        return ESP_OK;
+    }
+    
+    esp_err_t err = wifi_disconnect_sta();
+    if (err != ESP_OK) {
+        httpd_resp_set_status(req, "500 Internal Server Error");
+        httpd_resp_set_type(req, "application/json");
+        char error_msg[128];
+        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"Disconnect failed: %s\"}", esp_err_to_name(err));
+        httpd_resp_send(req, error_msg, -1);
+        return ESP_FAIL;
+    }
+    
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":true,\"message\":\"Disconnected from WiFi\"}", -1);
+    
+    return ESP_OK;
+}
+
+/**
+ * @brief Handler pro POST /api/wifi/clear
+ * 
+ * Vymaze ulozenou WiFi konfiguraci z NVS.
+ * 
+ * @param req HTTP request
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * 
+ * @details
+ * Vraci JSON: {"success": true/false, "message": "..."}
+ */
+static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "POST /api/wifi/clear");
+    
+    // Kontrola web lock
+    if (web_is_locked()) {
+        ESP_LOGW(TAG, "WiFi clear blocked: web interface is locked");
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_status(req, "403 Forbidden");
+        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
+        return ESP_OK;
+    }
+    
+    // Odpojit STA pokud je pripojeny
+    if (sta_connected) {
+        wifi_disconnect_sta();
+    }
+    
+    esp_err_t err = wifi_clear_config_from_nvs();
+    if (err != ESP_OK) {
+        httpd_resp_set_status(req, "500 Internal Server Error");
+        httpd_resp_set_type(req, "application/json");
+        char error_msg[128];
+        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"Failed to clear: %s\"}", esp_err_to_name(err));
+        httpd_resp_send(req, error_msg, -1);
+        return ESP_FAIL;
+    }
+    
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":true,\"message\":\"WiFi configuration cleared\"}", -1);
+    
+    return ESP_OK;
+}
+
+/**
+ * @brief Handler pro GET /api/wifi/status
+ * 
+ * Vrati aktualni stav WiFi (AP i STA).
+ * 
+ * @param req HTTP request
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * 
+ * @details
+ * Vraci JSON s informacemi o AP a STA statusu.
+ */
+static esp_err_t http_get_wifi_status_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "GET /api/wifi/status");
+    
+    char local_json[JSON_BUFFER_SIZE];
+    esp_err_t ret = wifi_get_sta_status_json(local_json, sizeof(local_json));
+    if (ret != ESP_OK) {
+        httpd_resp_set_status(req, "500 Internal Server Error");
+        httpd_resp_send(req, "Failed to get WiFi status", -1);
+        return ESP_FAIL;
+    }
+    
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, local_json, strlen(local_json));
     
     return ESP_OK;
 }
@@ -1915,7 +2974,447 @@ static const char chess_app_js_content[] =
     "    }\n"
     "});\n"
     "\n"
+    "// ============================================================================\n"
+    "// WIFI FUNCTIONS\n"
+    "// ============================================================================\n"
     "\n"
+    "console.log('📡 WiFi functions loading...');\n"
+    "\n"
+    "async function saveWiFiConfig() {\n"
+    "    console.log('📡 saveWiFiConfig() called');\n"
+    "    const ssid = document.getElementById('wifi-ssid').value.trim();\n"
+    "    const password = document.getElementById('wifi-password').value;\n"
+    "    \n"
+    "    // Resetovat editing flagy po ulozeni\n"
+    "    wifiInputEditing.ssid = false;\n"
+    "    wifiInputEditing.password = false;\n"
+    "    \n"
+    "    // Validace SSID\n"
+    "    if (!ssid) {\n"
+    "        alert('❌ SSID is required');\n"
+    "        return;\n"
+    "    }\n"
+    "    if (ssid.length > 32) {\n"
+    "        alert('❌ SSID must be 1-32 characters (current: ' + ssid.length + ')');\n"
+    "        return;\n"
+    "    }\n"
+    "    \n"
+    "    // Validace password\n"
+    "    if (!password) {\n"
+    "        alert('❌ Password is required');\n"
+    "        return;\n"
+    "    }\n"
+    "    if (password.length > 64) {\n"
+    "        alert('❌ Password must be 1-64 characters (current: ' + password.length + ')');\n"
+    "        return;\n"
+    "    }\n"
+    "    try {\n"
+    "        const response = await fetch('/api/wifi/config', {\n"
+    "            method: 'POST',\n"
+    "            headers: {'Content-Type': 'application/json'},\n"
+    "            body: JSON.stringify({ssid: ssid, password: password})\n"
+    "        });\n"
+        "                const data = await response.json();\n"
+        "        if (data.success) {\n"
+        "            alert('✅ WiFi config saved. Now press \"Connect STA\".');\n"
+        "            // Resetovat config loaded flag, aby se nova konfigurace zobrazila v polich\n"
+        "            wifiConfigLoaded = false;\n"
+        "            // Aktualizovat status po kratke dobe, aby se nova konfigurace zobrazila a tlacitka se aktualizovala\n"
+        "            setTimeout(updateWiFiStatus, 500);\n"
+        "        } else {\n"
+        "            alert('❌ Failed to save WiFi config: ' + data.message);\n"
+        "        }\n"
+    "    } catch (error) {\n"
+    "        alert('Error: ' + error.message);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "async function connectSTA() {\n"
+    "    try {\n"
+    "        const response = await fetch('/api/wifi/connect', {method: 'POST'});\n"
+    "                const data = await response.json();\n"
+        "        if (data.success) {\n"
+        "            alert('✅ Connecting to WiFi... Please wait.');\n"
+        "            // Aktualizovat status a stav tlacitek po kratke dobe\n"
+        "            setTimeout(updateWiFiStatus, 2000);\n"
+        "            setTimeout(updateWiFiStatus, 5000);\n"
+        "        } else {\n"
+        "            alert('❌ Failed to connect: ' + data.message);\n"
+        "            // Aktualizovat status a stav tlacitek\n"
+        "            updateWiFiStatus();\n"
+        "        }\n"
+    "    } catch (error) {\n"
+    "        alert('Error: ' + error.message);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "async function disconnectSTA() {\n"
+    "    try {\n"
+    "        const response = await fetch('/api/wifi/disconnect', {method: 'POST'});\n"
+    "        const data = await response.json();\n"
+        "        if (data.success) {\n"
+        "            alert('Disconnected from WiFi');\n"
+        "            // Aktualizovat status a stav tlacitek\n"
+        "            setTimeout(updateWiFiStatus, 1000);\n"
+        "        } else {\n"
+        "            alert('Failed to disconnect: ' + data.message);\n"
+        "            // Aktualizovat status a stav tlacitek\n"
+        "            updateWiFiStatus();\n"
+        "        }\n"
+    "    } catch (error) {\n"
+    "        alert('Error: ' + error.message);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "async function clearWiFiConfig() {\n"
+    "    if (!confirm('Are you sure you want to clear WiFi configuration? This will remove saved SSID and password.')) {\n"
+    "        return;\n"
+    "    }\n"
+    "    try {\n"
+    "        const response = await fetch('/api/wifi/clear', {method: 'POST'});\n"
+    "        const data = await response.json();\n"
+    "        if (data.success) {\n"
+    "            alert('✅ WiFi configuration cleared');\n"
+    "            // Resetovat config loaded flag (ale NERESETOVAT editing flagy - uzivatel muze prave editovat)\n"
+    "            wifiConfigLoaded = false;\n"
+    "            \n"
+    "            // Vymazat pole a zajistit, ze jsou editovatelna\n"
+    "            const ssidInput = document.getElementById('wifi-ssid');\n"
+    "            const passwordInput = document.getElementById('wifi-password');\n"
+    "            \n"
+    "            if (ssidInput) {\n"
+    "                // Vymazat pouze pokud uzivatel prave needituje\n"
+    "                if (!wifiInputEditing.ssid) {\n"
+    "                    ssidInput.value = '';\n"
+    "                }\n"
+    "                ssidInput.removeAttribute('disabled');\n"
+    "                ssidInput.removeAttribute('readonly');\n"
+    "                ssidInput.style.pointerEvents = 'auto';\n"
+    "                ssidInput.style.userSelect = 'text';\n"
+    "                // Zajistit, ze pole je focusovatelne\n"
+    "                ssidInput.focus();\n"
+    "            }\n"
+    "            \n"
+    "            if (passwordInput) {\n"
+    "                // Vymazat pouze pokud uzivatel prave needituje\n"
+    "                if (!wifiInputEditing.password) {\n"
+    "                    passwordInput.value = '';\n"
+    "                }\n"
+    "                passwordInput.removeAttribute('disabled');\n"
+    "                passwordInput.removeAttribute('readonly');\n"
+    "                passwordInput.style.pointerEvents = 'auto';\n"
+    "                passwordInput.style.userSelect = 'text';\n"
+    "            }\n"
+    "            \n"
+    "            // Aktualizovat status po kratke dobe (ale ne prepisovat pole pokud uzivatel edituje)\n"
+    "            setTimeout(updateWiFiStatus, 500);\n"
+    "        } else {\n"
+    "            alert('❌ Failed to clear WiFi config: ' + data.message);\n"
+    "        }\n"
+    "    } catch (error) {\n"
+    "        alert('Error: ' + error.message);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "// Flag pro sledovani, zda uzivatel prave edituje input pole\n"
+    "let wifiInputEditing = {ssid: false, password: false};\n"
+    "let wifiConfigLoaded = false; // Flag pro jednorazove nacteni konfigurace\n"
+    "\n"
+    "async function updateWiFiStatus() {\n"
+    "    try {\n"
+    "        const response = await fetch('/api/wifi/status');\n"
+    "        const data = await response.json();\n"
+    "        document.getElementById('ap-ssid').textContent = data.ap_ssid || 'ESP32-CzechMate';\n"
+    "        document.getElementById('ap-ip').textContent = data.ap_ip || '192.168.4.1';\n"
+    "        document.getElementById('ap-clients').textContent = data.ap_clients || 0;\n"
+    "        document.getElementById('sta-ssid').textContent = data.sta_ssid || 'Not configured';\n"
+    "        document.getElementById('sta-ip').textContent = data.sta_ip || 'Not connected';\n"
+    "        document.getElementById('sta-connected').textContent = data.sta_connected ? 'true' : 'false';\n"
+    "        \n"
+    "        // Aktualizovat Web Status\n"
+    "        const lockStatusEl = document.getElementById('web-lock-status');\n"
+    "        const onlineStatusEl = document.getElementById('web-online-status');\n"
+    "        if (lockStatusEl) {\n"
+    "            lockStatusEl.textContent = data.locked ? '🔒 Locked' : '🔓 Unlocked';\n"
+    "            lockStatusEl.style.color = data.locked ? '#f44336' : '#4CAF50';\n"
+    "        }\n"
+    "        if (onlineStatusEl) {\n"
+    "            onlineStatusEl.textContent = data.online ? '🟢 Online' : '🔴 Offline';\n"
+    "            onlineStatusEl.style.color = data.online ? '#4CAF50' : '#f44336';\n"
+    "        }\n"
+    "        \n"
+    "        // Disable tlačítka timer a WiFi při lock\n"
+    "        if (data.locked) {\n"
+    "            const timerBtns = document.querySelectorAll('#time-control-select, #pause-timer, #resume-timer, #reset-timer');\n"
+    "            timerBtns.forEach(btn => {\n"
+    "                if (btn) {\n"
+    "                    btn.disabled = true;\n"
+    "                    btn.style.opacity = '0.5';\n"
+    "                    btn.style.cursor = 'not-allowed';\n"
+    "                }\n"
+    "            });\n"
+    "            const wifiBtns = document.querySelectorAll('#wifi-save-btn, #wifi-connect-btn, #wifi-disconnect-btn, #wifi-clear-btn');\n"
+    "            wifiBtns.forEach(btn => {\n"
+    "                if (btn) {\n"
+    "                    btn.disabled = true;\n"
+    "                    btn.style.opacity = '0.5';\n"
+    "                    btn.style.cursor = 'not-allowed';\n"
+    "                }\n"
+    "            });\n"
+    "        } else {\n"
+    "            // Enable tlačítka když není lock\n"
+    "            const timerBtns = document.querySelectorAll('#time-control-select, #pause-timer, #resume-timer, #reset-timer');\n"
+    "            timerBtns.forEach(btn => {\n"
+    "                if (btn) {\n"
+    "                    btn.disabled = false;\n"
+    "                    btn.style.opacity = '1';\n"
+    "                    btn.style.cursor = 'pointer';\n"
+    "                }\n"
+    "            });\n"
+    "            // WiFi tlačítka se aktualizují v updateWiFiButtonsState()\n"
+    "        }\n"
+    "        \n"
+    "        // Aktualizovat input pole pouze pokud uzivatel prave needituje\n"
+    "        const ssidInput = document.getElementById('wifi-ssid');\n"
+    "        const passwordInput = document.getElementById('wifi-password');\n"
+    "        \n"
+    "        // SSID pole: aktualizovat pouze pokud uzivatel needituje\n"
+    "        if (ssidInput && !wifiInputEditing.ssid) {\n"
+    "            if (data.sta_ssid && data.sta_ssid !== 'Not configured') {\n"
+    "                // Prepisovat pouze pokud:\n"
+    "                // 1. Konfigurace jeste nebyla nactena (!wifiConfigLoaded) NEBO pole je prazdne\n"
+    "                // 2. A uzivatel prave needituje (kontrola je vyse)\n"
+    "                // 3. A v NVS je konfigurace (kontrola je vyse)\n"
+    "                if (!wifiConfigLoaded || ssidInput.value === '') {\n"
+    "                    ssidInput.value = data.sta_ssid;\n"
+    "                    wifiConfigLoaded = true;\n"
+    "                }\n"
+    "            }\n"
+    "            // Pokud neni konfigurace, NEPREPISOVAT pole - uzivatel muze psat novou konfiguraci\n"
+    "        }\n"
+    "        \n"
+    "        // Password pole: NIKDY neprepisujeme automaticky - uzivatel musi zadat ručně\n"
+    "        // (z bezpecnostnich duvodu a pro lepsi UX)\n"
+    "        \n"
+    "        // Aktualizovat stav tlacitek podle konfigurace\n"
+    "        updateWiFiButtonsState(data);\n"
+    "    } catch (error) {\n"
+    "        console.error('Failed to update WiFi status:', error);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "// Funkce pro aktualizaci stavu WiFi tlacitek podle konfigurace\n"
+    "function updateWiFiButtonsState(data) {\n"
+    "    const connectBtn = document.getElementById('wifi-connect-btn');\n"
+    "    const disconnectBtn = document.getElementById('wifi-disconnect-btn');\n"
+    "    const saveBtn = document.getElementById('wifi-save-btn');\n"
+    "    \n"
+    "    // Zjistit, zda je konfigurace ulozena v NVS\n"
+    "    const hasConfig = data.sta_ssid && data.sta_ssid !== 'Not configured';\n"
+    "    const isConnected = data.sta_connected === true;\n"
+    "    \n"
+    "    // Connect STA: enable pouze pokud je konfigurace ulozena a neni pripojeno\n"
+    "    if (connectBtn) {\n"
+    "        if (hasConfig && !isConnected) {\n"
+    "            connectBtn.disabled = false;\n"
+    "            connectBtn.style.opacity = '1';\n"
+    "            connectBtn.style.cursor = 'pointer';\n"
+    "        } else {\n"
+    "            connectBtn.disabled = true;\n"
+    "            connectBtn.style.opacity = '0.5';\n"
+    "            connectBtn.style.cursor = 'not-allowed';\n"
+    "        }\n"
+    "    }\n"
+    "    \n"
+    "    // Disconnect STA: enable pouze pokud je pripojeno\n"
+    "    if (disconnectBtn) {\n"
+    "        if (isConnected) {\n"
+    "            disconnectBtn.disabled = false;\n"
+    "            disconnectBtn.style.opacity = '1';\n"
+    "            disconnectBtn.style.cursor = 'pointer';\n"
+    "        } else {\n"
+    "            disconnectBtn.disabled = true;\n"
+    "            disconnectBtn.style.opacity = '0.5';\n"
+    "            disconnectBtn.style.cursor = 'not-allowed';\n"
+    "        }\n"
+    "    }\n"
+    "    \n"
+    "    // Save button: vzdy enabled (uzivatel muze ulozit kdykoliv)\n"
+    "    if (saveBtn) {\n"
+    "        saveBtn.disabled = false;\n"
+    "        saveBtn.style.opacity = '1';\n"
+    "        saveBtn.style.cursor = 'pointer';\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "// Expose WiFi functions globally for inline onclick handlers\n"
+    "console.log('📡 Exposing WiFi functions to window object...');\n"
+    "window.saveWiFiConfig = saveWiFiConfig;\n"
+    "window.connectSTA = connectSTA;\n"
+    "window.disconnectSTA = disconnectSTA;\n"
+    "console.log('✅ WiFi functions exposed:', typeof window.saveWiFiConfig, typeof window.connectSTA, typeof window.disconnectSTA);\n"
+    "console.log('✅ WiFi clear function available:', typeof clearWiFiConfig);\n"
+    "\n"
+    "// Attach event listeners to WiFi buttons and input fields\n"
+    "function attachWiFiEventListeners() {\n"
+    "    console.log('📡 Attaching WiFi event listeners...');\n"
+    "    const saveBtn = document.getElementById('wifi-save-btn');\n"
+    "    const connectBtn = document.getElementById('wifi-connect-btn');\n"
+    "    const disconnectBtn = document.getElementById('wifi-disconnect-btn');\n"
+    "    const clearBtn = document.getElementById('wifi-clear-btn');\n"
+    "    const ssidInput = document.getElementById('wifi-ssid');\n"
+    "    const passwordInput = document.getElementById('wifi-password');\n"
+    "    \n"
+    "    // Event listenery pro input pole - zabranuji automatickemu prepisovani behem editace\n"
+    "    if (ssidInput) {\n"
+    "        ssidInput.addEventListener('focus', function() {\n"
+    "            wifiInputEditing.ssid = true;\n"
+    "            console.log('📡 SSID input focused - editing mode');\n"
+    "        });\n"
+    "        ssidInput.addEventListener('blur', function() {\n"
+    "            wifiInputEditing.ssid = false;\n"
+    "            console.log('📡 SSID input blurred - editing mode off');\n"
+    "        });\n"
+    "    }\n"
+    "    \n"
+    "    if (passwordInput) {\n"
+    "        passwordInput.addEventListener('focus', function() {\n"
+    "            wifiInputEditing.password = true;\n"
+    "            console.log('📡 Password input focused - editing mode');\n"
+    "        });\n"
+    "        passwordInput.addEventListener('blur', function() {\n"
+    "            wifiInputEditing.password = false;\n"
+    "            console.log('📡 Password input blurred - editing mode off');\n"
+    "        });\n"
+    "    }\n"
+    "    \n"
+    "    if (saveBtn) {\n"
+    "        console.log('✅ Found wifi-save-btn');\n"
+    "        saveBtn.addEventListener('click', function() {\n"
+    "            console.log('📡 wifi-save-btn clicked');\n"
+    "            saveWiFiConfig();\n"
+    "        });\n"
+    "    } else {\n"
+    "        console.error('❌ wifi-save-btn not found!');\n"
+    "    }\n"
+    "    \n"
+    "    if (connectBtn) {\n"
+    "        console.log('✅ Found wifi-connect-btn');\n"
+    "        connectBtn.addEventListener('click', function() {\n"
+    "            console.log('📡 wifi-connect-btn clicked');\n"
+    "            connectSTA();\n"
+    "        });\n"
+    "    } else {\n"
+    "        console.error('❌ wifi-connect-btn not found!');\n"
+    "    }\n"
+    "    \n"
+    "    if (disconnectBtn) {\n"
+    "        console.log('✅ Found wifi-disconnect-btn');\n"
+    "        disconnectBtn.addEventListener('click', function() {\n"
+    "            console.log('📡 wifi-disconnect-btn clicked');\n"
+    "            disconnectSTA();\n"
+    "        });\n"
+    "    } else {\n"
+    "        console.error('❌ wifi-disconnect-btn not found!');\n"
+    "    }\n"
+    "    \n"
+    "    if (clearBtn) {\n"
+    "        console.log('✅ Found wifi-clear-btn');\n"
+    "        clearBtn.addEventListener('click', function() {\n"
+    "            console.log('📡 wifi-clear-btn clicked');\n"
+    "            clearWiFiConfig();\n"
+    "        });\n"
+    "    } else {\n"
+    "        console.error('❌ wifi-clear-btn not found!');\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "// Start WiFi status update loop (every 5 seconds)\n"
+    "let wifiStatusInterval = null;\n"
+    "function startWiFiStatusUpdateLoop() {\n"
+    "    if (wifiStatusInterval) {\n"
+    "        clearInterval(wifiStatusInterval);\n"
+    "    }\n"
+    "    // Initial update je jiz volano v initWiFiSystem(), takze zde jen nastavit interval\n"
+    "    // Update every 5 seconds\n"
+    "    wifiStatusInterval = setInterval(updateWiFiStatus, 5000);\n"
+    "}\n"
+    "\n"
+    "// ============================================================================\n"
+    "// SCREENSAVER FUNCTIONS\n"
+    "// ============================================================================\n"
+    "\n"
+    "async function toggleScreensaver() {\n"
+    "    const btn = document.getElementById('screensaver-btn');\n"
+    "    const isEnabled = btn.classList.contains('active');\n"
+    "    try {\n"
+    "        const response = await fetch('/api/demo/config', {\n"
+    "            method: 'POST',\n"
+    "            headers: {'Content-Type': 'application/json'},\n"
+    "            body: JSON.stringify({enabled: !isEnabled})\n"
+    "        });\n"
+    "        const data = await response.json();\n"
+    "        if (data.success) {\n"
+    "            updateScreensaverStatus();\n"
+    "        }\n"
+    "    } catch(e) { console.error(e); }\n"
+    "}\n"
+    "\n"
+    "async function updateScreensaverStatus() {\n"
+    "    try {\n"
+    "        const res = await fetch('/api/demo/status');\n"
+    "        const data = await res.json();\n"
+    "        const btn = document.getElementById('screensaver-btn');\n"
+    "        if (btn) {\n"
+    "            if (data.enabled) {\n"
+    "                btn.classList.add('active');\n"
+    "                btn.textContent = '🛑 Stop Screensaver';\n"
+    "                btn.style.background = '#f44336';\n"
+    "                btn.style.boxShadow = '0 0 15px rgba(244, 67, 54, 0.5)';\n"
+    "            } else {\n"
+    "                btn.classList.remove('active');\n"
+    "                btn.textContent = '🎬 Start Screensaver';\n"
+    "                btn.style.background = '#4CAF50';\n"
+    "                btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';\n"
+    "            }\n"
+    "        }\n"
+    "    } catch(e) {}\n"
+    "}\n"
+    "\n"
+    "function initScreensaver() {\n"
+    "    // Create button if not exists\n"
+    "    if (!document.getElementById('screensaver-btn')) {\n"
+    "        const btn = document.createElement('button');\n"
+    "        btn.id = 'screensaver-btn';\n"
+    "        btn.textContent = '🎬 Start Screensaver';\n"
+    "        btn.onclick = toggleScreensaver;\n"
+    "        btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:1000;padding:12px 24px;border-radius:30px;border:none;background:#4CAF50;color:white;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.3);cursor:pointer;transition:all 0.3s;font-family:inherit;font-size:14px;display:flex;align-items:center;gap:8px;';\n"
+    "        btn.onmouseover = function() { this.style.transform = 'translateY(-2px)'; };\n"
+    "        btn.onmouseout = function() { this.style.transform = 'translateY(0)'; };\n"
+    "        document.body.appendChild(btn);\n"
+    "    }\n"
+    "    updateScreensaverStatus();\n"
+    "    setInterval(updateScreensaverStatus, 5000);\n"
+    "}\n"
+    "\n"
+    "// Initialize WiFi system when DOM is ready\n"
+    "function initWiFiSystem() {\n"
+    "    console.log('📡 Initializing WiFi system...');\n"
+    "    attachWiFiEventListeners();\n"
+    "    // Zavolat updateWiFiStatus() ihned pro nacteni konfigurace z NVS a zobrazeni v polich\n"
+    "    updateWiFiStatus();\n"
+    "    startWiFiStatusUpdateLoop();\n"
+    "    initScreensaver(); // Initialize Screensaver UI\n"
+    "    console.log('✅ WiFi system initialized');\n"
+    "}\n"
+    "\n"
+    "// Start WiFi system when DOM is ready\n"
+    "if (document.readyState === 'loading') {\n"
+    "    document.addEventListener('DOMContentLoaded', initWiFiSystem);\n"
+    "} else {\n"
+    "    // DOM already loaded, wait a bit for elements to be available\n"
+    "    setTimeout(initWiFiSystem, 100);\n"
+    "}\n"
     "\n"
     "";
 
@@ -1923,7 +3422,10 @@ static esp_err_t http_get_chess_js_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "GET /chess_app.js (%zu bytes)", strlen(chess_app_js_content));
     httpd_resp_set_type(req, "application/javascript; charset=utf-8");
-    httpd_resp_set_hdr(req, "Cache-Control", "public, max-age=3600");
+    // Cache-busting: no-cache zajisti, ze se JavaScript vzdy nacte cerstvy
+    httpd_resp_set_hdr(req, "Cache-Control", "no-cache, no-store, must-revalidate");
+    httpd_resp_set_hdr(req, "Pragma", "no-cache");
+    httpd_resp_set_hdr(req, "Expires", "0");
     httpd_resp_send(req, chess_app_js_content, strlen(chess_app_js_content));
     return ESP_OK;
 }
@@ -2568,6 +4070,52 @@ static const char html_chunk_infopanel[] =
                         "<h3>Move History</h3>"
                         "<div id='history' class='history-box'></div>"
                     "</div>"
+                    "<div class='status-box'>"
+                        "<h3>WiFi (Internet)</h3>"
+                        "<div class='status-item'>"
+                            "<span>AP SSID:</span>"
+                            "<span id='ap-ssid' class='status-value'>ESP32-CzechMate</span>"
+                        "</div>"
+                        "<div class='status-item'>"
+                            "<span>AP IP:</span>"
+                            "<span id='ap-ip' class='status-value'>192.168.4.1</span>"
+                        "</div>"
+                        "<div class='status-item'>"
+                            "<span>AP Clients:</span>"
+                            "<span id='ap-clients' class='status-value'>0</span>"
+                        "</div>"
+                        "<div class='status-item'>"
+                            "<span>STA SSID:</span>"
+                            "<span id='sta-ssid' class='status-value'>Not configured</span>"
+                        "</div>"
+                        "<div class='status-item'>"
+                            "<span>STA IP:</span>"
+                            "<span id='sta-ip' class='status-value'>Not connected</span>"
+                        "</div>"
+                        "<div class='status-item'>"
+                            "<span>STA Connected:</span>"
+                            "<span id='sta-connected' class='status-value'>false</span>"
+                        "</div>"
+                        "<div style='margin-top: 15px;'>"
+                            "<input type='text' id='wifi-ssid' placeholder='WiFi SSID' maxlength='32' style='width: 100%; padding: 8px; margin-bottom: 8px; background: #111; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; pointer-events: auto; user-select: text;'>"
+                            "<input type='password' id='wifi-password' placeholder='WiFi password' maxlength='64' style='width: 100%; padding: 8px; margin-bottom: 8px; background: #111; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; pointer-events: auto; user-select: text;'>"
+                            "<button id='wifi-save-btn' style='width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 5px;'>Save WiFi config</button>"
+                            "<button id='wifi-connect-btn' style='width: 48%; padding: 10px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 4%;'>Connect STA</button>"
+                            "<button id='wifi-disconnect-btn' style='width: 48%; padding: 10px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;'>Disconnect STA</button>"
+                            "<button id='wifi-clear-btn' style='width: 100%; padding: 8px; margin-top: 5px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;'>Clear WiFi config</button>"
+                        "</div>"
+                    "</div>"
+                    "<div class='status-box'>"
+                        "<h3>🌐 Web Status</h3>"
+                        "<div class='status-item'>"
+                            "<span>Lock Status:</span>"
+                            "<span id='web-lock-status' class='status-value'>-</span>"
+                        "</div>"
+                        "<div class='status-item'>"
+                            "<span>Internet:</span>"
+                            "<span id='web-online-status' class='status-value'>-</span>"
+                        "</div>"
+                    "</div>"
                 "</div>"
             "</div>"
         "</div>";
@@ -2738,8 +4286,16 @@ void web_server_task_start(void *pvParameters)
     // NVS is already initialized in main.c - skip it here
     ESP_LOGI(TAG, "NVS already initialized, skipping...");
     
-    // Initialize WiFi AP
-    esp_err_t ret = wifi_init_ap();
+    // Load web lock status from NVS
+    esp_err_t lock_ret = web_lock_load_from_nvs();
+    if (lock_ret == ESP_OK) {
+        ESP_LOGI(TAG, "Web interface lock status: %s", web_locked ? "locked" : "unlocked");
+    } else {
+        ESP_LOGW(TAG, "Failed to load web lock status, using default: unlocked");
+    }
+    
+    // Initialize WiFi APSTA
+    esp_err_t ret = wifi_init_apsta();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "❌ Failed to initialize WiFi AP: %s", esp_err_to_name(ret));
         ESP_LOGE(TAG, "❌ Web server task exiting");
@@ -2749,10 +4305,26 @@ void web_server_task_start(void *pvParameters)
         return;
     }
     wifi_ap_active = true;
-    ESP_LOGI(TAG, "WiFi AP initialized");
+    ESP_LOGI(TAG, "WiFi APSTA initialized");
     
     // Wait for WiFi to be ready
     vTaskDelay(pdMS_TO_TICKS(2000));
+    
+    // Automaticke pripojeni STA, pokud je konfigurace v NVS
+    char ssid[33] = {0};
+    char password[65] = {0};
+    esp_err_t nvs_ret = wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
+    if (nvs_ret == ESP_OK) {
+        ESP_LOGI(TAG, "WiFi config found in NVS, attempting auto-connect...");
+        esp_err_t connect_ret = wifi_connect_sta();
+        if (connect_ret == ESP_OK) {
+            ESP_LOGI(TAG, "✅ WiFi STA auto-connected successfully");
+        } else {
+            ESP_LOGW(TAG, "⚠️ WiFi STA auto-connect failed: %s (AP still active)", esp_err_to_name(connect_ret));
+        }
+    } else {
+        ESP_LOGI(TAG, "No WiFi config in NVS, STA will remain disconnected");
+    }
     
     // Start HTTP server
     ret = start_http_server();

@@ -30,7 +30,7 @@
  * - Matrix Columns: GPIO0,1,2,3,6,14,16,17 (8 vstupu s pull-up)
  * - Tlacitkove piny: Sdilene s matrix columns (time-multiplexed)
  * - Status LED: GPIO8 (samostatny od matice)
- * - Reset tlacitko: GPIO27 (samostatny pin)
+ * - Reset tlacitko: GPIO15 (samostatny pin)
  * - UART: USB Serial JTAG (vestavene, zadne externi piny)
  * 
  * Time-Multiplexing (30ms cyklus):
@@ -78,6 +78,7 @@ static const char *TAG = "FREERTOS_CHESS";
 // Matrix event queues
 QueueHandle_t matrix_event_queue = NULL;
 QueueHandle_t matrix_command_queue = NULL;
+QueueHandle_t matrix_response_queue = NULL;
 
 // Button event queues
 QueueHandle_t button_event_queue = NULL;
@@ -121,10 +122,10 @@ SemaphoreHandle_t system_mutex = NULL;
 // System timers
 TimerHandle_t matrix_scan_timer = NULL;  // LEGACY - not used with coordinated system
 TimerHandle_t button_scan_timer = NULL;  // LEGACY - not used with coordinated system
-TimerHandle_t led_update_timer = NULL;  // ✅ RESTORED: Needed for periodic LED refresh
+TimerHandle_t led_update_timer = NULL;  // Timer pro periodické obnovení LED
 TimerHandle_t system_health_timer = NULL;
 
-// ✅ NEW: Coordinated time-multiplexing timer (25ms period)
+// Koordinovaný time-multiplexing timer (perioda 25ms)
 static TimerHandle_t coordinated_multiplex_timer = NULL;
 
 // System state
@@ -239,7 +240,7 @@ static esp_err_t validate_gpio_pin(gpio_num_t pin, const char* pin_name) {
         for (int i = 0; i < 8; i++) {
             // GPIO config - no WDT reset needed during init
             
-            // OPRAVA: Správná bitová maska s explicitním castem
+            // Bitová maska s explicitním přetypováním
             uint32_t pin_number = (uint32_t)matrix_row_pins[i];
             uint64_t pin_mask = (1ULL << pin_number);
             
@@ -268,10 +269,9 @@ static esp_err_t validate_gpio_pin(gpio_num_t pin, const char* pin_name) {
         // Configure matrix column pins as inputs with pull-up
         ESP_LOGI(TAG, "DEBUG: Starting matrix column configuration loop");
         for (int i = 0; i < 8; i++) {
-            // ✅ OPRAVA: Reset watchdog na začátku každé iterace
-            // WDT reset removed during initialization
+            // WDT reset odstraněn během inicializace
             
-            // OPRAVA: Správná bitová maska s explicitním castem
+            // Bitová maska s explicitním přetypováním
             uint32_t pin_number = (uint32_t)matrix_col_pins[i];
             uint64_t pin_mask = (1ULL << pin_number);
             
@@ -282,13 +282,12 @@ static esp_err_t validate_gpio_pin(gpio_num_t pin, const char* pin_name) {
                 ESP_LOGW(TAG, "Skipping GPIO%d (strapping pin) to avoid system reset", pin_number);
                 ESP_LOGI(TAG, "Matrix column pin %d skipped (strapping pin)", i);
                 ESP_LOGI(TAG, "DEBUG: About to continue to next iteration");
-                continue;  // ✅ Nyní je watchdog reset na začátku smyčky
+                continue;  // Přeskočení strapping pinu
             }
             
             ESP_LOGI(TAG, "DEBUG: Proceeding with GPIO%d configuration", pin_number);
             
-            // ✅ OPRAVA: Reset před gpio_config()
-            // WDT reset removed during initialization
+            // WDT reset odstraněn během inicializace
             
             gpio_config_t io_conf = {
                 .pin_bit_mask = pin_mask,
@@ -379,7 +378,7 @@ static esp_err_t validate_gpio_pin(gpio_num_t pin, const char* pin_name) {
         
         ESP_LOGI(TAG, "✓ GPIO pins initialized successfully");
         
-        // ✅ OPRAVA: Reset po dokončení GPIO
+        // Dokončení GPIO konfigurace
         // WDT reset removed during initialization
         
         // Fallback: If any GPIO configuration failed, log warning but continue
@@ -394,13 +393,13 @@ esp_err_t chess_led_init(void)
 {
     ESP_LOGI(TAG, "🔧 Initializing WS2812B LED system...");
     
-    // ✅ Reset watchdog before LED initialization
+    // Reset watchdog timeru před inicializací LED
     esp_err_t wdt_ret = esp_task_wdt_reset();
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }
     
-    // ✅ Initialize WS2812B hardware properly
+    // Inicializace WS2812B hardwaru
     // This function will be called by led_task.c during hardware initialization
     // We just ensure the system is ready for LED operations
     
@@ -543,6 +542,8 @@ esp_err_t chess_create_queues(void)
     SAFE_CREATE_QUEUE(matrix_event_queue, MATRIX_QUEUE_SIZE, sizeof(matrix_event_t), "Matrix Event Queue");
     ESP_LOGI(TAG, "  - Matrix Command Queue: %d items × %zu bytes", MATRIX_QUEUE_SIZE, sizeof(uint8_t));
     SAFE_CREATE_QUEUE(matrix_command_queue, MATRIX_QUEUE_SIZE, sizeof(uint8_t), "Matrix Command Queue");
+    ESP_LOGI(TAG, "  - Matrix Response Queue: %d items × %zu bytes", MATRIX_QUEUE_SIZE, sizeof(game_response_t));
+    SAFE_CREATE_QUEUE(matrix_response_queue, MATRIX_QUEUE_SIZE, sizeof(game_response_t), "Matrix Response Queue");
     ESP_LOGI(TAG, "✅ Matrix queues created. Free heap: %zu bytes", esp_get_free_heap_size());
     
     // Button event queues
@@ -623,7 +624,7 @@ esp_err_t chess_create_queues(void)
     ESP_LOGI(TAG, "========================================");
     
     // CRITICAL: Validate all queues were created successfully
-    if (!matrix_event_queue || !matrix_command_queue ||
+    if (!matrix_event_queue || !matrix_command_queue || !matrix_response_queue ||
         !button_event_queue || !button_command_queue || !uart_command_queue || !uart_response_queue ||
         !game_command_queue || !game_status_queue || !animation_command_queue || !animation_status_queue ||
         !screen_saver_command_queue || !screen_saver_status_queue || 
@@ -776,7 +777,7 @@ void led_update_timer_callback(TimerHandle_t xTimer)
     // NOTE: Timer callbacks run in timer service task context
     // which is not registered with TWDT, so we don't call WDT reset
     
-    // ✅ Periodic LED refresh to prevent white blinking
+    // Periodické obnovení LED pro prevenci bílého blikání
     // This ensures LED strip gets regular updates even when no commands are sent
     led_force_immediate_update();
 }
@@ -826,7 +827,7 @@ esp_err_t chess_create_timers(void)
         ESP_LOGW(TAG, "Failed to create legacy button scan timer (not critical)");
     }
     
-    // ✅ LED update timer - RESTORED for periodic refresh
+    // Timer pro periodické obnovení LED
     led_update_timer = xTimerCreate("LEDUpdate", pdMS_TO_TICKS(25), pdTRUE, NULL, led_update_timer_callback);
     if (led_update_timer == NULL) {
         ESP_LOGE(TAG, "Failed to create LED update timer");
@@ -1145,7 +1146,7 @@ esp_err_t chess_led_set_pixel(uint8_t led_index, uint8_t red, uint8_t green, uin
     // In simulation mode, log the LED command
     ESP_LOGI(TAG, "LED Set Pixel: index=%d, RGB=(%d,%d,%d)", led_index, red, green, blue);
     
-    // ✅ DIRECT LED CALL - No queue hell
+    // Přímé volání LED funkce
     led_set_pixel_safe(led_index, red, green, blue);
     return ESP_OK;
 }
@@ -1156,7 +1157,7 @@ esp_err_t chess_led_set_all(uint8_t red, uint8_t green, uint8_t blue)
     // In simulation mode, log the LED command
     ESP_LOGI(TAG, "LED Set All: RGB=(%d,%d,%d)", red, green, blue);
     
-    // ✅ DIRECT LED CALL - No queue hell
+    // Přímé volání LED funkce
     led_set_all_safe(red, green, blue);
     return ESP_OK;
 }
@@ -1167,7 +1168,7 @@ esp_err_t chess_led_clear(void)
     // In simulation mode, log the LED command
     ESP_LOGI(TAG, "LED Clear All");
     
-    // ✅ DIRECT LED CALL - No queue hell
+    // Přímé volání LED funkce
     led_clear_all_safe();
     return ESP_OK;
 }
@@ -1178,7 +1179,7 @@ esp_err_t chess_led_show_board(void)
     // In simulation mode, log the LED command
     ESP_LOGI(TAG, "LED Show Chess Board Pattern");
     
-    // ✅ DIRECT LED CALL - No queue hell
+    // Přímé volání LED funkce
     // Show chess board pattern (alternating black/white squares)
     for (int i = 0; i < 64; i++) {
         int row = i / 8;
@@ -1203,7 +1204,7 @@ esp_err_t chess_led_button_feedback(uint8_t button_id, bool available)
     // In simulation mode, log the button feedback
     ESP_LOGI(TAG, "Button LED Feedback: button=%d, available=%s", button_id, available ? "true" : "false");
     
-    // ✅ DIRECT LED CALL - No queue hell
+    // Přímé volání LED funkce
     uint8_t led_index = button_id + CHESS_LED_COUNT_BOARD; // Button LEDs start at index 64
     if (available) {
         led_set_pixel_safe(led_index, 0, 255, 0); // Green for available

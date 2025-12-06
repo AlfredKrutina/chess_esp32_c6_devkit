@@ -1,15 +1,15 @@
 /**
  * @file animation_task.h
- * @brief ESP32-C6 Chess System v2.4 - Animation Task Header
+ * @brief ESP32-C6 Chess System v2.4 - Hlavicka Animation Tasku
  * 
- * This header defines the interface for the animation task:
- * - Animation types and structures
- * - Animation task function prototypes
- * - Animation control and status functions
+ * Tato hlavicka definuje rozhrani pro animation task:
+ * - Typy animaci a struktury
+ * - Prototypy funkci animation tasku
+ * - Funkce pro ovladani animaci a stav
  * 
- * Author: Alfred Krutina
- * Version: 2.4
- * Date: 2025-08-24
+ * @author Alfred Krutina
+ * @version 2.4
+ * @date 2025-08-24
  */
 
 #ifndef ANIMATION_TASK_H
@@ -27,31 +27,31 @@
 #include <stdbool.h>
 
 // ============================================================================
-// CONSTANTS AND DEFINITIONS
+// KONSTANTY A DEFINICE
 // ============================================================================
 
 
 
 
-// Animation types (renamed to avoid conflicts with unified_animation_manager)
+// Typy animaci (prejmenovano pro zabraneni konfliktu s unified_animation_manager)
 typedef enum {
-    ANIM_TASK_TYPE_WAVE = 0,         // Wave pattern
-    ANIM_TASK_TYPE_PULSE,            // Pulse effect
-    ANIM_TASK_TYPE_FADE,             // Fade transition
-    ANIM_TASK_TYPE_CHESS_PATTERN,    // Chess board pattern
-    ANIM_TASK_TYPE_RAINBOW,          // Rainbow colors
-    ANIM_TASK_TYPE_MOVE_HIGHLIGHT,   // Move path highlight
-    ANIM_TASK_TYPE_CHECK_HIGHLIGHT,  // Check indicator
-    ANIM_TASK_TYPE_GAME_OVER,        // Game over pattern
-    ANIM_TASK_TYPE_CUSTOM            // Custom animation
+    ANIM_TASK_TYPE_WAVE = 0,         // Vlnovy vzor
+    ANIM_TASK_TYPE_PULSE,            // Pulzni efekt
+    ANIM_TASK_TYPE_FADE,             // Prechod fade
+    ANIM_TASK_TYPE_CHESS_PATTERN,    // Sachovnicovy vzor
+    ANIM_TASK_TYPE_RAINBOW,          // Duhove barvy
+    ANIM_TASK_TYPE_MOVE_HIGHLIGHT,   // Zvyrazneni cesty tahu
+    ANIM_TASK_TYPE_CHECK_HIGHLIGHT,  // Indikator sachu
+    ANIM_TASK_TYPE_GAME_OVER,        // Vzor konce hry
+    ANIM_TASK_TYPE_CUSTOM            // Vlastni animace
 } animation_task_type_t;
 
-// Animation state types (renamed to avoid conflicts with unified_animation_manager)
+// Typy stavu animaci (prejmenovano pro zabraneni konfliktu s unified_animation_manager)
 typedef enum {
-    ANIM_TASK_STATE_IDLE = 0,       // Animation is idle
-    ANIM_TASK_STATE_RUNNING,        // Animation is running
-    ANIM_TASK_STATE_PAUSED,         // Animation is paused
-    ANIM_TASK_STATE_FINISHED        // Animation has finished
+    ANIM_TASK_STATE_IDLE = 0,       // Animace je neaktivni
+    ANIM_TASK_STATE_RUNNING,        // Animace bezi
+    ANIM_TASK_STATE_PAUSED,         // Animace je pozastavena
+    ANIM_TASK_STATE_FINISHED        // Animace je dokoncena
 } animation_task_state_t;
 
 // Animation structure
@@ -74,184 +74,200 @@ typedef struct {
 
 
 // ============================================================================
-// TASK FUNCTION PROTOTYPES
+// PROTOTYPY FUNKCI TASKU
 // ============================================================================
 
 
 /**
- * @brief Start the animation task
- * @param pvParameters Task parameters (unused)
+ * @brief Spusti animation task
+ * 
+ * @param pvParameters Parametry tasku (nepouzivane)
  */
 void animation_task_start(void *pvParameters);
 
 
 // ============================================================================
-// ANIMATION INITIALIZATION FUNCTIONS
+// INICIALIZACNI FUNKCE ANIMACI
 // ============================================================================
 
 
 /**
- * @brief Initialize the animation system
+ * @brief Inicializuje system animaci
  */
 void animation_initialize_system(void);
 
 /**
- * @brief Create a new animation
- * @param type Animation type
- * @param duration_ms Duration in milliseconds
- * @param priority Animation priority (0-255)
- * @param loop Whether to loop the animation
- * @return Animation ID or 0xFF if failed
+ * @brief Vytvori novou animaci
+ * 
+ * @param type Typ animace
+ * @param duration_ms Delka v milisekundach
+ * @param priority Priorita animace (0-255)
+ * @param loop Zda animaci opakovat
+ * @return ID animace nebo 0xFF pri selhani
  */
 uint8_t animation_create(animation_task_type_t type, uint32_t duration_ms, uint8_t priority, bool loop);
 
 /**
- * @brief Start an animation
- * @param animation_id Animation ID to start
+ * @brief Spusti animaci
+ * 
+ * @param animation_id ID animace ke spusteni
  */
 void animation_start(uint8_t animation_id);
 
 /**
- * @brief Stop an animation
- * @param animation_id Animation ID to stop
+ * @brief Zastavi animaci
+ * 
+ * @param animation_id ID animace k zastaveni
  */
 void animation_stop(uint8_t animation_id);
 
 /**
- * @brief Pause an animation
- * @param animation_id Animation ID to pause
+ * @brief Pozastavi animaci
+ * 
+ * @param animation_id ID animace k pozastaveni
  */
 void animation_pause(uint8_t animation_id);
 
 /**
- * @brief Resume an animation
- * @param animation_id Animation ID to resume
+ * @brief Obnovi animaci
+ * 
+ * @param animation_id ID animace k obnoveni
  */
 void animation_resume(uint8_t animation_id);
 
 
 // ============================================================================
-// ANIMATION PATTERN FUNCTIONS
+// FUNKCE PRO VZORY ANIMACI
 // ============================================================================
 
 
 /**
- * @brief Generate wave animation frame
- * @param frame Frame number
- * @param color Base color
- * @param speed Wave speed
+ * @brief Generuje snimek vlnove animace
+ * 
+ * @param frame Cislo snimku
+ * @param color Zakladni barva
+ * @param speed Rychlost vlny
  */
 void animation_generate_wave_frame(uint32_t frame, uint32_t color, uint8_t speed);
 
 /**
- * @brief Generate pulse animation frame
- * @param frame Frame number
- * @param color Base color
- * @param speed Pulse speed
+ * @brief Generuje snimek pulzni animace
+ * 
+ * @param frame Cislo snimku
+ * @param color Zakladni barva
+ * @param speed Rychlost pulzu
  */
 void animation_generate_pulse_frame(uint32_t frame, uint32_t color, uint8_t speed);
 
 /**
- * @brief Generate fade animation frame
- * @param frame Frame number
- * @param from_color Starting color
- * @param to_color Ending color
- * @param total_frames Total number of frames
+ * @brief Generuje snimek fade animace
+ * 
+ * @param frame Cislo snimku
+ * @param from_color Zacatecni barva
+ * @param to_color Koncova barva
+ * @param total_frames Celkovy pocet snimku
  */
 void animation_generate_fade_frame(uint32_t frame, uint32_t from_color, uint32_t to_color, uint32_t total_frames);
 
 /**
- * @brief Generate chess pattern frame
- * @param frame Frame number
- * @param color1 First color
- * @param color2 Second color
+ * @brief Generuje snimek sachovnicoveho vzoru
+ * 
+ * @param frame Cislo snimku
+ * @param color1 Prvni barva
+ * @param color2 Druha barva
  */
 void animation_generate_chess_pattern(uint32_t frame, uint32_t color1, uint32_t color2);
 
 /**
- * @brief Generate rainbow animation frame
- * @param frame Frame number
+ * @brief Generuje snimek duhove animace
+ * 
+ * @param frame Cislo snimku
  */
 void animation_generate_rainbow_frame(uint32_t frame);
 
 
 // ============================================================================
-// ANIMATION EXECUTION FUNCTIONS
+// FUNKCE PRO VYKONAVANI ANIMACI
 // ============================================================================
 
 
 /**
- * @brief Execute animation frame
- * @param anim Animation to execute
+ * @brief Vykona snimek animace
+ * 
+ * @param anim Animace k vykonani
  */
 void animation_execute_frame(animation_task_t* anim);
 
 /**
- * @brief Send frame data to LEDs
- * @param frame Frame data array
+ * @brief Posle data snimku do LED
+ * 
+ * @param frame Pole dat snimku
  */
 void animation_send_frame_to_leds(const uint8_t frame[CHESS_LED_COUNT_TOTAL][3]);
 
 /**
- * @brief Execute move highlight animation
- * @param anim Animation data
+ * @brief Vykona animaci zvyrazneni tahu
+ * 
+ * @param anim Data animace
  */
 void animation_execute_move_highlight(animation_task_t* anim);
 
 /**
- * @brief Execute check highlight animation
- * @param anim Animation data
+ * @brief Vykona animaci zvyrazneni sachu
+ * 
+ * @param anim Data animace
  */
 void animation_execute_check_highlight(animation_task_t* anim);
 
 /**
- * @brief Execute game over animation
- * @param anim Animation data
+ * @brief Vykona animaci konce hry
+ * 
+ * @param anim Data animace
  */
 void animation_execute_game_over(animation_task_t* anim);
 
 
 // ============================================================================
-// ANIMATION CONTROL FUNCTIONS
+// FUNKCE PRO OVLADANI ANIMACI
 // ============================================================================
 
 
 /**
- * @brief Process animation commands from queue
+ * @brief Zpracuje prikazy animaci z fronty
  */
 void animation_process_commands(void);
 
 /**
- * @brief Stop all animations
+ * @brief Zastavi vsechny animace
  */
 void animation_stop_all(void);
 
 /**
- * @brief Pause all animations
+ * @brief Pozastavi vsechny animace
  */
 void animation_pause_all(void);
 
 /**
- * @brief Resume all animations
+ * @brief Obnovi vsechny animace
  */
 void animation_resume_all(void);
 
 /**
- * @brief Print animation status
+ * @brief Vypise stav animaci
  */
 void animation_print_status(void);
 
 /**
- * @brief Test all animation types
+ * @brief Otestuje vsechny typy animaci
  */
 void animation_test_all(void);
 
 /**
- * @brief Test animation system
+ * @brief Otestuje system animaci
  */
 void animation_test_system(void);
 
-// Animation text representation functions
+// Funkce pro textove zobrazeni animaci
 const char* animation_get_name(animation_task_type_t animation_type);
 void animation_print_progress(const animation_task_t* anim);
 void animation_print_piece_move(const char* from_square, const char* to_square, 
@@ -260,28 +276,30 @@ void animation_print_check_status(bool is_checkmate, float progress);
 void animation_print_summary(void);
 
 // ============================================================================
-// NATURAL PIECE MOVEMENT ANIMATIONS
+// PRIROZENE ANIMACE POHYBU FIGUREK
 // ============================================================================
 
 /**
- * @brief Animate piece move with natural movement patterns
- * @param from_row Source row
- * @param from_col Source column
- * @param to_row Destination row
- * @param to_col Destination column
- * @param piece Piece being moved
+ * @brief Animuje pohyb figurky s prirozenymi pohybovymi vzory
+ * 
+ * @param from_row Zdrojovy radek
+ * @param from_col Zdrojovy sloupec
+ * @param to_row Cilovy radek
+ * @param to_col Cilovy sloupec
+ * @param piece Figurka ktera se pohybuje
  */
 void animate_piece_move_natural(uint8_t from_row, uint8_t from_col, 
                                uint8_t to_row, uint8_t to_col, piece_t piece);
 
 /**
- * @brief Request animation interruption
+ * @brief Pozada o preruseni animace
  */
 void animation_request_interrupt();
 
 /**
- * @brief Check if new move was detected (placeholder)
- * @return true if new move detected
+ * @brief Overi zda byla detekovana nova animace (placeholder)
+ * 
+ * @return true pokud byla detekovana nova animace
  */
 bool new_move_detected();
 

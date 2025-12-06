@@ -1,29 +1,28 @@
 /**
  * @file led_task_simple.h
- * @brief JEDNODUCHY LED SYSTEM - Thread-Safe, Bez Batch, Bez Queue Hell
+ * @brief Jednoduchy LED system - Bezpecne rozhrani z vice vlaken
  * 
- * RESENI PRO ESP32-C6 RMT LIMITACE:
- * - Zadny batch system (konfliktuje s RMT timingem)
- * - Zadny queue hell (8 tasku soucasne)
- * - Zadny triple buffer (memory chaos)
- * - Zadne critical sections (blokuji RMT interrupty)
- * - Pouze prime LED volani s thread-safe mutexem
+ * Tato hlavicka definuje jednoduchy LED system pro ESP32-C6:
+ * - Bezpecne rozhrani z vice vlaken pro ovladani LED
+ * - Prime volani WS2812B driveru s mutex ochranou
+ * - Optimalizovane pro ESP32-C6 RMT
+ * - Jednoduche rozhrani bez slozitych fronticek
  * 
  * @author Alfred Krutina
- * @version 2.5 - SIMPLE SYSTEM
+ * @version 2.5
  * @date 2025-09-02
  * 
  * @details
- * Jednoduchy LED system poskytuje clean, thread-safe API pro ovladani LED
- * bez slozitych fronticek a batch systemu. Pouziva primo WS2812B driver
- * s mutex ochranou pro thread-safety.
+ * Jednoduchy LED system poskytuje ciste, bezpecne rozhrani z vice vlaken pro ovladani LED
+ * bez slozitych fronticek a dávkového systemu. Pouziva primo WS2812B driver
+ * s mutex ochranou pro bezpecnost z vice vlaken.
  * 
- * Vyhody:
- * - Okamzite LED aktualizace (zadny batch delay)
- * - Thread-safe s mutexem (zadne race conditions)
- * - Jednoduche API (3 zakladni funkce)
+ * Vlastnosti:
+ * - Okamzite LED aktualizace bez dávkového zpozdeni
+ * - Bezpecne z vice vlaken s mutexem pro prevenci soubezných pristupu
+ * - Jednoduche rozhrani se 3 zakladnimi funkcemi
  * - Optimalizovane pro ESP32-C6 RMT
- * - Zadne memory problymy
+ * - Minimalni pametove naroky
  */
 
 #ifndef LED_TASK_SIMPLE_H
@@ -44,11 +43,7 @@ extern "C" {
 // ============================================================================
 
 /**
- * @brief Thread-safe nastaveni LED pixelu
- * 
- * OKAMZITY UPDATE - zadny batch system
- * ATOMICKY PRISTUP s mutexem
- * ESP32-C6 RMT optimalizace
+ * @brief Bezpecne nastaveni LED pixelu z vice vlaken
  * 
  * @param index LED index (0-72, kde 0-63 sachovnice, 64-72 tlacitka)
  * @param r Cervena komponenta (0-255)
@@ -56,30 +51,35 @@ extern "C" {
  * @param b Modra komponenta (0-255)
  * @return ESP_OK pri uspechu, chybovy kod pri selhani
  * 
- * @note Tato funkce je THREAD-SAFE a muze byt volana z libovolneho tasku
+ * @details
+ * Nastavi barvu jednoho LED pixelu. Funkce provadi okamzite aktualizace
+ * bez dávkového systemu. Pouziva mutex pro bezpecnost z vice vlaken a je optimalizovana
+ * pro ESP32-C6 RMT.
+ * 
+ * @note Tato funkce je bezpecna z vice vlaken a muze byt volana z libovolneho tasku
  */
 esp_err_t led_set_pixel_safe(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
 
 /**
- * @brief Thread-safe vymazani vsech LED
+ * @brief Bezpecne vymazani vsech LED z vice vlaken
  * 
  * Nastavi vsechny LED na cernou barvu (vypnuto).
  * 
  * @return ESP_OK pri uspechu, chybovy kod pri selhani
  * 
- * @note Tato funkce je THREAD-SAFE
+ * @note Tato funkce je bezpecna z vice vlaken
  */
 esp_err_t led_clear_all_safe(void);
 
 /**
- * @brief Thread-safe nastaveni vsech LED na stejnou barvu
+ * @brief Bezpecne nastaveni vsech LED na stejnou barvu z vice vlaken
  * 
  * @param r Cervena komponenta (0-255)
  * @param g Zelena komponenta (0-255)
  * @param b Modra komponenta (0-255)
  * @return ESP_OK pri uspechu, chybovy kod pri selhani
  * 
- * @note Tato funkce je THREAD-SAFE
+ * @note Tato funkce je bezpecna z vice vlaken
  */
 esp_err_t led_set_all_safe(uint8_t r, uint8_t g, uint8_t b);
 

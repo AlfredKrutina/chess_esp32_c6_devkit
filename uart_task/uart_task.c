@@ -2,12 +2,12 @@
  * @file uart_task.c
  * @brief ESP32-C6 Chess System v2.4 - Rozsirena implementace UART tasku
  * 
- * Tento task poskytuje production-ready line-based UART terminal:
- * - Line-based vstup s editaci
+ * Tento task poskytuje hotovy radkovy UART terminal:
+ * - Radkovy vstup s editaci
  * - Tabulka prikazu s funkcnimi ukazateli
- * - Pokrocile funkce prikazu (aliasy, auto-completion)
- * - NVS konfigurace persistence
- * - Robustni error handling a validace
+ * - Pokrocile funkce prikazu (aliasy, automaticke dokonceni)
+ * - NVS konfigurace trvalosti
+ * - Robustni zpracovani chyb a validace
  * - Optimalizace zdroju
  * 
  * @author Alfred Krutina
@@ -17,7 +17,7 @@
  * @details
  * Tento task zpracovava vsechny UART prikazy a komunikaci s uzivatelem.
  * Obsahuje rozsireny system prikazu pro ovladani sachoveho systemu.
- * Podporuje aliasy, auto-completion a pokrocile funkce.
+ * Podporuje aliasy, automaticke dokonceni a pokrocile funkce.
  */
 
 #include "freertos/FreeRTOS.h"
@@ -47,10 +47,11 @@
 #include "game_task.h"
 #include "config_manager.h"
 #include "../freertos_chess/include/chess_types.h"
-#include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
-#include "../uart_commands_extended/include/uart_commands_extended.h"  // ✅ FIX: Include extended UART commands
+#include "led_mapping.h"
+#include "../web_server_task/include/web_server_task.h"
+#include "../uart_commands_extended/include/uart_commands_extended.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
-#include "../matrix_task/include/matrix_task.h"  // ✅ FIX: Include matrix task functions
+#include "../matrix_task/include/matrix_task.h"
 #include "../timer_system/include/timer_system.h"
 #include <math.h>
 #include <inttypes.h>
@@ -119,7 +120,7 @@ static void uart_write_chunked(const char* data, size_t len);
 static const char *TAG = "UART_TASK";
 
 // ============================================================================
-// CHUNKED OUTPUT MACROS - OPRAVA pro panic při velkých výpisech
+// CHUNKED OUTPUT MACROS
 // ============================================================================
 
 // Safe watchdog reset macro
@@ -192,7 +193,7 @@ static void uart_fputs(const char* str)
 // ============================================================================
 
 /**
- * @brief Cte jeden znak s okamzitym vracenim (non-blocking)
+ * @brief Cte jeden znak s okamzitym vracenim (bez blokovani)
  * 
  * Tato funkce cte jeden znak z UART bez cekani. Pouziva ESP-IDF UART driver
  * nebo USB Serial JTAG podle konfigurace. Filtruje ANSI escape sekvence.
@@ -200,14 +201,14 @@ static void uart_fputs(const char* str)
  * @return Znak jako int, nebo -1 pokud neni dostupny zadny znak
  * 
  * @details
- * Funkce je non-blocking, takze vrati -1 pokud neni dostupny zadny znak.
+ * Funkce je bez blokovani, takze vrati -1 pokud neni dostupny zadny znak.
  * Automaticky filtruje ANSI escape sekvence pro lepsi uzivatelsky zazitek.
  */
 static int uart_read_char_immediate(void)
 {
     if (UART_ENABLED) {
         uint8_t ch;
-        int result = uart_read_bytes(UART_PORT_NUM, &ch, 1, 0); // Non-blocking read
+        int result = uart_read_bytes(UART_PORT_NUM, &ch, 1, 0); // Cteni bez blokovani
         
         if (result > 0) {
             // Filter out ANSI escape sequences
@@ -233,7 +234,7 @@ static int uart_read_char_immediate(void)
         
         return -1; // No data available
     } else {
-        // For USB Serial JTAG, use getchar with non-blocking
+        // Pro USB Serial JTAG pouzit getchar bez blokovani
         int ch = getchar();
         if (ch == 0x1B) { // ESC character - skip ANSI escape sequence
             // Skip the rest of the escape sequence
@@ -255,7 +256,7 @@ static int uart_read_char_immediate(void)
  * @param ch Znak k zapsani
  * 
  * @details
- * Funkce pouziva mutex pro thread-safe operace a automaticky
+ * Funkce pouziva mutex pro bezpecne operace z vice vlaken a automaticky
  * detekuje zda je UART povolen.
  */
 void uart_write_char_immediate(char ch)
@@ -285,7 +286,7 @@ void uart_write_char_immediate(char ch)
  * @param str String k zapsani
  * 
  * @details
- * Funkce pouziva mutex pro thread-safe operace a automaticky
+ * Funkce pouziva mutex pro bezpecne operace z vice vlaken a automaticky
  * detekuje zda je UART povolen. Je optimalizovana pro rychle zapisovani.
  */
 void uart_write_string_immediate(const char* str)
@@ -413,7 +414,7 @@ static uint32_t last_command_time = 0;
 // ============================================================================
 
 /**
- * @brief Display impressive welcome logo with ANSI colors
+ * @brief Zobrazi působive welcome logo s ANSI barvami
  */
 /**
  * @brief Posle welcome logo pres UART
@@ -501,7 +502,7 @@ void uart_send_welcome_logo(void)
  */
 void uart_show_progress_bar(const char* label, uint32_t max_value, uint32_t duration_ms)
 {
-    // CRITICAL: Lock mutex for ENTIRE progress bar to prevent interruption
+    // Zamykání mutexu pro celou progress bar operaci
     if (uart_mutex != NULL) {
         xSemaphoreTake(uart_mutex, portMAX_DELAY);
     }
@@ -558,7 +559,7 @@ void uart_show_progress_bar(const char* label, uint32_t max_value, uint32_t dura
     
     uart_write_string_immediate("\n");
     
-    // CRITICAL: Release mutex only after progress bar is complete
+    // Uvolnění mutexu až po dokončení progress bar
     if (uart_mutex != NULL) {
         xSemaphoreGive(uart_mutex);
     }
@@ -820,7 +821,7 @@ void uart_send_string(const char* str)
 // ============================================================================
 
 /**
- * @brief Send message to UART output queue (thread-safe)
+ * @brief Posle zpravu do UART vystupni fronty (bezpecne z vice vlaken)
  * @param type Message type (determines color)
  * @param add_newline Whether to add newline
  * @param format Format string
@@ -1134,6 +1135,17 @@ command_result_t uart_cmd_timer_pause(const char* args);
 command_result_t uart_cmd_timer_resume(const char* args);
 command_result_t uart_cmd_timer_reset(const char* args);
 
+// WiFi UART prikazy
+command_result_t uart_cmd_wifi(const char* args);
+command_result_t uart_cmd_wifi_connect(const char* args);
+command_result_t uart_cmd_wifi_disconnect(const char* args);
+command_result_t uart_cmd_wifi_status(const char* args);
+command_result_t uart_cmd_wifi_clear(const char* args);
+
+// Web control UART prikazy
+command_result_t uart_cmd_web_lock(const char* args);
+command_result_t uart_cmd_web_status(const char* args);
+
 // Medium Priority Commands
 command_result_t uart_cmd_castle(const char* args);
 command_result_t uart_cmd_promote(const char* args);
@@ -1166,6 +1178,9 @@ command_result_t uart_cmd_endgame_cascade(const char* args);
 command_result_t uart_cmd_endgame_fireworks(const char* args);
 command_result_t uart_cmd_endgame_draw_spiral(const char* args);
 command_result_t uart_cmd_endgame_draw_pulse(const char* args);
+
+// Help functions
+void uart_cmd_help_web(void);
 
 // Puzzle Commands
 // Puzzle level commands removed
@@ -1200,9 +1215,11 @@ command_result_t uart_cmd_help(const char* args)
             uart_cmd_help_beginner();
         } else if (strcmp(args_upper, "DEBUG") == 0) {
             uart_cmd_help_debug();
+        } else if (strcmp(args_upper, "WEB") == 0) {
+            uart_cmd_help_web();
         } else {
             uart_send_error("Unknown help category");
-            uart_send_formatted("Available categories: GAME, SYSTEM, BEGINNER, DEBUG");
+            uart_send_formatted("Available categories: GAME, SYSTEM, BEGINNER, DEBUG, WEB");
             return CMD_ERROR_INVALID_PARAMETER;
         }
     } else {
@@ -1214,7 +1231,7 @@ command_result_t uart_cmd_help(const char* args)
 }
 
 /**
- * @brief Display main help menu with categories
+ * @brief Zobrazi hlavni help menu s kategoriemi
  */
 void uart_display_main_help(void)
 {
@@ -1232,6 +1249,8 @@ void uart_display_main_help(void)
     uart_send_formatted("GAME     - Chess game commands (MOVE, BOARD, etc.)");
     if (color_enabled) uart_write_string_immediate("\033[1;36m"); // bold cyan
     uart_send_formatted("SYSTEM   - System control and status commands");
+    if (color_enabled) uart_write_string_immediate("\033[1;34m"); // bold blue
+    uart_send_formatted("WEB      - Web interface commands and connection info");
     if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
     uart_send_formatted("BEGINNER - Basic commands for new users");
     if (color_enabled) uart_write_string_immediate("\033[1;35m"); // bold magenta
@@ -1262,7 +1281,7 @@ void uart_display_main_help(void)
 }
 
 /**
- * @brief Display game-specific help
+ * @brief Zobrazi help specificky pro hru
  */
 void uart_cmd_help_game(void)
 {
@@ -1345,7 +1364,7 @@ void uart_cmd_help_game(void)
 }
 
 /**
- * @brief Display system-specific help
+ * @brief Zobrazi help specificky pro system
  */
 void uart_cmd_help_system(void)
 {
@@ -1373,11 +1392,11 @@ void uart_cmd_help_system(void)
     uart_send_formatted("  CONFIG key value - Set configuration key=value");
     
     uart_send_formatted("");
-    if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
+    if (color_enabled) uart_write_string_immediate("\033[1;34m"); // bold blue
     uart_send_formatted("🌐 Web Server:");
     if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
-    uart_send_formatted("  Connect to: ESP32-Chess (password: 12345678)");
-    uart_send_formatted("  Open browser: http://192.168.4.1");
+    uart_send_formatted("  Use 'HELP WEB' for detailed connection info and commands.");
+    uart_send_formatted("  WEB_STATUS     - Show web interface status (lock, online, etc.)");
     
     uart_send_formatted("");
     if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
@@ -1419,7 +1438,7 @@ void uart_cmd_help_system(void)
 }
 
 /**
- * @brief Display beginner-friendly help
+ * @brief Zobrazi help pro zacatecniky
  */
 void uart_cmd_help_beginner(void)
 {
@@ -1490,7 +1509,80 @@ void uart_cmd_help_beginner(void)
 }
 
 /**
- * @brief Display debug and testing help
+ * @brief Zobrazi help pro web rozhrani
+ */
+void uart_cmd_help_web(void)
+{
+    if (color_enabled) uart_write_string_immediate("\033[1;36m"); // bold cyan
+    uart_send_formatted("🌐 WEB INTERFACE COMMANDS");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // Získat IP adresy
+    char sta_ip_str[16] = "Disconnected";
+    if (wifi_is_sta_connected()) {
+        wifi_get_sta_ip(sta_ip_str, sizeof(sta_ip_str));
+    }
+    
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("📡 Connection Options:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    
+    uart_send_formatted("  1. Access Point (Direct Connection):");
+    uart_send_formatted("     • Connect to WiFi: 'ESP32-CzechMate'");
+    uart_send_formatted("     • Password:        '12345678'");
+    uart_send_formatted("     • Open Browser:    http://192.168.4.1");
+    
+    uart_send_formatted("");
+    uart_send_formatted("  2. Home Network (Station Mode):");
+    if (wifi_is_sta_connected()) {
+        char sta_ssid_str[33] = {0};
+        wifi_get_sta_ssid(sta_ssid_str, sizeof(sta_ssid_str));
+        
+        uart_send_formatted("     • Status:          CONNECTED ✅");
+        uart_send_formatted("     • Network:         %s", sta_ssid_str);
+        uart_send_formatted("     • Open Browser:    http://%s", sta_ip_str);
+    } else {
+        uart_send_formatted("     • Status:          DISCONNECTED ❌");
+        uart_send_formatted("     • Action:          Use 'WIFI <ssid> <pass>' to connect");
+    }
+
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;34m"); // bold blue
+    uart_send_formatted("🔒 Web Lock Control:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  WEB_LOCK ON     - Lock web interface (prevents game settings changes)");
+    uart_send_formatted("  WEB_LOCK OFF    - Unlock web interface (allows game settings changes)");
+    uart_send_formatted("  WEB_STATUS      - Show web interface status (lock, online, etc.)");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;33m"); // bold yellow
+    uart_send_formatted("📊 Status Information:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  WEB_STATUS shows:");
+    uart_send_formatted("    • Lock status (locked/unlocked)");
+    uart_send_formatted("    • Internet status (online/offline)");
+    uart_send_formatted("    • STA connection info (SSID, IP)");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;31m"); // bold red
+    uart_send_formatted("⚠️  Important Notes:");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+    uart_send_formatted("  • When locked, web users cannot change:");
+    uart_send_formatted("    - Timer settings (config, pause, resume, reset)");
+    uart_send_formatted("    - WiFi configuration (connect, disconnect, clear)");
+    uart_send_formatted("  • UART commands always work, regardless of lock status");
+    uart_send_formatted("  • Use WEB_LOCK ON before events to prevent interference");
+    uart_send_formatted("  • Use WEB_LOCK OFF to allow web configuration again");
+    
+    uart_send_formatted("");
+    if (color_enabled) uart_write_string_immediate("\033[1;32m"); // bold green
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
+}
+
+/**
+ * @brief Zobrazi help pro debug a testovani
  */
 void uart_cmd_help_debug(void)
 {
@@ -1637,7 +1729,7 @@ command_result_t uart_cmd_status(const char* args)
     uart_send_formatted("Minimum Free: %zu bytes", esp_get_minimum_free_heap_size());
     uart_send_formatted("Active Tasks: %d", uxTaskGetNumberOfTasks());
     
-    // CRITICAL: Add stack monitoring for all tasks
+    // Sledování stacku pro všechny tasky
     uart_send_formatted("Task Stack Usage:");
     uart_send_formatted("  UART Task: %u bytes free", uxTaskGetStackHighWaterMark(NULL));
     uart_send_formatted("  LED Task: %u bytes free", uxTaskGetStackHighWaterMark(led_task_handle));
@@ -1731,14 +1823,14 @@ command_result_t uart_cmd_clear(const char* args)
 {
     (void)args; // Unused parameter
     
-    // CRITICAL: Reset WDT before any UART operations
+    // Reset watchdog timeru před UART operacemi
     SAFE_WDT_RESET();
     
     // Simple clear without mutex to avoid WDT issues
     uart_write_string_immediate("\033[2J\033[H"); // Clear screen and move cursor to top
     uart_write_string_immediate("Screen cleared\r\n");
     
-    // CRITICAL: Reset WDT after UART operations
+    // Reset watchdog timeru po UART operacích
     SAFE_WDT_RESET();
     
     return CMD_SUCCESS;
@@ -1811,12 +1903,23 @@ static const uart_command_t commands[] = {
     {"PERFORMANCE", uart_cmd_performance, "Show system performance", "", false, {"PERF", "SYS_PERF", "", "", ""}},
     {"CONFIG", uart_cmd_config, "Show/set configuration", "CONFIG [key] [value]", true, {"CFG", "SETTINGS", "", "", ""}},
     
-    // Timer Commands (mirror web API)
+    // Prikazy timeru (zrcadli webove rozhrani)
     {"TIMER", uart_cmd_timer, "Show timer state (JSON)", "", false, {"TMR", "", "", "", ""}},
     {"TIMER_CONFIG", uart_cmd_timer_config, "Set time control", "TIMER_CONFIG <type|custom> [min inc]", true, {"TCONF", "TCFG", "", "", ""}},
     {"TIMER_PAUSE", uart_cmd_timer_pause, "Pause timer", "", false, {"TPAUSE", "", "", "", ""}},
     {"TIMER_RESUME", uart_cmd_timer_resume, "Resume timer", "", false, {"TRESUME", "", "", "", ""}},
     {"TIMER_RESET", uart_cmd_timer_reset, "Reset timer", "", false, {"TRESET", "", "", "", ""}},
+    
+    // WiFi prikazy
+    {"WIFI", uart_cmd_wifi, "Configure WiFi STA", "WIFI <ssid> <password>", true, {"", "", "", "", ""}},
+    {"WIFI_CONNECT", uart_cmd_wifi_connect, "Connect to WiFi", "", false, {"", "", "", "", ""}},
+    {"WIFI_DISCONNECT", uart_cmd_wifi_disconnect, "Disconnect from WiFi", "", false, {"", "", "", "", ""}},
+    {"WIFI_STATUS", uart_cmd_wifi_status, "Show WiFi status", "", false, {"", "", "", "", ""}},
+    {"WIFI_CLEAR", uart_cmd_wifi_clear, "Clear WiFi config", "", false, {"", "", "", "", ""}},
+    
+    // Web control commands
+    {"WEB_LOCK", uart_cmd_web_lock, "Lock/unlock web interface", "WEB_LOCK ON/OFF", true, {"WEBLOCK", "LOCK", "", "", ""}},
+    {"WEB_STATUS", uart_cmd_web_status, "Show web interface status", "", false, {"WEB", "WS", "", "", ""}},
     
     // Medium Priority Commands
     {"CASTLE", uart_cmd_castle, "Castle (kingside/queenside)", "CASTLE <kingside|queenside>", true, {"CASTLING", "O-O", "", "", ""}},
@@ -1861,7 +1964,7 @@ static const uart_command_t commands[] = {
 // ============================================================================
 
 /**
- * @brief Show position evaluation
+ * @brief Zobrazi vyhodnoceni pozice
  */
 command_result_t uart_cmd_eval(const char* args)
 {
@@ -1931,7 +2034,7 @@ command_result_t uart_cmd_eval(const char* args)
     uart_send_formatted("  • Control central squares");
     uart_send_formatted("  • Consider pawn breaks");
     
-    // CRITICAL: Reset WDT after completion
+    // Reset watchdog timeru po dokončení
     SAFE_WDT_RESET();
     
     ESP_LOGI(TAG, "✅ Position evaluation completed successfully (local)");
@@ -1959,7 +2062,7 @@ command_result_t uart_cmd_ledtest(const char* args)
         .data = NULL
     };
     
-    // ✅ DIRECT LED CALL - No queue hell
+    // Přímé volání LED funkce
     led_set_pixel_safe(led_cmd.led_index, led_cmd.red, led_cmd.green, led_cmd.blue);
     uart_send_formatted("✅ LED test executed directly");
     
@@ -1971,7 +2074,7 @@ command_result_t uart_cmd_ledtest(const char* args)
 }
 
 /**
- * @brief Show system performance metrics
+ * @brief Zobrazi systemove metrik výkonu
  */
 command_result_t uart_cmd_performance(const char* args)
 {
@@ -2254,7 +2357,7 @@ command_result_t uart_cmd_config(const char* args)
 }
 
 // ============================================================================
-// TIMER COMMANDS (mirror web API)
+// PRIKAZY TIMERU (zrcadli webove rozhrani)
 // ============================================================================
 
 /**
@@ -2269,7 +2372,7 @@ static void format_time_mmss(char* buffer, size_t size, uint32_t time_ms)
 }
 
 /**
- * @brief Show timer state (human-readable format)
+ * @brief Zobrazi stav timeru (lidsky citelny format)
  */
 command_result_t uart_cmd_timer(const char* args)
 {
@@ -2356,7 +2459,7 @@ command_result_t uart_cmd_timer(const char* args)
 }
 
 /**
- * @brief Set time control or show available options
+ * @brief Nastavi casovy limit nebo zobrazi dostupne moznosti
  */
 command_result_t uart_cmd_timer_config(const char* args)
 {
@@ -2558,6 +2661,339 @@ command_result_t uart_cmd_timer_reset(const char* args)
 }
 
 // ============================================================================
+// WIFI UART PRIKAZY
+// ============================================================================
+
+/**
+ * @brief Konfiguruje WiFi STA (SSID a heslo)
+ * 
+ * @param args SSID a heslo (muze byt v uvozovkach pro mezery)
+ * @return command_result_t
+ * 
+ * @details
+ * Parsuje argumenty: WIFI <ssid> <password>
+ * Podporuje uvozovky pro SSID/heslo s mezerami: WIFI "My Home WiFi" "My Password"
+ */
+command_result_t uart_cmd_wifi(const char* args)
+{
+    SAFE_WDT_RESET();
+    
+    if (!args || strlen(args) == 0) {
+        uart_send_error("❌ Usage: WIFI <ssid> <password>");
+        uart_send_formatted("   Example: WIFI MyHomeWiFi MyPassword123");
+        uart_send_formatted("   Example: WIFI \"My Home WiFi\" \"My Password\"");
+        return CMD_ERROR_INVALID_SYNTAX;
+    }
+    
+    char ssid[33] = {0};
+    char password[65] = {0};
+    
+    // Parsovat argumenty - podporovat uvozovky
+    const char* p = args;
+    while (*p == ' ') p++; // Skip leading spaces
+    
+    // Parsovat SSID
+    if (*p == '"') {
+        // SSID v uvozovkach
+        p++;
+        const char* end = strchr(p, '"');
+        if (end == NULL) {
+            uart_send_error("❌ Missing closing quote for SSID");
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+        size_t len = end - p;
+        if (len >= sizeof(ssid)) len = sizeof(ssid) - 1;
+        strncpy(ssid, p, len);
+        ssid[len] = '\0';
+        p = end + 1;
+    } else {
+        // SSID bez uvozovek - do prvni mezery
+        const char* space = strchr(p, ' ');
+        if (space == NULL) {
+            uart_send_error("❌ Missing password");
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+        size_t len = space - p;
+        if (len >= sizeof(ssid)) len = sizeof(ssid) - 1;
+        strncpy(ssid, p, len);
+        ssid[len] = '\0';
+        p = space;
+    }
+    
+    // Skip spaces
+    while (*p == ' ') p++;
+    
+    // Parsovat password
+    if (*p == '"') {
+        // Password v uvozovkach
+        p++;
+        const char* end = strchr(p, '"');
+        if (end == NULL) {
+            uart_send_error("❌ Missing closing quote for password");
+            return CMD_ERROR_INVALID_SYNTAX;
+        }
+        size_t len = end - p;
+        if (len >= sizeof(password)) len = sizeof(password) - 1;
+        strncpy(password, p, len);
+        password[len] = '\0';
+    } else {
+        // Password bez uvozovek - zbytek retezce
+        size_t len = strlen(p);
+        if (len >= sizeof(password)) len = sizeof(password) - 1;
+        strncpy(password, p, len);
+        password[len] = '\0';
+    }
+    
+    // Validovat
+    if (strlen(ssid) == 0 || strlen(ssid) > 32) {
+        uart_send_error("❌ SSID too long (max 32 characters)");
+        return CMD_ERROR_INVALID_PARAMETER;
+    }
+    
+    if (strlen(password) == 0 || strlen(password) > 64) {
+        uart_send_error("❌ Password too long (max 64 characters)");
+        return CMD_ERROR_INVALID_PARAMETER;
+    }
+    
+    // Ulozit do NVS
+    esp_err_t ret = wifi_save_config_to_nvs(ssid, password);
+    if (ret != ESP_OK) {
+        uart_send_error("❌ Failed to save WiFi configuration to NVS");
+        uart_send_formatted("   Error: %s", esp_err_to_name(ret));
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    uart_send_formatted("✅ WiFi configuration saved");
+    uart_send_formatted("   SSID: %s", ssid);
+    uart_send_formatted("   Use 'WIFI_CONNECT' to connect");
+    
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Pripoji ESP32 k WiFi site
+ * 
+ * @param args Nepouzivany
+ * @return command_result_t
+ */
+command_result_t uart_cmd_wifi_connect(const char* args)
+{
+    (void)args; // Unused
+    SAFE_WDT_RESET();
+    
+    uart_send_formatted("🔌 Connecting to WiFi...");
+    
+    esp_err_t ret = wifi_connect_sta();
+    if (ret != ESP_OK) {
+        uart_send_error("❌ Failed to connect to WiFi");
+        uart_send_formatted("   Error: %s", esp_err_to_name(ret));
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    uart_send_formatted("✅ Connected to WiFi successfully");
+    
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Odpoji ESP32 od WiFi site
+ * 
+ * @param args Nepouzivany
+ * @return command_result_t
+ */
+command_result_t uart_cmd_wifi_disconnect(const char* args)
+{
+    (void)args; // Unused
+    SAFE_WDT_RESET();
+    
+    uart_send_formatted("🔌 Disconnecting from WiFi...");
+    
+    esp_err_t ret = wifi_disconnect_sta();
+    if (ret != ESP_OK) {
+        uart_send_error("❌ Failed to disconnect from WiFi");
+        uart_send_formatted("   Error: %s", esp_err_to_name(ret));
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    uart_send_formatted("✅ Disconnected from WiFi");
+    
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Zobrazi WiFi status (AP i STA)
+ * 
+ * @param args Nepouzivany
+ * @return command_result_t
+ */
+command_result_t uart_cmd_wifi_status(const char* args)
+{
+    (void)args; // Unused
+    SAFE_WDT_RESET();
+    
+    uart_send_colored_line(COLOR_INFO, "📡 WiFi Status");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // AP info
+    uart_send_formatted("Access Point (AP):");
+    uart_send_formatted("  SSID: ESP32-CzechMate");
+    uart_send_formatted("  IP: 192.168.4.1");
+    // Client count by mel byt globalni promenna, ale pro jednoduchost pouzijeme externi
+    extern uint32_t client_count;
+    uart_send_formatted("  Clients: %lu", (unsigned long)client_count);
+    
+    uart_send_formatted("");
+    uart_send_formatted("Station (STA):");
+    
+    // Nacist STA konfiguraci z NVS
+    char ssid[33] = {0};
+    char password[65] = {0};
+    esp_err_t nvs_ret = wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
+    
+    if (nvs_ret == ESP_OK) {
+        uart_send_formatted("  SSID: %s", ssid);
+    } else {
+        uart_send_formatted("  SSID: Not configured");
+    }
+    
+    if (wifi_is_sta_connected()) {
+        extern char sta_ip[16];
+        uart_send_formatted("  IP: %s", sta_ip);
+        uart_send_formatted("  Connected: true");
+    } else {
+        uart_send_formatted("  IP: Not connected");
+        uart_send_formatted("  Connected: false");
+    }
+    
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Nastavi lock/unlock web rozhrani
+ * 
+ * @param args "ON" nebo "OFF"
+ * @return command_result_t
+ */
+command_result_t uart_cmd_web_lock(const char* args)
+{
+    SAFE_WDT_RESET();
+    
+    if (args == NULL || strlen(args) == 0) {
+        uart_send_error("Usage: WEB_LOCK ON|OFF");
+        return CMD_ERROR_INVALID_PARAMETER;
+    }
+    
+    // Parsovat argumenty
+    char arg_upper[8];
+    strncpy(arg_upper, args, sizeof(arg_upper) - 1);
+    arg_upper[sizeof(arg_upper) - 1] = '\0';
+    
+    // Prevest na velka pismena
+    for (int i = 0; arg_upper[i]; i++) {
+        arg_upper[i] = toupper(arg_upper[i]);
+    }
+    
+    bool lock = false;
+    if (strcmp(arg_upper, "ON") == 0) {
+        lock = true;
+    } else if (strcmp(arg_upper, "OFF") == 0) {
+        lock = false;
+    } else {
+        uart_send_error("Invalid argument. Use ON or OFF");
+        return CMD_ERROR_INVALID_PARAMETER;
+    }
+    
+    // Nastavit lock stav
+    esp_err_t ret = web_lock_set(lock);
+    if (ret != ESP_OK) {
+        uart_send_error("Failed to set web lock");
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    uart_send_formatted("✅ Web interface %s", lock ? "locked" : "unlocked");
+    uart_send_formatted("   Game settings changes from web are now %s", lock ? "blocked" : "allowed");
+    
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Zobrazi status web rozhrani
+ * 
+ * @param args Nepouzivany
+ * @return command_result_t
+ */
+command_result_t uart_cmd_web_status(const char* args)
+{
+    (void)args; // Unused
+    SAFE_WDT_RESET();
+    
+    uart_send_colored_line(COLOR_INFO, "🌐 Web Interface Status");
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    // Lock status
+    bool locked = web_is_locked();
+    uart_send_formatted("Lock Status: %s", locked ? "🔒 LOCKED" : "🔓 UNLOCKED");
+    uart_send_formatted("  Game settings changes from web: %s", locked ? "BLOCKED" : "ALLOWED");
+    
+    uart_send_formatted("");
+    
+    // Online status
+    bool sta_conn = wifi_is_sta_connected();
+    extern char sta_ip[16];
+    bool online = sta_conn && sta_ip[0] != '\0';
+    
+    uart_send_formatted("Internet Status: %s", online ? "🟢 ONLINE" : "🔴 OFFLINE");
+    
+    if (sta_conn) {
+        uart_send_formatted("  STA IP: %s", sta_ip[0] != '\0' ? sta_ip : "Not assigned");
+    } else {
+        uart_send_formatted("  STA: Not connected");
+    }
+    
+    // WiFi info
+    char ssid[33] = {0};
+    char password[65] = {0};
+    esp_err_t nvs_ret = wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
+    
+    if (nvs_ret == ESP_OK) {
+        uart_send_formatted("  STA SSID: %s", ssid);
+    } else {
+        uart_send_formatted("  STA SSID: Not configured");
+    }
+    
+    uart_send_formatted("═══════════════════════════════════════════════════════════════");
+    
+    return CMD_SUCCESS;
+}
+
+/**
+ * @brief Vymaze WiFi konfiguraci z NVS
+ * 
+ * @param args Nepouzivany
+ * @return command_result_t
+ */
+command_result_t uart_cmd_wifi_clear(const char* args)
+{
+    (void)args; // Unused
+    SAFE_WDT_RESET();
+    
+    uart_send_formatted("🗑️  Clearing WiFi configuration...");
+    
+    esp_err_t ret = wifi_clear_config_from_nvs();
+    if (ret != ESP_OK) {
+        uart_send_error("❌ Failed to clear WiFi configuration");
+        uart_send_formatted("   Error: %s", esp_err_to_name(ret));
+        return CMD_ERROR_SYSTEM_ERROR;
+    }
+    
+    uart_send_formatted("✅ WiFi configuration cleared");
+    
+    return CMD_SUCCESS;
+}
+
+// ============================================================================
 // MEDIUM PRIORITY COMMANDS
 // ============================================================================
 
@@ -2638,7 +3074,7 @@ command_result_t uart_cmd_castle(const char* args)
         return CMD_ERROR_INVALID_SYNTAX;
     }
     
-    // CRITICAL: Reset WDT after completion
+    // Reset watchdog timeru po dokončení
     SAFE_WDT_RESET();
     
     ESP_LOGI(TAG, "✅ Castle analysis completed successfully (local)");
@@ -2826,7 +3262,7 @@ command_result_t uart_cmd_component_off(const char* args)
         //     .duration_ms = 0,
         //     .data = NULL
         // };
-        // ✅ DIRECT LED CALL - No queue hell
+        // Přímé volání LED funkce
         led_clear_all_safe();
         led_component_enabled = false;
         uart_send_formatted("✅ LED component turned OFF");
@@ -2987,7 +3423,7 @@ command_result_t uart_cmd_endgame_white(const char* args)
     uart_send_formatted("");
     uart_send_formatted("🏆 Congratulations to White player!");
     
-    // CRITICAL: Reset WDT after completion
+    // Reset watchdog timeru po dokončení
     SAFE_WDT_RESET();
     
     ESP_LOGI(TAG, "✅ Endgame report completed successfully (local)");
@@ -3053,7 +3489,7 @@ command_result_t uart_cmd_endgame_black(const char* args)
     uart_send_formatted("");
     uart_send_formatted("🏆 Congratulations to Black player!");
     
-    // CRITICAL: Reset WDT after completion
+    // Reset watchdog timeru po dokončení
     SAFE_WDT_RESET();
     
     ESP_LOGI(TAG, "✅ Endgame report completed successfully (local)");
@@ -3262,7 +3698,7 @@ bool is_valid_square_notation(const char* square)
 // ============================================================================
 
 /**
- * @brief Set echo enabled state
+ * @brief Nastavi stav povoleni echo
  */
 void uart_set_echo_enabled(bool enabled)
 {
@@ -3270,7 +3706,7 @@ void uart_set_echo_enabled(bool enabled)
 }
 
 /**
- * @brief Get echo enabled state
+ * @brief Ziska stav povoleni echo
  */
 bool uart_get_echo_enabled(void)
 {
@@ -3451,7 +3887,7 @@ void uart_parse_command(const char* input)
 }
 
 // ============================================================================
-// ROBUST ERROR HANDLING AND RECOVERY
+// ROBUSTNI ZPRACOVANI CHYB A OBNOVENI
 // ============================================================================
 
 /**
@@ -3493,7 +3929,7 @@ void uart_task_recover_from_error(void)
 {
     ESP_LOGW(TAG, "🔄 UART task recovery initiated...");
     
-    // CRITICAL: Reset WDT immediately to prevent further timeouts
+    // Okamžitý reset watchdog timeru pro prevenci dalších timeoutů
     SAFE_WDT_RESET();
     
     // Clear any corrupted input buffer
@@ -3522,7 +3958,7 @@ void uart_task_recover_from_error(void)
     uart_send_warning("💡 You can now continue typing commands normally");
     // Prompt removed
     
-    // CRITICAL: Final WDT reset
+    // Finální reset watchdog timeru
     SAFE_WDT_RESET();
     
     ESP_LOGI(TAG, "✅ UART task recovery completed");
@@ -3577,7 +4013,7 @@ void uart_process_input(char c)
             input_buffer_clear(&input_buffer);
         }
         
-        // THREAD-SAFE PROMPT: Use mutex for UART operations
+        // BEZPECNY PROMPT: Pouzit mutex pro UART operace
         if (UART_ENABLED) {
             if (uart_mutex != NULL) {
                 xSemaphoreTake(uart_mutex, portMAX_DELAY);
@@ -3627,7 +4063,7 @@ void uart_process_input(char c)
 // ============================================================================
 
 /**
- * @brief Get Unicode symbol for chess piece
+ * @brief Ziska Unicode symbol pro sachovou figurku
  * @param piece Piece type from game_task.h
  * @return Unicode symbol string
  */
@@ -3651,7 +4087,7 @@ const char* get_unicode_piece_symbol(piece_t piece)
 }
 
 /**
- * @brief Get ASCII symbol for chess piece (fallback)
+ * @brief Ziska ASCII symbol pro sachovou figurku (zalozni varianta)
  * @param piece Piece type from game_task.h
  * @return ASCII symbol string
  */
@@ -3709,11 +4145,11 @@ command_result_t uart_cmd_move(const char* args)
             // Step 3: Send DROP command WITH validation via EXISTING response queue
             uart_send_colored_line(COLOR_INFO, "🔄 Placing piece...");
             
-            // ✅ SPRÁVNÉ ŘEŠENÍ: Použít EXISTUJÍCÍ uart_response_queue (ne vytvářet novou!)
+            // Použití existující globální uart_response_queue
             chess_move_command_t drop_cmd = {
                 .type = GAME_CMD_DROP,
                 .player = 0,
-                .response_queue = (QueueHandle_t)uart_response_queue  // ✅ Použít globální queue!
+                .response_queue = (QueueHandle_t)uart_response_queue
             };
             strcpy(drop_cmd.from_notation, "");
             strncpy(drop_cmd.to_notation, to_square, sizeof(drop_cmd.to_notation) - 1);
@@ -3727,7 +4163,7 @@ command_result_t uart_cmd_move(const char* args)
             
             // Wait for validation response from game_task
             game_response_t response;
-            if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(2000)) == pdTRUE) {
+            if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(5000)) == pdTRUE) {
                 if (response.error_code != 0) {
                     // Invalid move!
                     uart_send_error(response.message);
@@ -3801,7 +4237,7 @@ command_result_t uart_cmd_up(const char* args)
     chess_move_command_t cmd = {
         .type = GAME_CMD_PICKUP,
         .player = 0,  // Will be determined by game task
-        .response_queue = (QueueHandle_t)uart_response_queue  // ✅ FIX: Použít existující queue!
+        .response_queue = (QueueHandle_t)uart_response_queue
     };
     strncpy(cmd.from_notation, square, sizeof(cmd.from_notation) - 1);
     cmd.from_notation[sizeof(cmd.from_notation) - 1] = '\0';
@@ -3812,9 +4248,9 @@ command_result_t uart_cmd_up(const char* args)
         return CMD_ERROR_SYSTEM_ERROR;
     }
     
-    // ✅ FIX: Čekat na response (může být error - např. žádná figurka, wrong color)
+    // Čekání na odpověď z game tasku (může obsahovat chybu)
     game_response_t response;
-    if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(2000)) == pdTRUE) {
+    if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(5000)) == pdTRUE) {
         if (response.error_code != 0) {
             // Chyba při zvednutí!
             uart_send_error(response.message);
@@ -3870,7 +4306,7 @@ command_result_t uart_cmd_dn(const char* args)
     chess_move_command_t cmd = {
         .type = GAME_CMD_DROP,
         .player = 0,  // Will be determined by game task
-        .response_queue = (QueueHandle_t)uart_response_queue  // ✅ FIX: Čekat na validaci!
+        .response_queue = (QueueHandle_t)uart_response_queue
     };
     strcpy(cmd.from_notation, "");
     strncpy(cmd.to_notation, square, sizeof(cmd.to_notation) - 1);
@@ -3881,9 +4317,9 @@ command_result_t uart_cmd_dn(const char* args)
         return CMD_ERROR_SYSTEM_ERROR;
     }
     
-    // ✅ FIX: Čekat na response z game_task (validace tahu!)
+    // Čekání na odpověď z game_task pro validaci tahu
     game_response_t response;
-    if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(2000)) == pdTRUE) {
+    if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(5000)) == pdTRUE) {
         if (response.error_code != 0) {
             // Invalid move - game_task poslal error!
             uart_send_error(response.message);
@@ -3906,7 +4342,7 @@ command_result_t uart_cmd_board(const char* args)
 {
     (void)args; // Unused parameter
     
-    // CRITICAL: Reset WDT before any operations
+    // Reset watchdog timeru před operacemi
     SAFE_WDT_RESET();
         
     uart_send_colored_line(COLOR_INFO, "🏁 Chess Board");
@@ -3922,7 +4358,7 @@ command_result_t uart_cmd_board(const char* args)
     
     // Display board row by row to minimize stack usage
     for (int row = 7; row >= 0; row--) {
-        // CRITICAL: Reset WDT before each row
+        // Reset watchdog timeru před každým řádkem
         SAFE_WDT_RESET();
         
         // Build row string in small buffer
@@ -3972,7 +4408,7 @@ command_result_t uart_cmd_board(const char* args)
     uart_send_formatted("Current player: %s", game_get_current_player() == PLAYER_WHITE ? "White" : "Black");
     uart_send_formatted("Move count: %" PRIu32, game_get_move_count());
     
-    // CRITICAL: Reset WDT after completion
+    // Reset watchdog timeru po dokončení
     SAFE_WDT_RESET();
     
     uart_send_formatted("");
@@ -3989,7 +4425,7 @@ command_result_t uart_cmd_led_board(const char* args)
 {
     (void)args; // Unused parameter
     
-    // CRITICAL: Reset WDT before any operations
+    // Reset watchdog timeru před operacemi
     SAFE_WDT_RESET();
     
     uart_send_colored_line(COLOR_INFO, "🔍 LED Board Status");
@@ -4005,7 +4441,7 @@ command_result_t uart_cmd_led_board(const char* args)
     uart_send_formatted("");
     uart_send_colored_line(COLOR_INFO, "💡 LED Colors: 🟡 Yellow (lifted), 🟢 Green (possible), 🟠 Orange (capture), 🔵 Blue (placed)");
     
-    // CRITICAL: Reset WDT after completion
+    // Reset watchdog timeru po dokončení
     SAFE_WDT_RESET();
     
     ESP_LOGI(TAG, "✅ LED board display completed successfully (local)");
@@ -4022,7 +4458,7 @@ void uart_display_enhanced_board(void)
         
     bool mutex_taken = false;
     if (uart_mutex != NULL) {
-        // CRITICAL: Use shorter timeout to prevent WDT issues
+        // Použití kratšího timeoutu pro prevenci WDT problémů
         mutex_taken = (xSemaphoreTake(uart_mutex, pdMS_TO_TICKS(50)) == pdTRUE);
         if (!mutex_taken) {
             ESP_LOGW(TAG, "Mutex timeout in board display, continuing without mutex");
@@ -4041,7 +4477,7 @@ void uart_display_enhanced_board(void)
     
     
     for (int row = 7; row >= 0; row--) {
-        // CRITICAL: Reset WDT every few rows to prevent timeout
+        // Reset watchdog timeru každých několik řádků
         if (row % 2 == 0) {
             SAFE_WDT_RESET();
         }
@@ -4053,7 +4489,7 @@ void uart_display_enhanced_board(void)
         if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
         
         for (int col = 0; col < 8; col++) {
-            // CRITICAL: Reset WDT before calling game functions
+            // Reset watchdog timeru před voláním game funkcí
             if (col % 4 == 0) {
                 SAFE_WDT_RESET();
             }
@@ -4081,7 +4517,7 @@ void uart_display_enhanced_board(void)
     if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
     uart_write_string_immediate("\n");
     
-    // CRITICAL: Reset WDT before game status calls
+    // Reset watchdog timeru před game status voláními
     SAFE_WDT_RESET();
     
     // Game status
@@ -4095,7 +4531,7 @@ void uart_display_enhanced_board(void)
     if (color_enabled) uart_write_string_immediate("\033[0m"); // reset colors
     uart_write_string_immediate("\n");
     
-    // CRITICAL: Final WDT reset
+    // Finální reset watchdog timeru
     SAFE_WDT_RESET();
     
     if (uart_mutex != NULL && mutex_taken) {
@@ -4203,7 +4639,7 @@ command_result_t uart_cmd_show_moves(const char* args)
             
             uart_send_formatted("📍 Piece at %s: %s", trimmed_args, game_get_piece_name(piece));
             
-            // ✅ DIRECT LED CALL - No queue hell
+            // Přímé volání LED funkce
             led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255, 0); // Yellow for selected piece
             
             // Get available moves for this piece
@@ -5318,7 +5754,7 @@ void uart_task_start(void *pvParameters)
 {
     ESP_LOGI(TAG, "🚀 Enhanced UART command interface starting...");
     
-    // ✅ CRITICAL: Register with TWDT from within task
+    // Registrace tasku s Task Watchdog Timer
     esp_err_t wdt_ret = esp_task_wdt_add(NULL);
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
         ESP_LOGE(TAG, "Failed to register UART task with TWDT: %s", esp_err_to_name(wdt_ret));
@@ -5378,10 +5814,10 @@ void uart_task_start(void *pvParameters)
     
     ESP_LOGI(TAG, "🚀 Enhanced UART command interface ready");
     ESP_LOGI(TAG, "Features:");
-    ESP_LOGI(TAG, "  • Line-based input with editing");
+    ESP_LOGI(TAG, "  • Radkovy vstup s editaci");
     ESP_LOGI(TAG, "  • Command history and aliases");
     ESP_LOGI(TAG, "  • NVS configuration persistence");
-    ESP_LOGI(TAG, "  • Robust error handling");
+    ESP_LOGI(TAG, "  • Robustni zpracovani chyb");
     ESP_LOGI(TAG, "  • Resource optimization");
     
     task_running = true;
@@ -5424,13 +5860,13 @@ void uart_task_legacy_loop(void)
     TickType_t last_wake_time = xTaskGetTickCount();
     
     for (;;) {
-        // CRITICAL: Reset watchdog for UART task in every iteration
+        // Reset watchdog timeru pro UART task v každé iteraci
         esp_err_t wdt_reset_ret = uart_task_wdt_reset_safe();
         if (wdt_reset_ret != ESP_OK && wdt_reset_ret != ESP_ERR_NOT_FOUND) {
             // WDT reset failed - this might indicate system issues
         }
         
-        // CRITICAL: Process output queue first to ensure smooth output
+        // Zpracování output queue jako první pro plynulý výstup
         uart_process_output_queue();
         
         // Read and process input with minimal timeout for responsiveness
@@ -5440,7 +5876,7 @@ void uart_task_legacy_loop(void)
         // ROBUST ERROR HANDLING: Wrap input reading in try-catch equivalent
         bool input_error = false;
         
-        // CRITICAL: Always use USB Serial JTAG method for consistency
+        // Vždy použití USB Serial JTAG metody pro konzistenci
         // This ensures the same input method is used before and after WDT errors
         if (UART_ENABLED) {
             // Only use UART if explicitly configured (not USB Serial JTAG)
@@ -5458,9 +5894,9 @@ void uart_task_legacy_loop(void)
         } else {
             // For USB Serial JTAG (CONFIG_ESP_CONSOLE_UART_NUM=-1), use getchar
             // This is the consistent method used before and after WDT errors
-            // CRITICAL: Use non-blocking approach to prevent WDT timeouts
+            // Použití non-blocking přístupu pro prevenci WDT timeoutů
             
-            // CRITICAL: Check if we're in recovery mode after WDT
+            // Kontrola recovery módu po WDT
             static bool wdt_recovery_mode = false;
             static uint32_t wdt_recovery_start = 0;
             
@@ -5575,7 +6011,7 @@ void uart_display_led_board(void)
     
     // Display board LEDs (0-63) row by row
     for (int row = 7; row >= 0; row--) {
-        // CRITICAL: Reset WDT every few rows to prevent timeout
+        // Reset watchdog timeru každých několik řádků
         if (row % 2 == 0) {
             SAFE_WDT_RESET();
         }
@@ -5585,7 +6021,7 @@ void uart_display_led_board(void)
         int pos = snprintf(row_buffer, sizeof(row_buffer), "%d |", row + 1);
         
         for (int col = 0; col < 8; col++) {
-            // CRITICAL: Reset WDT every few columns to prevent timeout
+            // Reset watchdog timeru každých několik sloupců
             if (col % 4 == 0) {
                 SAFE_WDT_RESET();
             }
@@ -5696,18 +6132,18 @@ void uart_display_led_board(void)
     uart_send_formatted("  • ⚫ Black:  Black piece/Off");
     uart_send_formatted("  • 🟣 Purple: Special state");
     
-    // CRITICAL: Final WDT reset
+    // Finální reset watchdog timeru
     SAFE_WDT_RESET();
 }
 
 
 
 // ============================================================================
-// CHUNKED OUTPUT FUNCTIONS - OPRAVA pro panic při board/led_board příkazech
+// CHUNKED OUTPUT FUNCTIONS
 // ============================================================================
 
 // ============================================================================
-// UNIVERSAL CHUNKED UART FUNCTIONS - OPRAVA pro UART buffer overflow
+// UNIVERSAL CHUNKED UART FUNCTIONS
 // ============================================================================
 
 /**
@@ -5905,7 +6341,7 @@ void uart_display_advantage_graph(uint32_t move_count, bool white_wins)
         }
     }
     
-    // CRITICAL: Final WDT reset
+    // Finální reset watchdog timeru
     SAFE_WDT_RESET();
 }
 

@@ -76,7 +76,6 @@ void reset_button_task(void *pvParameters)
 {
     ESP_LOGI(TAG, "Reset button task started (SIMULATION MODE)");
     
-    bool reset_request;
     TickType_t last_wake_time = xTaskGetTickCount();
     
     while (1) {

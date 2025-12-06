@@ -1005,4 +1005,104 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// ============================================================================
+// WIFI FUNCTIONS
+// ============================================================================
+
+async function saveWiFiConfig() {
+    const ssid = document.getElementById('wifi-ssid').value;
+    const password = document.getElementById('wifi-password').value;
+    if (!ssid || !password) {
+        alert('SSID and password are required');
+        return;
+    }
+    try {
+        const response = await fetch('/api/wifi/config', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ssid: ssid, password: password})
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('WiFi config saved. Now press "Connect STA".');
+        } else {
+            alert('Failed to save WiFi config: ' + data.message);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+async function connectSTA() {
+    try {
+        const response = await fetch('/api/wifi/connect', {method: 'POST'});
+        const data = await response.json();
+        if (data.success) {
+            alert('Connecting to WiFi...');
+            setTimeout(updateWiFiStatus, 1500);
+        } else {
+            alert('Failed to connect: ' + data.message);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+async function disconnectSTA() {
+    try {
+        const response = await fetch('/api/wifi/disconnect', {method: 'POST'});
+        const data = await response.json();
+        if (data.success) {
+            alert('Disconnected from WiFi');
+            setTimeout(updateWiFiStatus, 1000);
+        } else {
+            alert('Failed to disconnect: ' + data.message);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+async function updateWiFiStatus() {
+    try {
+        const response = await fetch('/api/wifi/status');
+        const data = await response.json();
+        document.getElementById('ap-ssid').textContent = data.ap_ssid || 'ESP32-CzechMate';
+        document.getElementById('ap-ip').textContent = data.ap_ip || '192.168.4.1';
+        document.getElementById('ap-clients').textContent = data.ap_clients || 0;
+        document.getElementById('sta-ssid').textContent = data.sta_ssid || 'Not configured';
+        document.getElementById('sta-ip').textContent = data.sta_ip || 'Not connected';
+        document.getElementById('sta-connected').textContent = data.sta_connected ? 'true' : 'false';
+        if (data.sta_ssid && data.sta_ssid !== 'Not configured') {
+            document.getElementById('wifi-ssid').value = data.sta_ssid;
+        }
+    } catch (error) {
+        console.error('Failed to update WiFi status:', error);
+    }
+}
+
+// Expose WiFi functions globally for inline onclick handlers
+window.saveWiFiConfig = saveWiFiConfig;
+window.connectSTA = connectSTA;
+window.disconnectSTA = disconnectSTA;
+
+// Start WiFi status update loop (every 5 seconds)
+let wifiStatusInterval = null;
+function startWiFiStatusUpdateLoop() {
+    if (wifiStatusInterval) {
+        clearInterval(wifiStatusInterval);
+    }
+    // Initial update
+    updateWiFiStatus();
+    // Update every 5 seconds
+    wifiStatusInterval = setInterval(updateWiFiStatus, 5000);
+}
+
+// Start WiFi status updates when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startWiFiStatusUpdateLoop);
+} else {
+    startWiFiStatusUpdateLoop();
+}
+
 

@@ -249,6 +249,95 @@ void web_server_stop_task(void);
  */
 void web_server_reset(void);
 
+// WiFi funkce pro externi pouziti (UART prikazy)
+/**
+ * @brief Ulozi WiFi STA konfiguraci do NVS
+ * 
+ * @param ssid SSID WiFi site (max 32 znaku)
+ * @param password Heslo WiFi site (max 64 znaku)
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
+esp_err_t wifi_save_config_to_nvs(const char* ssid, const char* password);
+
+/**
+ * @brief Pripoji ESP32 k WiFi site jako Station
+ * 
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
+esp_err_t wifi_connect_sta(void);
+
+/**
+ * @brief Odpoji ESP32 od WiFi site
+ * 
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
+esp_err_t wifi_disconnect_sta(void);
+
+/**
+ * @brief Vymaze WiFi STA konfiguraci z NVS
+ * 
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
+esp_err_t wifi_clear_config_from_nvs(void);
+
+/**
+ * @brief Zjisti zda je STA pripojeno
+ * 
+ * @return true pokud je STA pripojeno, false jinak
+ */
+bool wifi_is_sta_connected(void);
+
+/**
+ * @brief Zjisti, zda je web rozhrani zamcene
+ * 
+ * @return true pokud je zamcene, false pokud je odemcene
+ */
+bool web_is_locked(void);
+
+/**
+ * @brief Nastavi lock stav a ulozi do NVS
+ * 
+ * @param locked True pro lock, false pro unlock
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
+esp_err_t web_lock_set(bool locked);
+
+/**
+ * @brief Nacte lock stav z NVS
+ * 
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ */
+esp_err_t web_lock_load_from_nvs(void);
+
+/**
+ * @brief Nacte WiFi STA konfiguraci z NVS (pro externi pouziti)
+ * 
+ * @param ssid Buffer pro SSID (minimalne 33 znaku)
+ * @param ssid_len Velikost bufferu pro SSID
+ * @param password Buffer pro heslo (minimalne 65 znaku)
+ * @param password_len Velikost bufferu pro heslo
+ * @return ESP_OK pri uspechu, ESP_ERR_NOT_FOUND pokud konfigurace neexistuje
+ */
+esp_err_t wifi_load_config_from_nvs(char* ssid, size_t ssid_len, char* password, size_t password_len);
+
+/**
+ * @brief Ziska aktualni IP adresu STA rozhrani
+ * 
+ * @param buffer Buffer pro IP adresu (min 16 znaku)
+ * @param max_len Velikost bufferu
+ * @return ESP_OK pri uspechu
+ */
+esp_err_t wifi_get_sta_ip(char* buffer, size_t max_len);
+
+/**
+ * @brief Ziska aktualni SSID STA rozhrani
+ * 
+ * @param buffer Buffer pro SSID (min 33 znaku)
+ * @param max_len Velikost bufferu
+ * @return ESP_OK pri uspechu
+ */
+esp_err_t wifi_get_sta_ssid(char* buffer, size_t max_len);
+
 // ============================================================================
 // EXTERNI PROMENNE
 // ============================================================================

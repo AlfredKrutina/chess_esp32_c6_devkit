@@ -30,7 +30,7 @@
 #include "animation_task.h"
 #include "freertos_chess.h"
 #include "led_task_simple.h"
-#include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
+#include "led_mapping.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
