@@ -1,0 +1,760 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace struktury animation_state_struct</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('structanimation__state__struct.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace struktury animation_state_struct</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Struktura animace.  
+ <a href="#details">...</a></p>
+
+<p><code>#include &lt;<a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Datové položky</h2></td></tr>
+<tr class="memitem:a732e0dbd6e57d26471ce3f333a133f2c" id="r_a732e0dbd6e57d26471ce3f333a133f2c"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a732e0dbd6e57d26471ce3f333a133f2c">id</a></td></tr>
+<tr class="memdesc:a732e0dbd6e57d26471ce3f333a133f2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unikatni ID animace.  <br /></td></tr>
+<tr class="memitem:ac79573e97685e638f9c2b5cd71812866" id="r_ac79573e97685e638f9c2b5cd71812866"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unified__animation__manager_8h.html#a7e703c09ba390bb0306ced9d307690df">animation_type_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac79573e97685e638f9c2b5cd71812866">type</a></td></tr>
+<tr class="memdesc:ac79573e97685e638f9c2b5cd71812866"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typ animace.  <br /></td></tr>
+<tr class="memitem:a8e140ccb4b01f66009817c3eabb3cfdb" id="r_a8e140ccb4b01f66009817c3eabb3cfdb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6">animation_priority_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8e140ccb4b01f66009817c3eabb3cfdb">priority</a></td></tr>
+<tr class="memdesc:a8e140ccb4b01f66009817c3eabb3cfdb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Priorita.  <br /></td></tr>
+<tr class="memitem:ab589c6dea9706219b895760e5000b84c" id="r_ab589c6dea9706219b895760e5000b84c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab589c6dea9706219b895760e5000b84c">active</a></td></tr>
+<tr class="memdesc:ab589c6dea9706219b895760e5000b84c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Je aktivni?  <br /></td></tr>
+<tr class="memitem:a464a2373685a8d9ffd904fe653d93948" id="r_a464a2373685a8d9ffd904fe653d93948"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a464a2373685a8d9ffd904fe653d93948">looping</a></td></tr>
+<tr class="memdesc:a464a2373685a8d9ffd904fe653d93948"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opakuje se?  <br /></td></tr>
+<tr class="memitem:ae0a72eacc1d16227ba69fba467a0529e" id="r_ae0a72eacc1d16227ba69fba467a0529e"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae0a72eacc1d16227ba69fba467a0529e">start_time</a></td></tr>
+<tr class="memdesc:ae0a72eacc1d16227ba69fba467a0529e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cas spusteni.  <br /></td></tr>
+<tr class="memitem:a9570f68952cc32df071946e4fac9882e" id="r_a9570f68952cc32df071946e4fac9882e"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9570f68952cc32df071946e4fac9882e">duration_ms</a></td></tr>
+<tr class="memdesc:a9570f68952cc32df071946e4fac9882e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delka v ms (0 = nekonecna).  <br /></td></tr>
+<tr class="memitem:a6cd808b11cdf192b14cb1c6bae1aa2bb" id="r_a6cd808b11cdf192b14cb1c6bae1aa2bb"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6cd808b11cdf192b14cb1c6bae1aa2bb">current_frame</a></td></tr>
+<tr class="memdesc:a6cd808b11cdf192b14cb1c6bae1aa2bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualni snimek.  <br /></td></tr>
+<tr class="memitem:a1442eda3168d67833881a91d25b43e63" id="r_a1442eda3168d67833881a91d25b43e63"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1442eda3168d67833881a91d25b43e63">progress</a></td></tr>
+<tr class="memdesc:a1442eda3168d67833881a91d25b43e63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pokrok animace (0.0-1.0).  <br /></td></tr>
+<tr class="memitem:abb19daa0d3794443fa78e3eb363ed314" id="r_abb19daa0d3794443fa78e3eb363ed314"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abb19daa0d3794443fa78e3eb363ed314">from_led</a></td></tr>
+<tr class="memdesc:abb19daa0d3794443fa78e3eb363ed314"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zdrojova LED.  <br /></td></tr>
+<tr class="memitem:a0704478ccab727055e9776a96a8a9af2" id="r_a0704478ccab727055e9776a96a8a9af2"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0704478ccab727055e9776a96a8a9af2">to_led</a></td></tr>
+<tr class="memdesc:a0704478ccab727055e9776a96a8a9af2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cilova LED.  <br /></td></tr>
+<tr class="memitem:ae43d0e2f19d7e6218a15ab7ea4b3fa64" id="r_ae43d0e2f19d7e6218a15ab7ea4b3fa64"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae43d0e2f19d7e6218a15ab7ea4b3fa64">center_led</a></td></tr>
+<tr class="memdesc:ae43d0e2f19d7e6218a15ab7ea4b3fa64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stredova LED (pro endgame).  <br /></td></tr>
+<tr class="memitem:a279664f2466e44e92fb9cb065d13acc3" id="r_a279664f2466e44e92fb9cb065d13acc3"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a279664f2466e44e92fb9cb065d13acc3">trail_length</a></td></tr>
+<tr class="memdesc:a279664f2466e44e92fb9cb065d13acc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delka sledujiciho efektu.  <br /></td></tr>
+<tr class="memitem:a7cde404deed44276640c337ff89c9a94" id="r_a7cde404deed44276640c337ff89c9a94"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7cde404deed44276640c337ff89c9a94">from_row</a></td></tr>
+<tr class="memitem:a7d7b84971c84f2be81d1d16b8ed861a4" id="r_a7d7b84971c84f2be81d1d16b8ed861a4"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7d7b84971c84f2be81d1d16b8ed861a4">from_col</a></td></tr>
+<tr class="memdesc:a7d7b84971c84f2be81d1d16b8ed861a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zdrojova pozice.  <br /></td></tr>
+<tr class="memitem:a048f97179d87aaef0f177f47235842fc" id="r_a048f97179d87aaef0f177f47235842fc"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a048f97179d87aaef0f177f47235842fc">to_row</a></td></tr>
+<tr class="memitem:a5ba94fece824afa2309f549e66e00ea3" id="r_a5ba94fece824afa2309f549e66e00ea3"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5ba94fece824afa2309f549e66e00ea3">to_col</a></td></tr>
+<tr class="memdesc:a5ba94fece824afa2309f549e66e00ea3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cilova pozice.  <br /></td></tr>
+<tr class="memitem:a33119ff945aa1d9a0e172f5a26fea14f" id="r_a33119ff945aa1d9a0e172f5a26fea14f"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a33119ff945aa1d9a0e172f5a26fea14f">affected_positions</a> [64]</td></tr>
+<tr class="memdesc:a33119ff945aa1d9a0e172f5a26fea14f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ovlivnene pozice.  <br /></td></tr>
+<tr class="memitem:a11dd74ed0b510b921d3c87adc0f78aee" id="r_a11dd74ed0b510b921d3c87adc0f78aee"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a11dd74ed0b510b921d3c87adc0f78aee">affected_count</a></td></tr>
+<tr class="memdesc:a11dd74ed0b510b921d3c87adc0f78aee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pocet ovlivnenych pozic.  <br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft anon">struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:a10d44a3023c3db38f99a59f0b45055af" id="r_a10d44a3023c3db38f99a59f0b45055af"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a81ba55cfe9c438efcb2f3a01ba0c250d">r</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:a8cd6c46cb3ad1b123aeff35842d6d70d" id="r_a8cd6c46cb3ad1b123aeff35842d6d70d"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a44d6d80720ab776fc0e69bcc89af7998">g</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:ae47797aed4563834371168bfead23112" id="r_ae47797aed4563834371168bfead23112"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a54ad728f789eaa216561ab83c8281b18">b</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:a2922ea68742f00aa170aec907413a09a" id="r_a2922ea68742f00aa170aec907413a09a"><td class="memItemLeft anonEnd" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2922ea68742f00aa170aec907413a09a">color_start</a></td></tr>
+<tr class="memdesc:a2922ea68742f00aa170aec907413a09a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pocatecni barva RGB.  <br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft anon">struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:afe8e41e07e0be4eb91da8fcb43337eb7" id="r_afe8e41e07e0be4eb91da8fcb43337eb7"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a81ba55cfe9c438efcb2f3a01ba0c250d">r</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:a658052985363a4d4c7bad94994acb5e0" id="r_a658052985363a4d4c7bad94994acb5e0"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a44d6d80720ab776fc0e69bcc89af7998">g</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:ab8170cfeae1ec90855d47e446261566d" id="r_ab8170cfeae1ec90855d47e446261566d"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a54ad728f789eaa216561ab83c8281b18">b</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:a38f0e16a77fd8363c7b777bae1b634f0" id="r_a38f0e16a77fd8363c7b777bae1b634f0"><td class="memItemLeft anonEnd" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a38f0e16a77fd8363c7b777bae1b634f0">color_end</a></td></tr>
+<tr class="memdesc:a38f0e16a77fd8363c7b777bae1b634f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Koncova barva RGB.  <br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft anon">struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:aee8c69ad8411bdbcc2b8dd102d98b984" id="r_aee8c69ad8411bdbcc2b8dd102d98b984"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a81ba55cfe9c438efcb2f3a01ba0c250d">r</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:a441901267f0663f0982f1a19099d688e" id="r_a441901267f0663f0982f1a19099d688e"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a44d6d80720ab776fc0e69bcc89af7998">g</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:a807144f4b4439494b8aa5811bfed384d" id="r_a807144f4b4439494b8aa5811bfed384d"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a54ad728f789eaa216561ab83c8281b18">b</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:a3c902fd4518851b7f8a180675924d140" id="r_a3c902fd4518851b7f8a180675924d140"><td class="memItemLeft anonEnd" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3c902fd4518851b7f8a180675924d140">color_primary</a></td></tr>
+<tr class="memdesc:a3c902fd4518851b7f8a180675924d140"><td class="mdescLeft">&#160;</td><td class="mdescRight">Primarni barva RGB (legacy).  <br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft anon">struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:a5fc71e5efcd9655b4388d62b6529823a" id="r_a5fc71e5efcd9655b4388d62b6529823a"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a81ba55cfe9c438efcb2f3a01ba0c250d">r</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:ace36b1a43b769570cf088c6ac836a025" id="r_ace36b1a43b769570cf088c6ac836a025"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a44d6d80720ab776fc0e69bcc89af7998">g</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:ac75c8c2f37f9339952bb9e613084fcdb" id="r_ac75c8c2f37f9339952bb9e613084fcdb"><td class="memItemLeft anon">&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="#a54ad728f789eaa216561ab83c8281b18">b</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:ae4c860baf9947da18d8e8b7f7fb6805e" id="r_ae4c860baf9947da18d8e8b7f7fb6805e"><td class="memItemLeft anonEnd" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae4c860baf9947da18d8e8b7f7fb6805e">color_secondary</a></td></tr>
+<tr class="memdesc:ae4c860baf9947da18d8e8b7f7fb6805e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sekundarni barva RGB (legacy).  <br /></td></tr>
+<tr class="memitem:a9a52073808958a49d056dfe7ae67a626" id="r_a9a52073808958a49d056dfe7ae67a626"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9a52073808958a49d056dfe7ae67a626">speed</a></td></tr>
+<tr class="memdesc:a9a52073808958a49d056dfe7ae67a626"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rychlost (0-255).  <br /></td></tr>
+<tr class="memitem:a077ad0cbcd3a0f3419280fa9dd1189c9" id="r_a077ad0cbcd3a0f3419280fa9dd1189c9"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a077ad0cbcd3a0f3419280fa9dd1189c9">intensity</a></td></tr>
+<tr class="memdesc:a077ad0cbcd3a0f3419280fa9dd1189c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intenzita (0-255).  <br /></td></tr>
+<tr class="memitem:a9979b435eb6e089f4695566d3e3c1a16" id="r_a9979b435eb6e089f4695566d3e3c1a16"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9979b435eb6e089f4695566d3e3c1a16">winner_color</a></td></tr>
+<tr class="memdesc:a9979b435eb6e089f4695566d3e3c1a16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Barva viteze (0=white, 1=black).  <br /></td></tr>
+<tr class="memitem:ab1a5f1afbbdb0e1a7cf3eb90ddc29206" id="r_ab1a5f1afbbdb0e1a7cf3eb90ddc29206"><td class="memItemLeft" align="right" valign="top">bool(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab1a5f1afbbdb0e1a7cf3eb90ddc29206">update_func</a> )(<a class="el" href="unified__animation__manager_8h.html#ad6143ee8f8a7f6e8a58b51a947a36fa9">animation_state_t</a> *anim)</td></tr>
+<tr class="memdesc:ab1a5f1afbbdb0e1a7cf3eb90ddc29206"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update funkce.  <br /></td></tr>
+<tr class="memitem:a1257c5b14f68eec69cc6a480895748d0" id="r_a1257c5b14f68eec69cc6a480895748d0"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1257c5b14f68eec69cc6a480895748d0">on_complete</a> )(uint32_t <a class="el" href="#a732e0dbd6e57d26471ce3f333a133f2c">id</a>)</td></tr>
+<tr class="memdesc:a1257c5b14f68eec69cc6a480895748d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback pri dokonceni.  <br /></td></tr>
+<tr class="memitem:a5596162671dcc10a67f1eeeb102da26a" id="r_a5596162671dcc10a67f1eeeb102da26a"><td class="memItemLeft" align="right" valign="top">void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5596162671dcc10a67f1eeeb102da26a">on_frame</a> )(uint32_t <a class="el" href="#a732e0dbd6e57d26471ce3f333a133f2c">id</a>, uint32_t frame)</td></tr>
+<tr class="memdesc:a5596162671dcc10a67f1eeeb102da26a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback pro snimek.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Struktura animace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00120">120</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+</div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Dokumentace položek</h2>
+<a id="ab589c6dea9706219b895760e5000b84c" name="ab589c6dea9706219b895760e5000b84c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab589c6dea9706219b895760e5000b84c">&#9670;&#160;</a></span>active</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool animation_state_struct::active</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Je aktivni? </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00124">124</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a11dd74ed0b510b921d3c87adc0f78aee" name="a11dd74ed0b510b921d3c87adc0f78aee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11dd74ed0b510b921d3c87adc0f78aee">&#9670;&#160;</a></span>affected_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::affected_count</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pocet ovlivnenych pozic. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00141">141</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a33119ff945aa1d9a0e172f5a26fea14f" name="a33119ff945aa1d9a0e172f5a26fea14f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33119ff945aa1d9a0e172f5a26fea14f">&#9670;&#160;</a></span>affected_positions</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::affected_positions[64]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ovlivnene pozice. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00140">140</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a54ad728f789eaa216561ab83c8281b18" name="a54ad728f789eaa216561ab83c8281b18"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54ad728f789eaa216561ab83c8281b18">&#9670;&#160;</a></span>b</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::b</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00144">144</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="ae43d0e2f19d7e6218a15ab7ea4b3fa64" name="ae43d0e2f19d7e6218a15ab7ea4b3fa64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae43d0e2f19d7e6218a15ab7ea4b3fa64">&#9670;&#160;</a></span>center_led</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::center_led</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stredova LED (pro endgame). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00134">134</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a38f0e16a77fd8363c7b777bae1b634f0" name="a38f0e16a77fd8363c7b777bae1b634f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38f0e16a77fd8363c7b777bae1b634f0">&#9670;&#160;</a></span>[struct]</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct  { ... }  animation_state_struct::color_end</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Koncova barva RGB. </p>
+
+</div>
+</div>
+<a id="a3c902fd4518851b7f8a180675924d140" name="a3c902fd4518851b7f8a180675924d140"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3c902fd4518851b7f8a180675924d140">&#9670;&#160;</a></span>[struct]</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct  { ... }  animation_state_struct::color_primary</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Primarni barva RGB (legacy). </p>
+
+</div>
+</div>
+<a id="ae4c860baf9947da18d8e8b7f7fb6805e" name="ae4c860baf9947da18d8e8b7f7fb6805e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4c860baf9947da18d8e8b7f7fb6805e">&#9670;&#160;</a></span>[struct]</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct  { ... }  animation_state_struct::color_secondary</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sekundarni barva RGB (legacy). </p>
+
+</div>
+</div>
+<a id="a2922ea68742f00aa170aec907413a09a" name="a2922ea68742f00aa170aec907413a09a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2922ea68742f00aa170aec907413a09a">&#9670;&#160;</a></span>[struct]</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct  { ... }  animation_state_struct::color_start</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pocatecni barva RGB. </p>
+
+</div>
+</div>
+<a id="a6cd808b11cdf192b14cb1c6bae1aa2bb" name="a6cd808b11cdf192b14cb1c6bae1aa2bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6cd808b11cdf192b14cb1c6bae1aa2bb">&#9670;&#160;</a></span>current_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t animation_state_struct::current_frame</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Aktualni snimek. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00128">128</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a9570f68952cc32df071946e4fac9882e" name="a9570f68952cc32df071946e4fac9882e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9570f68952cc32df071946e4fac9882e">&#9670;&#160;</a></span>duration_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t animation_state_struct::duration_ms</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Delka v ms (0 = nekonecna). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00127">127</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a7d7b84971c84f2be81d1d16b8ed861a4" name="a7d7b84971c84f2be81d1d16b8ed861a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d7b84971c84f2be81d1d16b8ed861a4">&#9670;&#160;</a></span>from_col</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::from_col</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zdrojova pozice. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00138">138</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="abb19daa0d3794443fa78e3eb363ed314" name="abb19daa0d3794443fa78e3eb363ed314"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb19daa0d3794443fa78e3eb363ed314">&#9670;&#160;</a></span>from_led</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::from_led</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zdrojova LED. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00132">132</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a7cde404deed44276640c337ff89c9a94" name="a7cde404deed44276640c337ff89c9a94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7cde404deed44276640c337ff89c9a94">&#9670;&#160;</a></span>from_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::from_row</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00138">138</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a44d6d80720ab776fc0e69bcc89af7998" name="a44d6d80720ab776fc0e69bcc89af7998"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44d6d80720ab776fc0e69bcc89af7998">&#9670;&#160;</a></span>g</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::g</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00144">144</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a732e0dbd6e57d26471ce3f333a133f2c" name="a732e0dbd6e57d26471ce3f333a133f2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a732e0dbd6e57d26471ce3f333a133f2c">&#9670;&#160;</a></span>id</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t animation_state_struct::id</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Unikatni ID animace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00121">121</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a077ad0cbcd3a0f3419280fa9dd1189c9" name="a077ad0cbcd3a0f3419280fa9dd1189c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a077ad0cbcd3a0f3419280fa9dd1189c9">&#9670;&#160;</a></span>intensity</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::intensity</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Intenzita (0-255). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00151">151</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a464a2373685a8d9ffd904fe653d93948" name="a464a2373685a8d9ffd904fe653d93948"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a464a2373685a8d9ffd904fe653d93948">&#9670;&#160;</a></span>looping</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool animation_state_struct::looping</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Opakuje se? </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00125">125</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a1257c5b14f68eec69cc6a480895748d0" name="a1257c5b14f68eec69cc6a480895748d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1257c5b14f68eec69cc6a480895748d0">&#9670;&#160;</a></span>on_complete</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void(* animation_state_struct::on_complete) (uint32_t <a class="el" href="#a732e0dbd6e57d26471ce3f333a133f2c">id</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Callback pri dokonceni. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00158">158</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a5596162671dcc10a67f1eeeb102da26a" name="a5596162671dcc10a67f1eeeb102da26a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5596162671dcc10a67f1eeeb102da26a">&#9670;&#160;</a></span>on_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void(* animation_state_struct::on_frame) (uint32_t <a class="el" href="#a732e0dbd6e57d26471ce3f333a133f2c">id</a>, uint32_t frame)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Callback pro snimek. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00159">159</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a8e140ccb4b01f66009817c3eabb3cfdb" name="a8e140ccb4b01f66009817c3eabb3cfdb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e140ccb4b01f66009817c3eabb3cfdb">&#9670;&#160;</a></span>priority</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6">animation_priority_t</a> animation_state_struct::priority</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Priorita. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00123">123</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a1442eda3168d67833881a91d25b43e63" name="a1442eda3168d67833881a91d25b43e63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1442eda3168d67833881a91d25b43e63">&#9670;&#160;</a></span>progress</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float animation_state_struct::progress</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pokrok animace (0.0-1.0). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00129">129</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a81ba55cfe9c438efcb2f3a01ba0c250d" name="a81ba55cfe9c438efcb2f3a01ba0c250d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81ba55cfe9c438efcb2f3a01ba0c250d">&#9670;&#160;</a></span>r</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::r</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00144">144</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a9a52073808958a49d056dfe7ae67a626" name="a9a52073808958a49d056dfe7ae67a626"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9a52073808958a49d056dfe7ae67a626">&#9670;&#160;</a></span>speed</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::speed</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Rychlost (0-255). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00150">150</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="ae0a72eacc1d16227ba69fba467a0529e" name="ae0a72eacc1d16227ba69fba467a0529e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0a72eacc1d16227ba69fba467a0529e">&#9670;&#160;</a></span>start_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t animation_state_struct::start_time</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cas spusteni. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00126">126</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a5ba94fece824afa2309f549e66e00ea3" name="a5ba94fece824afa2309f549e66e00ea3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ba94fece824afa2309f549e66e00ea3">&#9670;&#160;</a></span>to_col</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::to_col</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cilova pozice. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00139">139</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a0704478ccab727055e9776a96a8a9af2" name="a0704478ccab727055e9776a96a8a9af2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0704478ccab727055e9776a96a8a9af2">&#9670;&#160;</a></span>to_led</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::to_led</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cilova LED. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00133">133</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a048f97179d87aaef0f177f47235842fc" name="a048f97179d87aaef0f177f47235842fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a048f97179d87aaef0f177f47235842fc">&#9670;&#160;</a></span>to_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::to_row</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00139">139</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a279664f2466e44e92fb9cb065d13acc3" name="a279664f2466e44e92fb9cb065d13acc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a279664f2466e44e92fb9cb065d13acc3">&#9670;&#160;</a></span>trail_length</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::trail_length</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Delka sledujiciho efektu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00135">135</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="ac79573e97685e638f9c2b5cd71812866" name="ac79573e97685e638f9c2b5cd71812866"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac79573e97685e638f9c2b5cd71812866">&#9670;&#160;</a></span>type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="unified__animation__manager_8h.html#a7e703c09ba390bb0306ced9d307690df">animation_type_t</a> animation_state_struct::type</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typ animace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00122">122</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="ab1a5f1afbbdb0e1a7cf3eb90ddc29206" name="ab1a5f1afbbdb0e1a7cf3eb90ddc29206"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1a5f1afbbdb0e1a7cf3eb90ddc29206">&#9670;&#160;</a></span>update_func</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool(* animation_state_struct::update_func) (<a class="el" href="unified__animation__manager_8h.html#ad6143ee8f8a7f6e8a58b51a947a36fa9">animation_state_t</a> *anim)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Update funkce. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00155">155</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a9979b435eb6e089f4695566d3e3c1a16" name="a9979b435eb6e089f4695566d3e3c1a16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9979b435eb6e089f4695566d3e3c1a16">&#9670;&#160;</a></span>winner_color</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_state_struct::winner_color</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Barva viteze (0=white, 1=black). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00152">152</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<hr/>Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru:<ul>
+<li><a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="structanimation__state__struct.html">animation_state_struct</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

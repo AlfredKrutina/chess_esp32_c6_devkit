@@ -1,0 +1,3526 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru led_task.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('led__task_8c.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru led_task.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>LED Task - Ovladani WS2812B LED a animace.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="led__task_8h_source.html">led_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="chess__types_8h_source.html">../freertos_chess/include/chess_types.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="streaming__output_8h_source.html">../freertos_chess/include/streaming_output.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">../game_task/include/game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="unified__animation__manager_8h_source.html">../unified_animation_manager/include/unified_animation_manager.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
+<code>#include &quot;driver/gpio.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_system.h&quot;</code><br />
+<code>#include &quot;esp_task_wdt.h&quot;</code><br />
+<code>#include &quot;esp_timer.h&quot;</code><br />
+<code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
+<code>#include &quot;freertos/queue.h&quot;</code><br />
+<code>#include &quot;freertos/semphr.h&quot;</code><br />
+<code>#include &quot;freertos/task.h&quot;</code><br />
+<code>#include &quot;freertos/timers.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &quot;led_strip.h&quot;</code><br />
+<code>#include &lt;inttypes.h&gt;</code><br />
+<code>#include &lt;math.h&gt;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div>
+<p><a href="led__task_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Datové struktury</h2></td></tr>
+<tr class="memitem:led_5Fduration_5Fstate_5Ft" id="r_led_5Fduration_5Fstate_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structled__duration__state__t.html">led_duration_state_t</a></td></tr>
+<tr class="memitem:led_5Fframe_5Fbuffer_5Ft" id="r_led_5Fframe_5Fbuffer_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structled__frame__buffer__t.html">led_frame_buffer_t</a></td></tr>
+<tr class="memitem:led_5Fhealth_5Fstats_5Ft" id="r_led_5Fhealth_5Fstats_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structled__health__stats__t.html">led_health_stats_t</a></td></tr>
+<tr class="memitem:endgame_5Fwave_5Fstate_5Ft" id="r_endgame_5Fwave_5Fstate_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structendgame__wave__state__t.html">endgame_wave_state_t</a></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-define-members" class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:ac6afabdc09a49a433ee19d8a9486056d" id="r_ac6afabdc09a49a433ee19d8a9486056d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac6afabdc09a49a433ee19d8a9486056d">min</a>(a,  b)</td></tr>
+<tr class="memitem:ae71449b1cc6e6250b91f539153a7a0d3" id="r_ae71449b1cc6e6250b91f539153a7a0d3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae71449b1cc6e6250b91f539153a7a0d3">M_PI</a>&#160;&#160;&#160;3.14159265358979323846</td></tr>
+<tr class="memitem:adc1b5df15af7552352dad465c61cfac7" id="r_adc1b5df15af7552352dad465c61cfac7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adc1b5df15af7552352dad465c61cfac7">LED_CRITICAL_SECTION_TIMEOUT_MS</a>&#160;&#160;&#160;50</td></tr>
+<tr class="memitem:a0256c8c9fa0cc7b33ef3d2ceb0abb010" id="r_a0256c8c9fa0cc7b33ef3d2ceb0abb010"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0256c8c9fa0cc7b33ef3d2ceb0abb010">LED_TASK_MUTEX_TIMEOUT_MS</a>&#160;&#160;&#160;100</td></tr>
+<tr class="memitem:acd37c9dc96b5ed1245631969b5daa3f2" id="r_acd37c9dc96b5ed1245631969b5daa3f2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acd37c9dc96b5ed1245631969b5daa3f2">LED_TASK_MUTEX_TIMEOUT_TICKS</a>&#160;&#160;&#160;  (<a class="el" href="#a0256c8c9fa0cc7b33ef3d2ceb0abb010">LED_TASK_MUTEX_TIMEOUT_MS</a> / portTICK_PERIOD_MS)</td></tr>
+<tr class="memitem:af505353c4adf955dea4a330d4177d46c" id="r_af505353c4adf955dea4a330d4177d46c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af505353c4adf955dea4a330d4177d46c">LED_FRAME_BUFFER_SIZE</a>&#160;&#160;&#160;2</td></tr>
+<tr class="memitem:afb5d542d83382d217381d437d8c1fc73" id="r_afb5d542d83382d217381d437d8c1fc73"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb5d542d83382d217381d437d8c1fc73">LED_MAX_RETRY_COUNT</a>&#160;&#160;&#160;3</td></tr>
+<tr class="memitem:a038bfe7aea2d3849e2ee6a6635b318bc" id="r_a038bfe7aea2d3849e2ee6a6635b318bc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a038bfe7aea2d3849e2ee6a6635b318bc">LED_ERROR_RECOVERY_THRESHOLD</a>&#160;&#160;&#160;10</td></tr>
+<tr class="memitem:a9d3a3936c730816cea250929a3ff185a" id="r_a9d3a3936c730816cea250929a3ff185a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9d3a3936c730816cea250929a3ff185a">LED_HEALTH_CHECK_INTERVAL_MS</a>&#160;&#160;&#160;5000</td></tr>
+<tr class="memitem:a2e7aa4b575605ebe8928ddc7f944c4b5" id="r_a2e7aa4b575605ebe8928ddc7f944c4b5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e7aa4b575605ebe8928ddc7f944c4b5">LED_BATCH_COMMIT_INTERVAL_MS</a>&#160;&#160;&#160;  50</td></tr>
+<tr class="memitem:a1971e04ffd5581d8847ad715204854d7" id="r_a1971e04ffd5581d8847ad715204854d7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1971e04ffd5581d8847ad715204854d7">LED_WATCHDOG_RESET_INTERVAL</a>&#160;&#160;&#160;  10</td></tr>
+<tr class="memitem:a5f55b07707df2f2cf371f707207ed508" id="r_a5f55b07707df2f2cf371f707207ed508"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5f55b07707df2f2cf371f707207ed508">LED_DATA_PIN</a>&#160;&#160;&#160;GPIO_NUM_7</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a3aea89dfd9371256c48be13c636f86e2" id="r_a3aea89dfd9371256c48be13c636f86e2"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3aea89dfd9371256c48be13c636f86e2">led_task_wdt_reset_safe</a> (void)</td></tr>
+<tr class="memdesc:a3aea89dfd9371256c48be13c636f86e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND.  <br /></td></tr>
+<tr class="memitem:a330c04b492b83fd0e7c5d7e85d6d845d" id="r_a330c04b492b83fd0e7c5d7e85d6d845d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a330c04b492b83fd0e7c5d7e85d6d845d">led_send_status_to_uart_immediate</a> (QueueHandle_t response_queue)</td></tr>
+<tr class="memdesc:a330c04b492b83fd0e7c5d7e85d6d845d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send LED status to UART task immediately without delays (for real-time response).  <br /></td></tr>
+<tr class="memitem:a85578cf6b1c0acb68c6278c9cd1a4f26" id="r_a85578cf6b1c0acb68c6278c9cd1a4f26"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a85578cf6b1c0acb68c6278c9cd1a4f26">led_execute_command_new</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a85578cf6b1c0acb68c6278c9cd1a4f26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute LED command with full command structure.  <br /></td></tr>
+<tr class="memitem:a7287362da29fee32e79da1689bca9e31" id="r_a7287362da29fee32e79da1689bca9e31"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7287362da29fee32e79da1689bca9e31">led_hardware_init</a> (void)</td></tr>
+<tr class="memdesc:a7287362da29fee32e79da1689bca9e31"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize RMT hardware for WS2812B LED control.  <br /></td></tr>
+<tr class="memitem:a8aad97d4a7c8e1ab13920b16a6397283" id="r_a8aad97d4a7c8e1ab13920b16a6397283"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8aad97d4a7c8e1ab13920b16a6397283">led_hardware_cleanup</a> (void)</td></tr>
+<tr class="memdesc:a8aad97d4a7c8e1ab13920b16a6397283"><td class="mdescLeft">&#160;</td><td class="mdescRight">OBSOLETE: Hardware update function no longer needed All LED updates now happen immediately via <a class="el" href="#a7cb7bb0774dead39c3607d19de9f9d34" title="Nastav LED pixel (interni funkce bez mutex).">led_set_pixel_internal()</a> This function kept only for compatibility - does nothing useful.  <br /></td></tr>
+<tr class="memitem:af39bda75c597894d99ae8a5a35542fe9" id="r_af39bda75c597894d99ae8a5a35542fe9"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af39bda75c597894d99ae8a5a35542fe9">led_commit_pending_changes</a> (void)</td></tr>
+<tr class="memdesc:af39bda75c597894d99ae8a5a35542fe9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Commit all pending LED changes atomically with watchdog safety This function ensures all LED updates are sent to hardware in one critical section.  <br /></td></tr>
+<tr class="memitem:a35ed753e036a2372ea57df822d92f154" id="r_a35ed753e036a2372ea57df822d92f154"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a35ed753e036a2372ea57df822d92f154">led_force_immediate_update</a> (void)</td></tr>
+<tr class="memdesc:a35ed753e036a2372ea57df822d92f154"><td class="mdescLeft">&#160;</td><td class="mdescRight">Force immediate LED update for critical operations Use this only for startup tests or critical visual feedback.  <br /></td></tr>
+<tr class="memitem:aec926993bbb0b624462704e37829a5ab" id="r_aec926993bbb0b624462704e37829a5ab"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aec926993bbb0b624462704e37829a5ab">led_privileged_batch_commit</a> (void)</td></tr>
+<tr class="memdesc:aec926993bbb0b624462704e37829a5ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimized batch commit with privileged mutex synchronization This function provides maximum stability for LED updates.  <br /></td></tr>
+<tr class="memitem:ab245ceabb580934b6117f59343c6d9a2" id="r_ab245ceabb580934b6117f59343c6d9a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab245ceabb580934b6117f59343c6d9a2">led_clear_board_only</a> (void)</td></tr>
+<tr class="memdesc:ab245ceabb580934b6117f59343c6d9a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vymaz pouze sachovnicove LED (0-63), zachovej tlacitka.  <br /></td></tr>
+<tr class="memitem:a4f7ff7068535f3818fb37654f5bffdad" id="r_a4f7ff7068535f3818fb37654f5bffdad"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4f7ff7068535f3818fb37654f5bffdad">led_clear_buttons_only</a> (void)</td></tr>
+<tr class="memdesc:a4f7ff7068535f3818fb37654f5bffdad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vymaz pouze tlacitkove LED (64-72), zachovej sachovnici.  <br /></td></tr>
+<tr class="memitem:a4653a6179cbaf07289307ce6c1871858" id="r_a4653a6179cbaf07289307ce6c1871858"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4653a6179cbaf07289307ce6c1871858">led_preserve_buttons</a> (void)</td></tr>
+<tr class="memdesc:a4653a6179cbaf07289307ce6c1871858"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zachovej stavy tlacitek behem operaci.  <br /></td></tr>
+<tr class="memitem:a8920462d21f5bbd3198dc4cc485d1e82" id="r_a8920462d21f5bbd3198dc4cc485d1e82"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8920462d21f5bbd3198dc4cc485d1e82">led_set_pixel_with_duration</a> (uint8_t led_index, uint8_t r, uint8_t g, uint8_t b, uint32_t duration_ms)</td></tr>
+<tr class="memdesc:a8920462d21f5bbd3198dc4cc485d1e82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set LED pixel with duration support.  <br /></td></tr>
+<tr class="memitem:af91e40f2e2bc7274cb04cfe498622aee" id="r_af91e40f2e2bc7274cb04cfe498622aee"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af91e40f2e2bc7274cb04cfe498622aee">led_duration_timer_callback</a> (TimerHandle_t xTimer)</td></tr>
+<tr class="memdesc:af91e40f2e2bc7274cb04cfe498622aee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Duration timer callback - zkontroluje expired durations.  <br /></td></tr>
+<tr class="memitem:a11714f15d535467c7c6011b5510197f5" id="r_a11714f15d535467c7c6011b5510197f5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a11714f15d535467c7c6011b5510197f5">led_init_duration_system</a> (void)</td></tr>
+<tr class="memdesc:a11714f15d535467c7c6011b5510197f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize duration management system.  <br /></td></tr>
+<tr class="memitem:adab4e0aa5871161ca4d0f13c4c2e9f63" id="r_adab4e0aa5871161ca4d0f13c4c2e9f63"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adab4e0aa5871161ca4d0f13c4c2e9f63">get_ansi_color_from_rgb</a> (uint8_t r, uint8_t g, uint8_t b)</td></tr>
+<tr class="memdesc:adab4e0aa5871161ca4d0f13c4c2e9f63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get ANSI color code from RGB values.  <br /></td></tr>
+<tr class="memitem:ab1c29de873addfa75777d115ab4f8438" id="r_ab1c29de873addfa75777d115ab4f8438"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab1c29de873addfa75777d115ab4f8438">led_update_button_led_state</a> (uint8_t button_id)</td></tr>
+<tr class="memdesc:ab1c29de873addfa75777d115ab4f8438"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update button LED state based on current conditions.  <br /></td></tr>
+<tr class="memitem:a2d9017d1898113d1763fea0e43cc3bd9" id="r_a2d9017d1898113d1763fea0e43cc3bd9"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2d9017d1898113d1763fea0e43cc3bd9">led_set_button_pressed</a> (uint8_t button_id, bool pressed)</td></tr>
+<tr class="memdesc:a2d9017d1898113d1763fea0e43cc3bd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set button pressed state.  <br /></td></tr>
+<tr class="memitem:a2135e4b3d98992bec7601350d477abc9" id="r_a2135e4b3d98992bec7601350d477abc9"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2135e4b3d98992bec7601350d477abc9">led_process_button_blink_timers</a> (void)</td></tr>
+<tr class="memdesc:a2135e4b3d98992bec7601350d477abc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process button blink timers (call from main loop).  <br /></td></tr>
+<tr class="memitem:abd19bd00f68dac2956a019c2981912e3" id="r_abd19bd00f68dac2956a019c2981912e3"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abd19bd00f68dac2956a019c2981912e3">led_get_button_led_index</a> (uint8_t button_id)</td></tr>
+<tr class="memdesc:abd19bd00f68dac2956a019c2981912e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map button ID to correct LED index.  <br /></td></tr>
+<tr class="memitem:a7cb7bb0774dead39c3607d19de9f9d34" id="r_a7cb7bb0774dead39c3607d19de9f9d34"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7cb7bb0774dead39c3607d19de9f9d34">led_set_pixel_internal</a> (uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue)</td></tr>
+<tr class="memdesc:a7cb7bb0774dead39c3607d19de9f9d34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav LED pixel (interni funkce bez mutex).  <br /></td></tr>
+<tr class="memitem:a6d5be6d6368f979daf99dea8b1685f55" id="r_a6d5be6d6368f979daf99dea8b1685f55"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6d5be6d6368f979daf99dea8b1685f55">led_set_all_internal</a> (uint8_t red, uint8_t green, uint8_t blue)</td></tr>
+<tr class="memdesc:a6d5be6d6368f979daf99dea8b1685f55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav vsechny LED (interni funkce bez mutex).  <br /></td></tr>
+<tr class="memitem:a50360691268da244abb2711dc712bd54" id="r_a50360691268da244abb2711dc712bd54"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a50360691268da244abb2711dc712bd54">led_clear_all_internal</a> (void)</td></tr>
+<tr class="memdesc:a50360691268da244abb2711dc712bd54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vymaz vsechny LED (interni funkce bez mutex).  <br /></td></tr>
+<tr class="memitem:a13da231e8e3dc956e4c3415a89409670" id="r_a13da231e8e3dc956e4c3415a89409670"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a13da231e8e3dc956e4c3415a89409670">led_show_chess_board</a> (void)</td></tr>
+<tr class="memdesc:a13da231e8e3dc956e4c3415a89409670"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz sachovnici na LED.  <br /></td></tr>
+<tr class="memitem:aa74e5b3b49114f8e7f69f346beaf5cd3" id="r_aa74e5b3b49114f8e7f69f346beaf5cd3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa74e5b3b49114f8e7f69f346beaf5cd3">led_set_button_feedback</a> (uint8_t button_id, bool available)</td></tr>
+<tr class="memdesc:aa74e5b3b49114f8e7f69f346beaf5cd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav button feedback LED.  <br /></td></tr>
+<tr class="memitem:a8a31606dca399a00351e3ef16cc3a737" id="r_a8a31606dca399a00351e3ef16cc3a737"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8a31606dca399a00351e3ef16cc3a737">led_set_button_press</a> (uint8_t button_id)</td></tr>
+<tr class="memdesc:a8a31606dca399a00351e3ef16cc3a737"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav tlacitko jako stisknute.  <br /></td></tr>
+<tr class="memitem:a8c05ca5afd0c6a5184c88ee8e05f37b0" id="r_a8c05ca5afd0c6a5184c88ee8e05f37b0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8c05ca5afd0c6a5184c88ee8e05f37b0">led_set_button_release</a> (uint8_t button_id)</td></tr>
+<tr class="memdesc:a8c05ca5afd0c6a5184c88ee8e05f37b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav tlacitko jako uvolnene.  <br /></td></tr>
+<tr class="memitem:a949ef87b771a33a9998649a33db6848d" id="r_a949ef87b771a33a9998649a33db6848d"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a949ef87b771a33a9998649a33db6848d">led_get_button_color</a> (uint8_t button_id)</td></tr>
+<tr class="memdesc:a949ef87b771a33a9998649a33db6848d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej barvu tlacitka.  <br /></td></tr>
+<tr class="memitem:a444a170336ec287da201e2899805812b" id="r_a444a170336ec287da201e2899805812b"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a444a170336ec287da201e2899805812b">led_get_led_state</a> (uint8_t led_index)</td></tr>
+<tr class="memdesc:a444a170336ec287da201e2899805812b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get LED state for a specific LED index.  <br /></td></tr>
+<tr class="memitem:ab7562384ca3de074cd4f13eb8e96c790" id="r_ab7562384ca3de074cd4f13eb8e96c790"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab7562384ca3de074cd4f13eb8e96c790">led_get_all_states</a> (uint32_t *states, size_t max_count)</td></tr>
+<tr class="memdesc:ab7562384ca3de074cd4f13eb8e96c790"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get all LED states.  <br /></td></tr>
+<tr class="memitem:a571ae664c39755862a8b153447841fe3" id="r_a571ae664c39755862a8b153447841fe3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a571ae664c39755862a8b153447841fe3">led_start_animation</a> (uint32_t duration_ms)</td></tr>
+<tr class="memdesc:a571ae664c39755862a8b153447841fe3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spust animaci.  <br /></td></tr>
+<tr class="memitem:a909c49ae2d15c636755d044ad2380a74" id="r_a909c49ae2d15c636755d044ad2380a74"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a909c49ae2d15c636755d044ad2380a74">led_test_pattern</a> (void)</td></tr>
+<tr class="memdesc:a909c49ae2d15c636755d044ad2380a74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz testovaci vzor.  <br /></td></tr>
+<tr class="memitem:a0ceea2caca51dbc9f19df054f157a6ce" id="r_a0ceea2caca51dbc9f19df054f157a6ce"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ceea2caca51dbc9f19df054f157a6ce">led_test_all_pattern</a> (void)</td></tr>
+<tr class="memitem:a07ea6d48b1deb7fd8ecb18cf6d7753be" id="r_a07ea6d48b1deb7fd8ecb18cf6d7753be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a07ea6d48b1deb7fd8ecb18cf6d7753be">led_process_commands</a> (void)</td></tr>
+<tr class="memdesc:a07ea6d48b1deb7fd8ecb18cf6d7753be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj LED prikazy z fronty.  <br /></td></tr>
+<tr class="memitem:a93931e2c6d0f52d99011f95372bdc495" id="r_a93931e2c6d0f52d99011f95372bdc495"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a93931e2c6d0f52d99011f95372bdc495">led_anim_player_change</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a93931e2c6d0f52d99011f95372bdc495"><td class="mdescLeft">&#160;</td><td class="mdescRight">Player change animation - wave animation podle starého projektu.  <br /></td></tr>
+<tr class="memitem:a70ca9a0461dd8a73f47f0da3e9d6cc6f" id="r_a70ca9a0461dd8a73f47f0da3e9d6cc6f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a70ca9a0461dd8a73f47f0da3e9d6cc6f">led_anim_move_path</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memitem:a4c6b6336fa1a5b5e4b11287573e29445" id="r_a4c6b6336fa1a5b5e4b11287573e29445"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4c6b6336fa1a5b5e4b11287573e29445">led_anim_castle</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memitem:ae9ca69874a3fd0ef1b1aea542f0ce0cf" id="r_ae9ca69874a3fd0ef1b1aea542f0ce0cf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae9ca69874a3fd0ef1b1aea542f0ce0cf">led_anim_promote</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memitem:a69379eed351dd045d9d23cda7ec86a69" id="r_a69379eed351dd045d9d23cda7ec86a69"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a69379eed351dd045d9d23cda7ec86a69">led_anim_endgame</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a69379eed351dd045d9d23cda7ec86a69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize AVR-style wave endgame animation (podle starého projektu).  <br /></td></tr>
+<tr class="memitem:a0d7ed5f284182a8b0bf27f9fc2537445" id="r_a0d7ed5f284182a8b0bf27f9fc2537445"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0d7ed5f284182a8b0bf27f9fc2537445">led_update_endgame_wave</a> (void)</td></tr>
+<tr class="memdesc:a0d7ed5f284182a8b0bf27f9fc2537445"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highlighting (podle starého projektu).  <br /></td></tr>
+<tr class="memitem:a0eaa8914041f19a17236659faf64f3b9" id="r_a0eaa8914041f19a17236659faf64f3b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0eaa8914041f19a17236659faf64f3b9">led_anim_check</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memitem:acf6193320f934a4b77f6e295d2cc946a" id="r_acf6193320f934a4b77f6e295d2cc946a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acf6193320f934a4b77f6e295d2cc946a">led_anim_checkmate</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memitem:ae1107d12af4474cf714958ea8078de67" id="r_ae1107d12af4474cf714958ea8078de67"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae1107d12af4474cf714958ea8078de67">led_enhanced_castling_guidance</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:ae1107d12af4474cf714958ea8078de67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enhanced castling guidance LED function.  <br /></td></tr>
+<tr class="memitem:af3edc8a3c773252ef88840e95dafe1b6" id="r_af3edc8a3c773252ef88840e95dafe1b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af3edc8a3c773252ef88840e95dafe1b6">led_enhanced_castling_error</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:af3edc8a3c773252ef88840e95dafe1b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enhanced castling error LED function.  <br /></td></tr>
+<tr class="memitem:ab3b1b195cc27c98b66f82c0887cc425b" id="r_ab3b1b195cc27c98b66f82c0887cc425b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab3b1b195cc27c98b66f82c0887cc425b">led_enhanced_castling_celebration</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:ab3b1b195cc27c98b66f82c0887cc425b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enhanced castling celebration LED function.  <br /></td></tr>
+<tr class="memitem:a16442a4b2c22fe558767b11e5252beae" id="r_a16442a4b2c22fe558767b11e5252beae"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a16442a4b2c22fe558767b11e5252beae">led_enhanced_castling_tutorial</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a16442a4b2c22fe558767b11e5252beae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enhanced castling tutorial LED function.  <br /></td></tr>
+<tr class="memitem:a419b696d044d30102e185f17071d5594" id="r_a419b696d044d30102e185f17071d5594"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a419b696d044d30102e185f17071d5594">led_enhanced_castling_clear</a> (void)</td></tr>
+<tr class="memdesc:a419b696d044d30102e185f17071d5594"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear enhanced castling indications.  <br /></td></tr>
+<tr class="memitem:ae35498b645fad1892ac45a425bf78cce" id="r_ae35498b645fad1892ac45a425bf78cce"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae35498b645fad1892ac45a425bf78cce">led_update_hardware</a> (void)</td></tr>
+<tr class="memdesc:ae35498b645fad1892ac45a425bf78cce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualizuj LED hardware.  <br /></td></tr>
+<tr class="memitem:a44d83bc10edfd5ea26219455ee937489" id="r_a44d83bc10edfd5ea26219455ee937489"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a44d83bc10edfd5ea26219455ee937489">led_update_animation</a> (void)</td></tr>
+<tr class="memitem:a4f270f2071fdb90dc6da3d8d6d0e7fe2" id="r_a4f270f2071fdb90dc6da3d8d6d0e7fe2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4f270f2071fdb90dc6da3d8d6d0e7fe2">led_print_compact_status</a> (void)</td></tr>
+<tr class="memdesc:a4f270f2071fdb90dc6da3d8d6d0e7fe2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print compact LED status showing only lit LEDs.  <br /></td></tr>
+<tr class="memitem:a57338ebc4262ba916e9a68acdc8634fa" id="r_a57338ebc4262ba916e9a68acdc8634fa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a57338ebc4262ba916e9a68acdc8634fa">led_print_detailed_status</a> (void)</td></tr>
+<tr class="memdesc:a57338ebc4262ba916e9a68acdc8634fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print detailed LED status showing all LED states.  <br /></td></tr>
+<tr class="memitem:af7a7e8b554370642f118c98fd1015e86" id="r_af7a7e8b554370642f118c98fd1015e86"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af7a7e8b554370642f118c98fd1015e86">led_update_game_state</a> (void)</td></tr>
+<tr class="memdesc:af7a7e8b554370642f118c98fd1015e86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update LEDs based on current game state.  <br /></td></tr>
+<tr class="memitem:a320f9c61a3b7d32d1244558bc94affd4" id="r_a320f9c61a3b7d32d1244558bc94affd4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a320f9c61a3b7d32d1244558bc94affd4">led_highlight_pieces_that_can_move</a> (void)</td></tr>
+<tr class="memdesc:a320f9c61a3b7d32d1244558bc94affd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Highlight pieces that can move for current player.  <br /></td></tr>
+<tr class="memitem:a54ef8b8e4b3a77b63a1968de1f488759" id="r_a54ef8b8e4b3a77b63a1968de1f488759"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a54ef8b8e4b3a77b63a1968de1f488759">led_highlight_possible_moves</a> (uint8_t from_square)</td></tr>
+<tr class="memdesc:a54ef8b8e4b3a77b63a1968de1f488759"><td class="mdescLeft">&#160;</td><td class="mdescRight">Highlight possible moves for selected piece.  <br /></td></tr>
+<tr class="memitem:a3f8208e54db356a3a750b566d5bd763f" id="r_a3f8208e54db356a3a750b566d5bd763f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3f8208e54db356a3a750b566d5bd763f">led_clear_all_highlights</a> (void)</td></tr>
+<tr class="memdesc:a3f8208e54db356a3a750b566d5bd763f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear all board highlights and return to chess board pattern.  <br /></td></tr>
+<tr class="memitem:a7e000dafeeac5016d70d5d182b89c10f" id="r_a7e000dafeeac5016d70d5d182b89c10f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7e000dafeeac5016d70d5d182b89c10f">led_player_change_animation</a> (void)</td></tr>
+<tr class="memdesc:a7e000dafeeac5016d70d5d182b89c10f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Player change animation.  <br /></td></tr>
+<tr class="memitem:a39e8c14550a437ae7b94b56d8583b27a" id="r_a39e8c14550a437ae7b94b56d8583b27a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a39e8c14550a437ae7b94b56d8583b27a">led_print_changes_only</a> (void)</td></tr>
+<tr class="memdesc:a39e8c14550a437ae7b94b56d8583b27a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print only LED changes since last status.  <br /></td></tr>
+<tr class="memitem:ad7200d35f2087aa4d23aa18fb79e87a5" id="r_ad7200d35f2087aa4d23aa18fb79e87a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad7200d35f2087aa4d23aa18fb79e87a5">led_start_quiet_period</a> (uint32_t duration_ms)</td></tr>
+<tr class="memdesc:ad7200d35f2087aa4d23aa18fb79e87a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start quiet period (suppress LED status reports).  <br /></td></tr>
+<tr class="memitem:a13a1293f8ac28cbf7cd0d7b08cb58c5c" id="r_a13a1293f8ac28cbf7cd0d7b08cb58c5c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a13a1293f8ac28cbf7cd0d7b08cb58c5c">led_has_significant_changes</a> (void)</td></tr>
+<tr class="memdesc:a13a1293f8ac28cbf7cd0d7b08cb58c5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if LED states have changed significantly.  <br /></td></tr>
+<tr class="memitem:a5c2b466a04fcadba97ca90ee811927d8" id="r_a5c2b466a04fcadba97ca90ee811927d8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5c2b466a04fcadba97ca90ee811927d8">led_task_start</a> (void *pvParameters)</td></tr>
+<tr class="memdesc:a5c2b466a04fcadba97ca90ee811927d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spusti LED task.  <br /></td></tr>
+<tr class="memitem:a533dfd80b93f0821af12a5f929dcc40b" id="r_a533dfd80b93f0821af12a5f929dcc40b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a533dfd80b93f0821af12a5f929dcc40b">led_booting_animation</a> (void)</td></tr>
+<tr class="memdesc:a533dfd80b93f0821af12a5f929dcc40b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Booting animation - progressive LED illumination.  <br /></td></tr>
+<tr class="memitem:a081382ca7f7a773156291851fdbe6f5f" id="r_a081382ca7f7a773156291851fdbe6f5f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a081382ca7f7a773156291851fdbe6f5f">led_stop_endgame_animation</a> (void)</td></tr>
+<tr class="memdesc:a081382ca7f7a773156291851fdbe6f5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop endless endgame animation.  <br /></td></tr>
+<tr class="memitem:a38353130f2210565c3c71c96f05ecf04" id="r_a38353130f2210565c3c71c96f05ecf04"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a38353130f2210565c3c71c96f05ecf04">led_setup_animation_after_endgame</a> (void)</td></tr>
+<tr class="memdesc:a38353130f2210565c3c71c96f05ecf04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setup animation after endgame - reset pieces to starting positions.  <br /></td></tr>
+<tr class="memitem:ad4b7ef962f86de71ef5f934f2a92544a" id="r_ad4b7ef962f86de71ef5f934f2a92544a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad4b7ef962f86de71ef5f934f2a92544a">led_set_pixel_safe</a> (uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue)</td></tr>
+<tr class="memdesc:ad4b7ef962f86de71ef5f934f2a92544a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav LED pixel (thread-safe s mutex).  <br /></td></tr>
+<tr class="memitem:afff280b4c9b7261d1a086e0cfa356604" id="r_afff280b4c9b7261d1a086e0cfa356604"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afff280b4c9b7261d1a086e0cfa356604">led_clear_all_safe</a> (void)</td></tr>
+<tr class="memdesc:afff280b4c9b7261d1a086e0cfa356604"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vymaz vsechny LED (thread-safe s mutex).  <br /></td></tr>
+<tr class="memitem:a67410e7a666d076402f2eaf116716a2b" id="r_a67410e7a666d076402f2eaf116716a2b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a67410e7a666d076402f2eaf116716a2b">led_set_all_safe</a> (uint8_t red, uint8_t green, uint8_t blue)</td></tr>
+<tr class="memdesc:a67410e7a666d076402f2eaf116716a2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav vsechny LED (thread-safe s mutex).  <br /></td></tr>
+<tr class="memitem:a473fe800a9a37ba1caee73edd0398505" id="r_a473fe800a9a37ba1caee73edd0398505"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a473fe800a9a37ba1caee73edd0398505">led_show_legal_moves</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a473fe800a9a37ba1caee73edd0398505"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz legalni tahy.  <br /></td></tr>
+<tr class="memitem:a1a82f432b46c4990df10c3c8c4d697b4" id="r_a1a82f432b46c4990df10c3c8c4d697b4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1a82f432b46c4990df10c3c8c4d697b4">led_error_invalid_move</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a1a82f432b46c4990df10c3c8c4d697b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED chyba - neplatny tah.  <br /></td></tr>
+<tr class="memitem:a5fed0119b12c12bf3cee449144e40d43" id="r_a5fed0119b12c12bf3cee449144e40d43"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5fed0119b12c12bf3cee449144e40d43">led_error_return_piece</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a5fed0119b12c12bf3cee449144e40d43"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED chyba - vrat figurku.  <br /></td></tr>
+<tr class="memitem:a8811aae10a60d7851edfc7af2ef69771" id="r_a8811aae10a60d7851edfc7af2ef69771"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8811aae10a60d7851edfc7af2ef69771">led_error_recovery</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a8811aae10a60d7851edfc7af2ef69771"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED error recovery.  <br /></td></tr>
+<tr class="memitem:ac30980ab24cfbd6fe5684d6ade1c1f7a" id="r_ac30980ab24cfbd6fe5684d6ade1c1f7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac30980ab24cfbd6fe5684d6ade1c1f7a">led_set_button_promotion_available</a> (uint8_t button_id, bool available)</td></tr>
+<tr class="memdesc:ac30980ab24cfbd6fe5684d6ade1c1f7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav dostupnost promocniho tlacitka.  <br /></td></tr>
+<tr class="memitem:a31b820a4bfe33d0cf54a107c339d6d07" id="r_a31b820a4bfe33d0cf54a107c339d6d07"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a31b820a4bfe33d0cf54a107c339d6d07">led_update_button_availability_from_game</a> (void)</td></tr>
+<tr class="memdesc:a31b820a4bfe33d0cf54a107c339d6d07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualizuj dostupnost tlacitek podle stavu hry.  <br /></td></tr>
+<tr class="memitem:ad9333c97e3a0d22851f18f91e890e3dc" id="r_ad9333c97e3a0d22851f18f91e890e3dc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad9333c97e3a0d22851f18f91e890e3dc">led_boot_animation_step</a> (uint8_t progress_percent)</td></tr>
+<tr class="memdesc:ad9333c97e3a0d22851f18f91e890e3dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED boot animation step - rozsviti LED podle progress.  <br /></td></tr>
+<tr class="memitem:a51cc23ac460421224cfaf847669ab1d9" id="r_a51cc23ac460421224cfaf847669ab1d9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a51cc23ac460421224cfaf847669ab1d9">led_boot_animation_fade_out</a> (void)</td></tr>
+<tr class="memdesc:a51cc23ac460421224cfaf847669ab1d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED boot animation fade out - postupne ztlumi vsechny LED na 0.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;LED_TASK&quot;</td></tr>
+<tr class="memitem:a3a21d6fc11052b5e1badc86408a5f3b2" id="r_a3a21d6fc11052b5e1badc86408a5f3b2"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a21d6fc11052b5e1badc86408a5f3b2">led_states</a> [(64+9)]</td></tr>
+<tr class="memitem:ad46716f57f8840bf466f5182b422923d" id="r_ad46716f57f8840bf466f5182b422923d"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad46716f57f8840bf466f5182b422923d">button_pressed</a> [9] = {false}</td></tr>
+<tr class="memitem:ab1b272f31f77f519b306256237a53f62" id="r_ab1b272f31f77f519b306256237a53f62"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab1b272f31f77f519b306256237a53f62">button_available</a> [9]</td></tr>
+<tr class="memitem:a4d326bc74da8f9d9728f85a85bb098b6" id="r_a4d326bc74da8f9d9728f85a85bb098b6"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4d326bc74da8f9d9728f85a85bb098b6">button_release_time</a> [9]</td></tr>
+<tr class="memitem:a5b29e2f7276c89b3c3dd9d870dbc0245" id="r_a5b29e2f7276c89b3c3dd9d870dbc0245"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5b29e2f7276c89b3c3dd9d870dbc0245">button_blinking</a> [9] = {false}</td></tr>
+<tr class="memitem:a865a894de09d6963ba453a60b2222bba" id="r_a865a894de09d6963ba453a60b2222bba"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a865a894de09d6963ba453a60b2222bba">animation_active</a> = false</td></tr>
+<tr class="memitem:a381f77567d8c6cc3dcc0cadc9b3ad5ca" id="r_a381f77567d8c6cc3dcc0cadc9b3ad5ca"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a381f77567d8c6cc3dcc0cadc9b3ad5ca">animation_start_time</a> = 0</td></tr>
+<tr class="memitem:a0d754cbffa8c8c66e7dec18f65474c99" id="r_a0d754cbffa8c8c66e7dec18f65474c99"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0d754cbffa8c8c66e7dec18f65474c99">animation_duration</a> = 0</td></tr>
+<tr class="memitem:ae7807e34a9e000cf160c7cbdea67089b" id="r_ae7807e34a9e000cf160c7cbdea67089b"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae7807e34a9e000cf160c7cbdea67089b">animation_pattern</a> = 0</td></tr>
+<tr class="memitem:a35141cb45623cb3b7b4d96da35ed1831" id="r_a35141cb45623cb3b7b4d96da35ed1831"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a35141cb45623cb3b7b4d96da35ed1831">task_running</a> = false</td></tr>
+<tr class="memitem:ac4220888456a96a1308bbf06df3730b8" id="r_ac4220888456a96a1308bbf06df3730b8"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac4220888456a96a1308bbf06df3730b8">matrix_scanning_enabled</a> = true</td></tr>
+<tr class="memitem:a8bfc7db202490dafea98d0ede64bc881" id="r_a8bfc7db202490dafea98d0ede64bc881"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8bfc7db202490dafea98d0ede64bc881">led_component_enabled</a> = true</td></tr>
+<tr class="memitem:a740a5ff73f18495856ddbc99ad099a6b" id="r_a740a5ff73f18495856ddbc99ad099a6b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a740a5ff73f18495856ddbc99ad099a6b">simulation_mode</a></td></tr>
+<tr class="memitem:abbc5a11f432a69a8fc4d2798e9302d6f" id="r_abbc5a11f432a69a8fc4d2798e9302d6f"><td class="memItemLeft" align="right" valign="top">static led_strip_handle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abbc5a11f432a69a8fc4d2798e9302d6f">led_strip</a> = NULL</td></tr>
+<tr class="memitem:aa059cb143b37ad593835d4042adf415b" id="r_aa059cb143b37ad593835d4042adf415b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa059cb143b37ad593835d4042adf415b">led_initialized</a> = false</td></tr>
+<tr class="memitem:abf08412fd7527bf3e406512943ab8ec7" id="r_abf08412fd7527bf3e406512943ab8ec7"><td class="memItemLeft" align="right" valign="top">static SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abf08412fd7527bf3e406512943ab8ec7">led_unified_mutex</a></td></tr>
+<tr class="memitem:ad291c3f82f7856c496990a2ecfe5da23" id="r_ad291c3f82f7856c496990a2ecfe5da23"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad291c3f82f7856c496990a2ecfe5da23">led_changes_pending</a> = false</td></tr>
+<tr class="memitem:a42d3ab57814906b861bdbdba7063e20b" id="r_a42d3ab57814906b861bdbdba7063e20b"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42d3ab57814906b861bdbdba7063e20b">led_pending_changes</a> [(64+9)]</td></tr>
+<tr class="memitem:ac1c48ef4ad2c752b3812d8e4e3e5324c" id="r_ac1c48ef4ad2c752b3812d8e4e3e5324c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac1c48ef4ad2c752b3812d8e4e3e5324c">led_changed_flags</a> [(64+9)]</td></tr>
+<tr class="memitem:a0e1b74e72cc66b31800fb54c57a08fb3" id="r_a0e1b74e72cc66b31800fb54c57a08fb3"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structled__duration__state__t.html">led_duration_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0e1b74e72cc66b31800fb54c57a08fb3">led_durations</a> [(64+9)] = {0}</td></tr>
+<tr class="memitem:ab5eca3f51d48f047dfa62384299a1b6f" id="r_ab5eca3f51d48f047dfa62384299a1b6f"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab5eca3f51d48f047dfa62384299a1b6f">led_duration_system_enabled</a> = true</td></tr>
+<tr class="memitem:a2fcc158530262c3bb8a09287f5d1cb3e" id="r_a2fcc158530262c3bb8a09287f5d1cb3e"><td class="memItemLeft" align="right" valign="top">static TimerHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2fcc158530262c3bb8a09287f5d1cb3e">led_duration_timer</a> = NULL</td></tr>
+<tr class="memitem:a7ae8f1d599ba588ecd3a3709345bb7ee" id="r_a7ae8f1d599ba588ecd3a3709345bb7ee"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7ae8f1d599ba588ecd3a3709345bb7ee">chess_board_pattern</a> [64]</td></tr>
+<tr class="memitem:ad0b9fb10f5bbede6ffb70c90f0b283cd" id="r_ad0b9fb10f5bbede6ffb70c90f0b283cd"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad0b9fb10f5bbede6ffb70c90f0b283cd">test_pattern_colors</a> []</td></tr>
+<tr class="memitem:a167c892c66569d146d1f3aebabf1cabb" id="r_a167c892c66569d146d1f3aebabf1cabb"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a167c892c66569d146d1f3aebabf1cabb">previous_led_states</a> [(64+9)]</td></tr>
+<tr class="memitem:a0b78e63c2dfab80c964d3d5fe1453985" id="r_a0b78e63c2dfab80c964d3d5fe1453985"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0b78e63c2dfab80c964d3d5fe1453985">led_states_initialized</a> = false</td></tr>
+<tr class="memitem:ab30ee6f7006cc4b6a64187bcc4271dec" id="r_ab30ee6f7006cc4b6a64187bcc4271dec"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab30ee6f7006cc4b6a64187bcc4271dec">last_status_report_time</a> = 0</td></tr>
+<tr class="memitem:a10bd2320bc021e09d3a1e6f889617725" id="r_a10bd2320bc021e09d3a1e6f889617725"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a10bd2320bc021e09d3a1e6f889617725">led_changes_count</a> = 0</td></tr>
+<tr class="memitem:a97a595620422ca75117a4de4f2bc0b99" id="r_a97a595620422ca75117a4de4f2bc0b99"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a97a595620422ca75117a4de4f2bc0b99">quiet_period_active</a> = false</td></tr>
+<tr class="memitem:ac888595342bcfbaf64cb95f8c4272045" id="r_ac888595342bcfbaf64cb95f8c4272045"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac888595342bcfbaf64cb95f8c4272045">quiet_period_start</a> = 0</td></tr>
+<tr class="memitem:a5c2607d09b8412f0a6484a21095b260f" id="r_a5c2607d09b8412f0a6484a21095b260f"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5c2607d09b8412f0a6484a21095b260f">quiet_period_duration</a></td></tr>
+<tr class="memitem:a95fe2d6cbd671926e57533891a3b8cac" id="r_a95fe2d6cbd671926e57533891a3b8cac"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a95fe2d6cbd671926e57533891a3b8cac">color_names</a> []</td></tr>
+<tr class="memitem:a5a8451e4ed607d6e653e39c1122ae600" id="r_a5a8451e4ed607d6e653e39c1122ae600"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a8451e4ed607d6e653e39c1122ae600">button_names</a> []</td></tr>
+<tr class="memitem:a7c488b223b05495652330bf542a90669" id="r_a7c488b223b05495652330bf542a90669"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7c488b223b05495652330bf542a90669">endgame_animation_active</a> = false</td></tr>
+<tr class="memitem:a1ed1a514affa226ab201a5e7334e32a7" id="r_a1ed1a514affa226ab201a5e7334e32a7"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structendgame__wave__state__t.html">endgame_wave_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1ed1a514affa226ab201a5e7334e32a7">endgame_wave</a> = {0}</td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>LED Task - Ovladani WS2812B LED a animace. </p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md36"></a>
+autotoc_md36</h1>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md37"></a>
+CO TENTO SOUBOR DELA?</h1>
+<p>Tento task ovlada VSECHNY LED v systemu:</p><ol type="1">
+<li>64 LED pro sachovnici (8x8 grid)</li>
+<li>8 LED pro promotion tlacitka</li>
+<li>1 LED pro reset tlacitko</li>
+<li>LED animace (tah, rosada, promoc, konec hry)</li>
+<li>LED feedback pro tlacitka (dostupne/nedostupne/zmacknute)</li>
+<li>Batch update system pro optimalni vykon</li>
+</ol>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md39"></a>
+JAK TO FUNGUJE?</h1>
+<p>HARDWARE:</p><ul>
+<li>WS2812B LED paska na GPIO7</li>
+<li>73 LED celkem (64 sachovnice + 9 tlacitek)</li>
+<li>Timing-critical protokol (nutne vypnout preruseni)</li>
+</ul>
+<p>STARTUP:</p><ul>
+<li>Inicializace ESP-IDF led_strip driveru</li>
+<li>Nastaveni sachovnice (cerne/bile pole)</li>
+<li>Inicializace button LED (zelena/modra)</li>
+<li>Registrace s WDT</li>
+</ul>
+<p>HLAVNI SMYCKA (10ms cyklus): while (1) {</p><ol type="1">
+<li>Reset WDT</li>
+<li>Zpracuj duration timery (LED s casovym limitem)</li>
+<li>Zpracuj button blink animace</li>
+<li>Aktualizuj endgame wave animaci</li>
+<li>Commit pending LED zmeny (batch update)</li>
+<li>Cekaj 10ms }</li>
+</ol>
+<p>BATCH UPDATE SYSTEM:</p><ul>
+<li>LED zmeny se NEPOSILAJI okamzite</li>
+<li>Zmeny se SBÍRAJÍ do bufferu (led_pending_changes)</li>
+<li>Commit vsech zmen NAJEDNOU (atomicky)</li>
+<li>PROC? -&gt; WS2812B vyzaduje timing-critical refresh</li>
+</ul>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md41"></a>
+KOMUNIKACE (FIFOS &amp; MUTEXY)</h1>
+<p>PRIMO VOLANI (BEZ FRONTY):</p><ul>
+<li><a class="el" href="#a7cb7bb0774dead39c3607d19de9f9d34" title="Nastav LED pixel (interni funkce bez mutex).">led_set_pixel_internal()</a> -&gt; Nastav 1 LED</li>
+<li>led_highlight_square() -&gt; Zvyrazni policko</li>
+<li><a class="el" href="#a13da231e8e3dc956e4c3415a89409670" title="Zobraz sachovnici na LED.">led_show_chess_board()</a> -&gt; Zobraz sachovnici</li>
+</ul>
+<p>MUTEXY - Ochrana sdilenych zdroju:</p><ul>
+<li>led_unified_mutex -&gt; Ochrana LED stavu (led_states[]) DULEZITE: Vzdy pouzij pri zmene LED!</li>
+</ul>
+<p>PRISTUP: </p><div class="fragment"><div class="line">xSemaphoreTake(<a class="code hl_variable" href="#abf08412fd7527bf3e406512943ab8ec7">led_unified_mutex</a>, <a class="code hl_define" href="#acd37c9dc96b5ed1245631969b5daa3f2">LED_TASK_MUTEX_TIMEOUT_TICKS</a>);</div>
+<div class="line"><a class="code hl_variable" href="#a3a21d6fc11052b5e1badc86408a5f3b2">led_states</a>[index] = color;</div>
+<div class="line"><a class="code hl_variable" href="#a42d3ab57814906b861bdbdba7063e20b">led_pending_changes</a>[index] = color;</div>
+<div class="line"><a class="code hl_variable" href="#ac1c48ef4ad2c752b3812d8e4e3e5324c">led_changed_flags</a>[index] = <span class="keyword">true</span>;</div>
+<div class="line">xSemaphoreGive(<a class="code hl_variable" href="#abf08412fd7527bf3e406512943ab8ec7">led_unified_mutex</a>);</div>
+<div class="ttc" id="aled__task_8c_html_a3a21d6fc11052b5e1badc86408a5f3b2"><div class="ttname"><a href="#a3a21d6fc11052b5e1badc86408a5f3b2">led_states</a></div><div class="ttdeci">static uint32_t led_states[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00346">led_task.c:346</a></div></div>
+<div class="ttc" id="aled__task_8c_html_a42d3ab57814906b861bdbdba7063e20b"><div class="ttname"><a href="#a42d3ab57814906b861bdbdba7063e20b">led_pending_changes</a></div><div class="ttdeci">static uint32_t led_pending_changes[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00388">led_task.c:388</a></div></div>
+<div class="ttc" id="aled__task_8c_html_abf08412fd7527bf3e406512943ab8ec7"><div class="ttname"><a href="#abf08412fd7527bf3e406512943ab8ec7">led_unified_mutex</a></div><div class="ttdeci">static SemaphoreHandle_t led_unified_mutex</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00382">led_task.c:382</a></div></div>
+<div class="ttc" id="aled__task_8c_html_ac1c48ef4ad2c752b3812d8e4e3e5324c"><div class="ttname"><a href="#ac1c48ef4ad2c752b3812d8e4e3e5324c">led_changed_flags</a></div><div class="ttdeci">static bool led_changed_flags[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00389">led_task.c:389</a></div></div>
+<div class="ttc" id="aled__task_8c_html_acd37c9dc96b5ed1245631969b5daa3f2"><div class="ttname"><a href="#acd37c9dc96b5ed1245631969b5daa3f2">LED_TASK_MUTEX_TIMEOUT_TICKS</a></div><div class="ttdeci">#define LED_TASK_MUTEX_TIMEOUT_TICKS</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00247">led_task.c:247</a></div></div>
+</div><!-- fragment --><hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md43"></a>
+LED ANIMACE</h1>
+<p>ZAKLADNI ANIMACE:</p><ul>
+<li>Player change - Zbarveni okraje sachovnice podle hrace</li>
+<li>Move path - Animace cesty tahu</li>
+<li>Valid moves - Zobrazeni platnych tahu (zelena)</li>
+<li>Capture - Cervene zvyrazneni sebraných figurek</li>
+</ul>
+<p>SPECIALNI ANIMACE:</p><ul>
+<li>Castling - Animace rosady (kral + vez)</li>
+<li>Promotion - Animace promoci (pestry efekt)</li>
+<li>Check - Blikani krale v sachu</li>
+<li>Checkmate/Stalemate - Wave efekt pres celou desku</li>
+</ul>
+<p>ENDGAME WAVE:</p><ul>
+<li>Non-blocking animace (bezi v pozadi)</li>
+<li>Vlnovy efekt od stredu desky</li>
+<li>Automaticky se stopne po X vterinach</li>
+</ul>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md45"></a>
+BUTTON LED LOGIKA</h1>
+<p>STAVY BUTTON LED:</p><ul>
+<li>ZELENA: Tlacitko dostupne (lze pouzit)</li>
+<li>MODRA: Tlacitko nedostupne (nelze pouzit)</li>
+<li>CERVENA: Tlacitko zmacknute</li>
+<li>BLIKANI: Feedback po pusteni tlacitka (2s)</li>
+</ul>
+<p>PŘÍKLAD:</p><ol type="1">
+<li>Promoc: 8 promotion tlacitek MODRYCH (nedostupne)</li>
+<li>Pesec dojde na posledni radek -&gt; ZELENE (dostupne)</li>
+<li>Hrac zmackne Queen button -&gt; CERVENA</li>
+<li>Hrac pusti -&gt; BLIKANI 2s -&gt; MODRA</li>
+</ol>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md47"></a>
+TABLE OF CONTENTS (NAVIGACE)</h1>
+<p>Sekce 1: Hardware Init &amp; WDT ..................... radek 70 Sekce 2: Global Variables ........................ radek 183 Sekce 3: LED Control Functions ................... radek 292 Sekce 4: Batch Update System ..................... radek 600 Sekce 5: Button LED Logic ........................ radek 1200 Sekce 6: Animation Functions ..................... radek 1500 Sekce 7: Main LED Task Loop ...................... radek 2800</p>
+<p>TIP: Ctrl+G pro skok na radek</p>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md49"></a>
+DEPENDENCIES</h1>
+<ul>
+<li>ESP-IDF led_strip driver: WS2812B ovladani</li>
+<li>game_task: Informace o stavu hry</li>
+<li>button_task: Button press/release eventy</li>
+<li>unified_animation_manager: Koordinace animaci</li>
+</ul>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md51"></a>
+KRITICKA PRAVIDLA</h1>
+<dl class="section warning"><dt>Pozor</dt><dd>CO SE NESMI DELAT:</dd></dl>
+<ol type="1">
+<li>NIKDY nevolas led_strip_refresh() primo! ❌ led_strip_refresh(led_strip); // SPATNE - narusi batch system ✅ <a class="el" href="#af39bda75c597894d99ae8a5a35542fe9" title="Commit all pending LED changes atomically with watchdog safety This function ensures all LED updates ...">led_commit_pending_changes()</a>; // SPRAVNE - commit vsech zmen</li>
+<li>NIKDY nedrzи mutex prilis dlouho! ❌ xSemaphoreTake(...); vTaskDelay(100); xSemaphoreGive(...); ✅ Proved jen nezbytne operace s mutexem</li>
+<li>NIKDY nevolej blokujici animace v main loop! ❌ led_anim_endgame_blocking(); // Zablokuje system na 10s ✅ <a class="el" href="#a0d7ed5f284182a8b0bf27f9fc2537445" title="Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highl...">led_update_endgame_wave()</a>; // Non-blocking update</li>
+<li>VZDY kontroluj LED index bounds! ❌ led_states[100] = color; // Prehled bufferu! ✅ if (index &lt; CHESS_LED_COUNT_TOTAL) { led_states[index] = color; }</li>
+<li>VZDY pouzij batch system pro vice LED! ❌ for (i=0; i&lt;64; i++) <a class="el" href="#a35ed753e036a2372ea57df822d92f154" title="Force immediate LED update for critical operations Use this only for startup tests or critical visual...">led_force_immediate_update()</a>; // 64x refresh! ✅ for (i=0; i&lt;64; i++) <a class="el" href="led__task__simple_8h.html#ada9e83fe87bb057aa60e7bf6d3b23215" title="Kompatibilni funkce pro existujici kod.">led_set_pixel()</a>; // 64x change <a class="el" href="#af39bda75c597894d99ae8a5a35542fe9" title="Commit all pending LED changes atomically with watchdog safety This function ensures all LED updates ...">led_commit_pending_changes()</a>; // 1x refresh</li>
+</ol>
+<hr  />
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-12-23</dd></dl>
+<dl class="section note"><dt>Poznámka</dt><dd><ul>
+<li>Task priorita: 3 (strednн priorita)</li>
+<li>Stack size: 4KB</li>
+<li>Pouziva WDT (watchdog timer)</li>
+<li>Cyklus: 10ms</li>
+<li>LED count: 73 (64 board + 9 buttons)</li>
+</ul>
+</dd></dl>
+<dl class="section see"><dt>Viz také</dt><dd><a class="el" href="game__task_8c.html" title="Game Task - Sachova logika a sprava stavu hry.">game_task.c</a> - Stav hry pro LED </dd>
+<dd>
+<a class="el" href="button__task_8c.html" title="Button Task - Zpracovani tlacitek a event detection.">button_task.c</a> - Button eventy </dd>
+<dd>
+<a class="el" href="unified__animation__manager_8c.html" title="Implementace Unified Animation Manageru.">unified_animation_manager.c</a> - Animacni koordinator </dd></dl>
+
+<p class="definition">Definice v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+</div><a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Dokumentace definic maker</h2>
+<a id="a2e7aa4b575605ebe8928ddc7f944c4b5" name="a2e7aa4b575605ebe8928ddc7f944c4b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e7aa4b575605ebe8928ddc7f944c4b5">&#9670;&#160;</a></span>LED_BATCH_COMMIT_INTERVAL_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LED_BATCH_COMMIT_INTERVAL_MS&#160;&#160;&#160;  50</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00253">253</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="adc1b5df15af7552352dad465c61cfac7" name="adc1b5df15af7552352dad465c61cfac7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc1b5df15af7552352dad465c61cfac7">&#9670;&#160;</a></span>LED_CRITICAL_SECTION_TIMEOUT_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LED_CRITICAL_SECTION_TIMEOUT_MS&#160;&#160;&#160;50</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00245">245</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5f55b07707df2f2cf371f707207ed508" name="a5f55b07707df2f2cf371f707207ed508"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f55b07707df2f2cf371f707207ed508">&#9670;&#160;</a></span>LED_DATA_PIN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LED_DATA_PIN&#160;&#160;&#160;GPIO_NUM_7</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00304">304</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a038bfe7aea2d3849e2ee6a6635b318bc" name="a038bfe7aea2d3849e2ee6a6635b318bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a038bfe7aea2d3849e2ee6a6635b318bc">&#9670;&#160;</a></span>LED_ERROR_RECOVERY_THRESHOLD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LED_ERROR_RECOVERY_THRESHOLD&#160;&#160;&#160;10</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00251">251</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af505353c4adf955dea4a330d4177d46c" name="af505353c4adf955dea4a330d4177d46c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af505353c4adf955dea4a330d4177d46c">&#9670;&#160;</a></span>LED_FRAME_BUFFER_SIZE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LED_FRAME_BUFFER_SIZE&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00249">249</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9d3a3936c730816cea250929a3ff185a" name="a9d3a3936c730816cea250929a3ff185a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d3a3936c730816cea250929a3ff185a">&#9670;&#160;</a></span>LED_HEALTH_CHECK_INTERVAL_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LED_HEALTH_CHECK_INTERVAL_MS&#160;&#160;&#160;5000</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00252">252</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afb5d542d83382d217381d437d8c1fc73" name="afb5d542d83382d217381d437d8c1fc73"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb5d542d83382d217381d437d8c1fc73">&#9670;&#160;</a></span>LED_MAX_RETRY_COUNT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LED_MAX_RETRY_COUNT&#160;&#160;&#160;3</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00250">250</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0256c8c9fa0cc7b33ef3d2ceb0abb010" name="a0256c8c9fa0cc7b33ef3d2ceb0abb010"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0256c8c9fa0cc7b33ef3d2ceb0abb010">&#9670;&#160;</a></span>LED_TASK_MUTEX_TIMEOUT_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LED_TASK_MUTEX_TIMEOUT_MS&#160;&#160;&#160;100</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00246">246</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="acd37c9dc96b5ed1245631969b5daa3f2" name="acd37c9dc96b5ed1245631969b5daa3f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd37c9dc96b5ed1245631969b5daa3f2">&#9670;&#160;</a></span>LED_TASK_MUTEX_TIMEOUT_TICKS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LED_TASK_MUTEX_TIMEOUT_TICKS&#160;&#160;&#160;  (<a class="el" href="#a0256c8c9fa0cc7b33ef3d2ceb0abb010">LED_TASK_MUTEX_TIMEOUT_MS</a> / portTICK_PERIOD_MS)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00247">247</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1971e04ffd5581d8847ad715204854d7" name="a1971e04ffd5581d8847ad715204854d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1971e04ffd5581d8847ad715204854d7">&#9670;&#160;</a></span>LED_WATCHDOG_RESET_INTERVAL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LED_WATCHDOG_RESET_INTERVAL&#160;&#160;&#160;  10</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00255">255</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae71449b1cc6e6250b91f539153a7a0d3" name="ae71449b1cc6e6250b91f539153a7a0d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae71449b1cc6e6250b91f539153a7a0d3">&#9670;&#160;</a></span>M_PI</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define M_PI&#160;&#160;&#160;3.14159265358979323846</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00208">208</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac6afabdc09a49a433ee19d8a9486056d" name="ac6afabdc09a49a433ee19d8a9486056d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6afabdc09a49a433ee19d8a9486056d">&#9670;&#160;</a></span>min</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define min</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>a</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Hodnota:</b><div class="fragment"><div class="line">((a) &lt; (b) ? (a) : (b))</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00185">185</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="adab4e0aa5871161ca4d0f13c4c2e9f63" name="adab4e0aa5871161ca4d0f13c4c2e9f63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adab4e0aa5871161ca4d0f13c4c2e9f63">&#9670;&#160;</a></span>get_ansi_color_from_rgb()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * get_ansi_color_from_rgb </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get ANSI color code from RGB values. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">r</td><td>Red component (0-255) </td></tr>
+    <tr><td class="paramname">g</td><td>Green component (0-255) </td></tr>
+    <tr><td class="paramname">b</td><td>Blue component (0-255) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ANSI color escape sequence </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02816">2816</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4c6b6336fa1a5b5e4b11287573e29445" name="a4c6b6336fa1a5b5e4b11287573e29445"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c6b6336fa1a5b5e4b11287573e29445">&#9670;&#160;</a></span>led_anim_castle()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_anim_castle </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02160">2160</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0eaa8914041f19a17236659faf64f3b9" name="a0eaa8914041f19a17236659faf64f3b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0eaa8914041f19a17236659faf64f3b9">&#9670;&#160;</a></span>led_anim_check()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_anim_check </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02618">2618</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="acf6193320f934a4b77f6e295d2cc946a" name="acf6193320f934a4b77f6e295d2cc946a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf6193320f934a4b77f6e295d2cc946a">&#9670;&#160;</a></span>led_anim_checkmate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_anim_checkmate </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02636">2636</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a69379eed351dd045d9d23cda7ec86a69" name="a69379eed351dd045d9d23cda7ec86a69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69379eed351dd045d9d23cda7ec86a69">&#9670;&#160;</a></span>led_anim_endgame()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_anim_endgame </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize AVR-style wave endgame animation (podle starého projektu). </p>
+<p>LED animace endgame. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02384">2384</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a70ca9a0461dd8a73f47f0da3e9d6cc6f" name="a70ca9a0461dd8a73f47f0da3e9d6cc6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70ca9a0461dd8a73f47f0da3e9d6cc6f">&#9670;&#160;</a></span>led_anim_move_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_anim_move_path </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02056">2056</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a93931e2c6d0f52d99011f95372bdc495" name="a93931e2c6d0f52d99011f95372bdc495"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93931e2c6d0f52d99011f95372bdc495">&#9670;&#160;</a></span>led_anim_player_change()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_anim_player_change </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Player change animation - wave animation podle starého projektu. </p>
+<p>Profesionální wave animace s Gaussian distribucí, která prochází přes šachovnici. Animace jde od předchozího hráče k novému hráči (passing scepter effect).</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>LED command s data pointerem na <a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1" title="Definice hracu.">player_t</a> (0=white, 1=black) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01953">1953</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae9ca69874a3fd0ef1b1aea542f0ce0cf" name="ae9ca69874a3fd0ef1b1aea542f0ce0cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9ca69874a3fd0ef1b1aea542f0ce0cf">&#9670;&#160;</a></span>led_anim_promote()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_anim_promote </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02266">2266</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a51cc23ac460421224cfaf847669ab1d9" name="a51cc23ac460421224cfaf847669ab1d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51cc23ac460421224cfaf847669ab1d9">&#9670;&#160;</a></span>led_boot_animation_fade_out()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_boot_animation_fade_out </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LED boot animation fade out - postupne ztlumi vsechny LED na 0. </p>
+<p>Postupne ztlumi vsechny board LED z brightness 128 na 0. Pouziva se na konci boot procesu pro plynule ztlumeni. </p><dl class="section note"><dt>Poznámka</dt><dd>Funkce je bezpecna - kontroluje inicializaci a simulation mode </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03387">3387</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad9333c97e3a0d22851f18f91e890e3dc" name="ad9333c97e3a0d22851f18f91e890e3dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9333c97e3a0d22851f18f91e890e3dc">&#9670;&#160;</a></span>led_boot_animation_step()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_boot_animation_step </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>progress_percent</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LED boot animation step - rozsviti LED podle progress. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">progress_percent</td><td>Progress v procentech (0-100)</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Rozsviti LED podle progress boot procesu. Pouziva se pro zobrazeni postupu inicializace systemu. Rozsviti LED svetle zelenou barvou. </p><dl class="section note"><dt>Poznámka</dt><dd>Funkce je bezpecna - kontroluje inicializaci a simulation mode </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03354">3354</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a533dfd80b93f0821af12a5f929dcc40b" name="a533dfd80b93f0821af12a5f929dcc40b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a533dfd80b93f0821af12a5f929dcc40b">&#9670;&#160;</a></span>led_booting_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_booting_animation </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Booting animation - progressive LED illumination. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02294">2294</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3f8208e54db356a3a750b566d5bd763f" name="a3f8208e54db356a3a750b566d5bd763f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f8208e54db356a3a750b566d5bd763f">&#9670;&#160;</a></span>led_clear_all_highlights()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_clear_all_highlights </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clear all board highlights and return to chess board pattern. </p>
+<p>Vymaz vsechna zvyrazneni. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01556">1556</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a50360691268da244abb2711dc712bd54" name="a50360691268da244abb2711dc712bd54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50360691268da244abb2711dc712bd54">&#9670;&#160;</a></span>led_clear_all_internal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_clear_all_internal </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vymaz vsechny LED (interni funkce bez mutex). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00568">568</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afff280b4c9b7261d1a086e0cfa356604" name="afff280b4c9b7261d1a086e0cfa356604"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afff280b4c9b7261d1a086e0cfa356604">&#9670;&#160;</a></span>led_clear_all_safe()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_clear_all_safe </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vymaz vsechny LED (thread-safe s mutex). </p>
+<p>Bezpecne vymazani vsech LED z vice vlaken. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02670">2670</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab245ceabb580934b6117f59343c6d9a2" name="ab245ceabb580934b6117f59343c6d9a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab245ceabb580934b6117f59343c6d9a2">&#9670;&#160;</a></span>led_clear_board_only()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_clear_board_only </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vymaz pouze sachovnicove LED (0-63), zachovej tlacitka. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02682">2682</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4f7ff7068535f3818fb37654f5bffdad" name="a4f7ff7068535f3818fb37654f5bffdad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f7ff7068535f3818fb37654f5bffdad">&#9670;&#160;</a></span>led_clear_buttons_only()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_clear_buttons_only </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vymaz pouze tlacitkove LED (64-72), zachovej sachovnici. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02689">2689</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af39bda75c597894d99ae8a5a35542fe9" name="af39bda75c597894d99ae8a5a35542fe9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af39bda75c597894d99ae8a5a35542fe9">&#9670;&#160;</a></span>led_commit_pending_changes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_commit_pending_changes </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Commit all pending LED changes atomically with watchdog safety This function ensures all LED updates are sent to hardware in one critical section. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02926">2926</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af91e40f2e2bc7274cb04cfe498622aee" name="af91e40f2e2bc7274cb04cfe498622aee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af91e40f2e2bc7274cb04cfe498622aee">&#9670;&#160;</a></span>led_duration_timer_callback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_duration_timer_callback </td>
+          <td>(</td>
+          <td class="paramtype">TimerHandle_t</td>          <td class="paramname"><span class="paramname"><em>xTimer</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Duration timer callback - zkontroluje expired durations. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">xTimer</td><td>Timer handle </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03156">3156</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab3b1b195cc27c98b66f82c0887cc425b" name="ab3b1b195cc27c98b66f82c0887cc425b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3b1b195cc27c98b66f82c0887cc425b">&#9670;&#160;</a></span>led_enhanced_castling_celebration()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_enhanced_castling_celebration </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enhanced castling celebration LED function. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03270">3270</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a419b696d044d30102e185f17071d5594" name="a419b696d044d30102e185f17071d5594"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a419b696d044d30102e185f17071d5594">&#9670;&#160;</a></span>led_enhanced_castling_clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_enhanced_castling_clear </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clear enhanced castling indications. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03337">3337</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af3edc8a3c773252ef88840e95dafe1b6" name="af3edc8a3c773252ef88840e95dafe1b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3edc8a3c773252ef88840e95dafe1b6">&#9670;&#160;</a></span>led_enhanced_castling_error()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_enhanced_castling_error </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enhanced castling error LED function. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03249">3249</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae1107d12af4474cf714958ea8078de67" name="ae1107d12af4474cf714958ea8078de67"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1107d12af4474cf714958ea8078de67">&#9670;&#160;</a></span>led_enhanced_castling_guidance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_enhanced_castling_guidance </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enhanced castling guidance LED function. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03225">3225</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a16442a4b2c22fe558767b11e5252beae" name="a16442a4b2c22fe558767b11e5252beae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16442a4b2c22fe558767b11e5252beae">&#9670;&#160;</a></span>led_enhanced_castling_tutorial()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_enhanced_castling_tutorial </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enhanced castling tutorial LED function. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03303">3303</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1a82f432b46c4990df10c3c8c4d697b4" name="a1a82f432b46c4990df10c3c8c4d697b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a82f432b46c4990df10c3c8c4d697b4">&#9670;&#160;</a></span>led_error_invalid_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_error_invalid_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LED chyba - neplatny tah. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>LED prikaz s informacemi o chybe </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02713">2713</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8811aae10a60d7851edfc7af2ef69771" name="a8811aae10a60d7851edfc7af2ef69771"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8811aae10a60d7851edfc7af2ef69771">&#9670;&#160;</a></span>led_error_recovery()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_error_recovery </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LED error recovery. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>LED prikaz s informacemi o recovery </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02749">2749</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5fed0119b12c12bf3cee449144e40d43" name="a5fed0119b12c12bf3cee449144e40d43"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fed0119b12c12bf3cee449144e40d43">&#9670;&#160;</a></span>led_error_return_piece()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_error_return_piece </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>LED chyba - vrat figurku. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>LED prikaz s informacemi o chybe </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02731">2731</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a85578cf6b1c0acb68c6278c9cd1a4f26" name="a85578cf6b1c0acb68c6278c9cd1a4f26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a85578cf6b1c0acb68c6278c9cd1a4f26">&#9670;&#160;</a></span>led_execute_command_new()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_execute_command_new </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Execute LED command with full command structure. </p>
+<p>Vykonaj novy LED prikaz. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00885">885</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a35ed753e036a2372ea57df822d92f154" name="a35ed753e036a2372ea57df822d92f154"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35ed753e036a2372ea57df822d92f154">&#9670;&#160;</a></span>led_force_immediate_update()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_force_immediate_update </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Force immediate LED update for critical operations Use this only for startup tests or critical visual feedback. </p>
+<p>Vynuceni okamzita LED aktualizace pro kriticke operace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03004">3004</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab7562384ca3de074cd4f13eb8e96c790" name="ab7562384ca3de074cd4f13eb8e96c790"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7562384ca3de074cd4f13eb8e96c790">&#9670;&#160;</a></span>led_get_all_states()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_get_all_states </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t *</td>          <td class="paramname"><span class="paramname"><em>states</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>max_count</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get all LED states. </p>
+<p>Ziskej vsechny stavy LED.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">states</td><td>Array to store LED states </td></tr>
+    <tr><td class="paramname">max_count</td><td>Maximum number of states to copy </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00755">755</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a949ef87b771a33a9998649a33db6848d" name="a949ef87b771a33a9998649a33db6848d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a949ef87b771a33a9998649a33db6848d">&#9670;&#160;</a></span>led_get_button_color()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t led_get_button_color </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej barvu tlacitka. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka (0-8) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Barva jako uint32_t RGB </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00709">709</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abd19bd00f68dac2956a019c2981912e3" name="abd19bd00f68dac2956a019c2981912e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd19bd00f68dac2956a019c2981912e3">&#9670;&#160;</a></span>led_get_button_led_index()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t led_get_button_led_index </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Map button ID to correct LED index. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>Button ID (0-8) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>LED index (64-72) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00471">471</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a444a170336ec287da201e2899805812b" name="a444a170336ec287da201e2899805812b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a444a170336ec287da201e2899805812b">&#9670;&#160;</a></span>led_get_led_state()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t led_get_led_state </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>led_index</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get LED state for a specific LED index. </p>
+<p>Ziskej stav LED.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">led_index</td><td>LED index (0-72) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>RGB color value (0xRRGGBB) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00726">726</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8aad97d4a7c8e1ab13920b16a6397283" name="a8aad97d4a7c8e1ab13920b16a6397283"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8aad97d4a7c8e1ab13920b16a6397283">&#9670;&#160;</a></span>led_hardware_cleanup()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_hardware_cleanup </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>OBSOLETE: Hardware update function no longer needed All LED updates now happen immediately via <a class="el" href="#a7cb7bb0774dead39c3607d19de9f9d34" title="Nastav LED pixel (interni funkce bez mutex).">led_set_pixel_internal()</a> This function kept only for compatibility - does nothing useful. </p>
+<p>Cleanup hardware resources </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01711">1711</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7287362da29fee32e79da1689bca9e31" name="a7287362da29fee32e79da1689bca9e31"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7287362da29fee32e79da1689bca9e31">&#9670;&#160;</a></span>led_hardware_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t led_hardware_init </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Initialize RMT hardware for WS2812B LED control. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK on success, error code on failure </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01607">1607</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a13a1293f8ac28cbf7cd0d7b08cb58c5c" name="a13a1293f8ac28cbf7cd0d7b08cb58c5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13a1293f8ac28cbf7cd0d7b08cb58c5c">&#9670;&#160;</a></span>led_has_significant_changes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_has_significant_changes </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if LED states have changed significantly. </p>
+<p>Overi zda ma LED vyznamne zmeny. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01788">1788</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a320f9c61a3b7d32d1244558bc94affd4" name="a320f9c61a3b7d32d1244558bc94affd4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a320f9c61a3b7d32d1244558bc94affd4">&#9670;&#160;</a></span>led_highlight_pieces_that_can_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_highlight_pieces_that_can_move </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Highlight pieces that can move for current player. </p>
+<p>Zvyrazni figurky ktere se mohou hybat. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01504">1504</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a54ef8b8e4b3a77b63a1968de1f488759" name="a54ef8b8e4b3a77b63a1968de1f488759"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54ef8b8e4b3a77b63a1968de1f488759">&#9670;&#160;</a></span>led_highlight_possible_moves()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_highlight_possible_moves </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_square</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Highlight possible moves for selected piece. </p>
+<p>Zvyrazni mozne tahy pro pole.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_square</td><td>Square index (0-63) of the selected piece </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01523">1523</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a11714f15d535467c7c6011b5510197f5" name="a11714f15d535467c7c6011b5510197f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11714f15d535467c7c6011b5510197f5">&#9670;&#160;</a></span>led_init_duration_system()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_init_duration_system </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Initialize duration management system. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03198">3198</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7e000dafeeac5016d70d5d182b89c10f" name="a7e000dafeeac5016d70d5d182b89c10f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e000dafeeac5016d70d5d182b89c10f">&#9670;&#160;</a></span>led_player_change_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_player_change_animation </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Player change animation. </p>
+<p>Animace zmeny hrace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01570">1570</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4653a6179cbaf07289307ce6c1871858" name="a4653a6179cbaf07289307ce6c1871858"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4653a6179cbaf07289307ce6c1871858">&#9670;&#160;</a></span>led_preserve_buttons()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_preserve_buttons </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zachovej stavy tlacitek behem operaci. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02696">2696</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a39e8c14550a437ae7b94b56d8583b27a" name="a39e8c14550a437ae7b94b56d8583b27a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39e8c14550a437ae7b94b56d8583b27a">&#9670;&#160;</a></span>led_print_changes_only()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_print_changes_only </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Print only LED changes since last status. </p>
+<p>Vypis pouze zmeny LED. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01725">1725</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4f270f2071fdb90dc6da3d8d6d0e7fe2" name="a4f270f2071fdb90dc6da3d8d6d0e7fe2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f270f2071fdb90dc6da3d8d6d0e7fe2">&#9670;&#160;</a></span>led_print_compact_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_print_compact_status </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Print compact LED status showing only lit LEDs. </p>
+<p>Vypis kompaktni status LED. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01193">1193</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a57338ebc4262ba916e9a68acdc8634fa" name="a57338ebc4262ba916e9a68acdc8634fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a57338ebc4262ba916e9a68acdc8634fa">&#9670;&#160;</a></span>led_print_detailed_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_print_detailed_status </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Print detailed LED status showing all LED states. </p>
+<p>Vypis detailni status LED. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01319">1319</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aec926993bbb0b624462704e37829a5ab" name="aec926993bbb0b624462704e37829a5ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec926993bbb0b624462704e37829a5ab">&#9670;&#160;</a></span>led_privileged_batch_commit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_privileged_batch_commit </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Optimized batch commit with privileged mutex synchronization This function provides maximum stability for LED updates. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03017">3017</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2135e4b3d98992bec7601350d477abc9" name="a2135e4b3d98992bec7601350d477abc9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2135e4b3d98992bec7601350d477abc9">&#9670;&#160;</a></span>led_process_button_blink_timers()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_process_button_blink_timers </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Process button blink timers (call from main loop). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02909">2909</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a07ea6d48b1deb7fd8ecb18cf6d7753be" name="a07ea6d48b1deb7fd8ecb18cf6d7753be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07ea6d48b1deb7fd8ecb18cf6d7753be">&#9670;&#160;</a></span>led_process_commands()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_process_commands </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj LED prikazy z fronty. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00860">860</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a330c04b492b83fd0e7c5d7e85d6d845d" name="a330c04b492b83fd0e7c5d7e85d6d845d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a330c04b492b83fd0e7c5d7e85d6d845d">&#9670;&#160;</a></span>led_send_status_to_uart_immediate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_send_status_to_uart_immediate </td>
+          <td>(</td>
+          <td class="paramtype">QueueHandle_t</td>          <td class="paramname"><span class="paramname"><em>response_queue</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Send LED status to UART task immediately without delays (for real-time response). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01364">1364</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a6d5be6d6368f979daf99dea8b1685f55" name="a6d5be6d6368f979daf99dea8b1685f55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d5be6d6368f979daf99dea8b1685f55">&#9670;&#160;</a></span>led_set_all_internal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_all_internal </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>red</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>green</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>blue</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav vsechny LED (interni funkce bez mutex). </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">red</td><td>Cervena (0-255) </td></tr>
+    <tr><td class="paramname">green</td><td>Zelena (0-255) </td></tr>
+    <tr><td class="paramname">blue</td><td>Modra (0-255) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00542">542</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a67410e7a666d076402f2eaf116716a2b" name="a67410e7a666d076402f2eaf116716a2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67410e7a666d076402f2eaf116716a2b">&#9670;&#160;</a></span>led_set_all_safe()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_all_safe </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>red</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>green</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>blue</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav vsechny LED (thread-safe s mutex). </p>
+<p>Bezpecne nastaveni vsech LED na stejnou barvu z vice vlaken.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">red</td><td>Cervena (0-255) </td></tr>
+    <tr><td class="paramname">green</td><td>Zelena (0-255) </td></tr>
+    <tr><td class="paramname">blue</td><td>Modra (0-255) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02676">2676</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa74e5b3b49114f8e7f69f346beaf5cd3" name="aa74e5b3b49114f8e7f69f346beaf5cd3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa74e5b3b49114f8e7f69f346beaf5cd3">&#9670;&#160;</a></span>led_set_button_feedback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_button_feedback </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>available</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav button feedback LED. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka (0-8) </td></tr>
+    <tr><td class="paramname">available</td><td>Je tlacitko dostupne? </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00649">649</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8a31606dca399a00351e3ef16cc3a737" name="a8a31606dca399a00351e3ef16cc3a737"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a31606dca399a00351e3ef16cc3a737">&#9670;&#160;</a></span>led_set_button_press()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_button_press </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav tlacitko jako stisknute. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka (0-8) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00668">668</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2d9017d1898113d1763fea0e43cc3bd9" name="a2d9017d1898113d1763fea0e43cc3bd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2d9017d1898113d1763fea0e43cc3bd9">&#9670;&#160;</a></span>led_set_button_pressed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_button_pressed </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>pressed</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set button pressed state. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>Button ID (0-8) </td></tr>
+    <tr><td class="paramname">pressed</td><td>True if button is pressed </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02885">2885</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac30980ab24cfbd6fe5684d6ade1c1f7a" name="ac30980ab24cfbd6fe5684d6ade1c1f7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac30980ab24cfbd6fe5684d6ade1c1f7a">&#9670;&#160;</a></span>led_set_button_promotion_available()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_button_promotion_available </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>available</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav dostupnost promocniho tlacitka. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka (0-8) </td></tr>
+    <tr><td class="paramname">available</td><td>Je tlacitko dostupne pro promoci? </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02767">2767</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8c05ca5afd0c6a5184c88ee8e05f37b0" name="a8c05ca5afd0c6a5184c88ee8e05f37b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c05ca5afd0c6a5184c88ee8e05f37b0">&#9670;&#160;</a></span>led_set_button_release()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_button_release </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav tlacitko jako uvolnene. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka (0-8) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00687">687</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7cb7bb0774dead39c3607d19de9f9d34" name="a7cb7bb0774dead39c3607d19de9f9d34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7cb7bb0774dead39c3607d19de9f9d34">&#9670;&#160;</a></span>led_set_pixel_internal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_pixel_internal </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>led_index</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>red</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>green</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>blue</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav LED pixel (interni funkce bez mutex). </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">led_index</td><td>Index LED (0-72) </td></tr>
+    <tr><td class="paramname">red</td><td>Cervena (0-255) </td></tr>
+    <tr><td class="paramname">green</td><td>Zelena (0-255) </td></tr>
+    <tr><td class="paramname">blue</td><td>Modra (0-255) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00481">481</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad4b7ef962f86de71ef5f934f2a92544a" name="ad4b7ef962f86de71ef5f934f2a92544a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4b7ef962f86de71ef5f934f2a92544a">&#9670;&#160;</a></span>led_set_pixel_safe()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_pixel_safe </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>led_index</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>red</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>green</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>blue</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav LED pixel (thread-safe s mutex). </p>
+<p>Bezpecne nastaveni LED pixelu z vice vlaken.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">led_index</td><td>Index LED (0-72) </td></tr>
+    <tr><td class="paramname">red</td><td>Cervena (0-255) </td></tr>
+    <tr><td class="paramname">green</td><td>Zelena (0-255) </td></tr>
+    <tr><td class="paramname">blue</td><td>Modra (0-255) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02662">2662</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8920462d21f5bbd3198dc4cc485d1e82" name="a8920462d21f5bbd3198dc4cc485d1e82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8920462d21f5bbd3198dc4cc485d1e82">&#9670;&#160;</a></span>led_set_pixel_with_duration()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_pixel_with_duration </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>led_index</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>duration_ms</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set LED pixel with duration support. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">led_index</td><td>LED index (0-72) </td></tr>
+    <tr><td class="paramname">r</td><td>Red component (0-255) </td></tr>
+    <tr><td class="paramname">g</td><td>Green component (0-255) </td></tr>
+    <tr><td class="paramname">b</td><td>Blue component (0-255) </td></tr>
+    <tr><td class="paramname">duration_ms</td><td>Duration in milliseconds </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03113">3113</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a38353130f2210565c3c71c96f05ecf04" name="a38353130f2210565c3c71c96f05ecf04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38353130f2210565c3c71c96f05ecf04">&#9670;&#160;</a></span>led_setup_animation_after_endgame()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_setup_animation_after_endgame </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Setup animation after endgame - reset pieces to starting positions. </p>
+<p>Nastav animaci po endgame. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02558">2558</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a13da231e8e3dc956e4c3415a89409670" name="a13da231e8e3dc956e4c3415a89409670"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13da231e8e3dc956e4c3415a89409670">&#9670;&#160;</a></span>led_show_chess_board()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_show_chess_board </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz sachovnici na LED. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00591">591</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a473fe800a9a37ba1caee73edd0398505" name="a473fe800a9a37ba1caee73edd0398505"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a473fe800a9a37ba1caee73edd0398505">&#9670;&#160;</a></span>led_show_legal_moves()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_show_legal_moves </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structled__command__t.html">led_command_t</a> *</td>          <td class="paramname"><span class="paramname"><em>cmd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz legalni tahy. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>LED prikaz s pozicemi legalnich tahu </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02701">2701</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a571ae664c39755862a8b153447841fe3" name="a571ae664c39755862a8b153447841fe3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a571ae664c39755862a8b153447841fe3">&#9670;&#160;</a></span>led_start_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_start_animation </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>duration_ms</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spust animaci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">duration_ms</td><td>Doba trvani animace v milisekundach </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00780">780</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad7200d35f2087aa4d23aa18fb79e87a5" name="ad7200d35f2087aa4d23aa18fb79e87a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7200d35f2087aa4d23aa18fb79e87a5">&#9670;&#160;</a></span>led_start_quiet_period()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_start_quiet_period </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>duration_ms</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Start quiet period (suppress LED status reports). </p>
+<p>Spust periodu ticheho vystupu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01778">1778</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a081382ca7f7a773156291851fdbe6f5f" name="a081382ca7f7a773156291851fdbe6f5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a081382ca7f7a773156291851fdbe6f5f">&#9670;&#160;</a></span>led_stop_endgame_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_stop_endgame_animation </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stop endless endgame animation. </p>
+<p>Zastav endgame animaci. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02542">2542</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5c2b466a04fcadba97ca90ee811927d8" name="a5c2b466a04fcadba97ca90ee811927d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c2b466a04fcadba97ca90ee811927d8">&#9670;&#160;</a></span>led_task_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_task_start </td>
+          <td>(</td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>pvParameters</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spusti LED task. </p>
+<p>Spust jednoduchy LED task.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pvParameters</td><td>Parametry tasku (nepouzivane) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01808">1808</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3aea89dfd9371256c48be13c636f86e2" name="a3aea89dfd9371256c48be13c636f86e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3aea89dfd9371256c48be13c636f86e2">&#9670;&#160;</a></span>led_task_wdt_reset_safe()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t led_task_wdt_reset_safe </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK if successful, ESP_ERR_NOT_FOUND if task not registered (WARNING only) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00223">223</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0ceea2caca51dbc9f19df054f157a6ce" name="a0ceea2caca51dbc9f19df054f157a6ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ceea2caca51dbc9f19df054f157a6ce">&#9670;&#160;</a></span>led_test_all_pattern()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_test_all_pattern </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00809">809</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a909c49ae2d15c636755d044ad2380a74" name="a909c49ae2d15c636755d044ad2380a74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a909c49ae2d15c636755d044ad2380a74">&#9670;&#160;</a></span>led_test_pattern()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_test_pattern </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz testovaci vzor. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00791">791</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a44d83bc10edfd5ea26219455ee937489" name="a44d83bc10edfd5ea26219455ee937489"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44d83bc10edfd5ea26219455ee937489">&#9670;&#160;</a></span>led_update_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_update_animation </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01112">1112</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a31b820a4bfe33d0cf54a107c339d6d07" name="a31b820a4bfe33d0cf54a107c339d6d07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a31b820a4bfe33d0cf54a107c339d6d07">&#9670;&#160;</a></span>led_update_button_availability_from_game()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_update_button_availability_from_game </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Aktualizuj dostupnost tlacitek podle stavu hry. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02779">2779</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab1c29de873addfa75777d115ab4f8438" name="ab1c29de873addfa75777d115ab4f8438"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1c29de873addfa75777d115ab4f8438">&#9670;&#160;</a></span>led_update_button_led_state()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_update_button_led_state </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Update button LED state based on current conditions. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>Button ID (0-8) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02841">2841</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0d7ed5f284182a8b0bf27f9fc2537445" name="a0d7ed5f284182a8b0bf27f9fc2537445"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d7ed5f284182a8b0bf27f9fc2537445">&#9670;&#160;</a></span>led_update_endgame_wave()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_update_endgame_wave </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highlighting (podle starého projektu). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02428">2428</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af7a7e8b554370642f118c98fd1015e86" name="af7a7e8b554370642f118c98fd1015e86"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af7a7e8b554370642f118c98fd1015e86">&#9670;&#160;</a></span>led_update_game_state()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_update_game_state </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Update LEDs based on current game state. </p>
+<p>Aktualizuj LED podle stavu hry. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01489">1489</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae35498b645fad1892ac45a425bf78cce" name="ae35498b645fad1892ac45a425bf78cce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae35498b645fad1892ac45a425bf78cce">&#9670;&#160;</a></span>led_update_hardware()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_update_hardware </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Aktualizuj LED hardware. </p>
+<p>Posle aktualni LED data do WS2812B LED pasku. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01099">1099</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Dokumentace proměnných</h2>
+<a id="a865a894de09d6963ba453a60b2222bba" name="a865a894de09d6963ba453a60b2222bba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a865a894de09d6963ba453a60b2222bba">&#9670;&#160;</a></span>animation_active</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool animation_active = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00360">360</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0d754cbffa8c8c66e7dec18f65474c99" name="a0d754cbffa8c8c66e7dec18f65474c99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d754cbffa8c8c66e7dec18f65474c99">&#9670;&#160;</a></span>animation_duration</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t animation_duration = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00362">362</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae7807e34a9e000cf160c7cbdea67089b" name="ae7807e34a9e000cf160c7cbdea67089b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7807e34a9e000cf160c7cbdea67089b">&#9670;&#160;</a></span>animation_pattern</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_pattern = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00363">363</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a381f77567d8c6cc3dcc0cadc9b3ad5ca" name="a381f77567d8c6cc3dcc0cadc9b3ad5ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a381f77567d8c6cc3dcc0cadc9b3ad5ca">&#9670;&#160;</a></span>animation_start_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t animation_start_time = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00361">361</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab1b272f31f77f519b306256237a53f62" name="ab1b272f31f77f519b306256237a53f62"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1b272f31f77f519b306256237a53f62">&#9670;&#160;</a></span>button_available</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool button_available[9]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>,</div>
+<div class="line">    <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">true</span>}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00351">351</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5b29e2f7276c89b3c3dd9d870dbc0245" name="a5b29e2f7276c89b3c3dd9d870dbc0245"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b29e2f7276c89b3c3dd9d870dbc0245">&#9670;&#160;</a></span>button_blinking</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool button_blinking[9] = {false}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00357">357</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a8451e4ed607d6e653e39c1122ae600" name="a5a8451e4ed607d6e653e39c1122ae600"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a8451e4ed607d6e653e39c1122ae600">&#9670;&#160;</a></span>button_names</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* button_names[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    <span class="stringliteral">&quot;Q&quot;</span>, <span class="stringliteral">&quot;R&quot;</span>, <span class="stringliteral">&quot;B&quot;</span>, <span class="stringliteral">&quot;N&quot;</span>, <span class="stringliteral">&quot;Q&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;R&quot;</span>, <span class="stringliteral">&quot;B&quot;</span>, <span class="stringliteral">&quot;N&quot;</span>, <span class="stringliteral">&quot;R&quot;</span> </div>
+<div class="line">                       </div>
+<div class="line">}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00456">456</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad46716f57f8840bf466f5182b422923d" name="ad46716f57f8840bf466f5182b422923d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad46716f57f8840bf466f5182b422923d">&#9670;&#160;</a></span>button_pressed</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool button_pressed[9] = {false}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00350">350</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4d326bc74da8f9d9728f85a85bb098b6" name="a4d326bc74da8f9d9728f85a85bb098b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d326bc74da8f9d9728f85a85bb098b6">&#9670;&#160;</a></span>button_release_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t button_release_time[9]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    0}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00355">355</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7ae8f1d599ba588ecd3a3709345bb7ee" name="a7ae8f1d599ba588ecd3a3709345bb7ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ae8f1d599ba588ecd3a3709345bb7ee">&#9670;&#160;</a></span>chess_board_pattern</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint32_t chess_board_pattern[64]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    </div>
+<div class="line">    0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF,</div>
+<div class="line">    0x000000, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF,</div>
+<div class="line">    0x000000, 0xFFFFFF, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF,</div>
+<div class="line">    0x000000, 0xFFFFFF, 0x000000, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF,</div>
+<div class="line">    0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0xFFFFFF, 0x000000, 0xFFFFFF,</div>
+<div class="line">    0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0x000000, 0xFFFFFF,</div>
+<div class="line">    0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0xFFFFFF,</div>
+<div class="line">    0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000,</div>
+<div class="line">    0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000,</div>
+<div class="line">    0xFFFFFF}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00398">398</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a95fe2d6cbd671926e57533891a3b8cac" name="a95fe2d6cbd671926e57533891a3b8cac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95fe2d6cbd671926e57533891a3b8cac">&#9670;&#160;</a></span>color_names</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* color_names[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {<span class="stringliteral">&quot;Black&quot;</span>, <span class="stringliteral">&quot;Blue&quot;</span>,    <span class="stringliteral">&quot;Green&quot;</span>,  <span class="stringliteral">&quot;Cyan&quot;</span>,</div>
+<div class="line">                                    <span class="stringliteral">&quot;Red&quot;</span>,   <span class="stringliteral">&quot;Magenta&quot;</span>, <span class="stringliteral">&quot;Yellow&quot;</span>, <span class="stringliteral">&quot;White&quot;</span>}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00452">452</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7c488b223b05495652330bf542a90669" name="a7c488b223b05495652330bf542a90669"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c488b223b05495652330bf542a90669">&#9670;&#160;</a></span>endgame_animation_active</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool endgame_animation_active = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01939">1939</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1ed1a514affa226ab201a5e7334e32a7" name="a1ed1a514affa226ab201a5e7334e32a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ed1a514affa226ab201a5e7334e32a7">&#9670;&#160;</a></span>endgame_wave</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structendgame__wave__state__t.html">endgame_wave_state_t</a> endgame_wave = {0}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02379">2379</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab30ee6f7006cc4b6a64187bcc4271dec" name="ab30ee6f7006cc4b6a64187bcc4271dec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab30ee6f7006cc4b6a64187bcc4271dec">&#9670;&#160;</a></span>last_status_report_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t last_status_report_time = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00444">444</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac1c48ef4ad2c752b3812d8e4e3e5324c" name="ac1c48ef4ad2c752b3812d8e4e3e5324c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1c48ef4ad2c752b3812d8e4e3e5324c">&#9670;&#160;</a></span>led_changed_flags</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_changed_flags[(64+9)]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00389">389</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a10bd2320bc021e09d3a1e6f889617725" name="a10bd2320bc021e09d3a1e6f889617725"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10bd2320bc021e09d3a1e6f889617725">&#9670;&#160;</a></span>led_changes_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t led_changes_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00445">445</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad291c3f82f7856c496990a2ecfe5da23" name="ad291c3f82f7856c496990a2ecfe5da23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad291c3f82f7856c496990a2ecfe5da23">&#9670;&#160;</a></span>led_changes_pending</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_changes_pending = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00386">386</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8bfc7db202490dafea98d0ede64bc881" name="a8bfc7db202490dafea98d0ede64bc881"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8bfc7db202490dafea98d0ede64bc881">&#9670;&#160;</a></span>led_component_enabled</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_component_enabled = true</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00368">368</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab5eca3f51d48f047dfa62384299a1b6f" name="ab5eca3f51d48f047dfa62384299a1b6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5eca3f51d48f047dfa62384299a1b6f">&#9670;&#160;</a></span>led_duration_system_enabled</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_duration_system_enabled = true</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00394">394</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2fcc158530262c3bb8a09287f5d1cb3e" name="a2fcc158530262c3bb8a09287f5d1cb3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fcc158530262c3bb8a09287f5d1cb3e">&#9670;&#160;</a></span>led_duration_timer</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TimerHandle_t led_duration_timer = NULL</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00395">395</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0e1b74e72cc66b31800fb54c57a08fb3" name="a0e1b74e72cc66b31800fb54c57a08fb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e1b74e72cc66b31800fb54c57a08fb3">&#9670;&#160;</a></span>led_durations</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structled__duration__state__t.html">led_duration_state_t</a> led_durations[(64+9)] = {0}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00393">393</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa059cb143b37ad593835d4042adf415b" name="aa059cb143b37ad593835d4042adf415b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa059cb143b37ad593835d4042adf415b">&#9670;&#160;</a></span>led_initialized</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_initialized = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00374">374</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a42d3ab57814906b861bdbdba7063e20b" name="a42d3ab57814906b861bdbdba7063e20b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42d3ab57814906b861bdbdba7063e20b">&#9670;&#160;</a></span>led_pending_changes</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t led_pending_changes[(64+9)]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00388">388</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3a21d6fc11052b5e1badc86408a5f3b2" name="a3a21d6fc11052b5e1badc86408a5f3b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a21d6fc11052b5e1badc86408a5f3b2">&#9670;&#160;</a></span>led_states</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t led_states[(64+9)]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    0}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00346">346</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0b78e63c2dfab80c964d3d5fe1453985" name="a0b78e63c2dfab80c964d3d5fe1453985"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b78e63c2dfab80c964d3d5fe1453985">&#9670;&#160;</a></span>led_states_initialized</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_states_initialized = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00443">443</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abbc5a11f432a69a8fc4d2798e9302d6f" name="abbc5a11f432a69a8fc4d2798e9302d6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbc5a11f432a69a8fc4d2798e9302d6f">&#9670;&#160;</a></span>led_strip</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">led_strip_handle_t led_strip = NULL</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00373">373</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abf08412fd7527bf3e406512943ab8ec7" name="abf08412fd7527bf3e406512943ab8ec7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf08412fd7527bf3e406512943ab8ec7">&#9670;&#160;</a></span>led_unified_mutex</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">SemaphoreHandle_t led_unified_mutex</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    NULL</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00382">382</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac4220888456a96a1308bbf06df3730b8" name="ac4220888456a96a1308bbf06df3730b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4220888456a96a1308bbf06df3730b8">&#9670;&#160;</a></span>matrix_scanning_enabled</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool matrix_scanning_enabled = true</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00367">367</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a167c892c66569d146d1f3aebabf1cabb" name="a167c892c66569d146d1f3aebabf1cabb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a167c892c66569d146d1f3aebabf1cabb">&#9670;&#160;</a></span>previous_led_states</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t previous_led_states[(64+9)]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00442">442</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a97a595620422ca75117a4de4f2bc0b99" name="a97a595620422ca75117a4de4f2bc0b99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97a595620422ca75117a4de4f2bc0b99">&#9670;&#160;</a></span>quiet_period_active</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool quiet_period_active = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00446">446</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5c2607d09b8412f0a6484a21095b260f" name="a5c2607d09b8412f0a6484a21095b260f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c2607d09b8412f0a6484a21095b260f">&#9670;&#160;</a></span>quiet_period_duration</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t quiet_period_duration</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    5000</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00448">448</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac888595342bcfbaf64cb95f8c4272045" name="ac888595342bcfbaf64cb95f8c4272045"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac888595342bcfbaf64cb95f8c4272045">&#9670;&#160;</a></span>quiet_period_start</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t quiet_period_start = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00447">447</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a740a5ff73f18495856ddbc99ad099a6b" name="a740a5ff73f18495856ddbc99ad099a6b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a740a5ff73f18495856ddbc99ad099a6b">&#9670;&#160;</a></span>simulation_mode</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool simulation_mode</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    <span class="keyword">false</span></div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00369">369</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;LED_TASK&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00211">211</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a35141cb45623cb3b7b4d96da35ed1831" name="a35141cb45623cb3b7b4d96da35ed1831"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35141cb45623cb3b7b4d96da35ed1831">&#9670;&#160;</a></span>task_running</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool task_running = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00366">366</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad0b9fb10f5bbede6ffb70c90f0b283cd" name="ad0b9fb10f5bbede6ffb70c90f0b283cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0b9fb10f5bbede6ffb70c90f0b283cd">&#9670;&#160;</a></span>test_pattern_colors</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint32_t test_pattern_colors[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    0xFF0000, </div>
+<div class="line">    0x00FF00, </div>
+<div class="line">    0x0000FF, </div>
+<div class="line">    0xFFFF00, </div>
+<div class="line">    0xFF00FF, </div>
+<div class="line">    0x00FFFF, </div>
+<div class="line">    0xFFFFFF, </div>
+<div class="line">    0xFF8000  </div>
+<div class="line">}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00425">425</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_2c8c9ab3b152afb528f35b2c32a919e8.html">led_task</a></li><li class="navelem"><a href="led__task_8c.html">led_task.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

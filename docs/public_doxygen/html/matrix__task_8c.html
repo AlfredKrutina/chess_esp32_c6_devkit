@@ -1,0 +1,1274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru matrix_task.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('matrix__task_8c.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru matrix_task.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Matrix Scanning Task - Detekce fyzickych figurek na sachovnici.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="matrix__task_8h_source.html">matrix_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
+<code>#include &quot;driver/gpio.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_system.h&quot;</code><br />
+<code>#include &quot;esp_task_wdt.h&quot;</code><br />
+<code>#include &quot;esp_timer.h&quot;</code><br />
+<code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
+<code>#include &quot;freertos/queue.h&quot;</code><br />
+<code>#include &quot;freertos/semphr.h&quot;</code><br />
+<code>#include &quot;freertos/task.h&quot;</code><br />
+<code>#include &quot;freertos/timers.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &lt;ctype.h&gt;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div>
+<p><a href="matrix__task_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a768b8bf362b42a4e04ac58639035a938" id="r_a768b8bf362b42a4e04ac58639035a938"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a768b8bf362b42a4e04ac58639035a938">demo_report_activity</a> (void)</td></tr>
+<tr class="memdesc:a768b8bf362b42a4e04ac58639035a938"><td class="mdescLeft">&#160;</td><td class="mdescRight">Report activity on the board (interrupt demo mode) Called from matrix_task when any change is detected.  <br /></td></tr>
+<tr class="memitem:ad3ad65033f5eaaf1b607d806e212fe50" id="r_ad3ad65033f5eaaf1b607d806e212fe50"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad3ad65033f5eaaf1b607d806e212fe50">matrix_task_wdt_reset_safe</a> (void)</td></tr>
+<tr class="memdesc:ad3ad65033f5eaaf1b607d806e212fe50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND.  <br /></td></tr>
+<tr class="memitem:a2a57a5bda73ab9817a44c3c5702932f3" id="r_a2a57a5bda73ab9817a44c3c5702932f3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a57a5bda73ab9817a44c3c5702932f3">matrix_scan_row_internal</a> (uint8_t row)</td></tr>
+<tr class="memdesc:a2a57a5bda73ab9817a44c3c5702932f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Skenuje jeden radek matice (interni funkce bez mutexu).  <br /></td></tr>
+<tr class="memitem:a395c914a55ec3ebc25a3a3af66d6bba8" id="r_a395c914a55ec3ebc25a3a3af66d6bba8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a395c914a55ec3ebc25a3a3af66d6bba8">matrix_scan_row</a> (uint8_t row)</td></tr>
+<tr class="memdesc:a395c914a55ec3ebc25a3a3af66d6bba8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oskenuj jeden radek matice.  <br /></td></tr>
+<tr class="memitem:a86518ffc745875b5c3c34d7c96f7e186" id="r_a86518ffc745875b5c3c34d7c96f7e186"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a86518ffc745875b5c3c34d7c96f7e186">matrix_scan_all</a> (void)</td></tr>
+<tr class="memdesc:a86518ffc745875b5c3c34d7c96f7e186"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oskenuj celou matici.  <br /></td></tr>
+<tr class="memitem:ae622813bcd8b41c1040db3a6c8d34e13" id="r_ae622813bcd8b41c1040db3a6c8d34e13"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae622813bcd8b41c1040db3a6c8d34e13">matrix_send_pickup_command</a> (uint8_t square)</td></tr>
+<tr class="memdesc:ae622813bcd8b41c1040db3a6c8d34e13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to send PICKUP command to game_command_queue.  <br /></td></tr>
+<tr class="memitem:a0684c1516035306b49514c47a1af0fed" id="r_a0684c1516035306b49514c47a1af0fed"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0684c1516035306b49514c47a1af0fed">matrix_send_drop_command</a> (uint8_t square)</td></tr>
+<tr class="memdesc:a0684c1516035306b49514c47a1af0fed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to send DROP command to game_command_queue.  <br /></td></tr>
+<tr class="memitem:a275f664c60af320845973b221bd1db55" id="r_a275f664c60af320845973b221bd1db55"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a275f664c60af320845973b221bd1db55">matrix_send_drop_command_with_from</a> (uint8_t from_square, uint8_t to_square)</td></tr>
+<tr class="memdesc:a275f664c60af320845973b221bd1db55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to send DROP command with from/to notation to game_command_queue.  <br /></td></tr>
+<tr class="memitem:ad81a1142e821938e81029ad1d88f57d7" id="r_ad81a1142e821938e81029ad1d88f57d7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad81a1142e821938e81029ad1d88f57d7">matrix_detect_moves</a> (void)</td></tr>
+<tr class="memdesc:ad81a1142e821938e81029ad1d88f57d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detekuj tahy z matice.  <br /></td></tr>
+<tr class="memitem:a9f313f74d8c7d9bac02294a7f873eb75" id="r_a9f313f74d8c7d9bac02294a7f873eb75"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9f313f74d8c7d9bac02294a7f873eb75">matrix_detect_complete_move</a> (uint8_t from_square, uint8_t to_square)</td></tr>
+<tr class="memdesc:a9f313f74d8c7d9bac02294a7f873eb75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detekuj kompletni tah.  <br /></td></tr>
+<tr class="memitem:ab2ee938ff9e39dbaeed9729d194db94a" id="r_ab2ee938ff9e39dbaeed9729d194db94a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab2ee938ff9e39dbaeed9729d194db94a">matrix_square_to_notation</a> (uint8_t square, char *notation)</td></tr>
+<tr class="memdesc:ab2ee938ff9e39dbaeed9729d194db94a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prevede cislo pole na sachovou notaci.  <br /></td></tr>
+<tr class="memitem:a7401a07900074895370aa1ba67a95c56" id="r_a7401a07900074895370aa1ba67a95c56"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7401a07900074895370aa1ba67a95c56">matrix_notation_to_square</a> (const char *notation)</td></tr>
+<tr class="memdesc:a7401a07900074895370aa1ba67a95c56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prevede sachovou notaci na cislo pole.  <br /></td></tr>
+<tr class="memitem:a62798e0c14260b016d8d1739dedc2056" id="r_a62798e0c14260b016d8d1739dedc2056"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a62798e0c14260b016d8d1739dedc2056">matrix_get_state</a> (uint8_t *state_buffer)</td></tr>
+<tr class="memdesc:a62798e0c14260b016d8d1739dedc2056"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej stav matice.  <br /></td></tr>
+<tr class="memitem:a4879f19808c12282ff427342dfea0f12" id="r_a4879f19808c12282ff427342dfea0f12"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4879f19808c12282ff427342dfea0f12">matrix_print_state</a> (void)</td></tr>
+<tr class="memdesc:a4879f19808c12282ff427342dfea0f12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vypis aktualni stav matice.  <br /></td></tr>
+<tr class="memitem:af455a307ac1bd0e33a3c213d3a5889e3" id="r_af455a307ac1bd0e33a3c213d3a5889e3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af455a307ac1bd0e33a3c213d3a5889e3">matrix_test_scanning</a> (void)</td></tr>
+<tr class="memitem:ac791c32154297e3ceebd47d8096cc8b9" id="r_ac791c32154297e3ceebd47d8096cc8b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac791c32154297e3ceebd47d8096cc8b9">matrix_simulate_move</a> (const char *from, const char *to)</td></tr>
+<tr class="memdesc:ac791c32154297e3ceebd47d8096cc8b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simuluj tah v matici.  <br /></td></tr>
+<tr class="memitem:a60eff3fc23741f64ce1c24d5d556906b" id="r_a60eff3fc23741f64ce1c24d5d556906b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a60eff3fc23741f64ce1c24d5d556906b">matrix_process_commands</a> (void)</td></tr>
+<tr class="memdesc:a60eff3fc23741f64ce1c24d5d556906b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj matrix prikazy z fronty.  <br /></td></tr>
+<tr class="memitem:aa7161ac2bf0076cc5ddfc91270c2bd34" id="r_aa7161ac2bf0076cc5ddfc91270c2bd34"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa7161ac2bf0076cc5ddfc91270c2bd34">matrix_reset</a> (void)</td></tr>
+<tr class="memdesc:aa7161ac2bf0076cc5ddfc91270c2bd34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuj stav matice.  <br /></td></tr>
+<tr class="memitem:a9afd14fa75a6cfa6e37480b4935cd285" id="r_a9afd14fa75a6cfa6e37480b4935cd285"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9afd14fa75a6cfa6e37480b4935cd285">matrix_release_pins</a> (void)</td></tr>
+<tr class="memdesc:a9afd14fa75a6cfa6e37480b4935cd285"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uvolni matrix row piny pro button scanning.  <br /></td></tr>
+<tr class="memitem:a8162927b4230f6777b1d42deec017797" id="r_a8162927b4230f6777b1d42deec017797"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8162927b4230f6777b1d42deec017797">matrix_acquire_pins</a> (void)</td></tr>
+<tr class="memdesc:a8162927b4230f6777b1d42deec017797"><td class="mdescLeft">&#160;</td><td class="mdescRight">Znovu aktivuj matrix row piny pro matrix scanning.  <br /></td></tr>
+<tr class="memitem:a4ffeb65e7984e50f1ad65b6a92c304cf" id="r_a4ffeb65e7984e50f1ad65b6a92c304cf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4ffeb65e7984e50f1ad65b6a92c304cf">matrix_pins_released</a> (void)</td></tr>
+<tr class="memdesc:a4ffeb65e7984e50f1ad65b6a92c304cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda jsou matrix piny uvolnene.  <br /></td></tr>
+<tr class="memitem:a61e7f4685d87d40d712b5de9b8d22222" id="r_a61e7f4685d87d40d712b5de9b8d22222"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a61e7f4685d87d40d712b5de9b8d22222">matrix_task_start</a> (void *pvParameters)</td></tr>
+<tr class="memdesc:a61e7f4685d87d40d712b5de9b8d22222"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spusti matrix task.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;MATRIX_TASK&quot;</td></tr>
+<tr class="memitem:a3a1805bac344d932f67d863f671240d1" id="r_a3a1805bac344d932f67d863f671240d1"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a1805bac344d932f67d863f671240d1">matrix_state</a> [64] = {0}</td></tr>
+<tr class="memitem:add49e624d0cc3921ffa016066be0f462" id="r_add49e624d0cc3921ffa016066be0f462"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#add49e624d0cc3921ffa016066be0f462">matrix_previous</a> [64] = {0}</td></tr>
+<tr class="memitem:aa6b75ccca141dbb71ab2e190fc56078b" id="r_aa6b75ccca141dbb71ab2e190fc56078b"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa6b75ccca141dbb71ab2e190fc56078b">matrix_changes</a> [64] = {0}</td></tr>
+<tr class="memitem:a35141cb45623cb3b7b4d96da35ed1831" id="r_a35141cb45623cb3b7b4d96da35ed1831"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a35141cb45623cb3b7b4d96da35ed1831">task_running</a> = false</td></tr>
+<tr class="memitem:a740a5ff73f18495856ddbc99ad099a6b" id="r_a740a5ff73f18495856ddbc99ad099a6b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a740a5ff73f18495856ddbc99ad099a6b">simulation_mode</a> = false</td></tr>
+<tr class="memitem:ac4220888456a96a1308bbf06df3730b8" id="r_ac4220888456a96a1308bbf06df3730b8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac4220888456a96a1308bbf06df3730b8">matrix_scanning_enabled</a> = true</td></tr>
+<tr class="memitem:aeccb1670596f160cce0ab5caec367e05" id="r_aeccb1670596f160cce0ab5caec367e05"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeccb1670596f160cce0ab5caec367e05">current_row</a> = 0</td></tr>
+<tr class="memitem:a830cb4e3e4e340d70981f59ced6381fd" id="r_a830cb4e3e4e340d70981f59ced6381fd"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a830cb4e3e4e340d70981f59ced6381fd">last_scan_time</a> = 0</td></tr>
+<tr class="memitem:aadac7bd6fb2efeee4da9a5432123db70" id="r_aadac7bd6fb2efeee4da9a5432123db70"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aadac7bd6fb2efeee4da9a5432123db70">scan_count</a> = 0</td></tr>
+<tr class="memitem:a25428bbb3212a5e17896b6f0de83ca2f" id="r_a25428bbb3212a5e17896b6f0de83ca2f"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a25428bbb3212a5e17896b6f0de83ca2f">last_piece_lifted</a> = 255</td></tr>
+<tr class="memitem:a41dfccc3e986ded30a04de8de37d251f" id="r_a41dfccc3e986ded30a04de8de37d251f"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a41dfccc3e986ded30a04de8de37d251f">last_piece_placed</a> = 255</td></tr>
+<tr class="memitem:a001592c98e5a19d78635751717390918" id="r_a001592c98e5a19d78635751717390918"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a001592c98e5a19d78635751717390918">move_detection_timeout</a> = 0</td></tr>
+<tr class="memitem:abc6d07b73f387c902d6c85c33e923cfa" id="r_abc6d07b73f387c902d6c85c33e923cfa"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abc6d07b73f387c902d6c85c33e923cfa">simulation_patterns</a> [][64]</td></tr>
+<tr class="memitem:a859ec6ecf084e6271c6b99fb28f6be94" id="r_a859ec6ecf084e6271c6b99fb28f6be94"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a859ec6ecf084e6271c6b99fb28f6be94">current_pattern</a> = 1</td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Matrix Scanning Task - Detekce fyzickych figurek na sachovnici. </p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md53"></a>
+autotoc_md53</h1>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md54"></a>
+CO TENTO SOUBOR DELA?</h1>
+<p>Tento task skenujesachovnici a detekuje pohyb figurek:</p><ol type="1">
+<li>Multiplexovany sken 8x8 matrix (Jazyckove kontakty pod kazdym polem)</li>
+<li>Debouncing (ignoruje "zatraseni" pri zvedani/kladeni figurky)</li>
+<li>Detekce UP/DN udalosti (figurka zvedla/polozila)</li>
+<li>Poslani tahu do game_task (kdyz detekuje kompletni tah)</li>
+<li>Error detection (spatny sled eventu)</li>
+</ol>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md56"></a>
+JAK TO FUNGUJE?</h1>
+<p>MULTIPLEX SCANNING:</p><ul>
+<li>Aktivuj radek 0 (row select GPIO)</li>
+<li>Cti 8 sloupcu (column read GPIO)</li>
+<li>Uloz stav -&gt; matrix_state[0][0-7]</li>
+<li>Deaktivuj radek 0</li>
+<li>Opakuj pro radky 1-7</li>
+<li>Celkovy cas: ~10ms (cely sken)</li>
+</ul>
+<p>DEBOUNCING:</p><ul>
+<li>Kazdy senzor musi byt stabilni 3 skeny za sebou</li>
+<li>Pak teprve detekujeme zmenu (UP/DN)</li>
+<li>Ignoruje "chveni" pri manipulaci</li>
+</ul>
+<p>PIECE TRACKING:</p><ul>
+<li>Stav: IDLE -&gt; PIECE_UP -&gt; PIECE_DN -&gt; IDLE</li>
+<li>UP na e2 -&gt; cekame na DN nekde jinde</li>
+<li>DN na e4 -&gt; tah e2-e4 detekovan!</li>
+<li>Posli do game_command_queue</li>
+</ul>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md58"></a>
+KOMUNIKACE (FIFOS)</h1>
+<p>FRONTA - Posilame detkovane tahy:</p><ul>
+<li>game_command_queue -&gt; Poslani tahu typu GAME_CMD_MOVE_DETECTED</li>
+</ul>
+<p>ZADNE MUTEXY - Task je read-only (jen cte GPIO)</p>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md60"></a>
+HARDWARE (GPIO MAPPING)</h1>
+<p>ROW SELECT (8 pinu, aktivni LOW):</p><ul>
+<li>GPIO 10-17: Vyber radku sachovnice</li>
+</ul>
+<p>COLUMN READ (8 pinu, pull-up):</p><ul>
+<li>GPIO 18-25: Cteni Jazyckovych kontaktu (Reed switches)</li>
+</ul>
+<p>Jazyckove kontakty: Detekuji magnet ve figurce</p><ul>
+<li>LOW = Figurka pritomna</li>
+<li>HIGH = Prazdne pole</li>
+</ul>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md62"></a>
+KRITICKA PRAVIDLA</h1>
+<dl class="section warning"><dt>Pozor</dt><dd>CO SE NESMI DELAT:</dd></dl>
+<ol type="1">
+<li>NIKDY nemaz debounce delay! Bez debounce bude detekovat "chveni" jako desitky eventu</li>
+<li>NIKDY neskrацуй scan interval pod 10ms! GPIO multiplex potrebuje cas na ustabilizovani</li>
+<li>NIKDY neposilej tah primo do game_execute_move! ❌ game_execute_move(&amp;move); // Pristup z jineho tasku! ✅ xQueueSend(game_command_queue, &amp;cmd, ...); // Pres frontu</li>
+<li>VZDY kontroluj queue overflow! Pokud game_task je zahlcen, fronta se muze naplnit</li>
+</ol>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md64"></a>
+TABLE OF CONTENTS</h1>
+<p>Sekce 1: GPIO Init ............................ radek 80 Sekce 2: Matrix Scanning ...................... radek 200 Sekce 3: Debouncing Logic ..................... radek 350 Sekce 4: Event Detection ...................... radek 500 Sekce 5: Main Matrix Task ..................... radek 750</p>
+<hr  />
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-12-22</dd></dl>
+<dl class="section note"><dt>Poznámka</dt><dd><ul>
+<li>Task priorita: 6 (vyssi nez game - realtime detection)</li>
+<li>Scan interval: 10ms</li>
+<li>Debounce: 3 skeny (30ms)</li>
+</ul>
+</dd></dl>
+<dl class="section see"><dt>Viz také</dt><dd><a class="el" href="game__task_8c.html" title="Game Task - Sachova logika a sprava stavu hry.">game_task.c</a> - Prijima detkovane tahy </dd></dl>
+
+<p class="definition">Definice v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="a768b8bf362b42a4e04ac58639035a938" name="a768b8bf362b42a4e04ac58639035a938"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a768b8bf362b42a4e04ac58639035a938">&#9670;&#160;</a></span>demo_report_activity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void demo_report_activity </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel extern">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Report activity on the board (interrupt demo mode) Called from matrix_task when any change is detected. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00532">532</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a8162927b4230f6777b1d42deec017797" name="a8162927b4230f6777b1d42deec017797"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8162927b4230f6777b1d42deec017797">&#9670;&#160;</a></span>matrix_acquire_pins()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_acquire_pins </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Znovu aktivuj matrix row piny pro matrix scanning. </p>
+<p>Obnovi normalni matrix scanning rezim po button scan window.</p>
+<p>Tato funkce je volana po button scan window. Matrix muze pokracovat v normalnim skenovani. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00846">846</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9f313f74d8c7d9bac02294a7f873eb75" name="a9f313f74d8c7d9bac02294a7f873eb75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f313f74d8c7d9bac02294a7f873eb75">&#9670;&#160;</a></span>matrix_detect_complete_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_detect_complete_move </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_square</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_square</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Detekuj kompletni tah. </p>
+<p>Detekuje kompletni tah (zvednutí + položení figurky) a posle MATRIX_EVENT_MOVE_DETECTED udalost.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_square</td><td>Zdrojove pole (0-63) </td></tr>
+    <tr><td class="paramname">to_square</td><td>Cilove pole (0-63) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00596">596</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad81a1142e821938e81029ad1d88f57d7" name="ad81a1142e821938e81029ad1d88f57d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad81a1142e821938e81029ad1d88f57d7">&#9670;&#160;</a></span>matrix_detect_moves()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_detect_moves </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Detekuj tahy z matice. </p>
+<p>Hleda prechody 1-&gt;0 (figurka zvednuta) a 0-&gt;1 (figurka polozena) a generuje maticove udalosti. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00517">517</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a62798e0c14260b016d8d1739dedc2056" name="a62798e0c14260b016d8d1739dedc2056"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a62798e0c14260b016d8d1739dedc2056">&#9670;&#160;</a></span>matrix_get_state()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_get_state </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>state_buffer</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej stav matice. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">state_buffer</td><td>Buffer pro 64-prvkove pole stavu (1 = piece, 0 = empty) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00643">643</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7401a07900074895370aa1ba67a95c56" name="a7401a07900074895370aa1ba67a95c56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7401a07900074895370aa1ba67a95c56">&#9670;&#160;</a></span>matrix_notation_to_square()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_notation_to_square </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>notation</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Prevede sachovou notaci na cislo pole. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">notation</td><td>Sachova notace (napr. "e2") </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Cislo pole (0-63) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00626">626</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4ffeb65e7984e50f1ad65b6a92c304cf" name="a4ffeb65e7984e50f1ad65b6a92c304cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ffeb65e7984e50f1ad65b6a92c304cf">&#9670;&#160;</a></span>matrix_pins_released()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool matrix_pins_released </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda jsou matrix piny uvolnene. </p>
+<p>Overi zda jsou matrix piny uvolnene pro button scan.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud jsou vsechny row piny HIGH (uvolnene) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00859">859</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4879f19808c12282ff427342dfea0f12" name="a4879f19808c12282ff427342dfea0f12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4879f19808c12282ff427342dfea0f12">&#9670;&#160;</a></span>matrix_print_state()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_print_state </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vypis aktualni stav matice. </p>
+<p>Vypise 8x8 matici s aktualni stav vsech poli (0 = prazdne, 1 = figurka). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00651">651</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a60eff3fc23741f64ce1c24d5d556906b" name="a60eff3fc23741f64ce1c24d5d556906b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60eff3fc23741f64ce1c24d5d556906b">&#9670;&#160;</a></span>matrix_process_commands()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_process_commands </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj matrix prikazy z fronty. </p>
+<p>Cte prikazy z matrix_command_queue a vykonava je (scan, reset, test, calibrate, enable/disable). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00748">748</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9afd14fa75a6cfa6e37480b4935cd285" name="a9afd14fa75a6cfa6e37480b4935cd285"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9afd14fa75a6cfa6e37480b4935cd285">&#9670;&#160;</a></span>matrix_release_pins()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_release_pins </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Uvolni matrix row piny pro button scanning. </p>
+<p>Nastavi vsechny row piny na HIGH (neaktivni stav) aby button task mohl cist column piny bez interference.</p>
+<p>Tato funkce je volana pred button scan window (20-25ms). Vsechny row piny jsou nastaveny na HIGH (pulled up) takze column piny mohou byt bezpecne cteny pro button detection. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00827">827</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa7161ac2bf0076cc5ddfc91270c2bd34" name="aa7161ac2bf0076cc5ddfc91270c2bd34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7161ac2bf0076cc5ddfc91270c2bd34">&#9670;&#160;</a></span>matrix_reset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_reset </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resetuj stav matice. </p>
+<p>Vymaze vsechny vnitrni stavy matice a resetuje detekci tahu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00792">792</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a86518ffc745875b5c3c34d7c96f7e186" name="a86518ffc745875b5c3c34d7c96f7e186"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86518ffc745875b5c3c34d7c96f7e186">&#9670;&#160;</a></span>matrix_scan_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_scan_all </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Oskenuj celou matici. </p>
+<p>Oskenuje vsech 8 radku matice a detekuje zmeny stavu. Pouziva mutex pro thread-safe pristup ke stavu matice. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00327">327</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a395c914a55ec3ebc25a3a3af66d6bba8" name="a395c914a55ec3ebc25a3a3af66d6bba8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a395c914a55ec3ebc25a3a3af66d6bba8">&#9670;&#160;</a></span>matrix_scan_row()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_scan_row </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Oskenuj jeden radek matice. </p>
+<p>Nastavi radkovy pin na HIGH, precte vsechny sloupcove piny a aktualizuje stav matice pro tento radek.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Radek k oskenovani (0-7) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00309">309</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2a57a5bda73ab9817a44c3c5702932f3" name="a2a57a5bda73ab9817a44c3c5702932f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a57a5bda73ab9817a44c3c5702932f3">&#9670;&#160;</a></span>matrix_scan_row_internal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_scan_row_internal </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Skenuje jeden radek matice (interni funkce bez mutexu). </p>
+<p>Tato funkce skenuje jeden radek 8x8 reed switch matice. Pred skenovanim nastavi vsechny row piny na HIGH (neaktivni), pak aktivuje aktualni radek nastavenim na LOW, ceka 5 ms pro stabilizaci signalu, precte column piny a nastavi radek zpet na HIGH.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Cislo radku (0-7)</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Hardware logika:</p><ul>
+<li>Row piny jsou DRIVE (vystupni) - aktivne nastavujes stav</li>
+<li>Column piny jsou SENSE (vstupni s pull-up) - ctes je</li>
+<li>Aktivni row = LOW (stahne column pin na LOW pokud je figurka/reed switch uzavreny)</li>
+<li>Neaktivni row = HIGH (column pin zustane HIGH pokud neni figurka)</li>
+</ul>
+<p>Pred aktivaci aktualniho radku se vsechny row piny nastavi na HIGH. Toto zajistuje, ze ostatni row piny nebudou interferovat s ctenim column pinu. Bez tohoto by figurkami v jednom sloupci na ruznych radcich mohly zpusobit falesnou detekci (pokud by row pin zustal LOW, column pin by byl LOW i kdyz skenujeme jiny radek).</p>
+<p>Stabilizacni cekani: Po aktivaci row pinu na LOW se ceka 5 ms pro spravne ustaleni napetoveho stavu. Bez tohoto cekani by mohlo dochazet k nespravnemu cteni stavu column pinu kvuli elektromagnetickym interferencim a kapacitnim efektum.</p>
+<dl class="section note"><dt>Poznámka</dt><dd>Volajici musi drzet matrix_mutex pred volanim teto funkce </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00241">241</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0684c1516035306b49514c47a1af0fed" name="a0684c1516035306b49514c47a1af0fed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0684c1516035306b49514c47a1af0fed">&#9670;&#160;</a></span>matrix_send_drop_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_send_drop_command </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>square</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Helper function to send DROP command to game_command_queue. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">square</td><td>Square index (0-63) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00450">450</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a275f664c60af320845973b221bd1db55" name="a275f664c60af320845973b221bd1db55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a275f664c60af320845973b221bd1db55">&#9670;&#160;</a></span>matrix_send_drop_command_with_from()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_send_drop_command_with_from </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_square</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_square</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Helper function to send DROP command with from/to notation to game_command_queue. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_square</td><td>Source square index (0-63) </td></tr>
+    <tr><td class="paramname">to_square</td><td>Destination square index (0-63) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00484">484</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae622813bcd8b41c1040db3a6c8d34e13" name="ae622813bcd8b41c1040db3a6c8d34e13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae622813bcd8b41c1040db3a6c8d34e13">&#9670;&#160;</a></span>matrix_send_pickup_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_send_pickup_command </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>square</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Helper function to send PICKUP command to game_command_queue. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">square</td><td>Square index (0-63) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00418">418</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac791c32154297e3ceebd47d8096cc8b9" name="ac791c32154297e3ceebd47d8096cc8b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac791c32154297e3ceebd47d8096cc8b9">&#9670;&#160;</a></span>matrix_simulate_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_simulate_move </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>from</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>to</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simuluj tah v matici. </p>
+<p>Pro testovani - simuluje zvednutí figurky z jednoho pole a polozeni na jine pole.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from</td><td>Zdrojova sachova notace (napr. "e2") </td></tr>
+    <tr><td class="paramname">to</td><td>Cilova sachova notace (napr. "e4") </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00721">721</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab2ee938ff9e39dbaeed9729d194db94a" name="ab2ee938ff9e39dbaeed9729d194db94a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2ee938ff9e39dbaeed9729d194db94a">&#9670;&#160;</a></span>matrix_square_to_notation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_square_to_notation </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>square</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>notation</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Prevede cislo pole na sachovou notaci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">square</td><td>Cislo pole (0-63) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">notation</td><td>Vystupni buffer pro notaci (min. 3 znaky) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00614">614</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a61e7f4685d87d40d712b5de9b8d22222" name="a61e7f4685d87d40d712b5de9b8d22222"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61e7f4685d87d40d712b5de9b8d22222">&#9670;&#160;</a></span>matrix_task_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_task_start </td>
+          <td>(</td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>pvParameters</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spusti matrix task. </p>
+<p>Hlavni funkce matrix tasku. Bezi v nekonecne smycce a zpracovava skenovani matice kazdych 1ms. Detekuje pohyb figurek a generuje udalosti.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pvParameters</td><td>Parametry tasku (nepouzivane) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00873">873</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad3ad65033f5eaaf1b607d806e212fe50" name="ad3ad65033f5eaaf1b607d806e212fe50"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3ad65033f5eaaf1b607d806e212fe50">&#9670;&#160;</a></span>matrix_task_wdt_reset_safe()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t matrix_task_wdt_reset_safe </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze)</dd></dl>
+<p>Funkce je pouzivana pro bezpecny reset watchdog timeru behem matrix operaci. Zabranuje chybam pri startupu kdy task jeste neni registrovany. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00145">145</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af455a307ac1bd0e33a3c213d3a5889e3" name="af455a307ac1bd0e33a3c213d3a5889e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af455a307ac1bd0e33a3c213d3a5889e3">&#9670;&#160;</a></span>matrix_test_scanning()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_test_scanning </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00675">675</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Dokumentace proměnných</h2>
+<a id="a859ec6ecf084e6271c6b99fb28f6be94" name="a859ec6ecf084e6271c6b99fb28f6be94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a859ec6ecf084e6271c6b99fb28f6be94">&#9670;&#160;</a></span>current_pattern</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t current_pattern = 1</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00204">204</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aeccb1670596f160cce0ab5caec367e05" name="aeccb1670596f160cce0ab5caec367e05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeccb1670596f160cce0ab5caec367e05">&#9670;&#160;</a></span>current_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t current_row = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00178">178</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a25428bbb3212a5e17896b6f0de83ca2f" name="a25428bbb3212a5e17896b6f0de83ca2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25428bbb3212a5e17896b6f0de83ca2f">&#9670;&#160;</a></span>last_piece_lifted</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t last_piece_lifted = 255</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00183">183</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a41dfccc3e986ded30a04de8de37d251f" name="a41dfccc3e986ded30a04de8de37d251f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41dfccc3e986ded30a04de8de37d251f">&#9670;&#160;</a></span>last_piece_placed</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t last_piece_placed = 255</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00184">184</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a830cb4e3e4e340d70981f59ced6381fd" name="a830cb4e3e4e340d70981f59ced6381fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a830cb4e3e4e340d70981f59ced6381fd">&#9670;&#160;</a></span>last_scan_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t last_scan_time = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00179">179</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa6b75ccca141dbb71ab2e190fc56078b" name="aa6b75ccca141dbb71ab2e190fc56078b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6b75ccca141dbb71ab2e190fc56078b">&#9670;&#160;</a></span>matrix_changes</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_changes[64] = {0}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00169">169</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="add49e624d0cc3921ffa016066be0f462" name="add49e624d0cc3921ffa016066be0f462"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add49e624d0cc3921ffa016066be0f462">&#9670;&#160;</a></span>matrix_previous</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_previous[64] = {0}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00168">168</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac4220888456a96a1308bbf06df3730b8" name="ac4220888456a96a1308bbf06df3730b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4220888456a96a1308bbf06df3730b8">&#9670;&#160;</a></span>matrix_scanning_enabled</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool matrix_scanning_enabled = true</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00174">174</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3a1805bac344d932f67d863f671240d1" name="a3a1805bac344d932f67d863f671240d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a1805bac344d932f67d863f671240d1">&#9670;&#160;</a></span>matrix_state</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_state[64] = {0}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00167">167</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a001592c98e5a19d78635751717390918" name="a001592c98e5a19d78635751717390918"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a001592c98e5a19d78635751717390918">&#9670;&#160;</a></span>move_detection_timeout</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t move_detection_timeout = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00185">185</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aadac7bd6fb2efeee4da9a5432123db70" name="aadac7bd6fb2efeee4da9a5432123db70"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aadac7bd6fb2efeee4da9a5432123db70">&#9670;&#160;</a></span>scan_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t scan_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00180">180</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a740a5ff73f18495856ddbc99ad099a6b" name="a740a5ff73f18495856ddbc99ad099a6b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a740a5ff73f18495856ddbc99ad099a6b">&#9670;&#160;</a></span>simulation_mode</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool simulation_mode = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00173">173</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abc6d07b73f387c902d6c85c33e923cfa" name="abc6d07b73f387c902d6c85c33e923cfa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc6d07b73f387c902d6c85c33e923cfa">&#9670;&#160;</a></span>simulation_patterns</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint8_t simulation_patterns[][64]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    </div>
+<div class="line">    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,</div>
+<div class="line">     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,</div>
+<div class="line">     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},</div>
+<div class="line"> </div>
+<div class="line">    </div>
+<div class="line">    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,</div>
+<div class="line">     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,</div>
+<div class="line">     0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},</div>
+<div class="line"> </div>
+<div class="line">    </div>
+<div class="line">    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,</div>
+<div class="line">     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,</div>
+<div class="line">     0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00188">188</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;MATRIX_TASK&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00128">128</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a35141cb45623cb3b7b4d96da35ed1831" name="a35141cb45623cb3b7b4d96da35ed1831"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35141cb45623cb3b7b4d96da35ed1831">&#9670;&#160;</a></span>task_running</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool task_running = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00172">172</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_e77e2685ff47a55cd9b2c8ffde70c90d.html">matrix_task</a></li><li class="navelem"><a href="matrix__task_8c.html">matrix_task.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

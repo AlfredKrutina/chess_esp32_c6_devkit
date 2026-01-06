@@ -4,67 +4,22 @@ Tato složka obsahuje veškerou projektovou dokumentaci organizovanou do logick�
 
 ## Struktura dokumentace
 
-### 📁 bugs/
-Dokumentace o nalezených a opravených chybách:
-- `ALL_BUGS_FOUND.md` - Kompletní seznam všech nalezených chyb
-- `BUG_9_EN_PASSANT_CRITICAL.md` - Kritická chyba s en passant
-- `COMPLETE_BUG_LIST.md` - Úplný seznam chyb
-- `CRITICAL_BUGS_CASTLING_PROMOTION.md` - Kritické chyby v rošádě a promoci
-- `FINAL_BUGS_FIXED.md` - Finální seznam opravených chyb
-- `ULTIMATE_BUG_FIXES_SUMMARY.md` - Shrnutí všech oprav
-
-### 📁 analysis/
-Technické analýzy a rozbory:
-- `COMPLETE_ANALYSIS_ALL_RULES.md` - Kompletní analýza všech šachových pravidel
-- `ESP32C6_COMPLETE_PIN_ANALYSIS.md` - Kompletní analýza pinů ESP32-C6
-- `ESP32C6_PIN_ANALYSIS.md` - Analýza pinů ESP32-C6
-- `MATRIX_SCAN_ANALYSIS.md` - Analýza skenování matice
-- `VALIDATION_ANALYSIS.md` - Analýza validace
-
-### 📁 planning/
-Plány a návrhy:
-- `CHESS_IMPROVEMENTS_PLAN.md` - Plán vylepšení šachového systému
-- `CZECHMATE_LEARNING_PLAN.md` - Plán učení CzechMate
-- `WEB_SERVER_IMPLEMENTATION_PLAN.md` - Plán implementace web serveru
-
-### 📁 hardware/
-Hardwarová dokumentace:
-- `HARDWARE_WIRING_GUIDE.md` - Průvodce zapojením hardwaru
-- `ZAPOJENI.md` - Zapojení (česky)
-
-### 📁 web_server/
-Dokumentace web serveru:
-- `BUILD_SUCCESS_WEB_SERVER.md` - Úspěšné sestavení web serveru
-- `GREEK_STYLE_WEB_SERVER.md` - Řecký styl web serveru
-- `WEB_ENHANCEMENTS_IMPLEMENTED.md` - Implementovaná vylepšení
-- `WEB_MINIMALISTIC_DESIGN.md` - Minimalistický design
-- `WEB_SERVER_ARCHITECTURE.md` - Architektura web serveru
-- `WEB_SERVER_BUILD_STATUS.md` - Status sestavení
-- `WEB_SERVER_CLEAN_VERSION.md` - Čistá verze
-- `WEB_SERVER_FIXES_ANALYSIS.md` - Analýza oprav
-- `WEB_SERVER_FIXES_APPLIED.md` - Aplikované opravy
-- `WEB_SERVER_IMPLEMENTATION_COMPLETE.md` - Dokončená implementace
-- `WEB_SERVER_PROBLEMS_ANALYSIS.md` - Analýza problémů
-
-### 📁 validation/
-Validační dokumentace:
-- `FINAL_VALIDATION_SUMMARY.md` - Finální shrnutí validace
-- `VALIDATION_FIXES_SUMMARY.md` - Shrnutí validačních oprav
-- `VALIDATION_FIXES_v2.4.1.md` - Validační opravy v2.4.1
-
-### 📁 improvements/
-Dokumentace vylepšení:
-- `GAME_LOGIC_IMPROVEMENTS.md` - Vylepšení herní logiky
-- `IMMEDIATE_IMPROVEMENTS.md` - Okamžitá vylepšení
-
-### 📁 design/
-Design dokumentace:
-- `CZECHMATE_GREEK_DESIGN.md` - Řecký design CzechMate
-
 ### 📁 tests/
 Testovací dokumentace:
-- `PROMOTION_SYSTEM_ADVANCED_TESTS.md` - Pokročilé testy systému promoce
-- `PROMOTION_SYSTEM_TEST_SCENARIOS.md` - Testovací scénáře systému promoce
+- `TEST_PLAN.md` - Plán testování
+- `TEST_RESULTS.md` - Výsledky testů
+- `KNOWN_ISSUES.md` - Známé problémy
+
+### 📁 stability/
+Analýzy stability a dlouhověkosti kódu:
+- `STABILITY_ANALYSIS.md` - Analýza stability kódu
+- `STABILITY_RISK_ANALYSIS.md` - Analýza rizik stability
+- `STABILITY_FIXES_APPLIED.md` - Aplikované opravy stability
+
+### 📁 summaries/
+Shrnutí a přehledy:
+- `DOCUMENTATION_SUMMARY.md` - Shrnutí dokumentace
+- `CLEANUP_SUMMARY.md` - Shrnutí úklidu
 
 ### 📁 archive/
 Archivované a backup soubory:
@@ -73,13 +28,19 @@ Archivované a backup soubory:
 - Dočasné soubory
 
 ### 📁 doxygen/
-**Výstupní složka pro Doxygen dokumentaci** (generovaná automaticky)
+**Výstupní složka pro Doxygen dokumentaci** (generovaná automaticky, ignorována v .gitignore)
 - `html/` - HTML výstup dokumentace (více souborů, interaktivní)
 - `rtf/refman.rtf` - **JEDEN SOUBOR** - RTF dokumentace (kompatibilní s Microsoft Word)
 - `esp32_chess_v24_documentation.pdf` - **JEDEN SOUBOR** - PDF dokumentace (pokud je LaTeX nainstalovaný)
 - `latex/` - LaTeX zdrojové soubory (pro generování PDF)
 - `doxygen_warnings.log` - Log varování
 - `generation.log` - Log generování
+
+### 📁 public_doxygen/
+**Veřejná Doxygen dokumentace** (viditelná na GitHubu)
+- Automaticky zkopírována z `doxygen/` při generování dokumentace
+- `html/` - Plná HTML dokumentace (všechny soubory potřebné pro index.html)
+- `rtf/` - RTF dokumentace pro Microsoft Word (refman.rtf)
 
 ## Generování Doxygen dokumentace
 

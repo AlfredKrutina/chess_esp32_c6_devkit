@@ -1,0 +1,627 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru button_task.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('button__task_8h.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru button_task.h</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>ESP32-C6 Chess System v2.4 - Button Task Hlavicka.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
+<code>#include &quot;freertos/task.h&quot;</code><br />
+<code>#include &quot;freertos/queue.h&quot;</code><br />
+<code>#include &quot;freertos/semphr.h&quot;</code><br />
+<code>#include &quot;freertos/timers.h&quot;</code><br />
+<code>#include &quot;esp_err.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+</div>
+<p><a href="button__task_8h_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
+Výčty</h2></td></tr>
+<tr class="memitem:a8de3d61b9ce7ac3aa54b5c740773749a" id="r_a8de3d61b9ce7ac3aa54b5c740773749a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8de3d61b9ce7ac3aa54b5c740773749a">button_command_t</a> { <a class="el" href="#a8de3d61b9ce7ac3aa54b5c740773749aab087f951763dfe8096343e91583f716c">BUTTON_CMD_RESET</a> = 0
+, <a class="el" href="#a8de3d61b9ce7ac3aa54b5c740773749aa067222378ede91b20155161e53d1f26b">BUTTON_CMD_STATUS</a>
+, <a class="el" href="#a8de3d61b9ce7ac3aa54b5c740773749aac3e1e97088df34ca580325c9a48a6b84">BUTTON_CMD_TEST</a>
+ }</td></tr>
+<tr class="memdesc:a8de3d61b9ce7ac3aa54b5c740773749a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typy button prikazu.  <a href="#a8de3d61b9ce7ac3aa54b5c740773749a">...</a><br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:af93b7fa55287e83f6caf447e756de6d2" id="r_af93b7fa55287e83f6caf447e756de6d2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af93b7fa55287e83f6caf447e756de6d2">button_task_start</a> (void *pvParameters)</td></tr>
+<tr class="memdesc:af93b7fa55287e83f6caf447e756de6d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spusti button task.  <br /></td></tr>
+<tr class="memitem:a5fb2a771d8252d20fc0ad4d97667d4df" id="r_a5fb2a771d8252d20fc0ad4d97667d4df"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5fb2a771d8252d20fc0ad4d97667d4df">button_scan_all</a> (void)</td></tr>
+<tr class="memdesc:a5fb2a771d8252d20fc0ad4d97667d4df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oskenuje vsechna tlacitka pro zmenu stavu.  <br /></td></tr>
+<tr class="memitem:a133a427b3e47eeb0e857d1efd4bbfe57" id="r_a133a427b3e47eeb0e857d1efd4bbfe57"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a133a427b3e47eeb0e857d1efd4bbfe57">button_simulate_press</a> (uint8_t button_id)</td></tr>
+<tr class="memdesc:a133a427b3e47eeb0e857d1efd4bbfe57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simuluj stisknuti tlacitka (pro testovani).  <br /></td></tr>
+<tr class="memitem:a2f22af1e62d703a6cd12cfa7d7058865" id="r_a2f22af1e62d703a6cd12cfa7d7058865"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2f22af1e62d703a6cd12cfa7d7058865">button_simulate_release</a> (uint8_t button_id)</td></tr>
+<tr class="memdesc:a2f22af1e62d703a6cd12cfa7d7058865"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simuluj uvolneni tlacitka (pro testovani).  <br /></td></tr>
+<tr class="memitem:aedc6316fcaee517a7a57905a217d44b8" id="r_aedc6316fcaee517a7a57905a217d44b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aedc6316fcaee517a7a57905a217d44b8">button_process_events</a> (void)</td></tr>
+<tr class="memdesc:aedc6316fcaee517a7a57905a217d44b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj button udalosti a zmeny stavu.  <br /></td></tr>
+<tr class="memitem:aae052fa1d3a64d8c90bb3ec9dc3e4210" id="r_aae052fa1d3a64d8c90bb3ec9dc3e4210"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aae052fa1d3a64d8c90bb3ec9dc3e4210">button_handle_press</a> (uint8_t button_id)</td></tr>
+<tr class="memdesc:aae052fa1d3a64d8c90bb3ec9dc3e4210"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj udalost stisknuti tlacitka.  <br /></td></tr>
+<tr class="memitem:a52544805262bb1776fcdb432960eb7be" id="r_a52544805262bb1776fcdb432960eb7be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a52544805262bb1776fcdb432960eb7be">button_handle_release</a> (uint8_t button_id)</td></tr>
+<tr class="memdesc:a52544805262bb1776fcdb432960eb7be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj udalost uvolneni tlacitka.  <br /></td></tr>
+<tr class="memitem:a506457119e2e5819ca95c3e876de7d5e" id="r_a506457119e2e5819ca95c3e876de7d5e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a506457119e2e5819ca95c3e876de7d5e">button_check_double_press</a> (uint8_t button_id)</td></tr>
+<tr class="memdesc:a506457119e2e5819ca95c3e876de7d5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi double press na tlacitku.  <br /></td></tr>
+<tr class="memitem:a9c76fbdf52fcd61692a0ace95907507f" id="r_a9c76fbdf52fcd61692a0ace95907507f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9c76fbdf52fcd61692a0ace95907507f">button_send_event</a> (uint8_t button_id, <a class="el" href="chess__types_8h.html#a54c67f8a6d26165b932e66b06b5b904b">button_event_type_t</a> event_type, uint32_t duration)</td></tr>
+<tr class="memdesc:a9c76fbdf52fcd61692a0ace95907507f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Posli button udalost do fronty.  <br /></td></tr>
+<tr class="memitem:a558352d2b9df8e61bfada7d422249e64" id="r_a558352d2b9df8e61bfada7d422249e64"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a558352d2b9df8e61bfada7d422249e64">button_update_led_feedback</a> (uint8_t button_id, bool pressed)</td></tr>
+<tr class="memdesc:a558352d2b9df8e61bfada7d422249e64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualizuj LED feedback pro stav tlacitka.  <br /></td></tr>
+<tr class="memitem:ad004f184d705cb6e12a079c8105867bc" id="r_ad004f184d705cb6e12a079c8105867bc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad004f184d705cb6e12a079c8105867bc">button_set_led_color</a> (uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue)</td></tr>
+<tr class="memdesc:ad004f184d705cb6e12a079c8105867bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav barvu LED pro tlacitko.  <br /></td></tr>
+<tr class="memitem:a0e6a1befa86d6dcea575c1effa25fb6d" id="r_a0e6a1befa86d6dcea575c1effa25fb6d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0e6a1befa86d6dcea575c1effa25fb6d">button_process_commands</a> (void)</td></tr>
+<tr class="memdesc:a0e6a1befa86d6dcea575c1effa25fb6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj button prikazy z fronty.  <br /></td></tr>
+<tr class="memitem:a97c84f568244fb112e4828e2985529ec" id="r_a97c84f568244fb112e4828e2985529ec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a97c84f568244fb112e4828e2985529ec">button_reset_all</a> (void)</td></tr>
+<tr class="memdesc:a97c84f568244fb112e4828e2985529ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuj vsechny stavy tlacitek.  <br /></td></tr>
+<tr class="memitem:a1573d1d2a02b4e2b619b9ef45e09fda5" id="r_a1573d1d2a02b4e2b619b9ef45e09fda5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1573d1d2a02b4e2b619b9ef45e09fda5">button_print_status</a> (void)</td></tr>
+<tr class="memdesc:a1573d1d2a02b4e2b619b9ef45e09fda5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vypis stav tlacitek.  <br /></td></tr>
+<tr class="memitem:ae20ae1cc0ee0a2af8cdae453a22296a2" id="r_ae20ae1cc0ee0a2af8cdae453a22296a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae20ae1cc0ee0a2af8cdae453a22296a2">button_test_all</a> (void)</td></tr>
+<tr class="memdesc:ae20ae1cc0ee0a2af8cdae453a22296a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Testuj vsechna tlacitka.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>ESP32-C6 Chess System v2.4 - Button Task Hlavicka. </p>
+<p>Tato hlavicka definuje rozhrani pro button task:</p><ul>
+<li>Typy a struktury button udalosti</li>
+<li>Prototypy funkci button tasku</li>
+<li>Funkce pro ovladani a stav tlacitek</li>
+</ul>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-08-24</dd></dl>
+<p>Button task zpracovava vsechny tlacitka v sachovem systemu:</p><ul>
+<li>8 promotion tlacitek (4 pro bileho + 4 pro cerneho)</li>
+<li>1 reset tlacitko</li>
+<li>Debouncing a detekce udalosti</li>
+<li>LED feedback pro stav tlacitek</li>
+<li>Long press a double press detekce </li>
+</ul>
+
+<p class="definition">Definice v souboru <a class="el" href="button__task_8h_source.html">button_task.h</a>.</p>
+</div><a name="doc-enum-members" id="doc-enum-members"></a><h2 id="header-doc-enum-members" class="groupheader">Dokumentace výčtových typů</h2>
+<a id="a8de3d61b9ce7ac3aa54b5c740773749a" name="a8de3d61b9ce7ac3aa54b5c740773749a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8de3d61b9ce7ac3aa54b5c740773749a">&#9670;&#160;</a></span>button_command_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a8de3d61b9ce7ac3aa54b5c740773749a">button_command_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typy button prikazu. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Hodnoty výčtu</th></tr><tr><td class="fieldname"><a id="a8de3d61b9ce7ac3aa54b5c740773749aab087f951763dfe8096343e91583f716c" name="a8de3d61b9ce7ac3aa54b5c740773749aab087f951763dfe8096343e91583f716c"></a>BUTTON_CMD_RESET&#160;</td><td class="fielddoc"><p>Resetuj vsechna tlacitka. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a8de3d61b9ce7ac3aa54b5c740773749aa067222378ede91b20155161e53d1f26b" name="a8de3d61b9ce7ac3aa54b5c740773749aa067222378ede91b20155161e53d1f26b"></a>BUTTON_CMD_STATUS&#160;</td><td class="fielddoc"><p>Vypis stav tlacitek. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a8de3d61b9ce7ac3aa54b5c740773749aac3e1e97088df34ca580325c9a48a6b84" name="a8de3d61b9ce7ac3aa54b5c740773749aac3e1e97088df34ca580325c9a48a6b84"></a>BUTTON_CMD_TEST&#160;</td><td class="fielddoc"><p>Testuj vsechna tlacitka. </p>
+</td></tr>
+</table>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8h_source.html#l00046">46</a> v souboru <a class="el" href="button__task_8h_source.html">button_task.h</a>.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="a506457119e2e5819ca95c3e876de7d5e" name="a506457119e2e5819ca95c3e876de7d5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a506457119e2e5819ca95c3e876de7d5e">&#9670;&#160;</a></span>button_check_double_press()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_check_double_press </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi double press na tlacitku. </p>
+<p>Kontroluje zda bylo tlacitko stisknuto dvakrat po sobe v intervalu 300ms.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka k overeni (0-8) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00417">417</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aae052fa1d3a64d8c90bb3ec9dc3e4210" name="aae052fa1d3a64d8c90bb3ec9dc3e4210"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae052fa1d3a64d8c90bb3ec9dc3e4210">&#9670;&#160;</a></span>button_handle_press()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_handle_press </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj udalost stisknuti tlacitka. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka ktere bylo stisknuto (0-8) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00371">371</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a52544805262bb1776fcdb432960eb7be" name="a52544805262bb1776fcdb432960eb7be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52544805262bb1776fcdb432960eb7be">&#9670;&#160;</a></span>button_handle_release()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_handle_release </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj udalost uvolneni tlacitka. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka ktere bylo uvolneno (0-8) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00388">388</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1573d1d2a02b4e2b619b9ef45e09fda5" name="a1573d1d2a02b4e2b619b9ef45e09fda5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1573d1d2a02b4e2b619b9ef45e09fda5">&#9670;&#160;</a></span>button_print_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_print_status </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vypis stav tlacitek. </p>
+<p>Vypise stav vsech 9 tlacitek a informace o simulacnim rezimu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00543">543</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0e6a1befa86d6dcea575c1effa25fb6d" name="a0e6a1befa86d6dcea575c1effa25fb6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e6a1befa86d6dcea575c1effa25fb6d">&#9670;&#160;</a></span>button_process_commands()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_process_commands </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj button prikazy z fronty. </p>
+<p>Cte prikazy z button_command_queue a vykonava je (reset, status, test). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00498">498</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aedc6316fcaee517a7a57905a217d44b8" name="aedc6316fcaee517a7a57905a217d44b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aedc6316fcaee517a7a57905a217d44b8">&#9670;&#160;</a></span>button_process_events()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_process_events </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj button udalosti a zmeny stavu. </p>
+<p>Detekuje zmeny stavu tlacitek a generuje udalosti (press, release, long press, double press). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00343">343</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a97c84f568244fb112e4828e2985529ec" name="a97c84f568244fb112e4828e2985529ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97c84f568244fb112e4828e2985529ec">&#9670;&#160;</a></span>button_reset_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_reset_all </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resetuj vsechny stavy tlacitek. </p>
+<p>Vymaze vsechny vnitrni stavy tlacitek a resetuje simulacni rezim. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00525">525</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5fb2a771d8252d20fc0ad4d97667d4df" name="a5fb2a771d8252d20fc0ad4d97667d4df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fb2a771d8252d20fc0ad4d97667d4df">&#9670;&#160;</a></span>button_scan_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_scan_all </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Oskenuje vsechna tlacitka pro zmenu stavu. </p>
+<p>Cteni stavu vsech 9 tlacitek a aktualizace interniho stavu. V simulacnim rezimu simuluje postupne stisknutí tlacitek. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00219">219</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9c76fbdf52fcd61692a0ace95907507f" name="a9c76fbdf52fcd61692a0ace95907507f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c76fbdf52fcd61692a0ace95907507f">&#9670;&#160;</a></span>button_send_event()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_send_event </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#a54c67f8a6d26165b932e66b06b5b904b">button_event_type_t</a></td>          <td class="paramname"><span class="paramname"><em>event_type</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>duration</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Posli button udalost do fronty. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka (0-8) </td></tr>
+    <tr><td class="paramname">event_type</td><td>Typ udalosti </td></tr>
+    <tr><td class="paramname">duration</td><td>Doba stisknuti v milisekundach </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00444">444</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad004f184d705cb6e12a079c8105867bc" name="ad004f184d705cb6e12a079c8105867bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad004f184d705cb6e12a079c8105867bc">&#9670;&#160;</a></span>button_set_led_color()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_set_led_color </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>led_index</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>red</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>green</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>blue</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav barvu LED pro tlacitko. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">led_index</td><td>Index LED (64-72 pro tlacitka) </td></tr>
+    <tr><td class="paramname">red</td><td>Cervena komponenta (0-255) </td></tr>
+    <tr><td class="paramname">green</td><td>Zelena komponenta (0-255) </td></tr>
+    <tr><td class="paramname">blue</td><td>Modra komponenta (0-255) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00486">486</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a133a427b3e47eeb0e857d1efd4bbfe57" name="a133a427b3e47eeb0e857d1efd4bbfe57"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a133a427b3e47eeb0e857d1efd4bbfe57">&#9670;&#160;</a></span>button_simulate_press()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_simulate_press </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simuluj stisknuti tlacitka (pro testovani). </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka k simulaci (0-8) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00291">291</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2f22af1e62d703a6cd12cfa7d7058865" name="a2f22af1e62d703a6cd12cfa7d7058865"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f22af1e62d703a6cd12cfa7d7058865">&#9670;&#160;</a></span>button_simulate_release()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_simulate_release </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simuluj uvolneni tlacitka (pro testovani). </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka k simulaci (0-8) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00309">309</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af93b7fa55287e83f6caf447e756de6d2" name="af93b7fa55287e83f6caf447e756de6d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af93b7fa55287e83f6caf447e756de6d2">&#9670;&#160;</a></span>button_task_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_task_start </td>
+          <td>(</td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>pvParameters</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spusti button task. </p>
+<p>Hlavni funkce button tasku. Bezi v nekonecne smycce a zpracovava tlacitka kazdych 5ms. Provadi debouncing a generuje udalosti.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pvParameters</td><td>Parametry tasku (nepouzivane) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00578">578</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae20ae1cc0ee0a2af8cdae453a22296a2" name="ae20ae1cc0ee0a2af8cdae453a22296a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae20ae1cc0ee0a2af8cdae453a22296a2">&#9670;&#160;</a></span>button_test_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_test_all </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Testuj vsechna tlacitka. </p>
+<p>Postupne simuluje stisknuti a uvolneni vsech 9 tlacitek pro otestovani funkcnosti. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00556">556</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a558352d2b9df8e61bfada7d422249e64" name="a558352d2b9df8e61bfada7d422249e64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a558352d2b9df8e61bfada7d422249e64">&#9670;&#160;</a></span>button_update_led_feedback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void button_update_led_feedback </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>pressed</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Aktualizuj LED feedback pro stav tlacitka. </p>
+<p>Nastavi barvu LED tlacitka podle jeho stavu (stisknuto/uvolneno). Stisknute tlacitko sviti pulzujici cervenou, uvolnene jemnou zelenou.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlacitka (0-8) </td></tr>
+    <tr><td class="paramname">pressed</td><td>Je tlacitko stisknuto? </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="button__task_8c_source.html#l00472">472</a> v souboru <a class="el" href="button__task_8c_source.html">button_task.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_862d50d9bf3f5ceb46867d0cb4c38d54.html">button_task</a></li><li class="navelem"><a href="dir_aa1f7e58bbb569f30127133cb6b3945d.html">include</a></li><li class="navelem"><a href="button__task_8h.html">button_task.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

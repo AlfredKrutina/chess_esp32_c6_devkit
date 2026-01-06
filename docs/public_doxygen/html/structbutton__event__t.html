@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace struktury button_event_t</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('structbutton__event__t.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace struktury button_event_t</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Struktura button udalosti.  
+ <a href="#details">...</a></p>
+
+<p><code>#include &lt;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Datové položky</h2></td></tr>
+<tr class="memitem:aaf4df16f9df04bfcd820337024e7dec6" id="r_aaf4df16f9df04bfcd820337024e7dec6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#a54c67f8a6d26165b932e66b06b5b904b">button_event_type_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaf4df16f9df04bfcd820337024e7dec6">type</a></td></tr>
+<tr class="memdesc:aaf4df16f9df04bfcd820337024e7dec6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typ udalosti (press, release, long press, double press).  <br /></td></tr>
+<tr class="memitem:a42509e77a8d1f6fe1cafa0705f27b6df" id="r_a42509e77a8d1f6fe1cafa0705f27b6df"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42509e77a8d1f6fe1cafa0705f27b6df">button_id</a></td></tr>
+<tr class="memdesc:a42509e77a8d1f6fe1cafa0705f27b6df"><td class="mdescLeft">&#160;</td><td class="mdescRight">ID tlacitka (0-8).  <br /></td></tr>
+<tr class="memitem:a2ff3c3470b9574501f65c5ac0676f240" id="r_a2ff3c3470b9574501f65c5ac0676f240"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2ff3c3470b9574501f65c5ac0676f240">press_duration_ms</a></td></tr>
+<tr class="memdesc:a2ff3c3470b9574501f65c5ac0676f240"><td class="mdescLeft">&#160;</td><td class="mdescRight">Doba stisknuti v milisekundach.  <br /></td></tr>
+<tr class="memitem:a4f1d453477528540280683b13b83446d" id="r_a4f1d453477528540280683b13b83446d"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4f1d453477528540280683b13b83446d">timestamp</a></td></tr>
+<tr class="memdesc:a4f1d453477528540280683b13b83446d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Casova znamka udalosti.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Struktura button udalosti. </p>
+<p>Obsahuje informace o button udalosti (typ, ID tlacitka, cas). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00465">465</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+</div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Dokumentace položek</h2>
+<a id="a42509e77a8d1f6fe1cafa0705f27b6df" name="a42509e77a8d1f6fe1cafa0705f27b6df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42509e77a8d1f6fe1cafa0705f27b6df">&#9670;&#160;</a></span>button_id</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t button_event_t::button_id</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>ID tlacitka (0-8). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00467">467</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a2ff3c3470b9574501f65c5ac0676f240" name="a2ff3c3470b9574501f65c5ac0676f240"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ff3c3470b9574501f65c5ac0676f240">&#9670;&#160;</a></span>press_duration_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t button_event_t::press_duration_ms</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Doba stisknuti v milisekundach. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00468">468</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a4f1d453477528540280683b13b83446d" name="a4f1d453477528540280683b13b83446d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f1d453477528540280683b13b83446d">&#9670;&#160;</a></span>timestamp</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t button_event_t::timestamp</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Casova znamka udalosti. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00469">469</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="aaf4df16f9df04bfcd820337024e7dec6" name="aaf4df16f9df04bfcd820337024e7dec6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf4df16f9df04bfcd820337024e7dec6">&#9670;&#160;</a></span>type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#a54c67f8a6d26165b932e66b06b5b904b">button_event_type_t</a> button_event_t::type</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typ udalosti (press, release, long press, double press). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00466">466</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<hr/>Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru:<ul>
+<li><a class="el" href="chess__types_8h_source.html">chess_types.h</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="structbutton__event__t.html">button_event_t</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,988 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru enhanced_castling_system.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('enhanced__castling__system_8c.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru enhanced_castling_system.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Implementace Enhanced Castling Systemu.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="enhanced__castling__system_8h_source.html">enhanced_castling_system.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__task_8h_source.html">led_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_timer.h&quot;</code><br />
+<code>#include &quot;string.h&quot;</code><br />
+</div>
+<p><a href="enhanced__castling__system_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a61f43ef55c76d2c5863819a96679f86d" id="r_a61f43ef55c76d2c5863819a96679f86d"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a61f43ef55c76d2c5863819a96679f86d">enhanced_castling_init</a> (void)</td></tr>
+<tr class="memdesc:a61f43ef55c76d2c5863819a96679f86d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize enhanced castling system.  <br /></td></tr>
+<tr class="memitem:a68473225caaf82fb02dbe69dd2b0ac90" id="r_a68473225caaf82fb02dbe69dd2b0ac90"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a68473225caaf82fb02dbe69dd2b0ac90">enhanced_castling_start</a> (<a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> <a class="el" href="game__task_8c.html#ac5a8201c5f6bbce303ec36500d67b6d8">player</a>, bool is_kingside)</td></tr>
+<tr class="memdesc:a68473225caaf82fb02dbe69dd2b0ac90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start castling sequence.  <br /></td></tr>
+<tr class="memitem:a71c6334fe7eed0d589acfeb1cb6aeaaf" id="r_a71c6334fe7eed0d589acfeb1cb6aeaaf"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a71c6334fe7eed0d589acfeb1cb6aeaaf">enhanced_castling_handle_king_lift</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:a71c6334fe7eed0d589acfeb1cb6aeaaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle king lift event.  <br /></td></tr>
+<tr class="memitem:ac1a783168547602db601cce5f25f5ef6" id="r_ac1a783168547602db601cce5f25f5ef6"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac1a783168547602db601cce5f25f5ef6">enhanced_castling_handle_king_drop</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:ac1a783168547602db601cce5f25f5ef6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle king drop event.  <br /></td></tr>
+<tr class="memitem:a1298ed566772765b083158dd04d7617e" id="r_a1298ed566772765b083158dd04d7617e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1298ed566772765b083158dd04d7617e">enhanced_castling_handle_rook_lift</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:a1298ed566772765b083158dd04d7617e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle rook lift event.  <br /></td></tr>
+<tr class="memitem:ad0b372fd30752be5c2817d04115ad28d" id="r_ad0b372fd30752be5c2817d04115ad28d"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad0b372fd30752be5c2817d04115ad28d">enhanced_castling_handle_rook_drop</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:ad0b372fd30752be5c2817d04115ad28d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle rook drop event.  <br /></td></tr>
+<tr class="memitem:a84967829c955ce40cb552af8f336c88d" id="r_a84967829c955ce40cb552af8f336c88d"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a84967829c955ce40cb552af8f336c88d">enhanced_castling_cancel</a> (void)</td></tr>
+<tr class="memdesc:a84967829c955ce40cb552af8f336c88d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cancel current castling sequence.  <br /></td></tr>
+<tr class="memitem:a551d56ee547e30c59358ecfbef86302b" id="r_a551d56ee547e30c59358ecfbef86302b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a551d56ee547e30c59358ecfbef86302b">enhanced_castling_is_active</a> (void)</td></tr>
+<tr class="memdesc:a551d56ee547e30c59358ecfbef86302b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if castling is currently active.  <br /></td></tr>
+<tr class="memitem:a573e41c1cc049dbb2722bc68b25f174b" id="r_a573e41c1cc049dbb2722bc68b25f174b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="enhanced__castling__system_8h.html#a5488d560e2ddb85e20098a6a750ff984">castling_phase_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a573e41c1cc049dbb2722bc68b25f174b">enhanced_castling_get_phase</a> (void)</td></tr>
+<tr class="memdesc:a573e41c1cc049dbb2722bc68b25f174b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current castling phase.  <br /></td></tr>
+<tr class="memitem:a2addf80390a5195a77495585144214c4" id="r_a2addf80390a5195a77495585144214c4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2addf80390a5195a77495585144214c4">enhanced_castling_update_phase</a> (<a class="el" href="enhanced__castling__system_8h.html#a5488d560e2ddb85e20098a6a750ff984">castling_phase_t</a> new_phase)</td></tr>
+<tr class="memdesc:a2addf80390a5195a77495585144214c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update castling phase with timeout handling.  <br /></td></tr>
+<tr class="memitem:a0996145f3c92961e6d97861fb01e0fff" id="r_a0996145f3c92961e6d97861fb01e0fff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0996145f3c92961e6d97861fb01e0fff">enhanced_castling_handle_error</a> (<a class="el" href="enhanced__castling__system_8h.html#a9efb9de3b24e4bcd4d5307a6ce23cbd1">castling_error_t</a> error, uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:a0996145f3c92961e6d97861fb01e0fff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle castling error.  <br /></td></tr>
+<tr class="memitem:a7fea86462c2fa344578489036f7fb9eb" id="r_a7fea86462c2fa344578489036f7fb9eb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7fea86462c2fa344578489036f7fb9eb">castling_calculate_positions</a> (<a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> <a class="el" href="game__task_8c.html#ac5a8201c5f6bbce303ec36500d67b6d8">player</a>, bool is_kingside)</td></tr>
+<tr class="memdesc:a7fea86462c2fa344578489036f7fb9eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate castling positions.  <br /></td></tr>
+<tr class="memitem:ae7bdbea7f5cfb9978bd0603bc5f4b4d0" id="r_ae7bdbea7f5cfb9978bd0603bc5f4b4d0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae7bdbea7f5cfb9978bd0603bc5f4b4d0">castling_validate_king_move</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</td></tr>
+<tr class="memdesc:ae7bdbea7f5cfb9978bd0603bc5f4b4d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate king move for castling.  <br /></td></tr>
+<tr class="memitem:a1669c97b2e5dcb839542b59392dbacbd" id="r_a1669c97b2e5dcb839542b59392dbacbd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1669c97b2e5dcb839542b59392dbacbd">castling_validate_rook_move</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</td></tr>
+<tr class="memdesc:a1669c97b2e5dcb839542b59392dbacbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate rook move for castling.  <br /></td></tr>
+<tr class="memitem:a104226173b83a62df2d44053ed147131" id="r_a104226173b83a62df2d44053ed147131"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a104226173b83a62df2d44053ed147131">castling_validate_sequence</a> (void)</td></tr>
+<tr class="memdesc:a104226173b83a62df2d44053ed147131"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate castling sequence.  <br /></td></tr>
+<tr class="memitem:a3e4dc75c38e98d97cf35f984fa66b2ce" id="r_a3e4dc75c38e98d97cf35f984fa66b2ce"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3e4dc75c38e98d97cf35f984fa66b2ce">castling_is_timeout_expired</a> (void)</td></tr>
+<tr class="memdesc:a3e4dc75c38e98d97cf35f984fa66b2ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if timeout has expired.  <br /></td></tr>
+<tr class="memitem:af27a9e2af8a688e4ef4f6ea423ff5952" id="r_af27a9e2af8a688e4ef4f6ea423ff5952"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af27a9e2af8a688e4ef4f6ea423ff5952">castling_reset_system</a> (void)</td></tr>
+<tr class="memdesc:af27a9e2af8a688e4ef4f6ea423ff5952"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset castling system.  <br /></td></tr>
+<tr class="memitem:aee86001fa49a0428f9241c1e7427069b" id="r_aee86001fa49a0428f9241c1e7427069b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aee86001fa49a0428f9241c1e7427069b">castling_log_state_change</a> (const char *action)</td></tr>
+<tr class="memdesc:aee86001fa49a0428f9241c1e7427069b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log state change.  <br /></td></tr>
+<tr class="memitem:aef98d7b498beb12daa3096022ec887e7" id="r_aef98d7b498beb12daa3096022ec887e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aef98d7b498beb12daa3096022ec887e7">castling_show_king_guidance</a> (void)</td></tr>
+<tr class="memdesc:aef98d7b498beb12daa3096022ec887e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show king guidance for castling.  <br /></td></tr>
+<tr class="memitem:ad5dc5a20cfdaf9d84030f5072778aff1" id="r_ad5dc5a20cfdaf9d84030f5072778aff1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad5dc5a20cfdaf9d84030f5072778aff1">castling_show_rook_guidance</a> (void)</td></tr>
+<tr class="memdesc:ad5dc5a20cfdaf9d84030f5072778aff1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show rook guidance for castling.  <br /></td></tr>
+<tr class="memitem:af9ae62a763763e34333532307fe30289" id="r_af9ae62a763763e34333532307fe30289"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af9ae62a763763e34333532307fe30289">castling_show_error_indication</a> (<a class="el" href="enhanced__castling__system_8h.html#a9efb9de3b24e4bcd4d5307a6ce23cbd1">castling_error_t</a> error)</td></tr>
+<tr class="memdesc:af9ae62a763763e34333532307fe30289"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show error indication.  <br /></td></tr>
+<tr class="memitem:a6ccaa8b8a98da9de19017ad2fc611628" id="r_a6ccaa8b8a98da9de19017ad2fc611628"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6ccaa8b8a98da9de19017ad2fc611628">castling_show_completion_celebration</a> (void)</td></tr>
+<tr class="memdesc:a6ccaa8b8a98da9de19017ad2fc611628"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show completion celebration.  <br /></td></tr>
+<tr class="memitem:ae909113298c4be97e6a36572d3efeb4f" id="r_ae909113298c4be97e6a36572d3efeb4f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae909113298c4be97e6a36572d3efeb4f">castling_clear_all_indications</a> (void)</td></tr>
+<tr class="memdesc:ae909113298c4be97e6a36572d3efeb4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear all castling indications.  <br /></td></tr>
+<tr class="memitem:afe8c7b5de0f3719166f89e975059247c" id="r_afe8c7b5de0f3719166f89e975059247c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afe8c7b5de0f3719166f89e975059247c">castling_recover_king_wrong_position</a> (void)</td></tr>
+<tr class="memdesc:afe8c7b5de0f3719166f89e975059247c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recover from king wrong position error.  <br /></td></tr>
+<tr class="memitem:a61e387e4475acd4a6c9db96fc1333e1f" id="r_a61e387e4475acd4a6c9db96fc1333e1f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a61e387e4475acd4a6c9db96fc1333e1f">castling_recover_rook_wrong_position</a> (void)</td></tr>
+<tr class="memdesc:a61e387e4475acd4a6c9db96fc1333e1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recover from rook wrong position error.  <br /></td></tr>
+<tr class="memitem:ae58c1122476af928bccd44407c0e5822" id="r_ae58c1122476af928bccd44407c0e5822"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae58c1122476af928bccd44407c0e5822">castling_recover_timeout_error</a> (void)</td></tr>
+<tr class="memdesc:ae58c1122476af928bccd44407c0e5822"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recover from timeout error.  <br /></td></tr>
+<tr class="memitem:a12f1ed6212174d4f9532880ea94601a3" id="r_a12f1ed6212174d4f9532880ea94601a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a12f1ed6212174d4f9532880ea94601a3">castling_show_correct_positions</a> (void)</td></tr>
+<tr class="memdesc:a12f1ed6212174d4f9532880ea94601a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show correct positions for castling.  <br /></td></tr>
+<tr class="memitem:a4733364aef5fb97b725594cada6e7679" id="r_a4733364aef5fb97b725594cada6e7679"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4733364aef5fb97b725594cada6e7679">castling_show_tutorial</a> (void)</td></tr>
+<tr class="memdesc:a4733364aef5fb97b725594cada6e7679"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show castling tutorial.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;ENHANCED_CASTLING&quot;</td></tr>
+<tr class="memitem:a3e1c3a621bec2612240013522edf0638" id="r_a3e1c3a621bec2612240013522edf0638"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structenhanced__castling__system__t.html">enhanced_castling_system_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3e1c3a621bec2612240013522edf0638">castling_system</a> = {0}</td></tr>
+<tr class="memdesc:a3e1c3a621bec2612240013522edf0638"><td class="mdescLeft">&#160;</td><td class="mdescRight">Globalni instance castling systemu.  <br /></td></tr>
+<tr class="memitem:ad5f9d23be7ccc7853164b1b290e6ad84" id="r_ad5f9d23be7ccc7853164b1b290e6ad84"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structcastling__led__config__t.html">castling_led_config_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad5f9d23be7ccc7853164b1b290e6ad84">castling_led_config</a></td></tr>
+<tr class="memdesc:ad5f9d23be7ccc7853164b1b290e6ad84"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED konfigurace pro rosadu.  <br /></td></tr>
+<tr class="memitem:a5a197b52b2c4d4ef9749cf548d08f361" id="r_a5a197b52b2c4d4ef9749cf548d08f361"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structcastling__error__info__t.html">castling_error_info_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a197b52b2c4d4ef9749cf548d08f361">error_info</a> []</td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Implementace Enhanced Castling Systemu. </p>
+<p>Tento modul implementuje komplexni system pro rochadu s:</p><ul>
+<li>Centralizovanou spravou stavu</li>
+<li>Pokrocilym LED navodem a indikaci chyb</li>
+<li>Inteligentnim error recovery</li>
+<li>Timeout handling</li>
+<li>Vizualnim navodem pro hrace</li>
+</ul>
+<dl class="section author"><dt>Autor</dt><dd>ESP32 Chess Team </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2024</dd></dl>
+<p>Enhanced Castling System je pokrocily system pro spravu rochady v sachovem systemu. Poskytuje vizualni navod pro hrace a pomaha s provedenim rochady podle pravidel. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="a7fea86462c2fa344578489036f7fb9eb" name="a7fea86462c2fa344578489036f7fb9eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7fea86462c2fa344578489036f7fb9eb">&#9670;&#160;</a></span>castling_calculate_positions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_calculate_positions </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a></td>          <td class="paramname"><span class="paramname"><em>player</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>is_kingside</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Calculate castling positions. </p>
+<p>Vypocitej pozice pro rosadu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00416">416</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ae909113298c4be97e6a36572d3efeb4f" name="ae909113298c4be97e6a36572d3efeb4f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae909113298c4be97e6a36572d3efeb4f">&#9670;&#160;</a></span>castling_clear_all_indications()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_clear_all_indications </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clear all castling indications. </p>
+<p>Vymaz vsechny indikace rosady. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00673">673</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a3e4dc75c38e98d97cf35f984fa66b2ce" name="a3e4dc75c38e98d97cf35f984fa66b2ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e4dc75c38e98d97cf35f984fa66b2ce">&#9670;&#160;</a></span>castling_is_timeout_expired()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool castling_is_timeout_expired </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if timeout has expired. </p>
+<p>Overi zda vyprsel timeout. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00484">484</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="aee86001fa49a0428f9241c1e7427069b" name="aee86001fa49a0428f9241c1e7427069b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee86001fa49a0428f9241c1e7427069b">&#9670;&#160;</a></span>castling_log_state_change()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_log_state_change </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>action</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Log state change. </p>
+<p>Zaloguj zmenu stavu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00509">509</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="afe8c7b5de0f3719166f89e975059247c" name="afe8c7b5de0f3719166f89e975059247c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe8c7b5de0f3719166f89e975059247c">&#9670;&#160;</a></span>castling_recover_king_wrong_position()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_recover_king_wrong_position </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Recover from king wrong position error. </p>
+<p>Obnova z chyby nespravne pozice krale. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00704">704</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a61e387e4475acd4a6c9db96fc1333e1f" name="a61e387e4475acd4a6c9db96fc1333e1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61e387e4475acd4a6c9db96fc1333e1f">&#9670;&#160;</a></span>castling_recover_rook_wrong_position()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_recover_rook_wrong_position </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Recover from rook wrong position error. </p>
+<p>Obnova z chyby nespravne pozice veze. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00720">720</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ae58c1122476af928bccd44407c0e5822" name="ae58c1122476af928bccd44407c0e5822"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae58c1122476af928bccd44407c0e5822">&#9670;&#160;</a></span>castling_recover_timeout_error()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_recover_timeout_error </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Recover from timeout error. </p>
+<p>Obnova z chyby timeoutu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00736">736</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="af27a9e2af8a688e4ef4f6ea423ff5952" name="af27a9e2af8a688e4ef4f6ea423ff5952"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af27a9e2af8a688e4ef4f6ea423ff5952">&#9670;&#160;</a></span>castling_reset_system()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_reset_system </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reset castling system. </p>
+<p>Resetuj castling system. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00499">499</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a6ccaa8b8a98da9de19017ad2fc611628" name="a6ccaa8b8a98da9de19017ad2fc611628"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ccaa8b8a98da9de19017ad2fc611628">&#9670;&#160;</a></span>castling_show_completion_celebration()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_show_completion_celebration </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Show completion celebration. </p>
+<p>Zobraz oslavu dokonceni rosady. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00625">625</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a12f1ed6212174d4f9532880ea94601a3" name="a12f1ed6212174d4f9532880ea94601a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12f1ed6212174d4f9532880ea94601a3">&#9670;&#160;</a></span>castling_show_correct_positions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_show_correct_positions </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Show correct positions for castling. </p>
+<p>Zobraz spravne pozice pro rosadu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00751">751</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="af9ae62a763763e34333532307fe30289" name="af9ae62a763763e34333532307fe30289"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9ae62a763763e34333532307fe30289">&#9670;&#160;</a></span>castling_show_error_indication()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_show_error_indication </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="enhanced__castling__system_8h.html#a9efb9de3b24e4bcd4d5307a6ce23cbd1">castling_error_t</a></td>          <td class="paramname"><span class="paramname"><em>error</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Show error indication. </p>
+<p>Zobraz chybovou indikaci. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00584">584</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="aef98d7b498beb12daa3096022ec887e7" name="aef98d7b498beb12daa3096022ec887e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef98d7b498beb12daa3096022ec887e7">&#9670;&#160;</a></span>castling_show_king_guidance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_show_king_guidance </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Show king guidance for castling. </p>
+<p>Zobraz LED navod pro krale. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00520">520</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ad5dc5a20cfdaf9d84030f5072778aff1" name="ad5dc5a20cfdaf9d84030f5072778aff1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5dc5a20cfdaf9d84030f5072778aff1">&#9670;&#160;</a></span>castling_show_rook_guidance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_show_rook_guidance </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Show rook guidance for castling. </p>
+<p>Zobraz LED navod pro vez. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00552">552</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a4733364aef5fb97b725594cada6e7679" name="a4733364aef5fb97b725594cada6e7679"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4733364aef5fb97b725594cada6e7679">&#9670;&#160;</a></span>castling_show_tutorial()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void castling_show_tutorial </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Show castling tutorial. </p>
+<p>Zobraz tutorial rosady. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00767">767</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ae7bdbea7f5cfb9978bd0603bc5f4b4d0" name="ae7bdbea7f5cfb9978bd0603bc5f4b4d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7bdbea7f5cfb9978bd0603bc5f4b4d0">&#9670;&#160;</a></span>castling_validate_king_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool castling_validate_king_move </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validate king move for castling. </p>
+<p>Validuj tah krale pro rosadu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00450">450</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a1669c97b2e5dcb839542b59392dbacbd" name="a1669c97b2e5dcb839542b59392dbacbd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1669c97b2e5dcb839542b59392dbacbd">&#9670;&#160;</a></span>castling_validate_rook_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool castling_validate_rook_move </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validate rook move for castling. </p>
+<p>Validuj tah veze pro rosadu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00462">462</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a104226173b83a62df2d44053ed147131" name="a104226173b83a62df2d44053ed147131"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a104226173b83a62df2d44053ed147131">&#9670;&#160;</a></span>castling_validate_sequence()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool castling_validate_sequence </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validate castling sequence. </p>
+<p>Validuj sekvenci rosady. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00474">474</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a84967829c955ce40cb552af8f336c88d" name="a84967829c955ce40cb552af8f336c88d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84967829c955ce40cb552af8f336c88d">&#9670;&#160;</a></span>enhanced_castling_cancel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t enhanced_castling_cancel </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cancel current castling sequence. </p>
+<p>Zrus aktualni sekvenci rosady. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00319">319</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a573e41c1cc049dbb2722bc68b25f174b" name="a573e41c1cc049dbb2722bc68b25f174b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a573e41c1cc049dbb2722bc68b25f174b">&#9670;&#160;</a></span>enhanced_castling_get_phase()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="enhanced__castling__system_8h.html#a5488d560e2ddb85e20098a6a750ff984">castling_phase_t</a> enhanced_castling_get_phase </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get current castling phase. </p>
+<p>Ziskej aktualni fazi rosady. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00353">353</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a0996145f3c92961e6d97861fb01e0fff" name="a0996145f3c92961e6d97861fb01e0fff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0996145f3c92961e6d97861fb01e0fff">&#9670;&#160;</a></span>enhanced_castling_handle_error()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void enhanced_castling_handle_error </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="enhanced__castling__system_8h.html#a9efb9de3b24e4bcd4d5307a6ce23cbd1">castling_error_t</a></td>          <td class="paramname"><span class="paramname"><em>error</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle castling error. </p>
+<p>Zpracuj chybu rosady. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00389">389</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ac1a783168547602db601cce5f25f5ef6" name="ac1a783168547602db601cce5f25f5ef6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1a783168547602db601cce5f25f5ef6">&#9670;&#160;</a></span>enhanced_castling_handle_king_drop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t enhanced_castling_handle_king_drop </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle king drop event. </p>
+<p>Zpracuj udalost polozeni krale. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00198">198</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a71c6334fe7eed0d589acfeb1cb6aeaaf" name="a71c6334fe7eed0d589acfeb1cb6aeaaf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71c6334fe7eed0d589acfeb1cb6aeaaf">&#9670;&#160;</a></span>enhanced_castling_handle_king_lift()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t enhanced_castling_handle_king_lift </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle king lift event. </p>
+<p>Zpracuj udalost zvednutí krale. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00167">167</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ad0b372fd30752be5c2817d04115ad28d" name="ad0b372fd30752be5c2817d04115ad28d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0b372fd30752be5c2817d04115ad28d">&#9670;&#160;</a></span>enhanced_castling_handle_rook_drop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t enhanced_castling_handle_rook_drop </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle rook drop event. </p>
+<p>Zpracuj udalost polozeni veze. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00270">270</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a1298ed566772765b083158dd04d7617e" name="a1298ed566772765b083158dd04d7617e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1298ed566772765b083158dd04d7617e">&#9670;&#160;</a></span>enhanced_castling_handle_rook_lift()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t enhanced_castling_handle_rook_lift </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle rook lift event. </p>
+<p>Zpracuj udalost zvednutí veze. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00236">236</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a61f43ef55c76d2c5863819a96679f86d" name="a61f43ef55c76d2c5863819a96679f86d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61f43ef55c76d2c5863819a96679f86d">&#9670;&#160;</a></span>enhanced_castling_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t enhanced_castling_init </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize enhanced castling system. </p>
+<p>Inicializuj enhanced castling system. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00116">116</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a551d56ee547e30c59358ecfbef86302b" name="a551d56ee547e30c59358ecfbef86302b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a551d56ee547e30c59358ecfbef86302b">&#9670;&#160;</a></span>enhanced_castling_is_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool enhanced_castling_is_active </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if castling is currently active. </p>
+<p>Overi zda je rosada aktualne aktivni. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00345">345</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a68473225caaf82fb02dbe69dd2b0ac90" name="a68473225caaf82fb02dbe69dd2b0ac90"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68473225caaf82fb02dbe69dd2b0ac90">&#9670;&#160;</a></span>enhanced_castling_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t enhanced_castling_start </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a></td>          <td class="paramname"><span class="paramname"><em>player</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>is_kingside</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Start castling sequence. </p>
+<p>Spust sekvenci rosady. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00134">134</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a2addf80390a5195a77495585144214c4" name="a2addf80390a5195a77495585144214c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2addf80390a5195a77495585144214c4">&#9670;&#160;</a></span>enhanced_castling_update_phase()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void enhanced_castling_update_phase </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="enhanced__castling__system_8h.html#a5488d560e2ddb85e20098a6a750ff984">castling_phase_t</a></td>          <td class="paramname"><span class="paramname"><em>new_phase</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Update castling phase with timeout handling. </p>
+<p>Aktualizuj fazi rosady s timeout handlingem. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00361">361</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Dokumentace proměnných</h2>
+<a id="ad5f9d23be7ccc7853164b1b290e6ad84" name="ad5f9d23be7ccc7853164b1b290e6ad84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5f9d23be7ccc7853164b1b290e6ad84">&#9670;&#160;</a></span>castling_led_config</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structcastling__led__config__t.html">castling_led_config_t</a> castling_led_config</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    .colors = {</div>
+<div class="line">        .king_highlight = {.r = 255, .g = 215, .b = 0},      </div>
+<div class="line">        .king_destination = {.r = 0, .g = 255, .b = 0},      </div>
+<div class="line">        .rook_highlight = {.r = 192, .g = 192, .b = 192},    </div>
+<div class="line">        .rook_destination = {.r = 0, .g = 0, .b = 255},      </div>
+<div class="line">        .error_indication = {.r = 255, .g = 0, .b = 0},      </div>
+<div class="line">        .path_guidance = {.r = 255, .g = 255, .b = 0}        </div>
+<div class="line">    },</div>
+<div class="line">    .timing = {</div>
+<div class="line">        .pulsing_speed = 500,                 </div>
+<div class="line">        .guidance_speed = 300,                </div>
+<div class="line">        .error_flash_count = 3,               </div>
+<div class="line">        .completion_celebration_duration = 2000 </div>
+<div class="line">    }</div>
+<div class="line">}</div>
+</div><!-- fragment -->
+<p>LED konfigurace pro rosadu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00036">36</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a3e1c3a621bec2612240013522edf0638" name="a3e1c3a621bec2612240013522edf0638"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e1c3a621bec2612240013522edf0638">&#9670;&#160;</a></span>castling_system</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structenhanced__castling__system__t.html">enhanced_castling_system_t</a> castling_system = {0}</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Globalni instance castling systemu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00033">33</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a197b52b2c4d4ef9749cf548d08f361" name="a5a197b52b2c4d4ef9749cf548d08f361"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a197b52b2c4d4ef9749cf548d08f361">&#9670;&#160;</a></span>error_info</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structcastling__error__info__t.html">castling_error_info_t</a> error_info[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00054">54</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;ENHANCED_CASTLING&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00030">30</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_47913373ed45407138817b1e7d644a5d.html">enhanced_castling_system</a></li><li class="navelem"><a href="enhanced__castling__system_8c.html">enhanced_castling_system.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

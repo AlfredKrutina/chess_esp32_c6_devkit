@@ -1,0 +1,251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace struktury game_response_t</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('structgame__response__t.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace struktury game_response_t</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Struktura game odpovedi pro UART komunikaci.  
+ <a href="#details">...</a></p>
+
+<p><code>#include &lt;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Datové položky</h2></td></tr>
+<tr class="memitem:a3002d679599149eb947d042adf7d28a3" id="r_a3002d679599149eb947d042adf7d28a3"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3002d679599149eb947d042adf7d28a3">type</a></td></tr>
+<tr class="memdesc:a3002d679599149eb947d042adf7d28a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typ odpovedi (<a class="el" href="chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502" title="Typy game odpovedi.">game_response_type_t</a>).  <br /></td></tr>
+<tr class="memitem:a94891c48651d30f6ab358f269e789130" id="r_a94891c48651d30f6ab358f269e789130"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a94891c48651d30f6ab358f269e789130">command_type</a></td></tr>
+<tr class="memdesc:a94891c48651d30f6ab358f269e789130"><td class="mdescLeft">&#160;</td><td class="mdescRight">Puvodni typ prikazu (<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4" title="Typy game prikazu pro UART komunikaci.">game_command_type_t</a>).  <br /></td></tr>
+<tr class="memitem:a9b46f74a2c06621c440e9cd5bfd1c04e" id="r_a9b46f74a2c06621c440e9cd5bfd1c04e"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9b46f74a2c06621c440e9cd5bfd1c04e">error_code</a></td></tr>
+<tr class="memdesc:a9b46f74a2c06621c440e9cd5bfd1c04e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kod chyby (<a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1" title="Typy chyb pri tahu.">move_error_t</a>, 0 pokud neni chyba).  <br /></td></tr>
+<tr class="memitem:ae4afd8e408f8ec3943b6f8632b1333a7" id="r_ae4afd8e408f8ec3943b6f8632b1333a7"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae4afd8e408f8ec3943b6f8632b1333a7">message</a> [256]</td></tr>
+<tr class="memdesc:ae4afd8e408f8ec3943b6f8632b1333a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zprava pro uzivatele (human-readable).  <br /></td></tr>
+<tr class="memitem:ae9f24fd59c3cda6c038d6099efe5ec03" id="r_ae9f24fd59c3cda6c038d6099efe5ec03"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae9f24fd59c3cda6c038d6099efe5ec03">data</a> [3584]</td></tr>
+<tr class="memdesc:ae9f24fd59c3cda6c038d6099efe5ec03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data odpovedi (sachovnice ~3000 znaku, s bezpecnostni rezervou).  <br /></td></tr>
+<tr class="memitem:a6ca9b6d2062bf38fa5e6c8fb01a3ca04" id="r_a6ca9b6d2062bf38fa5e6c8fb01a3ca04"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6ca9b6d2062bf38fa5e6c8fb01a3ca04">timestamp</a></td></tr>
+<tr class="memdesc:a6ca9b6d2062bf38fa5e6c8fb01a3ca04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Casova znamka odpovedi (v milisekundach).  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Struktura game odpovedi pro UART komunikaci. </p>
+<p>Tato struktura obsahuje odpoved game tasku na prikaz. Je poslana zpet pres UART pro zobrazeni uzivateli. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00339">339</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+</div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Dokumentace položek</h2>
+<a id="a94891c48651d30f6ab358f269e789130" name="a94891c48651d30f6ab358f269e789130"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94891c48651d30f6ab358f269e789130">&#9670;&#160;</a></span>command_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_response_t::command_type</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Puvodni typ prikazu (<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4" title="Typy game prikazu pro UART komunikaci.">game_command_type_t</a>). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00341">341</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="ae9f24fd59c3cda6c038d6099efe5ec03" name="ae9f24fd59c3cda6c038d6099efe5ec03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9f24fd59c3cda6c038d6099efe5ec03">&#9670;&#160;</a></span>data</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char game_response_t::data[3584]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Data odpovedi (sachovnice ~3000 znaku, s bezpecnostni rezervou). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00344">344</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a9b46f74a2c06621c440e9cd5bfd1c04e" name="a9b46f74a2c06621c440e9cd5bfd1c04e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b46f74a2c06621c440e9cd5bfd1c04e">&#9670;&#160;</a></span>error_code</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_response_t::error_code</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Kod chyby (<a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1" title="Typy chyb pri tahu.">move_error_t</a>, 0 pokud neni chyba). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00342">342</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="ae4afd8e408f8ec3943b6f8632b1333a7" name="ae4afd8e408f8ec3943b6f8632b1333a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4afd8e408f8ec3943b6f8632b1333a7">&#9670;&#160;</a></span>message</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char game_response_t::message[256]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zprava pro uzivatele (human-readable). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00343">343</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a6ca9b6d2062bf38fa5e6c8fb01a3ca04" name="a6ca9b6d2062bf38fa5e6c8fb01a3ca04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ca9b6d2062bf38fa5e6c8fb01a3ca04">&#9670;&#160;</a></span>timestamp</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_response_t::timestamp</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Casova znamka odpovedi (v milisekundach). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00345">345</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a3002d679599149eb947d042adf7d28a3" name="a3002d679599149eb947d042adf7d28a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3002d679599149eb947d042adf7d28a3">&#9670;&#160;</a></span>type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_response_t::type</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typ odpovedi (<a class="el" href="chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502" title="Typy game odpovedi.">game_response_type_t</a>). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00340">340</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<hr/>Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru:<ul>
+<li><a class="el" href="chess__types_8h_source.html">chess_types.h</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="structgame__response__t.html">game_response_t</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

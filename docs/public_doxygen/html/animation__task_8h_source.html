@@ -1,0 +1,337 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor animation_task.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('animation__task_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">animation_task.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="animation__task_8h.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#ifndef ANIMATION_TASK_H</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#define ANIMATION_TASK_H</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#include &quot;freertos/FreeRTOS.h&quot;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;freertos/task.h&quot;</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;freertos/queue.h&quot;</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;freertos/semphr.h&quot;</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;freertos/timers.h&quot;</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;esp_err.h&quot;</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &quot;<a class="code" href="freertos__chess_8h.html">freertos_chess.h</a>&quot;</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">// KONSTANTY A DEFINICE</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="comment">// Typy animaci (prejmenovano pro zabraneni konfliktu s unified_animation_manager)</span></div>
+<div class="foldopen" id="foldopen00037" data-start="{" data-end="};">
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899f">   37</a></span><span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e">   38</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e">ANIM_TASK_TYPE_WAVE</a> = 0,         <span class="comment">// Vlnovy vzor</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee">   39</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee">ANIM_TASK_TYPE_PULSE</a>,            <span class="comment">// Pulzni efekt</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6">   40</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6">ANIM_TASK_TYPE_FADE</a>,             <span class="comment">// Prechod fade</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a">   41</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a">ANIM_TASK_TYPE_CHESS_PATTERN</a>,    <span class="comment">// Sachovnicovy vzor</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358">   42</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358">ANIM_TASK_TYPE_RAINBOW</a>,          <span class="comment">// Duhove barvy</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0">   43</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0">ANIM_TASK_TYPE_MOVE_HIGHLIGHT</a>,   <span class="comment">// Zvyrazneni cesty tahu</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4">   44</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4">ANIM_TASK_TYPE_CHECK_HIGHLIGHT</a>,  <span class="comment">// Indikator sachu</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f">   45</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f">ANIM_TASK_TYPE_GAME_OVER</a>,        <span class="comment">// Vzor konce hry</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa6eb688ab2a8237f9f4486e04f62077d3">   46</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa6eb688ab2a8237f9f4486e04f62077d3">ANIM_TASK_TYPE_CUSTOM</a>            <span class="comment">// Vlastni animace</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>} <a class="code hl_enumeration" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899f">animation_task_type_t</a>;</div>
+</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="comment">// Typy stavu animaci (prejmenovano pro zabraneni konfliktu s unified_animation_manager)</span></div>
+<div class="foldopen" id="foldopen00050" data-start="{" data-end="};">
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8fee">   50</a></span><span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363">   51</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363">ANIM_TASK_STATE_IDLE</a> = 0,       <span class="comment">// Animace je neaktivni</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c">   52</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c">ANIM_TASK_STATE_RUNNING</a>,        <span class="comment">// Animace bezi</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c">   53</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c">ANIM_TASK_STATE_PAUSED</a>,         <span class="comment">// Animace je pozastavena</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08">   54</a></span>    <a class="code hl_enumvalue" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08">ANIM_TASK_STATE_FINISHED</a>        <span class="comment">// Animace je dokoncena</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>} <a class="code hl_enumeration" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8fee">animation_task_state_t</a>;</div>
+</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="comment">// Animation structure</span></div>
+<div class="foldopen" id="foldopen00058" data-start="{" data-end="};">
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="structanimation__task__t.html">   58</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#adb7f1e556a2073bf7ce347ee3f96cfe4">   59</a></span>    uint8_t <a class="code hl_variable" href="structanimation__task__t.html#adb7f1e556a2073bf7ce347ee3f96cfe4">id</a>;                 <span class="comment">// Animation ID</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#abffffba2feaf4ae9d6911cc115a91593">   60</a></span>    <a class="code hl_enumeration" href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8fee">animation_task_state_t</a> <a class="code hl_variable" href="structanimation__task__t.html#abffffba2feaf4ae9d6911cc115a91593">state</a>;    <span class="comment">// Current state</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#abc3e62a06682ed4652bf1ed358c84f0a">   61</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structanimation__task__t.html#abc3e62a06682ed4652bf1ed358c84f0a">active</a>;                <span class="comment">// Whether animation is active</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#a4323d7e401e5a856bcdbef5c57503653">   62</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structanimation__task__t.html#a4323d7e401e5a856bcdbef5c57503653">paused</a>;                <span class="comment">// Whether animation is paused</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#a567b61ac057e886362023c7363f4aefd">   63</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structanimation__task__t.html#a567b61ac057e886362023c7363f4aefd">loop</a>;                  <span class="comment">// Whether to loop animation</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#a5ffc03906acb15f1e4528c668bc41778">   64</a></span>    uint8_t <a class="code hl_variable" href="structanimation__task__t.html#a5ffc03906acb15f1e4528c668bc41778">priority</a>;           <span class="comment">// Animation priority (0-255)</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#ac98d14c78132155465672c4943857a2a">   65</a></span>    <a class="code hl_enumeration" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899f">animation_task_type_t</a> <a class="code hl_variable" href="structanimation__task__t.html#ac98d14c78132155465672c4943857a2a">type</a>;      <span class="comment">// Animation type</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#a25f85a5720a2bd7add2c2423f84cbee4">   66</a></span>    uint32_t <a class="code hl_variable" href="structanimation__task__t.html#a25f85a5720a2bd7add2c2423f84cbee4">start_time</a>;        <span class="comment">// Start timestamp</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#a4c5211bfc199b4bdbc596849387d05ae">   67</a></span>    uint32_t <a class="code hl_variable" href="structanimation__task__t.html#a4c5211bfc199b4bdbc596849387d05ae">duration_ms</a>;       <span class="comment">// Duration in milliseconds</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#a9302e023c296097ae10d831469dc25f7">   68</a></span>    uint32_t <a class="code hl_variable" href="structanimation__task__t.html#a9302e023c296097ae10d831469dc25f7">frame_duration_ms</a>; <span class="comment">// Frame duration in ms</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#a49e9a3dd3d14920942a194b2b658ee01">   69</a></span>    uint32_t <a class="code hl_variable" href="structanimation__task__t.html#a49e9a3dd3d14920942a194b2b658ee01">current_frame</a>;     <span class="comment">// Current frame number</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#a273fbd2a2ffa5590a455c97ac1c1f09b">   70</a></span>    uint32_t <a class="code hl_variable" href="structanimation__task__t.html#a273fbd2a2ffa5590a455c97ac1c1f09b">total_frames</a>;      <span class="comment">// Total frame count</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#ac770e95f6dafd7507d61a359cdc53ce8">   71</a></span>    uint32_t <a class="code hl_variable" href="structanimation__task__t.html#ac770e95f6dafd7507d61a359cdc53ce8">frame_interval</a>;    <span class="comment">// Frame interval in ms</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno"><a class="line" href="structanimation__task__t.html#a0b2f1d684a7d68b707b1372684d1e9f2">   72</a></span>    <span class="keywordtype">void</span>* <a class="code hl_variable" href="structanimation__task__t.html#a0b2f1d684a7d68b707b1372684d1e9f2">data</a>;                 <span class="comment">// Animation-specific data</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>} <a class="code hl_struct" href="structanimation__task__t.html">animation_task_t</a>;</div>
+</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="comment">// PROTOTYPY FUNKCI TASKU</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a18ab65be2c5b763305a8d6c1fa886392">animation_task_start</a>(<span class="keywordtype">void</span> *pvParameters);</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="comment">// INICIALIZACNI FUNKCE ANIMACI</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a09488753d3a3be4415fb5e1bc44d1fb0">animation_initialize_system</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>uint8_t <a class="code hl_function" href="animation__task_8h.html#a8f46cd6a1f375c8d19d1c4315cabdbfd">animation_create</a>(<a class="code hl_enumeration" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899f">animation_task_type_t</a> type, uint32_t duration_ms, uint8_t priority, <span class="keywordtype">bool</span> loop);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#abb35a3172d5d24a24902916b1ecfa40f">animation_start</a>(uint8_t animation_id);</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#adc882a0b86428a7333c86eddd1f26b8d">animation_stop</a>(uint8_t animation_id);</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a41183595937bafd37b4ba07c47b8c62d">animation_pause</a>(uint8_t animation_id);</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span></div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a04765d28e82fce17f90d526a7ce60fc2">animation_resume</a>(uint8_t animation_id);</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span> </div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span><span class="comment">// FUNKCE PRO VZORY ANIMACI</span></div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span></div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a03563b1b04565e45d3892b520708bd64">animation_generate_wave_frame</a>(uint32_t frame, uint32_t color, uint8_t speed);</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span></div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a348dfefe5bb753b16839d5215505e4f4">animation_generate_pulse_frame</a>(uint32_t frame, uint32_t color, uint8_t speed);</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span></div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#ad2116436a161de0d3c2aa663ef02d12e">animation_generate_fade_frame</a>(uint32_t frame, uint32_t from_color, uint32_t to_color, uint32_t total_frames);</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span></div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#afb64e912fbca18925c8cac41b6006f2c">animation_generate_chess_pattern</a>(uint32_t frame, uint32_t color1, uint32_t color2);</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span></div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a63112c5794b76845d9afff7eb6fd3259">animation_generate_rainbow_frame</a>(uint32_t frame);</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span><span class="comment">// FUNKCE PRO VYKONAVANI ANIMACI</span></div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span></div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#afecf0d9f3014ec819b9d8d4efecc1ee5">animation_execute_frame</a>(<a class="code hl_struct" href="structanimation__task__t.html">animation_task_t</a>* anim);</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span></div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#aec58eeb9ffe892383adeef75473dc160">animation_send_frame_to_leds</a>(<span class="keyword">const</span> uint8_t frame[<a class="code hl_define" href="chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728">CHESS_LED_COUNT_TOTAL</a>][3]);</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a06e87351882b4abb2b090c3e3fad2098">animation_execute_move_highlight</a>(<a class="code hl_struct" href="structanimation__task__t.html">animation_task_t</a>* anim);</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#aeeb63457d09fa55c64a67b38e895ab4a">animation_execute_check_highlight</a>(<a class="code hl_struct" href="structanimation__task__t.html">animation_task_t</a>* anim);</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span></div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#aa4e0d21daa2bff68ffc49abd0995d812">animation_execute_game_over</a>(<a class="code hl_struct" href="structanimation__task__t.html">animation_task_t</a>* anim);</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span> </div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="comment">// FUNKCE PRO OVLADANI ANIMACI</span></div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span> </div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span></div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a0060e7605dd42ba4e2041e1c4402f60e">animation_process_commands</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span></div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a19ff3a915b7dad334a1d306492667916">animation_stop_all</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span></div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a70e168a5ba925ad0d8da01a49d34e75c">animation_pause_all</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span></div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a749cd1a19567e9b741fb320e1d440736">animation_resume_all</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span></div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a9731cdb2cdcf0234b35af6ba0b7b1402">animation_print_status</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span></div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#ab87baa702421428476b149e35aa74ab9">animation_test_all</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno"><a class="line" href="animation__task_8h.html#a213dccff1d89e8b9afa89882fe6b5df9">  268</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a213dccff1d89e8b9afa89882fe6b5df9">animation_test_system</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span> </div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span><span class="comment">// Funkce pro textove zobrazeni animaci</span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span><span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code hl_function" href="animation__task_8h.html#ad90823f255171d2792d13345b96d9477">animation_get_name</a>(<a class="code hl_enumeration" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899f">animation_task_type_t</a> animation_type);</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a79382186a6a22377fff18924934c118a">animation_print_progress</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structanimation__task__t.html">animation_task_t</a>* anim);</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a1fc234eed1ddbb156d9c1d61d21abd52">animation_print_piece_move</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* from_square, <span class="keyword">const</span> <span class="keywordtype">char</span>* to_square, </div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>                               <span class="keyword">const</span> <span class="keywordtype">char</span>* piece_name, <span class="keywordtype">float</span> progress);</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#afd9f1291c4f0584d7d02b26744a24475">animation_print_check_status</a>(<span class="keywordtype">bool</span> is_checkmate, <span class="keywordtype">float</span> progress);</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a817be6e29efbd666e7334307f7c5fe5a">animation_print_summary</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span><span class="comment">// PRIROZENE ANIMACE POHYBU FIGUREK</span></div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span></div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a5361d673dfa5c9b0568be0e4cac80444">animate_piece_move_natural</a>(uint8_t from_row, uint8_t from_col, </div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>                               uint8_t to_row, uint8_t to_col, <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece);</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span></div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span><span class="keywordtype">void</span> <a class="code hl_function" href="animation__task_8h.html#a2b5de7f9e2ba904cd16a02a3add0b6d6">animation_request_interrupt</a>();</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span><span class="keywordtype">bool</span> <a class="code hl_function" href="animation__task_8h.html#ad4a9e6f0e9175a5f2f10c3536fb43308">new_move_detected</a>();</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span><span class="preprocessor">#endif </span><span class="comment">// ANIMATION_TASK_H</span></div>
+<div class="ttc" id="aanimation__task_8h_html_a0060e7605dd42ba4e2041e1c4402f60e"><div class="ttname"><a href="animation__task_8h.html#a0060e7605dd42ba4e2041e1c4402f60e">animation_process_commands</a></div><div class="ttdeci">void animation_process_commands(void)</div><div class="ttdoc">Zpracuje prikazy animaci z fronty.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00769">animation_task.c:769</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a03563b1b04565e45d3892b520708bd64"><div class="ttname"><a href="animation__task_8h.html#a03563b1b04565e45d3892b520708bd64">animation_generate_wave_frame</a></div><div class="ttdeci">void animation_generate_wave_frame(uint32_t frame, uint32_t color, uint8_t speed)</div><div class="ttdoc">Generuje snimek vlnove animace.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00262">animation_task.c:262</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a04765d28e82fce17f90d526a7ce60fc2"><div class="ttname"><a href="animation__task_8h.html#a04765d28e82fce17f90d526a7ce60fc2">animation_resume</a></div><div class="ttdeci">void animation_resume(uint8_t animation_id)</div><div class="ttdoc">Obnovi animaci.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00243">animation_task.c:243</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a06e87351882b4abb2b090c3e3fad2098"><div class="ttname"><a href="animation__task_8h.html#a06e87351882b4abb2b090c3e3fad2098">animation_execute_move_highlight</a></div><div class="ttdeci">void animation_execute_move_highlight(animation_task_t *anim)</div><div class="ttdoc">Vykona animaci zvyrazneni tahu.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00715">animation_task.c:715</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a09488753d3a3be4415fb5e1bc44d1fb0"><div class="ttname"><a href="animation__task_8h.html#a09488753d3a3be4415fb5e1bc44d1fb0">animation_initialize_system</a></div><div class="ttdeci">void animation_initialize_system(void)</div><div class="ttdoc">Inicializuje system animaci.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00124">animation_task.c:124</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a18ab65be2c5b763305a8d6c1fa886392"><div class="ttname"><a href="animation__task_8h.html#a18ab65be2c5b763305a8d6c1fa886392">animation_task_start</a></div><div class="ttdeci">void animation_task_start(void *pvParameters)</div><div class="ttdoc">Spusti animation task.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l01052">animation_task.c:1052</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a19ff3a915b7dad334a1d306492667916"><div class="ttname"><a href="animation__task_8h.html#a19ff3a915b7dad334a1d306492667916">animation_stop_all</a></div><div class="ttdeci">void animation_stop_all(void)</div><div class="ttdoc">Zastavi vsechny animace.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00806">animation_task.c:806</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a1fc234eed1ddbb156d9c1d61d21abd52"><div class="ttname"><a href="animation__task_8h.html#a1fc234eed1ddbb156d9c1d61d21abd52">animation_print_piece_move</a></div><div class="ttdeci">void animation_print_piece_move(const char *from_square, const char *to_square, const char *piece_name, float progress)</div><div class="ttdoc">Print piece move animation with chess notation.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00964">animation_task.c:964</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a213dccff1d89e8b9afa89882fe6b5df9"><div class="ttname"><a href="animation__task_8h.html#a213dccff1d89e8b9afa89882fe6b5df9">animation_test_system</a></div><div class="ttdeci">void animation_test_system(void)</div><div class="ttdoc">Otestuje system animaci.</div></div>
+<div class="ttc" id="aanimation__task_8h_html_a2b5de7f9e2ba904cd16a02a3add0b6d6"><div class="ttname"><a href="animation__task_8h.html#a2b5de7f9e2ba904cd16a02a3add0b6d6">animation_request_interrupt</a></div><div class="ttdeci">void animation_request_interrupt()</div><div class="ttdoc">Pozada o preruseni animace.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00587">animation_task.c:587</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a2dadc2f6c02f4b392e290071e65a8fee"><div class="ttname"><a href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8fee">animation_task_state_t</a></div><div class="ttdeci">animation_task_state_t</div><div class="ttdef"><b>Definition</b> <a href="#l00050">animation_task.h:50</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c"><div class="ttname"><a href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c">ANIM_TASK_STATE_RUNNING</a></div><div class="ttdeci">@ ANIM_TASK_STATE_RUNNING</div><div class="ttdef"><b>Definition</b> <a href="#l00052">animation_task.h:52</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c"><div class="ttname"><a href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c">ANIM_TASK_STATE_PAUSED</a></div><div class="ttdeci">@ ANIM_TASK_STATE_PAUSED</div><div class="ttdef"><b>Definition</b> <a href="#l00053">animation_task.h:53</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363"><div class="ttname"><a href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363">ANIM_TASK_STATE_IDLE</a></div><div class="ttdeci">@ ANIM_TASK_STATE_IDLE</div><div class="ttdef"><b>Definition</b> <a href="#l00051">animation_task.h:51</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08"><div class="ttname"><a href="animation__task_8h.html#a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08">ANIM_TASK_STATE_FINISHED</a></div><div class="ttdeci">@ ANIM_TASK_STATE_FINISHED</div><div class="ttdef"><b>Definition</b> <a href="#l00054">animation_task.h:54</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a348dfefe5bb753b16839d5215505e4f4"><div class="ttname"><a href="animation__task_8h.html#a348dfefe5bb753b16839d5215505e4f4">animation_generate_pulse_frame</a></div><div class="ttdeci">void animation_generate_pulse_frame(uint32_t frame, uint32_t color, uint8_t speed)</div><div class="ttdoc">Generuje snimek pulzni animace.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00283">animation_task.c:283</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a3da732fa10b2f45510643d0280be899f"><div class="ttname"><a href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899f">animation_task_type_t</a></div><div class="ttdeci">animation_task_type_t</div><div class="ttdef"><b>Definition</b> <a href="#l00037">animation_task.h:37</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e"><div class="ttname"><a href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e">ANIM_TASK_TYPE_WAVE</a></div><div class="ttdeci">@ ANIM_TASK_TYPE_WAVE</div><div class="ttdef"><b>Definition</b> <a href="#l00038">animation_task.h:38</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358"><div class="ttname"><a href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358">ANIM_TASK_TYPE_RAINBOW</a></div><div class="ttdeci">@ ANIM_TASK_TYPE_RAINBOW</div><div class="ttdef"><b>Definition</b> <a href="#l00042">animation_task.h:42</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a"><div class="ttname"><a href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a">ANIM_TASK_TYPE_CHESS_PATTERN</a></div><div class="ttdeci">@ ANIM_TASK_TYPE_CHESS_PATTERN</div><div class="ttdef"><b>Definition</b> <a href="#l00041">animation_task.h:41</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee"><div class="ttname"><a href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee">ANIM_TASK_TYPE_PULSE</a></div><div class="ttdeci">@ ANIM_TASK_TYPE_PULSE</div><div class="ttdef"><b>Definition</b> <a href="#l00039">animation_task.h:39</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f"><div class="ttname"><a href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f">ANIM_TASK_TYPE_GAME_OVER</a></div><div class="ttdeci">@ ANIM_TASK_TYPE_GAME_OVER</div><div class="ttdef"><b>Definition</b> <a href="#l00045">animation_task.h:45</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a3da732fa10b2f45510643d0280be899fa6eb688ab2a8237f9f4486e04f62077d3"><div class="ttname"><a href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa6eb688ab2a8237f9f4486e04f62077d3">ANIM_TASK_TYPE_CUSTOM</a></div><div class="ttdeci">@ ANIM_TASK_TYPE_CUSTOM</div><div class="ttdef"><b>Definition</b> <a href="#l00046">animation_task.h:46</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6"><div class="ttname"><a href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6">ANIM_TASK_TYPE_FADE</a></div><div class="ttdeci">@ ANIM_TASK_TYPE_FADE</div><div class="ttdef"><b>Definition</b> <a href="#l00040">animation_task.h:40</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4"><div class="ttname"><a href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4">ANIM_TASK_TYPE_CHECK_HIGHLIGHT</a></div><div class="ttdeci">@ ANIM_TASK_TYPE_CHECK_HIGHLIGHT</div><div class="ttdef"><b>Definition</b> <a href="#l00044">animation_task.h:44</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0"><div class="ttname"><a href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0">ANIM_TASK_TYPE_MOVE_HIGHLIGHT</a></div><div class="ttdeci">@ ANIM_TASK_TYPE_MOVE_HIGHLIGHT</div><div class="ttdef"><b>Definition</b> <a href="#l00043">animation_task.h:43</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a41183595937bafd37b4ba07c47b8c62d"><div class="ttname"><a href="animation__task_8h.html#a41183595937bafd37b4ba07c47b8c62d">animation_pause</a></div><div class="ttdeci">void animation_pause(uint8_t animation_id)</div><div class="ttdoc">Pozastavi animaci.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00229">animation_task.c:229</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a5361d673dfa5c9b0568be0e4cac80444"><div class="ttname"><a href="animation__task_8h.html#a5361d673dfa5c9b0568be0e4cac80444">animate_piece_move_natural</a></div><div class="ttdeci">void animate_piece_move_natural(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col, piece_t piece)</div><div class="ttdoc">Animuje pohyb figurky s prirozenymi pohybovymi vzory.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00496">animation_task.c:496</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a63112c5794b76845d9afff7eb6fd3259"><div class="ttname"><a href="animation__task_8h.html#a63112c5794b76845d9afff7eb6fd3259">animation_generate_rainbow_frame</a></div><div class="ttdeci">void animation_generate_rainbow_frame(uint32_t frame)</div><div class="ttdoc">Generuje snimek duhove animace.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00339">animation_task.c:339</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a70e168a5ba925ad0d8da01a49d34e75c"><div class="ttname"><a href="animation__task_8h.html#a70e168a5ba925ad0d8da01a49d34e75c">animation_pause_all</a></div><div class="ttdeci">void animation_pause_all(void)</div><div class="ttdoc">Pozastavi vsechny animace.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00820">animation_task.c:820</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a749cd1a19567e9b741fb320e1d440736"><div class="ttname"><a href="animation__task_8h.html#a749cd1a19567e9b741fb320e1d440736">animation_resume_all</a></div><div class="ttdeci">void animation_resume_all(void)</div><div class="ttdoc">Obnovi vsechny animace.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00832">animation_task.c:832</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a79382186a6a22377fff18924934c118a"><div class="ttname"><a href="animation__task_8h.html#a79382186a6a22377fff18924934c118a">animation_print_progress</a></div><div class="ttdeci">void animation_print_progress(const animation_task_t *anim)</div><div class="ttdoc">Print animation progress with text representation.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00919">animation_task.c:919</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a817be6e29efbd666e7334307f7c5fe5a"><div class="ttname"><a href="animation__task_8h.html#a817be6e29efbd666e7334307f7c5fe5a">animation_print_summary</a></div><div class="ttdeci">void animation_print_summary(void)</div><div class="ttdoc">Print animation summary for all active animations.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l01023">animation_task.c:1023</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a8f46cd6a1f375c8d19d1c4315cabdbfd"><div class="ttname"><a href="animation__task_8h.html#a8f46cd6a1f375c8d19d1c4315cabdbfd">animation_create</a></div><div class="ttdeci">uint8_t animation_create(animation_task_type_t type, uint32_t duration_ms, uint8_t priority, bool loop)</div><div class="ttdoc">Vytvori novou animaci.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00152">animation_task.c:152</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_a9731cdb2cdcf0234b35af6ba0b7b1402"><div class="ttname"><a href="animation__task_8h.html#a9731cdb2cdcf0234b35af6ba0b7b1402">animation_print_status</a></div><div class="ttdeci">void animation_print_status(void)</div><div class="ttdoc">Vypise stav animaci.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00844">animation_task.c:844</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_aa4e0d21daa2bff68ffc49abd0995d812"><div class="ttname"><a href="animation__task_8h.html#aa4e0d21daa2bff68ffc49abd0995d812">animation_execute_game_over</a></div><div class="ttdeci">void animation_execute_game_over(animation_task_t *anim)</div><div class="ttdoc">Vykona animaci konce hry.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00750">animation_task.c:750</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_ab87baa702421428476b149e35aa74ab9"><div class="ttname"><a href="animation__task_8h.html#ab87baa702421428476b149e35aa74ab9">animation_test_all</a></div><div class="ttdeci">void animation_test_all(void)</div><div class="ttdoc">Otestuje vsechny typy animaci.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00860">animation_task.c:860</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_abb35a3172d5d24a24902916b1ecfa40f"><div class="ttname"><a href="animation__task_8h.html#abb35a3172d5d24a24902916b1ecfa40f">animation_start</a></div><div class="ttdeci">void animation_start(uint8_t animation_id)</div><div class="ttdoc">Spusti animaci.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00190">animation_task.c:190</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_ad2116436a161de0d3c2aa663ef02d12e"><div class="ttname"><a href="animation__task_8h.html#ad2116436a161de0d3c2aa663ef02d12e">animation_generate_fade_frame</a></div><div class="ttdeci">void animation_generate_fade_frame(uint32_t frame, uint32_t from_color, uint32_t to_color, uint32_t total_frames)</div><div class="ttdoc">Generuje snimek fade animace.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00300">animation_task.c:300</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_ad4a9e6f0e9175a5f2f10c3536fb43308"><div class="ttname"><a href="animation__task_8h.html#ad4a9e6f0e9175a5f2f10c3536fb43308">new_move_detected</a></div><div class="ttdeci">bool new_move_detected()</div><div class="ttdoc">Overi zda byla detekovana nova animace (placeholder).</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00601">animation_task.c:601</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_ad90823f255171d2792d13345b96d9477"><div class="ttname"><a href="animation__task_8h.html#ad90823f255171d2792d13345b96d9477">animation_get_name</a></div><div class="ttdeci">const char * animation_get_name(animation_task_type_t animation_type)</div><div class="ttdoc">Get animation name as string.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00899">animation_task.c:899</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_adc882a0b86428a7333c86eddd1f26b8d"><div class="ttname"><a href="animation__task_8h.html#adc882a0b86428a7333c86eddd1f26b8d">animation_stop</a></div><div class="ttdeci">void animation_stop(uint8_t animation_id)</div><div class="ttdoc">Zastavi animaci.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00213">animation_task.c:213</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_aec58eeb9ffe892383adeef75473dc160"><div class="ttname"><a href="animation__task_8h.html#aec58eeb9ffe892383adeef75473dc160">animation_send_frame_to_leds</a></div><div class="ttdeci">void animation_send_frame_to_leds(const uint8_t frame[CHESS_LED_COUNT_TOTAL][3])</div><div class="ttdoc">Posle data snimku do LED.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00704">animation_task.c:704</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_aeeb63457d09fa55c64a67b38e895ab4a"><div class="ttname"><a href="animation__task_8h.html#aeeb63457d09fa55c64a67b38e895ab4a">animation_execute_check_highlight</a></div><div class="ttdeci">void animation_execute_check_highlight(animation_task_t *anim)</div><div class="ttdoc">Vykona animaci zvyrazneni sachu.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00732">animation_task.c:732</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_afb64e912fbca18925c8cac41b6006f2c"><div class="ttname"><a href="animation__task_8h.html#afb64e912fbca18925c8cac41b6006f2c">animation_generate_chess_pattern</a></div><div class="ttdeci">void animation_generate_chess_pattern(uint32_t frame, uint32_t color1, uint32_t color2)</div><div class="ttdoc">Generuje snimek sachovnicoveho vzoru.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00324">animation_task.c:324</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_afd9f1291c4f0584d7d02b26744a24475"><div class="ttname"><a href="animation__task_8h.html#afd9f1291c4f0584d7d02b26744a24475">animation_print_check_status</a></div><div class="ttdeci">void animation_print_check_status(bool is_checkmate, float progress)</div><div class="ttdoc">Print check/checkmate animation status.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00995">animation_task.c:995</a></div></div>
+<div class="ttc" id="aanimation__task_8h_html_afecf0d9f3014ec819b9d8d4efecc1ee5"><div class="ttname"><a href="animation__task_8h.html#afecf0d9f3014ec819b9d8d4efecc1ee5">animation_execute_frame</a></div><div class="ttdeci">void animation_execute_frame(animation_task_t *anim)</div><div class="ttdoc">Vykona snimek animace.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l00613">animation_task.c:613</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a></div><div class="ttdeci">piece_t</div><div class="ttdoc">Typy sachovych figurek.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00049">chess_types.h:49</a></div></div>
+<div class="ttc" id="achess__types_8h_html_afb4b5c24ea71da31d1fe1536f5c18728"><div class="ttname"><a href="chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728">CHESS_LED_COUNT_TOTAL</a></div><div class="ttdeci">#define CHESS_LED_COUNT_TOTAL</div><div class="ttdoc">Celkovy pocet LED (64 sachovnice + 9 tlacitek = 73).</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00549">chess_types.h:549</a></div></div>
+<div class="ttc" id="afreertos__chess_8h_html"><div class="ttname"><a href="freertos__chess_8h.html">freertos_chess.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - Hlavni systemova hlavicka.</div></div>
+<div class="ttc" id="astructanimation__task__t_html"><div class="ttname"><a href="structanimation__task__t.html">animation_task_t</a></div><div class="ttdef"><b>Definition</b> <a href="#l00058">animation_task.h:58</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_a0b2f1d684a7d68b707b1372684d1e9f2"><div class="ttname"><a href="structanimation__task__t.html#a0b2f1d684a7d68b707b1372684d1e9f2">animation_task_t::data</a></div><div class="ttdeci">void * data</div><div class="ttdef"><b>Definition</b> <a href="#l00072">animation_task.h:72</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_a25f85a5720a2bd7add2c2423f84cbee4"><div class="ttname"><a href="structanimation__task__t.html#a25f85a5720a2bd7add2c2423f84cbee4">animation_task_t::start_time</a></div><div class="ttdeci">uint32_t start_time</div><div class="ttdef"><b>Definition</b> <a href="#l00066">animation_task.h:66</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_a273fbd2a2ffa5590a455c97ac1c1f09b"><div class="ttname"><a href="structanimation__task__t.html#a273fbd2a2ffa5590a455c97ac1c1f09b">animation_task_t::total_frames</a></div><div class="ttdeci">uint32_t total_frames</div><div class="ttdef"><b>Definition</b> <a href="#l00070">animation_task.h:70</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_a4323d7e401e5a856bcdbef5c57503653"><div class="ttname"><a href="structanimation__task__t.html#a4323d7e401e5a856bcdbef5c57503653">animation_task_t::paused</a></div><div class="ttdeci">bool paused</div><div class="ttdef"><b>Definition</b> <a href="#l00062">animation_task.h:62</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_a49e9a3dd3d14920942a194b2b658ee01"><div class="ttname"><a href="structanimation__task__t.html#a49e9a3dd3d14920942a194b2b658ee01">animation_task_t::current_frame</a></div><div class="ttdeci">uint32_t current_frame</div><div class="ttdef"><b>Definition</b> <a href="#l00069">animation_task.h:69</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_a4c5211bfc199b4bdbc596849387d05ae"><div class="ttname"><a href="structanimation__task__t.html#a4c5211bfc199b4bdbc596849387d05ae">animation_task_t::duration_ms</a></div><div class="ttdeci">uint32_t duration_ms</div><div class="ttdef"><b>Definition</b> <a href="#l00067">animation_task.h:67</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_a567b61ac057e886362023c7363f4aefd"><div class="ttname"><a href="structanimation__task__t.html#a567b61ac057e886362023c7363f4aefd">animation_task_t::loop</a></div><div class="ttdeci">bool loop</div><div class="ttdef"><b>Definition</b> <a href="#l00063">animation_task.h:63</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_a5ffc03906acb15f1e4528c668bc41778"><div class="ttname"><a href="structanimation__task__t.html#a5ffc03906acb15f1e4528c668bc41778">animation_task_t::priority</a></div><div class="ttdeci">uint8_t priority</div><div class="ttdef"><b>Definition</b> <a href="#l00064">animation_task.h:64</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_a9302e023c296097ae10d831469dc25f7"><div class="ttname"><a href="structanimation__task__t.html#a9302e023c296097ae10d831469dc25f7">animation_task_t::frame_duration_ms</a></div><div class="ttdeci">uint32_t frame_duration_ms</div><div class="ttdef"><b>Definition</b> <a href="#l00068">animation_task.h:68</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_abc3e62a06682ed4652bf1ed358c84f0a"><div class="ttname"><a href="structanimation__task__t.html#abc3e62a06682ed4652bf1ed358c84f0a">animation_task_t::active</a></div><div class="ttdeci">bool active</div><div class="ttdef"><b>Definition</b> <a href="#l00061">animation_task.h:61</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_abffffba2feaf4ae9d6911cc115a91593"><div class="ttname"><a href="structanimation__task__t.html#abffffba2feaf4ae9d6911cc115a91593">animation_task_t::state</a></div><div class="ttdeci">animation_task_state_t state</div><div class="ttdef"><b>Definition</b> <a href="#l00060">animation_task.h:60</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_ac770e95f6dafd7507d61a359cdc53ce8"><div class="ttname"><a href="structanimation__task__t.html#ac770e95f6dafd7507d61a359cdc53ce8">animation_task_t::frame_interval</a></div><div class="ttdeci">uint32_t frame_interval</div><div class="ttdef"><b>Definition</b> <a href="#l00071">animation_task.h:71</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_ac98d14c78132155465672c4943857a2a"><div class="ttname"><a href="structanimation__task__t.html#ac98d14c78132155465672c4943857a2a">animation_task_t::type</a></div><div class="ttdeci">animation_task_type_t type</div><div class="ttdef"><b>Definition</b> <a href="#l00065">animation_task.h:65</a></div></div>
+<div class="ttc" id="astructanimation__task__t_html_adb7f1e556a2073bf7ce347ee3f96cfe4"><div class="ttname"><a href="structanimation__task__t.html#adb7f1e556a2073bf7ce347ee3f96cfe4">animation_task_t::id</a></div><div class="ttdeci">uint8_t id</div><div class="ttdef"><b>Definition</b> <a href="#l00059">animation_task.h:59</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_41295a85b1295fc0ebd5beaf3e0347d1.html">animation_task</a></li><li class="navelem"><a href="dir_d0954016f3b51aa8e12d79ad9b090aaa.html">include</a></li><li class="navelem"><a href="animation__task_8h.html">animation_task.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

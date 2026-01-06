@@ -1,0 +1,719 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru uart_commands_extended.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('uart__commands__extended_8c.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru uart_commands_extended.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>ESP32-C6 Chess System - Rozsirene UART prikazy pro LED animace.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="uart__commands__extended_8h_source.html">uart_commands_extended.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__task_8h_source.html">led_task.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
+</div>
+<p><a href="uart__commands__extended_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a077345de50407d4102d48247f457f88a" id="r_a077345de50407d4102d48247f457f88a"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a077345de50407d4102d48247f457f88a">parse_king_position</a> (const char *pos_str)</td></tr>
+<tr class="memdesc:a077345de50407d4102d48247f457f88a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parsuje pozici krále ze stringu (např.  <br /></td></tr>
+<tr class="memitem:a2a78e4f624df8fcd55e57d48360a10e0" id="r_a2a78e4f624df8fcd55e57d48360a10e0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a78e4f624df8fcd55e57d48360a10e0">position_to_string</a> (uint8_t pos, char *out_str)</td></tr>
+<tr class="memdesc:a2a78e4f624df8fcd55e57d48360a10e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vrátí string reprezentaci pozice (např.  <br /></td></tr>
+<tr class="memitem:ace118ff57c1728a13e4660df6234a4a8" id="r_ace118ff57c1728a13e4660df6234a4a8"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ace118ff57c1728a13e4660df6234a4a8">cmd_endgame_animations</a> (int argc, char **argv, char *response, size_t response_size)</td></tr>
+<tr class="memdesc:ace118ff57c1728a13e4660df6234a4a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obsluha příkazu "endgame animations" Zobrazí seznam všech dostupných endgame animací  <br /></td></tr>
+<tr class="memitem:aa1c75de10ba908b20b3384fc09d857e4" id="r_aa1c75de10ba908b20b3384fc09d857e4"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa1c75de10ba908b20b3384fc09d857e4">cmd_endgame_animation</a> (int argc, char **argv, char *response, size_t response_size)</td></tr>
+<tr class="memdesc:aa1c75de10ba908b20b3384fc09d857e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obsluha příkazu "endgame animation X [pozice]" Spustí konkrétní endgame animaci.  <br /></td></tr>
+<tr class="memitem:a77618cd8f49e406c505e2c0f8110efd2" id="r_a77618cd8f49e406c505e2c0f8110efd2"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a77618cd8f49e406c505e2c0f8110efd2">cmd_stop_animations</a> (int argc, char **argv, char *response, size_t response_size)</td></tr>
+<tr class="memdesc:a77618cd8f49e406c505e2c0f8110efd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obsluha příkazu "stop animations" Zastaví všechny běžící animace.  <br /></td></tr>
+<tr class="memitem:a7aea8ea2734d3e76a9cb31e39f8ecaa7" id="r_a7aea8ea2734d3e76a9cb31e39f8ecaa7"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7aea8ea2734d3e76a9cb31e39f8ecaa7">cmd_animation_status</a> (int argc, char **argv, char *response, size_t response_size)</td></tr>
+<tr class="memdesc:a7aea8ea2734d3e76a9cb31e39f8ecaa7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obsluha příkazu "animation status" Zobrazí stav animačního systému.  <br /></td></tr>
+<tr class="memitem:a91f740ce224db3050d1f85890fdbbdce" id="r_a91f740ce224db3050d1f85890fdbbdce"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a91f740ce224db3050d1f85890fdbbdce">register_extended_uart_commands</a> (void)</td></tr>
+<tr class="memdesc:a91f740ce224db3050d1f85890fdbbdce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registruje všechny rozšířené UART příkazy.  <br /></td></tr>
+<tr class="memitem:a2c1f034f2745aa000fda3e70da59ccea" id="r_a2c1f034f2745aa000fda3e70da59ccea"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2c1f034f2745aa000fda3e70da59ccea">uart_endgame_command_dispatcher</a> (int argc, char **argv)</td></tr>
+<tr class="memdesc:a2c1f034f2745aa000fda3e70da59ccea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dispatcher pro příkaz "endgame" Směruje na cmd_endgame_animations nebo cmd_endgame_animation.  <br /></td></tr>
+<tr class="memitem:ae57225727889bb7bd8541d02660e33a6" id="r_ae57225727889bb7bd8541d02660e33a6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae57225727889bb7bd8541d02660e33a6">uart_stop_command_dispatcher</a> (int argc, char **argv)</td></tr>
+<tr class="memdesc:ae57225727889bb7bd8541d02660e33a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dispatcher pro příkaz "stop" Směruje na cmd_stop_animations.  <br /></td></tr>
+<tr class="memitem:a6bd963956e3a304abd305b05f126b5fc" id="r_a6bd963956e3a304abd305b05f126b5fc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6bd963956e3a304abd305b05f126b5fc">uart_animation_command_dispatcher</a> (int argc, char **argv)</td></tr>
+<tr class="memdesc:a6bd963956e3a304abd305b05f126b5fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dispatcher pro příkaz "animation" Směruje na cmd_animation_status.  <br /></td></tr>
+<tr class="memitem:a25a982b28768b290cb56ecde22bf1560" id="r_a25a982b28768b290cb56ecde22bf1560"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a25a982b28768b290cb56ecde22bf1560">handle_led_test_command</a> (char *argv[], int argc)</td></tr>
+<tr class="memdesc:a25a982b28768b290cb56ecde22bf1560"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple wrapper for LED test command.  <br /></td></tr>
+<tr class="memitem:a294aca3ab988c08ae29b5f13fe09d05a" id="r_a294aca3ab988c08ae29b5f13fe09d05a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a294aca3ab988c08ae29b5f13fe09d05a">handle_led_pattern_command</a> (char *argv[], int argc)</td></tr>
+<tr class="memdesc:a294aca3ab988c08ae29b5f13fe09d05a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple wrapper for LED pattern command.  <br /></td></tr>
+<tr class="memitem:a0d0a671bd59866a24abecd0cd1ee9374" id="r_a0d0a671bd59866a24abecd0cd1ee9374"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0d0a671bd59866a24abecd0cd1ee9374">handle_led_animation_command</a> (char *argv[], int argc)</td></tr>
+<tr class="memdesc:a0d0a671bd59866a24abecd0cd1ee9374"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple wrapper for LED animation command.  <br /></td></tr>
+<tr class="memitem:a70c667d91da8b9165f7fbb815c32939b" id="r_a70c667d91da8b9165f7fbb815c32939b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a70c667d91da8b9165f7fbb815c32939b">handle_led_clear_command</a> (char *argv[], int argc)</td></tr>
+<tr class="memdesc:a70c667d91da8b9165f7fbb815c32939b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple wrapper for LED clear command.  <br /></td></tr>
+<tr class="memitem:a1eea20a3683af2f5c1a9782a8c12668c" id="r_a1eea20a3683af2f5c1a9782a8c12668c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1eea20a3683af2f5c1a9782a8c12668c">handle_led_brightness_command</a> (char *argv[], int argc)</td></tr>
+<tr class="memdesc:a1eea20a3683af2f5c1a9782a8c12668c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple wrapper for LED brightness command.  <br /></td></tr>
+<tr class="memitem:aa86478fbc78b81c0beb5703735519706" id="r_aa86478fbc78b81c0beb5703735519706"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa86478fbc78b81c0beb5703735519706">handle_chess_pos_command</a> (char *argv[], int argc)</td></tr>
+<tr class="memdesc:aa86478fbc78b81c0beb5703735519706"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple wrapper for chess position command.  <br /></td></tr>
+<tr class="memitem:ad8bb38053b28adcf807b63675070988c" id="r_ad8bb38053b28adcf807b63675070988c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad8bb38053b28adcf807b63675070988c">handle_led_mapping_test_command</a> (char *argv[], int argc)</td></tr>
+<tr class="memdesc:ad8bb38053b28adcf807b63675070988c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple wrapper for LED mapping test command.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;UART_EXT&quot;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>ESP32-C6 Chess System - Rozsirene UART prikazy pro LED animace. </p>
+<p>Implementace novych prikazu pro endgame animace a jemne efekty. Obsahuje prikazy pro ovladani pokrocilych LED animaci a efektu.</p>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.5 - COMPLETE ANIMATIONS </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-09-04</dd></dl>
+<p>Tento modul rozsiruje zakladni UART prikazy o pokrocile funkce pro ovladani LED animaci. Obsahuje prikazy pro endgame animace, jemne efekty a pokrocile vzory. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="a7aea8ea2734d3e76a9cb31e39f8ecaa7" name="a7aea8ea2734d3e76a9cb31e39f8ecaa7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7aea8ea2734d3e76a9cb31e39f8ecaa7">&#9670;&#160;</a></span>cmd_animation_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t cmd_animation_status </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char **</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>response</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>response_size</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Obsluha příkazu "animation status" Zobrazí stav animačního systému. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">argc</td><td>Počet argumentů </td></tr>
+    <tr><td class="paramname">argv</td><td>Pole argumentů </td></tr>
+    <tr><td class="paramname">response</td><td>Buffer pro odpověď </td></tr>
+    <tr><td class="paramname">response_size</td><td>Velikost bufferu pro odpověď </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00233">233</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="aa1c75de10ba908b20b3384fc09d857e4" name="aa1c75de10ba908b20b3384fc09d857e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1c75de10ba908b20b3384fc09d857e4">&#9670;&#160;</a></span>cmd_endgame_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t cmd_endgame_animation </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char **</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>response</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>response_size</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Obsluha příkazu "endgame animation X [pozice]" Spustí konkrétní endgame animaci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">argc</td><td>Počet argumentů </td></tr>
+    <tr><td class="paramname">argv</td><td>Pole argumentů (argv[0] = číslo animace, argv[1] = pozice krále) </td></tr>
+    <tr><td class="paramname">response</td><td>Buffer pro odpověď </td></tr>
+    <tr><td class="paramname">response_size</td><td>Velikost bufferu pro odpověď </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00118">118</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="ace118ff57c1728a13e4660df6234a4a8" name="ace118ff57c1728a13e4660df6234a4a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace118ff57c1728a13e4660df6234a4a8">&#9670;&#160;</a></span>cmd_endgame_animations()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t cmd_endgame_animations </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char **</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>response</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>response_size</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Obsluha příkazu "endgame animations" Zobrazí seznam všech dostupných endgame animací </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">argc</td><td>Počet argumentů </td></tr>
+    <tr><td class="paramname">argv</td><td>Pole argumentů </td></tr>
+    <tr><td class="paramname">response</td><td>Buffer pro odpověď </td></tr>
+    <tr><td class="paramname">response_size</td><td>Velikost bufferu pro odpověď </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00077">77</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a77618cd8f49e406c505e2c0f8110efd2" name="a77618cd8f49e406c505e2c0f8110efd2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a77618cd8f49e406c505e2c0f8110efd2">&#9670;&#160;</a></span>cmd_stop_animations()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t cmd_stop_animations </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char **</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>response</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>response_size</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Obsluha příkazu "stop animations" Zastaví všechny běžící animace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">argc</td><td>Počet argumentů </td></tr>
+    <tr><td class="paramname">argv</td><td>Pole argumentů </td></tr>
+    <tr><td class="paramname">response</td><td>Buffer pro odpověď </td></tr>
+    <tr><td class="paramname">response_size</td><td>Velikost bufferu pro odpověď </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00200">200</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="aa86478fbc78b81c0beb5703735519706" name="aa86478fbc78b81c0beb5703735519706"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa86478fbc78b81c0beb5703735519706">&#9670;&#160;</a></span>handle_chess_pos_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void handle_chess_pos_command </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simple wrapper for chess position command. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00478">478</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a0d0a671bd59866a24abecd0cd1ee9374" name="a0d0a671bd59866a24abecd0cd1ee9374"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d0a671bd59866a24abecd0cd1ee9374">&#9670;&#160;</a></span>handle_led_animation_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void handle_led_animation_command </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simple wrapper for LED animation command. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00413">413</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a1eea20a3683af2f5c1a9782a8c12668c" name="a1eea20a3683af2f5c1a9782a8c12668c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1eea20a3683af2f5c1a9782a8c12668c">&#9670;&#160;</a></span>handle_led_brightness_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void handle_led_brightness_command </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simple wrapper for LED brightness command. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00456">456</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a70c667d91da8b9165f7fbb815c32939b" name="a70c667d91da8b9165f7fbb815c32939b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70c667d91da8b9165f7fbb815c32939b">&#9670;&#160;</a></span>handle_led_clear_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void handle_led_clear_command </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simple wrapper for LED clear command. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00448">448</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="ad8bb38053b28adcf807b63675070988c" name="ad8bb38053b28adcf807b63675070988c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8bb38053b28adcf807b63675070988c">&#9670;&#160;</a></span>handle_led_mapping_test_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void handle_led_mapping_test_command </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simple wrapper for LED mapping test command. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00499">499</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a294aca3ab988c08ae29b5f13fe09d05a" name="a294aca3ab988c08ae29b5f13fe09d05a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a294aca3ab988c08ae29b5f13fe09d05a">&#9670;&#160;</a></span>handle_led_pattern_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void handle_led_pattern_command </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simple wrapper for LED pattern command. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00365">365</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a25a982b28768b290cb56ecde22bf1560" name="a25a982b28768b290cb56ecde22bf1560"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25a982b28768b290cb56ecde22bf1560">&#9670;&#160;</a></span>handle_led_test_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void handle_led_test_command </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simple wrapper for LED test command. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00336">336</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a077345de50407d4102d48247f457f88a" name="a077345de50407d4102d48247f457f88a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a077345de50407d4102d48247f457f88a">&#9670;&#160;</a></span>parse_king_position()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t parse_king_position </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>pos_str</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Parsuje pozici krále ze stringu (např. </p>
+<p>"e4" -&gt; 28) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00036">36</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a2a78e4f624df8fcd55e57d48360a10e0" name="a2a78e4f624df8fcd55e57d48360a10e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a78e4f624df8fcd55e57d48360a10e0">&#9670;&#160;</a></span>position_to_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void position_to_string </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>pos</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>out_str</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Vrátí string reprezentaci pozice (např. </p>
+<p>28 -&gt; "e4") </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00057">57</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a91f740ce224db3050d1f85890fdbbdce" name="a91f740ce224db3050d1f85890fdbbdce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91f740ce224db3050d1f85890fdbbdce">&#9670;&#160;</a></span>register_extended_uart_commands()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t register_extended_uart_commands </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Registruje všechny rozšířené UART příkazy. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, jinak error kód </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00264">264</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a6bd963956e3a304abd305b05f126b5fc" name="a6bd963956e3a304abd305b05f126b5fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6bd963956e3a304abd305b05f126b5fc">&#9670;&#160;</a></span>uart_animation_command_dispatcher()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int uart_animation_command_dispatcher </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char **</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dispatcher pro příkaz "animation" Směruje na cmd_animation_status. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00314">314</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="a2c1f034f2745aa000fda3e70da59ccea" name="a2c1f034f2745aa000fda3e70da59ccea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c1f034f2745aa000fda3e70da59ccea">&#9670;&#160;</a></span>uart_endgame_command_dispatcher()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int uart_endgame_command_dispatcher </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char **</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dispatcher pro příkaz "endgame" Směruje na cmd_endgame_animations nebo cmd_endgame_animation. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00274">274</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a id="ae57225727889bb7bd8541d02660e33a6" name="ae57225727889bb7bd8541d02660e33a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae57225727889bb7bd8541d02660e33a6">&#9670;&#160;</a></span>uart_stop_command_dispatcher()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int uart_stop_command_dispatcher </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char **</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dispatcher pro příkaz "stop" Směruje na cmd_stop_animations. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00299">299</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Dokumentace proměnných</h2>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;UART_EXT&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__commands__extended_8c_source.html#l00027">27</a> v souboru <a class="el" href="uart__commands__extended_8c_source.html">uart_commands_extended.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_01cfb48b9a719d4c3c7a5fd96745a96a.html">uart_commands_extended</a></li><li class="navelem"><a href="uart__commands__extended_8c.html">uart_commands_extended.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,1205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru visual_error_system.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('visual__error__system_8c.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru visual_error_system.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Implementace Visual Error Systemu.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="visual__error__system_8h_source.html">visual_error_system.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__state__manager_8h_source.html">led_state_manager.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;string.h&quot;</code><br />
+</div>
+<p><a href="visual__error__system_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a54c1656bcbedc160755be684d142eb0d" id="r_a54c1656bcbedc160755be684d142eb0d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a54c1656bcbedc160755be684d142eb0d">error_flash_leds</a> (uint8_t *led_positions, uint8_t count, uint8_t r, uint8_t g, uint8_t b)</td></tr>
+<tr class="memdesc:a54c1656bcbedc160755be684d142eb0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Blikani LED na zadanych pozicich.  <br /></td></tr>
+<tr class="memitem:aeba836e63e2862dbe66eaf5bb661b3e2" id="r_aeba836e63e2862dbe66eaf5bb661b3e2"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeba836e63e2862dbe66eaf5bb661b3e2">error_pulse_leds</a> (uint8_t *led_positions, uint8_t count, uint8_t r, uint8_t g, uint8_t b)</td></tr>
+<tr class="memdesc:aeba836e63e2862dbe66eaf5bb661b3e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pulzovani LED na zadanych pozicich.  <br /></td></tr>
+<tr class="memitem:a22a3df3379553a74340a2c29dc7daa8e" id="r_a22a3df3379553a74340a2c29dc7daa8e"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a22a3df3379553a74340a2c29dc7daa8e">error_get_message_for_type</a> (<a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a> type)</td></tr>
+<tr class="memdesc:a22a3df3379553a74340a2c29dc7daa8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziska chybovou zpravu pro dany typ chyby.  <br /></td></tr>
+<tr class="memitem:a5c587418bdd52f02272c53ec8568d77b" id="r_a5c587418bdd52f02272c53ec8568d77b"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5c587418bdd52f02272c53ec8568d77b">error_get_hint_for_type</a> (<a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a> type)</td></tr>
+<tr class="memdesc:a5c587418bdd52f02272c53ec8568d77b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziska napovedu pro dany typ chyby.  <br /></td></tr>
+<tr class="memitem:aabbf0dffdf236db70fe15daa48dcd3ec" id="r_aabbf0dffdf236db70fe15daa48dcd3ec"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aabbf0dffdf236db70fe15daa48dcd3ec">error_get_color_for_type</a> (<a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a> type, uint8_t *r, uint8_t *g, uint8_t *b)</td></tr>
+<tr class="memdesc:aabbf0dffdf236db70fe15daa48dcd3ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziska barvu LED pro dany typ chyby.  <br /></td></tr>
+<tr class="memitem:ac995527f0c28a1e3c3e6182139d06430" id="r_ac995527f0c28a1e3c3e6182139d06430"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac995527f0c28a1e3c3e6182139d06430">error_system_init</a> (const <a class="el" href="structerror__system__config__t.html">error_system_config_t</a> *config)</td></tr>
+<tr class="memdesc:ac995527f0c28a1e3c3e6182139d06430"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuj error system s konfiguraci.  <br /></td></tr>
+<tr class="memitem:ad70233d9512da8d6108776c773e942e3" id="r_ad70233d9512da8d6108776c773e942e3"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad70233d9512da8d6108776c773e942e3">error_system_deinit</a> (void)</td></tr>
+<tr class="memdesc:ad70233d9512da8d6108776c773e942e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deinicializuj error system.  <br /></td></tr>
+<tr class="memitem:aeb7e8d4b5498f2ea0e6fe7e48bf5cad5" id="r_aeb7e8d4b5498f2ea0e6fe7e48bf5cad5"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeb7e8d4b5498f2ea0e6fe7e48bf5cad5">error_show_visual</a> (<a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a> error_type, const <a class="el" href="structchess__move__t.html">chess_move_t</a> *failed_move)</td></tr>
+<tr class="memdesc:aeb7e8d4b5498f2ea0e6fe7e48bf5cad5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz vizualni chybu (interni).  <br /></td></tr>
+<tr class="memitem:a46114d68c2b1fcc68370988272a94445" id="r_a46114d68c2b1fcc68370988272a94445"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a46114d68c2b1fcc68370988272a94445">error_show_blocking_path</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</td></tr>
+<tr class="memdesc:a46114d68c2b1fcc68370988272a94445"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz blokovani cesty.  <br /></td></tr>
+<tr class="memitem:a3cecc0d8e7cadda0a383b72eae511e69" id="r_a3cecc0d8e7cadda0a383b72eae511e69"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3cecc0d8e7cadda0a383b72eae511e69">error_show_check_escape_options</a> (uint8_t king_row, uint8_t king_col)</td></tr>
+<tr class="memdesc:a3cecc0d8e7cadda0a383b72eae511e69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz moznosti unikuti ze sachu.  <br /></td></tr>
+<tr class="memitem:ac94fcd47b6a08516a34bd10162b320bd" id="r_ac94fcd47b6a08516a34bd10162b320bd"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac94fcd47b6a08516a34bd10162b320bd">error_clear_all_indicators</a> (void)</td></tr>
+<tr class="memdesc:ac94fcd47b6a08516a34bd10162b320bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vymaz vsechny error indikatory.  <br /></td></tr>
+<tr class="memitem:a7f8dc092b20a9a0638066774da141476" id="r_a7f8dc092b20a9a0638066774da141476"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7f8dc092b20a9a0638066774da141476">error_guide_correct_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *suggested_move)</td></tr>
+<tr class="memdesc:a7f8dc092b20a9a0638066774da141476"><td class="mdescLeft">&#160;</td><td class="mdescRight">Navod na spravny tah.  <br /></td></tr>
+<tr class="memitem:ad9afe9c1a8c014529460b0fea1f05fa9" id="r_ad9afe9c1a8c014529460b0fea1f05fa9"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad9afe9c1a8c014529460b0fea1f05fa9">error_guide_piece_selection</a> (uint8_t *movable_pieces, uint8_t count)</td></tr>
+<tr class="memdesc:ad9afe9c1a8c014529460b0fea1f05fa9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Navod na vyber figurky.  <br /></td></tr>
+<tr class="memitem:a36edba382e6f3074f4305522f4b6df05" id="r_a36edba382e6f3074f4305522f4b6df05"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a36edba382e6f3074f4305522f4b6df05">error_guide_valid_destinations</a> (uint8_t from_row, uint8_t from_col)</td></tr>
+<tr class="memdesc:a36edba382e6f3074f4305522f4b6df05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Navod na platne cile.  <br /></td></tr>
+<tr class="memitem:a69eece35bee75f5f08536a8de6b06bdc" id="r_a69eece35bee75f5f08536a8de6b06bdc"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a69eece35bee75f5f08536a8de6b06bdc">error_get_last_message</a> (void)</td></tr>
+<tr class="memdesc:a69eece35bee75f5f08536a8de6b06bdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej posledni chybovou zpravu.  <br /></td></tr>
+<tr class="memitem:a4791aa096cc4979c684bea5221dc8f4f" id="r_a4791aa096cc4979c684bea5221dc8f4f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4791aa096cc4979c684bea5221dc8f4f">error_get_recovery_hint</a> (void)</td></tr>
+<tr class="memdesc:a4791aa096cc4979c684bea5221dc8f4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej napovedu k oprave.  <br /></td></tr>
+<tr class="memitem:a43209f153740f14d9ad4fcbbf9cb94ce" id="r_a43209f153740f14d9ad4fcbbf9cb94ce"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a43209f153740f14d9ad4fcbbf9cb94ce">error_get_error_type_name</a> (<a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a> type)</td></tr>
+<tr class="memitem:a463e7fa72dbf8c609d0e2740791d969f" id="r_a463e7fa72dbf8c609d0e2740791d969f"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a463e7fa72dbf8c609d0e2740791d969f">error_get_status</a> (char *buffer, size_t buffer_size)</td></tr>
+<tr class="memdesc:a463e7fa72dbf8c609d0e2740791d969f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej status error systemu.  <br /></td></tr>
+<tr class="memitem:a4470983fe742a87855a011f765d9137c" id="r_a4470983fe742a87855a011f765d9137c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4470983fe742a87855a011f765d9137c">error_is_displaying</a> (void)</td></tr>
+<tr class="memitem:a4e04de1e171c71b4c32364f0ae8b232e" id="r_a4e04de1e171c71b4c32364f0ae8b232e"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4e04de1e171c71b4c32364f0ae8b232e">error_get_active_count</a> (void)</td></tr>
+<tr class="memitem:affeb147a450f8cb876aa449cd2810459" id="r_affeb147a450f8cb876aa449cd2810459"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#affeb147a450f8cb876aa449cd2810459">error_set_config</a> (const <a class="el" href="structerror__system__config__t.html">error_system_config_t</a> *config)</td></tr>
+<tr class="memdesc:affeb147a450f8cb876aa449cd2810459"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav konfiguraci error systemu.  <br /></td></tr>
+<tr class="memitem:ae69d7d8836ef3c8815256f5522ca5dff" id="r_ae69d7d8836ef3c8815256f5522ca5dff"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae69d7d8836ef3c8815256f5522ca5dff">error_set_flash_count</a> (uint8_t count)</td></tr>
+<tr class="memdesc:ae69d7d8836ef3c8815256f5522ca5dff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav pocet bliknuti.  <br /></td></tr>
+<tr class="memitem:a0031642405bf7dfbf920a89dba3c10a4" id="r_a0031642405bf7dfbf920a89dba3c10a4"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0031642405bf7dfbf920a89dba3c10a4">error_set_flash_duration</a> (uint32_t duration_ms)</td></tr>
+<tr class="memdesc:a0031642405bf7dfbf920a89dba3c10a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav delku bliknuti.  <br /></td></tr>
+<tr class="memitem:a4dda5bf9ea83f0ad9fc924e59f3b39f2" id="r_a4dda5bf9ea83f0ad9fc924e59f3b39f2"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4dda5bf9ea83f0ad9fc924e59f3b39f2">error_convert_move_error_to_visual</a> (<a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a> move_error, <a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a> *visual_type)</td></tr>
+<tr class="memdesc:a4dda5bf9ea83f0ad9fc924e59f3b39f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Preved tah error na vizualni error.  <br /></td></tr>
+<tr class="memitem:a05cea41b9d878ee84c04cfa3c4b8d987" id="r_a05cea41b9d878ee84c04cfa3c4b8d987"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a05cea41b9d878ee84c04cfa3c4b8d987">error_get_led_positions_for_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move, uint8_t *led_positions, uint8_t *count)</td></tr>
+<tr class="memdesc:a05cea41b9d878ee84c04cfa3c4b8d987"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej LED pozice pro tah.  <br /></td></tr>
+<tr class="memitem:a272ee1742d41b587ae4d72681377bb19" id="r_a272ee1742d41b587ae4d72681377bb19"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a272ee1742d41b587ae4d72681377bb19">error_get_led_positions_for_square</a> (uint8_t row, uint8_t col, uint8_t *led_positions, uint8_t *count)</td></tr>
+<tr class="memdesc:a272ee1742d41b587ae4d72681377bb19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej LED pozice pro pole.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;ERROR_SYS&quot;</td></tr>
+<tr class="memitem:ab2336e816f0a31f0e3e85fba396e4340" id="r_ab2336e816f0a31f0e3e85fba396e4340"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab2336e816f0a31f0e3e85fba396e4340">system_initialized</a> = false</td></tr>
+<tr class="memitem:af09b5a75ac80e161207fc294e3e25b0a" id="r_af09b5a75ac80e161207fc294e3e25b0a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structerror__system__config__t.html">error_system_config_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af09b5a75ac80e161207fc294e3e25b0a">current_config</a></td></tr>
+<tr class="memitem:a6f820630feb824600d909cbb27937851" id="r_a6f820630feb824600d909cbb27937851"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structerror__guidance__t.html">error_guidance_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6f820630feb824600d909cbb27937851">last_error</a></td></tr>
+<tr class="memitem:ab48772c5b7b95dc1acb27d1e15a62b33" id="r_ab48772c5b7b95dc1acb27d1e15a62b33"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab48772c5b7b95dc1acb27d1e15a62b33">displaying_error</a> = false</td></tr>
+<tr class="memitem:a32b1c50c1082ad40d9f9f13fd28cedd7" id="r_a32b1c50c1082ad40d9f9f13fd28cedd7"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a32b1c50c1082ad40d9f9f13fd28cedd7">active_error_count</a> = 0</td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Implementace Visual Error Systemu. </p>
+<p>Tento modul poskytuje vizualni indikaci chyb a navod pro uzivatele. Zobrazuje chybove stavy pres LED animace a poskytuje textove zpravy s navodem.</p>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.5.0 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-09-06</dd></dl>
+<p>Visual Error System je system pro vizualni indikaci chyb v sachovem systemu. Pouziva LED animace pro zobrazeni typu chyby a poskytuje textove zpravy s navodem pro reseni problemu. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="ac94fcd47b6a08516a34bd10162b320bd" name="ac94fcd47b6a08516a34bd10162b320bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac94fcd47b6a08516a34bd10162b320bd">&#9670;&#160;</a></span>error_clear_all_indicators()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_clear_all_indicators </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vymaz vsechny error indikatory. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00233">233</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a4dda5bf9ea83f0ad9fc924e59f3b39f2" name="a4dda5bf9ea83f0ad9fc924e59f3b39f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4dda5bf9ea83f0ad9fc924e59f3b39f2">&#9670;&#160;</a></span>error_convert_move_error_to_visual()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_convert_move_error_to_visual </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a></td>          <td class="paramname"><span class="paramname"><em>move_error</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a> *</td>          <td class="paramname"><span class="paramname"><em>visual_type</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Preved tah error na vizualni error. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move_error</td><td>Tah error </td></tr>
+    <tr><td class="paramname">visual_type</td><td>Vystup vizualni typ </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00422">422</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a54c1656bcbedc160755be684d142eb0d" name="a54c1656bcbedc160755be684d142eb0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54c1656bcbedc160755be684d142eb0d">&#9670;&#160;</a></span>error_flash_leds()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void error_flash_leds </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>led_positions</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>count</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Blikani LED na zadanych pozicich. </p>
+<p>Provede sekvenci blikani (zapnuto/vypnuto) na zadanych LED pozicich. Pocet bliknuti je urcen konfiguraci (current_config.flash_count).</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">led_positions</td><td>Pole LED pozic k blikani </td></tr>
+    <tr><td class="paramname">count</td><td>Pocet pozic </td></tr>
+    <tr><td class="paramname">r</td><td>Cervena komponenta (0-255) </td></tr>
+    <tr><td class="paramname">g</td><td>Zelena komponenta (0-255) </td></tr>
+    <tr><td class="paramname">b</td><td>Modra komponenta (0-255) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00513">513</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a4e04de1e171c71b4c32364f0ae8b232e" name="a4e04de1e171c71b4c32364f0ae8b232e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e04de1e171c71b4c32364f0ae8b232e">&#9670;&#160;</a></span>error_get_active_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t error_get_active_count </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00393">393</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="aabbf0dffdf236db70fe15daa48dcd3ec" name="aabbf0dffdf236db70fe15daa48dcd3ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aabbf0dffdf236db70fe15daa48dcd3ec">&#9670;&#160;</a></span>error_get_color_for_type()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_get_color_for_type </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a></td>          <td class="paramname"><span class="paramname"><em>type</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Ziska barvu LED pro dany typ chyby. </p>
+<p>Kazdy typ chyby ma prirazenou specifickou barvu pro vizualni rozliseni:</p><ul>
+<li>INVALID_MOVE: cervena</li>
+<li>PIECE_BLOCKING: oranzova</li>
+<li>CHECK_VIOLATION: fialova</li>
+<li>NO_PIECE: zluta</li>
+<li>WRONG_TURN: modra</li>
+<li>atd.</li>
+</ul>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">type</td><td>Typ vizualni chyby </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">r</td><td>Ukazatel na cervenou komponentu </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">g</td><td>Ukazatel na zelenou komponentu </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">b</td><td>Ukazatel na modrou komponentu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, ESP_ERR_INVALID_ARG pokud jsou parametry NULL </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00608">608</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a43209f153740f14d9ad4fcbbf9cb94ce" name="a43209f153740f14d9ad4fcbbf9cb94ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a43209f153740f14d9ad4fcbbf9cb94ce">&#9670;&#160;</a></span>error_get_error_type_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * error_get_error_type_name </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a></td>          <td class="paramname"><span class="paramname"><em>type</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00348">348</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a5c587418bdd52f02272c53ec8568d77b" name="a5c587418bdd52f02272c53ec8568d77b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c587418bdd52f02272c53ec8568d77b">&#9670;&#160;</a></span>error_get_hint_for_type()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * error_get_hint_for_type </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a></td>          <td class="paramname"><span class="paramname"><em>type</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Ziska napovedu pro dany typ chyby. </p>
+<p>Vraci uzivateli uzitecnou napovedu jak chybu vyresit.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>Typ vizualni chyby </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Ukazatel na text napovedy (konstanta) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00578">578</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a69eece35bee75f5f08536a8de6b06bdc" name="a69eece35bee75f5f08536a8de6b06bdc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69eece35bee75f5f08536a8de6b06bdc">&#9670;&#160;</a></span>error_get_last_message()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * error_get_last_message </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej posledni chybovou zpravu. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Zprava </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00332">332</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a05cea41b9d878ee84c04cfa3c4b8d987" name="a05cea41b9d878ee84c04cfa3c4b8d987"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a05cea41b9d878ee84c04cfa3c4b8d987">&#9670;&#160;</a></span>error_get_led_positions_for_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_get_led_positions_for_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *</td>          <td class="paramname"><span class="paramname"><em>move</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>led_positions</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>count</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej LED pozice pro tah. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Tah (chess_move_t*) </td></tr>
+    <tr><td class="paramname">led_positions</td><td>Vystup LED pozic </td></tr>
+    <tr><td class="paramname">count</td><td>Vystup pocet LED </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00454">454</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a272ee1742d41b587ae4d72681377bb19" name="a272ee1742d41b587ae4d72681377bb19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a272ee1742d41b587ae4d72681377bb19">&#9670;&#160;</a></span>error_get_led_positions_for_square()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_get_led_positions_for_square </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>led_positions</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>count</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej LED pozice pro pole. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Radek </td></tr>
+    <tr><td class="paramname">col</td><td>Sloupec </td></tr>
+    <tr><td class="paramname">led_positions</td><td>Vystup LED pozic </td></tr>
+    <tr><td class="paramname">count</td><td>Vystup pocet LED </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00478">478</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a22a3df3379553a74340a2c29dc7daa8e" name="a22a3df3379553a74340a2c29dc7daa8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22a3df3379553a74340a2c29dc7daa8e">&#9670;&#160;</a></span>error_get_message_for_type()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * error_get_message_for_type </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a></td>          <td class="paramname"><span class="paramname"><em>type</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Ziska chybovou zpravu pro dany typ chyby. </p>
+<p>Vraci lidsky citelnou zpravu popisujici co se stalo.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>Typ vizualni chyby </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Ukazatel na textovou zpravu (konstanta) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00557">557</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a4791aa096cc4979c684bea5221dc8f4f" name="a4791aa096cc4979c684bea5221dc8f4f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4791aa096cc4979c684bea5221dc8f4f">&#9670;&#160;</a></span>error_get_recovery_hint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * error_get_recovery_hint </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej napovedu k oprave. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Napoveda </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00340">340</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a463e7fa72dbf8c609d0e2740791d969f" name="a463e7fa72dbf8c609d0e2740791d969f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a463e7fa72dbf8c609d0e2740791d969f">&#9670;&#160;</a></span>error_get_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_get_status </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>buffer</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>buffer_size</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej status error systemu. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>Buffer pro status </td></tr>
+    <tr><td class="paramname">buffer_size</td><td>Velikost bufferu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00361">361</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a7f8dc092b20a9a0638066774da141476" name="a7f8dc092b20a9a0638066774da141476"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f8dc092b20a9a0638066774da141476">&#9670;&#160;</a></span>error_guide_correct_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_guide_correct_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *</td>          <td class="paramname"><span class="paramname"><em>correct_move</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Navod na spravny tah. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">correct_move</td><td>Spravny tah (chess_move_t*) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00252">252</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ad9afe9c1a8c014529460b0fea1f05fa9" name="ad9afe9c1a8c014529460b0fea1f05fa9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9afe9c1a8c014529460b0fea1f05fa9">&#9670;&#160;</a></span>error_guide_piece_selection()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_guide_piece_selection </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>movable_pieces</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>count</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Navod na vyber figurky. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">movable_pieces</td><td>Tahnouci figurky </td></tr>
+    <tr><td class="paramname">count</td><td>Pocet </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00284">284</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a36edba382e6f3074f4305522f4b6df05" name="a36edba382e6f3074f4305522f4b6df05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36edba382e6f3074f4305522f4b6df05">&#9670;&#160;</a></span>error_guide_valid_destinations()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_guide_valid_destinations </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Navod na platne cile. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Od radek </td></tr>
+    <tr><td class="paramname">from_col</td><td>Od sloupec </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00307">307</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a4470983fe742a87855a011f765d9137c" name="a4470983fe742a87855a011f765d9137c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4470983fe742a87855a011f765d9137c">&#9670;&#160;</a></span>error_is_displaying()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool error_is_displaying </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00389">389</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="aeba836e63e2862dbe66eaf5bb661b3e2" name="aeba836e63e2862dbe66eaf5bb661b3e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeba836e63e2862dbe66eaf5bb661b3e2">&#9670;&#160;</a></span>error_pulse_leds()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void error_pulse_leds </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>led_positions</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>count</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>b</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Pulzovani LED na zadanych pozicich. </p>
+<p>Provede pulzovani LED na zadanych pozicich. V plne implementaci pouziva animation manager pro plynuly efekt.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">led_positions</td><td>Pole LED pozic k pulzovani </td></tr>
+    <tr><td class="paramname">count</td><td>Pocet pozic </td></tr>
+    <tr><td class="paramname">r</td><td>Cervena komponenta (0-255) </td></tr>
+    <tr><td class="paramname">g</td><td>Zelena komponenta (0-255) </td></tr>
+    <tr><td class="paramname">b</td><td>Modra komponenta (0-255) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00541">541</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="affeb147a450f8cb876aa449cd2810459" name="affeb147a450f8cb876aa449cd2810459"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#affeb147a450f8cb876aa449cd2810459">&#9670;&#160;</a></span>error_set_config()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_set_config </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structerror__system__config__t.html">error_system_config_t</a> *</td>          <td class="paramname"><span class="paramname"><em>config</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav konfiguraci error systemu. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">config</td><td>Nova konfigurace </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00397">397</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ae69d7d8836ef3c8815256f5522ca5dff" name="ae69d7d8836ef3c8815256f5522ca5dff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae69d7d8836ef3c8815256f5522ca5dff">&#9670;&#160;</a></span>error_set_flash_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_set_flash_count </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>count</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav pocet bliknuti. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">count</td><td>Pocet bliknuti </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00408">408</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a0031642405bf7dfbf920a89dba3c10a4" name="a0031642405bf7dfbf920a89dba3c10a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0031642405bf7dfbf920a89dba3c10a4">&#9670;&#160;</a></span>error_set_flash_duration()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_set_flash_duration </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>duration_ms</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav delku bliknuti. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">duration_ms</td><td>Delka v ms </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00415">415</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a46114d68c2b1fcc68370988272a94445" name="a46114d68c2b1fcc68370988272a94445"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46114d68c2b1fcc68370988272a94445">&#9670;&#160;</a></span>error_show_blocking_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_show_blocking_path </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz blokovani cesty. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Od radek </td></tr>
+    <tr><td class="paramname">from_col</td><td>Od sloupec </td></tr>
+    <tr><td class="paramname">to_row</td><td>Do radek </td></tr>
+    <tr><td class="paramname">to_col</td><td>Do sloupec </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00162">162</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a3cecc0d8e7cadda0a383b72eae511e69" name="a3cecc0d8e7cadda0a383b72eae511e69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3cecc0d8e7cadda0a383b72eae511e69">&#9670;&#160;</a></span>error_show_check_escape_options()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_show_check_escape_options </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz moznosti unikuti ze sachu. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">king_row</td><td>Radek krale </td></tr>
+    <tr><td class="paramname">king_col</td><td>Sloupec krale </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00200">200</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="aeb7e8d4b5498f2ea0e6fe7e48bf5cad5" name="aeb7e8d4b5498f2ea0e6fe7e48bf5cad5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb7e8d4b5498f2ea0e6fe7e48bf5cad5">&#9670;&#160;</a></span>error_show_visual()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_show_visual </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da">visual_error_type_t</a></td>          <td class="paramname"><span class="paramname"><em>error_type</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *</td>          <td class="paramname"><span class="paramname"><em>failed_move</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz vizualni chybu (interni). </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">error_type</td><td>Typ chyby </td></tr>
+    <tr><td class="paramname">failed_move</td><td>Chybny tah (chess_move_t*) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00086">86</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ad70233d9512da8d6108776c773e942e3" name="ad70233d9512da8d6108776c773e942e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad70233d9512da8d6108776c773e942e3">&#9670;&#160;</a></span>error_system_deinit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_system_deinit </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Deinicializuj error system. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00072">72</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ac995527f0c28a1e3c3e6182139d06430" name="ac995527f0c28a1e3c3e6182139d06430"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac995527f0c28a1e3c3e6182139d06430">&#9670;&#160;</a></span>error_system_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t error_system_init </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structerror__system__config__t.html">error_system_config_t</a> *</td>          <td class="paramname"><span class="paramname"><em>config</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializuj error system s konfiguraci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">config</td><td>Konfigurace error systemu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00041">41</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Dokumentace proměnných</h2>
+<a id="a32b1c50c1082ad40d9f9f13fd28cedd7" name="a32b1c50c1082ad40d9f9f13fd28cedd7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32b1c50c1082ad40d9f9f13fd28cedd7">&#9670;&#160;</a></span>active_error_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t active_error_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00032">32</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="af09b5a75ac80e161207fc294e3e25b0a" name="af09b5a75ac80e161207fc294e3e25b0a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af09b5a75ac80e161207fc294e3e25b0a">&#9670;&#160;</a></span>current_config</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structerror__system__config__t.html">error_system_config_t</a> current_config</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00029">29</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ab48772c5b7b95dc1acb27d1e15a62b33" name="ab48772c5b7b95dc1acb27d1e15a62b33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab48772c5b7b95dc1acb27d1e15a62b33">&#9670;&#160;</a></span>displaying_error</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool displaying_error = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00031">31</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a6f820630feb824600d909cbb27937851" name="a6f820630feb824600d909cbb27937851"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f820630feb824600d909cbb27937851">&#9670;&#160;</a></span>last_error</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structerror__guidance__t.html">error_guidance_t</a> last_error</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00030">30</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ab2336e816f0a31f0e3e85fba396e4340" name="ab2336e816f0a31f0e3e85fba396e4340"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2336e816f0a31f0e3e85fba396e4340">&#9670;&#160;</a></span>system_initialized</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool system_initialized = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00028">28</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;ERROR_SYS&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="visual__error__system_8c_source.html#l00025">25</a> v souboru <a class="el" href="visual__error__system_8c_source.html">visual_error_system.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_27a0c766b97c45b6deeaa7a8c2e2ed8a.html">visual_error_system</a></li><li class="navelem"><a href="visual__error__system_8c.html">visual_error_system.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>
