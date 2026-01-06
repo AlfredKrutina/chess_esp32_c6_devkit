@@ -17,8 +17,8 @@ const pieceSymbols = {
 let boardData = [];
 let statusData = {};
 let historyData = [];
-let capturedData = {white_captured: [], black_captured: []};
-let advantageData = {history: [], white_checks: 0, black_checks: 0, white_castles: 0, black_castles: 0};
+let capturedData = { white_captured: [], black_captured: [] };
+let advantageData = { history: [], white_checks: 0, black_checks: 0, white_castles: 0, black_castles: 0 };
 let selectedSquare = null;
 let reviewMode = false;
 let currentReviewIndex = -1;
@@ -62,11 +62,11 @@ function clearHighlights() {
 async function handleSquareClick(row, col) {
     const piece = sandboxMode ? sandboxBoard[row][col] : boardData[row][col];
     const index = row * 8 + col;
-    
+
     if (piece === ' ' && selectedSquare !== null) {
         const fromRow = Math.floor(selectedSquare / 8);
         const fromCol = selectedSquare % 8;
-        
+
         if (sandboxMode) {
             makeSandboxMove(fromRow, fromCol, row, col);
             clearHighlights();
@@ -76,8 +76,8 @@ async function handleSquareClick(row, col) {
             try {
                 const response = await fetch('/api/move', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({from: fromNotation, to: toNotation})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from: fromNotation, to: toNotation })
                 });
                 if (response.ok) {
                     clearHighlights();
@@ -89,7 +89,7 @@ async function handleSquareClick(row, col) {
         }
         return;
     }
-    
+
     if (piece !== ' ') {
         if (sandboxMode) {
             clearHighlights();
@@ -99,7 +99,7 @@ async function handleSquareClick(row, col) {
         } else {
             const isWhitePiece = piece === piece.toUpperCase();
             const currentPlayerIsWhite = statusData.current_player === 'White';
-            
+
             if ((isWhitePiece && currentPlayerIsWhite) || (!isWhitePiece && !currentPlayerIsWhite)) {
                 clearHighlights();
                 selectedSquare = index;
@@ -116,14 +116,14 @@ async function handleSquareClick(row, col) {
 
 function reconstructBoardAtMove(moveIndex) {
     const startBoard = [
-        ['R','N','B','Q','K','B','N','R'],
-        ['P','P','P','P','P','P','P','P'],
-        [' ',' ',' ',' ',' ',' ',' ',' '],
-        [' ',' ',' ',' ',' ',' ',' ',' '],
-        [' ',' ',' ',' ',' ',' ',' ',' '],
-        [' ',' ',' ',' ',' ',' ',' ',' '],
-        ['p','p','p','p','p','p','p','p'],
-        ['r','n','b','q','k','b','n','r']
+        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
+        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+        ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
     ];
     const board = JSON.parse(JSON.stringify(startBoard));
     for (let i = 0; i <= moveIndex && i < historyData.length; i++) {
@@ -166,7 +166,7 @@ function enterReviewMode(index) {
     const selectedItem = document.querySelector(`[data-move-index='${index}']`);
     if (selectedItem) {
         selectedItem.classList.add('selected');
-        selectedItem.scrollIntoView({behavior:'smooth',block:'nearest'});
+        selectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 }
 
@@ -209,7 +209,7 @@ function makeSandboxMove(fromRow, fromCol, toRow, toCol) {
     const piece = sandboxBoard[fromRow][fromCol];
     sandboxBoard[toRow][toCol] = piece;
     sandboxBoard[fromRow][fromCol] = ' ';
-    sandboxHistory.push({from: `${String.fromCharCode(97+fromCol)}${8-fromRow}`, to: `${String.fromCharCode(97+toCol)}${8-toRow}`});
+    sandboxHistory.push({ from: `${String.fromCharCode(97 + fromCol)}${8 - fromRow}`, to: `${String.fromCharCode(97 + toCol)}${8 - toRow}` });
     updateBoard(sandboxBoard);
 }
 
@@ -221,6 +221,10 @@ function updateBoard(board) {
     boardData = board;
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
+
+    // ✅ FIX: Clear all highlights before updating (fixes demo mode green squares issue)
+    clearHighlights();
+
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
             const piece = board[row][col];
@@ -244,15 +248,15 @@ function updateBoard(board) {
 // 🏆 Zobrazit endgame report na webu
 async function showEndgameReport(gameEnd) {
     console.log('🏆 showEndgameReport() called with:', gameEnd);
-    
+
     // ✅ FIX: Pokud už je banner zobrazen, nedělat nic (aby se nepřekresloval)
     if (endgameReportShown && document.getElementById('endgame-banner')) {
         console.log('Endgame report already shown, skipping...');
         return;
     }
-    
+
     // ✅ Načíst advantage history pro graf
-    let advantageDataLocal = {history: [], white_checks: 0, black_checks: 0, white_castles: 0, black_castles: 0};
+    let advantageDataLocal = { history: [], white_checks: 0, black_checks: 0, white_castles: 0, black_castles: 0 };
     try {
         const response = await fetch('/api/advantage');
         advantageDataLocal = await response.json();
@@ -260,14 +264,14 @@ async function showEndgameReport(gameEnd) {
     } catch (e) {
         console.error('Failed to load advantage data:', e);
     }
-    
+
     // Určit výsledek a barvy
     let emoji = '🏆';
     let title = '';
     let subtitle = '';
     let accentColor = '#4CAF50';
     let bgGradient = 'linear-gradient(135deg, #1e3a1e, #2d4a2d)';
-    
+
     if (gameEnd.winner === 'Draw') {
         emoji = '🤝';
         title = 'REMÍZA';
@@ -281,21 +285,21 @@ async function showEndgameReport(gameEnd) {
         accentColor = gameEnd.winner === 'White' ? '#4CAF50' : '#2196F3';
         bgGradient = gameEnd.winner === 'White' ? 'linear-gradient(135deg, #1e3a1e, #2d4a2d)' : 'linear-gradient(135deg, #1e2a3a, #2d3a4a)';
     }
-    
+
     // Získat statistiky
     const whiteMoves = Math.ceil(statusData.move_count / 2);
     const blackMoves = Math.floor(statusData.move_count / 2);
     const whiteCaptured = capturedData.white_captured || [];
     const blackCaptured = capturedData.black_captured || [];
-    
+
     // Material advantage
-    const pieceValues = {p:1, n:3, b:3, r:5, q:9, P:1, N:3, B:3, R:5, Q:9};
+    const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, P: 1, N: 3, B: 3, R: 5, Q: 9 };
     let whiteMaterial = 0, blackMaterial = 0;
     whiteCaptured.forEach(p => whiteMaterial += pieceValues[p] || 0);
     blackCaptured.forEach(p => blackMaterial += pieceValues[p] || 0);
     const materialDiff = whiteMaterial - blackMaterial;
     const materialText = materialDiff > 0 ? `White +${materialDiff}` : materialDiff < 0 ? `Black +${-materialDiff}` : 'Vyrovnáno';
-    
+
     // ✅ Vytvořit SVG graf výhody (jako chess.com)
     let graphSVG = '';
     if (advantageDataLocal.history && advantageDataLocal.history.length > 1) {
@@ -305,17 +309,17 @@ async function showEndgameReport(gameEnd) {
         const maxAdvantage = Math.max(10, ...history.map(Math.abs));
         const scaleY = height / (2 * maxAdvantage);
         const scaleX = width / (history.length - 1);
-        
+
         // Vytvořit body pro polyline (0,0 je nahoře vlevo, y roste dolů)
         let points = history.map((adv, i) => {
             const x = i * scaleX;
             const y = height / 2 - adv * scaleY;  // Převrátit Y (White nahoře, Black dole)
             return `${x},${y}`;
         }).join(' ');
-        
+
         // Vytvořit polygon pro vyplněnou oblast
         let areaPoints = `0,${height / 2} ${points} ${width},${height / 2}`;
-        
+
         graphSVG = `<svg width="280" height="100" style="border-radius:6px;background:rgba(0,0,0,0.2);">
             <!-- Středová čára (vyrovnaná pozice) -->
             <line x1="0" y1="${height / 2}" x2="${width}" y2="${height / 2}" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
@@ -331,11 +335,11 @@ async function showEndgameReport(gameEnd) {
             <text x="5" y="${height - 2}" fill="#888" font-size="10" font-weight="600">Black</text>
         </svg>`;
     }
-    
+
     // Vytvořit nový banner - VLEVO OD BOARDU, NE UPROSTŘED!
     const banner = document.createElement('div');
     banner.id = 'endgame-banner';
-    
+
     // Na mobilu - jiné umístění (nahoře, plná šířka)
     if (window.innerWidth <= 768) {
         banner.style.cssText = `
@@ -374,7 +378,7 @@ async function showEndgameReport(gameEnd) {
             backdrop-filter: blur(10px);
         `;
     }
-    
+
     // HTML obsah
     banner.innerHTML = `
         <div style="background:${accentColor};padding:20px;text-align:center;border-radius:10px 10px 0 0;">
@@ -455,7 +459,7 @@ async function showEndgameReport(gameEnd) {
             </button>
         </div>
     `;
-    
+
     // Přidat CSS animace pokud ještě neexistují
     if (!document.getElementById('endgame-animations')) {
         const style = document.createElement('style');
@@ -472,20 +476,78 @@ async function showEndgameReport(gameEnd) {
         `;
         document.head.appendChild(style);
     }
-    
+
     document.body.appendChild(banner);
     endgameReportShown = true;  // ✅ Označit, že je zobrazený
     console.log('🏆 ENDGAME REPORT SHOWN - banner displayed (left side)');
 }
 
-// Skrýt endgame report
+// Skrýt endgame report (ale zachovat flag pro toggle)
 function hideEndgameReport() {
     console.log('Hiding endgame report...');
     const banner = document.getElementById('endgame-banner');
     if (banner) {
-        banner.remove();  // ✅ Odstranit z DOM
-        endgameReportShown = false;  // ✅ Resetovat flag
-        console.log('Endgame report hidden and removed');
+        banner.remove();
+        console.log('Endgame report hidden (can be toggled back)');
+    }
+}
+
+// Toggle endgame report (show/hide)
+function toggleEndgameReport() {
+    const banner = document.getElementById('endgame-banner');
+    if (banner) {
+        // Uz je zobrazen -> skryj
+        hideEndgameReport();
+    } else {
+        // Neni zobrazen -> znovu zobraz (pokud mame data)
+        if (window.lastGameEndData) {
+            showEndgameReport(window.lastGameEndData);
+        }
+    }
+}
+
+// Zobrazit toggle button
+function showEndgameToggleButton() {
+    // Zjistit zda uz button existuje
+    if (document.getElementById('endgame-toggle-btn')) return;
+
+    const button = document.createElement('button');
+    button.id = 'endgame-toggle-btn';
+    button.innerHTML = '🏆 Report';
+    button.title = 'Show/Hide Endgame Report';
+    button.style.cssText = `
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10000;
+        transition: all 0.2s;
+    `;
+    button.onmouseover = function () {
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
+    };
+    button.onmouseout = function () {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+    };
+    button.onclick = toggleEndgameReport;
+    document.body.appendChild(button);
+}
+
+// Skrýt toggle button
+function hideEndgameToggleButton() {
+    const button = document.getElementById('endgame-toggle-btn');
+    if (button) {
+        button.remove();
     }
 }
 
@@ -499,7 +561,10 @@ function updateStatus(status) {
     document.getElementById('current-player').textContent = status.current_player || '-';
     document.getElementById('move-count').textContent = status.move_count || 0;
     document.getElementById('in-check').textContent = status.in_check ? 'Yes' : 'No';
-    
+
+    // ✅ FIX: Vždy nejprve odstranit class 'lifted' ze všech polí, aby se nehromadily
+    document.querySelectorAll('.square').forEach(sq => sq.classList.remove('lifted'));
+
     const lifted = status.piece_lifted;
     if (lifted && lifted.lifted) {
         document.getElementById('lifted-piece').textContent = pieceSymbols[lifted.piece] || '-';
@@ -509,18 +574,32 @@ function updateStatus(status) {
     } else {
         document.getElementById('lifted-piece').textContent = '-';
         document.getElementById('lifted-position').textContent = '-';
-        document.querySelectorAll('.square').forEach(sq => sq.classList.remove('lifted'));
     }
-    
-    // ✅ ENDGAME REPORT - zobrazit pouze jednou, ne při každém update
-    if (status.game_end && status.game_end.ended && !endgameReportShown) {
-        console.log('Game ended, showing endgame report...');
-        showEndgameReport(status.game_end);
-    } else if (!(status.game_end && status.game_end.ended) && endgameReportShown) {
-        // Hra už neskončila (nová hra), skrýt report
-        console.log('Game no longer ended, hiding report...');
-        hideEndgameReport();
+
+    // ✅ ENDGAME REPORT - zobrazit pouze JEDNOU, po prvnim skonceni
+    if (status.game_end && status.game_end.ended) {
+        // Ulozit data pro pozdejsi toggle
+        window.lastGameEndData = status.game_end;
+
+        // Zobrazit report jen pokud jeste nebyl nikdy zobrazen
+        if (!endgameReportShown) {
+            console.log('Game ended, showing endgame report...');
+            showEndgameReport(status.game_end);
+        }
+
+        // Zobrazit toggle button (jen pokud je hra skoncena)
+        showEndgameToggleButton();
+    } else {
+        // Hra je aktivni - skryj report i toggle button
+        if (endgameReportShown) {
+            console.log('Game restarted, clearing endgame report...');
+            hideEndgameReport();
+        }
+        endgameReportShown = false;  // Reset flagu po restartu
+        window.lastGameEndData = null;
+        hideEndgameToggleButton();
     }
+
 }
 
 function updateHistory(history) {
@@ -583,11 +662,48 @@ async function fetchData() {
     }
 }
 
+function initializeApp() {
+    console.log('🎮 Initializing Chess App...');
+    createBoard();
+
+    // Inject Demo Mode section at bottom
+    injectDemoModeSection();
+
+    fetchBoardData();
+    setInterval(fetchBoardData, 500);
+    console.log('✅ Chess App initialized');
+}
+
+/**
+ * Inject Demo Mode control section into DOM
+ * Placed at bottom, below all main content
+ */
+function injectDemoModeSection() {
+    const container = document.querySelector('.container') || document.body;
+
+    const demoSection = document.createElement('div');
+    demoSection.style.cssText = 'margin-top:30px; padding:20px; background:#2a2a2a; border-radius:8px; border-left:4px solid #666;';
+    demoSection.innerHTML = `
+        <h3 style="color:#999;font-size:0.9em;margin-bottom:15px;text-transform:uppercase;letter-spacing:1px;">🤖 Demo Mode</h3>
+        <div style="display:flex;align-items:center;gap:15px;margin-bottom:10px;">
+            <button id="btnDemoMode" onclick="toggleDemoMode()" 
+                    style="padding:10px 20px;background:#008CBA;color:white;border:2px solid #007396;
+                           border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s;">
+                Toggle Demo Mode
+            </button>
+            <span id="demoStatus" style="font-size:14px;color:#999;">⚫ Off</span>
+        </div>
+        <p style="font-size:12px;color:#666;margin:0;font-style:italic;">
+            Automatic chess game playback. Touch board to interrupt.
+        </p>
+    `;
+
+    container.appendChild(demoSection);
+    console.log('✅ Demo Mode section injected');
+}
+
 console.log('🚀 Creating chess board...');
-createBoard();
-console.log('🚀 Fetching initial data...');
-fetchData();
-setInterval(fetchData, 500);
+initializeApp(); // Call the new initialization function
 console.log('✅ Chess JavaScript loaded successfully!');
 console.log('⏱️ About to initialize timer system...');
 
@@ -627,10 +743,10 @@ function updatePlayerTime(player, timeMs) {
     const timeElement = document.getElementById(player + '-time');
     const playerElement = document.getElementById(player + '-timer');
     if (!timeElement || !playerElement) return;
-    
+
     // Zkontrolovat zda je časová kontrola aktivní
     const isTimerActive = timerData.config && timerData.config.type !== 0;
-    
+
     if (isTimerActive) {
         const formattedTime = formatTime(timeMs);
         timeElement.textContent = formattedTime;
@@ -643,7 +759,7 @@ function updatePlayerTime(player, timeMs) {
         playerElement.classList.remove('low-time', 'critical-time', 'active');
         return; // Nedělat nic dalšího
     }
-    
+
     if ((player === 'white' && timerData.is_white_turn) || (player === 'black' && !timerData.is_white_turn)) {
         playerElement.classList.add('active');
     } else {
@@ -665,7 +781,7 @@ function updateProgressBars(timerInfo) {
         console.warn('Timer info missing config:', timerInfo);
         return;
     }
-    
+
     // Zkontrolovat zda je časová kontrola aktivní
     if (timerInfo.config.type === 0) {
         // Bez časové kontroly - skrýt progress bary
@@ -675,7 +791,7 @@ function updateProgressBars(timerInfo) {
         if (blackProgress) blackProgress.style.width = '0%';
         return;
     }
-    
+
     const initialTime = timerInfo.config.initial_time_ms;
     if (initialTime === 0) return;
     const whiteProgress = document.getElementById('white-progress');
@@ -706,7 +822,7 @@ function checkTimeWarnings(timerInfo) {
     if (!timerInfo || !timerInfo.config || timerInfo.config.type === 0) {
         return;
     }
-    
+
     const currentPlayerTime = timerInfo.is_white_turn ? timerInfo.white_time_ms : timerInfo.black_time_ms;
     if (currentPlayerTime < 5000 && !timerInfo.warning_5s_shown) {
         showTimeWarning('Critical! Less than 5 seconds!', 'critical');
@@ -741,7 +857,7 @@ function handleTimeExpiration(timerInfo) {
     if (!timerInfo || !timerInfo.config || timerInfo.config.type === 0) {
         return;
     }
-    
+
     const expiredPlayer = timerInfo.is_white_turn ? 'White' : 'Black';
     showTimeWarning('Time expired! ' + expiredPlayer + ' lost on time.', 'critical');
     const pauseBtn = document.getElementById('pause-timer');
@@ -830,26 +946,26 @@ async function updateTimerDisplay() {
             const whiteTime = formatTime(timerInfo.white_time_ms);
             const blackTime = formatTime(timerInfo.black_time_ms);
             console.log('⏱️ Timer:', timerInfo.config ? timerInfo.config.name : 'NO CONFIG', '| White:', whiteTime, '(' + timerInfo.white_time_ms + 'ms)', '| Black:', blackTime, '(' + timerInfo.black_time_ms + 'ms)');
-        updatePlayerTime('white', timerInfo.white_time_ms);
-        updatePlayerTime('black', timerInfo.black_time_ms);
-        updateActivePlayer(timerInfo.is_white_turn);
-        updateProgressBars(timerInfo);
-        updateTimerStats(timerInfo);
-        // Disable/enable timer controls podle config.type
-        const pauseBtn = document.getElementById('pause-timer');
-        const resumeBtn = document.getElementById('resume-timer');
-        const resetBtn = document.getElementById('reset-timer');
-        const isTimerActive = timerInfo.config && timerInfo.config.type !== 0;
-        if (pauseBtn) pauseBtn.disabled = !isTimerActive;
-        if (resumeBtn) resumeBtn.disabled = !isTimerActive;
-        if (resetBtn) resetBtn.disabled = !isTimerActive;
-        // Pouze pokud je časová kontrola aktivní
-        if (isTimerActive) {
-            checkTimeWarnings(timerInfo);
-            if (timerInfo.time_expired) {
-                handleTimeExpiration(timerInfo);
+            updatePlayerTime('white', timerInfo.white_time_ms);
+            updatePlayerTime('black', timerInfo.black_time_ms);
+            updateActivePlayer(timerInfo.is_white_turn);
+            updateProgressBars(timerInfo);
+            updateTimerStats(timerInfo);
+            // Disable/enable timer controls podle config.type
+            const pauseBtn = document.getElementById('pause-timer');
+            const resumeBtn = document.getElementById('resume-timer');
+            const resetBtn = document.getElementById('reset-timer');
+            const isTimerActive = timerInfo.config && timerInfo.config.type !== 0;
+            if (pauseBtn) pauseBtn.disabled = !isTimerActive;
+            if (resumeBtn) resumeBtn.disabled = !isTimerActive;
+            if (resetBtn) resetBtn.disabled = !isTimerActive;
+            // Pouze pokud je časová kontrola aktivní
+            if (isTimerActive) {
+                checkTimeWarnings(timerInfo);
+                if (timerInfo.time_expired) {
+                    handleTimeExpiration(timerInfo);
+                }
             }
-        }
         } else {
             console.error('❌ Timer update failed:', response.status);
         }
@@ -979,7 +1095,7 @@ document.addEventListener('keydown', (e) => {
         }
     }
     if (historyData.length === 0) return;
-    switch(e.key) {
+    switch (e.key) {
         case 'ArrowLeft':
             e.preventDefault();
             if (reviewMode && currentReviewIndex > 0) {
@@ -1001,7 +1117,8 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('click', (e) => {
     if (!e.target.closest('.square') && !e.target.closest('.history-item')) {
         if (!reviewMode) {
-            clearHighlights();        }
+            clearHighlights();
+        }
     }
 });
 
@@ -1019,8 +1136,8 @@ async function saveWiFiConfig() {
     try {
         const response = await fetch('/api/wifi/config', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ssid: ssid, password: password})
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ssid: ssid, password: password })
         });
         const data = await response.json();
         if (data.success) {
@@ -1035,7 +1152,7 @@ async function saveWiFiConfig() {
 
 async function connectSTA() {
     try {
-        const response = await fetch('/api/wifi/connect', {method: 'POST'});
+        const response = await fetch('/api/wifi/connect', { method: 'POST' });
         const data = await response.json();
         if (data.success) {
             alert('Connecting to WiFi...');
@@ -1050,7 +1167,7 @@ async function connectSTA() {
 
 async function disconnectSTA() {
     try {
-        const response = await fetch('/api/wifi/disconnect', {method: 'POST'});
+        const response = await fetch('/api/wifi/disconnect', { method: 'POST' });
         const data = await response.json();
         if (data.success) {
             alert('Disconnected from WiFi');
@@ -1105,4 +1222,114 @@ if (document.readyState === 'loading') {
     startWiFiStatusUpdateLoop();
 }
 
+// ============================================================================
+// DEMO MODE (SCREENSAVER) FUNCTIONS
+// ============================================================================
+
+/**
+ * Toggle demo/screensaver mode on or off
+ */
+async function toggleDemoMode() {
+    try {
+        // Get current state
+        const currentlyEnabled = await isDemoModeEnabled();
+        const newState = !currentlyEnabled;
+
+        // Send toggle request
+        const response = await fetch('/api/demo/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: newState })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            console.log('✅ Demo mode toggled:', newState ? 'ON' : 'OFF');
+            // Update status immediately
+            await updateDemoModeStatus();
+        } else {
+            console.error('❌ Failed to toggle demo mode');
+            alert('Failed to toggle demo mode: ' + (data.message || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error toggling demo mode:', error);
+        alert('Error toggling demo mode');
+    }
+}
+
+/**
+ * Check if demo mode is currently enabled
+ * @returns {Promise<boolean>} True if enabled
+ */
+async function isDemoModeEnabled() {
+    try {
+        const response = await fetch('/api/demo/status');
+        const data = await response.json();
+        return data.enabled === true;
+    } catch (error) {
+        console.error('Failed to check demo mode status:', error);
+        return false;
+    }
+}
+
+/**
+ * Update demo mode status indicator in UI
+ */
+async function updateDemoModeStatus() {
+    try {
+        const enabled = await isDemoModeEnabled();
+        const statusEl = document.getElementById('demoStatus');
+        const btnEl = document.getElementById('btnDemoMode');
+
+        if (statusEl) {
+            if (enabled) {
+                statusEl.textContent = '🟢 Active';
+                statusEl.style.color = '#4CAF50';
+                statusEl.style.fontWeight = 'bold';
+            } else {
+                statusEl.textContent = '⚫ Off';
+                statusEl.style.color = '#999';
+                statusEl.style.fontWeight = 'normal';
+            }
+        }
+
+        if (btnEl) {
+            if (enabled) {
+                btnEl.classList.add('btn-active');
+                btnEl.style.backgroundColor = '#4CAF50';
+                btnEl.style.borderColor = '#45a049';
+            } else {
+                btnEl.classList.remove('btn-active');
+                btnEl.style.backgroundColor = '#008CBA';
+                btnEl.style.borderColor = '#007396';
+            }
+        }
+    } catch (error) {
+        console.error('Failed to update demo mode status:', error);
+    }
+}
+
+// Expose demo mode functions globally
+window.toggleDemoMode = toggleDemoMode;
+window.updateDemoModeStatus = updateDemoModeStatus;
+
+// Start demo mode status update loop (every 3 seconds)
+let demoModeStatusInterval = null;
+function startDemoModeStatusUpdateLoop() {
+    if (demoModeStatusInterval) {
+        clearInterval(demoModeStatusInterval);
+    }
+    // Initial update
+    updateDemoModeStatus();
+    // Update every 3 seconds
+    demoModeStatusInterval = setInterval(updateDemoModeStatus, 3000);
+}
+
+// Start demo mode status updates when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startDemoModeStatusUpdateLoop);
+} else {
+    startDemoModeStatusUpdateLoop();
+}
 

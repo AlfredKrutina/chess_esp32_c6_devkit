@@ -33,8 +33,7 @@ static const system_config_t default_config = {
     .verbose_mode = false,
     .quiet_mode = false,
     .log_level = ESP_LOG_ERROR,
-    .command_timeout_ms = 5000,
-    .echo_enabled = true
+    .command_timeout_ms = 5000
 };
 
 esp_err_t config_manager_init(void)
@@ -105,16 +104,6 @@ esp_err_t config_load_from_nvs(system_config_t* config)
         config->command_timeout_ms = default_config.command_timeout_ms;
     }
     
-    // Load echo_enabled
-    esp_task_wdt_reset(); // Reset watchdog before NVS read
-    uint8_t echo_temp;
-    ret = nvs_get_u8(nvs_handle, "echo", &echo_temp);
-    if (ret != ESP_OK) {
-        config->echo_enabled = default_config.echo_enabled;
-    } else {
-        config->echo_enabled = (bool)echo_temp;
-    }
-    
     esp_task_wdt_reset(); // Reset watchdog before NVS close
     nvs_close(nvs_handle);
     
@@ -123,7 +112,6 @@ esp_err_t config_load_from_nvs(system_config_t* config)
     ESP_LOGI(TAG, "  Quiet: %s", config->quiet_mode ? "ON" : "OFF");
     ESP_LOGI(TAG, "  Log Level: %d", config->log_level);
     ESP_LOGI(TAG, "  Timeout: %lu ms", config->command_timeout_ms);
-    ESP_LOGI(TAG, "  Echo enabled: %s", config->echo_enabled ? "ON" : "OFF");
     
     return ESP_OK;
 }
@@ -168,13 +156,6 @@ esp_err_t config_save_to_nvs(const system_config_t* config)
     ret = nvs_set_u32(nvs_handle, "timeout", config->command_timeout_ms);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to save timeout");
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
-    ret = nvs_set_u8(nvs_handle, "echo", (uint8_t)config->echo_enabled);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to save echo setting");
         nvs_close(nvs_handle);
         return ret;
     }

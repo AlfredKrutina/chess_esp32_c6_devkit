@@ -1,39 +1,141 @@
 /**
  * @file web_server_task.c
- * @brief ESP32-C6 Chess System v2.4 - Web Server Task komponenta
- * 
- * Tato komponenta zpracovava web server funkcionalitu:
- * - WiFi Access Point nastaveni
- * - HTTP server pro vzdalene ovladani
- * - Captive portal pro automaticke otevreni prohlizece
- * - REST API endpointy pro stav hry
- * - Web rozhrani pro sachovou hru
- * 
+ * @brief Web Server Task - WiFi hotspot a HTTP server pro web ovladani
+ *
+ * @details
+ * =============================================================================
+ * CO TENTO SOUBOR DELA?
+ * =============================================================================
+ *
+ * Tento task zpristupnuje sachovnici pres web rozhrani:
+ * 1. WiFi Access Point (hotspot "ESP32-Chess")
+ * 2. HTTP server (port 80)
+ * 3. REST API endpointy (/api/status, /api/board, /api/move...)
+ * 4. Interaktivni web UI (HTML/CSS/JavaScript)
+ * 5. Realtime aktualizace stavu (polling)
+ *
+ * =============================================================================
+ * JAK TO FUNGUJE?
+ * =============================================================================
+ *
+ * STARTUP:
+ * - Init WiFi jako Access Point (AP mode)
+ * - SSID: "ESP32-Chess" (bez hesla)
+ * - IP: 192.168.4.1
+ * - Start HTTP serveru
+ * - Registrace REST API handleru
+ *
+ * HTTP SERVER:
+ * - GET / -> Hlavni HTML stranka
+ * - GET /api/status -> JSON stav hry
+ * - GET /api/board -> JSON pozice figurek
+ * - POST /api/move -> Provest tah
+ * - POST /api/reset -> Nova hra
+ * - GET /api/timer -> Stav casovace
+ *
+ * WEB UI:
+ * - Interaktivni sachovnice (klikaci)
+ * - Zobrazeni validnich tahu
+ * - Historie tahu
+ * - Timer display
+ * - Endgame report
+ * - Demo mode controls
+ *
+ * =============================================================================
+ * KOMUNIKACE (QUEUES)
+ * =============================================================================
+ *
+ * FRONTY - Posilame prikazy:
+ * - game_command_queue -> Prikazy z webu (move, reset)
+ *
+ * VOLANI API FUNKCI:
+ * - game_get_status_json() -> Ziskani JSON stavu
+ * - game_get_board_json() -> Ziskani JSON desky
+ * - game_get_history_json() -> Ziskani JSON historie
+ *
+ * =============================================================================
+ * REST API ENDPOINTY
+ * =============================================================================
+ *
+ * GET /api/status:
+ * - JSON: {game_state, current_player, move_count, in_check, game_end,
+ * error_state}
+ *
+ * GET /api/board:
+ * - JSON: {board: [[...], ...]}  // 8x8 array figurek
+ *
+ * POST /api/move:
+ * - Body: {from: "e2", to: "e4"}
+ * - Response: {success: true/false, message: "..."}
+ *
+ * GET /api/timer:
+ * - JSON: {white_time, black_time, running, paused}
+ *
+ * POST /api/demo/config:
+ * - Body: {enabled: true, speed_ms: 2000}
+ *
+ * =============================================================================
+ * KRITICKA PRAVIDLA
+ * =============================================================================
+ *
+ * @warning CO SE NESMI DELAT:
+ *
+ * 1. NIKDY neblokuj v HTTP handleru!
+ *    ❌ vTaskDelay(1000);  // Zablokuje HTTP server
+ *    ✅ Proved rychle, vrat odpoved okamzite
+ *
+ * 2. NIKDY nezabud poslat HTTP response!
+ *    ❌ return ESP_OK;  // Bez httpd_resp_send()
+ *    ✅ httpd_resp_send(req, json, strlen(json)); return ESP_OK;
+ *
+ * 3. VZDY kontroluj JSON buffer overflow!
+ *    Buffer je 8KB - pokud JSON je vetsi, stack overflow!
+ *
+ * 4. VZDY pouzij mutexу pro pristup ke game state!
+ *    API funkce jako game_get_status_json() uz to delaji
+ *
+ * =============================================================================
+ * TABLE OF CONTENTS
+ * =============================================================================
+ *
+ * Sekce 1:  WiFi Setup ........................... radek 100
+ * Sekce 2:  HTTP Handlers ........................ radek 300
+ * Sekce 3:  REST API Functions ................... radek 800
+ * Sekce 4:  HTML Page Generation ................. radek 1200
+ * Sekce 5:  Main Web Server Task ................. radek 4800
+ *
+ * =============================================================================
+ *
  * @author Alfred Krutina
  * @version 2.4
- * @date 2025-01-XX
- * 
- * @details
- * Tento task vytvari WiFi hotspot a HTTP server pro vzdalene ovladani
- * sachoveho systemu pres webove rozhrani. Uzivatel se muze pripojit
- * k WiFi "ESP32-Chess" a ovladat hru pres prohlizec.
+ * @date 2025-12-23
+ *
+ * @note
+ * - Task priorita: 2 (nizsi nez game/matrix)
+ * - Stack size: 8KB (velke kvuli JSON bufferum)
+ * - WiFi SSID: "ESP32-Chess"
+ * - IP adresa: 192.168.4.1
+ * - HTTP port: 80
+ *
+ * @see game_task.c - Poskytuje JSON API
+ * @see timer_system.c - Timer API
  */
 
 #include "web_server_task.h"
-#include "freertos_chess.h"
 #include "../game_task/include/game_task.h"
 #include "../timer_system/include/timer_system.h"
+#include "esp_event.h"
+#include "esp_http_server.h"
 #include "esp_log.h"
+#include "esp_netif.h"
 #include "esp_task_wdt.h"
 #include "esp_wifi.h"
-#include "esp_netif.h"
-#include "esp_http_server.h"
-#include "esp_event.h"
-#include "nvs_flash.h"
+#include "freertos_chess.h"
 #include "nvs.h"
-#include <string.h>
+#include "nvs_flash.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Externi deklarace fronty
 extern QueueHandle_t game_command_queue;
@@ -42,37 +144,41 @@ extern QueueHandle_t game_command_queue;
 // LOKALNI PROMENNE A KONSTANTY
 // ============================================================================
 
-static const char* TAG = "WEB_SERVER_TASK";
+static const char *TAG = "WEB_SERVER_TASK";
 
 // ============================================================================
 // WDT WRAPPER FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND
- * 
+ * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro
+ * ESP_ERR_NOT_FOUND
+ *
  * Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste
  * registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.
- * 
- * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze)
- * 
+ *
+ * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany
+ * (WARNING pouze)
+ *
  * @details
- * Funkce je pouzivana pro bezpecny reset watchdog timeru behem web server operaci.
- * Zabranuje chybam pri startupu kdy task jeste neni registrovany.
+ * Funkce je pouzivana pro bezpecny reset watchdog timeru behem web server
+ * operaci. Zabranuje chybam pri startupu kdy task jeste neni registrovany.
  */
 static esp_err_t web_server_task_wdt_reset_safe(void) {
-    esp_err_t ret = esp_task_wdt_reset();
-    
-    if (ret == ESP_ERR_NOT_FOUND) {
-        // Logovat jako WARNING misto ERROR - task jeste neni registrovany
-        ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
-        return ESP_OK; // Povazovat za uspech pro nase ucely
-    } else if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    return ESP_OK;
+  esp_err_t ret = esp_task_wdt_reset();
+
+  if (ret == ESP_ERR_NOT_FOUND) {
+    // Logovat jako WARNING misto ERROR - task jeste neni registrovany
+    ESP_LOGW(
+        TAG,
+        "WDT reset: task not registered yet (this is normal during startup)");
+    return ESP_OK; // Povazovat za uspech pro nase ucely
+  } else if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  return ESP_OK;
 }
 
 // Konfigurace WiFi
@@ -100,7 +206,7 @@ static esp_err_t web_server_task_wdt_reset_safe(void) {
 #define HTTP_SERVER_MAX_CLIENTS 4
 
 // Velikosti JSON bufferu
-#define JSON_BUFFER_SIZE 2048  // Puvodni velikost
+#define JSON_BUFFER_SIZE 2048 // Puvodni velikost
 
 // Sledovani stavu web serveru
 static bool task_running = false;
@@ -113,16 +219,18 @@ uint32_t client_count = 0; // Externi pro UART prikazy
 static httpd_handle_t httpd_handle = NULL;
 
 // Handle netif
-static esp_netif_t* ap_netif = NULL;
-static esp_netif_t* sta_netif = NULL;
+static esp_netif_t *ap_netif = NULL;
+static esp_netif_t *sta_netif = NULL;
 
 // STA status promenne
 static bool sta_connected = false;
-static bool sta_connecting = false; // Flag pro sledovani stavu pripojovani (zabranuje race condition)
+static bool sta_connecting =
+    false; // Flag pro sledovani stavu pripojovani (zabranuje race condition)
 static bool web_locked = false; // Flag pro lock web rozhrani
-char sta_ip[16] = {0}; // Externi pro UART prikazy
+char sta_ip[16] = {0};          // Externi pro UART prikazy
 static char sta_ssid[33] = {0};
-static int last_disconnect_reason = 0; // Posledni disconnection reason pro error handling
+static int last_disconnect_reason =
+    0; // Posledni disconnection reason pro error handling
 
 // Externi promenne
 QueueHandle_t web_server_status_queue = NULL;
@@ -140,14 +248,17 @@ static char json_buffer[JSON_BUFFER_SIZE];
 // ============================================================================
 
 static esp_err_t wifi_init_apsta(void);
-static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
+static void wifi_event_handler(void *arg, esp_event_base_t event_base,
+                               int32_t event_id, void *event_data);
 static esp_err_t start_http_server(void);
 static void stop_http_server(void);
 
 // HTTP handlery
 static esp_err_t http_get_root_handler(httpd_req_t *req);
-static esp_err_t http_get_chess_js_handler(httpd_req_t *req);  // chess_app.js file
-static esp_err_t http_get_test_handler(httpd_req_t *req);  // Testovaci stranka pro timer
+static esp_err_t
+http_get_chess_js_handler(httpd_req_t *req); // chess_app.js file
+static esp_err_t
+http_get_test_handler(httpd_req_t *req); // Testovaci stranka pro timer
 static esp_err_t http_get_board_handler(httpd_req_t *req);
 static esp_err_t http_get_status_handler(httpd_req_t *req);
 static esp_err_t http_get_history_handler(httpd_req_t *req);
@@ -158,7 +269,8 @@ static esp_err_t http_post_timer_config_handler(httpd_req_t *req);
 static esp_err_t http_post_timer_pause_handler(httpd_req_t *req);
 static esp_err_t http_post_timer_resume_handler(httpd_req_t *req);
 static esp_err_t http_post_timer_reset_handler(httpd_req_t *req);
-// static esp_err_t http_post_move_handler(httpd_req_t *req);  // VYPNUTO - web je 100% READ-ONLY
+// static esp_err_t http_post_move_handler(httpd_req_t *req);  // VYPNUTO - web
+// je 100% READ-ONLY
 
 // WiFi API handlery
 static esp_err_t http_post_wifi_config_handler(httpd_req_t *req);
@@ -173,305 +285,301 @@ static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req);
 static esp_err_t http_post_demo_config_handler(httpd_req_t *req);
 static esp_err_t http_get_demo_status_handler(httpd_req_t *req);
 
-// Handlery pro captive portal
-static esp_err_t http_get_generate_204_handler(httpd_req_t *req);
-static esp_err_t http_get_hotspot_handler(httpd_req_t *req);
-static esp_err_t http_get_connecttest_handler(httpd_req_t *req);
-
 // WiFi NVS funkce
-esp_err_t wifi_load_config_from_nvs(char* ssid, size_t ssid_len, char* password, size_t password_len)
-{
-    if (ssid == NULL || password == NULL || ssid_len == 0 || password_len == 0) {
-        ESP_LOGE(TAG, "Invalid parameters for wifi_load_config_from_nvs");
-        return ESP_ERR_INVALID_ARG;
-    }
-    
-    nvs_handle_t nvs_handle;
-    esp_err_t ret = nvs_open(WIFI_NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // Nacist SSID
-    size_t required_size = ssid_len;
-    ret = nvs_get_str(nvs_handle, WIFI_NVS_KEY_SSID, ssid, &required_size);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to get SSID from NVS: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
-    // Nacist password
-    required_size = password_len;
-    ret = nvs_get_str(nvs_handle, WIFI_NVS_KEY_PASSWORD, password, &required_size);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to get password from NVS: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
+esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
+                                    size_t password_len) {
+  if (ssid == NULL || password == NULL || ssid_len == 0 || password_len == 0) {
+    ESP_LOGE(TAG, "Invalid parameters for wifi_load_config_from_nvs");
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  nvs_handle_t nvs_handle;
+  esp_err_t ret = nvs_open(WIFI_NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  // Nacist SSID
+  size_t required_size = ssid_len;
+  ret = nvs_get_str(nvs_handle, WIFI_NVS_KEY_SSID, ssid, &required_size);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to get SSID from NVS: %s", esp_err_to_name(ret));
     nvs_close(nvs_handle);
-    ESP_LOGI(TAG, "WiFi config loaded from NVS: SSID=%s", ssid);
-    
-    return ESP_OK;
+    return ret;
+  }
+
+  // Nacist password
+  required_size = password_len;
+  ret =
+      nvs_get_str(nvs_handle, WIFI_NVS_KEY_PASSWORD, password, &required_size);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to get password from NVS: %s", esp_err_to_name(ret));
+    nvs_close(nvs_handle);
+    return ret;
+  }
+
+  nvs_close(nvs_handle);
+  ESP_LOGI(TAG, "WiFi config loaded from NVS: SSID=%s", ssid);
+
+  return ESP_OK;
 }
 
 // WiFi STA funkce (static pro interni pouziti)
-static esp_err_t wifi_get_sta_status_json(char* buffer, size_t buffer_size);
+static esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size);
 
 // Gettery pro externi pouziti
-esp_err_t wifi_get_sta_ip(char* buffer, size_t max_len)
-{
-    if (buffer == NULL || max_len == 0) {
-        return ESP_ERR_INVALID_ARG;
-    }
-    strncpy(buffer, sta_ip, max_len - 1);
-    buffer[max_len - 1] = '\0';
-    return ESP_OK;
+esp_err_t wifi_get_sta_ip(char *buffer, size_t max_len) {
+  if (buffer == NULL || max_len == 0) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  strncpy(buffer, sta_ip, max_len - 1);
+  buffer[max_len - 1] = '\0';
+  return ESP_OK;
 }
 
-esp_err_t wifi_get_sta_ssid(char* buffer, size_t max_len)
-{
-    if (buffer == NULL || max_len == 0) {
-        return ESP_ERR_INVALID_ARG;
-    }
-    strncpy(buffer, sta_ssid, max_len - 1);
-    buffer[max_len - 1] = '\0';
-    return ESP_OK;
+esp_err_t wifi_get_sta_ssid(char *buffer, size_t max_len) {
+  if (buffer == NULL || max_len == 0) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  strncpy(buffer, sta_ssid, max_len - 1);
+  buffer[max_len - 1] = '\0';
+  return ESP_OK;
 }
 
 // Externi WiFi funkce (pro UART prikazy)
-esp_err_t wifi_save_config_to_nvs(const char* ssid, const char* password)
-{
-    if (ssid == NULL || password == NULL) {
-        ESP_LOGE(TAG, "Invalid parameters: ssid or password is NULL");
-        return ESP_ERR_INVALID_ARG;
-    }
-    
-    size_t ssid_len = strlen(ssid);
-    size_t password_len = strlen(password);
-    
-    if (ssid_len == 0 || ssid_len > 32) {
-        ESP_LOGE(TAG, "Invalid SSID length: %zu (must be 1-32)", ssid_len);
-        return ESP_ERR_INVALID_ARG;
-    }
-    
-    if (password_len == 0 || password_len > 64) {
-        ESP_LOGE(TAG, "Invalid password length: %zu (must be 1-64)", password_len);
-        return ESP_ERR_INVALID_ARG;
-    }
-    
-    nvs_handle_t nvs_handle;
-    esp_err_t ret = nvs_open(WIFI_NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    ret = nvs_set_str(nvs_handle, WIFI_NVS_KEY_SSID, ssid);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set SSID in NVS: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
-    ret = nvs_set_str(nvs_handle, WIFI_NVS_KEY_PASSWORD, password);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set password in NVS: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
-    ret = nvs_commit(nvs_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to commit NVS: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
+esp_err_t wifi_save_config_to_nvs(const char *ssid, const char *password) {
+  if (ssid == NULL || password == NULL) {
+    ESP_LOGE(TAG, "Invalid parameters: ssid or password is NULL");
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  size_t ssid_len = strlen(ssid);
+  size_t password_len = strlen(password);
+
+  if (ssid_len == 0 || ssid_len > 32) {
+    ESP_LOGE(TAG, "Invalid SSID length: %zu (must be 1-32)", ssid_len);
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  if (password_len == 0 || password_len > 64) {
+    ESP_LOGE(TAG, "Invalid password length: %zu (must be 1-64)", password_len);
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  nvs_handle_t nvs_handle;
+  esp_err_t ret = nvs_open(WIFI_NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  ret = nvs_set_str(nvs_handle, WIFI_NVS_KEY_SSID, ssid);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to set SSID in NVS: %s", esp_err_to_name(ret));
     nvs_close(nvs_handle);
-    ESP_LOGI(TAG, "WiFi config saved to NVS: SSID=%s", ssid);
-    
-    // Pokud je pripojeny a SSID se zmenil, odpojit
-    if (sta_connected && strcmp(sta_ssid, ssid) != 0) {
-        ESP_LOGI(TAG, "SSID changed from '%s' to '%s', disconnecting...", sta_ssid, ssid);
-        wifi_disconnect_sta();
-    }
-    
-    return ESP_OK;
+    return ret;
+  }
+
+  ret = nvs_set_str(nvs_handle, WIFI_NVS_KEY_PASSWORD, password);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to set password in NVS: %s", esp_err_to_name(ret));
+    nvs_close(nvs_handle);
+    return ret;
+  }
+
+  ret = nvs_commit(nvs_handle);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to commit NVS: %s", esp_err_to_name(ret));
+    nvs_close(nvs_handle);
+    return ret;
+  }
+
+  nvs_close(nvs_handle);
+  ESP_LOGI(TAG, "WiFi config saved to NVS: SSID=%s", ssid);
+
+  // Pokud je pripojeny a SSID se zmenil, odpojit
+  if (sta_connected && strcmp(sta_ssid, ssid) != 0) {
+    ESP_LOGI(TAG, "SSID changed from '%s' to '%s', disconnecting...", sta_ssid,
+             ssid);
+    wifi_disconnect_sta();
+  }
+
+  return ESP_OK;
 }
 
-esp_err_t wifi_connect_sta(void)
-{
-    // Kontrola: pokud uz je pripojeny, vratit uspech
+esp_err_t wifi_connect_sta(void) {
+  // Kontrola: pokud uz je pripojeny, vratit uspech
+  if (sta_connected) {
+    ESP_LOGI(TAG, "Already connected to WiFi: %s (IP: %s)", sta_ssid, sta_ip);
+    return ESP_OK;
+  }
+
+  // Kontrola: pokud se prave pripojuje, vratit chybu (race condition
+  // protection)
+  if (sta_connecting) {
+    ESP_LOGW(TAG, "WiFi connection already in progress");
+    return ESP_ERR_INVALID_STATE;
+  }
+
+  char ssid[33] = {0};
+  char password[65] = {0};
+
+  // Nacist konfiguraci z NVS
+  esp_err_t ret =
+      wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to load WiFi config from NVS: %s",
+             esp_err_to_name(ret));
+    return ret;
+  }
+
+  ESP_LOGI(TAG, "Connecting to WiFi: SSID=%s", ssid);
+  sta_connecting = true; // Nastavit flag pripojovani
+
+  // Nastavit WiFi STA konfiguraci
+  wifi_config_t wifi_config = {0};
+  strncpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid) - 1);
+  strncpy((char *)wifi_config.sta.password, password,
+          sizeof(wifi_config.sta.password) - 1);
+  wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+  wifi_config.sta.pmf_cfg.capable = true;
+  wifi_config.sta.pmf_cfg.required = false;
+
+  ret = esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to set WiFi STA config: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  // Spustit pripojeni
+  ret = esp_wifi_connect();
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to start WiFi connection: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  // Cekat na pripojeni (max 30 sekund)
+  int retry_count = 0;
+  const int max_retries = 30; // 30 sekund (1 sekunda per retry)
+
+  while (retry_count < max_retries) {
+    // Resetovat WDT aby se zabranilo timeoutu (funkce muze blokovat az 30
+    // sekund)
+    web_server_task_wdt_reset_safe();
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
     if (sta_connected) {
-        ESP_LOGI(TAG, "Already connected to WiFi: %s (IP: %s)", sta_ssid, sta_ip);
-        return ESP_OK;
+      ESP_LOGI(TAG, "WiFi connected successfully! IP: %s", sta_ip);
+      sta_connecting = false; // Resetovat flag
+      return ESP_OK;
     }
-    
-    // Kontrola: pokud se prave pripojuje, vratit chybu (race condition protection)
-    if (sta_connecting) {
-        ESP_LOGW(TAG, "WiFi connection already in progress");
-        return ESP_ERR_INVALID_STATE;
+
+    retry_count++;
+    if (retry_count % 5 == 0) {
+      ESP_LOGI(TAG, "Waiting for WiFi connection... (%d/%d)", retry_count,
+               max_retries);
     }
-    
-    char ssid[33] = {0};
-    char password[65] = {0};
-    
-    // Nacist konfiguraci z NVS
-    esp_err_t ret = wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to load WiFi config from NVS: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    ESP_LOGI(TAG, "Connecting to WiFi: SSID=%s", ssid);
-    sta_connecting = true; // Nastavit flag pripojovani
-    
-    // Nastavit WiFi STA konfiguraci
-    wifi_config_t wifi_config = {0};
-    strncpy((char*)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid) - 1);
-    strncpy((char*)wifi_config.sta.password, password, sizeof(wifi_config.sta.password) - 1);
-    wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
-    wifi_config.sta.pmf_cfg.capable = true;
-    wifi_config.sta.pmf_cfg.required = false;
-    
-    ret = esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set WiFi STA config: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // Spustit pripojeni
-    ret = esp_wifi_connect();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to start WiFi connection: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // Cekat na pripojeni (max 30 sekund)
-    int retry_count = 0;
-    const int max_retries = 30; // 30 sekund (1 sekunda per retry)
-    
-    while (retry_count < max_retries) {
-        // Resetovat WDT aby se zabranilo timeoutu (funkce muze blokovat az 30 sekund)
-        web_server_task_wdt_reset_safe();
-        
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        
-        if (sta_connected) {
-            ESP_LOGI(TAG, "WiFi connected successfully! IP: %s", sta_ip);
-            sta_connecting = false; // Resetovat flag
-            return ESP_OK;
-        }
-        
-        retry_count++;
-        if (retry_count % 5 == 0) {
-            ESP_LOGI(TAG, "Waiting for WiFi connection... (%d/%d)", retry_count, max_retries);
-        }
-    }
-    
-    ESP_LOGE(TAG, "WiFi connection timeout after %d seconds", max_retries);
-    esp_wifi_disconnect();
-    sta_connecting = false; // Resetovat flag pri timeout
-    
-    // Vratit specificky error code podle disconnection reason
-    // WIFI_REASON_NO_AP_FOUND = 201
-    // WIFI_REASON_AUTH_FAIL = 202
-    // WIFI_REASON_ASSOC_FAIL = 203
-    // WIFI_REASON_HANDSHAKE_TIMEOUT = 204
-    if (last_disconnect_reason == 201) {
-        return ESP_ERR_NOT_FOUND; // Network not found
-    } else if (last_disconnect_reason == 202 || last_disconnect_reason == 203 || last_disconnect_reason == 204) {
-        return ESP_ERR_INVALID_RESPONSE; // Authentication/association failed (wrong password)
-    }
-    
-    return ESP_ERR_TIMEOUT; // General timeout
+  }
+
+  ESP_LOGE(TAG, "WiFi connection timeout after %d seconds", max_retries);
+  esp_wifi_disconnect();
+  sta_connecting = false; // Resetovat flag pri timeout
+
+  // Vratit specificky error code podle disconnection reason
+  // WIFI_REASON_NO_AP_FOUND = 201
+  // WIFI_REASON_AUTH_FAIL = 202
+  // WIFI_REASON_ASSOC_FAIL = 203
+  // WIFI_REASON_HANDSHAKE_TIMEOUT = 204
+  if (last_disconnect_reason == 201) {
+    return ESP_ERR_NOT_FOUND; // Network not found
+  } else if (last_disconnect_reason == 202 || last_disconnect_reason == 203 ||
+             last_disconnect_reason == 204) {
+    return ESP_ERR_INVALID_RESPONSE; // Authentication/association failed (wrong
+                                     // password)
+  }
+
+  return ESP_ERR_TIMEOUT; // General timeout
 }
 
-esp_err_t wifi_disconnect_sta(void)
-{
-    // Pokud neni pripojeny a nepripojuje se, vratit uspech
-    if (!sta_connected && !sta_connecting) {
-        ESP_LOGI(TAG, "WiFi already disconnected");
-        return ESP_OK;
-    }
-    
-    ESP_LOGI(TAG, "Disconnecting from WiFi...");
-    
-    // Pokud se prave pripojuje, zrusit pripojeni
-    if (sta_connecting) {
-        ESP_LOGW(TAG, "Cancelling WiFi connection in progress");
-        sta_connecting = false;
-    }
-    
-    esp_err_t ret = esp_wifi_disconnect();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to disconnect WiFi: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // Cekat na odpojeni (max 5 sekund)
-    int retry_count = 0;
-    const int max_retries = 5;
-    
-    while (retry_count < max_retries && sta_connected) {
-        // Resetovat WDT aby se zabranilo timeoutu
-        web_server_task_wdt_reset_safe();
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        retry_count++;
-    }
-    
-    if (!sta_connected) {
-        ESP_LOGI(TAG, "WiFi disconnected successfully");
-    } else {
-        ESP_LOGW(TAG, "WiFi disconnect timeout, but continuing");
-    }
-    
+esp_err_t wifi_disconnect_sta(void) {
+  // Pokud neni pripojeny a nepripojuje se, vratit uspech
+  if (!sta_connected && !sta_connecting) {
+    ESP_LOGI(TAG, "WiFi already disconnected");
     return ESP_OK;
+  }
+
+  ESP_LOGI(TAG, "Disconnecting from WiFi...");
+
+  // Pokud se prave pripojuje, zrusit pripojeni
+  if (sta_connecting) {
+    ESP_LOGW(TAG, "Cancelling WiFi connection in progress");
+    sta_connecting = false;
+  }
+
+  esp_err_t ret = esp_wifi_disconnect();
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to disconnect WiFi: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  // Cekat na odpojeni (max 5 sekund)
+  int retry_count = 0;
+  const int max_retries = 5;
+
+  while (retry_count < max_retries && sta_connected) {
+    // Resetovat WDT aby se zabranilo timeoutu
+    web_server_task_wdt_reset_safe();
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    retry_count++;
+  }
+
+  if (!sta_connected) {
+    ESP_LOGI(TAG, "WiFi disconnected successfully");
+  } else {
+    ESP_LOGW(TAG, "WiFi disconnect timeout, but continuing");
+  }
+
+  return ESP_OK;
 }
 
-esp_err_t wifi_clear_config_from_nvs(void)
-{
-    nvs_handle_t nvs_handle;
-    esp_err_t ret = nvs_open(WIFI_NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    ret = nvs_erase_key(nvs_handle, WIFI_NVS_KEY_SSID);
-    if (ret != ESP_OK && ret != ESP_ERR_NVS_NOT_FOUND) {
-        ESP_LOGE(TAG, "Failed to erase SSID: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
-    ret = nvs_erase_key(nvs_handle, WIFI_NVS_KEY_PASSWORD);
-    if (ret != ESP_OK && ret != ESP_ERR_NVS_NOT_FOUND) {
-        ESP_LOGE(TAG, "Failed to erase password: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
-    ret = nvs_commit(nvs_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to commit NVS: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
+esp_err_t wifi_clear_config_from_nvs(void) {
+  nvs_handle_t nvs_handle;
+  esp_err_t ret = nvs_open(WIFI_NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  ret = nvs_erase_key(nvs_handle, WIFI_NVS_KEY_SSID);
+  if (ret != ESP_OK && ret != ESP_ERR_NVS_NOT_FOUND) {
+    ESP_LOGE(TAG, "Failed to erase SSID: %s", esp_err_to_name(ret));
     nvs_close(nvs_handle);
-    ESP_LOGI(TAG, "WiFi config cleared from NVS");
-    
-    return ESP_OK;
+    return ret;
+  }
+
+  ret = nvs_erase_key(nvs_handle, WIFI_NVS_KEY_PASSWORD);
+  if (ret != ESP_OK && ret != ESP_ERR_NVS_NOT_FOUND) {
+    ESP_LOGE(TAG, "Failed to erase password: %s", esp_err_to_name(ret));
+    nvs_close(nvs_handle);
+    return ret;
+  }
+
+  ret = nvs_commit(nvs_handle);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to commit NVS: %s", esp_err_to_name(ret));
+    nvs_close(nvs_handle);
+    return ret;
+  }
+
+  nvs_close(nvs_handle);
+  ESP_LOGI(TAG, "WiFi config cleared from NVS");
+
+  return ESP_OK;
 }
 
-bool wifi_is_sta_connected(void)
-{
-    return sta_connected;
-}
+bool wifi_is_sta_connected(void) { return sta_connected; }
 
 // ============================================================================
 // WEB LOCK NVS FUNKCE
@@ -479,106 +587,104 @@ bool wifi_is_sta_connected(void)
 
 /**
  * @brief Ulozi lock stav do NVS
- * 
+ *
  * @param locked True pro lock, false pro unlock
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
  */
-static esp_err_t web_lock_save_to_nvs(bool locked)
-{
-    nvs_handle_t nvs_handle;
-    esp_err_t ret = nvs_open(WEB_NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    uint8_t locked_value = locked ? 1 : 0;
-    ret = nvs_set_blob(nvs_handle, WEB_NVS_KEY_LOCKED, &locked_value, sizeof(locked_value));
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set web lock: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
-    ret = nvs_commit(nvs_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to commit NVS: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
-    }
-    
+static esp_err_t web_lock_save_to_nvs(bool locked) {
+  nvs_handle_t nvs_handle;
+  esp_err_t ret = nvs_open(WEB_NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  uint8_t locked_value = locked ? 1 : 0;
+  ret = nvs_set_blob(nvs_handle, WEB_NVS_KEY_LOCKED, &locked_value,
+                     sizeof(locked_value));
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to set web lock: %s", esp_err_to_name(ret));
     nvs_close(nvs_handle);
-    ESP_LOGI(TAG, "Web lock saved to NVS: %s", locked ? "locked" : "unlocked");
-    
-    return ESP_OK;
+    return ret;
+  }
+
+  ret = nvs_commit(nvs_handle);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to commit NVS: %s", esp_err_to_name(ret));
+    nvs_close(nvs_handle);
+    return ret;
+  }
+
+  nvs_close(nvs_handle);
+  ESP_LOGI(TAG, "Web lock saved to NVS: %s", locked ? "locked" : "unlocked");
+
+  return ESP_OK;
 }
 
 /**
  * @brief Nacte lock stav z NVS
- * 
+ *
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
  */
-esp_err_t web_lock_load_from_nvs(void)
-{
-    nvs_handle_t nvs_handle;
-    esp_err_t ret = nvs_open(WEB_NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
-    if (ret != ESP_OK) {
-        // Pokud NVS namespace neexistuje, pouzit default (unlocked)
-        if (ret == ESP_ERR_NVS_NOT_FOUND) {
-            web_locked = false;
-            ESP_LOGI(TAG, "Web lock NVS namespace not found, using default: unlocked");
-            return ESP_OK;
-        }
-        ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    uint8_t locked_value = 0;
-    size_t required_size = sizeof(locked_value);
-    ret = nvs_get_blob(nvs_handle, WEB_NVS_KEY_LOCKED, &locked_value, &required_size);
+esp_err_t web_lock_load_from_nvs(void) {
+  nvs_handle_t nvs_handle;
+  esp_err_t ret = nvs_open(WEB_NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
+  if (ret != ESP_OK) {
+    // Pokud NVS namespace neexistuje, pouzit default (unlocked)
     if (ret == ESP_ERR_NVS_NOT_FOUND) {
-        // Klic neexistuje, pouzit default (unlocked)
-        web_locked = false;
-        ESP_LOGI(TAG, "Web lock key not found, using default: unlocked");
-        nvs_close(nvs_handle);
-        return ESP_OK;
-    } else if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to get web lock: %s", esp_err_to_name(ret));
-        nvs_close(nvs_handle);
-        return ret;
+      web_locked = false;
+      ESP_LOGI(TAG,
+               "Web lock NVS namespace not found, using default: unlocked");
+      return ESP_OK;
     }
-    
-    web_locked = (locked_value != 0);
+    ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  uint8_t locked_value = 0;
+  size_t required_size = sizeof(locked_value);
+  ret = nvs_get_blob(nvs_handle, WEB_NVS_KEY_LOCKED, &locked_value,
+                     &required_size);
+  if (ret == ESP_ERR_NVS_NOT_FOUND) {
+    // Klic neexistuje, pouzit default (unlocked)
+    web_locked = false;
+    ESP_LOGI(TAG, "Web lock key not found, using default: unlocked");
     nvs_close(nvs_handle);
-    ESP_LOGI(TAG, "Web lock loaded from NVS: %s", web_locked ? "locked" : "unlocked");
-    
     return ESP_OK;
+  } else if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to get web lock: %s", esp_err_to_name(ret));
+    nvs_close(nvs_handle);
+    return ret;
+  }
+
+  web_locked = (locked_value != 0);
+  nvs_close(nvs_handle);
+  ESP_LOGI(TAG, "Web lock loaded from NVS: %s",
+           web_locked ? "locked" : "unlocked");
+
+  return ESP_OK;
 }
 
 /**
  * @brief Zjisti, zda je web rozhrani zamcene
- * 
+ *
  * @return true pokud je zamcene, false pokud je odemcene
  */
-bool web_is_locked(void)
-{
-    return web_locked;
-}
+bool web_is_locked(void) { return web_locked; }
 
 /**
  * @brief Nastavi lock stav a ulozi do NVS
- * 
+ *
  * @param locked True pro lock, false pro unlock
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
  */
-esp_err_t web_lock_set(bool locked)
-{
-    web_locked = locked;
-    esp_err_t ret = web_lock_save_to_nvs(locked);
-    if (ret == ESP_OK) {
-        ESP_LOGI(TAG, "Web interface %s", locked ? "locked" : "unlocked");
-    }
-    return ret;
+esp_err_t web_lock_set(bool locked) {
+  web_locked = locked;
+  esp_err_t ret = web_lock_save_to_nvs(locked);
+  if (ret == ESP_OK) {
+    ESP_LOGI(TAG, "Web interface %s", locked ? "locked" : "unlocked");
+  }
+  return ret;
 }
 
 // ============================================================================
@@ -587,356 +693,348 @@ esp_err_t web_lock_set(bool locked)
 
 /**
  * @brief Inicializuje WiFi Access Point a Station (APSTA)
- * 
+ *
  * Tato funkce inicializuje WiFi v APSTA rezimu - soucasne jako Access Point
  * pro web server a jako Station pro pripojeni k internetu.
- * 
+ *
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
- * 
+ *
  * @details
  * Funkce inicializuje netif, event loop, WiFi a nastavi AP i STA konfiguraci.
  * Registruje event handler pro WiFi udalosti a spusti Access Point.
  * Station interface je pripraven pro pripojeni k WiFi siti.
  */
-static esp_err_t wifi_init_apsta(void)
-{
-    ESP_LOGI(TAG, "Initializing WiFi APSTA...");
-    
-    // Dulezite: Inicializovat netif PRED vytvorenim default netif
-    ESP_LOGI(TAG, "Initializing netif...");
-    esp_err_t ret = esp_netif_init();
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
-        ESP_LOGE(TAG, "Failed to initialize netif: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    if (ret == ESP_ERR_INVALID_STATE) {
-        ESP_LOGI(TAG, "Netif already initialized");
-    }
-    
-    // Dulezite: Vytvorit default event loop PRED inicializaci WiFi
-    ESP_LOGI(TAG, "Creating default event loop...");
-    ret = esp_event_loop_create_default();
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
-        ESP_LOGE(TAG, "Failed to create default event loop: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    if (ret == ESP_ERR_INVALID_STATE) {
-        ESP_LOGI(TAG, "Event loop already created");
-    } else {
-        ESP_LOGI(TAG, "Event loop ready");
-    }
-    
-    // Vytvorit default netif pro AP
-    ESP_LOGI(TAG, "Creating default WiFi AP netif...");
-    ap_netif = esp_netif_create_default_wifi_ap();
-    if (ap_netif == NULL) {
-        ESP_LOGE(TAG, "Failed to create AP netif");
-        return ESP_FAIL;
-    }
-    
-    // Vytvorit default netif pro STA
-    ESP_LOGI(TAG, "Creating default WiFi STA netif...");
-    sta_netif = esp_netif_create_default_wifi_sta();
-    if (sta_netif == NULL) {
-        ESP_LOGE(TAG, "Failed to create STA netif");
-        return ESP_FAIL;
-    }
-    
-    // Inicializovat WiFi s vychozi konfiguraci
-    ESP_LOGI(TAG, "Initializing WiFi...");
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ret = esp_wifi_init(&cfg);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "WiFi init failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // Registrovat WiFi event handler
-    ret = esp_event_handler_instance_register(WIFI_EVENT,
-                                              ESP_EVENT_ANY_ID,
-                                              &wifi_event_handler,
-                                              NULL,
-                                              NULL);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register WiFi event handler: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // Registrovat IP event handler pro STA
-    ret = esp_event_handler_instance_register(IP_EVENT,
-                                              IP_EVENT_STA_GOT_IP,
-                                              &wifi_event_handler,
-                                              NULL,
-                                              NULL);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register IP event handler: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    ret = esp_event_handler_instance_register(IP_EVENT,
-                                              IP_EVENT_STA_LOST_IP,
-                                              &wifi_event_handler,
-                                              NULL,
-                                              NULL);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register IP lost event handler: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // Konfigurovat WiFi AP
-    wifi_config_t wifi_config = {
-        .ap = {
-            .ssid = WIFI_AP_SSID,
-            .ssid_len = strlen(WIFI_AP_SSID),
-            .password = WIFI_AP_PASSWORD,
-            .channel = WIFI_AP_CHANNEL,
-            .max_connection = WIFI_AP_MAX_CONNECTIONS,
-            .authmode = WIFI_AUTH_WPA2_PSK
-        },
-    };
-    
-    // Nastavit WiFi mod na APSTA
-    ret = esp_wifi_set_mode(WIFI_MODE_APSTA);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set WiFi mode: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // Nastavit WiFi konfiguraci
-    ret = esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set WiFi config: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // Spustit WiFi
-    ret = esp_wifi_start();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to start WiFi: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    ESP_LOGI(TAG, "WiFi APSTA initialized successfully");
-    ESP_LOGI(TAG, "AP SSID: %s", WIFI_AP_SSID);
-    ESP_LOGI(TAG, "AP Password: %s", WIFI_AP_PASSWORD);
-    ESP_LOGI(TAG, "AP IP: %s", WIFI_AP_IP);
-    ESP_LOGI(TAG, "STA interface ready for connection");
-    
-    return ESP_OK;
+static esp_err_t wifi_init_apsta(void) {
+  ESP_LOGI(TAG, "Initializing WiFi APSTA...");
+
+  // Dulezite: Inicializovat netif PRED vytvorenim default netif
+  ESP_LOGI(TAG, "Initializing netif...");
+  esp_err_t ret = esp_netif_init();
+  if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
+    ESP_LOGE(TAG, "Failed to initialize netif: %s", esp_err_to_name(ret));
+    return ret;
+  }
+  if (ret == ESP_ERR_INVALID_STATE) {
+    ESP_LOGI(TAG, "Netif already initialized");
+  }
+
+  // Dulezite: Vytvorit default event loop PRED inicializaci WiFi
+  ESP_LOGI(TAG, "Creating default event loop...");
+  ret = esp_event_loop_create_default();
+  if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
+    ESP_LOGE(TAG, "Failed to create default event loop: %s",
+             esp_err_to_name(ret));
+    return ret;
+  }
+  if (ret == ESP_ERR_INVALID_STATE) {
+    ESP_LOGI(TAG, "Event loop already created");
+  } else {
+    ESP_LOGI(TAG, "Event loop ready");
+  }
+
+  // Vytvorit default netif pro AP
+  ESP_LOGI(TAG, "Creating default WiFi AP netif...");
+  ap_netif = esp_netif_create_default_wifi_ap();
+  if (ap_netif == NULL) {
+    ESP_LOGE(TAG, "Failed to create AP netif");
+    return ESP_FAIL;
+  }
+
+  // Vytvorit default netif pro STA
+  ESP_LOGI(TAG, "Creating default WiFi STA netif...");
+  sta_netif = esp_netif_create_default_wifi_sta();
+  if (sta_netif == NULL) {
+    ESP_LOGE(TAG, "Failed to create STA netif");
+    return ESP_FAIL;
+  }
+
+  // Inicializovat WiFi s vychozi konfiguraci
+  ESP_LOGI(TAG, "Initializing WiFi...");
+  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+  ret = esp_wifi_init(&cfg);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "WiFi init failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  // Registrovat WiFi event handler
+  ret = esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID,
+                                            &wifi_event_handler, NULL, NULL);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to register WiFi event handler: %s",
+             esp_err_to_name(ret));
+    return ret;
+  }
+
+  // Registrovat IP event handler pro STA
+  ret = esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
+                                            &wifi_event_handler, NULL, NULL);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to register IP event handler: %s",
+             esp_err_to_name(ret));
+    return ret;
+  }
+
+  ret = esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_LOST_IP,
+                                            &wifi_event_handler, NULL, NULL);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to register IP lost event handler: %s",
+             esp_err_to_name(ret));
+    return ret;
+  }
+
+  // Konfigurovat WiFi AP
+  wifi_config_t wifi_config = {
+      .ap = {.ssid = WIFI_AP_SSID,
+             .ssid_len = strlen(WIFI_AP_SSID),
+             .password = WIFI_AP_PASSWORD,
+             .channel = WIFI_AP_CHANNEL,
+             .max_connection = WIFI_AP_MAX_CONNECTIONS,
+             .authmode = WIFI_AUTH_WPA2_PSK},
+  };
+
+  // Nastavit WiFi mod na APSTA
+  ret = esp_wifi_set_mode(WIFI_MODE_APSTA);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to set WiFi mode: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  // Nastavit WiFi konfiguraci
+  ret = esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to set WiFi config: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  // Spustit WiFi
+  ret = esp_wifi_start();
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to start WiFi: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  ESP_LOGI(TAG, "WiFi APSTA initialized successfully");
+  ESP_LOGI(TAG, "AP SSID: %s", WIFI_AP_SSID);
+  ESP_LOGI(TAG, "AP Password: %s", WIFI_AP_PASSWORD);
+  ESP_LOGI(TAG, "AP IP: %s", WIFI_AP_IP);
+  ESP_LOGI(TAG, "STA interface ready for connection");
+
+  return ESP_OK;
 }
 
 /**
  * @brief Obsluhuje WiFi eventy
- * 
+ *
  * Tato funkce obsluhuje WiFi eventy pro Access Point i Station.
  * Sleduje pripojeni a odpojeni klientu k AP a stav STA pripojeni.
- * 
+ *
  * @param arg Argument (nepouzivany)
  * @param event_base Typ eventu (WIFI_EVENT nebo IP_EVENT)
  * @param event_id ID eventu
  * @param event_data Data eventu
- * 
+ *
  * @details
  * Funkce sleduje:
  * - Pripojeni a odpojeni klientu k WiFi hotspotu (AP)
  * - Pripojeni a odpojeni STA k WiFi siti
  * - Ziskani IP adresy pro STA
  */
-static void wifi_event_handler(void* arg, esp_event_base_t event_base,
-                               int32_t event_id, void* event_data)
-{
-    // AP eventy - pripojeni klientu k hotspotu
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED) {
-        wifi_event_ap_staconnected_t* event = (wifi_event_ap_staconnected_t*) event_data;
-        ESP_LOGI(TAG, "AP: Station connected, AID=%d", event->aid);
-        client_count++;
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED) {
-        wifi_event_ap_stadisconnected_t* event = (wifi_event_ap_stadisconnected_t*) event_data;
-        ESP_LOGI(TAG, "AP: Station disconnected, AID=%d", event->aid);
-        if (client_count > 0) {
-            client_count--;
-        }
+static void wifi_event_handler(void *arg, esp_event_base_t event_base,
+                               int32_t event_id, void *event_data) {
+  // AP eventy - pripojeni klientu k hotspotu
+  if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED) {
+    wifi_event_ap_staconnected_t *event =
+        (wifi_event_ap_staconnected_t *)event_data;
+    ESP_LOGI(TAG, "AP: Station connected, AID=%d", event->aid);
+    client_count++;
+  } else if (event_base == WIFI_EVENT &&
+             event_id == WIFI_EVENT_AP_STADISCONNECTED) {
+    wifi_event_ap_stadisconnected_t *event =
+        (wifi_event_ap_stadisconnected_t *)event_data;
+    ESP_LOGI(TAG, "AP: Station disconnected, AID=%d", event->aid);
+    if (client_count > 0) {
+      client_count--;
     }
-    // STA eventy - pripojeni k WiFi siti
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        ESP_LOGI(TAG, "STA: Started");
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
-        wifi_event_sta_connected_t* event = (wifi_event_sta_connected_t*) event_data;
-        ESP_LOGI(TAG, "STA: Connected to SSID: %s", event->ssid);
-        strncpy(sta_ssid, (char*)event->ssid, sizeof(sta_ssid) - 1);
-        sta_ssid[sizeof(sta_ssid) - 1] = '\0';
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        wifi_event_sta_disconnected_t* event = (wifi_event_sta_disconnected_t*) event_data;
-        last_disconnect_reason = event->reason;
-        ESP_LOGI(TAG, "STA: Disconnected, reason: %d", event->reason);
-        sta_connected = false;
-        sta_connecting = false; // Resetovat flag pripojovani
-        sta_ip[0] = '\0';
-    }
-    // IP eventy - ziskani IP adresy
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "STA: Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
-        snprintf(sta_ip, sizeof(sta_ip), IPSTR, IP2STR(&event->ip_info.ip));
-        sta_connected = true;
-        sta_connecting = false; // Resetovat flag pripojovani
-    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_LOST_IP) {
-        ESP_LOGI(TAG, "STA: Lost IP");
-        sta_connected = false;
-        sta_connecting = false; // Resetovat flag pripojovani
-        sta_ip[0] = '\0';
-    }
+  }
+  // STA eventy - pripojeni k WiFi siti
+  else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+    ESP_LOGI(TAG, "STA: Started");
+  } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
+    wifi_event_sta_connected_t *event =
+        (wifi_event_sta_connected_t *)event_data;
+    ESP_LOGI(TAG, "STA: Connected to SSID: %s", event->ssid);
+    strncpy(sta_ssid, (char *)event->ssid, sizeof(sta_ssid) - 1);
+    sta_ssid[sizeof(sta_ssid) - 1] = '\0';
+  } else if (event_base == WIFI_EVENT &&
+             event_id == WIFI_EVENT_STA_DISCONNECTED) {
+    wifi_event_sta_disconnected_t *event =
+        (wifi_event_sta_disconnected_t *)event_data;
+    last_disconnect_reason = event->reason;
+    ESP_LOGI(TAG, "STA: Disconnected, reason: %d", event->reason);
+    sta_connected = false;
+    sta_connecting = false; // Resetovat flag pripojovani
+    sta_ip[0] = '\0';
+  }
+  // IP eventy - ziskani IP adresy
+  else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+    ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
+    ESP_LOGI(TAG, "STA: Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
+    snprintf(sta_ip, sizeof(sta_ip), IPSTR, IP2STR(&event->ip_info.ip));
+    sta_connected = true;
+    sta_connecting = false; // Resetovat flag pripojovani
+  } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_LOST_IP) {
+    ESP_LOGI(TAG, "STA: Lost IP");
+    sta_connected = false;
+    sta_connecting = false; // Resetovat flag pripojovani
+    sta_ip[0] = '\0';
+  }
 }
 
 // ============================================================================
 // WIFI NVS FUNKCE
 // ============================================================================
 
-// Duplicitni implementace odstranena - pouzivaji se externi funkce definovane vyse
+// Duplicitni implementace odstranena - pouzivaji se externi funkce definovane
+// vyse
 
 /**
  * @brief Vytvori JSON s WiFi statusem (AP i STA)
- * 
+ *
  * Tato funkce vytvori JSON string s aktualnim stavem WiFi (AP i STA).
- * 
+ *
  * @param buffer Buffer pro JSON string
  * @param buffer_size Velikost bufferu
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
- * 
+ *
  * @details
  * Funkce vytvori JSON s informacemi o AP (SSID, IP, clients)
  * a STA (SSID, IP, connected status).
  */
-static esp_err_t wifi_get_sta_status_json(char* buffer, size_t buffer_size)
-{
-    if (buffer == NULL || buffer_size == 0) {
-        return ESP_ERR_INVALID_ARG;
+static esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
+  if (buffer == NULL || buffer_size == 0) {
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  // Ziskat AP IP adresu
+  esp_netif_ip_info_t ip_info;
+  const char *ap_ip_str = WIFI_AP_IP;
+  if (ap_netif != NULL) {
+    esp_err_t ret = esp_netif_get_ip_info(ap_netif, &ip_info);
+    if (ret == ESP_OK) {
+      char ap_ip[16];
+      snprintf(ap_ip, sizeof(ap_ip), IPSTR, IP2STR(&ip_info.ip));
+      ap_ip_str = ap_ip;
     }
-    
-    // Ziskat AP IP adresu
-    esp_netif_ip_info_t ip_info;
-    const char* ap_ip_str = WIFI_AP_IP;
-    if (ap_netif != NULL) {
-        esp_err_t ret = esp_netif_get_ip_info(ap_netif, &ip_info);
-        if (ret == ESP_OK) {
-            char ap_ip[16];
-            snprintf(ap_ip, sizeof(ap_ip), IPSTR, IP2STR(&ip_info.ip));
-            ap_ip_str = ap_ip;
-        }
-    }
-    
-    // Ziskat STA SSID z NVS (pokud existuje)
-    char saved_ssid[33] = {0};
-    char saved_password[65] = {0};
-    esp_err_t nvs_ret = wifi_load_config_from_nvs(saved_ssid, sizeof(saved_ssid), saved_password, sizeof(saved_password));
-    const char* sta_ssid_display = (nvs_ret == ESP_OK) ? saved_ssid : "Not configured";
-    
-    // Zjistit online status: STA connected a ma IP adresu
-    bool online = sta_connected && sta_ip[0] != '\0';
-    
-    int len = snprintf(buffer, buffer_size,
-        "{"
-        "\"ap_ssid\":\"%s\","
-        "\"ap_ip\":\"%s\","
-        "\"ap_clients\":%lu,"
-        "\"sta_ssid\":\"%s\","
-        "\"sta_ip\":\"%s\","
-        "\"sta_connected\":%s,"
-        "\"online\":%s,"
-        "\"locked\":%s"
-        "}",
-        WIFI_AP_SSID,
-        ap_ip_str,
-        (unsigned long)client_count,
-        sta_ssid_display,
-        (sta_connected && sta_ip[0] != '\0') ? sta_ip : "Not connected",
-        sta_connected ? "true" : "false",
-        online ? "true" : "false",
-        web_locked ? "true" : "false"
-    );
-    
-    if (len < 0 || len >= (int)buffer_size) {
-        ESP_LOGE(TAG, "Failed to create WiFi status JSON (buffer too small)");
-        return ESP_ERR_NO_MEM;
-    }
-    
-    return ESP_OK;
+  }
+
+  // Ziskat STA SSID z NVS (pokud existuje)
+  char saved_ssid[33] = {0};
+  char saved_password[65] = {0};
+  esp_err_t nvs_ret = wifi_load_config_from_nvs(
+      saved_ssid, sizeof(saved_ssid), saved_password, sizeof(saved_password));
+  const char *sta_ssid_display =
+      (nvs_ret == ESP_OK) ? saved_ssid : "Not configured";
+
+  // Zjistit online status: STA connected a ma IP adresu
+  bool online = sta_connected && sta_ip[0] != '\0';
+
+  int len = snprintf(
+      buffer, buffer_size,
+      "{"
+      "\"ap_ssid\":\"%s\","
+      "\"ap_ip\":\"%s\","
+      "\"ap_clients\":%lu,"
+      "\"sta_ssid\":\"%s\","
+      "\"sta_ip\":\"%s\","
+      "\"sta_connected\":%s,"
+      "\"online\":%s,"
+      "\"locked\":%s"
+      "}",
+      WIFI_AP_SSID, ap_ip_str, (unsigned long)client_count, sta_ssid_display,
+      (sta_connected && sta_ip[0] != '\0') ? sta_ip : "Not connected",
+      sta_connected ? "true" : "false", online ? "true" : "false",
+      web_locked ? "true" : "false");
+
+  if (len < 0 || len >= (int)buffer_size) {
+    ESP_LOGE(TAG, "Failed to create WiFi status JSON (buffer too small)");
+    return ESP_ERR_NO_MEM;
+  }
+
+  return ESP_OK;
 }
 
 /**
  * @brief Handler pro GET /api/web/lock-status
- * 
+ *
  * Vraci JSON s lock statusem web rozhrani.
- * 
+ *
  * @param req HTTP request
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
  */
-static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /api/web/lock-status");
-    
-    char response[128];
-    int len = snprintf(response, sizeof(response),
-        "{\"locked\":%s}",
-        web_locked ? "true" : "false"
-    );
-    
-    if (len < 0 || len >= (int)sizeof(response)) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to create response", -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, resp_str, strlen(resp_str)); // Using 'resp_str' and strlen
-    return ESP_OK;
+static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/web/lock-status");
+
+  char response[128];
+  int len = snprintf(response, sizeof(response), "{\"locked\":%s}",
+                     web_locked ? "true" : "false");
+
+  if (len < 0 || len >= (int)sizeof(response)) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to create response", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, response, strlen(response));
+  return ESP_OK;
 }
 
 // ============================================================================
 // DEMO MODE API HANDLERS
 // ============================================================================
 
-static esp_err_t http_post_demo_config_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "POST /api/demo/config");
-    
-    if (web_is_locked()) {
-        httpd_resp_set_status(req, "403 Forbidden");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
-        return ESP_OK;
-    }
-    
-    char content[100];
-    int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-    if (ret <= 0) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_send(req, "No data", -1);
-        return ESP_FAIL;
-    }
-    content[ret] = '\0';
-    
-    // Simple JSON parsing for {"enabled": true/false}
-    bool enabled = (strstr(content, "\"enabled\":true") != NULL) || (strstr(content, "\"enabled\": true") != NULL);
-    
-    toggle_demo_mode(enabled);
-    
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":true}", -1);
+static esp_err_t http_post_demo_config_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/demo/config");
+
+  if (web_is_locked()) {
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
     return ESP_OK;
+  }
+
+  char content[100];
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "No data", -1);
+    return ESP_FAIL;
+  }
+  content[ret] = '\0';
+
+  // Simple JSON parsing for {"enabled": true/false}
+  bool enabled = (strstr(content, "\"enabled\":true") != NULL) ||
+                 (strstr(content, "\"enabled\": true") != NULL);
+
+  toggle_demo_mode(enabled);
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
 }
 
-static esp_err_t http_get_demo_status_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /api/demo/status");
-    
-    bool enabled = is_demo_mode_enabled();
-    
-    char resp_str[64];
-    snprintf(resp_str, sizeof(resp_str), "{\"enabled\":%s}", enabled ? "true" : "false");
-    
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, resp_str, strlen(resp_str));
-    return ESP_OK;
+static esp_err_t http_get_demo_status_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/demo/status");
+
+  bool enabled = is_demo_mode_enabled();
+
+  char resp_str[64];
+  snprintf(resp_str, sizeof(resp_str), "{\"enabled\":%s}",
+           enabled ? "true" : "false");
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, resp_str, strlen(resp_str));
+  return ESP_OK;
 }
 
 // ============================================================================
@@ -945,12 +1043,12 @@ static esp_err_t http_get_demo_status_handler(httpd_req_t *req)
 
 /**
  * @brief Spusti HTTP server
- * 
+ *
  * Tato funkce spusti HTTP server s REST API endpointy pro sachovy system.
  * Registruje vsechny potrebne handlery pro web rozhrani.
- * 
+ *
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
- * 
+ *
  * @details
  * Funkce vytvori HTTP server s konfiguraci a registruje handlery pro:
  * - Hlavni stranku (/)
@@ -958,612 +1056,508 @@ static esp_err_t http_get_demo_status_handler(httpd_req_t *req)
  * - Status hry (/status)
  * - Historie tahu (/history)
  * - Captured figurky (/captured)
- * - Captive portal handlery
  */
-static esp_err_t start_http_server(void)
-{
-    if (httpd_handle != NULL) {
-        ESP_LOGW(TAG, "HTTP server already running");
-        return ESP_OK;
-    }
-    
-    ESP_LOGI(TAG, "Starting HTTP server...");
-    
-    // Konfigurovat HTTP server
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.server_port = HTTP_SERVER_PORT;
-    config.max_uri_handlers = 25; // zajistit dostatek slotu pro vsechny registrovane endpointy (včetně WiFi API)
-    config.max_open_sockets = 4;  // Maximalni povoleno: LWIP_MAX_SOCKETS(7) - 3 interni = 4
-    config.lru_purge_enable = true;
-    config.recv_wait_timeout = 10;
-    config.send_wait_timeout = 1000;  // 1 sekunda timeout pro 6-cast HTML (6×50ms zpozdeni + cas prenosu)
-    config.max_resp_headers = 8;
-    config.backlog_conn = 5;
-    config.stack_size = 8192;  // Zvysena velikost stacku pro HTTP server task
-    
-    // Spustit HTTP server
-    esp_err_t ret = httpd_start(&httpd_handle, &config);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to start HTTP server: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // Registrovat URI handlery
-    ESP_LOGI(TAG, "Registering URI handlers...");
-    
-    // Handler pro Chess JavaScript soubor
-    httpd_uri_t chess_js_uri = {
-        .uri = "/chess_app.js",
-        .method = HTTP_GET,
-        .handler = http_get_chess_js_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &chess_js_uri);
-    
-    // Handler pro testovaci stranku (minimalni timer test)
-    httpd_uri_t test_uri = {
-        .uri = "/test",
-        .method = HTTP_GET,
-        .handler = http_get_test_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &test_uri);
-    
-    // Handler pro root (HTML stranka)
-    httpd_uri_t root_uri = {
-        .uri = "/",
-        .method = HTTP_GET,
-        .handler = http_get_root_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &root_uri);
-    
-    // Handlery pro API
-    httpd_uri_t board_uri = {
-        .uri = "/api/board",
-        .method = HTTP_GET,
-        .handler = http_get_board_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &board_uri);
-    
-    httpd_uri_t status_uri = {
-        .uri = "/api/status",
-        .method = HTTP_GET,
-        .handler = http_get_status_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &status_uri);
-    
-    httpd_uri_t history_uri = {
-        .uri = "/api/history",
-        .method = HTTP_GET,
-        .handler = http_get_history_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &history_uri);
-    
-    httpd_uri_t captured_uri = {
-        .uri = "/api/captured",
-        .method = HTTP_GET,
-        .handler = http_get_captured_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &captured_uri);
-    
-    httpd_uri_t advantage_uri = {
-        .uri = "/api/advantage",
-        .method = HTTP_GET,
-        .handler = http_get_advantage_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &advantage_uri);
-    
-    // Handlery pro Timer API
-    httpd_uri_t timer_uri = {
-        .uri = "/api/timer",
-        .method = HTTP_GET,
-        .handler = http_get_timer_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &timer_uri);
-    
-    httpd_uri_t timer_config_uri = {
-        .uri = "/api/timer/config",
-        .method = HTTP_POST,
-        .handler = http_post_timer_config_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &timer_config_uri);
-    
-    httpd_uri_t timer_pause_uri = {
-        .uri = "/api/timer/pause",
-        .method = HTTP_POST,
-        .handler = http_post_timer_pause_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &timer_pause_uri);
-    
-    httpd_uri_t timer_resume_uri = {
-        .uri = "/api/timer/resume",
-        .method = HTTP_POST,
-        .handler = http_post_timer_resume_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &timer_resume_uri);
-    
-    httpd_uri_t timer_reset_uri = {
-        .uri = "/api/timer/reset",
-        .method = HTTP_POST,
-        .handler = http_post_timer_reset_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &timer_reset_uri);
-    
-    // Handlery pro WiFi API
-    httpd_uri_t wifi_config_uri = {
-        .uri = "/api/wifi/config",
-        .method = HTTP_POST,
-        .handler = http_post_wifi_config_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &wifi_config_uri);
-    
-    httpd_uri_t wifi_connect_uri = {
-        .uri = "/api/wifi/connect",
-        .method = HTTP_POST,
-        .handler = http_post_wifi_connect_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &wifi_connect_uri);
-    
-    httpd_uri_t wifi_disconnect_uri = {
-        .uri = "/api/wifi/disconnect",
-        .method = HTTP_POST,
-        .handler = http_post_wifi_disconnect_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &wifi_disconnect_uri);
-    
-    httpd_uri_t wifi_clear_uri = {
-        .uri = "/api/wifi/clear",
-        .method = HTTP_POST,
-        .handler = http_post_wifi_clear_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &wifi_clear_uri);
-    
-    httpd_uri_t wifi_status_uri = {
-        .uri = "/api/wifi/status",
-        .method = HTTP_GET,
-        .handler = http_get_wifi_status_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &wifi_status_uri);
-    
-    // Handler pro web lock status
-    httpd_uri_t web_lock_status_uri = {
-        .uri = "/api/web/lock-status",
-        .method = HTTP_GET,
-        .handler = http_get_web_lock_status_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &web_lock_status_uri);
-    
-    // Handlery pro Demo Mode
-    httpd_uri_t demo_config_uri = {
-        .uri = "/api/demo/config",
-        .method = HTTP_POST,
-        .handler = http_post_demo_config_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &demo_config_uri);
-
-    httpd_uri_t demo_status_uri = {
-        .uri = "/api/demo/status",
-        .method = HTTP_GET,
-        .handler = http_get_demo_status_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &demo_status_uri);
-
-    // Handlery pro captive portal
-    httpd_uri_t generate_204_uri = {
-        .uri = "/generate_204",
-        .method = HTTP_GET,
-        .handler = http_get_generate_204_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &generate_204_uri);
-    
-    httpd_uri_t hotspot_uri = {
-        .uri = "/hotspot-detect.html",
-        .method = HTTP_GET,
-        .handler = http_get_hotspot_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &hotspot_uri);
-    
-    httpd_uri_t connecttest_uri = {
-        .uri = "/connecttest.txt",
-        .method = HTTP_GET,
-        .handler = http_get_connecttest_handler,
-        .user_ctx = NULL
-    };
-    httpd_register_uri_handler(httpd_handle, &connecttest_uri);
-    
-    ESP_LOGI(TAG, "HTTP server started successfully on port %d", HTTP_SERVER_PORT);
-    
+static esp_err_t start_http_server(void) {
+  if (httpd_handle != NULL) {
+    ESP_LOGW(TAG, "HTTP server already running");
     return ESP_OK;
+  }
+
+  ESP_LOGI(TAG, "Starting HTTP server...");
+
+  // Konfigurovat HTTP server
+  httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+  config.server_port = HTTP_SERVER_PORT;
+  config.max_uri_handlers = 25; // zajistit dostatek slotu pro vsechny
+                                // registrovane endpointy (včetně WiFi API)
+  config.max_open_sockets =
+      4; // Maximalni povoleno: LWIP_MAX_SOCKETS(7) - 3 interni = 4
+  config.lru_purge_enable = true;
+  config.recv_wait_timeout = 10;
+  config.send_wait_timeout =
+      1000; // 1 sekunda timeout pro 6-cast HTML (6×50ms zpozdeni + cas prenosu)
+  config.max_resp_headers = 8;
+  config.backlog_conn = 5;
+  config.stack_size = 8192; // Zvysena velikost stacku pro HTTP server task
+
+  // Spustit HTTP server
+  esp_err_t ret = httpd_start(&httpd_handle, &config);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to start HTTP server: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  // Registrovat URI handlery
+  ESP_LOGI(TAG, "Registering URI handlers...");
+
+  // Handler pro Chess JavaScript soubor
+  httpd_uri_t chess_js_uri = {.uri = "/chess_app.js",
+                              .method = HTTP_GET,
+                              .handler = http_get_chess_js_handler,
+                              .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &chess_js_uri);
+
+  // Handler pro testovaci stranku (minimalni timer test)
+  httpd_uri_t test_uri = {.uri = "/test",
+                          .method = HTTP_GET,
+                          .handler = http_get_test_handler,
+                          .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &test_uri);
+
+  // Handler pro root (HTML stranka)
+  httpd_uri_t root_uri = {.uri = "/",
+                          .method = HTTP_GET,
+                          .handler = http_get_root_handler,
+                          .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &root_uri);
+
+  // Handlery pro API
+  httpd_uri_t board_uri = {.uri = "/api/board",
+                           .method = HTTP_GET,
+                           .handler = http_get_board_handler,
+                           .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &board_uri);
+
+  httpd_uri_t status_uri = {.uri = "/api/status",
+                            .method = HTTP_GET,
+                            .handler = http_get_status_handler,
+                            .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &status_uri);
+
+  httpd_uri_t history_uri = {.uri = "/api/history",
+                             .method = HTTP_GET,
+                             .handler = http_get_history_handler,
+                             .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &history_uri);
+
+  httpd_uri_t captured_uri = {.uri = "/api/captured",
+                              .method = HTTP_GET,
+                              .handler = http_get_captured_handler,
+                              .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &captured_uri);
+
+  httpd_uri_t advantage_uri = {.uri = "/api/advantage",
+                               .method = HTTP_GET,
+                               .handler = http_get_advantage_handler,
+                               .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &advantage_uri);
+
+  // Handlery pro Timer API
+  httpd_uri_t timer_uri = {.uri = "/api/timer",
+                           .method = HTTP_GET,
+                           .handler = http_get_timer_handler,
+                           .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &timer_uri);
+
+  httpd_uri_t timer_config_uri = {.uri = "/api/timer/config",
+                                  .method = HTTP_POST,
+                                  .handler = http_post_timer_config_handler,
+                                  .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &timer_config_uri);
+
+  httpd_uri_t timer_pause_uri = {.uri = "/api/timer/pause",
+                                 .method = HTTP_POST,
+                                 .handler = http_post_timer_pause_handler,
+                                 .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &timer_pause_uri);
+
+  httpd_uri_t timer_resume_uri = {.uri = "/api/timer/resume",
+                                  .method = HTTP_POST,
+                                  .handler = http_post_timer_resume_handler,
+                                  .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &timer_resume_uri);
+
+  httpd_uri_t timer_reset_uri = {.uri = "/api/timer/reset",
+                                 .method = HTTP_POST,
+                                 .handler = http_post_timer_reset_handler,
+                                 .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &timer_reset_uri);
+
+  // Handlery pro WiFi API
+  httpd_uri_t wifi_config_uri = {.uri = "/api/wifi/config",
+                                 .method = HTTP_POST,
+                                 .handler = http_post_wifi_config_handler,
+                                 .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &wifi_config_uri);
+
+  httpd_uri_t wifi_connect_uri = {.uri = "/api/wifi/connect",
+                                  .method = HTTP_POST,
+                                  .handler = http_post_wifi_connect_handler,
+                                  .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &wifi_connect_uri);
+
+  httpd_uri_t wifi_disconnect_uri = {.uri = "/api/wifi/disconnect",
+                                     .method = HTTP_POST,
+                                     .handler =
+                                         http_post_wifi_disconnect_handler,
+                                     .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &wifi_disconnect_uri);
+
+  httpd_uri_t wifi_clear_uri = {.uri = "/api/wifi/clear",
+                                .method = HTTP_POST,
+                                .handler = http_post_wifi_clear_handler,
+                                .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &wifi_clear_uri);
+
+  httpd_uri_t wifi_status_uri = {.uri = "/api/wifi/status",
+                                 .method = HTTP_GET,
+                                 .handler = http_get_wifi_status_handler,
+                                 .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &wifi_status_uri);
+
+  // Handler pro web lock status
+  httpd_uri_t web_lock_status_uri = {.uri = "/api/web/lock-status",
+                                     .method = HTTP_GET,
+                                     .handler =
+                                         http_get_web_lock_status_handler,
+                                     .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &web_lock_status_uri);
+
+  // Handlery pro Demo Mode
+  httpd_uri_t demo_config_uri = {.uri = "/api/demo/config",
+                                 .method = HTTP_POST,
+                                 .handler = http_post_demo_config_handler,
+                                 .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &demo_config_uri);
+
+  httpd_uri_t demo_status_uri = {.uri = "/api/demo/status",
+                                 .method = HTTP_GET,
+                                 .handler = http_get_demo_status_handler,
+                                 .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &demo_status_uri);
+
+  ESP_LOGI(TAG, "HTTP server started successfully on port %d",
+           HTTP_SERVER_PORT);
+
+  return ESP_OK;
 }
 
 /**
  * @brief Zastavi HTTP server
- * 
+ *
  * Tato funkce zastavi HTTP server a uvolni prostredky.
- * 
+ *
  * @details
  * Funkce zastavi HTTP server a nastavi handle na NULL.
  * Pouziva se pri vypinani web serveru.
  */
-static void stop_http_server(void)
-{
-    if (httpd_handle != NULL) {
-        httpd_stop(httpd_handle);
-        httpd_handle = NULL;
-        ESP_LOGI(TAG, "HTTP server stopped");
-    }
-}
-
-// ============================================================================
-// CAPTIVE PORTAL HANDLERS
-// ============================================================================
-
-/**
- * @brief Handler pro generate_204 captive portal
- * 
- * Tato funkce obsluhuje generate_204 požadavky pro captive portal.
- * Vraci HTTP 204 No Content pro detekci internetoveho pripojeni.
- * 
- * @param req HTTP request
- * @return ESP_OK pri uspechu
- * 
- * @details
- * Funkce je pouzivana pro captive portal detekci.
- * Vraci HTTP 204 status pro indikaci ze neni internetove pripojeni.
- */
-static esp_err_t http_get_generate_204_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "Android captive portal request");
-    httpd_resp_set_status(req, "204 No Content");
-    httpd_resp_send(req, NULL, 0);
-    return ESP_OK;
-}
-
-static esp_err_t http_get_hotspot_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "iOS captive portal request");
-    httpd_resp_set_status(req, "302 Found");
-    httpd_resp_set_hdr(req, "Location", "/");
-    httpd_resp_send(req, NULL, 0);
-    return ESP_OK;
-}
-
-static esp_err_t http_get_connecttest_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "Windows captive portal request");
-    httpd_resp_set_status(req, "302 Found");
-    httpd_resp_set_hdr(req, "Location", "/");
-    httpd_resp_send(req, NULL, 0);
-    return ESP_OK;
+static void stop_http_server(void) {
+  if (httpd_handle != NULL) {
+    httpd_stop(httpd_handle);
+    httpd_handle = NULL;
+    ESP_LOGI(TAG, "HTTP server stopped");
+  }
 }
 
 // ============================================================================
 // REST API HANDLERS
 // ============================================================================
 
-static esp_err_t http_get_board_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /api/board");
-    
-    // Ziskat stav sachovnice z game tasku
-    esp_err_t ret = game_get_board_json(json_buffer, sizeof(json_buffer));
-    if (ret != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to get board state", -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, json_buffer, strlen(json_buffer));
-    
-    return ESP_OK;
+static esp_err_t http_get_board_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/board");
+
+  // Ziskat stav sachovnice z game tasku
+  esp_err_t ret = game_get_board_json(json_buffer, sizeof(json_buffer));
+  if (ret != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to get board state", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, json_buffer, strlen(json_buffer));
+
+  return ESP_OK;
 }
 
-static esp_err_t http_get_status_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /api/status");
-    
-    // Ziskat stav hry z game tasku
-    esp_err_t ret = game_get_status_json(json_buffer, sizeof(json_buffer));
-    if (ret != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to get game status", -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, json_buffer, strlen(json_buffer));
-    
-    return ESP_OK;
+static esp_err_t http_get_status_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/status");
+
+  // Ziskat stav hry z game tasku
+  esp_err_t ret = game_get_status_json(json_buffer, sizeof(json_buffer));
+  if (ret != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to get game status", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, json_buffer, strlen(json_buffer));
+
+  return ESP_OK;
 }
 
-static esp_err_t http_get_history_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /api/history");
-    
-    // Ziskat historii tahu z game tasku
-    esp_err_t ret = game_get_history_json(json_buffer, sizeof(json_buffer));
-    if (ret != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to get move history", -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, json_buffer, strlen(json_buffer));
-    
-    return ESP_OK;
+static esp_err_t http_get_history_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/history");
+
+  // Ziskat historii tahu z game tasku
+  esp_err_t ret = game_get_history_json(json_buffer, sizeof(json_buffer));
+  if (ret != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to get move history", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, json_buffer, strlen(json_buffer));
+
+  return ESP_OK;
 }
 
-static esp_err_t http_get_captured_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /api/captured");
-    
-    // Ziskat sebrane figurky z game tasku
-    esp_err_t ret = game_get_captured_json(json_buffer, sizeof(json_buffer));
-    if (ret != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to get captured pieces", -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, json_buffer, strlen(json_buffer));
-    
-    return ESP_OK;
+static esp_err_t http_get_captured_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/captured");
+
+  // Ziskat sebrane figurky z game tasku
+  esp_err_t ret = game_get_captured_json(json_buffer, sizeof(json_buffer));
+  if (ret != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to get captured pieces", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, json_buffer, strlen(json_buffer));
+
+  return ESP_OK;
 }
 
-static esp_err_t http_get_advantage_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /api/advantage");
-    
-    // Ziskat historii material advantage z game tasku
-    esp_err_t ret = game_get_advantage_json(json_buffer, sizeof(json_buffer));
-    if (ret != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to get advantage history", -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, json_buffer, strlen(json_buffer));
-    
-    return ESP_OK;
-}
+static esp_err_t http_get_advantage_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/advantage");
 
+  // Ziskat historii material advantage z game tasku
+  esp_err_t ret = game_get_advantage_json(json_buffer, sizeof(json_buffer));
+  if (ret != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to get advantage history", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, json_buffer, strlen(json_buffer));
+
+  return ESP_OK;
+}
 
 // ============================================================================
 // TIMER API HANDLERS
 // ============================================================================
 
-static esp_err_t http_get_timer_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /api/timer");
-    
-    // Ziskat stav timeru z game tasku pouzitim lokalniho bufferu pro zabraneni race conditions s jinymi endpointy
-    char local_json[JSON_BUFFER_SIZE];
-    esp_err_t ret = game_get_timer_json(local_json, sizeof(local_json));
-    if (ret != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to get timer state", -1);
-        return ESP_FAIL;
-    }
-    
-    // Zabranit cachovani timer odpovedi v prohlizeci
-    httpd_resp_set_hdr(req, "Cache-Control", "no-store");
+static esp_err_t http_get_timer_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/timer");
+
+  // Ziskat stav timeru z game tasku pouzitim lokalniho bufferu pro zabraneni
+  // race conditions s jinymi endpointy
+  char local_json[JSON_BUFFER_SIZE];
+  esp_err_t ret = game_get_timer_json(local_json, sizeof(local_json));
+  if (ret != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to get timer state", -1);
+    return ESP_FAIL;
+  }
+
+  // Zabranit cachovani timer odpovedi v prohlizeci
+  httpd_resp_set_hdr(req, "Cache-Control", "no-store");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, local_json, strlen(local_json));
+
+  return ESP_OK;
+}
+
+static esp_err_t http_post_timer_config_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/timer/config");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "Timer config blocked: web interface is locked");
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, local_json, strlen(local_json));
-    
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
     return ESP_OK;
-}
+  }
 
-static esp_err_t http_post_timer_config_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "POST /api/timer/config");
-    
-    // Kontrola web lock
-    if (web_is_locked()) {
-        ESP_LOGW(TAG, "Timer config blocked: web interface is locked");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_set_status(req, "403 Forbidden");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
-        return ESP_OK;
-    }
-    
-    // Precist JSON data
-    char content[256];
-    int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-    if (ret <= 0) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_send(req, "No data received", -1);
-        return ESP_FAIL;
-    }
-    content[ret] = '\0';
-    
-    // Parsovat JSON a odeslat prikaz do game tasku
-    chess_move_command_t cmd = { 0 };
-    cmd.type = GAME_CMD_SET_TIME_CONTROL;
-    
-    // Vylepsene JSON parsovani pouzitim sscanf pro spolehlivejsi parsovani
-    // Nejprve najit pole "type"
-    char *type_str = strstr(content, "\"type\":");
-    if (type_str == NULL) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_send(req, "Missing 'type' field", -1);
-        return ESP_FAIL;
-    }
-    
-    // Parsovat hodnotu type
-    int type_value;
-    if (sscanf(type_str, "\"type\":%d", &type_value) != 1) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_send(req, "Invalid type value", -1);
-        return ESP_FAIL;
-    }
-    
-    if (type_value < 0 || type_value > 14) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_send(req, "Type out of range (0-14)", -1);
-        return ESP_FAIL;
-    }
-    
-    cmd.timer_data.timer_config.time_control_type = (uint8_t)type_value;
-    
-    // Parsovat vlastni casove hodnoty pokud je type CUSTOM
-    if (type_value == 14) { // TIME_CONTROL_CUSTOM
-        char *minutes_str = strstr(content, "\"custom_minutes\":");
-        char *increment_str = strstr(content, "\"custom_increment\":");
-        
-        if (minutes_str) {
-            int minutes;
-            if (sscanf(minutes_str, "\"custom_minutes\":%d", &minutes) == 1) {
-                if (minutes >= 1 && minutes <= 180) {
-                    cmd.timer_data.timer_config.custom_minutes = (uint32_t)minutes;
-                } else {
-                    httpd_resp_set_status(req, "400 Bad Request");
-                    httpd_resp_send(req, "Minutes must be 1-180", -1);
-                    return ESP_FAIL;
-                }
-            }
+  // Precist JSON data
+  char content[256];
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "No data received", -1);
+    return ESP_FAIL;
+  }
+  content[ret] = '\0';
+
+  // Parsovat JSON a odeslat prikaz do game tasku
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_SET_TIME_CONTROL;
+
+  // Vylepsene JSON parsovani pouzitim sscanf pro spolehlivejsi parsovani
+  // Nejprve najit pole "type"
+  char *type_str = strstr(content, "\"type\":");
+  if (type_str == NULL) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "Missing 'type' field", -1);
+    return ESP_FAIL;
+  }
+
+  // Parsovat hodnotu type
+  int type_value;
+  if (sscanf(type_str, "\"type\":%d", &type_value) != 1) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "Invalid type value", -1);
+    return ESP_FAIL;
+  }
+
+  if (type_value < 0 || type_value > 14) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "Type out of range (0-14)", -1);
+    return ESP_FAIL;
+  }
+
+  cmd.timer_data.timer_config.time_control_type = (uint8_t)type_value;
+
+  // Parsovat vlastni casove hodnoty pokud je type CUSTOM
+  if (type_value == 14) { // TIME_CONTROL_CUSTOM
+    char *minutes_str = strstr(content, "\"custom_minutes\":");
+    char *increment_str = strstr(content, "\"custom_increment\":");
+
+    if (minutes_str) {
+      int minutes;
+      if (sscanf(minutes_str, "\"custom_minutes\":%d", &minutes) == 1) {
+        if (minutes >= 1 && minutes <= 180) {
+          cmd.timer_data.timer_config.custom_minutes = (uint32_t)minutes;
+        } else {
+          httpd_resp_set_status(req, "400 Bad Request");
+          httpd_resp_send(req, "Minutes must be 1-180", -1);
+          return ESP_FAIL;
         }
-        
-        if (increment_str) {
-            int increment;
-            if (sscanf(increment_str, "\"custom_increment\":%d", &increment) == 1) {
-                if (increment >= 0 && increment <= 60) {
-                    cmd.timer_data.timer_config.custom_increment = (uint32_t)increment;
-                } else {
-                    httpd_resp_set_status(req, "400 Bad Request");
-                    httpd_resp_send(req, "Increment must be 0-60", -1);
-                    return ESP_FAIL;
-                }
-            }
+      }
+    }
+
+    if (increment_str) {
+      int increment;
+      if (sscanf(increment_str, "\"custom_increment\":%d", &increment) == 1) {
+        if (increment >= 0 && increment <= 60) {
+          cmd.timer_data.timer_config.custom_increment = (uint32_t)increment;
+        } else {
+          httpd_resp_set_status(req, "400 Bad Request");
+          httpd_resp_send(req, "Increment must be 0-60", -1);
+          return ESP_FAIL;
         }
-        
-        // Overit ze byly poskytnuty vlastni hodnoty
-        if (minutes_str == NULL || increment_str == NULL) {
-            httpd_resp_set_status(req, "400 Bad Request");
-            httpd_resp_send(req, "Custom time control requires minutes and increment", -1);
-            return ESP_FAIL;
-        }
+      }
     }
-    
-    // Odeslat prikaz do game tasku
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to set time control", -1);
-        return ESP_FAIL;
+
+    // Overit ze byly poskytnuty vlastni hodnoty
+    if (minutes_str == NULL || increment_str == NULL) {
+      httpd_resp_set_status(req, "400 Bad Request");
+      httpd_resp_send(req, "Custom time control requires minutes and increment",
+                      -1);
+      return ESP_FAIL;
     }
-    
-    httpd_resp_set_status(req, "200 OK");
-    httpd_resp_send(req, "Time control set successfully", -1);
-    
-    return ESP_OK;
+  }
+
+  // Odeslat prikaz do game tasku
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to set time control", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_send(req, "Time control set successfully", -1);
+
+  return ESP_OK;
 }
 
-static esp_err_t http_post_timer_pause_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "POST /api/timer/pause");
-    
-    // Kontrola web lock
-    if (web_is_locked()) {
-        ESP_LOGW(TAG, "Timer pause blocked: web interface is locked");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_set_status(req, "403 Forbidden");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
-        return ESP_OK;
-    }
-    
-    chess_move_command_t cmd = { 0 };
-    cmd.type = GAME_CMD_PAUSE_TIMER;
-    
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to pause timer", -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_status(req, "200 OK");
-    httpd_resp_send(req, "Timer paused", -1);
-    
+static esp_err_t http_post_timer_pause_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/timer/pause");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "Timer pause blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
     return ESP_OK;
+  }
+
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_PAUSE_TIMER;
+
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to pause timer", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_send(req, "Timer paused", -1);
+
+  return ESP_OK;
 }
 
-static esp_err_t http_post_timer_resume_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "POST /api/timer/resume");
-    
-    // Kontrola web lock
-    if (web_is_locked()) {
-        ESP_LOGW(TAG, "Timer resume blocked: web interface is locked");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_set_status(req, "403 Forbidden");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
-        return ESP_OK;
-    }
-    
-    chess_move_command_t cmd = { 0 };
-    cmd.type = GAME_CMD_RESUME_TIMER;
-    
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to resume timer", -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_status(req, "200 OK");
-    httpd_resp_send(req, "Timer resumed", -1);
-    
+static esp_err_t http_post_timer_resume_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/timer/resume");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "Timer resume blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
     return ESP_OK;
+  }
+
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_RESUME_TIMER;
+
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to resume timer", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_send(req, "Timer resumed", -1);
+
+  return ESP_OK;
 }
 
-static esp_err_t http_post_timer_reset_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "POST /api/timer/reset");
-    
-    // Kontrola web lock
-    if (web_is_locked()) {
-        ESP_LOGW(TAG, "Timer reset blocked: web interface is locked");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_set_status(req, "403 Forbidden");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
-        return ESP_OK;
-    }
-    
-    chess_move_command_t cmd = { 0 };
-    cmd.type = GAME_CMD_RESET_TIMER;
-    
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to reset timer", -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_status(req, "200 OK");
-    httpd_resp_send(req, "Timer reset", -1);
-    
+static esp_err_t http_post_timer_reset_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/timer/reset");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "Timer reset blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
     return ESP_OK;
+  }
+
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_RESET_TIMER;
+
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to reset timer", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_send(req, "Timer reset", -1);
+
+  return ESP_OK;
 }
 
 // ============================================================================
@@ -1572,331 +1566,377 @@ static esp_err_t http_post_timer_reset_handler(httpd_req_t *req)
 
 /**
  * @brief Handler pro POST /api/wifi/config
- * 
+ *
  * Ulozi WiFi konfiguraci (SSID a heslo) do NVS.
- * 
+ *
  * @param req HTTP request
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
- * 
+ *
  * @details
  * Ocekava JSON: {"ssid": "...", "password": "..."}
  * Vraci JSON: {"success": true/false, "message": "..."}
  */
-static esp_err_t http_post_wifi_config_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "POST /api/wifi/config");
-    
-    // Kontrola web lock
-    if (web_is_locked()) {
-        ESP_LOGW(TAG, "WiFi config blocked: web interface is locked");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_set_status(req, "403 Forbidden");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
-        return ESP_OK;
-    }
-    
-    // Nacist JSON z request body
-    char content[256] = {0};
-    int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-    if (ret <= 0) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"No data received\"}", -1);
-        return ESP_FAIL;
-    }
-    content[ret] = '\0';
-    
-    // Jednoduchy JSON parser (hleda "ssid" a "password")
-    char ssid[33] = {0};
-    char password[65] = {0};
-    
-    // Najit "ssid"
-    const char* ssid_start = strstr(content, "\"ssid\"");
-    if (ssid_start != NULL) {
-        ssid_start = strchr(ssid_start, ':');
-        if (ssid_start != NULL) {
-            ssid_start++; // Preskocit ':'
-            while (*ssid_start == ' ' || *ssid_start == '\"') ssid_start++;
-            const char* ssid_end = strchr(ssid_start, '\"');
-            if (ssid_end != NULL && ssid_end > ssid_start) {
-                size_t len = ssid_end - ssid_start;
-                if (len < sizeof(ssid)) {
-                    strncpy(ssid, ssid_start, len);
-                    ssid[len] = '\0';
-                }
-            }
-        }
-    }
-    
-    // Najit "password"
-    const char* password_start = strstr(content, "\"password\"");
-    if (password_start != NULL) {
-        password_start = strchr(password_start, ':');
-        if (password_start != NULL) {
-            password_start++; // Preskocit ':'
-            while (*password_start == ' ' || *password_start == '\"') password_start++;
-            const char* password_end = strchr(password_start, '\"');
-            if (password_end != NULL && password_end > password_start) {
-                size_t len = password_end - password_start;
-                if (len < sizeof(password)) {
-                    strncpy(password, password_start, len);
-                    password[len] = '\0';
-                }
-            }
-        }
-    }
-    
-    // Validovat SSID
-    size_t ssid_len = strlen(ssid);
-    size_t password_len = strlen(password);
-    
-    if (ssid_len == 0) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"SSID is required\"}", -1);
-        return ESP_FAIL;
-    }
-    if (ssid_len > 32) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_set_type(req, "application/json");
-        char error_msg[128];
-        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"SSID must be 1-32 characters (current: %zu)\"}", ssid_len);
-        httpd_resp_send(req, error_msg, -1);
-        return ESP_FAIL;
-    }
-    
-    // Validovat password
-    if (password_len == 0) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"Password is required\"}", -1);
-        return ESP_FAIL;
-    }
-    if (password_len > 64) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_set_type(req, "application/json");
-        char error_msg[128];
-        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"Password must be 1-64 characters (current: %zu)\"}", password_len);
-        httpd_resp_send(req, error_msg, -1);
-        return ESP_FAIL;
-    }
-    
-    // Ulozit do NVS
-    esp_err_t err = wifi_save_config_to_nvs(ssid, password);
-    if (err != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_set_type(req, "application/json");
-        char error_msg[128];
-        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"Failed to save: %s\"}", esp_err_to_name(err));
-        httpd_resp_send(req, error_msg, -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_status(req, "200 OK");
+static esp_err_t http_post_wifi_config_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/wifi/config");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "WiFi config blocked: web interface is locked");
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":true,\"message\":\"WiFi config saved\"}", -1);
-    
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
     return ESP_OK;
+  }
+
+  // Nacist JSON z request body
+  char content[256] = {0};
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data received\"}",
+                    -1);
+    return ESP_FAIL;
+  }
+  content[ret] = '\0';
+
+  // Jednoduchy JSON parser (hleda "ssid" a "password")
+  char ssid[33] = {0};
+  char password[65] = {0};
+
+  // Najit "ssid"
+  const char *ssid_start = strstr(content, "\"ssid\"");
+  if (ssid_start != NULL) {
+    ssid_start = strchr(ssid_start, ':');
+    if (ssid_start != NULL) {
+      ssid_start++; // Preskocit ':'
+      while (*ssid_start == ' ' || *ssid_start == '\"')
+        ssid_start++;
+      const char *ssid_end = strchr(ssid_start, '\"');
+      if (ssid_end != NULL && ssid_end > ssid_start) {
+        size_t len = ssid_end - ssid_start;
+        if (len < sizeof(ssid)) {
+          strncpy(ssid, ssid_start, len);
+          ssid[len] = '\0';
+        }
+      }
+    }
+  }
+
+  // Najit "password"
+  const char *password_start = strstr(content, "\"password\"");
+  if (password_start != NULL) {
+    password_start = strchr(password_start, ':');
+    if (password_start != NULL) {
+      password_start++; // Preskocit ':'
+      while (*password_start == ' ' || *password_start == '\"')
+        password_start++;
+      const char *password_end = strchr(password_start, '\"');
+      if (password_end != NULL && password_end > password_start) {
+        size_t len = password_end - password_start;
+        if (len < sizeof(password)) {
+          strncpy(password, password_start, len);
+          password[len] = '\0';
+        }
+      }
+    }
+  }
+
+  // Validovat SSID
+  size_t ssid_len = strlen(ssid);
+  size_t password_len = strlen(password);
+
+  if (ssid_len == 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"SSID is required\"}",
+                    -1);
+    return ESP_FAIL;
+  }
+  if (ssid_len > 32) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    char error_msg[128];
+    snprintf(error_msg, sizeof(error_msg),
+             "{\"success\":false,\"message\":\"SSID must be 1-32 characters "
+             "(current: %zu)\"}",
+             ssid_len);
+    httpd_resp_send(req, error_msg, -1);
+    return ESP_FAIL;
+  }
+
+  // Validovat password
+  if (password_len == 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(
+        req, "{\"success\":false,\"message\":\"Password is required\"}", -1);
+    return ESP_FAIL;
+  }
+  if (password_len > 64) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    char error_msg[128];
+    snprintf(error_msg, sizeof(error_msg),
+             "{\"success\":false,\"message\":\"Password must be 1-64 "
+             "characters (current: %zu)\"}",
+             password_len);
+    httpd_resp_send(req, error_msg, -1);
+    return ESP_FAIL;
+  }
+
+  // Ulozit do NVS
+  esp_err_t err = wifi_save_config_to_nvs(ssid, password);
+  if (err != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    char error_msg[128];
+    snprintf(error_msg, sizeof(error_msg),
+             "{\"success\":false,\"message\":\"Failed to save: %s\"}",
+             esp_err_to_name(err));
+    httpd_resp_send(req, error_msg, -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true,\"message\":\"WiFi config saved\"}",
+                  -1);
+
+  return ESP_OK;
 }
 
 /**
  * @brief Handler pro POST /api/wifi/connect
- * 
+ *
  * Pripoji ESP32 k WiFi site s ulozenou konfiguraci.
- * 
+ *
  * @param req HTTP request
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
- * 
+ *
  * @details
  * Vraci JSON: {"success": true/false, "message": "..."}
  */
-static esp_err_t http_post_wifi_connect_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "POST /api/wifi/connect");
-    
-    // Kontrola web lock
-    if (web_is_locked()) {
-        ESP_LOGW(TAG, "WiFi connect blocked: web interface is locked");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_set_status(req, "403 Forbidden");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
-        return ESP_OK;
-    }
-    
-    // Zkontrolovat, zda existuje konfigurace
-    char ssid[33] = {0};
-    char password[65] = {0};
-    esp_err_t load_ret = wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
-    if (load_ret != ESP_OK) {
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"No WiFi configuration found. Please save SSID and password first.\"}", -1);
-        return ESP_FAIL;
-    }
-    
-    esp_err_t err = wifi_connect_sta();
-    if (err != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_set_type(req, "application/json");
-        char error_msg[256];
-        const char* user_message = NULL;
-        
-        // Prevest ESP error kody na uzivatelsky pristupne zpravy
-        if (err == ESP_ERR_INVALID_STATE) {
-            user_message = "Connection already in progress. Please wait...";
-        } else if (err == ESP_ERR_NOT_FOUND) {
-            user_message = "Network not found. Please check SSID and ensure the network is in range.";
-        } else if (err == ESP_ERR_INVALID_RESPONSE) {
-            user_message = "Authentication failed. Please check password and try again.";
-        } else if (err == ESP_ERR_TIMEOUT) {
-            user_message = "Connection timeout. The network may be too far or not responding.";
-        } else if (err == ESP_ERR_NVS_NOT_FOUND) {
-            user_message = "WiFi configuration not found. Please save SSID and password first.";
-        } else {
-            user_message = "Connection failed. Please check SSID, password, and network availability.";
-        }
-        
-        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"%s\"}", user_message);
-        httpd_resp_send(req, error_msg, -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_status(req, "200 OK");
+static esp_err_t http_post_wifi_connect_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/wifi/connect");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "WiFi connect blocked: web interface is locked");
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":true,\"message\":\"Connected to WiFi\"}", -1);
-    
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
     return ESP_OK;
+  }
+
+  // Zkontrolovat, zda existuje konfigurace
+  char ssid[33] = {0};
+  char password[65] = {0};
+  esp_err_t load_ret =
+      wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
+  if (load_ret != ESP_OK) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"No WiFi configuration "
+                    "found. Please save SSID and password first.\"}",
+                    -1);
+    return ESP_FAIL;
+  }
+
+  esp_err_t err = wifi_connect_sta();
+  if (err != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    char error_msg[256];
+    const char *user_message = NULL;
+
+    // Prevest ESP error kody na uzivatelsky pristupne zpravy
+    if (err == ESP_ERR_INVALID_STATE) {
+      user_message = "Connection already in progress. Please wait...";
+    } else if (err == ESP_ERR_NOT_FOUND) {
+      user_message = "Network not found. Please check SSID and ensure the "
+                     "network is in range.";
+    } else if (err == ESP_ERR_INVALID_RESPONSE) {
+      user_message =
+          "Authentication failed. Please check password and try again.";
+    } else if (err == ESP_ERR_TIMEOUT) {
+      user_message =
+          "Connection timeout. The network may be too far or not responding.";
+    } else if (err == ESP_ERR_NVS_NOT_FOUND) {
+      user_message =
+          "WiFi configuration not found. Please save SSID and password first.";
+    } else {
+      user_message = "Connection failed. Please check SSID, password, and "
+                     "network availability.";
+    }
+
+    snprintf(error_msg, sizeof(error_msg),
+             "{\"success\":false,\"message\":\"%s\"}", user_message);
+    httpd_resp_send(req, error_msg, -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true,\"message\":\"Connected to WiFi\"}",
+                  -1);
+
+  return ESP_OK;
 }
 
 /**
  * @brief Handler pro POST /api/wifi/disconnect
- * 
+ *
  * Odpoji ESP32 od WiFi site.
- * 
+ *
  * @param req HTTP request
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
- * 
+ *
  * @details
  * Vraci JSON: {"success": true/false, "message": "..."}
  */
-static esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "POST /api/wifi/disconnect");
-    
-    // Kontrola web lock
-    if (web_is_locked()) {
-        ESP_LOGW(TAG, "WiFi disconnect blocked: web interface is locked");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_set_status(req, "403 Forbidden");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
-        return ESP_OK;
-    }
-    
-    esp_err_t err = wifi_disconnect_sta();
-    if (err != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_set_type(req, "application/json");
-        char error_msg[128];
-        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"Disconnect failed: %s\"}", esp_err_to_name(err));
-        httpd_resp_send(req, error_msg, -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_status(req, "200 OK");
+static esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/wifi/disconnect");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "WiFi disconnect blocked: web interface is locked");
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":true,\"message\":\"Disconnected from WiFi\"}", -1);
-    
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
     return ESP_OK;
+  }
+
+  esp_err_t err = wifi_disconnect_sta();
+  if (err != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    char error_msg[128];
+    snprintf(error_msg, sizeof(error_msg),
+             "{\"success\":false,\"message\":\"Disconnect failed: %s\"}",
+             esp_err_to_name(err));
+    httpd_resp_send(req, error_msg, -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(
+      req, "{\"success\":true,\"message\":\"Disconnected from WiFi\"}", -1);
+
+  return ESP_OK;
 }
 
 /**
  * @brief Handler pro POST /api/wifi/clear
- * 
+ *
  * Vymaze ulozenou WiFi konfiguraci z NVS.
- * 
+ *
  * @param req HTTP request
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
- * 
+ *
  * @details
  * Vraci JSON: {"success": true/false, "message": "..."}
  */
-static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "POST /api/wifi/clear");
-    
-    // Kontrola web lock
-    if (web_is_locked()) {
-        ESP_LOGW(TAG, "WiFi clear blocked: web interface is locked");
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_set_status(req, "403 Forbidden");
-        httpd_resp_send(req, "{\"success\":false,\"message\":\"Web interface is locked. Use UART to unlock.\"}", -1);
-        return ESP_OK;
-    }
-    
-    // Odpojit STA pokud je pripojeny
-    if (sta_connected) {
-        wifi_disconnect_sta();
-    }
-    
-    esp_err_t err = wifi_clear_config_from_nvs();
-    if (err != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_set_type(req, "application/json");
-        char error_msg[128];
-        snprintf(error_msg, sizeof(error_msg), "{\"success\":false,\"message\":\"Failed to clear: %s\"}", esp_err_to_name(err));
-        httpd_resp_send(req, error_msg, -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_status(req, "200 OK");
+static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/wifi/clear");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "WiFi clear blocked: web interface is locked");
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":true,\"message\":\"WiFi configuration cleared\"}", -1);
-    
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
     return ESP_OK;
+  }
+
+  // Odpojit STA pokud je pripojeny
+  if (sta_connected) {
+    wifi_disconnect_sta();
+  }
+
+  esp_err_t err = wifi_clear_config_from_nvs();
+  if (err != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    char error_msg[128];
+    snprintf(error_msg, sizeof(error_msg),
+             "{\"success\":false,\"message\":\"Failed to clear: %s\"}",
+             esp_err_to_name(err));
+    httpd_resp_send(req, error_msg, -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(
+      req, "{\"success\":true,\"message\":\"WiFi configuration cleared\"}", -1);
+
+  return ESP_OK;
 }
 
 /**
  * @brief Handler pro GET /api/wifi/status
- * 
+ *
  * Vrati aktualni stav WiFi (AP i STA).
- * 
+ *
  * @param req HTTP request
  * @return ESP_OK pri uspechu, chybovy kod pri chybe
- * 
+ *
  * @details
  * Vraci JSON s informacemi o AP a STA statusu.
  */
-static esp_err_t http_get_wifi_status_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /api/wifi/status");
-    
-    char local_json[JSON_BUFFER_SIZE];
-    esp_err_t ret = wifi_get_sta_status_json(local_json, sizeof(local_json));
-    if (ret != ESP_OK) {
-        httpd_resp_set_status(req, "500 Internal Server Error");
-        httpd_resp_send(req, "Failed to get WiFi status", -1);
-        return ESP_FAIL;
-    }
-    
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, local_json, strlen(local_json));
-    
-    return ESP_OK;
+static esp_err_t http_get_wifi_status_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/wifi/status");
+
+  char local_json[JSON_BUFFER_SIZE];
+  esp_err_t ret = wifi_get_sta_status_json(local_json, sizeof(local_json));
+  if (ret != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to get WiFi status", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, local_json, strlen(local_json));
+
+  return ESP_OK;
 }
 
 // ============================================================================
 // TEST PAGE - MINIMAL TIMER TEST (for debugging)
 // chess_app.js embedded (27426 bytes, 696 lines)
 static const char chess_app_js_content[] =
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// CHESS WEB APP - EXTRACTED JAVASCRIPT FOR SYNTAX CHECKING\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "console.log('🚀 Chess JavaScript loading...');\n"
     "\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// PIECE SYMBOLS AND GLOBAL VARIABLES\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "const pieceSymbols = {\n"
     "    'R': '♜', 'N': '♞', 'B': '♝', 'Q': '♛', 'K': '♚', 'P': '♟',\n"
@@ -1917,9 +1957,13 @@ static const char chess_app_js_content[] =
     "let sandboxHistory = [];\n"
     "let endgameReportShown = false;\n"
     "\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// BOARD FUNCTIONS\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "function createBoard() {\n"
     "    const board = document.getElementById('board');\n"
@@ -1927,7 +1971,8 @@ static const char chess_app_js_content[] =
     "    for (let row = 7; row >= 0; row--) {\n"
     "        for (let col = 0; col < 8; col++) {\n"
     "            const square = document.createElement('div');\n"
-    "            square.className = 'square ' + ((row + col) % 2 === 0 ? 'light' : 'dark');\n"
+    "            square.className = 'square ' + ((row + col) % 2 === 0 ? "
+    "'light' : 'dark');\n"
     "            square.dataset.row = row;\n"
     "            square.dataset.col = col;\n"
     "            square.dataset.index = row * 8 + col;\n"
@@ -1943,7 +1988,8 @@ static const char chess_app_js_content[] =
     "\n"
     "function clearHighlights() {\n"
     "    document.querySelectorAll('.square').forEach(sq => {\n"
-    "        sq.classList.remove('selected', 'valid-move', 'valid-capture', 'error-invalid', 'error-original');\n"
+    "        sq.classList.remove('selected', 'valid-move', 'valid-capture', "
+    "'error-invalid', 'error-original');\n"
     "    });\n"
     "    selectedSquare = null;\n"
     "}\n"
@@ -1964,15 +2010,18 @@ static const char chess_app_js_content[] =
     "        const col = index % 8;\n"
     "        \n"
     "        if (row === invalidRow && col === invalidCol) {\n"
-    "            sq.classList.add('error-invalid');  // Červená - invalid pozice\n"
+    "            sq.classList.add('error-invalid');  // Červená - invalid "
+    "pozice\n"
     "        } else if (row === originalRow && col === originalCol) {\n"
-    "            sq.classList.add('error-original'); // Modrá - původní pozice\n"
+    "            sq.classList.add('error-original'); // Modrá - původní "
+    "pozice\n"
     "        }\n"
     "    });\n"
     "}\n"
     "\n"
     "async function handleSquareClick(row, col) {\n"
-    "    const piece = sandboxMode ? sandboxBoard[row][col] : boardData[row][col];\n"
+    "    const piece = sandboxMode ? sandboxBoard[row][col] : "
+    "boardData[row][col];\n"
     "    const index = row * 8 + col;\n"
     "    \n"
     "    // ✅ SANDBOX MODE: Umožnit tahy (i brání figurek)\n"
@@ -1980,7 +2029,8 @@ static const char chess_app_js_content[] =
     "        const fromRow = Math.floor(selectedSquare / 8);\n"
     "        const fromCol = selectedSquare % 8;\n"
     "        \n"
-    "        // Pokud klikneš na JINÉ pole než ze kterého máš zvede figurku = udělej tah\n"
+    "        // Pokud klikneš na JINÉ pole než ze kterého máš zvede figurku = "
+    "udělej tah\n"
     "        // (V sandboxu můžeš táhnout kamkoliv - i na soupeřovu figurku!)\n"
     "        if (fromRow !== row || fromCol !== col) {\n"
     "            makeSandboxMove(fromRow, fromCol, row, col);\n"
@@ -1997,13 +2047,16 @@ static const char chess_app_js_content[] =
     "        const fromCol = selectedSquare % 8;\n"
     "        \n"
     "        {\n"
-    "            const fromNotation = String.fromCharCode(97 + fromCol) + (8 - fromRow);\n"
-    "            const toNotation = String.fromCharCode(97 + col) + (8 - row);\n"
+    "            const fromNotation = String.fromCharCode(97 + fromCol) + (8 - "
+    "fromRow);\n"
+    "            const toNotation = String.fromCharCode(97 + col) + (8 - "
+    "row);\n"
     "            try {\n"
     "                const response = await fetch('/api/move', {\n"
     "                    method: 'POST',\n"
     "                    headers: {'Content-Type': 'application/json'},\n"
-    "                    body: JSON.stringify({from: fromNotation, to: toNotation})\n"
+    "                    body: JSON.stringify({from: fromNotation, to: "
+    "toNotation})\n"
     "                });\n"
     "                if (response.ok) {\n"
     "                    clearHighlights();\n"
@@ -2020,25 +2073,33 @@ static const char chess_app_js_content[] =
     "        if (sandboxMode) {\n"
     "            clearHighlights();\n"
     "            selectedSquare = index;\n"
-    "            const square = document.querySelector(`[data-row='${row}'][data-col='${col}']`);\n"
+    "            const square = "
+    "document.querySelector(`[data-row='${row}'][data-col='${col}']`);\n"
     "            if (square) square.classList.add('selected');\n"
     "        } else {\n"
     "            const isWhitePiece = piece === piece.toUpperCase();\n"
-    "            const currentPlayerIsWhite = statusData.current_player === 'White';\n"
+    "            const currentPlayerIsWhite = statusData.current_player === "
+    "'White';\n"
     "            \n"
-    "            if ((isWhitePiece && currentPlayerIsWhite) || (!isWhitePiece && !currentPlayerIsWhite)) {\n"
+    "            if ((isWhitePiece && currentPlayerIsWhite) || (!isWhitePiece "
+    "&& !currentPlayerIsWhite)) {\n"
     "                clearHighlights();\n"
     "                selectedSquare = index;\n"
-    "                const square = document.querySelector(`[data-row='${row}'][data-col='${col}']`);\n"
+    "                const square = "
+    "document.querySelector(`[data-row='${row}'][data-col='${col}']`);\n"
     "                if (square) square.classList.add('selected');\n"
     "            }\n"
     "        }\n"
     "    }\n"
     "}\n"
     "\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// REVIEW MODE\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "function reconstructBoardAtMove(moveIndex) {\n"
     "    const startBoard = [\n"
@@ -2069,7 +2130,8 @@ static const char chess_app_js_content[] =
     "    currentReviewIndex = index;\n"
     "    const banner = document.getElementById('review-banner');\n"
     "    banner.classList.add('active');\n"
-    "    document.getElementById('review-move-text').textContent = `Reviewing move ${index + 1}`;\n"
+    "    document.getElementById('review-move-text').textContent = `Reviewing "
+    "move ${index + 1}`;\n"
     "    const reconstructedBoard = reconstructBoardAtMove(index);\n"
     "    updateBoard(reconstructedBoard);\n"
     "    document.querySelectorAll('.square').forEach(sq => {\n"
@@ -2081,18 +2143,23 @@ static const char chess_app_js_content[] =
     "        const fromCol = move.from.charCodeAt(0) - 97;\n"
     "        const toRow = parseInt(move.to[1]) - 1;\n"
     "        const toCol = move.to.charCodeAt(0) - 97;\n"
-    "        const fromSquare = document.querySelector(`[data-row='${fromRow}'][data-col='${fromCol}']`);\n"
-    "        const toSquare = document.querySelector(`[data-row='${toRow}'][data-col='${toCol}']`);\n"
+    "        const fromSquare = "
+    "document.querySelector(`[data-row='${fromRow}'][data-col='${fromCol}']`);"
+    "\n"
+    "        const toSquare = "
+    "document.querySelector(`[data-row='${toRow}'][data-col='${toCol}']`);\n"
     "        if (fromSquare) fromSquare.classList.add('move-from');\n"
     "        if (toSquare) toSquare.classList.add('move-to');\n"
     "    }\n"
     "    document.querySelectorAll('.history-item').forEach(item => {\n"
     "        item.classList.remove('selected');\n"
     "    });\n"
-    "    const selectedItem = document.querySelector(`[data-move-index='${index}']`);\n"
+    "    const selectedItem = "
+    "document.querySelector(`[data-move-index='${index}']`);\n"
     "    if (selectedItem) {\n"
     "        selectedItem.classList.add('selected');\n"
-    "        selectedItem.scrollIntoView({behavior:'smooth',block:'nearest'});\n"
+    "        "
+    "selectedItem.scrollIntoView({behavior:'smooth',block:'nearest'});\n"
     "    }\n"
     "}\n"
     "\n"
@@ -2109,9 +2176,13 @@ static const char chess_app_js_content[] =
     "    fetchData();\n"
     "}\n"
     "\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// SANDBOX MODE\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "function enterSandboxMode() {\n"
     "    sandboxMode = true;\n"
@@ -2127,7 +2198,8 @@ static const char chess_app_js_content[] =
     "    sandboxMode = false;\n"
     "    sandboxBoard = [];\n"
     "    sandboxHistory = [];\n"
-    "    document.getElementById('sandbox-banner').classList.remove('active');\n"
+    "    "
+    "document.getElementById('sandbox-banner').classList.remove('active');\n"
     "    clearHighlights();\n"
     "    fetchData();\n"
     "}\n"
@@ -2194,20 +2266,26 @@ static const char chess_app_js_content[] =
     "    squares.forEach((square, index) => {\n"
     "        const row = Math.floor(index / 8);\n"
     "        const col = index % 8;\n"
-    "        const boardRow = 7 - row;  // Převrátit řádky (board[0] = řádek 8)\n"
+    "        const boardRow = 7 - row;  // Převrátit řádky (board[0] = řádek "
+    "8)\n"
     "        const piece = board[boardRow][col];\n"
     "        square.textContent = piece === ' ' ? '' : piece;\n"
     "    });\n"
     "    \n"
-    "    // ✅ FIX: Aktualizovat boardData POUZE pokud NEJSME v sandbox/review módu!\n"
+    "    // ✅ FIX: Aktualizovat boardData POUZE pokud NEJSME v sandbox/review "
+    "módu!\n"
     "    if (!sandboxMode && !reviewMode) {\n"
     "        boardData = JSON.parse(JSON.stringify(board));\n"
     "    }\n"
     "}\n"
     "\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// UPDATE FUNCTIONS\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "function updateBoard(board) {\n"
     "    boardData = board;\n"
@@ -2216,11 +2294,13 @@ static const char chess_app_js_content[] =
     "    for (let row = 0; row < 8; row++) {\n"
     "        for (let col = 0; col < 8; col++) {\n"
     "            const piece = board[row][col];\n"
-    "            const pieceElement = document.getElementById('piece-' + (row * 8 + col));\n"
+    "            const pieceElement = document.getElementById('piece-' + (row "
+    "* 8 + col));\n"
     "            if (pieceElement) {\n"
     "                pieceElement.textContent = pieceSymbols[piece] || ' ';\n"
     "                if (piece !== ' ') {\n"
-    "                    pieceElement.className = 'piece ' + (piece === piece.toUpperCase() ? 'white' : 'black');\n"
+    "                    pieceElement.className = 'piece ' + (piece === "
+    "piece.toUpperCase() ? 'white' : 'black');\n"
     "                } else {\n"
     "                    pieceElement.className = 'piece';\n"
     "                }\n"
@@ -2229,22 +2309,29 @@ static const char chess_app_js_content[] =
     "    }\n"
     "}\n"
     "\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// ENDGAME REPORT FUNCTIONS\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "// Zobrazit endgame report na webu\n"
     "async function showEndgameReport(gameEnd) {\n"
     "    console.log('🏆 showEndgameReport() called with:', gameEnd);\n"
     "    \n"
-    "    // ✅ FIX: Pokud už je banner zobrazen, nedělat nic (aby se nepřekresloval)\n"
-    "    if (endgameReportShown && document.getElementById('endgame-banner')) {\n"
+    "    // ✅ FIX: Pokud už je banner zobrazen, nedělat nic (aby se "
+    "nepřekresloval)\n"
+    "    if (endgameReportShown && document.getElementById('endgame-banner')) "
+    "{\n"
     "        console.log('Endgame report already shown, skipping...');\n"
     "        return;\n"
     "    }\n"
     "    \n"
     "    // ✅ Načíst advantage history pro graf\n"
-    "    let advantageData = {history: [], white_checks: 0, black_checks: 0, white_castles: 0, black_castles: 0};\n"
+    "    let advantageData = {history: [], white_checks: 0, black_checks: 0, "
+    "white_castles: 0, black_castles: 0};\n"
     "    try {\n"
     "        const response = await fetch('/api/advantage');\n"
     "        advantageData = await response.json();\n"
@@ -2270,8 +2357,11 @@ static const char chess_app_js_content[] =
     "        emoji = gameEnd.winner === 'White' ? '⚪' : '⚫';\n"
     "        title = gameEnd.winner.toUpperCase() + ' VYHRÁL!';\n"
     "        subtitle = gameEnd.reason;\n"
-    "        accentColor = gameEnd.winner === 'White' ? '#4CAF50' : '#2196F3';\n"
-    "        bgGradient = gameEnd.winner === 'White' ? 'linear-gradient(135deg, #1e3a1e, #2d4a2d)' : 'linear-gradient(135deg, #1e2a3a, #2d3a4a)';\n"
+    "        accentColor = gameEnd.winner === 'White' ? '#4CAF50' : "
+    "'#2196F3';\n"
+    "        bgGradient = gameEnd.winner === 'White' ? "
+    "'linear-gradient(135deg, #1e3a1e, #2d4a2d)' : 'linear-gradient(135deg, "
+    "#1e2a3a, #2d3a4a)';\n"
     "    }\n"
     "    \n"
     "    // Získat statistiky\n"
@@ -2286,7 +2376,8 @@ static const char chess_app_js_content[] =
     "    whiteCaptured.forEach(p => whiteMaterial += pieceValues[p] || 0);\n"
     "    blackCaptured.forEach(p => blackMaterial += pieceValues[p] || 0);\n"
     "    const materialDiff = whiteMaterial - blackMaterial;\n"
-    "    const materialText = materialDiff > 0 ? 'White +' + materialDiff : materialDiff < 0 ? 'Black +' + (-materialDiff) : 'Vyrovnáno';\n"
+    "    const materialText = materialDiff > 0 ? 'White +' + materialDiff : "
+    "materialDiff < 0 ? 'Black +' + (-materialDiff) : 'Vyrovnáno';\n"
     "    \n"
     "    // ✅ Vytvořit SVG graf výhody (jako chess.com)\n"
     "    let graphSVG = '';\n"
@@ -2298,29 +2389,42 @@ static const char chess_app_js_content[] =
     "        const scaleY = height / (2 * maxAdvantage);\n"
     "        const scaleX = width / (history.length - 1);\n"
     "        \n"
-    "        // Vytvořit body pro polyline (0,0 je nahoře vlevo, y roste dolů)\n"
+    "        // Vytvořit body pro polyline (0,0 je nahoře vlevo, y roste "
+    "dolů)\n"
     "        let points = history.map((adv, i) => {\n"
     "            const x = i * scaleX;\n"
-    "            const y = height / 2 - adv * scaleY;  // Převrátit Y (White nahoře, Black dole)\n"
+    "            const y = height / 2 - adv * scaleY;  // Převrátit Y (White "
+    "nahoře, Black dole)\n"
     "            return x + ',' + y;\n"
     "        }).join(' ');\n"
     "        \n"
     "        // Vytvořit polygon pro vyplněnou oblast\n"
-    "        let areaPoints = '0,' + (height / 2) + ' ' + points + ' ' + width + ',' + (height / 2);\n"
+    "        let areaPoints = '0,' + (height / 2) + ' ' + points + ' ' + width "
+    "+ ',' + (height / 2);\n"
     "        \n"
-    "        graphSVG = '<svg width=\"280\" height=\"100\" style=\"border-radius:6px;background:rgba(0,0,0,0.2);\">' +\n"
+    "        graphSVG = '<svg width=\"280\" height=\"100\" "
+    "style=\"border-radius:6px;background:rgba(0,0,0,0.2);\">' +\n"
     "            '<!-- Středová čára (vyrovnaná pozice) -->' +\n"
-    "            '<line x1=\"0\" y1=\"' + (height / 2) + '\" x2=\"' + width + '\" y2=\"' + (height / 2) + '\" stroke=\"#555\" stroke-width=\"1\" stroke-dasharray=\"3,3\"/>' +\n"
+    "            '<line x1=\"0\" y1=\"' + (height / 2) + '\" x2=\"' + width + "
+    "'\" y2=\"' + (height / 2) + '\" stroke=\"#555\" stroke-width=\"1\" "
+    "stroke-dasharray=\"3,3\"/>' +\n"
     "            '<!-- Vyplněná oblast pod křivkou -->' +\n"
-    "            '<polygon points=\"' + areaPoints + '\" fill=\"' + accentColor + '\" opacity=\"0.2\"/>' +\n"
+    "            '<polygon points=\"' + areaPoints + '\" fill=\"' + "
+    "accentColor + '\" opacity=\"0.2\"/>' +\n"
     "            '<!-- Křivka výhody -->' +\n"
-    "            '<polyline points=\"' + points + '\" fill=\"none\" stroke=\"' + accentColor + '\" stroke-width=\"2\" stroke-linejoin=\"round\"/>' +\n"
+    "            '<polyline points=\"' + points + '\" fill=\"none\" stroke=\"' "
+    "+ accentColor + '\" stroke-width=\"2\" stroke-linejoin=\"round\"/>' +\n"
     "            '<!-- Tečky na koncích -->' +\n"
-    "            '<circle cx=\"0\" cy=\"' + (height / 2) + '\" r=\"3\" fill=\"' + accentColor + '\"/>' +\n"
-    "            '<circle cx=\"' + ((history.length - 1) * scaleX) + '\" cy=\"' + (height / 2 - history[history.length - 1] * scaleY) + '\" r=\"4\" fill=\"' + accentColor + '\"/>' +\n"
+    "            '<circle cx=\"0\" cy=\"' + (height / 2) + '\" r=\"3\" "
+    "fill=\"' + accentColor + '\"/>' +\n"
+    "            '<circle cx=\"' + ((history.length - 1) * scaleX) + '\" "
+    "cy=\"' + (height / 2 - history[history.length - 1] * scaleY) + '\" "
+    "r=\"4\" fill=\"' + accentColor + '\"/>' +\n"
     "            '<!-- Popisky -->' +\n"
-    "            '<text x=\"5\" y=\"12\" fill=\"#888\" font-size=\"10\" font-weight=\"600\">White</text>' +\n"
-    "            '<text x=\"5\" y=\"' + (height - 2) + '\" fill=\"#888\" font-size=\"10\" font-weight=\"600\">Black</text>' +\n"
+    "            '<text x=\"5\" y=\"12\" fill=\"#888\" font-size=\"10\" "
+    "font-weight=\"600\">White</text>' +\n"
+    "            '<text x=\"5\" y=\"' + (height - 2) + '\" fill=\"#888\" "
+    "font-size=\"10\" font-weight=\"600\">Black</text>' +\n"
     "        '</svg>';\n"
     "    }\n"
     "    \n"
@@ -2339,7 +2443,8 @@ static const char chess_app_js_content[] =
     "        border: 2px solid ' + accentColor + ';\\\n"
     "        border-radius: 12px;\\\n"
     "        padding: 0;\\\n"
-    "        box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 40px ' + accentColor + '40;\\\n"
+    "        box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 40px ' + accentColor "
+    "+ '40;\\\n"
     "        z-index: 9999;\\\n"
     "        animation: slideInLeft 0.4s ease-out;\\\n"
     "        backdrop-filter: blur(10px);\\\n"
@@ -2368,65 +2473,121 @@ static const char chess_app_js_content[] =
     "    \n"
     "    // HTML obsah\n"
     "    banner.innerHTML = '\\\n"
-    "        <div style=\"background:' + accentColor + ';padding:20px;text-align:center;border-radius:10px 10px 0 0;\">\\\n"
-    "            <div style=\"font-size:64px;margin-bottom:8px;\">' + emoji + '</div>\\\n"
-    "            <h2 style=\"margin:0;color:white;font-size:24px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,0.4);\">' + title + '</h2>\\\n"
-    "            <p style=\"margin:8px 0 0 0;color:rgba(255,255,255,0.9);font-size:14px;font-weight:500;\">' + subtitle + '</p>\\\n"
+    "        <div style=\"background:' + accentColor + "
+    "';padding:20px;text-align:center;border-radius:10px 10px 0 0;\">\\\n"
+    "            <div style=\"font-size:64px;margin-bottom:8px;\">' + emoji + "
+    "'</div>\\\n"
+    "            <h2 "
+    "style=\"margin:0;color:white;font-size:24px;font-weight:700;text-shadow:0 "
+    "2px 4px rgba(0,0,0,0.4);\">' + title + '</h2>\\\n"
+    "            <p style=\"margin:8px 0 0 "
+    "0;color:rgba(255,255,255,0.9);font-size:14px;font-weight:500;\">' + "
+    "subtitle + '</p>\\\n"
     "        </div>\\\n"
     "        <div style=\"padding:20px;\">\\\n"
     "            ' + (graphSVG ? '\\\n"
-    "            <div style=\"background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-bottom:15px;\">\\\n"
-    "                <h3 style=\"margin:0 0 12px 0;color:' + accentColor + ';font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;\">\\\n"
+    "            <div "
+    "style=\"background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-"
+    "bottom:15px;\">\\\n"
+    "                <h3 style=\"margin:0 0 12px 0;color:' + accentColor + "
+    "';font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;"
+    "\">\\\n"
     "                    <span>📈</span> Průběh hry\\\n"
     "                </h3>\\\n"
     "                ' + graphSVG + '\\\n"
-    "                <div style=\"display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:#888;\">\\\n"
+    "                <div "
+    "style=\"display:flex;justify-content:space-between;margin-top:8px;font-"
+    "size:11px;color:#888;\">\\\n"
     "                    <span>Začátek</span>\\\n"
-    "                    <span>Tah ' + (advantageData.count || 0) + '</span>\\\n"
+    "                    <span>Tah ' + (advantageData.count || 0) + "
+    "'</span>\\\n"
     "                </div>\\\n"
     "            </div>' : '') + '\\\n"
-    "            <div style=\"background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-bottom:15px;\">\\\n"
-    "                <h3 style=\"margin:0 0 12px 0;color:' + accentColor + ';font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;\">\\\n"
+    "            <div "
+    "style=\"background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-"
+    "bottom:15px;\">\\\n"
+    "                <h3 style=\"margin:0 0 12px 0;color:' + accentColor + "
+    "';font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;"
+    "\">\\\n"
     "                    <span>📊</span> Statistiky\\\n"
     "                </h3>\\\n"
-    "                <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;\">\\\n"
-    "                    <div style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;\">\\\n"
-    "                        <div style=\"color:#888;font-size:11px;margin-bottom:4px;\">Tahy</div>\\\n"
-    "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ ' + whiteMoves + ' | ⚫ ' + blackMoves + '</div>\\\n"
+    "                <div style=\"display:grid;grid-template-columns:1fr "
+    "1fr;gap:10px;font-size:13px;\">\\\n"
+    "                    <div "
+    "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
+    "\">\\\n"
+    "                        <div "
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Tahy</div>\\\n"
+    "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ "
+    "' + whiteMoves + ' | ⚫ ' + blackMoves + '</div>\\\n"
     "                    </div>\\\n"
-    "                    <div style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;\">\\\n"
-    "                        <div style=\"color:#888;font-size:11px;margin-bottom:4px;\">Materiál</div>\\\n"
-    "                        <div style=\"color:' + accentColor + ';font-weight:600;\">' + materialText + '</div>\\\n"
+    "                    <div "
+    "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
+    "\">\\\n"
+    "                        <div "
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Materiál</div>\\\n"
+    "                        <div style=\"color:' + accentColor + "
+    "';font-weight:600;\">' + materialText + '</div>\\\n"
     "                    </div>\\\n"
-    "                    <div style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;\">\\\n"
-    "                        <div style=\"color:#888;font-size:11px;margin-bottom:4px;\">Sebráno</div>\\\n"
-    "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ ' + whiteCaptured.length + ' | ⚫ ' + blackCaptured.length + '</div>\\\n"
+    "                    <div "
+    "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
+    "\">\\\n"
+    "                        <div "
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Sebráno</div>\\\n"
+    "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ "
+    "' + whiteCaptured.length + ' | ⚫ ' + blackCaptured.length + '</div>\\\n"
     "                    </div>\\\n"
-    "                    <div style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;\">\\\n"
-    "                        <div style=\"color:#888;font-size:11px;margin-bottom:4px;\">Celkem</div>\\\n"
-    "                        <div style=\"color:#e0e0e0;font-weight:600;\">' + statusData.move_count + ' tahů</div>\\\n"
+    "                    <div "
+    "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
+    "\">\\\n"
+    "                        <div "
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Celkem</div>\\\n"
+    "                        <div style=\"color:#e0e0e0;font-weight:600;\">' + "
+    "statusData.move_count + ' tahů</div>\\\n"
     "                    </div>\\\n"
-    "                    <div style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;\">\\\n"
-    "                        <div style=\"color:#888;font-size:11px;margin-bottom:4px;\">Šachy</div>\\\n"
-    "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ ' + (advantageData.white_checks || 0) + ' | ⚫ ' + (advantageData.black_checks || 0) + '</div>\\\n"
+    "                    <div "
+    "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
+    "\">\\\n"
+    "                        <div "
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Šachy</div>\\\n"
+    "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ "
+    "' + (advantageData.white_checks || 0) + ' | ⚫ ' + "
+    "(advantageData.black_checks || 0) + '</div>\\\n"
     "                    </div>\\\n"
-    "                    <div style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;\">\\\n"
-    "                        <div style=\"color:#888;font-size:11px;margin-bottom:4px;\">Rošády</div>\\\n"
-    "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ ' + (advantageData.white_castles || 0) + ' | ⚫ ' + (advantageData.black_castles || 0) + '</div>\\\n"
+    "                    <div "
+    "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
+    "\">\\\n"
+    "                        <div "
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Rošády</div>\\\n"
+    "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ "
+    "' + (advantageData.white_castles || 0) + ' | ⚫ ' + "
+    "(advantageData.black_castles || 0) + '</div>\\\n"
     "                    </div>\\\n"
     "                </div>\\\n"
     "            </div>\\\n"
-    "            <div style=\"background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-bottom:15px;\">\\\n"
-    "                <h3 style=\"margin:0 0 12px 0;color:' + accentColor + ';font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;\">\\\n"
+    "            <div "
+    "style=\"background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-"
+    "bottom:15px;\">\\\n"
+    "                <h3 style=\"margin:0 0 12px 0;color:' + accentColor + "
+    "';font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;"
+    "\">\\\n"
     "                    <span>⚔️</span> Sebrané figurky\\\n"
     "                </h3>\\\n"
     "                <div style=\"margin-bottom:10px;\">\\\n"
-    "                    <div style=\"color:#888;font-size:11px;margin-bottom:4px;\">White sebral (' + whiteCaptured.length + ')</div>\\\n"
-    "                    <div style=\"font-size:20px;line-height:1.4;\">' + (whiteCaptured.map(p => pieceSymbols[p] || p).join(' ') || '−') + '</div>\\\n"
+    "                    <div "
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">White sebral (' + "
+    "whiteCaptured.length + ')</div>\\\n"
+    "                    <div style=\"font-size:20px;line-height:1.4;\">' + "
+    "(whiteCaptured.map(p => pieceSymbols[p] || p).join(' ') || '−') + "
+    "'</div>\\\n"
     "                </div>\\\n"
     "                <div>\\\n"
-    "                    <div style=\"color:#888;font-size:11px;margin-bottom:4px;\">Black sebral (' + blackCaptured.length + ')</div>\\\n"
-    "                    <div style=\"font-size:20px;line-height:1.4;\">' + (blackCaptured.map(p => pieceSymbols[p] || p).join(' ') || '−') + '</div>\\\n"
+    "                    <div "
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Black sebral (' + "
+    "blackCaptured.length + ')</div>\\\n"
+    "                    <div style=\"font-size:20px;line-height:1.4;\">' + "
+    "(blackCaptured.map(p => pieceSymbols[p] || p).join(' ') || '−') + "
+    "'</div>\\\n"
     "                </div>\\\n"
     "            </div>\\\n"
     "            <button onclick=\"hideEndgameReport()\" style=\"\\\n"
@@ -2441,7 +2602,11 @@ static const char chess_app_js_content[] =
     "                font-weight:600;\\\n"
     "                box-shadow:0 4px 12px rgba(0,0,0,0.3);\\\n"
     "                transition:all 0.2s;\\\n"
-    "            \" onmouseover=\"this.style.transform=\\'translateY(-2px)\\';this.style.boxShadow=\\'0 6px 16px rgba(0,0,0,0.4)\\'\" onmouseout=\"this.style.transform=\\'translateY(0)\\';this.style.boxShadow=\\'0 4px 12px rgba(0,0,0,0.3)\\'\">\\\n"
+    "            \" "
+    "onmouseover=\"this.style.transform=\\'translateY(-2px)\\';this.style."
+    "boxShadow=\\'0 6px 16px rgba(0,0,0,0.4)\\'\" "
+    "onmouseout=\"this.style.transform=\\'translateY(0)\\';this.style."
+    "boxShadow=\\'0 4px 12px rgba(0,0,0,0.3)\\'\">\\\n"
     "                ✓ OK\\\n"
     "            </button>\\\n"
     "        </div>\\\n"
@@ -2449,59 +2614,131 @@ static const char chess_app_js_content[] =
     "    \n"
     "    document.body.appendChild(banner);\n"
     "    endgameReportShown = true;  // ✅ Označit, že je zobrazený\n"
-    "    console.log('🏆 ENDGAME REPORT SHOWN - banner displayed (left side)');\n"
+    "    console.log('🏆 ENDGAME REPORT SHOWN - banner displayed (left "
+    "side)');\n"
     "}\n"
     "\n"
     "// Skrýt endgame report\n"
     "function hideEndgameReport() {\n"
-    "    console.log('Hiding endgame report...');\n"
     "    const banner = document.getElementById('endgame-banner');\n"
     "    if (banner) {\n"
-    "        banner.remove();  // ✅ Odstranit z DOM\n"
-    "        endgameReportShown = false;  // ✅ Resetovat flag\n"
-    "        console.log('Endgame report hidden and removed');\n"
+    "        banner.style.display = 'none';\n"
     "    }\n"
     "}\n"
     "\n"
-    "// ============================================================================\n"
+    "// Toggle endgame report visibility\n"
+    "function toggleEndgameReport() {\n"
+    "    const banner = document.getElementById('endgame-banner');\n"
+    "    if (banner) {\n"
+    "        if (banner.style.display === 'none') {\n"
+    "            banner.style.display = 'block';\n"
+    "        } else {\n"
+    "            banner.style.display = 'none';\n"
+    "        }\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "// Show toggle button (top-right corner)\n"
+    "function showEndgameToggleButton() {\n"
+    "    if (document.getElementById('endgame-toggle-btn')) return;\n"
+    "    const button = document.createElement('button');\n"
+    "    button.id = 'endgame-toggle-btn';\n"
+    "    button.textContent = '🏆 Report';\n"
+    "    button.style.cssText = `\n"
+    "        position: fixed;\n"
+    "        top: 20px;\n"
+    "        right: 20px;\n"
+    "        padding: 10px 18px;\n"
+    "        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n"
+    "        color: white;\n"
+    "        border: none;\n"
+    "        border-radius: 20px;\n"
+    "        cursor: pointer;\n"
+    "        font-weight: 600;\n"
+    "        font-size: 13px;\n"
+    "        box-shadow: 0 3px 10px rgba(0,0,0,0.3);\n"
+    "        z-index: 10000;\n"
+    "        transition: all 0.2s;\n"
+    "    `;\n"
+    "    button.onmouseover = function() { this.style.transform = "
+    "'translateY(-1px)'; this.style.boxShadow = '0 5px 15px rgba(0,0,0,0.4)'; "
+    "};\n"
+    "    button.onmouseout = function() { this.style.transform = "
+    "'translateY(0)'; this.style.boxShadow = '0 3px 10px rgba(0,0,0,0.3)'; };\n"
+    "    button.onclick = toggleEndgameReport;\n"
+    "    document.body.appendChild(button);\n"
+    "}\n"
+    "\n"
+    "// Hide toggle button\n"
+    "function hideEndgameToggleButton() {\n"
+    "    const button = document.getElementById('endgame-toggle-btn');\n"
+    "    if (button) button.remove();\n"
+    "}\n"
+    "\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// STATUS UPDATE FUNCTION\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "function updateStatus(status) {\n"
     "    statusData = status;\n"
-    "    document.getElementById('game-state').textContent = status.game_state || '-';\n"
-    "    document.getElementById('current-player').textContent = status.current_player || '-';\n"
-    "    document.getElementById('move-count').textContent = status.move_count || 0;\n"
-    "    document.getElementById('in-check').textContent = status.in_check ? 'Yes' : 'No';\n"
+    "    document.getElementById('game-state').textContent = status.game_state "
+    "|| '-';\n"
+    "    document.getElementById('current-player').textContent = "
+    "status.current_player || '-';\n"
+    "    document.getElementById('move-count').textContent = status.move_count "
+    "|| 0;\n"
+    "    document.getElementById('in-check').textContent = status.in_check ? "
+    "'Yes' : 'No';\n"
     "    \n"
     "    const lifted = status.piece_lifted;\n"
     "    if (lifted && lifted.lifted) {\n"
-    "        document.getElementById('lifted-piece').textContent = pieceSymbols[lifted.piece] || '-';\n"
-    "        document.getElementById('lifted-position').textContent = String.fromCharCode(97 + lifted.col) + (lifted.row + 1);\n"
-    "        const square = document.querySelector(`[data-row='${lifted.row}'][data-col='${lifted.col}']`);\n"
+    "        document.getElementById('lifted-piece').textContent = "
+    "pieceSymbols[lifted.piece] || '-';\n"
+    "        document.getElementById('lifted-position').textContent = "
+    "String.fromCharCode(97 + lifted.col) + (lifted.row + 1);\n"
+    "        const square = "
+    "document.querySelector(`[data-row='${lifted.row}'][data-col='${lifted.col}"
+    "']`);\n"
     "        if (square) square.classList.add('lifted');\n"
     "    } else {\n"
     "        document.getElementById('lifted-piece').textContent = '-';\n"
     "        document.getElementById('lifted-position').textContent = '-';\n"
-    "        document.querySelectorAll('.square').forEach(sq => sq.classList.remove('lifted'));\n"
+    "        document.querySelectorAll('.square').forEach(sq => "
+    "sq.classList.remove('lifted'));\n"
     "    }\n"
     "    \n"
     "    // ✅ ERROR STATE - zobrazit červenou/modrou indikaci\n"
     "    if (status.error_state && status.error_state.active) {\n"
-    "        showErrorState(status.error_state.invalid_pos, status.error_state.original_pos);\n"
+    "        showErrorState(status.error_state.invalid_pos, "
+    "status.error_state.original_pos);\n"
     "    } else {\n"
     "        // ✅ Vypnout error animaci když už není aktivní\n"
     "        clearHighlights();\n"
     "    }\n"
     "    \n"
-    "    // ✅ ENDGAME REPORT - zobrazit pouze jednou, ne při každém update\n"
-    "    if (status.game_end && status.game_end.ended && !endgameReportShown) {\n"
-    "        console.log('Game ended, showing endgame report...');\n"
-    "        showEndgameReport(status.game_end);\n"
-    "    } else if (!(status.game_end && status.game_end.ended) && endgameReportShown) {\n"
-    "        // Hra už neskončila (nová hra), skrýt report\n"
-    "        console.log('Game no longer ended, hiding report...');\n"
-    "        hideEndgameReport();\n"
+    "    // ENDGAME REPORT - zobrazit pouze jednou, pak toggle button\n"
+    "    if (status.game_end && status.game_end.ended) {\n"
+    "        window.lastGameEndData = status.game_end;\n"
+    "        \n"
+    "        if (!endgameReportShown) {\n"
+    "            console.log('Game ended, showing endgame report...');\n"
+    "            showEndgameReport(status.game_end);\n"
+    "            endgameReportShown = true;\n"
+    "        }\n"
+    "        \n"
+    "        showEndgameToggleButton();\n"
+    "    } else {\n"
+    "        if (endgameReportShown) {\n"
+    "            console.log('Game no longer ended, hiding report...');\n"
+    "            hideEndgameReport();\n"
+    "            endgameReportShown = false;\n"
+    "        }\n"
+    "        window.lastGameEndData = null;\n"
+    "        hideEndgameToggleButton();\n"
     "    }\n"
     "}\n"
     "\n"
@@ -2546,7 +2783,8 @@ static const char chess_app_js_content[] =
     "async function fetchData() {\n"
     "    if (reviewMode || sandboxMode) return;\n"
     "    try {\n"
-    "        const [boardRes, statusRes, historyRes, capturedRes] = await Promise.all([\n"
+    "        const [boardRes, statusRes, historyRes, capturedRes] = await "
+    "Promise.all([\n"
     "            fetch('/api/board'),\n"
     "            fetch('/api/status'),\n"
     "            fetch('/api/history'),\n"
@@ -2573,9 +2811,13 @@ static const char chess_app_js_content[] =
     "console.log('✅ Chess JavaScript loaded successfully!');\n"
     "console.log('⏱️ About to initialize timer system...');\n"
     "\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// TIMER SYSTEM\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "let timerData = {\n"
     "    white_time_ms: 0,\n"
@@ -2599,7 +2841,8 @@ static const char chess_app_js_content[] =
     "    const minutes = Math.floor((totalSeconds % 3600) / 60);\n"
     "    const seconds = totalSeconds % 60;\n"
     "    if (hours > 0) {\n"
-    "        return hours + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');\n"
+    "        return hours + ':' + minutes.toString().padStart(2, '0') + ':' + "
+    "seconds.toString().padStart(2, '0');\n"
     "    } else {\n"
     "        return minutes + ':' + seconds.toString().padStart(2, '0');\n"
     "    }\n"
@@ -2609,19 +2852,23 @@ static const char chess_app_js_content[] =
     "    const timeElement = document.getElementById(player + '-time');\n"
     "    const playerElement = document.getElementById(player + '-timer');\n"
     "    if (!timeElement || !playerElement) return;\n"
-    "    const isTimerActive = timerData.config && timerData.config.type !== 0;\n"
+    "    const isTimerActive = timerData.config && timerData.config.type !== "
+    "0;\n"
     "    if (isTimerActive) {\n"
     "        const formattedTime = formatTime(timeMs);\n"
     "        timeElement.textContent = formattedTime;\n"
     "        playerElement.classList.remove('low-time', 'critical-time');\n"
     "        if (timeMs < 5000) playerElement.classList.add('critical-time');\n"
-    "        else if (timeMs < 30000) playerElement.classList.add('low-time');\n"
+    "        else if (timeMs < 30000) "
+    "playerElement.classList.add('low-time');\n"
     "    } else {\n"
     "        timeElement.textContent = '--:--';\n"
-    "        playerElement.classList.remove('low-time', 'critical-time', 'active');\n"
+    "        playerElement.classList.remove('low-time', 'critical-time', "
+    "'active');\n"
     "        return;\n"
     "    }\n"
-    "    if ((player === 'white' && timerData.is_white_turn) || (player === 'black' && !timerData.is_white_turn)) {\n"
+    "    if ((player === 'white' && timerData.is_white_turn) || (player === "
+    "'black' && !timerData.is_white_turn)) {\n"
     "        playerElement.classList.add('active');\n"
     "    } else {\n"
     "        playerElement.classList.remove('active');\n"
@@ -2629,8 +2876,10 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "function updateActivePlayer(isWhiteTurn) {\n"
-    "    const whiteIndicator = document.getElementById('white-move-indicator');\n"
-    "    const blackIndicator = document.getElementById('black-move-indicator');\n"
+    "    const whiteIndicator = "
+    "document.getElementById('white-move-indicator');\n"
+    "    const blackIndicator = "
+    "document.getElementById('black-move-indicator');\n"
     "    if (whiteIndicator && blackIndicator) {\n"
     "        whiteIndicator.classList.toggle('active', isWhiteTurn);\n"
     "        blackIndicator.classList.toggle('active', !isWhiteTurn);\n"
@@ -2654,12 +2903,16 @@ static const char chess_app_js_content[] =
     "    const whiteProgress = document.getElementById('white-progress');\n"
     "    const blackProgress = document.getElementById('black-progress');\n"
     "    if (whiteProgress) {\n"
-    "        const whitePercent = (timerInfo.white_time_ms / initialTime) * 100;\n"
-    "        whiteProgress.style.width = Math.max(0, Math.min(100, whitePercent)) + '%';\n"
+    "        const whitePercent = (timerInfo.white_time_ms / initialTime) * "
+    "100;\n"
+    "        whiteProgress.style.width = Math.max(0, Math.min(100, "
+    "whitePercent)) + '%';\n"
     "    }\n"
     "    if (blackProgress) {\n"
-    "        const blackPercent = (timerInfo.black_time_ms / initialTime) * 100;\n"
-    "        blackProgress.style.width = Math.max(0, Math.min(100, blackPercent)) + '%';\n"
+    "        const blackPercent = (timerInfo.black_time_ms / initialTime) * "
+    "100;\n"
+    "        blackProgress.style.width = Math.max(0, Math.min(100, "
+    "blackPercent)) + '%';\n"
     "    }\n"
     "}\n"
     "\n"
@@ -2667,7 +2920,8 @@ static const char chess_app_js_content[] =
     "    const avgMoveTimeElement = document.getElementById('avg-move-time');\n"
     "    const totalMovesElement = document.getElementById('total-moves');\n"
     "    if (avgMoveTimeElement) {\n"
-    "        avgMoveTimeElement.textContent = timerInfo.avg_move_time_ms > 0 ? formatTime(timerInfo.avg_move_time_ms) : '-';\n"
+    "        avgMoveTimeElement.textContent = timerInfo.avg_move_time_ms > 0 ? "
+    "formatTime(timerInfo.avg_move_time_ms) : '-';\n"
     "    }\n"
     "    if (totalMovesElement) {\n"
     "        totalMovesElement.textContent = timerInfo.total_moves || 0;\n"
@@ -2675,15 +2929,19 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "function checkTimeWarnings(timerInfo) {\n"
-    "    if (!timerInfo || !timerInfo.config || timerInfo.config.type === 0) {\n"
+    "    if (!timerInfo || !timerInfo.config || timerInfo.config.type === 0) "
+    "{\n"
     "        return;\n"
     "    }\n"
-    "    const currentPlayerTime = timerInfo.is_white_turn ? timerInfo.white_time_ms : timerInfo.black_time_ms;\n"
+    "    const currentPlayerTime = timerInfo.is_white_turn ? "
+    "timerInfo.white_time_ms : timerInfo.black_time_ms;\n"
     "    if (currentPlayerTime < 5000 && !timerInfo.warning_5s_shown) {\n"
     "        showTimeWarning('Critical! Less than 5 seconds!', 'critical');\n"
-    "    } else if (currentPlayerTime < 10000 && !timerInfo.warning_10s_shown) {\n"
+    "    } else if (currentPlayerTime < 10000 && !timerInfo.warning_10s_shown) "
+    "{\n"
     "        showTimeWarning('Warning! Less than 10 seconds!', 'warning');\n"
-    "    } else if (currentPlayerTime < 30000 && !timerInfo.warning_30s_shown) {\n"
+    "    } else if (currentPlayerTime < 30000 && !timerInfo.warning_30s_shown) "
+    "{\n"
     "        showTimeWarning('Low time! Less than 30 seconds!', 'info');\n"
     "    }\n"
     "}\n"
@@ -2692,27 +2950,34 @@ static const char chess_app_js_content[] =
     "    const notification = document.createElement('div');\n"
     "    notification.className = 'time-warning ' + type;\n"
     "    notification.textContent = message;\n"
-    "    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 15px 20px; border-radius: 8px; color: white; font-weight: 600; z-index: 1000; animation: slideInRight 0.3s ease;';\n"
+    "    notification.style.cssText = 'position: fixed; top: 20px; right: "
+    "20px; padding: 15px 20px; border-radius: 8px; color: white; font-weight: "
+    "600; z-index: 1000; animation: slideInRight 0.3s ease;';\n"
     "    switch (type) {\n"
-    "        case 'critical': notification.style.background = '#F44336'; break;\n"
-    "        case 'warning': notification.style.background = '#FF9800'; break;\n"
+    "        case 'critical': notification.style.background = '#F44336'; "
+    "break;\n"
+    "        case 'warning': notification.style.background = '#FF9800'; "
+    "break;\n"
     "        case 'info': notification.style.background = '#2196F3'; break;\n"
     "    }\n"
     "    document.body.appendChild(notification);\n"
     "    setTimeout(() => {\n"
     "        notification.style.animation = 'slideOutRight 0.3s ease';\n"
     "        setTimeout(() => {\n"
-    "            if (notification.parentNode) notification.parentNode.removeChild(notification);\n"
+    "            if (notification.parentNode) "
+    "notification.parentNode.removeChild(notification);\n"
     "        }, 300);\n"
     "    }, 3000);\n"
     "}\n"
     "\n"
     "function handleTimeExpiration(timerInfo) {\n"
-    "    if (!timerInfo || !timerInfo.config || timerInfo.config.type === 0) {\n"
+    "    if (!timerInfo || !timerInfo.config || timerInfo.config.type === 0) "
+    "{\n"
     "        return;\n"
     "    }\n"
     "    const expiredPlayer = timerInfo.is_white_turn ? 'White' : 'Black';\n"
-    "    showTimeWarning('Time expired! ' + expiredPlayer + ' lost on time.', 'critical');\n"
+    "    showTimeWarning('Time expired! ' + expiredPlayer + ' lost on time.', "
+    "'critical');\n"
     "    const pauseBtn = document.getElementById('pause-timer');\n"
     "    const resumeBtn = document.getElementById('resume-timer');\n"
     "    if (pauseBtn) pauseBtn.disabled = true;\n"
@@ -2720,7 +2985,8 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "function toggleCustomSettings() {\n"
-    "    const customSettings = document.getElementById('custom-time-settings');\n"
+    "    const customSettings = "
+    "document.getElementById('custom-time-settings');\n"
     "    if (!customSettings) return;\n"
     "    if (selectedTimeControl === 14) {\n"
     "        customSettings.style.display = 'block';\n"
@@ -2736,7 +3002,8 @@ static const char chess_app_js_content[] =
     "    selectedTimeControl = parseInt(select.value);\n"
     "    toggleCustomSettings();\n"
     "    if (applyBtn) applyBtn.disabled = false;\n"
-    "    localStorage.setItem('chess_time_control', selectedTimeControl.toString());\n"
+    "    localStorage.setItem('chess_time_control', "
+    "selectedTimeControl.toString());\n"
     "}\n"
     "\n"
     "// ========== TIMER INITIALIZATION AND MAIN FUNCTIONS ==========\n"
@@ -2744,10 +3011,12 @@ static const char chess_app_js_content[] =
     "function initTimerSystem() {\n"
     "    console.log('🔵 Initializing timer system...');\n"
     "    // Check if DOM elements exist before accessing them\n"
-    "    const timeControlSelect = document.getElementById('time-control-select');\n"
+    "    const timeControlSelect = "
+    "document.getElementById('time-control-select');\n"
     "    const applyButton = document.getElementById('apply-time-control');\n"
     "    if (!timeControlSelect) {\n"
-    "        console.warn('⚠️ Timer controls not ready yet, retrying in 100ms...');\n"
+    "        console.warn('⚠️ Timer controls not ready yet, retrying in "
+    "100ms...');\n"
     "        setTimeout(() => initTimerSystem(), 100);\n"
     "        return;\n"
     "    }\n"
@@ -2769,7 +3038,8 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "function startTimerUpdateLoop() {\n"
-    "    console.log('✅ Timer update loop starting... (will update every 300ms)');\n"
+    "    console.log('✅ Timer update loop starting... (will update every "
+    "300ms)');\n"
     "    if (timerUpdateInterval) {\n"
     "        console.log('⚠️ Clearing existing timer interval');\n"
     "        clearInterval(timerUpdateInterval);\n"
@@ -2781,15 +3051,18 @@ static const char chess_app_js_content[] =
     "            console.error('❌ Timer update loop error:', error);\n"
     "        }\n"
     "    }, 200);\n"
-    "    console.log('✅ Timer interval set successfully, ID:', timerUpdateInterval);\n"
+    "    console.log('✅ Timer interval set successfully, ID:', "
+    "timerUpdateInterval);\n"
     "    // Initial immediate update\n"
     "    console.log('⏱️ Calling initial timer update...');\n"
-    "    updateTimerDisplay().catch(e => console.error('❌ Initial timer update failed:', e));\n"
+    "    updateTimerDisplay().catch(e => console.error('❌ Initial timer "
+    "update failed:', e));\n"
     "}\n"
     "\n"
     "async function updateTimerDisplay() {\n"
     "    try {\n"
-    "        console.log('⏱️ updateTimerDisplay() called, fetching /api/timer...');\n"
+    "        console.log('⏱️ updateTimerDisplay() called, fetching "
+    "/api/timer...');\n"
     "        const response = await fetch('/api/timer');\n"
     "        console.log('⏱️ /api/timer response status:', response.status);\n"
     "        if (response.ok) {\n"
@@ -2798,7 +3071,10 @@ static const char chess_app_js_content[] =
     "            // Format time for logging\n"
     "            const whiteTime = formatTime(timerInfo.white_time_ms);\n"
     "            const blackTime = formatTime(timerInfo.black_time_ms);\n"
-    "            console.log('⏱️ Timer:', timerInfo.config ? timerInfo.config.name : 'NO CONFIG', '| White:', whiteTime, '(' + timerInfo.white_time_ms + 'ms)', '| Black:', blackTime, '(' + timerInfo.black_time_ms + 'ms)');\n"
+    "            console.log('⏱️ Timer:', timerInfo.config ? "
+    "timerInfo.config.name : 'NO CONFIG', '| White:', whiteTime, '(' + "
+    "timerInfo.white_time_ms + 'ms)', '| Black:', blackTime, '(' + "
+    "timerInfo.black_time_ms + 'ms)');\n"
     "            updatePlayerTime('white', timerInfo.white_time_ms);\n"
     "            updatePlayerTime('black', timerInfo.black_time_ms);\n"
     "            updateActivePlayer(timerInfo.is_white_turn);\n"
@@ -2808,7 +3084,8 @@ static const char chess_app_js_content[] =
     "            const pauseBtn = document.getElementById('pause-timer');\n"
     "            const resumeBtn = document.getElementById('resume-timer');\n"
     "            const resetBtn = document.getElementById('reset-timer');\n"
-    "            const isTimerActive = timerInfo.config && timerInfo.config.type !== 0;\n"
+    "            const isTimerActive = timerInfo.config && "
+    "timerInfo.config.type !== 0;\n"
     "            if (pauseBtn) pauseBtn.disabled = !isTimerActive;\n"
     "            if (resumeBtn) resumeBtn.disabled = !isTimerActive;\n"
     "            if (resetBtn) resetBtn.disabled = !isTimerActive;\n"
@@ -2828,14 +3105,19 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "async function applyTimeControl() {\n"
-    "    const timeControlSelect = document.getElementById('time-control-select');\n"
+    "    const timeControlSelect = "
+    "document.getElementById('time-control-select');\n"
     "    const timeControlType = parseInt(timeControlSelect.value);\n"
     "    let config = { type: timeControlType };\n"
     "    if (timeControlType === 14) {\n"
-    "        const minutes = parseInt(document.getElementById('custom-minutes').value);\n"
-    "        const increment = parseInt(document.getElementById('custom-increment').value);\n"
-    "        if (minutes < 1 || minutes > 180) { alert('Minutes must be between 1 and 180'); return; }\n"
-    "        if (increment < 0 || increment > 60) { alert('Increment must be between 0 and 60 seconds'); return; }\n"
+    "        const minutes = "
+    "parseInt(document.getElementById('custom-minutes').value);\n"
+    "        const increment = "
+    "parseInt(document.getElementById('custom-increment').value);\n"
+    "        if (minutes < 1 || minutes > 180) { alert('Minutes must be "
+    "between 1 and 180'); return; }\n"
+    "        if (increment < 0 || increment > 60) { alert('Increment must be "
+    "between 0 and 60 seconds'); return; }\n"
     "        config.custom_minutes = minutes;\n"
     "        config.custom_increment = increment;\n"
     "    }\n"
@@ -2857,22 +3139,27 @@ static const char chess_app_js_content[] =
     "                await new Promise(resolve => setTimeout(resolve, 300));\n"
     "            }\n"
     "            showTimeWarning('Time control applied!', 'info');\n"
-    "            const applyBtn = document.getElementById('apply-time-control');\n"
+    "            const applyBtn = "
+    "document.getElementById('apply-time-control');\n"
     "            if (applyBtn) applyBtn.disabled = true;\n"
     "        } else {\n"
     "            const errorText = await response.text();\n"
-    "            console.error('Failed to apply time control:', response.status, errorText);\n"
-    "            throw new Error('Failed to apply time control: ' + errorText);\n"
+    "            console.error('Failed to apply time control:', "
+    "response.status, errorText);\n"
+    "            throw new Error('Failed to apply time control: ' + "
+    "errorText);\n"
     "        }\n"
     "    } catch (error) {\n"
     "        console.error('Error applying time control:', error);\n"
-    "        showTimeWarning('Error setting time control: ' + error.message, 'critical');\n"
+    "        showTimeWarning('Error setting time control: ' + error.message, "
+    "'critical');\n"
     "    }\n"
     "}\n"
     "\n"
     "async function pauseTimer() {\n"
     "    try {\n"
-    "        const response = await fetch('/api/timer/pause', { method: 'POST' });\n"
+    "        const response = await fetch('/api/timer/pause', { method: 'POST' "
+    "});\n"
     "        if (response.ok) {\n"
     "            const pauseBtn = document.getElementById('pause-timer');\n"
     "            const resumeBtn = document.getElementById('resume-timer');\n"
@@ -2887,7 +3174,8 @@ static const char chess_app_js_content[] =
     "\n"
     "async function resumeTimer() {\n"
     "    try {\n"
-    "        const response = await fetch('/api/timer/resume', { method: 'POST' });\n"
+    "        const response = await fetch('/api/timer/resume', { method: "
+    "'POST' });\n"
     "        if (response.ok) {\n"
     "            const pauseBtn = document.getElementById('pause-timer');\n"
     "            const resumeBtn = document.getElementById('resume-timer');\n"
@@ -2903,7 +3191,8 @@ static const char chess_app_js_content[] =
     "async function resetTimer() {\n"
     "    if (confirm('Really reset timer?')) {\n"
     "        try {\n"
-    "            const response = await fetch('/api/timer/reset', { method: 'POST' });\n"
+    "            const response = await fetch('/api/timer/reset', { method: "
+    "'POST' });\n"
     "            if (response.ok) {\n"
     "                showTimeWarning('Timer reset', 'info');\n"
     "                console.log('✅ Timer reset successfully');\n"
@@ -2924,7 +3213,8 @@ static const char chess_app_js_content[] =
     "window.hideEndgameReport = hideEndgameReport;\n"
     "\n"
     "// Initialize timer system immediately (will retry if DOM not ready)\n"
-    "console.log('⏱️ Exposing timer functions and calling initTimerSystem()...');\n"
+    "console.log('⏱️ Exposing timer functions and calling "
+    "initTimerSystem()...');\n"
     "try {\n"
     "    initTimerSystem();\n"
     "    console.log('✅ initTimerSystem() called successfully');\n"
@@ -2933,9 +3223,13 @@ static const char chess_app_js_content[] =
     "    console.error('Stack:', error.stack);\n"
     "}\n"
     "\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// KEYBOARD SHORTCUTS AND EVENT HANDLERS\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "document.addEventListener('keydown', (e) => {\n"
     "    if (e.key === 'Escape') {\n"
@@ -2953,13 +3247,15 @@ static const char chess_app_js_content[] =
     "            e.preventDefault();\n"
     "            if (reviewMode && currentReviewIndex > 0) {\n"
     "                enterReviewMode(currentReviewIndex - 1);\n"
-    "            } else if (!reviewMode && !sandboxMode && historyData.length > 0) {\n"
+    "            } else if (!reviewMode && !sandboxMode && historyData.length "
+    "> 0) {\n"
     "                enterReviewMode(historyData.length - 1);\n"
     "            }\n"
     "            break;\n"
     "        case 'ArrowRight':\n"
     "            e.preventDefault();\n"
-    "            if (reviewMode && currentReviewIndex < historyData.length - 1) {\n"
+    "            if (reviewMode && currentReviewIndex < historyData.length - "
+    "1) {\n"
     "                enterReviewMode(currentReviewIndex + 1);\n"
     "            }\n"
     "            break;\n"
@@ -2968,15 +3264,20 @@ static const char chess_app_js_content[] =
     "\n"
     "// Click outside to deselect\n"
     "document.addEventListener('click', (e) => {\n"
-    "    if (!e.target.closest('.square') && !e.target.closest('.history-item')) {\n"
+    "    if (!e.target.closest('.square') && "
+    "!e.target.closest('.history-item')) {\n"
     "        if (!reviewMode) {\n"
     "            clearHighlights();        }\n"
     "    }\n"
     "});\n"
     "\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// WIFI FUNCTIONS\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "console.log('📡 WiFi functions loading...');\n"
     "\n"
@@ -2995,7 +3296,8 @@ static const char chess_app_js_content[] =
     "        return;\n"
     "    }\n"
     "    if (ssid.length > 32) {\n"
-    "        alert('❌ SSID must be 1-32 characters (current: ' + ssid.length + ')');\n"
+    "        alert('❌ SSID must be 1-32 characters (current: ' + ssid.length "
+    "+ ')');\n"
     "        return;\n"
     "    }\n"
     "    \n"
@@ -3005,7 +3307,8 @@ static const char chess_app_js_content[] =
     "        return;\n"
     "    }\n"
     "    if (password.length > 64) {\n"
-    "        alert('❌ Password must be 1-64 characters (current: ' + password.length + ')');\n"
+    "        alert('❌ Password must be 1-64 characters (current: ' + "
+    "password.length + ')');\n"
     "        return;\n"
     "    }\n"
     "    try {\n"
@@ -3014,16 +3317,18 @@ static const char chess_app_js_content[] =
     "            headers: {'Content-Type': 'application/json'},\n"
     "            body: JSON.stringify({ssid: ssid, password: password})\n"
     "        });\n"
-        "                const data = await response.json();\n"
-        "        if (data.success) {\n"
-        "            alert('✅ WiFi config saved. Now press \"Connect STA\".');\n"
-        "            // Resetovat config loaded flag, aby se nova konfigurace zobrazila v polich\n"
-        "            wifiConfigLoaded = false;\n"
-        "            // Aktualizovat status po kratke dobe, aby se nova konfigurace zobrazila a tlacitka se aktualizovala\n"
-        "            setTimeout(updateWiFiStatus, 500);\n"
-        "        } else {\n"
-        "            alert('❌ Failed to save WiFi config: ' + data.message);\n"
-        "        }\n"
+    "                const data = await response.json();\n"
+    "        if (data.success) {\n"
+    "            alert('✅ WiFi config saved. Now press \"Connect STA\".');\n"
+    "            // Resetovat config loaded flag, aby se nova konfigurace "
+    "zobrazila v polich\n"
+    "            wifiConfigLoaded = false;\n"
+    "            // Aktualizovat status po kratke dobe, aby se nova "
+    "konfigurace zobrazila a tlacitka se aktualizovala\n"
+    "            setTimeout(updateWiFiStatus, 500);\n"
+    "        } else {\n"
+    "            alert('❌ Failed to save WiFi config: ' + data.message);\n"
+    "        }\n"
     "    } catch (error) {\n"
     "        alert('Error: ' + error.message);\n"
     "    }\n"
@@ -3031,18 +3336,19 @@ static const char chess_app_js_content[] =
     "\n"
     "async function connectSTA() {\n"
     "    try {\n"
-    "        const response = await fetch('/api/wifi/connect', {method: 'POST'});\n"
+    "        const response = await fetch('/api/wifi/connect', {method: "
+    "'POST'});\n"
     "                const data = await response.json();\n"
-        "        if (data.success) {\n"
-        "            alert('✅ Connecting to WiFi... Please wait.');\n"
-        "            // Aktualizovat status a stav tlacitek po kratke dobe\n"
-        "            setTimeout(updateWiFiStatus, 2000);\n"
-        "            setTimeout(updateWiFiStatus, 5000);\n"
-        "        } else {\n"
-        "            alert('❌ Failed to connect: ' + data.message);\n"
-        "            // Aktualizovat status a stav tlacitek\n"
-        "            updateWiFiStatus();\n"
-        "        }\n"
+    "        if (data.success) {\n"
+    "            alert('✅ Connecting to WiFi... Please wait.');\n"
+    "            // Aktualizovat status a stav tlacitek po kratke dobe\n"
+    "            setTimeout(updateWiFiStatus, 2000);\n"
+    "            setTimeout(updateWiFiStatus, 5000);\n"
+    "        } else {\n"
+    "            alert('❌ Failed to connect: ' + data.message);\n"
+    "            // Aktualizovat status a stav tlacitek\n"
+    "            updateWiFiStatus();\n"
+    "        }\n"
     "    } catch (error) {\n"
     "        alert('Error: ' + error.message);\n"
     "    }\n"
@@ -3050,37 +3356,42 @@ static const char chess_app_js_content[] =
     "\n"
     "async function disconnectSTA() {\n"
     "    try {\n"
-    "        const response = await fetch('/api/wifi/disconnect', {method: 'POST'});\n"
+    "        const response = await fetch('/api/wifi/disconnect', {method: "
+    "'POST'});\n"
     "        const data = await response.json();\n"
-        "        if (data.success) {\n"
-        "            alert('Disconnected from WiFi');\n"
-        "            // Aktualizovat status a stav tlacitek\n"
-        "            setTimeout(updateWiFiStatus, 1000);\n"
-        "        } else {\n"
-        "            alert('Failed to disconnect: ' + data.message);\n"
-        "            // Aktualizovat status a stav tlacitek\n"
-        "            updateWiFiStatus();\n"
-        "        }\n"
+    "        if (data.success) {\n"
+    "            alert('Disconnected from WiFi');\n"
+    "            // Aktualizovat status a stav tlacitek\n"
+    "            setTimeout(updateWiFiStatus, 1000);\n"
+    "        } else {\n"
+    "            alert('Failed to disconnect: ' + data.message);\n"
+    "            // Aktualizovat status a stav tlacitek\n"
+    "            updateWiFiStatus();\n"
+    "        }\n"
     "    } catch (error) {\n"
     "        alert('Error: ' + error.message);\n"
     "    }\n"
     "}\n"
     "\n"
     "async function clearWiFiConfig() {\n"
-    "    if (!confirm('Are you sure you want to clear WiFi configuration? This will remove saved SSID and password.')) {\n"
+    "    if (!confirm('Are you sure you want to clear WiFi configuration? This "
+    "will remove saved SSID and password.')) {\n"
     "        return;\n"
     "    }\n"
     "    try {\n"
-    "        const response = await fetch('/api/wifi/clear', {method: 'POST'});\n"
+    "        const response = await fetch('/api/wifi/clear', {method: "
+    "'POST'});\n"
     "        const data = await response.json();\n"
     "        if (data.success) {\n"
     "            alert('✅ WiFi configuration cleared');\n"
-    "            // Resetovat config loaded flag (ale NERESETOVAT editing flagy - uzivatel muze prave editovat)\n"
+    "            // Resetovat config loaded flag (ale NERESETOVAT editing "
+    "flagy - uzivatel muze prave editovat)\n"
     "            wifiConfigLoaded = false;\n"
     "            \n"
     "            // Vymazat pole a zajistit, ze jsou editovatelna\n"
     "            const ssidInput = document.getElementById('wifi-ssid');\n"
-    "            const passwordInput = document.getElementById('wifi-password');\n"
+    "            const passwordInput = "
+    "document.getElementById('wifi-password');\n"
     "            \n"
     "            if (ssidInput) {\n"
     "                // Vymazat pouze pokud uzivatel prave needituje\n"
@@ -3106,7 +3417,8 @@ static const char chess_app_js_content[] =
     "                passwordInput.style.userSelect = 'text';\n"
     "            }\n"
     "            \n"
-    "            // Aktualizovat status po kratke dobe (ale ne prepisovat pole pokud uzivatel edituje)\n"
+    "            // Aktualizovat status po kratke dobe (ale ne prepisovat pole "
+    "pokud uzivatel edituje)\n"
     "            setTimeout(updateWiFiStatus, 500);\n"
     "        } else {\n"
     "            alert('❌ Failed to clear WiFi config: ' + data.message);\n"
@@ -3118,34 +3430,48 @@ static const char chess_app_js_content[] =
     "\n"
     "// Flag pro sledovani, zda uzivatel prave edituje input pole\n"
     "let wifiInputEditing = {ssid: false, password: false};\n"
-    "let wifiConfigLoaded = false; // Flag pro jednorazove nacteni konfigurace\n"
+    "let wifiConfigLoaded = false; // Flag pro jednorazove nacteni "
+    "konfigurace\n"
     "\n"
     "async function updateWiFiStatus() {\n"
     "    try {\n"
     "        const response = await fetch('/api/wifi/status');\n"
     "        const data = await response.json();\n"
-    "        document.getElementById('ap-ssid').textContent = data.ap_ssid || 'ESP32-CzechMate';\n"
-    "        document.getElementById('ap-ip').textContent = data.ap_ip || '192.168.4.1';\n"
-    "        document.getElementById('ap-clients').textContent = data.ap_clients || 0;\n"
-    "        document.getElementById('sta-ssid').textContent = data.sta_ssid || 'Not configured';\n"
-    "        document.getElementById('sta-ip').textContent = data.sta_ip || 'Not connected';\n"
-    "        document.getElementById('sta-connected').textContent = data.sta_connected ? 'true' : 'false';\n"
+    "        document.getElementById('ap-ssid').textContent = data.ap_ssid || "
+    "'ESP32-CzechMate';\n"
+    "        document.getElementById('ap-ip').textContent = data.ap_ip || "
+    "'192.168.4.1';\n"
+    "        document.getElementById('ap-clients').textContent = "
+    "data.ap_clients || 0;\n"
+    "        document.getElementById('sta-ssid').textContent = data.sta_ssid "
+    "|| 'Not configured';\n"
+    "        document.getElementById('sta-ip').textContent = data.sta_ip || "
+    "'Not connected';\n"
+    "        document.getElementById('sta-connected').textContent = "
+    "data.sta_connected ? 'true' : 'false';\n"
     "        \n"
     "        // Aktualizovat Web Status\n"
     "        const lockStatusEl = document.getElementById('web-lock-status');\n"
-    "        const onlineStatusEl = document.getElementById('web-online-status');\n"
+    "        const onlineStatusEl = "
+    "document.getElementById('web-online-status');\n"
     "        if (lockStatusEl) {\n"
-    "            lockStatusEl.textContent = data.locked ? '🔒 Locked' : '🔓 Unlocked';\n"
-    "            lockStatusEl.style.color = data.locked ? '#f44336' : '#4CAF50';\n"
+    "            lockStatusEl.textContent = data.locked ? '🔒 Locked' : '🔓 "
+    "Unlocked';\n"
+    "            lockStatusEl.style.color = data.locked ? '#f44336' : "
+    "'#4CAF50';\n"
     "        }\n"
     "        if (onlineStatusEl) {\n"
-    "            onlineStatusEl.textContent = data.online ? '🟢 Online' : '🔴 Offline';\n"
-    "            onlineStatusEl.style.color = data.online ? '#4CAF50' : '#f44336';\n"
+    "            onlineStatusEl.textContent = data.online ? '🟢 Online' : '🔴 "
+    "Offline';\n"
+    "            onlineStatusEl.style.color = data.online ? '#4CAF50' : "
+    "'#f44336';\n"
     "        }\n"
     "        \n"
     "        // Disable tlačítka timer a WiFi při lock\n"
     "        if (data.locked) {\n"
-    "            const timerBtns = document.querySelectorAll('#time-control-select, #pause-timer, #resume-timer, #reset-timer');\n"
+    "            const timerBtns = "
+    "document.querySelectorAll('#time-control-select, #pause-timer, "
+    "#resume-timer, #reset-timer');\n"
     "            timerBtns.forEach(btn => {\n"
     "                if (btn) {\n"
     "                    btn.disabled = true;\n"
@@ -3153,7 +3479,8 @@ static const char chess_app_js_content[] =
     "                    btn.style.cursor = 'not-allowed';\n"
     "                }\n"
     "            });\n"
-    "            const wifiBtns = document.querySelectorAll('#wifi-save-btn, #wifi-connect-btn, #wifi-disconnect-btn, #wifi-clear-btn');\n"
+    "            const wifiBtns = document.querySelectorAll('#wifi-save-btn, "
+    "#wifi-connect-btn, #wifi-disconnect-btn, #wifi-clear-btn');\n"
     "            wifiBtns.forEach(btn => {\n"
     "                if (btn) {\n"
     "                    btn.disabled = true;\n"
@@ -3163,7 +3490,9 @@ static const char chess_app_js_content[] =
     "            });\n"
     "        } else {\n"
     "            // Enable tlačítka když není lock\n"
-    "            const timerBtns = document.querySelectorAll('#time-control-select, #pause-timer, #resume-timer, #reset-timer');\n"
+    "            const timerBtns = "
+    "document.querySelectorAll('#time-control-select, #pause-timer, "
+    "#resume-timer, #reset-timer');\n"
     "            timerBtns.forEach(btn => {\n"
     "                if (btn) {\n"
     "                    btn.disabled = false;\n"
@@ -3182,7 +3511,8 @@ static const char chess_app_js_content[] =
     "        if (ssidInput && !wifiInputEditing.ssid) {\n"
     "            if (data.sta_ssid && data.sta_ssid !== 'Not configured') {\n"
     "                // Prepisovat pouze pokud:\n"
-    "                // 1. Konfigurace jeste nebyla nactena (!wifiConfigLoaded) NEBO pole je prazdne\n"
+    "                // 1. Konfigurace jeste nebyla nactena "
+    "(!wifiConfigLoaded) NEBO pole je prazdne\n"
     "                // 2. A uzivatel prave needituje (kontrola je vyse)\n"
     "                // 3. A v NVS je konfigurace (kontrola je vyse)\n"
     "                if (!wifiConfigLoaded || ssidInput.value === '') {\n"
@@ -3190,10 +3520,12 @@ static const char chess_app_js_content[] =
     "                    wifiConfigLoaded = true;\n"
     "                }\n"
     "            }\n"
-    "            // Pokud neni konfigurace, NEPREPISOVAT pole - uzivatel muze psat novou konfiguraci\n"
+    "            // Pokud neni konfigurace, NEPREPISOVAT pole - uzivatel muze "
+    "psat novou konfiguraci\n"
     "        }\n"
     "        \n"
-    "        // Password pole: NIKDY neprepisujeme automaticky - uzivatel musi zadat ručně\n"
+    "        // Password pole: NIKDY neprepisujeme automaticky - uzivatel musi "
+    "zadat ručně\n"
     "        // (z bezpecnostnich duvodu a pro lepsi UX)\n"
     "        \n"
     "        // Aktualizovat stav tlacitek podle konfigurace\n"
@@ -3206,14 +3538,17 @@ static const char chess_app_js_content[] =
     "// Funkce pro aktualizaci stavu WiFi tlacitek podle konfigurace\n"
     "function updateWiFiButtonsState(data) {\n"
     "    const connectBtn = document.getElementById('wifi-connect-btn');\n"
-    "    const disconnectBtn = document.getElementById('wifi-disconnect-btn');\n"
+    "    const disconnectBtn = "
+    "document.getElementById('wifi-disconnect-btn');\n"
     "    const saveBtn = document.getElementById('wifi-save-btn');\n"
     "    \n"
     "    // Zjistit, zda je konfigurace ulozena v NVS\n"
-    "    const hasConfig = data.sta_ssid && data.sta_ssid !== 'Not configured';\n"
+    "    const hasConfig = data.sta_ssid && data.sta_ssid !== 'Not "
+    "configured';\n"
     "    const isConnected = data.sta_connected === true;\n"
     "    \n"
-    "    // Connect STA: enable pouze pokud je konfigurace ulozena a neni pripojeno\n"
+    "    // Connect STA: enable pouze pokud je konfigurace ulozena a neni "
+    "pripojeno\n"
     "    if (connectBtn) {\n"
     "        if (hasConfig && !isConnected) {\n"
     "            connectBtn.disabled = false;\n"
@@ -3252,20 +3587,24 @@ static const char chess_app_js_content[] =
     "window.saveWiFiConfig = saveWiFiConfig;\n"
     "window.connectSTA = connectSTA;\n"
     "window.disconnectSTA = disconnectSTA;\n"
-    "console.log('✅ WiFi functions exposed:', typeof window.saveWiFiConfig, typeof window.connectSTA, typeof window.disconnectSTA);\n"
-    "console.log('✅ WiFi clear function available:', typeof clearWiFiConfig);\n"
+    "console.log('✅ WiFi functions exposed:', typeof window.saveWiFiConfig, "
+    "typeof window.connectSTA, typeof window.disconnectSTA);\n"
+    "console.log('✅ WiFi clear function available:', typeof "
+    "clearWiFiConfig);\n"
     "\n"
     "// Attach event listeners to WiFi buttons and input fields\n"
     "function attachWiFiEventListeners() {\n"
     "    console.log('📡 Attaching WiFi event listeners...');\n"
     "    const saveBtn = document.getElementById('wifi-save-btn');\n"
     "    const connectBtn = document.getElementById('wifi-connect-btn');\n"
-    "    const disconnectBtn = document.getElementById('wifi-disconnect-btn');\n"
+    "    const disconnectBtn = "
+    "document.getElementById('wifi-disconnect-btn');\n"
     "    const clearBtn = document.getElementById('wifi-clear-btn');\n"
     "    const ssidInput = document.getElementById('wifi-ssid');\n"
     "    const passwordInput = document.getElementById('wifi-password');\n"
     "    \n"
-    "    // Event listenery pro input pole - zabranuji automatickemu prepisovani behem editace\n"
+    "    // Event listenery pro input pole - zabranuji automatickemu "
+    "prepisovani behem editace\n"
     "    if (ssidInput) {\n"
     "        ssidInput.addEventListener('focus', function() {\n"
     "            wifiInputEditing.ssid = true;\n"
@@ -3335,14 +3674,19 @@ static const char chess_app_js_content[] =
     "    if (wifiStatusInterval) {\n"
     "        clearInterval(wifiStatusInterval);\n"
     "    }\n"
-    "    // Initial update je jiz volano v initWiFiSystem(), takze zde jen nastavit interval\n"
+    "    // Initial update je jiz volano v initWiFiSystem(), takze zde jen "
+    "nastavit interval\n"
     "    // Update every 5 seconds\n"
     "    wifiStatusInterval = setInterval(updateWiFiStatus, 5000);\n"
     "}\n"
     "\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "// SCREENSAVER FUNCTIONS\n"
-    "// ============================================================================\n"
+    "// "
+    "=========================================================================="
+    "==\n"
     "\n"
     "async function toggleScreensaver() {\n"
     "    const btn = document.getElementById('screensaver-btn');\n"
@@ -3360,51 +3704,15 @@ static const char chess_app_js_content[] =
     "    } catch(e) { console.error(e); }\n"
     "}\n"
     "\n"
-    "async function updateScreensaverStatus() {\n"
-    "    try {\n"
-    "        const res = await fetch('/api/demo/status');\n"
-    "        const data = await res.json();\n"
-    "        const btn = document.getElementById('screensaver-btn');\n"
-    "        if (btn) {\n"
-    "            if (data.enabled) {\n"
-    "                btn.classList.add('active');\n"
-    "                btn.textContent = '🛑 Stop Screensaver';\n"
-    "                btn.style.background = '#f44336';\n"
-    "                btn.style.boxShadow = '0 0 15px rgba(244, 67, 54, 0.5)';\n"
-    "            } else {\n"
-    "                btn.classList.remove('active');\n"
-    "                btn.textContent = '🎬 Start Screensaver';\n"
-    "                btn.style.background = '#4CAF50';\n"
-    "                btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';\n"
-    "            }\n"
-    "        }\n"
-    "    } catch(e) {}\n"
-    "}\n"
-    "\n"
-    "function initScreensaver() {\n"
-    "    // Create button if not exists\n"
-    "    if (!document.getElementById('screensaver-btn')) {\n"
-    "        const btn = document.createElement('button');\n"
-    "        btn.id = 'screensaver-btn';\n"
-    "        btn.textContent = '🎬 Start Screensaver';\n"
-    "        btn.onclick = toggleScreensaver;\n"
-    "        btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:1000;padding:12px 24px;border-radius:30px;border:none;background:#4CAF50;color:white;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.3);cursor:pointer;transition:all 0.3s;font-family:inherit;font-size:14px;display:flex;align-items:center;gap:8px;';\n"
-    "        btn.onmouseover = function() { this.style.transform = 'translateY(-2px)'; };\n"
-    "        btn.onmouseout = function() { this.style.transform = 'translateY(0)'; };\n"
-    "        document.body.appendChild(btn);\n"
-    "    }\n"
-    "    updateScreensaverStatus();\n"
-    "    setInterval(updateScreensaverStatus, 5000);\n"
-    "}\n"
-    "\n"
+
     "// Initialize WiFi system when DOM is ready\n"
     "function initWiFiSystem() {\n"
     "    console.log('📡 Initializing WiFi system...');\n"
     "    attachWiFiEventListeners();\n"
-    "    // Zavolat updateWiFiStatus() ihned pro nacteni konfigurace z NVS a zobrazeni v polich\n"
+    "    // Zavolat updateWiFiStatus() ihned pro nacteni konfigurace z NVS a "
+    "zobrazeni v polich\n"
     "    updateWiFiStatus();\n"
     "    startWiFiStatusUpdateLoop();\n"
-    "    initScreensaver(); // Initialize Screensaver UI\n"
     "    console.log('✅ WiFi system initialized');\n"
     "}\n"
     "\n"
@@ -3418,22 +3726,23 @@ static const char chess_app_js_content[] =
     "\n"
     "";
 
-static esp_err_t http_get_chess_js_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /chess_app.js (%zu bytes)", strlen(chess_app_js_content));
-    httpd_resp_set_type(req, "application/javascript; charset=utf-8");
-    // Cache-busting: no-cache zajisti, ze se JavaScript vzdy nacte cerstvy
-    httpd_resp_set_hdr(req, "Cache-Control", "no-cache, no-store, must-revalidate");
-    httpd_resp_set_hdr(req, "Pragma", "no-cache");
-    httpd_resp_set_hdr(req, "Expires", "0");
-    httpd_resp_send(req, chess_app_js_content, strlen(chess_app_js_content));
-    return ESP_OK;
+static esp_err_t http_get_chess_js_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /chess_app.js (%zu bytes)", strlen(chess_app_js_content));
+  httpd_resp_set_type(req, "application/javascript; charset=utf-8");
+  // Cache-busting: no-cache zajisti, ze se JavaScript vzdy nacte cerstvy
+  httpd_resp_set_hdr(req, "Cache-Control",
+                     "no-cache, no-store, must-revalidate");
+  httpd_resp_set_hdr(req, "Pragma", "no-cache");
+  httpd_resp_set_hdr(req, "Expires", "0");
+  httpd_resp_send(req, chess_app_js_content, strlen(chess_app_js_content));
+  return ESP_OK;
 }
 // ============================================================================
 
 static const char test_html[] =
     "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Timer Test</title>"
-    "<style>body{background:#1a1a1a;color:white;padding:20px;font-family:Arial;}"
+    "<style>body{background:#1a1a1a;color:white;padding:20px;font-family:Arial;"
+    "}"
     ".timer{background:#333;padding:20px;margin:10px;border-radius:8px;}"
     "button{padding:10px 20px;margin:5px;cursor:pointer;}</style></head><body>"
     "<h1>Timer Test</h1><div class='timer'>"
@@ -3446,30 +3755,53 @@ static const char test_html[] =
     "<div><button onclick='pauseTimer()'>Pause</button>"
     "<button onclick='resumeTimer()'>Resume</button>"
     "<button onclick='resetTimer()'>Reset</button></div>"
-    "<div id='log' style='background:#222;padding:10px;margin-top:20px;max-height:200px;overflow-y:auto;'></div>"
+    "<div id='log' "
+    "style='background:#222;padding:10px;margin-top:20px;max-height:200px;"
+    "overflow-y:auto;'></div>"
     "<script>"
-    "function log(m){const d=document.getElementById('log');d.innerHTML+='<div>'+new Date().toLocaleTimeString()+': '+m+'</div>';d.scrollTop=d.scrollHeight;}"
+    "function log(m){const "
+    "d=document.getElementById('log');d.innerHTML+='<div>'+new "
+    "Date().toLocaleTimeString()+': '+m+'</div>';d.scrollTop=d.scrollHeight;}"
     "log('Script loaded');"
-    "function formatTime(ms){const s=Math.ceil(ms/1000);const m=Math.floor(s/60);const sec=s%60;return m+':'+sec.toString().padStart(2,'0');}"
-    "async function updateTimer(){try{const res=await fetch('/api/timer');if(res.ok){const data=await res.json();"
-    "document.getElementById('white-time').textContent=formatTime(data.white_time_ms);"
-    "document.getElementById('black-time').textContent=formatTime(data.black_time_ms);"
-    "log('W='+data.white_time_ms+' B='+data.black_time_ms);}else{log('ERROR: '+res.status);}}catch(e){log('ERROR: '+e.message);}}"
-    "async function applyTime(){const type=parseInt(document.getElementById('time-control').value);log('Apply type='+type);try{"
-    "const res=await fetch('/api/timer/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:type})});"
-    "if(res.ok){log('OK');setTimeout(updateTimer,500);}else{log('ERROR: '+res.status+' '+(await res.text()));}}catch(e){log('ERROR: '+e.message);}}"
-    "async function pauseTimer(){log('Pause');try{const res=await fetch('/api/timer/pause',{method:'POST'});log(res.ok?'OK':'ERROR: '+res.status);}catch(e){log('ERROR: '+e.message);}}"
-    "async function resumeTimer(){log('Resume');try{const res=await fetch('/api/timer/resume',{method:'POST'});log(res.ok?'OK':'ERROR: '+res.status);}catch(e){log('ERROR: '+e.message);}}"
-    "async function resetTimer(){log('Reset');try{const res=await fetch('/api/timer/reset',{method:'POST'});log(res.ok?'OK':'ERROR: '+res.status);setTimeout(updateTimer,500);}catch(e){log('ERROR: '+e.message);}}"
+    "function formatTime(ms){const s=Math.ceil(ms/1000);const "
+    "m=Math.floor(s/60);const sec=s%60;return "
+    "m+':'+sec.toString().padStart(2,'0');}"
+    "async function updateTimer(){try{const res=await "
+    "fetch('/api/timer');if(res.ok){const data=await res.json();"
+    "document.getElementById('white-time').textContent=formatTime(data.white_"
+    "time_ms);"
+    "document.getElementById('black-time').textContent=formatTime(data.black_"
+    "time_ms);"
+    "log('W='+data.white_time_ms+' B='+data.black_time_ms);}else{log('ERROR: "
+    "'+res.status);}}catch(e){log('ERROR: '+e.message);}}"
+    "async function applyTime(){const "
+    "type=parseInt(document.getElementById('time-control').value);log('Apply "
+    "type='+type);try{"
+    "const res=await "
+    "fetch('/api/timer/"
+    "config',{method:'POST',headers:{'Content-Type':'application/"
+    "json'},body:JSON.stringify({type:type})});"
+    "if(res.ok){log('OK');setTimeout(updateTimer,500);}else{log('ERROR: "
+    "'+res.status+' '+(await res.text()));}}catch(e){log('ERROR: "
+    "'+e.message);}}"
+    "async function pauseTimer(){log('Pause');try{const res=await "
+    "fetch('/api/timer/pause',{method:'POST'});log(res.ok?'OK':'ERROR: "
+    "'+res.status);}catch(e){log('ERROR: '+e.message);}}"
+    "async function resumeTimer(){log('Resume');try{const res=await "
+    "fetch('/api/timer/resume',{method:'POST'});log(res.ok?'OK':'ERROR: "
+    "'+res.status);}catch(e){log('ERROR: '+e.message);}}"
+    "async function resetTimer(){log('Reset');try{const res=await "
+    "fetch('/api/timer/reset',{method:'POST'});log(res.ok?'OK':'ERROR: "
+    "'+res.status);setTimeout(updateTimer,500);}catch(e){log('ERROR: "
+    "'+e.message);}}"
     "log('Starting updates');setInterval(updateTimer,300);updateTimer();"
     "</script></body></html>";
 
-static esp_err_t http_get_test_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET /test - minimal timer test page");
-    httpd_resp_set_type(req, "text/html; charset=utf-8");
-    httpd_resp_send(req, test_html, HTTPD_RESP_USE_STRLEN);
-    return ESP_OK;
+static esp_err_t http_get_test_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /test - minimal timer test page");
+  httpd_resp_set_type(req, "text/html; charset=utf-8");
+  httpd_resp_send(req, test_html, HTTPD_RESP_USE_STRLEN);
+  return ESP_OK;
 }
 
 // ============================================================================
@@ -3482,761 +3814,883 @@ static esp_err_t http_get_test_handler(httpd_req_t *req)
 
 // Chunk 1: HTML head with bootstrap script and CSS
 static const char html_chunk_head[] =
-        // HTML head and initial structure
-        "<!DOCTYPE html>"
-        "<html lang='en'>"
-        "<head>"
-            "<meta charset='UTF-8'>"
-            "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
-            "<title>ESP32 Chess</title>"
+    // HTML head and initial structure
+    "<!DOCTYPE html>"
+    "<html lang='en'>"
+    "<head>"
+    "<meta charset='UTF-8'>"
+    "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
+    "<title>ESP32 Chess</title>"
 
-        // Early bootstrap to avoid 'is not defined' before main script loads
-        "<script>"
-            "window.changeTimeControl = window.changeTimeControl || function(){};"
-            "window.applyTimeControl = window.applyTimeControl || function(){};"
-            "window.pauseTimer = window.pauseTimer || function(){};"
-            "window.resumeTimer = window.resumeTimer || function(){};"
-            "window.resetTimer = window.resetTimer || function(){};"
-            "window.hideEndgameReport = window.hideEndgameReport || function(){};"
-        "</script>"
-        // Global JS error capture to surface syntax/runtime errors visibly
-        "<script>"
-            "(function(){"
-                "function showJsError(msg, src, line, col){"
-                    "try {"
-                        "var b=document.body||document.documentElement;"
-                        "var d=document.getElementById('js-error')||document.createElement('pre');"
-                        "d.id='js-error';"
-                        "d.style.cssText='position:fixed;left:6px;bottom:6px;right:6px;max-height:40vh;overflow:auto;background:#300;color:#fff;border:1px solid #900;padding:8px;margin:0;z-index:99999;font:12px/1.4 monospace;white-space:pre-wrap;';"
-                        "d.textContent='JS ERROR: '+msg+'\nSource: '+(src||'-')+'\nLine: '+line+':'+col;"
-                        "b&&b.appendChild(d);"
-                    "} catch(e) {}"
-                "}"
-                "window.addEventListener('error', function(e){ showJsError(e.message, e.filename, e.lineno, e.colno); });"
-                "window.addEventListener('unhandledrejection', function(e){ showJsError('Unhandled promise rejection: '+e.reason, '', 0, 0); });"
-            "})();"
-        "</script>"
-        
-        // CSS styles - part 1
-        "<style>"
-            "* { margin: 0; padding: 0; box-sizing: border-box; }"
-            "body { "
-                "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; "
-                "background: #1a1a1a; "
-                "color: #e0e0e0; "
-                "min-height: 100vh; "
-                "padding: 10px; "
-            "}"
-            ".container { "
-                "max-width: 900px; "
-                "margin: 0 auto; "
-            "}"
-            "h1 { "
-                "color: #4CAF50; "
-                "text-align: center; "
-                "margin-bottom: 20px; "
-                "font-size: 1.5em; "
-                "font-weight: 600; "
-            "}"
-            ".main-content { "
-                "display: grid; "
-                "grid-template-columns: 1fr 280px; "
-                "gap: 15px; "
-            "}"
-            "@media (max-width: 768px) { "
-                ".main-content { grid-template-columns: 1fr; } "
-            "}"
-            ".board-container { "
-                "background: #2a2a2a; "
-                "border-radius: 8px; "
-                "padding: 15px; "
-                "box-shadow: 0 4px 12px rgba(0,0,0,0.3); "
-            "}"
-            ".board { "
-                "display: grid; "
-                "grid-template-columns: repeat(8, 1fr); "
-                "grid-template-rows: repeat(8, 1fr); "
-                "gap: 0; "
-                "width: 100%; "
-                "aspect-ratio: 1; "
-                "border: 2px solid #3a3a3a; "
-                "border-radius: 4px; "
-                "overflow: hidden; "
-            "}"
-            ".square { "
-                "aspect-ratio: 1; "
-                "display: flex; "
-                "align-items: center; "
-                "justify-content: center; "
-                "font-size: 3vw; "
-                "cursor: pointer; "
-                "transition: background 0.15s; "
-            "}"
-            ".square:hover { background: #4a4a4a !important; }"
-            ".square.light { background: #f0d9b5; }"
-            ".square.dark { background: #b58863; }"
-            ".square.lifted { "
-                "background: #4CAF50 !important; "
-                "box-shadow: inset 0 0 20px rgba(76,175,80,0.5); "
-            "}"
-            ".square.error-invalid { "
-                "background: #f44336 !important; "
-                "box-shadow: inset 0 0 20px rgba(244,67,54,0.6); "
-                "animation: errorPulse 1s infinite; "
-            "}"
-            ".square.error-original { "
-                "background: #2196F3 !important; "
-                "box-shadow: inset 0 0 20px rgba(33,150,243,0.6); "
-            "}"
-            "@keyframes errorPulse { "
-                "0%, 100% { opacity: 1; } "
-                "50% { opacity: 0.7; } "
-            "}"
-            ".piece { "
-                "font-size: 4vw; "
-                "text-shadow: 2px 2px 4px rgba(0,0,0,0.3); "
-                "user-select: none; "
-            "}"
-            ".piece.white { color: white; }"
-            ".piece.black { color: black; }"
-        
-        // CSS styles - part 2
-        ".info-panel { "
-            "background: #2a2a2a; "
-            "border-radius: 8px; "
-            "padding: 15px; "
-            "box-shadow: 0 4px 12px rgba(0,0,0,0.3); "
-        "}"
-        ".status-box { "
-            "background: #333; "
-            "border-left: 3px solid #4CAF50; "
-            "padding: 12px; "
-            "margin-bottom: 10px; "
-            "border-radius: 4px; "
-        "}"
-        ".status-box h3 { color: #4CAF50; margin-bottom: 8px; font-weight: 600; font-size: 0.9em; }"
-        ".status-item { "
-            "display: flex; "
-            "justify-content: space-between; "
-            "margin: 4px 0; "
-            "font-size: 13px; "
-        "}"
-        ".status-value { font-weight: 600; color: #e0e0e0; font-family: 'Courier New', monospace; }"
-        ".history-box { "
-            "max-height: 150px; "
-            "overflow-y: auto; "
-            "background: #333; "
-            "padding: 8px; "
-            "border-radius: 4px; "
-            "margin-top: 10px; "
-        "}"
-        ".history-item { "
-            "padding: 6px; "
-            "border-bottom: 1px solid #444; "
-            "font-size: 11px; "
-            "color: #aaa; "
-            "font-family: 'Courier New', monospace; "
-        "}"
-        ".captured-box { "
-            "margin-top: 10px; "
-            "padding: 10px; "
-            "background: #333; "
-            "border-radius: 4px; "
-        "}"
-        ".captured-pieces { "
-            "display: flex; "
-            "flex-wrap: wrap; "
-            "gap: 3px; "
-            "margin-top: 5px; "
-        "}"
-        ".captured-piece { "
-            "font-size: 1.2em; "
-            "color: #888; "
-        "}"
-        ".captured-box h3 { color: #4CAF50; font-size: 0.85em; margin-bottom: 5px; }"
-        ".captured-box div { font-size: 0.75em; color: #888; margin-top: 5px; }"
-        ".loading { "
-            "text-align: center; "
-            "padding: 20px; "
-            "color: #888; "
-        "}"
-        
-        // CSS styles - part 3 (Review Mode, Sandbox Mode, etc.)
-        "/* Review Mode */"
-        ".review-banner { "
-            "position: fixed; "
-            "top: 0; left: 0; right: 0; "
-            "background: linear-gradient(135deg, #FF9800, #FF6F00); "
-            "color: white; "
-            "padding: 12px 20px; "
-            "display: none; "
-            "align-items: center; "
-            "justify-content: center; "
-            "gap: 16px; "
-            "box-shadow: 0 4px 12px rgba(0,0,0,0.3); "
-            "z-index: 100; "
-            "animation: slideDown 0.3s ease; "
-        "}"
-        "@keyframes slideDown { "
-            "from { transform: translateY(-100%); } "
-            "to { transform: translateY(0); } "
-        "}"
-        "@keyframes slideInLeft { "
-            "from { transform: translateY(-50%) translateX(-100%); opacity: 0; } "
-            "to { transform: translateY(-50%) translateX(0); opacity: 1; } "
-        "}"
-        "@keyframes slideInTop { "
-            "from { transform: translateY(-100%); opacity: 0; } "
-            "to { transform: translateY(0); opacity: 1; } "
-        "}"
-        ".review-banner.active { display: flex; }"
-        ".review-text { font-weight: 600; }"
-        ".btn-exit-review { "
-            "padding: 8px 20px; "
-            "background: white; "
-            "color: #FF9800; "
-            "border: none; "
-            "border-radius: 6px; "
-            "font-weight: 600; "
-            "cursor: pointer; "
-            "transition: all 0.2s; "
-        "}"
-        ".btn-exit-review:hover { transform: scale(1.05); }"
-        ".history-item.selected { "
-            "background: #FF9800 !important; "
-            "color: white !important; "
-            "font-weight: 600; "
-        "}"
-        ".square.move-from { "
-            "box-shadow: inset 0 0 0 3px #4A90C8 !important; "
-            "background: rgba(74,144,200,0.3) !important; "
-        "}"
-        ".square.move-to { "
-            "box-shadow: inset 0 0 0 3px #4CAF50 !important; "
-            "background: rgba(76,175,80,0.3) !important; "
-        "}"
-        
-        // CSS styles - part 4 (Sandbox Mode)
-        "/* Sandbox Mode */"
-        ".sandbox-banner { "
-            "position: fixed; "
-            "bottom: 0; left: 0; right: 0; "
-            "background: linear-gradient(135deg, #9C27B0, #7B1FA2); "
-            "color: white; "
-            "padding: 12px 20px; "
-            "display: none; "
-            "align-items: center; "
-            "justify-content: center; "
-            "gap: 16px; "
-            "box-shadow: 0 -4px 12px rgba(0,0,0,0.3); "
-            "z-index: 100; "
-            "animation: slideUp 0.3s ease; "
-        "}"
-        "@keyframes slideUp { "
-            "from { transform: translateY(100%); } "
-            "to { transform: translateY(0); } "
-        "}"
-        ".sandbox-banner.active { display: flex; }"
-        ".sandbox-text { font-weight: 600; }"
-        ".btn-exit-sandbox { "
-            "padding: 8px 20px; "
-            "background: white; "
-            "color: #9C27B0; "
-            "border: none; "
-            "border-radius: 6px; "
-            "font-weight: 600; "
-            "cursor: pointer; "
-            "transition: all 0.2s; "
-        "}"
-        ".btn-exit-sandbox:hover { transform: scale(1.05); }"
-        ".btn-try-moves { "
-            "padding: 12px 24px; "
-            "background: #9C27B0; "
-            "color: white; "
-            "border: none; "
-            "border-radius: 8px; "
-            "font-weight: 600; "
-            "cursor: pointer; "
-            "transition: all 0.2s; "
-            "margin: 10px; "
-        "}"
-        ".btn-try-moves:hover { transform: scale(1.05); }"
-        "/* Timer System Styles */"
-        ".time-control-selector { "
-            "display: flex; "
-            "gap: 10px; "
-            "margin-bottom: 10px; "
-        "}"
-        ".time-control-selector select { "
-            "flex: 1; "
-            "padding: 8px 12px; "
-            "background: #333; "
-            "color: #e0e0e0; "
-            "border: 1px solid #555; "
-            "border-radius: 4px; "
-            "font-size: 14px; "
-        "}"
-        ".time-control-selector button { "
-            "padding: 8px 16px; "
-            "background: #4CAF50; "
-            "color: white; "
-            "border: none; "
-            "border-radius: 4px; "
-            "cursor: pointer; "
-            "font-weight: 600; "
-            "transition: all 0.2s; "
-        "}"
-        ".time-control-selector button:hover:not(:disabled) { "
-            "background: #45a049; "
-            "transform: scale(1.05); "
-        "}"
-        ".time-control-selector button:disabled { "
-            "background: #666; "
-            "cursor: not-allowed; "
-        "}"
-        ".custom-settings { "
-            "background: #333; "
-            "padding: 10px; "
-            "border-radius: 4px; "
-            "margin-top: 10px; "
-        "}"
-        ".custom-input-group { "
-            "display: flex; "
-            "justify-content: space-between; "
-            "align-items: center; "
-            "margin-bottom: 8px; "
-        "}"
-        ".custom-input-group label { "
-            "color: #e0e0e0; "
-            "font-size: 14px; "
-        "}"
-        ".custom-input-group input { "
-            "width: 80px; "
-            "padding: 6px; "
-            "background: #444; "
-            "color: #e0e0e0; "
-            "border: 1px solid #555; "
-            "border-radius: 4px; "
-            "text-align: center; "
-        "}"
-        ".timer-display { "
-            "display: flex; "
-            "flex-direction: column; "
-            "gap: 10px; "
-            "margin: 15px 0; "
-        "}"
-        ".player-time { "
-            "background: #333; "
-            "border-radius: 6px; "
-            "padding: 12px; "
-            "transition: all 0.3s ease; "
-        "}"
-        ".player-time.active { "
-            "background: linear-gradient(135deg, #4CAF50, #45a049); "
-            "box-shadow: 0 0 20px rgba(76,175,80,0.3); "
-        "}"
-        ".player-time.low-time { "
-            "background: linear-gradient(135deg, #FF9800, #F57C00); "
-            "animation: pulse 1s infinite; "
-        "}"
-        ".player-time.critical-time { "
-            "background: linear-gradient(135deg, #F44336, #D32F2F); "
-            "animation: pulse 0.5s infinite; "
-        "}"
-        "@keyframes pulse { "
-            "0%, 100% { opacity: 1; } "
-            "50% { opacity: 0.7; } "
-        "}"
-        ".player-info { "
-            "display: flex; "
-            "justify-content: space-between; "
-            "align-items: center; "
-            "margin-bottom: 8px; "
-        "}"
-        ".player-name { "
-            "font-weight: 600; "
-            "font-size: 14px; "
-        "}"
-        ".move-indicator { "
-            "width: 12px; "
-            "height: 12px; "
-            "border-radius: 50%; "
-            "background: #666; "
-            "transition: all 0.3s; "
-        "}"
-        ".move-indicator.active { "
-            "background: #4CAF50; "
-            "box-shadow: 0 0 10px rgba(76,175,80,0.5); "
-        "}"
-        ".time-value { "
-            "font-size: 24px; "
-            "font-weight: bold; "
-            "font-family: 'Courier New', monospace; "
-            "text-align: center; "
-            "margin-bottom: 8px; "
-        "}"
-        ".time-bar { "
-            "height: 6px; "
-            "background: #555; "
-            "border-radius: 3px; "
-            "overflow: hidden; "
-        "}"
-        ".time-progress { "
-            "height: 100%; "
-            "background: #4CAF50; "
-            "transition: width 0.3s ease; "
-            "border-radius: 3px; "
-        "}"
-        ".player-time.low-time .time-progress { "
-            "background: #FF9800; "
-        "}"
-        ".player-time.critical-time .time-progress { "
-            "background: #F44336; "
-        "}"
-        ".timer-controls { "
-            "display: flex; "
-            "gap: 10px; "
-            "justify-content: center; "
-            "margin: 15px 0; "
-        "}"
-        ".timer-controls button { "
-            "padding: 10px 20px; "
-            "background: #333; "
-            "color: #e0e0e0; "
-            "border: 1px solid #555; "
-            "border-radius: 6px; "
-            "cursor: pointer; "
-            "font-weight: 600; "
-            "transition: all 0.2s; "
-        "}"
-        ".timer-controls button:hover { "
-            "background: #444; "
-            "transform: scale(1.05); "
-        "}"
-        ".timer-stats { "
-            "background: #333; "
-            "padding: 10px; "
-            "border-radius: 4px; "
-            "margin-top: 10px; "
-        "}"
-        ".stat-item { "
-            "display: flex; "
-            "justify-content: space-between; "
-            "margin-bottom: 5px; "
-            "font-size: 13px; "
-        "}"
-        ".stat-label { "
-            "color: #aaa; "
-        "}"
-        ".stat-value { "
-            "color: #e0e0e0; "
-            "font-weight: 600; "
-            "font-family: 'Courier New', monospace; "
-        "}"
-        "/* Scrollbar styling */"
-        ".history-box::-webkit-scrollbar { width: 6px; }"
-        ".history-box::-webkit-scrollbar-track { background: #2a2a2a; }"
-        ".history-box::-webkit-scrollbar-thumb { background: #4CAF50; border-radius: 3px; }"
-        ".history-box::-webkit-scrollbar-thumb:hover { background: #45a049; }"
-        "</style>"
-        "</head>";
-        
+    // Early bootstrap to avoid 'is not defined' before main script loads
+    "<script>"
+    "window.changeTimeControl = window.changeTimeControl || function(){};"
+    "window.applyTimeControl = window.applyTimeControl || function(){};"
+    "window.pauseTimer = window.pauseTimer || function(){};"
+    "window.resumeTimer = window.resumeTimer || function(){};"
+    "window.resetTimer = window.resetTimer || function(){};"
+    "window.hideEndgameReport = window.hideEndgameReport || function(){};"
+    "</script>"
+    // Global JS error capture to surface syntax/runtime errors visibly
+    "<script>"
+    "(function(){"
+    "function showJsError(msg, src, line, col){"
+    "try {"
+    "var b=document.body||document.documentElement;"
+    "var d=document.getElementById('js-error')||document.createElement('pre');"
+    "d.id='js-error';"
+    "d.style.cssText='position:fixed;left:6px;bottom:6px;right:6px;max-height:"
+    "40vh;overflow:auto;background:#300;color:#fff;border:1px solid "
+    "#900;padding:8px;margin:0;z-index:99999;font:12px/1.4 "
+    "monospace;white-space:pre-wrap;';"
+    "d.textContent='JS ERROR: '+msg+'\nSource: '+(src||'-')+'\nLine: "
+    "'+line+':'+col;"
+    "b&&b.appendChild(d);"
+    "} catch(e) {}"
+    "}"
+    "window.addEventListener('error', function(e){ showJsError(e.message, "
+    "e.filename, e.lineno, e.colno); });"
+    "window.addEventListener('unhandledrejection', function(e){ "
+    "showJsError('Unhandled promise rejection: '+e.reason, '', 0, 0); });"
+    "})();"
+    "</script>"
+
+    // CSS styles - part 1
+    "<style>"
+    "* { margin: 0; padding: 0; box-sizing: border-box; }"
+    "body { "
+    "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, "
+    "sans-serif; "
+    "background: #1a1a1a; "
+    "color: #e0e0e0; "
+    "min-height: 100vh; "
+    "padding: 10px; "
+    "}"
+    ".container { "
+    "max-width: 900px; "
+    "margin: 0 auto; "
+    "}"
+    "h1 { "
+    "color: #4CAF50; "
+    "text-align: center; "
+    "margin-bottom: 20px; "
+    "font-size: 1.5em; "
+    "font-weight: 600; "
+    "}"
+    ".main-content { "
+    "display: grid; "
+    "grid-template-columns: 1fr 280px; "
+    "gap: 15px; "
+    "}"
+    "@media (max-width: 768px) { "
+    ".main-content { grid-template-columns: 1fr; } "
+    "}"
+    ".board-container { "
+    "background: #2a2a2a; "
+    "border-radius: 8px; "
+    "padding: 15px; "
+    "box-shadow: 0 4px 12px rgba(0,0,0,0.3); "
+    "}"
+    ".board { "
+    "display: grid; "
+    "grid-template-columns: repeat(8, 1fr); "
+    "grid-template-rows: repeat(8, 1fr); "
+    "gap: 0; "
+    "width: 100%; "
+    "aspect-ratio: 1; "
+    "border: 2px solid #3a3a3a; "
+    "border-radius: 4px; "
+    "overflow: hidden; "
+    "}"
+    ".square { "
+    "aspect-ratio: 1; "
+    "display: flex; "
+    "align-items: center; "
+    "justify-content: center; "
+    "font-size: 3vw; "
+    "cursor: pointer; "
+    "transition: background 0.15s; "
+    "}"
+    ".square:hover { background: #4a4a4a !important; }"
+    ".square.light { background: #f0d9b5; }"
+    ".square.dark { background: #b58863; }"
+    ".square.lifted { "
+    "background: #4CAF50 !important; "
+    "box-shadow: inset 0 0 20px rgba(76,175,80,0.5); "
+    "}"
+    ".square.error-invalid { "
+    "background: #f44336 !important; "
+    "box-shadow: inset 0 0 20px rgba(244,67,54,0.6); "
+    "animation: errorPulse 1s infinite; "
+    "}"
+    ".square.error-original { "
+    "background: #2196F3 !important; "
+    "box-shadow: inset 0 0 20px rgba(33,150,243,0.6); "
+    "}"
+    "@keyframes errorPulse { "
+    "0%, 100% { opacity: 1; } "
+    "50% { opacity: 0.7; } "
+    "}"
+    ".piece { "
+    "font-size: 4vw; "
+    "text-shadow: 2px 2px 4px rgba(0,0,0,0.3); "
+    "user-select: none; "
+    "}"
+    ".piece.white { color: white; }"
+    ".piece.black { color: black; }"
+
+    // CSS styles - part 2
+    ".info-panel { "
+    "background: #2a2a2a; "
+    "border-radius: 8px; "
+    "padding: 15px; "
+    "box-shadow: 0 4px 12px rgba(0,0,0,0.3); "
+    "}"
+    ".status-box { "
+    "background: #333; "
+    "border-left: 3px solid #4CAF50; "
+    "padding: 12px; "
+    "margin-bottom: 10px; "
+    "border-radius: 4px; "
+    "}"
+    ".status-box h3 { color: #4CAF50; margin-bottom: 8px; font-weight: 600; "
+    "font-size: 0.9em; }"
+    ".status-item { "
+    "display: flex; "
+    "justify-content: space-between; "
+    "margin: 4px 0; "
+    "font-size: 13px; "
+    "}"
+    ".status-value { font-weight: 600; color: #e0e0e0; font-family: 'Courier "
+    "New', monospace; }"
+    ".history-box { "
+    "max-height: 150px; "
+    "overflow-y: auto; "
+    "background: #333; "
+    "padding: 8px; "
+    "border-radius: 4px; "
+    "margin-top: 10px; "
+    "}"
+    ".history-item { "
+    "padding: 6px; "
+    "border-bottom: 1px solid #444; "
+    "font-size: 11px; "
+    "color: #aaa; "
+    "font-family: 'Courier New', monospace; "
+    "}"
+    ".captured-box { "
+    "margin-top: 10px; "
+    "padding: 10px; "
+    "background: #333; "
+    "border-radius: 4px; "
+    "}"
+    ".captured-pieces { "
+    "display: flex; "
+    "flex-wrap: wrap; "
+    "gap: 3px; "
+    "margin-top: 5px; "
+    "}"
+    ".captured-piece { "
+    "font-size: 1.2em; "
+    "color: #888; "
+    "}"
+    ".captured-box h3 { color: #4CAF50; font-size: 0.85em; margin-bottom: 5px; "
+    "}"
+    ".captured-box div { font-size: 0.75em; color: #888; margin-top: 5px; }"
+    ".loading { "
+    "text-align: center; "
+    "padding: 20px; "
+    "color: #888; "
+    "}"
+
+    // CSS styles - part 3 (Review Mode, Sandbox Mode, etc.)
+    "/* Review Mode */"
+    ".review-banner { "
+    "position: fixed; "
+    "top: 0; left: 0; right: 0; "
+    "background: linear-gradient(135deg, #FF9800, #FF6F00); "
+    "color: white; "
+    "padding: 12px 20px; "
+    "display: none; "
+    "align-items: center; "
+    "justify-content: center; "
+    "gap: 16px; "
+    "box-shadow: 0 4px 12px rgba(0,0,0,0.3); "
+    "z-index: 100; "
+    "animation: slideDown 0.3s ease; "
+    "}"
+    "@keyframes slideDown { "
+    "from { transform: translateY(-100%); } "
+    "to { transform: translateY(0); } "
+    "}"
+    "@keyframes slideInLeft { "
+    "from { transform: translateY(-50%) translateX(-100%); opacity: 0; } "
+    "to { transform: translateY(-50%) translateX(0); opacity: 1; } "
+    "}"
+    "@keyframes slideInTop { "
+    "from { transform: translateY(-100%); opacity: 0; } "
+    "to { transform: translateY(0); opacity: 1; } "
+    "}"
+    ".review-banner.active { display: flex; }"
+    ".review-text { font-weight: 600; }"
+    ".btn-exit-review { "
+    "padding: 8px 20px; "
+    "background: white; "
+    "color: #FF9800; "
+    "border: none; "
+    "border-radius: 6px; "
+    "font-weight: 600; "
+    "cursor: pointer; "
+    "transition: all 0.2s; "
+    "}"
+    ".btn-exit-review:hover { transform: scale(1.05); }"
+    ".history-item.selected { "
+    "background: #FF9800 !important; "
+    "color: white !important; "
+    "font-weight: 600; "
+    "}"
+    ".square.move-from { "
+    "box-shadow: inset 0 0 0 3px #4A90C8 !important; "
+    "background: rgba(74,144,200,0.3) !important; "
+    "}"
+    ".square.move-to { "
+    "box-shadow: inset 0 0 0 3px #4CAF50 !important; "
+    "background: rgba(76,175,80,0.3) !important; "
+    "}"
+
+    // CSS styles - part 4 (Sandbox Mode)
+    "/* Sandbox Mode */"
+    ".sandbox-banner { "
+    "position: fixed; "
+    "bottom: 0; left: 0; right: 0; "
+    "background: linear-gradient(135deg, #9C27B0, #7B1FA2); "
+    "color: white; "
+    "padding: 12px 20px; "
+    "display: none; "
+    "align-items: center; "
+    "justify-content: center; "
+    "gap: 16px; "
+    "box-shadow: 0 -4px 12px rgba(0,0,0,0.3); "
+    "z-index: 100; "
+    "animation: slideUp 0.3s ease; "
+    "}"
+    "@keyframes slideUp { "
+    "from { transform: translateY(100%); } "
+    "to { transform: translateY(0); } "
+    "}"
+    ".sandbox-banner.active { display: flex; }"
+    ".sandbox-text { font-weight: 600; }"
+    ".btn-exit-sandbox { "
+    "padding: 8px 20px; "
+    "background: white; "
+    "color: #9C27B0; "
+    "border: none; "
+    "border-radius: 6px; "
+    "font-weight: 600; "
+    "cursor: pointer; "
+    "transition: all 0.2s; "
+    "}"
+    ".btn-exit-sandbox:hover { transform: scale(1.05); }"
+    ".btn-try-moves { "
+    "padding: 12px 24px; "
+    "background: #9C27B0; "
+    "color: white; "
+    "border: none; "
+    "border-radius: 8px; "
+    "font-weight: 600; "
+    "cursor: pointer; "
+    "transition: all 0.2s; "
+    "margin: 10px; "
+    "}"
+    ".btn-try-moves:hover { transform: scale(1.05); }"
+    "/* Timer System Styles */"
+    ".time-control-selector { "
+    "display: flex; "
+    "gap: 10px; "
+    "margin-bottom: 10px; "
+    "}"
+    ".time-control-selector select { "
+    "flex: 1; "
+    "padding: 8px 12px; "
+    "background: #333; "
+    "color: #e0e0e0; "
+    "border: 1px solid #555; "
+    "border-radius: 4px; "
+    "font-size: 14px; "
+    "}"
+    ".time-control-selector button { "
+    "padding: 8px 16px; "
+    "background: #4CAF50; "
+    "color: white; "
+    "border: none; "
+    "border-radius: 4px; "
+    "cursor: pointer; "
+    "font-weight: 600; "
+    "transition: all 0.2s; "
+    "}"
+    ".time-control-selector button:hover:not(:disabled) { "
+    "background: #45a049; "
+    "transform: scale(1.05); "
+    "}"
+    ".time-control-selector button:disabled { "
+    "background: #666; "
+    "cursor: not-allowed; "
+    "}"
+    ".custom-settings { "
+    "background: #333; "
+    "padding: 10px; "
+    "border-radius: 4px; "
+    "margin-top: 10px; "
+    "}"
+    ".custom-input-group { "
+    "display: flex; "
+    "justify-content: space-between; "
+    "align-items: center; "
+    "margin-bottom: 8px; "
+    "}"
+    ".custom-input-group label { "
+    "color: #e0e0e0; "
+    "font-size: 14px; "
+    "}"
+    ".custom-input-group input { "
+    "width: 80px; "
+    "padding: 6px; "
+    "background: #444; "
+    "color: #e0e0e0; "
+    "border: 1px solid #555; "
+    "border-radius: 4px; "
+    "text-align: center; "
+    "}"
+    ".timer-display { "
+    "display: flex; "
+    "flex-direction: column; "
+    "gap: 10px; "
+    "margin: 15px 0; "
+    "}"
+    ".player-time { "
+    "background: #333; "
+    "border-radius: 6px; "
+    "padding: 12px; "
+    "transition: all 0.3s ease; "
+    "}"
+    ".player-time.active { "
+    "background: linear-gradient(135deg, #4CAF50, #45a049); "
+    "box-shadow: 0 0 20px rgba(76,175,80,0.3); "
+    "}"
+    ".player-time.low-time { "
+    "background: linear-gradient(135deg, #FF9800, #F57C00); "
+    "animation: pulse 1s infinite; "
+    "}"
+    ".player-time.critical-time { "
+    "background: linear-gradient(135deg, #F44336, #D32F2F); "
+    "animation: pulse 0.5s infinite; "
+    "}"
+    "@keyframes pulse { "
+    "0%, 100% { opacity: 1; } "
+    "50% { opacity: 0.7; } "
+    "}"
+    ".player-info { "
+    "display: flex; "
+    "justify-content: space-between; "
+    "align-items: center; "
+    "margin-bottom: 8px; "
+    "}"
+    ".player-name { "
+    "font-weight: 600; "
+    "font-size: 14px; "
+    "}"
+    ".move-indicator { "
+    "width: 12px; "
+    "height: 12px; "
+    "border-radius: 50%; "
+    "background: #666; "
+    "transition: all 0.3s; "
+    "}"
+    ".move-indicator.active { "
+    "background: #4CAF50; "
+    "box-shadow: 0 0 10px rgba(76,175,80,0.5); "
+    "}"
+    ".time-value { "
+    "font-size: 24px; "
+    "font-weight: bold; "
+    "font-family: 'Courier New', monospace; "
+    "text-align: center; "
+    "margin-bottom: 8px; "
+    "}"
+    ".time-bar { "
+    "height: 6px; "
+    "background: #555; "
+    "border-radius: 3px; "
+    "overflow: hidden; "
+    "}"
+    ".time-progress { "
+    "height: 100%; "
+    "background: #4CAF50; "
+    "transition: width 0.3s ease; "
+    "border-radius: 3px; "
+    "}"
+    ".player-time.low-time .time-progress { "
+    "background: #FF9800; "
+    "}"
+    ".player-time.critical-time .time-progress { "
+    "background: #F44336; "
+    "}"
+    ".timer-controls { "
+    "display: flex; "
+    "gap: 10px; "
+    "justify-content: center; "
+    "margin: 15px 0; "
+    "}"
+    ".timer-controls button { "
+    "padding: 10px 20px; "
+    "background: #333; "
+    "color: #e0e0e0; "
+    "border: 1px solid #555; "
+    "border-radius: 6px; "
+    "cursor: pointer; "
+    "font-weight: 600; "
+    "transition: all 0.2s; "
+    "}"
+    ".timer-controls button:hover { "
+    "background: #444; "
+    "transform: scale(1.05); "
+    "}"
+    ".timer-stats { "
+    "background: #333; "
+    "padding: 10px; "
+    "border-radius: 4px; "
+    "margin-top: 10px; "
+    "}"
+    ".stat-item { "
+    "display: flex; "
+    "justify-content: space-between; "
+    "margin-bottom: 5px; "
+    "font-size: 13px; "
+    "}"
+    ".stat-label { "
+    "color: #aaa; "
+    "}"
+    ".stat-value { "
+    "color: #e0e0e0; "
+    "font-weight: 600; "
+    "font-family: 'Courier New', monospace; "
+    "}"
+    "/* Scrollbar styling */"
+    ".history-box::-webkit-scrollbar { width: 6px; }"
+    ".history-box::-webkit-scrollbar-track { background: #2a2a2a; }"
+    ".history-box::-webkit-scrollbar-thumb { background: #4CAF50; "
+    "border-radius: 3px; }"
+    ".history-box::-webkit-scrollbar-thumb:hover { background: #45a049; }"
+    "</style>"
+    "</head>";
+
 // Chunk 2: HTML body structure (no JavaScript yet)
 static const char html_chunk_body[] =
-        "<body>"
-        "<div class='container'>"
-            "<h1>♟️ ESP32 Chess</h1>"
-            "<div class='main-content'>"
-                "<div class='board-container'>"
-                    "<button class='btn-try-moves' onclick='enterSandboxMode()'>Try Moves</button>"
-                    "<div id='board' class='board'></div>"
-                    "<div id='loading' class='loading'>Loading board...</div>"
-                "</div>";
+    "<body>"
+    "<div class='container'>"
+    "<h1>♟️ ESP32 Chess</h1>"
+    "<div class='main-content'>"
+    "<div class='board-container'>"
+    "<button class='btn-try-moves' onclick='enterSandboxMode()'>Try "
+    "Moves</button>"
+    "<div id='board' class='board'></div>"
+    "<div id='loading' class='loading'>Loading board...</div>"
+    "</div>";
 
 // Chunk 2b: Info panel (status, timer, history, captured)
 static const char html_chunk_infopanel[] =
-                "<div class='info-panel'>"
-                    "<div class='status-box'>"
-                        "<h3>Game Status</h3>"
-                        "<div class='status-item'>"
-                            "<span>State:</span>"
-                            "<span id='game-state' class='status-value'>-</span>"
-                        "</div>"
-                        "<div class='status-item'>"
-                            "<span>Player:</span>"
-                            "<span id='current-player' class='status-value'>-</span>"
-                        "</div>"
-                        "<div class='status-item'>"
-                            "<span>Moves:</span>"
-                            "<span id='move-count' class='status-value'>0</span>"
-                        "</div>"
-                        "<div class='status-item'>"
-                            "<span>In Check:</span>"
-                            "<span id='in-check' class='status-value'>No</span>"
-                        "</div>"
-                    "</div>"
-                    "<div class='status-box'>"
-                        "<h3>Lifted Piece</h3>"
-                        "<div class='status-item'>"
-                            "<span>Piece:</span>"
-                            "<span id='lifted-piece' class='status-value'>-</span>"
-                        "</div>"
-                        "<div class='status-item'>"
-                            "<span>Position:</span>"
-                            "<span id='lifted-position' class='status-value'>-</span>"
-                        "</div>"
-                    "</div>"
-                    "<div class='captured-box'>"
-                        "<h3>Captured Pieces</h3>"
-                        "<div>White:</div>"
-                        "<div id='white-captured' class='captured-pieces'></div>"
-                        "<div style='margin-top: 10px;'>Black:</div>"
-                        "<div id='black-captured' class='captured-pieces'></div>"
-                    "</div>"
-                    "<div class='status-box'>"
-                        "<h3>⏱️ Časová kontrola</h3>"
-                        "<div class='time-control-selector'>"
-                            "<select id='time-control-select' onchange='changeTimeControl()'>"
-                                "<option value='0'>Bez časové kontroly</option>"
-                                "<option value='1'>Bullet 1+0</option>"
-                                "<option value='2'>Bullet 1+1</option>"
-                                "<option value='3'>Bullet 2+1</option>"
-                                "<option value='4'>Blitz 3+0</option>"
-                                "<option value='5'>Blitz 3+2</option>"
-                                "<option value='6'>Blitz 5+0</option>"
-                                "<option value='7'>Blitz 5+3</option>"
-                                "<option value='8'>Rapid 10+0</option>"
-                                "<option value='9'>Rapid 10+5</option>"
-                                "<option value='10'>Rapid 15+10</option>"
-                                "<option value='11'>Rapid 30+0</option>"
-                                "<option value='12'>Classical 60+0</option>"
-                                "<option value='13'>Classical 90+30</option>"
-                                "<option value='14'>Vlastní</option>"
-                            "</select>"
-                            "<button id='apply-time-control' onclick='applyTimeControl()' disabled>Použít</button>"
-                        "</div>"
-                        "<div id='custom-time-settings' class='custom-settings' style='display: none;'>"
-                            "<div class='custom-input-group'>"
-                                "<label>Minuty:</label>"
-                                "<input type='number' id='custom-minutes' min='1' max='180' value='10'>"
-                            "</div>"
-                            "<div class='custom-input-group'>"
-                                "<label>Increment (sekundy):</label>"
-                                "<input type='number' id='custom-increment' min='0' max='60' value='0'>"
-                            "</div>"
-                        "</div>"
-                    "</div>"
-                    "<div class='status-box'>"
-                        "<h3>⏰ Čas</h3>"
-                        "<div class='timer-display'>"
-                            "<div class='player-time white-time' id='white-timer'>"
-                                "<div class='player-info'>"
-                                    "<span class='player-name'>♚ Bílý</span>"
-                                    "<span class='move-indicator' id='white-move-indicator'>●</span>"
-                                "</div>"
-                                "<div class='time-value' id='white-time'>10:00</div>"
-                                "<div class='time-bar'>"
-                                    "<div class='time-progress' id='white-progress'></div>"
-                                "</div>"
-                            "</div>"
-                            "<div class='player-time black-time' id='black-timer'>"
-                                "<div class='player-info'>"
-                                    "<span class='player-name'>♔ Černý</span>"
-                                    "<span class='move-indicator' id='black-move-indicator'>●</span>"
-                                "</div>"
-                                "<div class='time-value' id='black-time'>10:00</div>"
-                                "<div class='time-bar'>"
-                                    "<div class='time-progress' id='black-progress'></div>"
-                                "</div>"
-                            "</div>"
-                        "</div>"
-                        "<div class='timer-controls'>"
-                            "<button id='pause-timer' onclick='pauseTimer()'>⏸️ Pozastavit</button>"
-                            "<button id='resume-timer' onclick='resumeTimer()' style='display: none;'>▶️ Pokračovat</button>"
-                            "<button id='reset-timer' onclick='resetTimer()'>🔄 Resetovat</button>"
-                        "</div>"
-                        "<div class='timer-stats'>"
-                            "<div class='stat-item'>"
-                                "<span class='stat-label'>Průměrný tah:</span>"
-                                "<span id='avg-move-time' class='stat-value'>-</span>"
-                            "</div>"
-                            "<div class='stat-item'>"
-                                "<span class='stat-label'>Celkem tahů:</span>"
-                                "<span id='total-moves' class='stat-value'>0</span>"
-                            "</div>"
-                        "</div>"
-                    "</div>"
-                    "<div class='status-box'>"
-                        "<h3>Move History</h3>"
-                        "<div id='history' class='history-box'></div>"
-                    "</div>"
-                    "<div class='status-box'>"
-                        "<h3>WiFi (Internet)</h3>"
-                        "<div class='status-item'>"
-                            "<span>AP SSID:</span>"
-                            "<span id='ap-ssid' class='status-value'>ESP32-CzechMate</span>"
-                        "</div>"
-                        "<div class='status-item'>"
-                            "<span>AP IP:</span>"
-                            "<span id='ap-ip' class='status-value'>192.168.4.1</span>"
-                        "</div>"
-                        "<div class='status-item'>"
-                            "<span>AP Clients:</span>"
-                            "<span id='ap-clients' class='status-value'>0</span>"
-                        "</div>"
-                        "<div class='status-item'>"
-                            "<span>STA SSID:</span>"
-                            "<span id='sta-ssid' class='status-value'>Not configured</span>"
-                        "</div>"
-                        "<div class='status-item'>"
-                            "<span>STA IP:</span>"
-                            "<span id='sta-ip' class='status-value'>Not connected</span>"
-                        "</div>"
-                        "<div class='status-item'>"
-                            "<span>STA Connected:</span>"
-                            "<span id='sta-connected' class='status-value'>false</span>"
-                        "</div>"
-                        "<div style='margin-top: 15px;'>"
-                            "<input type='text' id='wifi-ssid' placeholder='WiFi SSID' maxlength='32' style='width: 100%; padding: 8px; margin-bottom: 8px; background: #111; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; pointer-events: auto; user-select: text;'>"
-                            "<input type='password' id='wifi-password' placeholder='WiFi password' maxlength='64' style='width: 100%; padding: 8px; margin-bottom: 8px; background: #111; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; pointer-events: auto; user-select: text;'>"
-                            "<button id='wifi-save-btn' style='width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 5px;'>Save WiFi config</button>"
-                            "<button id='wifi-connect-btn' style='width: 48%; padding: 10px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 4%;'>Connect STA</button>"
-                            "<button id='wifi-disconnect-btn' style='width: 48%; padding: 10px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;'>Disconnect STA</button>"
-                            "<button id='wifi-clear-btn' style='width: 100%; padding: 8px; margin-top: 5px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;'>Clear WiFi config</button>"
-                        "</div>"
-                    "</div>"
-                    "<div class='status-box'>"
-                        "<h3>🌐 Web Status</h3>"
-                        "<div class='status-item'>"
-                            "<span>Lock Status:</span>"
-                            "<span id='web-lock-status' class='status-value'>-</span>"
-                        "</div>"
-                        "<div class='status-item'>"
-                            "<span>Internet:</span>"
-                            "<span id='web-online-status' class='status-value'>-</span>"
-                        "</div>"
-                    "</div>"
-                "</div>"
-            "</div>"
-        "</div>";
-        
+    "<div class='info-panel'>"
+    "<div class='status-box'>"
+    "<h3>Game Status</h3>"
+    "<div class='status-item'>"
+    "<span>State:</span>"
+    "<span id='game-state' class='status-value'>-</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>Player:</span>"
+    "<span id='current-player' class='status-value'>-</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>Moves:</span>"
+    "<span id='move-count' class='status-value'>0</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>In Check:</span>"
+    "<span id='in-check' class='status-value'>No</span>"
+    "</div>"
+    "</div>"
+    "<div class='status-box'>"
+    "<h3>Lifted Piece</h3>"
+    "<div class='status-item'>"
+    "<span>Piece:</span>"
+    "<span id='lifted-piece' class='status-value'>-</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>Position:</span>"
+    "<span id='lifted-position' class='status-value'>-</span>"
+    "</div>"
+    "</div>"
+    "<div class='captured-box'>"
+    "<h3>Captured Pieces</h3>"
+    "<div>White:</div>"
+    "<div id='white-captured' class='captured-pieces'></div>"
+    "<div style='margin-top: 10px;'>Black:</div>"
+    "<div id='black-captured' class='captured-pieces'></div>"
+    "</div>"
+    "<div class='status-box'>"
+    "<h3>⏱️ Časová kontrola</h3>"
+    "<div class='time-control-selector'>"
+    "<select id='time-control-select' onchange='changeTimeControl()'>"
+    "<option value='0'>Bez časové kontroly</option>"
+    "<option value='1'>Bullet 1+0</option>"
+    "<option value='2'>Bullet 1+1</option>"
+    "<option value='3'>Bullet 2+1</option>"
+    "<option value='4'>Blitz 3+0</option>"
+    "<option value='5'>Blitz 3+2</option>"
+    "<option value='6'>Blitz 5+0</option>"
+    "<option value='7'>Blitz 5+3</option>"
+    "<option value='8'>Rapid 10+0</option>"
+    "<option value='9'>Rapid 10+5</option>"
+    "<option value='10'>Rapid 15+10</option>"
+    "<option value='11'>Rapid 30+0</option>"
+    "<option value='12'>Classical 60+0</option>"
+    "<option value='13'>Classical 90+30</option>"
+    "<option value='14'>Vlastní</option>"
+    "</select>"
+    "<button id='apply-time-control' onclick='applyTimeControl()' "
+    "disabled>Použít</button>"
+    "</div>"
+    "<div id='custom-time-settings' class='custom-settings' style='display: "
+    "none;'>"
+    "<div class='custom-input-group'>"
+    "<label>Minuty:</label>"
+    "<input type='number' id='custom-minutes' min='1' max='180' value='10'>"
+    "</div>"
+    "<div class='custom-input-group'>"
+    "<label>Increment (sekundy):</label>"
+    "<input type='number' id='custom-increment' min='0' max='60' value='0'>"
+    "</div>"
+    "</div>"
+    "</div>"
+    "<div class='status-box'>"
+    "<h3>⏰ Čas</h3>"
+    "<div class='timer-display'>"
+    "<div class='player-time white-time' id='white-timer'>"
+    "<div class='player-info'>"
+    "<span class='player-name'>♚ Bílý</span>"
+    "<span class='move-indicator' id='white-move-indicator'>●</span>"
+    "</div>"
+    "<div class='time-value' id='white-time'>10:00</div>"
+    "<div class='time-bar'>"
+    "<div class='time-progress' id='white-progress'></div>"
+    "</div>"
+    "</div>"
+    "<div class='player-time black-time' id='black-timer'>"
+    "<div class='player-info'>"
+    "<span class='player-name'>♔ Černý</span>"
+    "<span class='move-indicator' id='black-move-indicator'>●</span>"
+    "</div>"
+    "<div class='time-value' id='black-time'>10:00</div>"
+    "<div class='time-bar'>"
+    "<div class='time-progress' id='black-progress'></div>"
+    "</div>"
+    "</div>"
+    "</div>"
+    "<div class='timer-controls'>"
+    "<button id='pause-timer' onclick='pauseTimer()'>⏸️ Pozastavit</button>"
+    "<button id='resume-timer' onclick='resumeTimer()' style='display: "
+    "none;'>▶️ Pokračovat</button>"
+    "<button id='reset-timer' onclick='resetTimer()'>🔄 Resetovat</button>"
+    "</div>"
+    "<div class='timer-stats'>"
+    "<div class='stat-item'>"
+    "<span class='stat-label'>Průměrný tah:</span>"
+    "<span id='avg-move-time' class='stat-value'>-</span>"
+    "</div>"
+    "<div class='stat-item'>"
+    "<span class='stat-label'>Celkem tahů:</span>"
+    "<span id='total-moves' class='stat-value'>0</span>"
+    "</div>"
+    "</div>"
+    "</div>"
+    "<div class='status-box'>"
+    "<h3>Move History</h3>"
+    "<div id='history' class='history-box'></div>"
+    "</div>"
+    "<div class='status-box'>"
+    "<h3>WiFi (Internet)</h3>"
+    "<div class='status-item'>"
+    "<span>AP SSID:</span>"
+    "<span id='ap-ssid' class='status-value'>ESP32-CzechMate</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>AP IP:</span>"
+    "<span id='ap-ip' class='status-value'>192.168.4.1</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>AP Clients:</span>"
+    "<span id='ap-clients' class='status-value'>0</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>STA SSID:</span>"
+    "<span id='sta-ssid' class='status-value'>Not configured</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>STA IP:</span>"
+    "<span id='sta-ip' class='status-value'>Not connected</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>STA Connected:</span>"
+    "<span id='sta-connected' class='status-value'>false</span>"
+    "</div>"
+    "<div style='margin-top: 15px;'>"
+    "<input type='text' id='wifi-ssid' placeholder='WiFi SSID' maxlength='32' "
+    "style='width: 100%; padding: 8px; margin-bottom: 8px; background: #111; "
+    "color: #e0e0e0; border: 1px solid #444; border-radius: 4px; "
+    "pointer-events: auto; user-select: text;'>"
+    "<input type='password' id='wifi-password' placeholder='WiFi password' "
+    "maxlength='64' style='width: 100%; padding: 8px; margin-bottom: 8px; "
+    "background: #111; color: #e0e0e0; border: 1px solid #444; border-radius: "
+    "4px; pointer-events: auto; user-select: text;'>"
+    "<button id='wifi-save-btn' style='width: 100%; padding: 10px; background: "
+    "#4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; "
+    "margin-bottom: 5px;'>Save WiFi config</button>"
+    "<button id='wifi-connect-btn' style='width: 48%; padding: 10px; "
+    "background: #666; color: white; border: none; border-radius: 4px; cursor: "
+    "pointer; margin-right: 4%;'>Connect STA</button>"
+    "<button id='wifi-disconnect-btn' style='width: 48%; padding: 10px; "
+    "background: #666; color: white; border: none; border-radius: 4px; cursor: "
+    "pointer;'>Disconnect STA</button>"
+    "<button id='wifi-clear-btn' style='width: 100%; padding: 8px; margin-top: "
+    "5px; background: #f44336; color: white; border: none; border-radius: 4px; "
+    "cursor: pointer; font-size: 0.9em;'>Clear WiFi config</button>"
+    "</div>"
+    "</div>"
+    "<div class='status-box'>"
+    "<h3>🌐 Web Status</h3>"
+    "<div class='status-item'>"
+    "<span>Lock Status:</span>"
+    "<span id='web-lock-status' class='status-value'>-</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>Internet:</span>"
+    "<span id='web-online-status' class='status-value'>-</span>"
+    "</div>"
+    "</div>"
+    "</div>"
+    "</div>"
+    "</div>";
+
 // Chunk 2c: Review and Sandbox banners
 static const char html_chunk_banners[] =
-        "<!-- Review Mode Banner -->"
-        "<div class='review-banner' id='review-banner'>"
-            "<div class='review-text'>"
-                "<span>📋</span>"
-                "<span id='review-move-text'>Prohlížíš tah 0</span>"
-            "</div>"
-            "<button class='btn-exit-review' onclick='exitReviewMode()'>Zpět na aktuální pozici</button>"
-        "</div>"
-        "<!-- Sandbox Mode Banner -->"
-        "<div class='sandbox-banner' id='sandbox-banner'>"
-            "<div class='sandbox-text'>"
-                "<span>🎮</span>"
-                "<span>Sandbox Mode - Zkoušíš tahy lokálně</span>"
-            "</div>"
-            "<div style='display: flex; gap: 10px;'>"
-                "<button class='btn-exit-sandbox' id='sandbox-undo-btn' onclick='undoSandboxMove()' disabled>↶ Undo (0/10)</button>"
-                "<button class='btn-exit-sandbox' onclick='exitSandboxMode()'>Zpět na skutečnou pozici</button>"
-            "</div>"
-        "</div>";
+    "<!-- Review Mode Banner -->"
+    "<div class='review-banner' id='review-banner'>"
+    "<div class='review-text'>"
+    "<span>📋</span>"
+    "<span id='review-move-text'>Prohlížíš tah 0</span>"
+    "</div>"
+    "<button class='btn-exit-review' onclick='exitReviewMode()'>Zpět na "
+    "aktuální pozici</button>"
+    "</div>"
+    "<!-- Sandbox Mode Banner -->"
+    "<div class='sandbox-banner' id='sandbox-banner'>"
+    "<div class='sandbox-text'>"
+    "<span>🎮</span>"
+    "<span>Sandbox Mode - Zkoušíš tahy lokálně</span>"
+    "</div>"
+    "<div style='display: flex; gap: 10px;'>"
+    "<button class='btn-exit-sandbox' id='sandbox-undo-btn' "
+    "onclick='undoSandboxMove()' disabled>↶ Undo (0/10)</button>"
+    "<button class='btn-exit-sandbox' onclick='exitSandboxMode()'>Zpět na "
+    "skutečnou pozici</button>"
+    "</div>"
+    "</div>";
 
-// Chunk 3: JavaScript - load from external file (prevents UTF-8 chunking issues)
+// Chunk 3: JavaScript - load from external file (prevents UTF-8 chunking
+// issues)
 static const char html_chunk_javascript[] =
-        "<script src='/chess_app.js'></script>";
+    "<script src='/chess_app.js'></script>";
+
+// Chunk: Demo Mode UI Panel
+static const char html_chunk_demo_mode[] =
+    "<div class='panel demo-panel' style='margin-top: 20px; padding: 15px; "
+    "background: #2a2a2a; border-radius: 8px;'>"
+    "<h3 style='margin-top: 0; color: #ffa500;'>🎮 Demo Mode</h3>"
+    "<div style='margin: 10px 0;'>"
+    "<label style='display: flex; align-items: center; cursor: pointer;'>"
+    "<input type='checkbox' id='demo-enabled' style='margin-right: 10px; "
+    "width: 20px; height: 20px; cursor: pointer;'> "
+    "<span>Enable Demo Mode</span>"
+    "</label>"
+    "</div>"
+    "<div style='margin: 15px 0;'>"
+    "<label style='display: block; margin-bottom: 5px;'>Move Speed "
+    "(ms):</label>"
+    "<input type='range' id='demo-speed' min='500' max='5000' step='100' "
+    "value='2000' "
+    "style='width: 100%; cursor: pointer;' disabled>"
+    "<div style='text-align: center; margin-top: 5px;'>"
+    "<span id='demo-speed-value' style='color: #888;'>2000ms</span>"
+    "</div>"
+    "</div>"
+    "<div style='margin: 15px 0;'>"
+    "<button onclick='startDemoMode()' id='demo-start-btn' style='width: 100%; "
+    "padding: 10px; font-size: 16px; cursor: pointer; background: #444; color: "
+    "#888; border: 1px solid #555; border-radius: 4px;' disabled>"
+    "▶️ Start Demo"
+    "</button>"
+    "</div>"
+    "<script>"
+    "const demoCheckbox = document.getElementById('demo-enabled');"
+    "const demoSpeed = document.getElementById('demo-speed');"
+    "const demoSpeedValue = document.getElementById('demo-speed-value');"
+    "const demoStartBtn = document.getElementById('demo-start-btn');"
+    ""
+    "demoCheckbox.addEventListener('change', function() {"
+    "  const enabled = this.checked;"
+    "  demoSpeed.disabled = !enabled;"
+    "  demoStartBtn.disabled = !enabled;"
+    "  demoSpeed.style.cursor = enabled ? 'pointer' : 'not-allowed';"
+    "  demoSpeedValue.style.color = enabled ? '#fff' : '#888';"
+    "  demoStartBtn.style.background = enabled ? '#4CAF50' : '#444';"
+    "  demoStartBtn.style.color = enabled ? '#fff' : '#888';"
+    "  demoStartBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';"
+    "  "
+    "  fetch('/api/demo/config', {"
+    "    method: 'POST',"
+    "    headers: {'Content-Type': 'application/json'},"
+    "    body: JSON.stringify({enabled: enabled, speed_ms: "
+    "parseInt(demoSpeed.value)})"
+    "  }).catch(e => console.error('Demo config error:', e));"
+    "});"
+    ""
+    "demoSpeed.addEventListener('input', function() {"
+    "  demoSpeedValue.textContent = this.value + 'ms';"
+    "});"
+    ""
+    "demoSpeed.addEventListener('change', function() {"
+    "  if (demoCheckbox.checked) {"
+    "    fetch('/api/demo/config', {"
+    "      method: 'POST',"
+    "      headers: {'Content-Type': 'application/json'},"
+    "      body: JSON.stringify({enabled: true, speed_ms: "
+    "parseInt(this.value)})"
+    "    }).catch(e => console.error('Demo speed error:', e));"
+    "  }"
+    "});"
+    ""
+    "function startDemoMode() {"
+    "  if (!demoCheckbox.checked) return;"
+    "  fetch('/api/demo/start', {method: 'POST'})"
+    "    .then(r => r.ok ? console.log('Demo started') : console.error('Demo "
+    "start failed'))"
+    "    .catch(e => console.error('Demo start error:', e));"
+    "}"
+    "</script>"
+    "</div>";
 
 // Chunk 4: HTML closing tags
-static const char html_chunk_end[] =
-        "</body>"
-        "</html>";
+static const char html_chunk_end[] = "</body>"
+                                     "</html>";
 
 // ============================================================================
 // HTML PAGE HANDLER
 // ============================================================================
 
-static esp_err_t http_get_root_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "GET / (HTML page) - using chunked transfer for reliability");
-    
-    // Set content type
-    httpd_resp_set_type(req, "text/html; charset=utf-8");
-    
-    // Set chunked transfer encoding
-    httpd_resp_set_hdr(req, "Transfer-Encoding", "chunked");
-    
-    // ✅ Send HTML in 6 smaller chunks with explicit logging
-    // Using explicit strlen() and longer delays for reliability
-    
-    // CHUNK 1: HEAD (CSS + bootstrap script)
-    size_t chunk1_len = strlen(html_chunk_head);
-    ESP_LOGI(TAG, "📤 Chunk 1: HEAD+CSS (%zu bytes)", chunk1_len);
-    esp_err_t ret = httpd_resp_send_chunk(req, html_chunk_head, chunk1_len);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Chunk 1 failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    vTaskDelay(pdMS_TO_TICKS(50));
-    
-    // CHUNK 2: BODY start + board container
-    size_t chunk2_len = strlen(html_chunk_body);
-    ESP_LOGI(TAG, "📤 Chunk 2: BODY+BOARD (%zu bytes)", chunk2_len);
-    ret = httpd_resp_send_chunk(req, html_chunk_body, chunk2_len);
-        if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Chunk 2 failed: %s", esp_err_to_name(ret));
-            return ret;
-        }
-    vTaskDelay(pdMS_TO_TICKS(50));
-    
-    // CHUNK 3: Info panel (status, timer UI, history, captured)
-    size_t chunk3_len = strlen(html_chunk_infopanel);
-    ESP_LOGI(TAG, "📤 Chunk 3: INFOPANEL (%zu bytes)", chunk3_len);
-    ret = httpd_resp_send_chunk(req, html_chunk_infopanel, chunk3_len);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Chunk 3 failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    vTaskDelay(pdMS_TO_TICKS(50));
-    
-    // CHUNK 4: Banners (review mode, sandbox mode)
-    size_t chunk4_len = strlen(html_chunk_banners);
-    ESP_LOGI(TAG, "📤 Chunk 4: BANNERS (%zu bytes)", chunk4_len);
-    ret = httpd_resp_send_chunk(req, html_chunk_banners, chunk4_len);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Chunk 4 failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    vTaskDelay(pdMS_TO_TICKS(50));
-    
-    // CHUNK 5: Complete JavaScript (all functions in ONE piece!)
-    size_t chunk5_len = strlen(html_chunk_javascript);
-    ESP_LOGI(TAG, "📤 Chunk 5: JAVASCRIPT (%zu bytes)", chunk5_len);
-    ret = httpd_resp_send_chunk(req, html_chunk_javascript, chunk5_len);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Chunk 5 failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    vTaskDelay(pdMS_TO_TICKS(50));
-    
-    // CHUNK 6: Closing tags
-    size_t chunk6_len = strlen(html_chunk_end);
-    ESP_LOGI(TAG, "📤 Chunk 6: CLOSING (%zu bytes)", chunk6_len);
-    ret = httpd_resp_send_chunk(req, html_chunk_end, chunk6_len);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Chunk 6 failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    // End chunked transfer
-    ret = httpd_resp_send_chunk(req, NULL, 0);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Chunked transfer end failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    ESP_LOGI(TAG, "✅ HTML sent successfully (6 chunks: %zu + %zu + %zu + %zu + %zu + %zu bytes)",
-             chunk1_len, chunk2_len, chunk3_len, chunk4_len, chunk5_len, chunk6_len);
-    return ESP_OK;
+static esp_err_t http_get_root_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET / (HTML page) - using chunked transfer for reliability");
+
+  // Set content type
+  httpd_resp_set_type(req, "text/html; charset=utf-8");
+
+  // Set chunked transfer encoding
+  httpd_resp_set_hdr(req, "Transfer-Encoding", "chunked");
+
+  // ✅ Send HTML in 6 smaller chunks with explicit logging
+  // Using explicit strlen() and longer delays for reliability
+
+  // CHUNK 1: HEAD (CSS + bootstrap script)
+  size_t chunk1_len = strlen(html_chunk_head);
+  ESP_LOGI(TAG, "📤 Chunk 1: HEAD+CSS (%zu bytes)", chunk1_len);
+  esp_err_t ret = httpd_resp_send_chunk(req, html_chunk_head, chunk1_len);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Chunk 1 failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+  vTaskDelay(pdMS_TO_TICKS(50));
+
+  // CHUNK 2: BODY start + board container
+  size_t chunk2_len = strlen(html_chunk_body);
+  ESP_LOGI(TAG, "📤 Chunk 2: BODY+BOARD (%zu bytes)", chunk2_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_body, chunk2_len);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Chunk 2 failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+  vTaskDelay(pdMS_TO_TICKS(50));
+
+  // CHUNK 3: Info panel (status, timer UI, history, captured)
+  size_t chunk3_len = strlen(html_chunk_infopanel);
+  ESP_LOGI(TAG, "📤 Chunk 3: INFOPANEL (%zu bytes)", chunk3_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_infopanel, chunk3_len);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Chunk 3 failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+  vTaskDelay(pdMS_TO_TICKS(50));
+
+  // CHUNK 4: Banners (review mode, sandbox mode)
+  size_t chunk4_len = strlen(html_chunk_banners);
+  ESP_LOGI(TAG, "📤 Chunk 4: BANNERS (%zu bytes)", chunk4_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_banners, chunk4_len);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Chunk 4 failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+  vTaskDelay(pdMS_TO_TICKS(50));
+
+  // CHUNK 5: Complete JavaScript (all functions in ONE piece!)
+  size_t chunk5_len = strlen(html_chunk_javascript);
+  ESP_LOGI(TAG, "📤 Chunk 5: JAVASCRIPT (%zu bytes)", chunk5_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_javascript, chunk5_len);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Chunk 5 failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+  vTaskDelay(pdMS_TO_TICKS(50));
+
+  // CHUNK 6: Demo Mode UI
+  size_t chunk6_len = strlen(html_chunk_demo_mode);
+  ESP_LOGI(TAG, "📤 Chunk 6: DEMO MODE (%zu bytes)", chunk6_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_demo_mode, chunk6_len);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Chunk 6 failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+  vTaskDelay(pdMS_TO_TICKS(50));
+
+  // CHUNK 7: Closing tags
+  size_t chunk7_len = strlen(html_chunk_end);
+  ESP_LOGI(TAG, "📤 Chunk 7: CLOSING (%zu bytes)", chunk7_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_end, chunk7_len);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Chunk 6 failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  // End chunked transfer
+  ret = httpd_resp_send_chunk(req, NULL, 0);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Chunked transfer end failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  ESP_LOGI(TAG,
+           "✅ HTML sent successfully (6 chunks: %zu + %zu + %zu + %zu + %zu + "
+           "%zu bytes)",
+           chunk1_len, chunk2_len, chunk3_len, chunk4_len, chunk5_len,
+           chunk6_len);
+  return ESP_OK;
 }
 
 // ============================================================================
@@ -4245,411 +4699,383 @@ static esp_err_t http_get_root_handler(httpd_req_t *req)
 // EMPTY implementation to prevent stack overflow
 // esp_diagnostics will not work, but web server will function
 
-void __wrap_esp_log_writev(esp_log_level_t level,
-                          const char* tag,
-                          const char* format,
-                          va_list args)
-{
-    // EMPTY - do nothing to prevent stack overflow
-    (void)level;
-    (void)tag;
-    (void)format;
-    (void)args;
+void __wrap_esp_log_writev(esp_log_level_t level, const char *tag,
+                           const char *format, va_list args) {
+  // EMPTY - do nothing to prevent stack overflow
+  (void)level;
+  (void)tag;
+  (void)format;
+  (void)args;
 }
 
-void __wrap_esp_log_write(esp_log_level_t level,
-                          const char* tag,
-                          const char* format, ...)
-{
-    // EMPTY - do nothing to prevent stack overflow
-    (void)level;
-    (void)tag;
-    (void)format;
+void __wrap_esp_log_write(esp_log_level_t level, const char *tag,
+                          const char *format, ...) {
+  // EMPTY - do nothing to prevent stack overflow
+  (void)level;
+  (void)tag;
+  (void)format;
 }
 
 // ============================================================================
 // WEB SERVER TASK IMPLEMENTATION
 // ============================================================================
 
-void web_server_task_start(void *pvParameters)
-{
-    ESP_LOGI(TAG, "Web server task starting...");
-    
-    // ✅ CRITICAL: Register with TWDT
-    esp_err_t wdt_ret = esp_task_wdt_add(NULL);
-    if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
-        ESP_LOGE(TAG, "Failed to register web server task with TWDT: %s", esp_err_to_name(wdt_ret));
-    } else {
-        ESP_LOGI(TAG, "✅ Web server task registered with TWDT");
-    }
-    
-    // NVS is already initialized in main.c - skip it here
-    ESP_LOGI(TAG, "NVS already initialized, skipping...");
-    
-    // Load web lock status from NVS
-    esp_err_t lock_ret = web_lock_load_from_nvs();
-    if (lock_ret == ESP_OK) {
-        ESP_LOGI(TAG, "Web interface lock status: %s", web_locked ? "locked" : "unlocked");
-    } else {
-        ESP_LOGW(TAG, "Failed to load web lock status, using default: unlocked");
-    }
-    
-    // Initialize WiFi APSTA
-    esp_err_t ret = wifi_init_apsta();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Failed to initialize WiFi AP: %s", esp_err_to_name(ret));
-        ESP_LOGE(TAG, "❌ Web server task exiting");
-        
-        esp_task_wdt_delete(NULL);  // Unregister from WDT before deleting
-        vTaskDelete(NULL);
-        return;
-    }
-    wifi_ap_active = true;
-    ESP_LOGI(TAG, "WiFi APSTA initialized");
-    
-    // Wait for WiFi to be ready
-    vTaskDelay(pdMS_TO_TICKS(2000));
-    
-    // Automaticke pripojeni STA, pokud je konfigurace v NVS
-    char ssid[33] = {0};
-    char password[65] = {0};
-    esp_err_t nvs_ret = wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
-    if (nvs_ret == ESP_OK) {
-        ESP_LOGI(TAG, "WiFi config found in NVS, attempting auto-connect...");
-        esp_err_t connect_ret = wifi_connect_sta();
-        if (connect_ret == ESP_OK) {
-            ESP_LOGI(TAG, "✅ WiFi STA auto-connected successfully");
-        } else {
-            ESP_LOGW(TAG, "⚠️ WiFi STA auto-connect failed: %s (AP still active)", esp_err_to_name(connect_ret));
-        }
-    } else {
-        ESP_LOGI(TAG, "No WiFi config in NVS, STA will remain disconnected");
-    }
-    
-    // Start HTTP server
-    ret = start_http_server();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "❌ Failed to start HTTP server: %s", esp_err_to_name(ret));
-        ESP_LOGE(TAG, "❌ Web server task will continue but HTTP will not be available");
-        
-        // Don't delete task - instead enter a maintenance loop that feeds WDT
-        task_running = true;
-        while (task_running) {
-            web_server_task_wdt_reset_safe();
-            vTaskDelay(pdMS_TO_TICKS(1000));
-        }
-        
-        esp_task_wdt_delete(NULL);  // Unregister before deleting
-        vTaskDelete(NULL);
-        return;
-    }
-    web_server_active = true;
-    web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
-    ESP_LOGI(TAG, "HTTP server started");
-    
-    task_running = true;
-    ESP_LOGI(TAG, "Web server task started successfully");
-    ESP_LOGI(TAG, "Connect to WiFi: %s", WIFI_AP_SSID);
-    ESP_LOGI(TAG, "Password: %s", WIFI_AP_PASSWORD);
-    ESP_LOGI(TAG, "Open browser: http://%s", WIFI_AP_IP);
-    
-    // Main task loop
-    uint32_t loop_count = 0;
-    
-    while (task_running) {
-        // Reset task watchdog timer
-        esp_err_t wdt_ret = web_server_task_wdt_reset_safe();
-        if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-            // Task not registered with TWDT yet
-        }
-        
-        // Process web server commands from queue
-        web_server_process_commands();
-        
-        // Update web server state
-        web_server_update_state();
-        
-        // Periodic status logging
-        if (loop_count % 1000 == 0) {
-            ESP_LOGI(TAG, "Web Server Status: Active=%s, Clients=%lu, Uptime=%lu ms",
-                     web_server_active ? "Yes" : "No",
-                     client_count,
-                     web_server_active ? (xTaskGetTickCount() * portTICK_PERIOD_MS - web_server_start_time) : 0);
-        }
-        
-        loop_count++;
-        
-        // Wait for next update cycle (100ms)
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
-    
-    // Cleanup
-    stop_http_server();
-    esp_wifi_stop();
-    esp_wifi_deinit();
-    
-    ESP_LOGI(TAG, "Web server task stopped");
-    
-    // Task function should not return
+void web_server_task_start(void *pvParameters) {
+  ESP_LOGI(TAG, "Web server task starting...");
+
+  // ✅ CRITICAL: Register with TWDT
+  esp_err_t wdt_ret = esp_task_wdt_add(NULL);
+  if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
+    ESP_LOGE(TAG, "Failed to register web server task with TWDT: %s",
+             esp_err_to_name(wdt_ret));
+  } else {
+    ESP_LOGI(TAG, "✅ Web server task registered with TWDT");
+  }
+
+  // NVS is already initialized in main.c - skip it here
+  ESP_LOGI(TAG, "NVS already initialized, skipping...");
+
+  // Load web lock status from NVS
+  esp_err_t lock_ret = web_lock_load_from_nvs();
+  if (lock_ret == ESP_OK) {
+    ESP_LOGI(TAG, "Web interface lock status: %s",
+             web_locked ? "locked" : "unlocked");
+  } else {
+    ESP_LOGW(TAG, "Failed to load web lock status, using default: unlocked");
+  }
+
+  // Initialize WiFi APSTA
+  esp_err_t ret = wifi_init_apsta();
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Failed to initialize WiFi AP: %s", esp_err_to_name(ret));
+    ESP_LOGE(TAG, "❌ Web server task exiting");
+
+    esp_task_wdt_delete(NULL); // Unregister from WDT before deleting
     vTaskDelete(NULL);
+    return;
+  }
+  wifi_ap_active = true;
+  ESP_LOGI(TAG, "WiFi APSTA initialized");
+
+  // Wait for WiFi to be ready
+  vTaskDelay(pdMS_TO_TICKS(2000));
+
+  // Automaticke pripojeni STA, pokud je konfigurace v NVS
+  char ssid[33] = {0};
+  char password[65] = {0};
+  esp_err_t nvs_ret =
+      wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
+  if (nvs_ret == ESP_OK) {
+    ESP_LOGI(TAG, "WiFi config found in NVS, attempting auto-connect...");
+    esp_err_t connect_ret = wifi_connect_sta();
+    if (connect_ret == ESP_OK) {
+      ESP_LOGI(TAG, "✅ WiFi STA auto-connected successfully");
+    } else {
+      ESP_LOGW(TAG, "⚠️ WiFi STA auto-connect failed: %s (AP still active)",
+               esp_err_to_name(connect_ret));
+    }
+  } else {
+    ESP_LOGI(TAG, "No WiFi config in NVS, STA will remain disconnected");
+  }
+
+  // Start HTTP server
+  ret = start_http_server();
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Failed to start HTTP server: %s", esp_err_to_name(ret));
+    ESP_LOGE(TAG,
+             "❌ Web server task will continue but HTTP will not be available");
+
+    // Don't delete task - instead enter a maintenance loop that feeds WDT
+    task_running = true;
+    while (task_running) {
+      web_server_task_wdt_reset_safe();
+      vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    esp_task_wdt_delete(NULL); // Unregister before deleting
+    vTaskDelete(NULL);
+    return;
+  }
+  web_server_active = true;
+  web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+  ESP_LOGI(TAG, "HTTP server started");
+
+  task_running = true;
+  ESP_LOGI(TAG, "Web server task started successfully");
+  ESP_LOGI(TAG, "Connect to WiFi: %s", WIFI_AP_SSID);
+  ESP_LOGI(TAG, "Password: %s", WIFI_AP_PASSWORD);
+  ESP_LOGI(TAG, "Open browser: http://%s", WIFI_AP_IP);
+
+  // Main task loop
+  uint32_t loop_count = 0;
+
+  while (task_running) {
+    // Reset task watchdog timer
+    esp_err_t wdt_ret = web_server_task_wdt_reset_safe();
+    if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
+      // Task not registered with TWDT yet
+    }
+
+    // Process web server commands from queue
+    web_server_process_commands();
+
+    // Update web server state
+    web_server_update_state();
+
+    // Periodic status logging
+    if (loop_count % 1000 == 0) {
+      ESP_LOGI(TAG, "Web Server Status: Active=%s, Clients=%lu, Uptime=%lu ms",
+               web_server_active ? "Yes" : "No", client_count,
+               web_server_active ? (xTaskGetTickCount() * portTICK_PERIOD_MS -
+                                    web_server_start_time)
+                                 : 0);
+    }
+
+    loop_count++;
+
+    // Wait for next update cycle (100ms)
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
+
+  // Cleanup
+  stop_http_server();
+  esp_wifi_stop();
+  esp_wifi_deinit();
+
+  ESP_LOGI(TAG, "Web server task stopped");
+
+  // Task function should not return
+  vTaskDelete(NULL);
 }
 
 // ============================================================================
 // WEB SERVER COMMAND PROCESSING
 // ============================================================================
 
-void web_server_process_commands(void)
-{
-    uint8_t command;
-    
-    // Check for new web server commands from queue
-    if (web_server_command_queue != NULL && 
-        xQueueReceive(web_server_command_queue, &command, 0) == pdTRUE) {
-        web_server_execute_command(command);
-    }
+void web_server_process_commands(void) {
+  uint8_t command;
+
+  // Check for new web server commands from queue
+  if (web_server_command_queue != NULL &&
+      xQueueReceive(web_server_command_queue, &command, 0) == pdTRUE) {
+    web_server_execute_command(command);
+  }
 }
 
-void web_server_execute_command(uint8_t command)
-{
-    switch (command) {
-        case WEB_CMD_START_SERVER:
-            web_server_start();
-            break;
-            
-        case WEB_CMD_STOP_SERVER:
-            web_server_stop();
-            break;
-            
-        case WEB_CMD_GET_STATUS:
-            web_server_get_status();
-            break;
-            
-        case WEB_CMD_SET_CONFIG:
-            web_server_set_config();
-            break;
-            
-        default:
-            ESP_LOGW(TAG, "Unknown web server command: %d", command);
-            break;
-    }
+void web_server_execute_command(uint8_t command) {
+  switch (command) {
+  case WEB_CMD_START_SERVER:
+    web_server_start();
+    break;
+
+  case WEB_CMD_STOP_SERVER:
+    web_server_stop();
+    break;
+
+  case WEB_CMD_GET_STATUS:
+    web_server_get_status();
+    break;
+
+  case WEB_CMD_SET_CONFIG:
+    web_server_set_config();
+    break;
+
+  default:
+    ESP_LOGW(TAG, "Unknown web server command: %d", command);
+    break;
+  }
 }
 
 // ============================================================================
 // WEB SERVER CONTROL FUNCTIONS
 // ============================================================================
 
-void web_server_start(void)
-{
-    if (web_server_active) {
-        ESP_LOGW(TAG, "Web server already active");
-        return;
-    }
-    
-    ESP_LOGI(TAG, "Starting web server...");
-    
-    esp_err_t ret = start_http_server();
-    if (ret == ESP_OK) {
-        web_server_active = true;
-        web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
-        ESP_LOGI(TAG, "Web server started successfully");
-    } else {
-        ESP_LOGE(TAG, "Failed to start web server");
-    }
-    
-    // Send status to status queue
-    if (web_server_status_queue != NULL) {
-        uint8_t status = web_server_active ? 1 : 0;
-        xQueueSend(web_server_status_queue, &status, 0);
-    }
+void web_server_start(void) {
+  if (web_server_active) {
+    ESP_LOGW(TAG, "Web server already active");
+    return;
+  }
+
+  ESP_LOGI(TAG, "Starting web server...");
+
+  esp_err_t ret = start_http_server();
+  if (ret == ESP_OK) {
+    web_server_active = true;
+    web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    ESP_LOGI(TAG, "Web server started successfully");
+  } else {
+    ESP_LOGE(TAG, "Failed to start web server");
+  }
+
+  // Send status to status queue
+  if (web_server_status_queue != NULL) {
+    uint8_t status = web_server_active ? 1 : 0;
+    xQueueSend(web_server_status_queue, &status, 0);
+  }
 }
 
-void web_server_stop(void)
-{
-    if (!web_server_active) {
-        ESP_LOGW(TAG, "Web server not active - cannot stop");
-        return;
-    }
-    
-    ESP_LOGI(TAG, "Stopping web server...");
-    
-    stop_http_server();
-    web_server_active = false;
-    web_server_start_time = 0;
-    
-    ESP_LOGI(TAG, "Web server stopped successfully");
-    
-    // Send status to status queue
-    if (web_server_status_queue != NULL) {
-        uint8_t status = 0;
-        xQueueSend(web_server_status_queue, &status, 0);
-    }
+void web_server_stop(void) {
+  if (!web_server_active) {
+    ESP_LOGW(TAG, "Web server not active - cannot stop");
+    return;
+  }
+
+  ESP_LOGI(TAG, "Stopping web server...");
+
+  stop_http_server();
+  web_server_active = false;
+  web_server_start_time = 0;
+
+  ESP_LOGI(TAG, "Web server stopped successfully");
+
+  // Send status to status queue
+  if (web_server_status_queue != NULL) {
+    uint8_t status = 0;
+    xQueueSend(web_server_status_queue, &status, 0);
+  }
 }
 
-void web_server_get_status(void)
-{
-    ESP_LOGI(TAG, "Web Server Status - Active: %s, Clients: %lu, Uptime: %lu ms", 
-              web_server_active ? "Yes" : "No",
-              client_count,
-              web_server_active ? (xTaskGetTickCount() * portTICK_PERIOD_MS - web_server_start_time) : 0);
-    
-    // Send status to status queue
-    if (web_server_status_queue != NULL) {
-        uint8_t status = web_server_active ? 1 : 0;
-        xQueueSend(web_server_status_queue, &status, 0);
-    }
+void web_server_get_status(void) {
+  ESP_LOGI(TAG, "Web Server Status - Active: %s, Clients: %lu, Uptime: %lu ms",
+           web_server_active ? "Yes" : "No", client_count,
+           web_server_active ? (xTaskGetTickCount() * portTICK_PERIOD_MS -
+                                web_server_start_time)
+                             : 0);
+
+  // Send status to status queue
+  if (web_server_status_queue != NULL) {
+    uint8_t status = web_server_active ? 1 : 0;
+    xQueueSend(web_server_status_queue, &status, 0);
+  }
 }
 
-void web_server_set_config(void)
-{
-    ESP_LOGI(TAG, "Web server configuration update requested");
-    ESP_LOGI(TAG, "Web server configuration updated");
+void web_server_set_config(void) {
+  ESP_LOGI(TAG, "Web server configuration update requested");
+  ESP_LOGI(TAG, "Web server configuration updated");
 }
 
 // ============================================================================
 // WEB SERVER STATE UPDATE
 // ============================================================================
 
-void web_server_update_state(void)
-{
-    if (!web_server_active) {
-        return;
-    }
-    
-    // Web server is running, no additional updates needed
-    // State is updated via HTTP handlers
+void web_server_update_state(void) {
+  if (!web_server_active) {
+    return;
+  }
+
+  // Web server is running, no additional updates needed
+  // State is updated via HTTP handlers
 }
 
 // ============================================================================
 // HTTP HANDLERS (Legacy placeholder functions)
 // ============================================================================
 
-void web_server_handle_root(void)
-{
-    ESP_LOGI(TAG, "Handling root HTTP request");
-    ESP_LOGD(TAG, "Root page served successfully");
+void web_server_handle_root(void) {
+  ESP_LOGI(TAG, "Handling root HTTP request");
+  ESP_LOGD(TAG, "Root page served successfully");
 }
 
-void web_server_handle_api_status(void)
-{
-    ESP_LOGI(TAG, "Handling API status request");
-    ESP_LOGD(TAG, "API status served successfully");
+void web_server_handle_api_status(void) {
+  ESP_LOGI(TAG, "Handling API status request");
+  ESP_LOGD(TAG, "API status served successfully");
 }
 
-void web_server_handle_api_board(void)
-{
-    ESP_LOGI(TAG, "Handling API board request");
-    ESP_LOGD(TAG, "API board data served successfully");
+void web_server_handle_api_board(void) {
+  ESP_LOGI(TAG, "Handling API board request");
+  ESP_LOGD(TAG, "API board data served successfully");
 }
 
-void web_server_handle_api_move(void)
-{
-    ESP_LOGI(TAG, "Handling API move request");
-    ESP_LOGD(TAG, "API move request processed successfully");
+void web_server_handle_api_move(void) {
+  ESP_LOGI(TAG, "Handling API move request");
+  ESP_LOGD(TAG, "API move request processed successfully");
 }
 
 // ============================================================================
 // WEBSOCKET FUNCTIONS (Placeholder for future implementation)
 // ============================================================================
 
-void web_server_websocket_init(void)
-{
-    ESP_LOGI(TAG, "WebSocket support not yet implemented");
+void web_server_websocket_init(void) {
+  ESP_LOGI(TAG, "WebSocket support not yet implemented");
 }
 
-void web_server_websocket_send_update(const char* data)
-{
-    if (!web_server_active || data == NULL) {
-        return;
-    }
-    ESP_LOGI(TAG, "WebSocket send: %s", data);
+void web_server_websocket_send_update(const char *data) {
+  if (!web_server_active || data == NULL) {
+    return;
+  }
+  ESP_LOGI(TAG, "WebSocket send: %s", data);
 }
 
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
 
-bool web_server_is_active(void)
-{
-    return web_server_active;
+bool web_server_is_active(void) { return web_server_active; }
+
+uint32_t web_server_get_client_count(void) { return client_count; }
+
+uint32_t web_server_get_uptime(void) {
+  if (!web_server_active) {
+    return 0;
+  }
+
+  uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+  return current_time - web_server_start_time;
 }
 
-uint32_t web_server_get_client_count(void)
-{
-    return client_count;
+void web_server_log_request(const char *method, const char *path) {
+  if (method == NULL || path == NULL) {
+    return;
+  }
+
+  ESP_LOGI(TAG, "HTTP Request: %s %s", method, path);
 }
 
-uint32_t web_server_get_uptime(void)
-{
-    if (!web_server_active) {
-        return 0;
-    }
-    
-    uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
-    return current_time - web_server_start_time;
-}
+void web_server_log_error(const char *error_message) {
+  if (error_message == NULL) {
+    return;
+  }
 
-void web_server_log_request(const char* method, const char* path)
-{
-    if (method == NULL || path == NULL) {
-        return;
-    }
-    
-    ESP_LOGI(TAG, "HTTP Request: %s %s", method, path);
-}
-
-void web_server_log_error(const char* error_message)
-{
-    if (error_message == NULL) {
-        return;
-    }
-    
-    ESP_LOGE(TAG, "Web Server Error: %s", error_message);
+  ESP_LOGE(TAG, "Web Server Error: %s", error_message);
 }
 
 // ============================================================================
 // CONFIGURATION FUNCTIONS
 // ============================================================================
 
-void web_server_set_port(uint16_t port)
-{
-    ESP_LOGI(TAG, "Setting web server port to %d", port);
-    ESP_LOGI(TAG, "Web server port updated to %d", port);
+void web_server_set_port(uint16_t port) {
+  ESP_LOGI(TAG, "Setting web server port to %d", port);
+  ESP_LOGI(TAG, "Web server port updated to %d", port);
 }
 
-void web_server_set_max_clients(uint32_t max_clients)
-{
-    ESP_LOGI(TAG, "Setting web server max clients to %lu", max_clients);
-    ESP_LOGI(TAG, "Web server max clients updated to %lu", max_clients);
+void web_server_set_max_clients(uint32_t max_clients) {
+  ESP_LOGI(TAG, "Setting web server max clients to %lu", max_clients);
+  ESP_LOGI(TAG, "Web server max clients updated to %lu", max_clients);
 }
 
-void web_server_enable_ssl(bool enable)
-{
-    ESP_LOGI(TAG, "Setting web server SSL to %s", enable ? "enabled" : "disabled");
-    ESP_LOGI(TAG, "Web server SSL %s", enable ? "enabled" : "disabled");
+void web_server_enable_ssl(bool enable) {
+  ESP_LOGI(TAG, "Setting web server SSL to %s",
+           enable ? "enabled" : "disabled");
+  ESP_LOGI(TAG, "Web server SSL %s", enable ? "enabled" : "disabled");
 }
 
 // ============================================================================
 // STATUS AND CONTROL FUNCTIONS
 // ============================================================================
 
-bool web_server_is_task_running(void)
-{
-    return task_running;
+bool web_server_is_task_running(void) { return task_running; }
+
+void web_server_stop_task(void) {
+  task_running = false;
+  ESP_LOGI(TAG, "Web server task stop requested");
 }
 
-void web_server_stop_task(void)
-{
-    task_running = false;
-    ESP_LOGI(TAG, "Web server task stop requested");
-}
+void web_server_reset(void) {
+  ESP_LOGI(TAG, "Resetting web server...");
 
-void web_server_reset(void)
-{
-    ESP_LOGI(TAG, "Resetting web server...");
-    
-    web_server_active = false;
-    web_server_start_time = 0;
-    client_count = 0;
-    
-    ESP_LOGI(TAG, "Web server reset completed");
+  web_server_active = false;
+  web_server_start_time = 0;
+  client_count = 0;
+
+  ESP_LOGI(TAG, "Web server reset completed");
 }

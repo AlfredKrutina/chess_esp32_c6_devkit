@@ -634,7 +634,6 @@ typedef struct {
     bool quiet_mode;             ///< Tichy rezim (minimalni vystup)
     uint8_t log_level;           ///< Uroven logovania (ESP_LOG_ERROR, ESP_LOG_INFO, atd.)
     uint32_t command_timeout_ms; ///< Timeout prikazu v milisekundach
-    bool echo_enabled;           ///< Povoleno echo znaku pri psani prikazu
 } system_config_t;
 
 // Predni deklarace konfiguracnich funkci

@@ -32,7 +32,6 @@ static bool displaying_error = false;
 static uint8_t active_error_count = 0;
 
 // Forward declarations
-static void error_clear_leds(uint8_t* led_positions, uint8_t count);
 static void error_flash_leds(uint8_t* led_positions, uint8_t count, uint8_t r, uint8_t g, uint8_t b);
 static void error_pulse_leds(uint8_t* led_positions, uint8_t count, uint8_t r, uint8_t g, uint8_t b);
 static const char* error_get_message_for_type(visual_error_type_t type);
@@ -121,11 +120,12 @@ esp_err_t error_show_visual(visual_error_type_t error_type, const chess_move_t* 
             return pos_result;
         }
     } else {
-        // Generic error - flash all board LEDs
-        for (int i = 0; i < 64; i++) {
+        // Generic error - flash first 8 board LEDs only (array size is 8!)
+        // ✅ CRITICAL BUG FIX: Was i < 64 causing buffer overflow!
+        for (int i = 0; i < 8; i++) {  
             led_positions[i] = i;
         }
-        led_count = 64;
+        led_count = 8;  // ✅ FIXED: Only 8 LEDs, not 64
     }
     
     // Store error information
@@ -497,17 +497,6 @@ esp_err_t error_get_led_positions_for_square(uint8_t row, uint8_t col, uint8_t* 
 // INTERNI POMOCNE FUNKCE
 // ============================================================================
 
-/**
- * @brief Vymaze LED na zadanych pozicich
- * 
- * @param led_positions Pole LED pozic k vymazani
- * @param count Pocet pozic
- */
-static void error_clear_leds(uint8_t* led_positions, uint8_t count) {
-    for (uint8_t i = 0; i < count; i++) {
-        led_set_pixel_layer(LED_LAYER_ERROR, led_positions[i], 0, 0, 0);
-    }
-}
 
 /**
  * @brief Blikani LED na zadanych pozicich

@@ -1,10 +1,10 @@
 /**
  * @file uart_task.h
- * @brief ESP32-C6 Chess System v2.4 - UART Task Hlavicka s Linenoise Echo
+ * @brief ESP32-C6 Chess System v2.4 - UART Task Hlavicka
  * 
- * Tato hlavicka definuje rozhrani UART tasku s podporou pro spravne echo:
- * - USB Serial JTAG konzolove rozhrani s linenoise echo
- * - Znakovy vstup bez blokovani s okamzitym echem
+ * Tato hlavicka definuje rozhrani UART tasku:
+ * - USB Serial JTAG konzolove rozhrani
+ * - Znakovy vstup bez blokovani
  * - Parsovani a vykonavani prikazu
  * - Systemove testovani a diagnostika
  * - Formatovani a vystup odpovedi
@@ -18,8 +18,7 @@
  * Poskytuje radkovy terminal s histori, automatickym dokoncenim a barevnym vystupem.
  * 
  * Klicova vylepseni:
- * - Pouziva ESP-IDF linenoise komponentu pro spravne echo
- * - I/O bez blokovani s vestavenou podporou echo
+ * - I/O bez blokovani
  * - Lepsi zpracovani chyb
  * - Zjednodusene zpracovani vstupu
  */
@@ -133,29 +132,6 @@ void uart_write_string_immediate(const char* str);
  * @param c Znak k zapsani
  */
 void uart_write_char_immediate(char c);
-
-// ============================================================================
-// FUNKCE PRO OVLADANI ECHO
-// ============================================================================
-
-/**
- * @brief Nastav zda je echo povoleno
- * 
- * @param enabled true pro povoleni echo
- */
-void uart_set_echo_enabled(bool enabled);
-
-/**
- * @brief Ziskej zda je echo povoleno
- * 
- * @return true pokud je echo povoleno
- */
-bool uart_get_echo_enabled(void);
-
-/**
- * @brief Testuj echo funkcionalitu
- */
-void uart_test_echo(void);
 
 // ============================================================================
 // FUNKCE PRO PRIKAZY

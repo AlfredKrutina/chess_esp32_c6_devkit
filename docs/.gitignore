@@ -1,0 +1,7 @@
+# Ignorovat Doxygen výstup
+doxygen/
+
+# Ignorovat dočasné soubory
+*.tmp
+*.log
+

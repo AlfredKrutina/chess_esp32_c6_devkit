@@ -10,14 +10,12 @@ idf_component_register(
         uart_task
         game_task
         animation_task
-        screen_saver_task
         test_task
-        matter_task
         web_server_task
-        unified_animation_manager
         led_state_manager
         visual_error_system
         timer_system
+        unified_animation_manager
     PRIV_REQUIRES
         spi_flash
         console
