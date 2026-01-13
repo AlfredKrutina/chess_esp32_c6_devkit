@@ -363,12 +363,14 @@ Interaktivní dokumentace s vyhledáváním a navigací:
 
 ```bash
 ./generate_docs.sh
-open docs/doxygen/html/index.html
+open docs/public_doxygen/html/index.html  # Viditelné na GitHubu (plná verze)
+# nebo
+open docs/public_doxygen/rtf/refman.rtf  # RTF dokumentace pro Word
 ```
 
 **Nasdílení HTML dokumentace:**
-- 📖 [Návod na nasdílení dokumentace](docs/HOW_TO_SHARE_DOCUMENTATION.md) - GitHub Pages, lokální server, atd.
 - 🚀 Rychlé nasdílení na GitHub Pages: `./update_gh_pages.sh`
+- 📁 Dokumentace je automaticky zkopírována do `docs/public_doxygen/` při generování (viditelná na GitHubu)
 
 ### RTF dokumentace (jeden soubor)
 

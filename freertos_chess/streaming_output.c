@@ -6,7 +6,7 @@
  * - Eliminaci potreby velkych bufferu (2KB+ stringy)
  * - Snizeni memory pressure a fragmentace
  * - Umožneni real-time vystupu pro lepsi uzivatelsky zazitek
- * - Podporu jak UART tak budoucich web server vystupu
+ * - Podporu jak UART tak web server vystupu
  * 
  * @author Alfred Krutina
  * @version 2.4
@@ -31,7 +31,7 @@
 #include <string.h>
 #include "streaming_output.h"
 #include "chess_types.h"
-#include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
+#include "led_mapping.h"  // Include LED mapping functions
 
 static const char *TAG = "STREAMING_OUT";
 

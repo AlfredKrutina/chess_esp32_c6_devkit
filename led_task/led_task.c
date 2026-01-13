@@ -178,6 +178,7 @@
 #include "../freertos_chess/include/streaming_output.h"
 #include "../game_task/include/game_task.h" // For game_get_piece() function
 #include "../unified_animation_manager/include/unified_animation_manager.h" // Non-blocking endgame animations
+#include "../animation_task/include/animation_task.h" // ✅ NOVÉ: Animation task pro herní animace
 #include "led_mapping.h" // ✅ FIX: Include LED mapping functions
 
 // Define min macro if not available
@@ -952,39 +953,22 @@ void led_execute_command_new(const led_command_t *cmd) {
     break;
 
   // Advanced Chess Animation Cases
+  // ✅ DEPRECATED: LED_CMD_ANIM_* commands - use animation_task instead
   case LED_CMD_ANIM_PLAYER_CHANGE:
-    ESP_LOGI(TAG, "🌟 Player change animation");
-    led_anim_player_change(cmd);
-    break;
-
   case LED_CMD_ANIM_MOVE_PATH:
-    ESP_LOGI(TAG, "➡️ Move path animation");
-    led_anim_move_path(cmd);
-    break;
-
   case LED_CMD_ANIM_CASTLE:
-    ESP_LOGI(TAG, "🏰 Castling animation");
-    led_anim_castle(cmd);
+  case LED_CMD_ANIM_ENDGAME:
+  case LED_CMD_ANIM_CHECK:
+  case LED_CMD_ANIM_CHECKMATE:
+    ESP_LOGW(TAG, "⚠️ DEPRECATED: LED_CMD_ANIM_* commands are deprecated - use animation_task instead");
+    ESP_LOGW(TAG, "   Command type: %d - This should be handled by animation_task, not led_task", cmd->type);
+    // Do not execute - these animations are now handled by animation_task
     break;
 
   case LED_CMD_ANIM_PROMOTE:
     ESP_LOGI(TAG, "👑 Promotion animation");
+    // ✅ NOTE: Promotion still uses unified_animation_manager, not animation_task
     led_anim_promote(cmd);
-    break;
-
-  case LED_CMD_ANIM_ENDGAME:
-    ESP_LOGI(TAG, "🏆 Endgame animation");
-    led_anim_endgame(cmd);
-    break;
-
-  case LED_CMD_ANIM_CHECK:
-    ESP_LOGI(TAG, "⚠️ Check animation");
-    led_anim_check(cmd);
-    break;
-
-  case LED_CMD_ANIM_CHECKMATE:
-    ESP_LOGI(TAG, "☠️ Checkmate animation");
-    led_anim_checkmate(cmd);
     break;
 
   case LED_CMD_BUTTON_PROMOTION_AVAILABLE:
@@ -1910,8 +1894,8 @@ void led_task_start(void *pvParameters) {
     // Update animations
     led_update_animation();
 
-    // Update endgame wave animation (non-blocking, podle starého projektu)
-    led_update_endgame_wave();
+    // ✅ REMOVED: led_update_endgame_wave() - endgame animace je nyní v animation_task
+    // Endgame wave animation is now handled by animation_task, not led_task
 
     // Process button blink timers
     led_process_button_blink_timers();
@@ -2541,12 +2525,15 @@ void led_update_endgame_wave(void) {
  */
 void led_stop_endgame_animation(void) {
   ESP_LOGI(TAG, "🛑 Stopping endless endgame animation...");
+  
+  // ✅ OPRAVA: Zastavit legacy endgame wave animaci
   endgame_animation_active = false;
-
-  // ✅ OPRAVA: Zastavit endgame wave animaci
   endgame_wave.active = false;
   endgame_wave.initialized = false;
   endgame_wave.radius = 0;
+  
+  // ✅ NOVÉ: Zastavit animation_task endgame animaci
+  animation_stop_by_type(ANIM_TASK_TYPE_ENDGAME);
 
   led_clear_board_only();
   ESP_LOGI(TAG, "✅ Endless endgame animation stopped");

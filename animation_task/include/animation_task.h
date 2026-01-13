@@ -40,9 +40,20 @@ typedef enum {
     ANIM_TASK_TYPE_FADE,             // Prechod fade
     ANIM_TASK_TYPE_CHESS_PATTERN,    // Sachovnicovy vzor
     ANIM_TASK_TYPE_RAINBOW,          // Duhove barvy
-    ANIM_TASK_TYPE_MOVE_HIGHLIGHT,   // Zvyrazneni cesty tahu
-    ANIM_TASK_TYPE_CHECK_HIGHLIGHT,  // Indikator sachu
-    ANIM_TASK_TYPE_GAME_OVER,        // Vzor konce hry
+    
+    // NOVÉ typy - herní animace
+    ANIM_TASK_TYPE_PLAYER_CHANGE,    // Animace změny hráče
+    ANIM_TASK_TYPE_MOVE_PATH,        // Animace cesty tahu
+    ANIM_TASK_TYPE_CASTLE,           // Animace rošády
+    ANIM_TASK_TYPE_PROMOTE,          // Animace promoce (volitelně)
+    ANIM_TASK_TYPE_ENDGAME,          // Endgame wave animace (nekonečná)
+    ANIM_TASK_TYPE_CHECK,            // Animace šachu
+    ANIM_TASK_TYPE_CHECKMATE,        // Animace matu
+    
+    // Ponechat existující (pro zpětnou kompatibilitu)
+    ANIM_TASK_TYPE_MOVE_HIGHLIGHT,   // Zvyrazneni cesty tahu (DEPRECATED - použít MOVE_PATH)
+    ANIM_TASK_TYPE_CHECK_HIGHLIGHT,  // Indikator sachu (DEPRECATED - použít CHECK)
+    ANIM_TASK_TYPE_GAME_OVER,        // Vzor konce hry (DEPRECATED - použít ENDGAME)
     ANIM_TASK_TYPE_CUSTOM            // Vlastni animace
 } animation_task_type_t;
 
@@ -53,6 +64,54 @@ typedef enum {
     ANIM_TASK_STATE_PAUSED,         // Animace je pozastavena
     ANIM_TASK_STATE_FINISHED        // Animace je dokoncena
 } animation_task_state_t;
+
+// ============================================================================
+// DATOVÉ STRUKTURY PRO ANIMAČNÍ DATA
+// ============================================================================
+
+// Note: player_t and piece_t are defined in chess_types.h (included via freertos_chess.h)
+
+// Struktury pro specifická animační data
+typedef struct {
+    uint8_t from_led;          // Zdrojová LED pozice
+    uint8_t to_led;            // Cílová LED pozice
+    uint8_t from_row, from_col; // Zdrojové souřadnice
+    uint8_t to_row, to_col;     // Cílové souřadnice
+} move_path_data_t;
+
+typedef struct {
+    uint8_t player_color;      // 1=white, 0=black (DEPRECATED - použít current_player)
+    player_t current_player;   // Aktuální hráč
+} player_change_data_t;
+
+typedef struct {
+    uint8_t king_from_led;     // Král start pozice
+    uint8_t king_to_led;       // Král cíl pozice
+    uint8_t rook_from_led;     // Věž start pozice
+    uint8_t rook_to_led;       // Věž cíl pozice
+} castle_data_t;
+
+typedef struct {
+    uint8_t king_led;          // Pozice krále vítěze
+    uint8_t king_row, king_col; // Souřadnice krále
+    piece_t winner_piece;      // Vítězný král (pro barvu)
+    uint8_t radius;            // Aktuální poloměr vlny
+    uint32_t last_radius_update; // Čas poslední aktualizace radiusu (v ms)
+} endgame_data_t;
+
+typedef struct {
+    uint8_t promotion_led;     // Pozice promoce
+} promote_data_t;
+
+// Union pro různá animační data
+typedef union {
+    move_path_data_t move_path;
+    player_change_data_t player_change;
+    castle_data_t castle;
+    endgame_data_t endgame;
+    promote_data_t promote;
+    void* custom;              // Pro custom animace
+} animation_data_union_t;
 
 // Animation structure
 typedef struct {
@@ -69,7 +128,12 @@ typedef struct {
     uint32_t current_frame;     // Current frame number
     uint32_t total_frames;      // Total frame count
     uint32_t frame_interval;    // Frame interval in ms
-    void* data;                 // Animation-specific data
+    
+    // NOVÉ: Union pro data místo void* data
+    animation_data_union_t data_union;
+    
+    // Ponechat pro zpětnou kompatibilitu
+    void* data;                 // DEPRECATED - použít data_union
 } animation_task_t;
 
 
@@ -106,6 +170,87 @@ void animation_initialize_system(void);
  * @return ID animace nebo 0xFF pri selhani
  */
 uint8_t animation_create(animation_task_type_t type, uint32_t duration_ms, uint8_t priority, bool loop);
+
+/**
+ * @brief Helper funkce pro vytvoření player_change animace
+ * 
+ * @param player Aktuální hráč (PLAYER_WHITE nebo PLAYER_BLACK)
+ * @param duration_ms Délka animace v milisekundách
+ * @param priority Priorita animace (0-255)
+ * @return ID animace nebo 0xFF při selhání
+ */
+uint8_t animation_create_player_change(player_t player, uint32_t duration_ms, uint8_t priority);
+
+/**
+ * @brief Helper funkce pro vytvoření move_path animace
+ * 
+ * @param from_row Zdrojový řádek (0-7)
+ * @param from_col Zdrojový sloupec (0-7)
+ * @param to_row Cílový řádek (0-7)
+ * @param to_col Cílový sloupec (0-7)
+ * @param duration_ms Délka animace v milisekundách
+ * @param priority Priorita animace (0-255)
+ * @return ID animace nebo 0xFF při selhání
+ */
+uint8_t animation_create_move_path(uint8_t from_row, uint8_t from_col, 
+                                    uint8_t to_row, uint8_t to_col,
+                                    uint32_t duration_ms, uint8_t priority);
+
+/**
+ * @brief Helper funkce pro vytvoření castle animace
+ * 
+ * @param king_from_led LED index zdrojové pozice krále
+ * @param king_to_led LED index cílové pozice krále
+ * @param rook_from_led LED index zdrojové pozice věže
+ * @param rook_to_led LED index cílové pozice věže
+ * @param duration_ms Délka animace v milisekundách
+ * @param priority Priorita animace (0-255)
+ * @return ID animace nebo 0xFF při selhání
+ */
+uint8_t animation_create_castle(uint8_t king_from_led, uint8_t king_to_led,
+                                uint8_t rook_from_led, uint8_t rook_to_led,
+                                uint32_t duration_ms, uint8_t priority);
+
+/**
+ * @brief Helper funkce pro vytvoření endgame animace
+ * 
+ * @param king_led LED index pozice krále vítěze
+ * @param winner_piece Vítězný král (PIECE_WHITE_KING nebo PIECE_BLACK_KING)
+ * @param duration_ms Délka animace v milisekundách (0 = nekonečná)
+ * @param priority Priorita animace (0-255)
+ * @param loop Zda animaci opakovat (true pro nekonečnou)
+ * @return ID animace nebo 0xFF při selhání
+ */
+uint8_t animation_create_endgame(uint8_t king_led, piece_t winner_piece,
+                                 uint32_t duration_ms, uint8_t priority, bool loop);
+
+/**
+ * @brief Helper funkce pro vytvoření check animace
+ * 
+ * @param duration_ms Délka animace v milisekundách
+ * @param priority Priorita animace (0-255)
+ * @return ID animace nebo 0xFF při selhání
+ */
+uint8_t animation_create_check(uint32_t duration_ms, uint8_t priority);
+
+/**
+ * @brief Helper funkce pro vytvoření checkmate animace
+ * 
+ * @param duration_ms Délka animace v milisekundách
+ * @param priority Priorita animace (0-255)
+ * @return ID animace nebo 0xFF při selhání
+ */
+uint8_t animation_create_checkmate(uint32_t duration_ms, uint8_t priority);
+
+/**
+ * @brief Helper funkce pro vytvoření promote animace
+ * 
+ * @param promotion_led LED index pozice promoce
+ * @param duration_ms Délka animace v milisekundách
+ * @param priority Priorita animace (0-255)
+ * @return ID animace nebo 0xFF při selhání
+ */
+uint8_t animation_create_promote(uint8_t promotion_led, uint32_t duration_ms, uint8_t priority);
 
 /**
  * @brief Spusti animaci
@@ -241,6 +386,20 @@ void animation_process_commands(void);
  * @brief Zastavi vsechny animace
  */
 void animation_stop_all(void);
+
+/**
+ * @brief Zastaví všechny animace daného typu
+ * 
+ * @param type Typ animace k zastavení
+ */
+void animation_stop_by_type(animation_task_type_t type);
+
+/**
+ * @brief Zastaví všechny animace kromě zadaného typu
+ * 
+ * @param except_type Typ animace, která má zůstat běžet
+ */
+void animation_stop_all_except(animation_task_type_t except_type);
 
 /**
  * @brief Pozastavi vsechny animace
