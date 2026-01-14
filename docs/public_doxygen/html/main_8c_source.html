@@ -123,7 +123,7 @@ $(function(){initNavTree('main_8c_source.html','',''); });
 <div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span><span class="preprocessor">#include &lt;string.h&gt;</span></div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="comment">// #include &quot;matter_task.h&quot;  // DISABLED - Matter not needed</span></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="comment">// #include &quot;matter_task.h&quot;  // DISABLED - Matter neni podporovan touhle verzi FW</span></div>
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span><span class="preprocessor">#include &quot;<a class="code" href="config__manager_8h.html">config_manager.h</a>&quot;</span></div>
 <div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span><span class="preprocessor">#include &quot;<a class="code" href="game__led__animations_8h.html">game_led_animations.h</a>&quot;</span></div>
 <div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span><span class="preprocessor">#include &quot;<a class="code" href="uart__commands__extended_8h.html">uart_commands_extended.h</a>&quot;</span></div>
@@ -377,7 +377,7 @@ $(function(){initNavTree('main_8c_source.html','',''); });
 <div class="line"><a id="l00475" name="l00475"></a><span class="lineno">  475</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;❌ Game command queue not available&quot;</span>);</div>
 <div class="line"><a id="l00476" name="l00476"></a><span class="lineno">  476</span>  }</div>
 <div class="line"><a id="l00477" name="l00477"></a><span class="lineno">  477</span> </div>
-<div class="line"><a id="l00478" name="l00478"></a><span class="lineno">  478</span>  <span class="comment">// ✅ CRITICAL FIX: Update button LED availability after game starts</span></div>
+<div class="line"><a id="l00478" name="l00478"></a><span class="lineno">  478</span>  <span class="comment">//Update button LED availability after game starts</span></div>
 <div class="line"><a id="l00479" name="l00479"></a><span class="lineno">  479</span>  <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code hl_function" href="led__task_8h.html#a31b820a4bfe33d0cf54a107c339d6d07">led_update_button_availability_from_game</a>(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>  <a class="code hl_function" href="led__task_8h.html#a31b820a4bfe33d0cf54a107c339d6d07">led_update_button_availability_from_game</a>();</div>
 <div class="line"><a id="l00481" name="l00481"></a><span class="lineno">  481</span> </div>
@@ -441,7 +441,7 @@ $(function(){initNavTree('main_8c_source.html','',''); });
 <div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>           <a class="code hl_variable" href="main_8c.html#a167e2d80b3314581d6120d1b2e48ee51">DEMO_GAME_NAMES</a>[<a class="code hl_variable" href="main_8c.html#a19159754c1693faa54833d370834e343">current_demo_game</a>], <a class="code hl_variable" href="main_8c.html#aebfac3059b619dc182e9ad6011fe1c7b">demo_move_index</a> + 1,</div>
 <div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>           <a class="code hl_variable" href="main_8c.html#a4973ab5b9a06d7ed486bc100be691f42">demo_moves_count</a>, move);</div>
 <div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span> </div>
-<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>  <span class="comment">// ✅ NEW: Use PICKUP/DROP commands for realistic demo (like up/dn)</span></div>
+<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>  <span class="comment">// Use PICKUP/DROP commands for realistic demo (like up/dn)</span></div>
 <div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>  <span class="keywordflow">if</span> (strlen(move) == 4 &amp;&amp; <a class="code hl_variable" href="freertos__chess_8c.html#a4ed770cbe46604586e494bae84b62304">game_command_queue</a> != NULL) {</div>
 <div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>    <a class="code hl_struct" href="structchess__move__command__t.html">chess_move_command_t</a> cmd = {0};</div>
 <div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span> </div>
@@ -451,7 +451,7 @@ $(function(){initNavTree('main_8c_source.html','',''); });
 <div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span> </div>
 <div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;  ⬆️  Lifting piece from %c%c...&quot;</span>, move[0], move[1]);</div>
 <div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span> </div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>    <span class="comment">// ✅ Set response queue for feedback</span></div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>    <span class="comment">// Set response queue for feedback</span></div>
 <div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>    cmd.<a class="code hl_variable" href="structchess__move__command__t.html#a750e92bc6c9a40c005e3e48947dd10b5">response_queue</a> = <a class="code hl_variable" href="freertos__chess_8c.html#a02a776b41d5e50969e5cf68dcbbc2c69">uart_response_queue</a>;</div>
 <div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span> </div>
 <div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>    <span class="keywordflow">if</span> (xQueueSend(<a class="code hl_variable" href="freertos__chess_8c.html#a4ed770cbe46604586e494bae84b62304">game_command_queue</a>, &amp;cmd, pdMS_TO_TICKS(100)) != pdTRUE) {</div>
@@ -459,7 +459,7 @@ $(function(){initNavTree('main_8c_source.html','',''); });
 <div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>      <span class="keywordflow">return</span>;</div>
 <div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>    }</div>
 <div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span> </div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>    <span class="comment">// ⏳ Longer delay for Pickup animation</span></div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>    <span class="comment">// Longer delay for Pickup animation</span></div>
 <div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>    vTaskDelay(pdMS_TO_TICKS(1500)); <span class="comment">// 1.5 seconds</span></div>
 <div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span> </div>
 <div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>    <span class="comment">// Step 2: DROP command (place piece on destination square)</span></div>
@@ -468,7 +468,7 @@ $(function(){initNavTree('main_8c_source.html','',''); });
 <div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span> </div>
 <div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;  ⬇️  Placing piece on %c%c...&quot;</span>, move[2], move[3]);</div>
 <div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span> </div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>    <span class="comment">// ✅ Set response queue for feedback</span></div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>    <span class="comment">// Set response queue for feedback</span></div>
 <div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>    cmd.<a class="code hl_variable" href="structchess__move__command__t.html#a750e92bc6c9a40c005e3e48947dd10b5">response_queue</a> = <a class="code hl_variable" href="freertos__chess_8c.html#a02a776b41d5e50969e5cf68dcbbc2c69">uart_response_queue</a>;</div>
 <div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span> </div>
 <div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>    <span class="keywordflow">if</span> (xQueueSend(<a class="code hl_variable" href="freertos__chess_8c.html#a4ed770cbe46604586e494bae84b62304">game_command_queue</a>, &amp;cmd, pdMS_TO_TICKS(100)) != pdTRUE) {</div>
@@ -476,7 +476,7 @@ $(function(){initNavTree('main_8c_source.html','',''); });
 <div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>      <span class="keywordflow">return</span>;</div>
 <div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>    }</div>
 <div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span> </div>
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>    <span class="comment">// ⏳ Wait for DROP animation</span></div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>    <span class="comment">//  Wait for DROP animation</span></div>
 <div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>    vTaskDelay(pdMS_TO_TICKS(800)); <span class="comment">// 0.8 seconds</span></div>
 <div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span> </div>
 <div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>    <span class="comment">// Step 3: CASTLING Handling</span></div>
@@ -699,509 +699,484 @@ $(function(){initNavTree('main_8c_source.html','',''); });
 <div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span>           <span class="stringliteral">&quot;self-register with TWDT&quot;</span>,</div>
 <div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span>           <a class="code hl_define" href="freertos__chess_8h.html#a6e9d80d372a5d67bfe61ef2373242891">ANIMATION_TASK_STACK_SIZE</a> / 1024);</div>
 <div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span> </div>
-<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span>  <span class="comment">// Create Screen Saver task - DISABLED to prevent LED conflicts</span></div>
-<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span>  <span class="comment">// result = xTaskCreate(</span></div>
-<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span>  <span class="comment">//     (TaskFunction_t)screen_saver_task_start, &quot;screen_saver_task&quot;,</span></div>
-<div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span>  <span class="comment">//     SCREEN_SAVER_TASK_STACK_SIZE, NULL, SCREEN_SAVER_TASK_PRIORITY,</span></div>
-<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span>  <span class="comment">//     &amp;screen_saver_task_handle</span></div>
-<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span>  <span class="comment">// );</span></div>
-<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span> </div>
-<div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span>  <span class="comment">// if (result != pdPASS) {</span></div>
-<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span>  <span class="comment">//     ESP_LOGE(TAG, &quot;Failed to create Screen Saver task&quot;);</span></div>
-<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span>  <span class="comment">//     return ESP_FAIL;</span></div>
-<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>  <span class="comment">// }</span></div>
-<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span> </div>
-<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>  <span class="comment">// CRITICAL: Register Screen Saver task with Task Watchdog Timer - DISABLED</span></div>
-<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>  <span class="comment">// ret = esp_task_wdt_add(screen_saver_task_handle);</span></div>
-<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span>  <span class="comment">// if (ret != ESP_OK &amp;&amp; ret != ESP_ERR_INVALID_ARG) {</span></div>
-<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>  <span class="comment">//     ESP_LOGW(TAG, &quot;Warning: Screen Saver task WDT registration failed: %s&quot;,</span></div>
-<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span>  <span class="comment">//     esp_err_to_name(ret));</span></div>
-<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span>  <span class="comment">//     // Continue anyway - task will still work</span></div>
-<div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span>  <span class="comment">// }</span></div>
-<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>  <span class="comment">// Suppress ESP_ERR_INVALID_ARG without logging (task already registered)</span></div>
-<div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span> </div>
-<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✓ Screen Saver task DISABLED to prevent LED conflicts&quot;</span>);</div>
-<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span> </div>
-<div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>  <span class="comment">// Create Test task</span></div>
-<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>  result = xTaskCreate((TaskFunction_t)<a class="code hl_function" href="test__task_8h.html#af82dfdecbc2c7932876c821753490930">test_task_start</a>, <span class="stringliteral">&quot;test_task&quot;</span>,</div>
-<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span>                       <a class="code hl_define" href="freertos__chess_8h.html#a5a50c304bdd9e66032df79cfea02fb35">TEST_TASK_STACK_SIZE</a>, NULL, <a class="code hl_define" href="freertos__chess_8h.html#a93921d3292005836714afe15fad7d078">TEST_TASK_PRIORITY</a>,</div>
-<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>                       &amp;<a class="code hl_variable" href="main_8c.html#abafefd1ba465b609ca39fd6fc502095b">test_task_handle</a>);</div>
-<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span> </div>
-<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>  <span class="keywordflow">if</span> (result != pdPASS) {</div>
-<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to create Test task&quot;</span>);</div>
-<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>    <span class="keywordflow">return</span> ESP_FAIL;</div>
-<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>  }</div>
-<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span> </div>
-<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span>  <span class="comment">// Task will register itself with TWDT internally</span></div>
-<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
-<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>           <span class="stringliteral">&quot;✓ Test task created successfully (%dKB stack) - will self-register &quot;</span></div>
-<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>           <span class="stringliteral">&quot;with TWDT&quot;</span>,</div>
-<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span>           <a class="code hl_define" href="freertos__chess_8h.html#a5a50c304bdd9e66032df79cfea02fb35">TEST_TASK_STACK_SIZE</a> / 1024);</div>
-<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span> </div>
-<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>  <span class="comment">// DISABLED: Create Matter task - Matter not needed</span></div>
-<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>  <span class="comment">/*</span></div>
-<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span><span class="comment">  result = xTaskCreate(</span></div>
-<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span><span class="comment">      (TaskFunction_t)matter_task_start, &quot;matter_task&quot;, MATTER_TASK_STACK_SIZE,</span></div>
-<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span><span class="comment">  NULL, MATTER_TASK_PRIORITY, &amp;matter_task_handle</span></div>
-<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span><span class="comment">  );</span></div>
-<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span><span class="comment"></span> </div>
-<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span><span class="comment">  if (result != pdPASS) {</span></div>
-<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span><span class="comment">      ESP_LOGE(TAG, &quot;Failed to create Matter task&quot;);</span></div>
-<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span><span class="comment">      return ESP_FAIL;</span></div>
-<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span><span class="comment">  }</span></div>
-<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span><span class="comment"></span> </div>
-<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span><span class="comment">  ret = esp_task_wdt_add(matter_task_handle);</span></div>
-<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span><span class="comment">  if (ret != ESP_OK &amp;&amp; ret != ESP_ERR_INVALID_ARG) {</span></div>
-<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span><span class="comment">      ESP_LOGW(TAG, &quot;Warning: Matter task WDT registration failed: %s&quot;,</span></div>
-<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span><span class="comment">  esp_err_to_name(ret));</span></div>
-<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span><span class="comment">  }</span></div>
-<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span><span class="comment">  ESP_LOGI(TAG, &quot;✓ Matter task created successfully (%dKB stack) and registered</span></div>
-<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span><span class="comment">  with TWDT&quot;, MATTER_TASK_STACK_SIZE / 1024);</span></div>
-<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span><span class="comment">  */</span></div>
-<div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span> </div>
-<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>  <span class="comment">// Create Web Server task</span></div>
-<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>  result = xTaskCreate((TaskFunction_t)<a class="code hl_function" href="web__server__task_8h.html#a706a239d45aec91411ba21ec2fe1b6f9">web_server_task_start</a>, <span class="stringliteral">&quot;web_server_task&quot;</span>,</div>
-<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>                       <a class="code hl_define" href="freertos__chess_8h.html#ad02ca6747c039790bae842a9574ce45b">WEB_SERVER_TASK_STACK_SIZE</a>, NULL,</div>
-<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>                       <a class="code hl_define" href="freertos__chess_8h.html#a21c1cebc5db393a9f06dfb6266a65241">WEB_SERVER_TASK_PRIORITY</a>, &amp;<a class="code hl_variable" href="main_8c.html#a36e9302901a63037025cd7970fa8adbe">web_server_task_handle</a>);</div>
-<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span> </div>
-<div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span>  <span class="keywordflow">if</span> (result != pdPASS) {</div>
-<div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to create Web Server task&quot;</span>);</div>
-<div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span>    <span class="keywordflow">return</span> ESP_FAIL;</div>
-<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span>  }</div>
-<div class="line"><a id="l00926" name="l00926"></a><span class="lineno">  926</span> </div>
-<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span>  <span class="comment">// Task will register itself with TWDT internally</span></div>
-<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
-<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span>           <span class="stringliteral">&quot;✓ Web Server task created successfully (%dKB stack) - will &quot;</span></div>
-<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span>           <span class="stringliteral">&quot;self-register with TWDT&quot;</span>,</div>
-<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>           <a class="code hl_define" href="freertos__chess_8h.html#ad02ca6747c039790bae842a9574ce45b">WEB_SERVER_TASK_STACK_SIZE</a> / 1024);</div>
-<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span> </div>
-<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;All system tasks created successfully&quot;</span>);</div>
-<div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span> </div>
-<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>  <span class="comment">// Wait for all tasks to initialize before showing boot animation</span></div>
-<div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span>  vTaskDelay(pdMS_TO_TICKS(1000));</div>
-<div class="line"><a id="l00937" name="l00937"></a><span class="lineno">  937</span> </div>
-<div class="line"><a id="l00938" name="l00938"></a><span class="lineno">  938</span>  <span class="comment">// Show centralized boot animation and chess board</span></div>
-<div class="line"><a id="l00939" name="l00939"></a><span class="lineno">  939</span>  <a class="code hl_function" href="main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb">show_boot_animation_and_board</a>();</div>
-<div class="line"><a id="l00940" name="l00940"></a><span class="lineno">  940</span> </div>
-<div class="line"><a id="l00941" name="l00941"></a><span class="lineno">  941</span>  <span class="comment">// Initialize chess game after boot animation</span></div>
-<div class="line"><a id="l00942" name="l00942"></a><span class="lineno">  942</span>  <a class="code hl_function" href="main_8c.html#acf3129796410e265806bde4edacf4d85">initialize_chess_game</a>();</div>
-<div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span> </div>
-<div class="line"><a id="l00944" name="l00944"></a><span class="lineno">  944</span>  <span class="comment">// Resume UART task now that boot animation is complete</span></div>
-<div class="line"><a id="l00945" name="l00945"></a><span class="lineno">  945</span>  vTaskResume(<a class="code hl_variable" href="main_8c.html#a4e4967ac70f1e8a89b2fea62027a968c">uart_task_handle</a>);</div>
-<div class="line"><a id="l00946" name="l00946"></a><span class="lineno">  946</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✅ UART task resumed after boot animation&quot;</span>);</div>
-<div class="line"><a id="l00947" name="l00947"></a><span class="lineno">  947</span> </div>
-<div class="line"><a id="l00948" name="l00948"></a><span class="lineno">  948</span>  <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00949" name="l00949"></a><span class="lineno">  949</span>}</div>
+<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span>  <span class="comment">// Create Test task</span></div>
+<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span>  result = xTaskCreate((TaskFunction_t)<a class="code hl_function" href="test__task_8h.html#af82dfdecbc2c7932876c821753490930">test_task_start</a>, <span class="stringliteral">&quot;test_task&quot;</span>,</div>
+<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span>                       <a class="code hl_define" href="freertos__chess_8h.html#a5a50c304bdd9e66032df79cfea02fb35">TEST_TASK_STACK_SIZE</a>, NULL, <a class="code hl_define" href="freertos__chess_8h.html#a93921d3292005836714afe15fad7d078">TEST_TASK_PRIORITY</a>,</div>
+<div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span>                       &amp;<a class="code hl_variable" href="main_8c.html#abafefd1ba465b609ca39fd6fc502095b">test_task_handle</a>);</div>
+<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span> </div>
+<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span>  <span class="keywordflow">if</span> (result != pdPASS) {</div>
+<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to create Test task&quot;</span>);</div>
+<div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span>    <span class="keywordflow">return</span> ESP_FAIL;</div>
+<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span>  }</div>
+<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span> </div>
+<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>  <span class="comment">// Task will register itself with TWDT internally</span></div>
+<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
+<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>           <span class="stringliteral">&quot;✓ Test task created successfully (%dKB stack) - will self-register &quot;</span></div>
+<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>           <span class="stringliteral">&quot;with TWDT&quot;</span>,</div>
+<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span>           <a class="code hl_define" href="freertos__chess_8h.html#a5a50c304bdd9e66032df79cfea02fb35">TEST_TASK_STACK_SIZE</a> / 1024);</div>
+<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span> </div>
+<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span>  <span class="comment">// DISABLED: Create Matter task - Matter not needed</span></div>
+<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span>  <span class="comment">/*</span></div>
+<div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span><span class="comment">  result = xTaskCreate(</span></div>
+<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span><span class="comment">      (TaskFunction_t)matter_task_start, &quot;matter_task&quot;, MATTER_TASK_STACK_SIZE,</span></div>
+<div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span><span class="comment">  NULL, MATTER_TASK_PRIORITY, &amp;matter_task_handle</span></div>
+<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span><span class="comment">  );</span></div>
+<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span><span class="comment"></span> </div>
+<div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span><span class="comment">  if (result != pdPASS) {</span></div>
+<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span><span class="comment">      ESP_LOGE(TAG, &quot;Failed to create Matter task&quot;);</span></div>
+<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span><span class="comment">      return ESP_FAIL;</span></div>
+<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span><span class="comment">  }</span></div>
+<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span><span class="comment"></span> </div>
+<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span><span class="comment">  ret = esp_task_wdt_add(matter_task_handle);</span></div>
+<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span><span class="comment">  if (ret != ESP_OK &amp;&amp; ret != ESP_ERR_INVALID_ARG) {</span></div>
+<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span><span class="comment">      ESP_LOGW(TAG, &quot;Warning: Matter task WDT registration failed: %s&quot;,</span></div>
+<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span><span class="comment">  esp_err_to_name(ret));</span></div>
+<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span><span class="comment">  }</span></div>
+<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span><span class="comment">  ESP_LOGI(TAG, &quot;✓ Matter task created successfully (%dKB stack) and registered</span></div>
+<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span><span class="comment">  with TWDT&quot;, MATTER_TASK_STACK_SIZE / 1024);</span></div>
+<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span><span class="comment">  */</span></div>
+<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span> </div>
+<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span>  <span class="comment">// Create Web Server task</span></div>
+<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>  result = xTaskCreate((TaskFunction_t)<a class="code hl_function" href="web__server__task_8h.html#a706a239d45aec91411ba21ec2fe1b6f9">web_server_task_start</a>, <span class="stringliteral">&quot;web_server_task&quot;</span>,</div>
+<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>                       <a class="code hl_define" href="freertos__chess_8h.html#ad02ca6747c039790bae842a9574ce45b">WEB_SERVER_TASK_STACK_SIZE</a>, NULL,</div>
+<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>                       <a class="code hl_define" href="freertos__chess_8h.html#a21c1cebc5db393a9f06dfb6266a65241">WEB_SERVER_TASK_PRIORITY</a>, &amp;<a class="code hl_variable" href="main_8c.html#a36e9302901a63037025cd7970fa8adbe">web_server_task_handle</a>);</div>
+<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span> </div>
+<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>  <span class="keywordflow">if</span> (result != pdPASS) {</div>
+<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to create Web Server task&quot;</span>);</div>
+<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span>    <span class="keywordflow">return</span> ESP_FAIL;</div>
+<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span>  }</div>
+<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span> </div>
+<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>  <span class="comment">// Task will register itself with TWDT internally</span></div>
+<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
+<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span>           <span class="stringliteral">&quot;✓ Web Server task created successfully (%dKB stack) - will &quot;</span></div>
+<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span>           <span class="stringliteral">&quot;self-register with TWDT&quot;</span>,</div>
+<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>           <a class="code hl_define" href="freertos__chess_8h.html#ad02ca6747c039790bae842a9574ce45b">WEB_SERVER_TASK_STACK_SIZE</a> / 1024);</div>
+<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span> </div>
+<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;All system tasks created successfully&quot;</span>);</div>
+<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span> </div>
+<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span>  <span class="comment">// Wait for all tasks to initialize before showing boot animation</span></div>
+<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span>  vTaskDelay(pdMS_TO_TICKS(1000));</div>
+<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span> </div>
+<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span>  <span class="comment">// Show centralized boot animation and chess board</span></div>
+<div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span>  <a class="code hl_function" href="main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb">show_boot_animation_and_board</a>();</div>
+<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span> </div>
+<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>  <span class="comment">// Initialize chess game after boot animation</span></div>
+<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>  <a class="code hl_function" href="main_8c.html#acf3129796410e265806bde4edacf4d85">initialize_chess_game</a>();</div>
+<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span> </div>
+<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>  <span class="comment">// Resume UART task now that boot animation is complete</span></div>
+<div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span>  vTaskResume(<a class="code hl_variable" href="main_8c.html#a4e4967ac70f1e8a89b2fea62027a968c">uart_task_handle</a>);</div>
+<div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✅ UART task resumed after boot animation&quot;</span>);</div>
+<div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span> </div>
+<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span>  <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00926" name="l00926"></a><span class="lineno">  926</span>}</div>
 </div>
-<div class="line"><a id="l00950" name="l00950"></a><span class="lineno">  950</span> </div>
-<div class="line"><a id="l00951" name="l00951"></a><span class="lineno">  951</span><span class="comment">// ============================================================================</span></div>
-<div class="line"><a id="l00952" name="l00952"></a><span class="lineno">  952</span><span class="comment">// CENTRALIZED BOOT ANIMATION AND BOARD DISPLAY</span></div>
-<div class="line"><a id="l00953" name="l00953"></a><span class="lineno">  953</span><span class="comment">// ============================================================================</span></div>
-<div class="line"><a id="l00954" name="l00954"></a><span class="lineno">  954</span></div>
-<div class="foldopen" id="foldopen00967" data-start="{" data-end="}">
-<div class="line"><a id="l00967" name="l00967"></a><span class="lineno"><a class="line" href="main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb">  967</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb">show_boot_animation_and_board</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a id="l00968" name="l00968"></a><span class="lineno">  968</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎬 Starting centralized boot animation...&quot;</span>);</div>
-<div class="line"><a id="l00969" name="l00969"></a><span class="lineno">  969</span> </div>
-<div class="line"><a id="l00970" name="l00970"></a><span class="lineno">  970</span>  <span class="comment">// Clear screen and show welcome logo</span></div>
-<div class="line"><a id="l00971" name="l00971"></a><span class="lineno">  971</span>  printf(<span class="stringliteral">&quot;\033[2J\033[H&quot;</span>);</div>
-<div class="line"><a id="l00972" name="l00972"></a><span class="lineno">  972</span> </div>
-<div class="line"><a id="l00973" name="l00973"></a><span class="lineno">  973</span>  <span class="comment">// Greek-inspired CZECHMAT banner with ANSI colors</span></div>
-<div class="line"><a id="l00974" name="l00974"></a><span class="lineno">  974</span>  <span class="comment">// New ASCII art logo - using fputs to avoid printf formatting issues</span></div>
-<div class="line"><a id="l00975" name="l00975"></a><span class="lineno">  975</span>  fputs(</div>
-<div class="line"><a id="l00976" name="l00976"></a><span class="lineno">  976</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
-<div class="line"><a id="l00977" name="l00977"></a><span class="lineno">  977</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l00978" name="l00978"></a><span class="lineno">  978</span>      stdout);</div>
-<div class="line"><a id="l00979" name="l00979"></a><span class="lineno">  979</span>  fputs(</div>
-<div class="line"><a id="l00980" name="l00980"></a><span class="lineno">  980</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
-<div class="line"><a id="l00981" name="l00981"></a><span class="lineno">  981</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l00982" name="l00982"></a><span class="lineno">  982</span>      stdout);</div>
-<div class="line"><a id="l00983" name="l00983"></a><span class="lineno">  983</span>  fputs(</div>
-<div class="line"><a id="l00984" name="l00984"></a><span class="lineno">  984</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
-<div class="line"><a id="l00985" name="l00985"></a><span class="lineno">  985</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l00986" name="l00986"></a><span class="lineno">  986</span>      stdout);</div>
-<div class="line"><a id="l00987" name="l00987"></a><span class="lineno">  987</span>  fputs(</div>
-<div class="line"><a id="l00988" name="l00988"></a><span class="lineno">  988</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
-<div class="line"><a id="l00989" name="l00989"></a><span class="lineno">  989</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l00990" name="l00990"></a><span class="lineno">  990</span>      stdout);</div>
-<div class="line"><a id="l00991" name="l00991"></a><span class="lineno">  991</span>  fputs(<span class="stringliteral">&quot;\x1b[0m............................................................&quot;</span></div>
-<div class="line"><a id="l00992" name="l00992"></a><span class="lineno">  992</span>        <span class="stringliteral">&quot;\x1b[34m:=*+-\x1b[0m..................................................&quot;</span></div>
-<div class="line"><a id="l00993" name="l00993"></a><span class="lineno">  993</span>        <span class="stringliteral">&quot;.............\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l00994" name="l00994"></a><span class="lineno">  994</span>        stdout);</div>
-<div class="line"><a id="l00995" name="l00995"></a><span class="lineno">  995</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................................................\x1b[34m:=&quot;</span></div>
-<div class="line"><a id="l00996" name="l00996"></a><span class="lineno">  996</span>        <span class="stringliteral">&quot;#%@@%*=-=+#@@@%*=:\x1b[0m.............................................&quot;</span></div>
-<div class="line"><a id="l00997" name="l00997"></a><span class="lineno">  997</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l00998" name="l00998"></a><span class="lineno">  998</span>        stdout);</div>
-<div class="line"><a id="l00999" name="l00999"></a><span class="lineno">  999</span>  fputs(<span class="stringliteral">&quot;\x1b[0m..............................................\x1b[34m-=*%@@%*=&quot;</span></div>
-<div class="line"><a id="l01000" name="l01000"></a><span class="lineno"> 1000</span>        <span class="stringliteral">&quot;-=*%@%@=*@%@%*=-+#%@@%*=-\x1b[0m......................................&quot;</span></div>
-<div class="line"><a id="l01001" name="l01001"></a><span class="lineno"> 1001</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01002" name="l01002"></a><span class="lineno"> 1002</span>        stdout);</div>
-<div class="line"><a id="l01003" name="l01003"></a><span class="lineno"> 1003</span>  fputs(<span class="stringliteral">&quot;\x1b[0m......................................\x1b[34m:-+#@@@%+--+#%@%+&quot;</span></div>
-<div class="line"><a id="l01004" name="l01004"></a><span class="lineno"> 1004</span>        <span class="stringliteral">&quot;@+#@@%@%%@%@@-*@=@@%#=-=*%@@@#+-:\x1b[0m..............................&quot;</span></div>
-<div class="line"><a id="l01005" name="l01005"></a><span class="lineno"> 1005</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01006" name="l01006"></a><span class="lineno"> 1006</span>        stdout);</div>
-<div class="line"><a id="l01007" name="l01007"></a><span class="lineno"> 1007</span>  fputs(<span class="stringliteral">&quot;\x1b[0m...............................\x1b[34m:-+%@@@#+--*%@@*@=*@*@@@&quot;</span></div>
-<div class="line"><a id="l01008" name="l01008"></a><span class="lineno"> 1008</span>        <span class="stringliteral">&quot;#=\x1b[0m...........\x1b[34m:+%@@%+@:#@*@@%+--+%@@@%+-:\x1b[0m........&quot;</span></div>
-<div class="line"><a id="l01009" name="l01009"></a><span class="lineno"> 1009</span>        <span class="stringliteral">&quot;.......................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01010" name="l01010"></a><span class="lineno"> 1010</span>        stdout);</div>
-<div class="line"><a id="l01011" name="l01011"></a><span class="lineno"> 1011</span>  fputs(<span class="stringliteral">&quot;\x1b[0m........................\x1b[34m:-*@@@@#-:=#@@*@*+@+@@@%+:\x1b[&quot;</span></div>
-<div class="line"><a id="l01012" name="l01012"></a><span class="lineno"> 1012</span>        <span class="stringliteral">&quot;0m.........................\x1b[34m-*@@@%+@:@@#@@#-:=#@@@@#-:\x1b[0m..&quot;</span></div>
-<div class="line"><a id="l01013" name="l01013"></a><span class="lineno"> 1013</span>        <span class="stringliteral">&quot;......................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01014" name="l01014"></a><span class="lineno"> 1014</span>        stdout);</div>
-<div class="line"><a id="l01015" name="l01015"></a><span class="lineno"> 1015</span>  fputs(<span class="stringliteral">&quot;\x1b[0m....................\x1b[34m%@@@@**#@@@@@@@@@@@@@@@@@@@@@@@@@@@&quot;</span></div>
-<div class="line"><a id="l01016" name="l01016"></a><span class="lineno"> 1016</span>        <span class="stringliteral">&quot;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%@@@@#\x1b[0m........&quot;</span></div>
-<div class="line"><a id="l01017" name="l01017"></a><span class="lineno"> 1017</span>        <span class="stringliteral">&quot;............\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01018" name="l01018"></a><span class="lineno"> 1018</span>        stdout);</div>
-<div class="line"><a id="l01019" name="l01019"></a><span class="lineno"> 1019</span>  fputs(<span class="stringliteral">&quot;\x1b[0m....................\x1b[34m%@#################################&quot;</span></div>
-<div class="line"><a id="l01020" name="l01020"></a><span class="lineno"> 1020</span>        <span class="stringliteral">&quot;################################################%@#\x1b[0m............&quot;</span></div>
-<div class="line"><a id="l01021" name="l01021"></a><span class="lineno"> 1021</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01022" name="l01022"></a><span class="lineno"> 1022</span>        stdout);</div>
-<div class="line"><a id="l01023" name="l01023"></a><span class="lineno"> 1023</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[34m:%@=@+#@+@##@=@#%@+@*#@+@#%@=@*#@+&quot;</span></div>
-<div class="line"><a id="l01024" name="l01024"></a><span class="lineno"> 1024</span>        <span class="stringliteral">&quot;@#*@+@#*@+@%*@+@%=@=%@+@**@=@%+@+#@=@%=@+#@+%%=@+:\x1b[0m.............&quot;</span></div>
-<div class="line"><a id="l01025" name="l01025"></a><span class="lineno"> 1025</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01026" name="l01026"></a><span class="lineno"> 1026</span>        stdout);</div>
-<div class="line"><a id="l01027" name="l01027"></a><span class="lineno"> 1027</span>  fputs(<span class="stringliteral">&quot;\x1b[0m......................\x1b[34m#@===============================&quot;</span></div>
-<div class="line"><a id="l01028" name="l01028"></a><span class="lineno"> 1028</span>        <span class="stringliteral">&quot;===============================================@+\x1b[0m..............&quot;</span></div>
-<div class="line"><a id="l01029" name="l01029"></a><span class="lineno"> 1029</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01030" name="l01030"></a><span class="lineno"> 1030</span>        stdout);</div>
-<div class="line"><a id="l01031" name="l01031"></a><span class="lineno"> 1031</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.......................\x1b[34m##==========@\x1b[0m::::::::::::&quot;</span></div>
-<div class="line"><a id="l01032" name="l01032"></a><span class="lineno"> 1032</span>        <span class="stringliteral">&quot;:::::::::::::::::::::::::::::::::::::::::\x1b[34m*@==========@+\x1b[&quot;</span></div>
-<div class="line"><a id="l01033" name="l01033"></a><span class="lineno"> 1033</span>        <span class="stringliteral">&quot;0m........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01034" name="l01034"></a><span class="lineno"> 1034</span>        stdout);</div>
-<div class="line"><a id="l01035" name="l01035"></a><span class="lineno"> 1035</span>  fputs(<span class="stringliteral">&quot;\x1b[0m........................\x1b[34m:@*******%@:\x1b[0m.\x1b[34m:%%&quot;</span></div>
-<div class="line"><a id="l01036" name="l01036"></a><span class="lineno"> 1036</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%%%--#@@#.+%%%%%%%%%%%%%%%%%%%%*\x1b[0m..\x1b[34m-@#**&quot;</span></div>
-<div class="line"><a id="l01037" name="l01037"></a><span class="lineno"> 1037</span>        <span class="stringliteral">&quot;****%%\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01038" name="l01038"></a><span class="lineno"> 1038</span>        stdout);</div>
-<div class="line"><a id="l01039" name="l01039"></a><span class="lineno"> 1039</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m-@#+%:%.@\x1b[0m...\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01040" name="l01040"></a><span class="lineno"> 1040</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%%%=:+@@=\x1b[0m..:::::::::::::::::::\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01041" name="l01041"></a><span class="lineno"> 1041</span>        <span class="stringliteral">&quot;0m....\x1b[34m@+#+*%*@:\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01042" name="l01042"></a><span class="lineno"> 1042</span>        stdout);</div>
-<div class="line"><a id="l01043" name="l01043"></a><span class="lineno"> 1043</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m=@#=%:%.@\x1b[0m...\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01044" name="l01044"></a><span class="lineno"> 1044</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%#--:*@@@@+-*-\x1b[0m.................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01045" name="l01045"></a><span class="lineno"> 1045</span>        <span class="stringliteral">&quot;0m....\x1b[34m@+#+*%*@-\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01046" name="l01046"></a><span class="lineno"> 1046</span>        stdout);</div>
-<div class="line"><a id="l01047" name="l01047"></a><span class="lineno"> 1047</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m=%#=%:%.@\x1b[0m...\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01048" name="l01048"></a><span class="lineno"> 1048</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%#.%@@@@@@@@%:\x1b[0m.................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01049" name="l01049"></a><span class="lineno"> 1049</span>        <span class="stringliteral">&quot;0m...\x1b[34m:%**+*%+@-\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01050" name="l01050"></a><span class="lineno"> 1050</span>        stdout);</div>
-<div class="line"><a id="l01051" name="l01051"></a><span class="lineno"> 1051</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m=%#-%:%.@\x1b[0m...\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01052" name="l01052"></a><span class="lineno"> 1052</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%#-@@@@@@@@:\x1b[0m..................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01053" name="l01053"></a><span class="lineno"> 1053</span>        <span class="stringliteral">&quot;0m...\x1b[34m-%**+*#+@-\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01054" name="l01054"></a><span class="lineno"> 1054</span>        stdout);</div>
-<div class="line"><a id="l01055" name="l01055"></a><span class="lineno"> 1055</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m+#%-%:%:@\x1b[0m...\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01056" name="l01056"></a><span class="lineno"> 1056</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%#-########-\x1b[0m..................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01057" name="l01057"></a><span class="lineno"> 1057</span>        <span class="stringliteral">&quot;0m...\x1b[34m=%**+*#+@=\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01058" name="l01058"></a><span class="lineno"> 1058</span>        stdout);</div>
-<div class="line"><a id="l01059" name="l01059"></a><span class="lineno"> 1059</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m**%-%:%:@\x1b[0m...\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01060" name="l01060"></a><span class="lineno"> 1060</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%:#%%%##%%%*\x1b[0m..................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01061" name="l01061"></a><span class="lineno"> 1061</span>        <span class="stringliteral">&quot;0m...\x1b[34m+#**+*#*%=\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01062" name="l01062"></a><span class="lineno"> 1062</span>        stdout);</div>
-<div class="line"><a id="l01063" name="l01063"></a><span class="lineno"> 1063</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m#+%:%:%-%:\x1b[0m..\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01064" name="l01064"></a><span class="lineno"> 1064</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%*::@@@@@%\x1b[0m....................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01065" name="l01065"></a><span class="lineno"> 1065</span>        <span class="stringliteral">&quot;0m...\x1b[34m*##*+***%+\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01066" name="l01066"></a><span class="lineno"> 1066</span>        stdout);</div>
-<div class="line"><a id="l01067" name="l01067"></a><span class="lineno"> 1067</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m#=%:%:#-%:\x1b[0m..\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01068" name="l01068"></a><span class="lineno"> 1068</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%%%.%@@@@*\x1b[0m....................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01069" name="l01069"></a><span class="lineno"> 1069</span>        <span class="stringliteral">&quot;0m...\x1b[34m#*#++***#+\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01070" name="l01070"></a><span class="lineno"> 1070</span>        stdout);</div>
-<div class="line"><a id="l01071" name="l01071"></a><span class="lineno"> 1071</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m%:%:%:#=%=\x1b[0m..\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01072" name="l01072"></a><span class="lineno"> 1072</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%%#:@@@@@%\x1b[0m....................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01073" name="l01073"></a><span class="lineno"> 1073</span>        <span class="stringliteral">&quot;0m...\x1b[34m%*#++*+***\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01074" name="l01074"></a><span class="lineno"> 1074</span>        stdout);</div>
-<div class="line"><a id="l01075" name="l01075"></a><span class="lineno"> 1075</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m%:%:%:#=#+\x1b[0m..\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01076" name="l01076"></a><span class="lineno"> 1076</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%%-*@@@@@@-\x1b[0m...................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01077" name="l01077"></a><span class="lineno"> 1077</span>        <span class="stringliteral">&quot;0m...\x1b[34m%+%++*+#+#\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01078" name="l01078"></a><span class="lineno"> 1078</span>        stdout);</div>
-<div class="line"><a id="l01079" name="l01079"></a><span class="lineno"> 1079</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m@:%:%:#+#*\x1b[0m..\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01080" name="l01080"></a><span class="lineno"> 1080</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%#:=%%%%%%%%:\x1b[0m..................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01081" name="l01081"></a><span class="lineno"> 1081</span>        <span class="stringliteral">&quot;0m...\x1b[34m@+%++*+#=#\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01082" name="l01082"></a><span class="lineno"> 1082</span>        stdout);</div>
-<div class="line"><a id="l01083" name="l01083"></a><span class="lineno"> 1083</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m@:%:%:#+*#\x1b[0m..\x1b[34m-@@&quot;</span></div>
-<div class="line"><a id="l01084" name="l01084"></a><span class="lineno"> 1084</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%-=%@%%%%%%%%-\x1b[0m.................\x1b[37m@%\x1b[&quot;</span></div>
-<div class="line"><a id="l01085" name="l01085"></a><span class="lineno"> 1085</span>        <span class="stringliteral">&quot;0m...\x1b[34m@=%=+*=#-%\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01086" name="l01086"></a><span class="lineno"> 1086</span>        stdout);</div>
-<div class="line"><a id="l01087" name="l01087"></a><span class="lineno"> 1087</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.......................\x1b[34m:@*++++++++%#.-@@%%%%%%%%%%%%%%%&quot;</span></div>
-<div class="line"><a id="l01088" name="l01088"></a><span class="lineno"> 1088</span>        <span class="stringliteral">&quot;.%@@@@@@@@@@@@#\x1b[0m................\x1b[37m@%\x1b[0m..\x1b[34m@*+++&quot;</span></div>
-<div class="line"><a id="l01089" name="l01089"></a><span class="lineno"> 1089</span>        <span class="stringliteral">&quot;+++++%%\x1b[0m........................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01090" name="l01090"></a><span class="lineno"> 1090</span>        stdout);</div>
-<div class="line"><a id="l01091" name="l01091"></a><span class="lineno"> 1091</span>  fputs(<span class="stringliteral">&quot;\x1b[0m......................\x1b[34m=@=----------*@-@@@@@@@@@@@@@@@@@&quot;</span></div>
-<div class="line"><a id="l01092" name="l01092"></a><span class="lineno"> 1092</span>        <span class="stringliteral">&quot;:*############=:@@@@@@@@@@@@@@@@%-@=----------=@:\x1b[0m..............&quot;</span></div>
-<div class="line"><a id="l01093" name="l01093"></a><span class="lineno"> 1093</span>        <span class="stringliteral">&quot;.........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01094" name="l01094"></a><span class="lineno"> 1094</span>        stdout);</div>
-<div class="line"><a id="l01095" name="l01095"></a><span class="lineno"> 1095</span>  fputs(<span class="stringliteral">&quot;\x1b[0m....................\x1b[34m*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&quot;</span></div>
-<div class="line"><a id="l01096" name="l01096"></a><span class="lineno"> 1096</span>        <span class="stringliteral">&quot;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=\x1b[0m............&quot;</span></div>
-<div class="line"><a id="l01097" name="l01097"></a><span class="lineno"> 1097</span>        <span class="stringliteral">&quot;.........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01098" name="l01098"></a><span class="lineno"> 1098</span>        stdout);</div>
-<div class="line"><a id="l01099" name="l01099"></a><span class="lineno"> 1099</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m.........................&quot;</span></div>
-<div class="line"><a id="l01100" name="l01100"></a><span class="lineno"> 1100</span>        <span class="stringliteral">&quot;.......................................................\x1b[37m@+\x1b[&quot;</span></div>
-<div class="line"><a id="l01101" name="l01101"></a><span class="lineno"> 1101</span>        <span class="stringliteral">&quot;0m.....................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01102" name="l01102"></a><span class="lineno"> 1102</span>        stdout);</div>
-<div class="line"><a id="l01103" name="l01103"></a><span class="lineno"> 1103</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m...\x1b[34m=@@@@@:+@@@@@@&quot;</span></div>
-<div class="line"><a id="l01104" name="l01104"></a><span class="lineno"> 1104</span>        <span class="stringliteral">&quot;..@@@@@+..%@@@@@.-@%...+@%..@@#...=@@:...=@@-.=@@@@@@%-@@@@@-\x1b[0m..&quot;</span></div>
-<div class="line"><a id="l01105" name="l01105"></a><span class="lineno"> 1105</span>        <span class="stringliteral">&quot;\x1b[37m@+\x1b[0m.....................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01106" name="l01106"></a><span class="lineno"> 1106</span>        stdout);</div>
-<div class="line"><a id="l01107" name="l01107"></a><span class="lineno"> 1107</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m%@+....:...:@@:&quot;</span></div>
-<div class="line"><a id="l01108" name="l01108"></a><span class="lineno"> 1108</span>        <span class="stringliteral">&quot;..@@....-@@:...:::@#...=@#..@@@#.*@@@:..:%@@@:...@@:..:@@\x1b[0m......&quot;</span></div>
-<div class="line"><a id="l01109" name="l01109"></a><span class="lineno"> 1109</span>        <span class="stringliteral">&quot;\x1b[37m@+\x1b[0m.....................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01110" name="l01110"></a><span class="lineno"> 1110</span>        stdout);</div>
-<div class="line"><a id="l01111" name="l01111"></a><span class="lineno"> 1111</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m@@:.......=@%..&quot;</span></div>
-<div class="line"><a id="l01112" name="l01112"></a><span class="lineno"> 1112</span>        <span class="stringliteral">&quot;..@@%%%.+@#......:@@%%%%@#.:@*+@@@:%@-..+@.*@#...@@:..:@@#@*\x1b[0m...&quot;</span></div>
-<div class="line"><a id="l01113" name="l01113"></a><span class="lineno"> 1113</span>        <span class="stringliteral">&quot;\x1b[37m@+\x1b[0m.....................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01114" name="l01114"></a><span class="lineno"> 1114</span>        stdout);</div>
-<div class="line"><a id="l01115" name="l01115"></a><span class="lineno"> 1115</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m+@%:..-*.=@%..:&quot;</span></div>
-<div class="line"><a id="l01116" name="l01116"></a><span class="lineno"> 1116</span>        <span class="stringliteral">&quot;=.@@...*:@@=...+-:@#...=@#.=@=.+@:.#@=.=@#**%@+..@@:..:@@...=\x1b[0m..&quot;</span></div>
-<div class="line"><a id="l01117" name="l01117"></a><span class="lineno"> 1117</span>        <span class="stringliteral">&quot;\x1b[37m@+\x1b[0m.....................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01118" name="l01118"></a><span class="lineno"> 1118</span>        stdout);</div>
-<div class="line"><a id="l01119" name="l01119"></a><span class="lineno"> 1119</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m...\x1b[34m:*%@@#.=%%%%%%&quot;</span></div>
-<div class="line"><a id="l01120" name="l01120"></a><span class="lineno"> 1120</span>        <span class="stringliteral">&quot;:-%%%%%*..-#@@%+.#%%:..#%#:#%=.....#%*:%%-..*%%=-%%+..=%%%%%=\x1b[0m..&quot;</span></div>
-<div class="line"><a id="l01121" name="l01121"></a><span class="lineno"> 1121</span>        <span class="stringliteral">&quot;\x1b[37m@+\x1b[0m.....................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01122" name="l01122"></a><span class="lineno"> 1122</span>        stdout);</div>
-<div class="line"><a id="l01123" name="l01123"></a><span class="lineno"> 1123</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m##--------------------------------&quot;</span></div>
-<div class="line"><a id="l01124" name="l01124"></a><span class="lineno"> 1124</span>        <span class="stringliteral">&quot;------------------------------------------------@+\x1b[0m.............&quot;</span></div>
-<div class="line"><a id="l01125" name="l01125"></a><span class="lineno"> 1125</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01126" name="l01126"></a><span class="lineno"> 1126</span>        stdout);</div>
-<div class="line"><a id="l01127" name="l01127"></a><span class="lineno"> 1127</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#%================================&quot;</span></div>
-<div class="line"><a id="l01128" name="l01128"></a><span class="lineno"> 1128</span>        <span class="stringliteral">&quot;================================================@+\x1b[0m.............&quot;</span></div>
-<div class="line"><a id="l01129" name="l01129"></a><span class="lineno"> 1129</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01130" name="l01130"></a><span class="lineno"> 1130</span>        stdout);</div>
-<div class="line"><a id="l01131" name="l01131"></a><span class="lineno"> 1131</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m+#################################&quot;</span></div>
-<div class="line"><a id="l01132" name="l01132"></a><span class="lineno"> 1132</span>        <span class="stringliteral">&quot;#################################################-\x1b[0m.............&quot;</span></div>
-<div class="line"><a id="l01133" name="l01133"></a><span class="lineno"> 1133</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01134" name="l01134"></a><span class="lineno"> 1134</span>        stdout);</div>
-<div class="line"><a id="l01135" name="l01135"></a><span class="lineno"> 1135</span>  fputs(</div>
-<div class="line"><a id="l01136" name="l01136"></a><span class="lineno"> 1136</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
-<div class="line"><a id="l01137" name="l01137"></a><span class="lineno"> 1137</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01138" name="l01138"></a><span class="lineno"> 1138</span>      stdout);</div>
-<div class="line"><a id="l01139" name="l01139"></a><span class="lineno"> 1139</span>  fputs(</div>
-<div class="line"><a id="l01140" name="l01140"></a><span class="lineno"> 1140</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
-<div class="line"><a id="l01141" name="l01141"></a><span class="lineno"> 1141</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01142" name="l01142"></a><span class="lineno"> 1142</span>      stdout);</div>
-<div class="line"><a id="l01143" name="l01143"></a><span class="lineno"> 1143</span>  fputs(</div>
-<div class="line"><a id="l01144" name="l01144"></a><span class="lineno"> 1144</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
-<div class="line"><a id="l01145" name="l01145"></a><span class="lineno"> 1145</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01146" name="l01146"></a><span class="lineno"> 1146</span>      stdout);</div>
-<div class="line"><a id="l01147" name="l01147"></a><span class="lineno"> 1147</span>  fputs(</div>
-<div class="line"><a id="l01148" name="l01148"></a><span class="lineno"> 1148</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
-<div class="line"><a id="l01149" name="l01149"></a><span class="lineno"> 1149</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
-<div class="line"><a id="l01150" name="l01150"></a><span class="lineno"> 1150</span>      stdout);</div>
-<div class="line"><a id="l01151" name="l01151"></a><span class="lineno"> 1151</span> </div>
-<div class="line"><a id="l01152" name="l01152"></a><span class="lineno"> 1152</span>  <span class="comment">// Show boot progress with smooth animation and status messages</span></div>
-<div class="line"><a id="l01153" name="l01153"></a><span class="lineno"> 1153</span>  printf(<span class="stringliteral">&quot;\033[1;32m&quot;</span>); <span class="comment">// bold green</span></div>
-<div class="line"><a id="l01154" name="l01154"></a><span class="lineno"> 1154</span>  printf(<span class="stringliteral">&quot;Initializing Chess Engine...\n&quot;</span>);</div>
-<div class="line"><a id="l01155" name="l01155"></a><span class="lineno"> 1155</span> </div>
-<div class="line"><a id="l01156" name="l01156"></a><span class="lineno"> 1156</span>  <span class="keyword">const</span> <span class="keywordtype">int</span> bar_width = 50;    <span class="comment">// Longer bar for better visibility</span></div>
-<div class="line"><a id="l01157" name="l01157"></a><span class="lineno"> 1157</span>  <span class="keyword">const</span> <span class="keywordtype">int</span> total_steps = 200; <span class="comment">// More steps for smoother animation</span></div>
-<div class="line"><a id="l01158" name="l01158"></a><span class="lineno"> 1158</span>  <span class="keyword">const</span> <span class="keywordtype">int</span> step_delay = 25;   <span class="comment">// 25ms per step for ultra-smooth animation</span></div>
-<div class="line"><a id="l01159" name="l01159"></a><span class="lineno"> 1159</span> </div>
-<div class="line"><a id="l01160" name="l01160"></a><span class="lineno"> 1160</span>  <span class="comment">// Status messages with progress thresholds</span></div>
-<div class="line"><a id="l01161" name="l01161"></a><span class="lineno"> 1161</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *status_messages[] = {</div>
-<div class="line"><a id="l01162" name="l01162"></a><span class="lineno"> 1162</span>      <span class="stringliteral">&quot;Starting system...&quot;</span>,   <span class="stringliteral">&quot;Creating tasks...&quot;</span>,   <span class="stringliteral">&quot;Initializing GPIO...&quot;</span>,</div>
-<div class="line"><a id="l01163" name="l01163"></a><span class="lineno"> 1163</span>      <span class="stringliteral">&quot;Setting up matrix...&quot;</span>, <span class="stringliteral">&quot;Configuring LEDs...&quot;</span>, <span class="stringliteral">&quot;Loading chess engine...&quot;</span>,</div>
-<div class="line"><a id="l01164" name="l01164"></a><span class="lineno"> 1164</span>      <span class="stringliteral">&quot;Preparing board...&quot;</span>,   <span class="stringliteral">&quot;System ready!&quot;</span>};</div>
-<div class="line"><a id="l01165" name="l01165"></a><span class="lineno"> 1165</span>  <span class="keyword">const</span> <span class="keywordtype">int</span> num_messages = <span class="keyword">sizeof</span>(status_messages) / <span class="keyword">sizeof</span>(status_messages[0]);</div>
-<div class="line"><a id="l01166" name="l01166"></a><span class="lineno"> 1166</span>  <span class="comment">// int current_message = 0; // Unused variable removed</span></div>
-<div class="line"><a id="l01167" name="l01167"></a><span class="lineno"> 1167</span> </div>
-<div class="line"><a id="l01168" name="l01168"></a><span class="lineno"> 1168</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt;= total_steps; i++) {</div>
-<div class="line"><a id="l01169" name="l01169"></a><span class="lineno"> 1169</span>    <span class="keywordtype">int</span> progress = (i * 100) / total_steps;</div>
-<div class="line"><a id="l01170" name="l01170"></a><span class="lineno"> 1170</span>    <span class="keywordtype">int</span> filled = (i * bar_width) / total_steps;</div>
-<div class="line"><a id="l01171" name="l01171"></a><span class="lineno"> 1171</span> </div>
-<div class="line"><a id="l01172" name="l01172"></a><span class="lineno"> 1172</span>    <span class="comment">// Update status message based on progress</span></div>
-<div class="line"><a id="l01173" name="l01173"></a><span class="lineno"> 1173</span>    <span class="keywordtype">int</span> message_index = (progress * num_messages) / 100;</div>
-<div class="line"><a id="l01174" name="l01174"></a><span class="lineno"> 1174</span>    <span class="keywordflow">if</span> (message_index &gt;= num_messages)</div>
-<div class="line"><a id="l01175" name="l01175"></a><span class="lineno"> 1175</span>      message_index = num_messages - 1;</div>
-<div class="line"><a id="l01176" name="l01176"></a><span class="lineno"> 1176</span> </div>
-<div class="line"><a id="l01177" name="l01177"></a><span class="lineno"> 1177</span>    <span class="comment">// Clear current line and redraw</span></div>
-<div class="line"><a id="l01178" name="l01178"></a><span class="lineno"> 1178</span>    printf(<span class="stringliteral">&quot;\rBooting: [&quot;</span>);</div>
-<div class="line"><a id="l01179" name="l01179"></a><span class="lineno"> 1179</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; bar_width; j++) {</div>
-<div class="line"><a id="l01180" name="l01180"></a><span class="lineno"> 1180</span>      <span class="keywordflow">if</span> (j &lt; filled) {</div>
-<div class="line"><a id="l01181" name="l01181"></a><span class="lineno"> 1181</span>        printf(<span class="stringliteral">&quot;\033[1;32m█\033[0m&quot;</span>); <span class="comment">// Bright green</span></div>
-<div class="line"><a id="l01182" name="l01182"></a><span class="lineno"> 1182</span>      } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01183" name="l01183"></a><span class="lineno"> 1183</span>        printf(<span class="stringliteral">&quot;\033[2;37m░\033[0m&quot;</span>); <span class="comment">// Dim gray</span></div>
-<div class="line"><a id="l01184" name="l01184"></a><span class="lineno"> 1184</span>      }</div>
-<div class="line"><a id="l01185" name="l01185"></a><span class="lineno"> 1185</span>    }</div>
-<div class="line"><a id="l01186" name="l01186"></a><span class="lineno"> 1186</span>    printf(<span class="stringliteral">&quot;] %3d%% - %s&quot;</span>, progress, status_messages[message_index]);</div>
-<div class="line"><a id="l01187" name="l01187"></a><span class="lineno"> 1187</span>    fflush(stdout);</div>
-<div class="line"><a id="l01188" name="l01188"></a><span class="lineno"> 1188</span> </div>
-<div class="line"><a id="l01189" name="l01189"></a><span class="lineno"> 1189</span>    <span class="comment">// ✅ Spustit LED boot animaci podle progress</span></div>
-<div class="line"><a id="l01190" name="l01190"></a><span class="lineno"> 1190</span>    <a class="code hl_function" href="led__task_8h.html#ad9333c97e3a0d22851f18f91e890e3dc">led_boot_animation_step</a>((uint8_t)progress);</div>
-<div class="line"><a id="l01191" name="l01191"></a><span class="lineno"> 1191</span> </div>
-<div class="line"><a id="l01192" name="l01192"></a><span class="lineno"> 1192</span>    <span class="comment">// CRITICAL: Reset watchdog timer during loading (only if registered)</span></div>
-<div class="line"><a id="l01193" name="l01193"></a><span class="lineno"> 1193</span>    esp_err_t wdt_ret = <a class="code hl_function" href="main_8c.html#a16454398c460e4d7161a90c808248ec2">main_task_wdt_reset_safe</a>();</div>
-<div class="line"><a id="l01194" name="l01194"></a><span class="lineno"> 1194</span>    <span class="keywordflow">if</span> (wdt_ret != ESP_OK &amp;&amp; wdt_ret != ESP_ERR_NOT_FOUND) {</div>
-<div class="line"><a id="l01195" name="l01195"></a><span class="lineno"> 1195</span>      <span class="comment">// Task not registered with TWDT yet - this is normal during startup</span></div>
-<div class="line"><a id="l01196" name="l01196"></a><span class="lineno"> 1196</span>    }</div>
-<div class="line"><a id="l01197" name="l01197"></a><span class="lineno"> 1197</span> </div>
-<div class="line"><a id="l01198" name="l01198"></a><span class="lineno"> 1198</span>    <span class="keywordflow">if</span> (i &lt; total_steps) {</div>
-<div class="line"><a id="l01199" name="l01199"></a><span class="lineno"> 1199</span>      vTaskDelay(pdMS_TO_TICKS(step_delay));</div>
-<div class="line"><a id="l01200" name="l01200"></a><span class="lineno"> 1200</span>    }</div>
-<div class="line"><a id="l01201" name="l01201"></a><span class="lineno"> 1201</span>  }</div>
+<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span> </div>
+<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span><span class="comment">// CENTRALIZED BOOT ANIMATION AND BOARD DISPLAY</span></div>
+<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span></div>
+<div class="foldopen" id="foldopen00944" data-start="{" data-end="}">
+<div class="line"><a id="l00944" name="l00944"></a><span class="lineno"><a class="line" href="main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb">  944</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb">show_boot_animation_and_board</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00945" name="l00945"></a><span class="lineno">  945</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎬 Starting centralized boot animation...&quot;</span>);</div>
+<div class="line"><a id="l00946" name="l00946"></a><span class="lineno">  946</span> </div>
+<div class="line"><a id="l00947" name="l00947"></a><span class="lineno">  947</span>  <span class="comment">// Clear screen and show welcome logo</span></div>
+<div class="line"><a id="l00948" name="l00948"></a><span class="lineno">  948</span>  printf(<span class="stringliteral">&quot;\033[2J\033[H&quot;</span>);</div>
+<div class="line"><a id="l00949" name="l00949"></a><span class="lineno">  949</span> </div>
+<div class="line"><a id="l00950" name="l00950"></a><span class="lineno">  950</span>  <span class="comment">// Greek-inspired CZECHMAT banner with ANSI colors</span></div>
+<div class="line"><a id="l00951" name="l00951"></a><span class="lineno">  951</span>  <span class="comment">// New ASCII art logo - using fputs to avoid printf formatting issues</span></div>
+<div class="line"><a id="l00952" name="l00952"></a><span class="lineno">  952</span>  fputs(</div>
+<div class="line"><a id="l00953" name="l00953"></a><span class="lineno">  953</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
+<div class="line"><a id="l00954" name="l00954"></a><span class="lineno">  954</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00955" name="l00955"></a><span class="lineno">  955</span>      stdout);</div>
+<div class="line"><a id="l00956" name="l00956"></a><span class="lineno">  956</span>  fputs(</div>
+<div class="line"><a id="l00957" name="l00957"></a><span class="lineno">  957</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
+<div class="line"><a id="l00958" name="l00958"></a><span class="lineno">  958</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00959" name="l00959"></a><span class="lineno">  959</span>      stdout);</div>
+<div class="line"><a id="l00960" name="l00960"></a><span class="lineno">  960</span>  fputs(</div>
+<div class="line"><a id="l00961" name="l00961"></a><span class="lineno">  961</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
+<div class="line"><a id="l00962" name="l00962"></a><span class="lineno">  962</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00963" name="l00963"></a><span class="lineno">  963</span>      stdout);</div>
+<div class="line"><a id="l00964" name="l00964"></a><span class="lineno">  964</span>  fputs(</div>
+<div class="line"><a id="l00965" name="l00965"></a><span class="lineno">  965</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
+<div class="line"><a id="l00966" name="l00966"></a><span class="lineno">  966</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00967" name="l00967"></a><span class="lineno">  967</span>      stdout);</div>
+<div class="line"><a id="l00968" name="l00968"></a><span class="lineno">  968</span>  fputs(<span class="stringliteral">&quot;\x1b[0m............................................................&quot;</span></div>
+<div class="line"><a id="l00969" name="l00969"></a><span class="lineno">  969</span>        <span class="stringliteral">&quot;\x1b[34m:=*+-\x1b[0m..................................................&quot;</span></div>
+<div class="line"><a id="l00970" name="l00970"></a><span class="lineno">  970</span>        <span class="stringliteral">&quot;.............\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00971" name="l00971"></a><span class="lineno">  971</span>        stdout);</div>
+<div class="line"><a id="l00972" name="l00972"></a><span class="lineno">  972</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................................................\x1b[34m:=&quot;</span></div>
+<div class="line"><a id="l00973" name="l00973"></a><span class="lineno">  973</span>        <span class="stringliteral">&quot;#%@@%*=-=+#@@@%*=:\x1b[0m.............................................&quot;</span></div>
+<div class="line"><a id="l00974" name="l00974"></a><span class="lineno">  974</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00975" name="l00975"></a><span class="lineno">  975</span>        stdout);</div>
+<div class="line"><a id="l00976" name="l00976"></a><span class="lineno">  976</span>  fputs(<span class="stringliteral">&quot;\x1b[0m..............................................\x1b[34m-=*%@@%*=&quot;</span></div>
+<div class="line"><a id="l00977" name="l00977"></a><span class="lineno">  977</span>        <span class="stringliteral">&quot;-=*%@%@=*@%@%*=-+#%@@%*=-\x1b[0m......................................&quot;</span></div>
+<div class="line"><a id="l00978" name="l00978"></a><span class="lineno">  978</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00979" name="l00979"></a><span class="lineno">  979</span>        stdout);</div>
+<div class="line"><a id="l00980" name="l00980"></a><span class="lineno">  980</span>  fputs(<span class="stringliteral">&quot;\x1b[0m......................................\x1b[34m:-+#@@@%+--+#%@%+&quot;</span></div>
+<div class="line"><a id="l00981" name="l00981"></a><span class="lineno">  981</span>        <span class="stringliteral">&quot;@+#@@%@%%@%@@-*@=@@%#=-=*%@@@#+-:\x1b[0m..............................&quot;</span></div>
+<div class="line"><a id="l00982" name="l00982"></a><span class="lineno">  982</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00983" name="l00983"></a><span class="lineno">  983</span>        stdout);</div>
+<div class="line"><a id="l00984" name="l00984"></a><span class="lineno">  984</span>  fputs(<span class="stringliteral">&quot;\x1b[0m...............................\x1b[34m:-+%@@@#+--*%@@*@=*@*@@@&quot;</span></div>
+<div class="line"><a id="l00985" name="l00985"></a><span class="lineno">  985</span>        <span class="stringliteral">&quot;#=\x1b[0m...........\x1b[34m:+%@@%+@:#@*@@%+--+%@@@%+-:\x1b[0m........&quot;</span></div>
+<div class="line"><a id="l00986" name="l00986"></a><span class="lineno">  986</span>        <span class="stringliteral">&quot;.......................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00987" name="l00987"></a><span class="lineno">  987</span>        stdout);</div>
+<div class="line"><a id="l00988" name="l00988"></a><span class="lineno">  988</span>  fputs(<span class="stringliteral">&quot;\x1b[0m........................\x1b[34m:-*@@@@#-:=#@@*@*+@+@@@%+:\x1b[&quot;</span></div>
+<div class="line"><a id="l00989" name="l00989"></a><span class="lineno">  989</span>        <span class="stringliteral">&quot;0m.........................\x1b[34m-*@@@%+@:@@#@@#-:=#@@@@#-:\x1b[0m..&quot;</span></div>
+<div class="line"><a id="l00990" name="l00990"></a><span class="lineno">  990</span>        <span class="stringliteral">&quot;......................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00991" name="l00991"></a><span class="lineno">  991</span>        stdout);</div>
+<div class="line"><a id="l00992" name="l00992"></a><span class="lineno">  992</span>  fputs(<span class="stringliteral">&quot;\x1b[0m....................\x1b[34m%@@@@**#@@@@@@@@@@@@@@@@@@@@@@@@@@@&quot;</span></div>
+<div class="line"><a id="l00993" name="l00993"></a><span class="lineno">  993</span>        <span class="stringliteral">&quot;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%@@@@#\x1b[0m........&quot;</span></div>
+<div class="line"><a id="l00994" name="l00994"></a><span class="lineno">  994</span>        <span class="stringliteral">&quot;............\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00995" name="l00995"></a><span class="lineno">  995</span>        stdout);</div>
+<div class="line"><a id="l00996" name="l00996"></a><span class="lineno">  996</span>  fputs(<span class="stringliteral">&quot;\x1b[0m....................\x1b[34m%@#################################&quot;</span></div>
+<div class="line"><a id="l00997" name="l00997"></a><span class="lineno">  997</span>        <span class="stringliteral">&quot;################################################%@#\x1b[0m............&quot;</span></div>
+<div class="line"><a id="l00998" name="l00998"></a><span class="lineno">  998</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l00999" name="l00999"></a><span class="lineno">  999</span>        stdout);</div>
+<div class="line"><a id="l01000" name="l01000"></a><span class="lineno"> 1000</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[34m:%@=@+#@+@##@=@#%@+@*#@+@#%@=@*#@+&quot;</span></div>
+<div class="line"><a id="l01001" name="l01001"></a><span class="lineno"> 1001</span>        <span class="stringliteral">&quot;@#*@+@#*@+@%*@+@%=@=%@+@**@=@%+@+#@=@%=@+#@+%%=@+:\x1b[0m.............&quot;</span></div>
+<div class="line"><a id="l01002" name="l01002"></a><span class="lineno"> 1002</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01003" name="l01003"></a><span class="lineno"> 1003</span>        stdout);</div>
+<div class="line"><a id="l01004" name="l01004"></a><span class="lineno"> 1004</span>  fputs(<span class="stringliteral">&quot;\x1b[0m......................\x1b[34m#@===============================&quot;</span></div>
+<div class="line"><a id="l01005" name="l01005"></a><span class="lineno"> 1005</span>        <span class="stringliteral">&quot;===============================================@+\x1b[0m..............&quot;</span></div>
+<div class="line"><a id="l01006" name="l01006"></a><span class="lineno"> 1006</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01007" name="l01007"></a><span class="lineno"> 1007</span>        stdout);</div>
+<div class="line"><a id="l01008" name="l01008"></a><span class="lineno"> 1008</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.......................\x1b[34m##==========@\x1b[0m::::::::::::&quot;</span></div>
+<div class="line"><a id="l01009" name="l01009"></a><span class="lineno"> 1009</span>        <span class="stringliteral">&quot;:::::::::::::::::::::::::::::::::::::::::\x1b[34m*@==========@+\x1b[&quot;</span></div>
+<div class="line"><a id="l01010" name="l01010"></a><span class="lineno"> 1010</span>        <span class="stringliteral">&quot;0m........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01011" name="l01011"></a><span class="lineno"> 1011</span>        stdout);</div>
+<div class="line"><a id="l01012" name="l01012"></a><span class="lineno"> 1012</span>  fputs(<span class="stringliteral">&quot;\x1b[0m........................\x1b[34m:@*******%@:\x1b[0m.\x1b[34m:%%&quot;</span></div>
+<div class="line"><a id="l01013" name="l01013"></a><span class="lineno"> 1013</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%%%--#@@#.+%%%%%%%%%%%%%%%%%%%%*\x1b[0m..\x1b[34m-@#**&quot;</span></div>
+<div class="line"><a id="l01014" name="l01014"></a><span class="lineno"> 1014</span>        <span class="stringliteral">&quot;****%%\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01015" name="l01015"></a><span class="lineno"> 1015</span>        stdout);</div>
+<div class="line"><a id="l01016" name="l01016"></a><span class="lineno"> 1016</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m-@#+%:%.@\x1b[0m...\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01017" name="l01017"></a><span class="lineno"> 1017</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%%%=:+@@=\x1b[0m..:::::::::::::::::::\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01018" name="l01018"></a><span class="lineno"> 1018</span>        <span class="stringliteral">&quot;0m....\x1b[34m@+#+*%*@:\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01019" name="l01019"></a><span class="lineno"> 1019</span>        stdout);</div>
+<div class="line"><a id="l01020" name="l01020"></a><span class="lineno"> 1020</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m=@#=%:%.@\x1b[0m...\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01021" name="l01021"></a><span class="lineno"> 1021</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%#--:*@@@@+-*-\x1b[0m.................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01022" name="l01022"></a><span class="lineno"> 1022</span>        <span class="stringliteral">&quot;0m....\x1b[34m@+#+*%*@-\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01023" name="l01023"></a><span class="lineno"> 1023</span>        stdout);</div>
+<div class="line"><a id="l01024" name="l01024"></a><span class="lineno"> 1024</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m=%#=%:%.@\x1b[0m...\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01025" name="l01025"></a><span class="lineno"> 1025</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%#.%@@@@@@@@%:\x1b[0m.................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01026" name="l01026"></a><span class="lineno"> 1026</span>        <span class="stringliteral">&quot;0m...\x1b[34m:%**+*%+@-\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01027" name="l01027"></a><span class="lineno"> 1027</span>        stdout);</div>
+<div class="line"><a id="l01028" name="l01028"></a><span class="lineno"> 1028</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m=%#-%:%.@\x1b[0m...\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01029" name="l01029"></a><span class="lineno"> 1029</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%#-@@@@@@@@:\x1b[0m..................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01030" name="l01030"></a><span class="lineno"> 1030</span>        <span class="stringliteral">&quot;0m...\x1b[34m-%**+*#+@-\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01031" name="l01031"></a><span class="lineno"> 1031</span>        stdout);</div>
+<div class="line"><a id="l01032" name="l01032"></a><span class="lineno"> 1032</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m+#%-%:%:@\x1b[0m...\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01033" name="l01033"></a><span class="lineno"> 1033</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%#-########-\x1b[0m..................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01034" name="l01034"></a><span class="lineno"> 1034</span>        <span class="stringliteral">&quot;0m...\x1b[34m=%**+*#+@=\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01035" name="l01035"></a><span class="lineno"> 1035</span>        stdout);</div>
+<div class="line"><a id="l01036" name="l01036"></a><span class="lineno"> 1036</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m**%-%:%:@\x1b[0m...\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01037" name="l01037"></a><span class="lineno"> 1037</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%:#%%%##%%%*\x1b[0m..................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01038" name="l01038"></a><span class="lineno"> 1038</span>        <span class="stringliteral">&quot;0m...\x1b[34m+#**+*#*%=\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01039" name="l01039"></a><span class="lineno"> 1039</span>        stdout);</div>
+<div class="line"><a id="l01040" name="l01040"></a><span class="lineno"> 1040</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m#+%:%:%-%:\x1b[0m..\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01041" name="l01041"></a><span class="lineno"> 1041</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%*::@@@@@%\x1b[0m....................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01042" name="l01042"></a><span class="lineno"> 1042</span>        <span class="stringliteral">&quot;0m...\x1b[34m*##*+***%+\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01043" name="l01043"></a><span class="lineno"> 1043</span>        stdout);</div>
+<div class="line"><a id="l01044" name="l01044"></a><span class="lineno"> 1044</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m#=%:%:#-%:\x1b[0m..\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01045" name="l01045"></a><span class="lineno"> 1045</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%%%.%@@@@*\x1b[0m....................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01046" name="l01046"></a><span class="lineno"> 1046</span>        <span class="stringliteral">&quot;0m...\x1b[34m#*#++***#+\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01047" name="l01047"></a><span class="lineno"> 1047</span>        stdout);</div>
+<div class="line"><a id="l01048" name="l01048"></a><span class="lineno"> 1048</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m%:%:%:#=%=\x1b[0m..\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01049" name="l01049"></a><span class="lineno"> 1049</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%%#:@@@@@%\x1b[0m....................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01050" name="l01050"></a><span class="lineno"> 1050</span>        <span class="stringliteral">&quot;0m...\x1b[34m%*#++*+***\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01051" name="l01051"></a><span class="lineno"> 1051</span>        stdout);</div>
+<div class="line"><a id="l01052" name="l01052"></a><span class="lineno"> 1052</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m%:%:%:#=#+\x1b[0m..\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01053" name="l01053"></a><span class="lineno"> 1053</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%%%-*@@@@@@-\x1b[0m...................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01054" name="l01054"></a><span class="lineno"> 1054</span>        <span class="stringliteral">&quot;0m...\x1b[34m%+%++*+#+#\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01055" name="l01055"></a><span class="lineno"> 1055</span>        stdout);</div>
+<div class="line"><a id="l01056" name="l01056"></a><span class="lineno"> 1056</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m@:%:%:#+#*\x1b[0m..\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01057" name="l01057"></a><span class="lineno"> 1057</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%#:=%%%%%%%%:\x1b[0m..................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01058" name="l01058"></a><span class="lineno"> 1058</span>        <span class="stringliteral">&quot;0m...\x1b[34m@+%++*+#=#\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01059" name="l01059"></a><span class="lineno"> 1059</span>        stdout);</div>
+<div class="line"><a id="l01060" name="l01060"></a><span class="lineno"> 1060</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.........................\x1b[34m@:%:%:#+*#\x1b[0m..\x1b[34m-@@&quot;</span></div>
+<div class="line"><a id="l01061" name="l01061"></a><span class="lineno"> 1061</span>        <span class="stringliteral">&quot;%%%%%%%%%%%%%%%%-=%@%%%%%%%%-\x1b[0m.................\x1b[37m@%\x1b[&quot;</span></div>
+<div class="line"><a id="l01062" name="l01062"></a><span class="lineno"> 1062</span>        <span class="stringliteral">&quot;0m...\x1b[34m@=%=+*=#-%\x1b[0m.........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01063" name="l01063"></a><span class="lineno"> 1063</span>        stdout);</div>
+<div class="line"><a id="l01064" name="l01064"></a><span class="lineno"> 1064</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.......................\x1b[34m:@*++++++++%#.-@@%%%%%%%%%%%%%%%&quot;</span></div>
+<div class="line"><a id="l01065" name="l01065"></a><span class="lineno"> 1065</span>        <span class="stringliteral">&quot;.%@@@@@@@@@@@@#\x1b[0m................\x1b[37m@%\x1b[0m..\x1b[34m@*+++&quot;</span></div>
+<div class="line"><a id="l01066" name="l01066"></a><span class="lineno"> 1066</span>        <span class="stringliteral">&quot;+++++%%\x1b[0m........................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01067" name="l01067"></a><span class="lineno"> 1067</span>        stdout);</div>
+<div class="line"><a id="l01068" name="l01068"></a><span class="lineno"> 1068</span>  fputs(<span class="stringliteral">&quot;\x1b[0m......................\x1b[34m=@=----------*@-@@@@@@@@@@@@@@@@@&quot;</span></div>
+<div class="line"><a id="l01069" name="l01069"></a><span class="lineno"> 1069</span>        <span class="stringliteral">&quot;:*############=:@@@@@@@@@@@@@@@@%-@=----------=@:\x1b[0m..............&quot;</span></div>
+<div class="line"><a id="l01070" name="l01070"></a><span class="lineno"> 1070</span>        <span class="stringliteral">&quot;.........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01071" name="l01071"></a><span class="lineno"> 1071</span>        stdout);</div>
+<div class="line"><a id="l01072" name="l01072"></a><span class="lineno"> 1072</span>  fputs(<span class="stringliteral">&quot;\x1b[0m....................\x1b[34m*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&quot;</span></div>
+<div class="line"><a id="l01073" name="l01073"></a><span class="lineno"> 1073</span>        <span class="stringliteral">&quot;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=\x1b[0m............&quot;</span></div>
+<div class="line"><a id="l01074" name="l01074"></a><span class="lineno"> 1074</span>        <span class="stringliteral">&quot;.........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01075" name="l01075"></a><span class="lineno"> 1075</span>        stdout);</div>
+<div class="line"><a id="l01076" name="l01076"></a><span class="lineno"> 1076</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m.........................&quot;</span></div>
+<div class="line"><a id="l01077" name="l01077"></a><span class="lineno"> 1077</span>        <span class="stringliteral">&quot;.......................................................\x1b[37m@+\x1b[&quot;</span></div>
+<div class="line"><a id="l01078" name="l01078"></a><span class="lineno"> 1078</span>        <span class="stringliteral">&quot;0m.....................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01079" name="l01079"></a><span class="lineno"> 1079</span>        stdout);</div>
+<div class="line"><a id="l01080" name="l01080"></a><span class="lineno"> 1080</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m...\x1b[34m=@@@@@:+@@@@@@&quot;</span></div>
+<div class="line"><a id="l01081" name="l01081"></a><span class="lineno"> 1081</span>        <span class="stringliteral">&quot;..@@@@@+..%@@@@@.-@%...+@%..@@#...=@@:...=@@-.=@@@@@@%-@@@@@-\x1b[0m..&quot;</span></div>
+<div class="line"><a id="l01082" name="l01082"></a><span class="lineno"> 1082</span>        <span class="stringliteral">&quot;\x1b[37m@+\x1b[0m.....................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01083" name="l01083"></a><span class="lineno"> 1083</span>        stdout);</div>
+<div class="line"><a id="l01084" name="l01084"></a><span class="lineno"> 1084</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m%@+....:...:@@:&quot;</span></div>
+<div class="line"><a id="l01085" name="l01085"></a><span class="lineno"> 1085</span>        <span class="stringliteral">&quot;..@@....-@@:...:::@#...=@#..@@@#.*@@@:..:%@@@:...@@:..:@@\x1b[0m......&quot;</span></div>
+<div class="line"><a id="l01086" name="l01086"></a><span class="lineno"> 1086</span>        <span class="stringliteral">&quot;\x1b[37m@+\x1b[0m.....................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01087" name="l01087"></a><span class="lineno"> 1087</span>        stdout);</div>
+<div class="line"><a id="l01088" name="l01088"></a><span class="lineno"> 1088</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m@@:.......=@%..&quot;</span></div>
+<div class="line"><a id="l01089" name="l01089"></a><span class="lineno"> 1089</span>        <span class="stringliteral">&quot;..@@%%%.+@#......:@@%%%%@#.:@*+@@@:%@-..+@.*@#...@@:..:@@#@*\x1b[0m...&quot;</span></div>
+<div class="line"><a id="l01090" name="l01090"></a><span class="lineno"> 1090</span>        <span class="stringliteral">&quot;\x1b[37m@+\x1b[0m.....................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01091" name="l01091"></a><span class="lineno"> 1091</span>        stdout);</div>
+<div class="line"><a id="l01092" name="l01092"></a><span class="lineno"> 1092</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m+@%:..-*.=@%..:&quot;</span></div>
+<div class="line"><a id="l01093" name="l01093"></a><span class="lineno"> 1093</span>        <span class="stringliteral">&quot;=.@@...*:@@=...+-:@#...=@#.=@=.+@:.#@=.=@#**%@+..@@:..:@@...=\x1b[0m..&quot;</span></div>
+<div class="line"><a id="l01094" name="l01094"></a><span class="lineno"> 1094</span>        <span class="stringliteral">&quot;\x1b[37m@+\x1b[0m.....................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01095" name="l01095"></a><span class="lineno"> 1095</span>        stdout);</div>
+<div class="line"><a id="l01096" name="l01096"></a><span class="lineno"> 1096</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#*\x1b[0m...\x1b[34m:*%@@#.=%%%%%%&quot;</span></div>
+<div class="line"><a id="l01097" name="l01097"></a><span class="lineno"> 1097</span>        <span class="stringliteral">&quot;:-%%%%%*..-#@@%+.#%%:..#%#:#%=.....#%*:%%-..*%%=-%%+..=%%%%%=\x1b[0m..&quot;</span></div>
+<div class="line"><a id="l01098" name="l01098"></a><span class="lineno"> 1098</span>        <span class="stringliteral">&quot;\x1b[37m@+\x1b[0m.....................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01099" name="l01099"></a><span class="lineno"> 1099</span>        stdout);</div>
+<div class="line"><a id="l01100" name="l01100"></a><span class="lineno"> 1100</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m##--------------------------------&quot;</span></div>
+<div class="line"><a id="l01101" name="l01101"></a><span class="lineno"> 1101</span>        <span class="stringliteral">&quot;------------------------------------------------@+\x1b[0m.............&quot;</span></div>
+<div class="line"><a id="l01102" name="l01102"></a><span class="lineno"> 1102</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01103" name="l01103"></a><span class="lineno"> 1103</span>        stdout);</div>
+<div class="line"><a id="l01104" name="l01104"></a><span class="lineno"> 1104</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m#%================================&quot;</span></div>
+<div class="line"><a id="l01105" name="l01105"></a><span class="lineno"> 1105</span>        <span class="stringliteral">&quot;================================================@+\x1b[0m.............&quot;</span></div>
+<div class="line"><a id="l01106" name="l01106"></a><span class="lineno"> 1106</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01107" name="l01107"></a><span class="lineno"> 1107</span>        stdout);</div>
+<div class="line"><a id="l01108" name="l01108"></a><span class="lineno"> 1108</span>  fputs(<span class="stringliteral">&quot;\x1b[0m.....................\x1b[37m+#################################&quot;</span></div>
+<div class="line"><a id="l01109" name="l01109"></a><span class="lineno"> 1109</span>        <span class="stringliteral">&quot;#################################################-\x1b[0m.............&quot;</span></div>
+<div class="line"><a id="l01110" name="l01110"></a><span class="lineno"> 1110</span>        <span class="stringliteral">&quot;........\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01111" name="l01111"></a><span class="lineno"> 1111</span>        stdout);</div>
+<div class="line"><a id="l01112" name="l01112"></a><span class="lineno"> 1112</span>  fputs(</div>
+<div class="line"><a id="l01113" name="l01113"></a><span class="lineno"> 1113</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
+<div class="line"><a id="l01114" name="l01114"></a><span class="lineno"> 1114</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01115" name="l01115"></a><span class="lineno"> 1115</span>      stdout);</div>
+<div class="line"><a id="l01116" name="l01116"></a><span class="lineno"> 1116</span>  fputs(</div>
+<div class="line"><a id="l01117" name="l01117"></a><span class="lineno"> 1117</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
+<div class="line"><a id="l01118" name="l01118"></a><span class="lineno"> 1118</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01119" name="l01119"></a><span class="lineno"> 1119</span>      stdout);</div>
+<div class="line"><a id="l01120" name="l01120"></a><span class="lineno"> 1120</span>  fputs(</div>
+<div class="line"><a id="l01121" name="l01121"></a><span class="lineno"> 1121</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
+<div class="line"><a id="l01122" name="l01122"></a><span class="lineno"> 1122</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01123" name="l01123"></a><span class="lineno"> 1123</span>      stdout);</div>
+<div class="line"><a id="l01124" name="l01124"></a><span class="lineno"> 1124</span>  fputs(</div>
+<div class="line"><a id="l01125" name="l01125"></a><span class="lineno"> 1125</span>      <span class="stringliteral">&quot;\x1b[0m.................................................................&quot;</span></div>
+<div class="line"><a id="l01126" name="l01126"></a><span class="lineno"> 1126</span>      <span class="stringliteral">&quot;............................................................\x1b[0m\n&quot;</span>,</div>
+<div class="line"><a id="l01127" name="l01127"></a><span class="lineno"> 1127</span>      stdout);</div>
+<div class="line"><a id="l01128" name="l01128"></a><span class="lineno"> 1128</span> </div>
+<div class="line"><a id="l01129" name="l01129"></a><span class="lineno"> 1129</span>  <span class="comment">// Show boot progress with smooth animation and status messages</span></div>
+<div class="line"><a id="l01130" name="l01130"></a><span class="lineno"> 1130</span>  printf(<span class="stringliteral">&quot;\033[1;32m&quot;</span>); <span class="comment">// bold green</span></div>
+<div class="line"><a id="l01131" name="l01131"></a><span class="lineno"> 1131</span>  printf(<span class="stringliteral">&quot;Initializing Chess Engine...\n&quot;</span>);</div>
+<div class="line"><a id="l01132" name="l01132"></a><span class="lineno"> 1132</span> </div>
+<div class="line"><a id="l01133" name="l01133"></a><span class="lineno"> 1133</span>  <span class="keyword">const</span> <span class="keywordtype">int</span> bar_width = 50;    <span class="comment">// Longer bar for better visibility</span></div>
+<div class="line"><a id="l01134" name="l01134"></a><span class="lineno"> 1134</span>  <span class="keyword">const</span> <span class="keywordtype">int</span> total_steps = 200; <span class="comment">// More steps for smoother animation</span></div>
+<div class="line"><a id="l01135" name="l01135"></a><span class="lineno"> 1135</span>  <span class="keyword">const</span> <span class="keywordtype">int</span> step_delay = 25;   <span class="comment">// 25ms per step for ultra-smooth animation</span></div>
+<div class="line"><a id="l01136" name="l01136"></a><span class="lineno"> 1136</span> </div>
+<div class="line"><a id="l01137" name="l01137"></a><span class="lineno"> 1137</span>  <span class="comment">// Status messages with progress thresholds</span></div>
+<div class="line"><a id="l01138" name="l01138"></a><span class="lineno"> 1138</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *status_messages[] = {</div>
+<div class="line"><a id="l01139" name="l01139"></a><span class="lineno"> 1139</span>      <span class="stringliteral">&quot;Starting system...&quot;</span>,   <span class="stringliteral">&quot;Creating tasks...&quot;</span>,   <span class="stringliteral">&quot;Initializing GPIO...&quot;</span>,</div>
+<div class="line"><a id="l01140" name="l01140"></a><span class="lineno"> 1140</span>      <span class="stringliteral">&quot;Setting up matrix...&quot;</span>, <span class="stringliteral">&quot;Configuring LEDs...&quot;</span>, <span class="stringliteral">&quot;Loading chess engine...&quot;</span>,</div>
+<div class="line"><a id="l01141" name="l01141"></a><span class="lineno"> 1141</span>      <span class="stringliteral">&quot;Preparing board...&quot;</span>,   <span class="stringliteral">&quot;System ready!&quot;</span>};</div>
+<div class="line"><a id="l01142" name="l01142"></a><span class="lineno"> 1142</span>  <span class="keyword">const</span> <span class="keywordtype">int</span> num_messages = <span class="keyword">sizeof</span>(status_messages) / <span class="keyword">sizeof</span>(status_messages[0]);</div>
+<div class="line"><a id="l01143" name="l01143"></a><span class="lineno"> 1143</span>  <span class="comment">// int current_message = 0; // Unused variable removed</span></div>
+<div class="line"><a id="l01144" name="l01144"></a><span class="lineno"> 1144</span> </div>
+<div class="line"><a id="l01145" name="l01145"></a><span class="lineno"> 1145</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt;= total_steps; i++) {</div>
+<div class="line"><a id="l01146" name="l01146"></a><span class="lineno"> 1146</span>    <span class="keywordtype">int</span> progress = (i * 100) / total_steps;</div>
+<div class="line"><a id="l01147" name="l01147"></a><span class="lineno"> 1147</span>    <span class="keywordtype">int</span> filled = (i * bar_width) / total_steps;</div>
+<div class="line"><a id="l01148" name="l01148"></a><span class="lineno"> 1148</span> </div>
+<div class="line"><a id="l01149" name="l01149"></a><span class="lineno"> 1149</span>    <span class="comment">// Update status message based on progress</span></div>
+<div class="line"><a id="l01150" name="l01150"></a><span class="lineno"> 1150</span>    <span class="keywordtype">int</span> message_index = (progress * num_messages) / 100;</div>
+<div class="line"><a id="l01151" name="l01151"></a><span class="lineno"> 1151</span>    <span class="keywordflow">if</span> (message_index &gt;= num_messages)</div>
+<div class="line"><a id="l01152" name="l01152"></a><span class="lineno"> 1152</span>      message_index = num_messages - 1;</div>
+<div class="line"><a id="l01153" name="l01153"></a><span class="lineno"> 1153</span> </div>
+<div class="line"><a id="l01154" name="l01154"></a><span class="lineno"> 1154</span>    <span class="comment">// Clear current line and redraw</span></div>
+<div class="line"><a id="l01155" name="l01155"></a><span class="lineno"> 1155</span>    printf(<span class="stringliteral">&quot;\rBooting: [&quot;</span>);</div>
+<div class="line"><a id="l01156" name="l01156"></a><span class="lineno"> 1156</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; bar_width; j++) {</div>
+<div class="line"><a id="l01157" name="l01157"></a><span class="lineno"> 1157</span>      <span class="keywordflow">if</span> (j &lt; filled) {</div>
+<div class="line"><a id="l01158" name="l01158"></a><span class="lineno"> 1158</span>        printf(<span class="stringliteral">&quot;\033[1;32m█\033[0m&quot;</span>); <span class="comment">// Bright green</span></div>
+<div class="line"><a id="l01159" name="l01159"></a><span class="lineno"> 1159</span>      } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01160" name="l01160"></a><span class="lineno"> 1160</span>        printf(<span class="stringliteral">&quot;\033[2;37m░\033[0m&quot;</span>); <span class="comment">// Dim gray</span></div>
+<div class="line"><a id="l01161" name="l01161"></a><span class="lineno"> 1161</span>      }</div>
+<div class="line"><a id="l01162" name="l01162"></a><span class="lineno"> 1162</span>    }</div>
+<div class="line"><a id="l01163" name="l01163"></a><span class="lineno"> 1163</span>    printf(<span class="stringliteral">&quot;] %3d%% - %s&quot;</span>, progress, status_messages[message_index]);</div>
+<div class="line"><a id="l01164" name="l01164"></a><span class="lineno"> 1164</span>    fflush(stdout);</div>
+<div class="line"><a id="l01165" name="l01165"></a><span class="lineno"> 1165</span> </div>
+<div class="line"><a id="l01166" name="l01166"></a><span class="lineno"> 1166</span>    <span class="comment">// Spustit LED boot animaci podle progress</span></div>
+<div class="line"><a id="l01167" name="l01167"></a><span class="lineno"> 1167</span>    <a class="code hl_function" href="led__task_8h.html#ad9333c97e3a0d22851f18f91e890e3dc">led_boot_animation_step</a>((uint8_t)progress);</div>
+<div class="line"><a id="l01168" name="l01168"></a><span class="lineno"> 1168</span> </div>
+<div class="line"><a id="l01169" name="l01169"></a><span class="lineno"> 1169</span>    <span class="comment">// CRITICAL: Reset watchdog timer during loading (only if registered)</span></div>
+<div class="line"><a id="l01170" name="l01170"></a><span class="lineno"> 1170</span>    esp_err_t wdt_ret = <a class="code hl_function" href="main_8c.html#a16454398c460e4d7161a90c808248ec2">main_task_wdt_reset_safe</a>();</div>
+<div class="line"><a id="l01171" name="l01171"></a><span class="lineno"> 1171</span>    <span class="keywordflow">if</span> (wdt_ret != ESP_OK &amp;&amp; wdt_ret != ESP_ERR_NOT_FOUND) {</div>
+<div class="line"><a id="l01172" name="l01172"></a><span class="lineno"> 1172</span>      <span class="comment">// Task not registered with TWDT yet - this is normal during startup</span></div>
+<div class="line"><a id="l01173" name="l01173"></a><span class="lineno"> 1173</span>    }</div>
+<div class="line"><a id="l01174" name="l01174"></a><span class="lineno"> 1174</span> </div>
+<div class="line"><a id="l01175" name="l01175"></a><span class="lineno"> 1175</span>    <span class="keywordflow">if</span> (i &lt; total_steps) {</div>
+<div class="line"><a id="l01176" name="l01176"></a><span class="lineno"> 1176</span>      vTaskDelay(pdMS_TO_TICKS(step_delay));</div>
+<div class="line"><a id="l01177" name="l01177"></a><span class="lineno"> 1177</span>    }</div>
+<div class="line"><a id="l01178" name="l01178"></a><span class="lineno"> 1178</span>  }</div>
+<div class="line"><a id="l01179" name="l01179"></a><span class="lineno"> 1179</span> </div>
+<div class="line"><a id="l01180" name="l01180"></a><span class="lineno"> 1180</span>  <span class="comment">// ✅ Po dokončení boot animace - fade out</span></div>
+<div class="line"><a id="l01181" name="l01181"></a><span class="lineno"> 1181</span>  <a class="code hl_function" href="led__task_8h.html#a51cc23ac460421224cfaf847669ab1d9">led_boot_animation_fade_out</a>();</div>
+<div class="line"><a id="l01182" name="l01182"></a><span class="lineno"> 1182</span> </div>
+<div class="line"><a id="l01183" name="l01183"></a><span class="lineno"> 1183</span>  printf(<span class="stringliteral">&quot;\n\033[1;32m✓ Chess Engine Ready!\033[0m\n\n&quot;</span>); <span class="comment">// Success message</span></div>
+<div class="line"><a id="l01184" name="l01184"></a><span class="lineno"> 1184</span> </div>
+<div class="line"><a id="l01185" name="l01185"></a><span class="lineno"> 1185</span>  <span class="comment">// Chess board will be displayed by game task after initialization</span></div>
+<div class="line"><a id="l01186" name="l01186"></a><span class="lineno"> 1186</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎯 Chess board will be displayed by game task...&quot;</span>);</div>
+<div class="line"><a id="l01187" name="l01187"></a><span class="lineno"> 1187</span> </div>
+<div class="line"><a id="l01188" name="l01188"></a><span class="lineno"> 1188</span>  <span class="comment">// Show game guide after board</span></div>
+<div class="line"><a id="l01189" name="l01189"></a><span class="lineno"> 1189</span>  printf(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line"><a id="l01190" name="l01190"></a><span class="lineno"> 1190</span>  printf(<span class="stringliteral">&quot;═══════════════════════════════════════════════════════════════\n&quot;</span>);</div>
+<div class="line"><a id="l01191" name="l01191"></a><span class="lineno"> 1191</span>  printf(<span class="stringliteral">&quot;📋 CHESS GAME GUIDE - Type commands to play:\n&quot;</span>);</div>
+<div class="line"><a id="l01192" name="l01192"></a><span class="lineno"> 1192</span>  printf(<span class="stringliteral">&quot;═══════════════════════════════════════════════════════════════\n&quot;</span>);</div>
+<div class="line"><a id="l01193" name="l01193"></a><span class="lineno"> 1193</span>  printf(<span class="stringliteral">&quot;📋 Basic Commands:\n&quot;</span>);</div>
+<div class="line"><a id="l01194" name="l01194"></a><span class="lineno"> 1194</span>  printf(<span class="stringliteral">&quot;  • move e2e4    - Move piece from e2 to e4\n&quot;</span>);</div>
+<div class="line"><a id="l01195" name="l01195"></a><span class="lineno"> 1195</span>  printf(<span class="stringliteral">&quot;  • help         - Show all available commands\n&quot;</span>);</div>
+<div class="line"><a id="l01196" name="l01196"></a><span class="lineno"> 1196</span>  printf(<span class="stringliteral">&quot;  • board        - Display current board\n&quot;</span>);</div>
+<div class="line"><a id="l01197" name="l01197"></a><span class="lineno"> 1197</span>  printf(<span class="stringliteral">&quot;  • status       - Show game status\n&quot;</span>);</div>
+<div class="line"><a id="l01198" name="l01198"></a><span class="lineno"> 1198</span>  printf(<span class="stringliteral">&quot;  • reset        - Start new game\n&quot;</span>);</div>
+<div class="line"><a id="l01199" name="l01199"></a><span class="lineno"> 1199</span>  printf(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line"><a id="l01200" name="l01200"></a><span class="lineno"> 1200</span>  printf(<span class="stringliteral">&quot;🎯 Quick Start: Type &#39;move e2e4&#39; to make your first move!\n&quot;</span>);</div>
+<div class="line"><a id="l01201" name="l01201"></a><span class="lineno"> 1201</span>  printf(<span class="stringliteral">&quot;═══════════════════════════════════════════════════════════\n&quot;</span>);</div>
 <div class="line"><a id="l01202" name="l01202"></a><span class="lineno"> 1202</span> </div>
-<div class="line"><a id="l01203" name="l01203"></a><span class="lineno"> 1203</span>  <span class="comment">// ✅ Po dokončení boot animace - fade out</span></div>
-<div class="line"><a id="l01204" name="l01204"></a><span class="lineno"> 1204</span>  <a class="code hl_function" href="led__task_8h.html#a51cc23ac460421224cfaf847669ab1d9">led_boot_animation_fade_out</a>();</div>
-<div class="line"><a id="l01205" name="l01205"></a><span class="lineno"> 1205</span> </div>
-<div class="line"><a id="l01206" name="l01206"></a><span class="lineno"> 1206</span>  printf(<span class="stringliteral">&quot;\n\033[1;32m✓ Chess Engine Ready!\033[0m\n\n&quot;</span>); <span class="comment">// Success message</span></div>
-<div class="line"><a id="l01207" name="l01207"></a><span class="lineno"> 1207</span> </div>
-<div class="line"><a id="l01208" name="l01208"></a><span class="lineno"> 1208</span>  <span class="comment">// Chess board will be displayed by game task after initialization</span></div>
-<div class="line"><a id="l01209" name="l01209"></a><span class="lineno"> 1209</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎯 Chess board will be displayed by game task...&quot;</span>);</div>
-<div class="line"><a id="l01210" name="l01210"></a><span class="lineno"> 1210</span> </div>
-<div class="line"><a id="l01211" name="l01211"></a><span class="lineno"> 1211</span>  <span class="comment">// Show game guide after board</span></div>
-<div class="line"><a id="l01212" name="l01212"></a><span class="lineno"> 1212</span>  printf(<span class="stringliteral">&quot;\n&quot;</span>);</div>
-<div class="line"><a id="l01213" name="l01213"></a><span class="lineno"> 1213</span>  printf(<span class="stringliteral">&quot;═══════════════════════════════════════════════════════════════\n&quot;</span>);</div>
-<div class="line"><a id="l01214" name="l01214"></a><span class="lineno"> 1214</span>  printf(<span class="stringliteral">&quot;📋 CHESS GAME GUIDE - Type commands to play:\n&quot;</span>);</div>
-<div class="line"><a id="l01215" name="l01215"></a><span class="lineno"> 1215</span>  printf(<span class="stringliteral">&quot;═══════════════════════════════════════════════════════════════\n&quot;</span>);</div>
-<div class="line"><a id="l01216" name="l01216"></a><span class="lineno"> 1216</span>  printf(<span class="stringliteral">&quot;📋 Basic Commands:\n&quot;</span>);</div>
-<div class="line"><a id="l01217" name="l01217"></a><span class="lineno"> 1217</span>  printf(<span class="stringliteral">&quot;  • move e2e4    - Move piece from e2 to e4\n&quot;</span>);</div>
-<div class="line"><a id="l01218" name="l01218"></a><span class="lineno"> 1218</span>  printf(<span class="stringliteral">&quot;  • help         - Show all available commands\n&quot;</span>);</div>
-<div class="line"><a id="l01219" name="l01219"></a><span class="lineno"> 1219</span>  printf(<span class="stringliteral">&quot;  • board        - Display current board\n&quot;</span>);</div>
-<div class="line"><a id="l01220" name="l01220"></a><span class="lineno"> 1220</span>  printf(<span class="stringliteral">&quot;  • status       - Show game status\n&quot;</span>);</div>
-<div class="line"><a id="l01221" name="l01221"></a><span class="lineno"> 1221</span>  printf(<span class="stringliteral">&quot;  • reset        - Start new game\n&quot;</span>);</div>
-<div class="line"><a id="l01222" name="l01222"></a><span class="lineno"> 1222</span>  printf(<span class="stringliteral">&quot;\n&quot;</span>);</div>
-<div class="line"><a id="l01223" name="l01223"></a><span class="lineno"> 1223</span>  printf(<span class="stringliteral">&quot;🎯 Quick Start: Type &#39;move e2e4&#39; to make your first move!\n&quot;</span>);</div>
-<div class="line"><a id="l01224" name="l01224"></a><span class="lineno"> 1224</span>  printf(<span class="stringliteral">&quot;═══════════════════════════════════════════════════════════\n&quot;</span>);</div>
-<div class="line"><a id="l01225" name="l01225"></a><span class="lineno"> 1225</span> </div>
-<div class="line"><a id="l01226" name="l01226"></a><span class="lineno"> 1226</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✅ Boot animation and board display completed&quot;</span>);</div>
-<div class="line"><a id="l01227" name="l01227"></a><span class="lineno"> 1227</span>}</div>
+<div class="line"><a id="l01203" name="l01203"></a><span class="lineno"> 1203</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✅ Boot animation and board display completed&quot;</span>);</div>
+<div class="line"><a id="l01204" name="l01204"></a><span class="lineno"> 1204</span>}</div>
 </div>
-<div class="line"><a id="l01228" name="l01228"></a><span class="lineno"> 1228</span> </div>
-<div class="line"><a id="l01229" name="l01229"></a><span class="lineno"> 1229</span><span class="comment">// ============================================================================</span></div>
-<div class="line"><a id="l01230" name="l01230"></a><span class="lineno"> 1230</span><span class="comment">// MAIN APPLICATION FUNCTION</span></div>
-<div class="line"><a id="l01231" name="l01231"></a><span class="lineno"> 1231</span><span class="comment">// ============================================================================</span></div>
-<div class="line"><a id="l01232" name="l01232"></a><span class="lineno"> 1232</span></div>
-<div class="foldopen" id="foldopen01251" data-start="{" data-end="}">
-<div class="line"><a id="l01251" name="l01251"></a><span class="lineno"><a class="line" href="main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70"> 1251</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70">app_main</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a id="l01252" name="l01252"></a><span class="lineno"> 1252</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎯 ESP32-C6 Chess System v2.4 starting...&quot;</span>);</div>
-<div class="line"><a id="l01253" name="l01253"></a><span class="lineno"> 1253</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;📅 Build Timestamp: %s %s&quot;</span>, __DATE__, __TIME__);</div>
-<div class="line"><a id="l01254" name="l01254"></a><span class="lineno"> 1254</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🔧 CHECK THIS: If timestamp matches your clock, you are &quot;</span></div>
-<div class="line"><a id="l01255" name="l01255"></a><span class="lineno"> 1255</span>                <span class="stringliteral">&quot;running NEW code!&quot;</span>);</div>
-<div class="line"><a id="l01256" name="l01256"></a><span class="lineno"> 1256</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
-<div class="line"><a id="l01257" name="l01257"></a><span class="lineno"> 1257</span>           <span class="stringliteral">&quot;===============================================================&quot;</span>);</div>
+<div class="line"><a id="l01205" name="l01205"></a><span class="lineno"> 1205</span> </div>
+<div class="line"><a id="l01206" name="l01206"></a><span class="lineno"> 1206</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l01207" name="l01207"></a><span class="lineno"> 1207</span><span class="comment">// MAIN APPLICATION FUNCTION</span></div>
+<div class="line"><a id="l01208" name="l01208"></a><span class="lineno"> 1208</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l01209" name="l01209"></a><span class="lineno"> 1209</span></div>
+<div class="foldopen" id="foldopen01228" data-start="{" data-end="}">
+<div class="line"><a id="l01228" name="l01228"></a><span class="lineno"><a class="line" href="main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70"> 1228</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70">app_main</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l01229" name="l01229"></a><span class="lineno"> 1229</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎯 ESP32-C6 Chess System v2.4 starting...&quot;</span>);</div>
+<div class="line"><a id="l01230" name="l01230"></a><span class="lineno"> 1230</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;📅 Build Timestamp: %s %s&quot;</span>, __DATE__, __TIME__);</div>
+<div class="line"><a id="l01231" name="l01231"></a><span class="lineno"> 1231</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
+<div class="line"><a id="l01232" name="l01232"></a><span class="lineno"> 1232</span>           <span class="stringliteral">&quot;===============================================================&quot;</span>);</div>
+<div class="line"><a id="l01233" name="l01233"></a><span class="lineno"> 1233</span> </div>
+<div class="line"><a id="l01234" name="l01234"></a><span class="lineno"> 1234</span>  <span class="comment">// Zvýšení WDT timeout pro inicializaci</span></div>
+<div class="line"><a id="l01235" name="l01235"></a><span class="lineno"> 1235</span>  esp_task_wdt_config_t twdt_config = {</div>
+<div class="line"><a id="l01236" name="l01236"></a><span class="lineno"> 1236</span>      .timeout_ms = 10000, <span class="comment">// 10 sekund pro init - OPTIMALIZOVÁNO pro web server</span></div>
+<div class="line"><a id="l01237" name="l01237"></a><span class="lineno"> 1237</span>      .idle_core_mask = 0,</div>
+<div class="line"><a id="l01238" name="l01238"></a><span class="lineno"> 1238</span>      .trigger_panic = <span class="keyword">true</span>};</div>
+<div class="line"><a id="l01239" name="l01239"></a><span class="lineno"> 1239</span>  <span class="comment">// Use reconfigure instead of init to avoid &quot;TWDT already</span></div>
+<div class="line"><a id="l01240" name="l01240"></a><span class="lineno"> 1240</span>  <span class="comment">// initialized&quot; error</span></div>
+<div class="line"><a id="l01241" name="l01241"></a><span class="lineno"> 1241</span>  esp_err_t ret = esp_task_wdt_reconfigure(&amp;twdt_config);</div>
+<div class="line"><a id="l01242" name="l01242"></a><span class="lineno"> 1242</span>  <span class="keywordflow">if</span> (ret == ESP_ERR_INVALID_STATE) {</div>
+<div class="line"><a id="l01243" name="l01243"></a><span class="lineno"> 1243</span>    ESP_LOGW(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;TWDT already initialized, skipping reconfiguration&quot;</span>);</div>
+<div class="line"><a id="l01244" name="l01244"></a><span class="lineno"> 1244</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (ret != ESP_OK) {</div>
+<div class="line"><a id="l01245" name="l01245"></a><span class="lineno"> 1245</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to configure TWDT: %s&quot;</span>, esp_err_to_name(ret));</div>
+<div class="line"><a id="l01246" name="l01246"></a><span class="lineno"> 1246</span>  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01247" name="l01247"></a><span class="lineno"> 1247</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;TWDT configured with 15s timeout&quot;</span>);</div>
+<div class="line"><a id="l01248" name="l01248"></a><span class="lineno"> 1248</span>  }</div>
+<div class="line"><a id="l01249" name="l01249"></a><span class="lineno"> 1249</span> </div>
+<div class="line"><a id="l01250" name="l01250"></a><span class="lineno"> 1250</span>  <span class="comment">// Add main task to Task Watchdog Timer BEFORE any initialization</span></div>
+<div class="line"><a id="l01251" name="l01251"></a><span class="lineno"> 1251</span>  ret = esp_task_wdt_add(NULL);</div>
+<div class="line"><a id="l01252" name="l01252"></a><span class="lineno"> 1252</span>  <span class="keywordflow">if</span> (ret != ESP_OK &amp;&amp; ret != ESP_ERR_INVALID_ARG) {</div>
+<div class="line"><a id="l01253" name="l01253"></a><span class="lineno"> 1253</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to add main task to TWDT: %s&quot;</span>, esp_err_to_name(ret));</div>
+<div class="line"><a id="l01254" name="l01254"></a><span class="lineno"> 1254</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l01255" name="l01255"></a><span class="lineno"> 1255</span>  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01256" name="l01256"></a><span class="lineno"> 1256</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✅ Main task registered with Task Watchdog Timer&quot;</span>);</div>
+<div class="line"><a id="l01257" name="l01257"></a><span class="lineno"> 1257</span>  }</div>
 <div class="line"><a id="l01258" name="l01258"></a><span class="lineno"> 1258</span> </div>
-<div class="line"><a id="l01259" name="l01259"></a><span class="lineno"> 1259</span>  <span class="comment">// PŘIDAT: Zvýšení WDT timeout pro inicializaci</span></div>
-<div class="line"><a id="l01260" name="l01260"></a><span class="lineno"> 1260</span>  esp_task_wdt_config_t twdt_config = {</div>
-<div class="line"><a id="l01261" name="l01261"></a><span class="lineno"> 1261</span>      .timeout_ms = 10000, <span class="comment">// 10 sekund pro init - OPTIMALIZOVÁNO pro web server</span></div>
-<div class="line"><a id="l01262" name="l01262"></a><span class="lineno"> 1262</span>      .idle_core_mask = 0,</div>
-<div class="line"><a id="l01263" name="l01263"></a><span class="lineno"> 1263</span>      .trigger_panic = <span class="keyword">true</span>};</div>
-<div class="line"><a id="l01264" name="l01264"></a><span class="lineno"> 1264</span>  <span class="comment">// CRITICAL: Use reconfigure instead of init to avoid &quot;TWDT already</span></div>
-<div class="line"><a id="l01265" name="l01265"></a><span class="lineno"> 1265</span>  <span class="comment">// initialized&quot; error</span></div>
-<div class="line"><a id="l01266" name="l01266"></a><span class="lineno"> 1266</span>  esp_err_t ret = esp_task_wdt_reconfigure(&amp;twdt_config);</div>
-<div class="line"><a id="l01267" name="l01267"></a><span class="lineno"> 1267</span>  <span class="keywordflow">if</span> (ret == ESP_ERR_INVALID_STATE) {</div>
-<div class="line"><a id="l01268" name="l01268"></a><span class="lineno"> 1268</span>    ESP_LOGW(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;TWDT already initialized, skipping reconfiguration&quot;</span>);</div>
-<div class="line"><a id="l01269" name="l01269"></a><span class="lineno"> 1269</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (ret != ESP_OK) {</div>
-<div class="line"><a id="l01270" name="l01270"></a><span class="lineno"> 1270</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to configure TWDT: %s&quot;</span>, esp_err_to_name(ret));</div>
-<div class="line"><a id="l01271" name="l01271"></a><span class="lineno"> 1271</span>  } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01272" name="l01272"></a><span class="lineno"> 1272</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;TWDT configured with 15s timeout&quot;</span>);</div>
-<div class="line"><a id="l01273" name="l01273"></a><span class="lineno"> 1273</span>  }</div>
-<div class="line"><a id="l01274" name="l01274"></a><span class="lineno"> 1274</span> </div>
-<div class="line"><a id="l01275" name="l01275"></a><span class="lineno"> 1275</span>  <span class="comment">// CRITICAL: Add main task to Task Watchdog Timer BEFORE any initialization</span></div>
-<div class="line"><a id="l01276" name="l01276"></a><span class="lineno"> 1276</span>  ret = esp_task_wdt_add(NULL);</div>
-<div class="line"><a id="l01277" name="l01277"></a><span class="lineno"> 1277</span>  <span class="keywordflow">if</span> (ret != ESP_OK &amp;&amp; ret != ESP_ERR_INVALID_ARG) {</div>
-<div class="line"><a id="l01278" name="l01278"></a><span class="lineno"> 1278</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to add main task to TWDT: %s&quot;</span>, esp_err_to_name(ret));</div>
-<div class="line"><a id="l01279" name="l01279"></a><span class="lineno"> 1279</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l01280" name="l01280"></a><span class="lineno"> 1280</span>  } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01281" name="l01281"></a><span class="lineno"> 1281</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✅ Main task registered with Task Watchdog Timer&quot;</span>);</div>
-<div class="line"><a id="l01282" name="l01282"></a><span class="lineno"> 1282</span>  }</div>
-<div class="line"><a id="l01283" name="l01283"></a><span class="lineno"> 1283</span> </div>
-<div class="line"><a id="l01284" name="l01284"></a><span class="lineno"> 1284</span>  <span class="comment">// Initialize console and UART FIRST - before any system initialization</span></div>
-<div class="line"><a id="l01285" name="l01285"></a><span class="lineno"> 1285</span>  <span class="comment">// This ensures that safe mode can output error messages</span></div>
-<div class="line"><a id="l01286" name="l01286"></a><span class="lineno"> 1286</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🔄 Initializing console and UART...&quot;</span>);</div>
-<div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>  <a class="code hl_function" href="main_8c.html#ae52825df5837e0f8f5e814f48cafb722">init_console</a>();</div>
-<div class="line"><a id="l01288" name="l01288"></a><span class="lineno"> 1288</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✅ Console and UART initialized successfully&quot;</span>);</div>
-<div class="line"><a id="l01289" name="l01289"></a><span class="lineno"> 1289</span> </div>
-<div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span>  <span class="comment">// System initialization with error recovery</span></div>
-<div class="line"><a id="l01291" name="l01291"></a><span class="lineno"> 1291</span>  ret = <a class="code hl_function" href="main_8c.html#ae27993c1756124d9fa6e8af4958409ef">main_system_init</a>();</div>
-<div class="line"><a id="l01292" name="l01292"></a><span class="lineno"> 1292</span>  <span class="keywordflow">if</span> (ret != ESP_OK) {</div>
-<div class="line"><a id="l01293" name="l01293"></a><span class="lineno"> 1293</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;❌ System init failed: %s&quot;</span>, esp_err_to_name(ret));</div>
-<div class="line"><a id="l01294" name="l01294"></a><span class="lineno"> 1294</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🔄 Entering safe mode - basic UART only&quot;</span>);</div>
-<div class="line"><a id="l01295" name="l01295"></a><span class="lineno"> 1295</span> </div>
-<div class="line"><a id="l01296" name="l01296"></a><span class="lineno"> 1296</span>    <span class="comment">// Safe mode - jen UART pro debugging</span></div>
-<div class="line"><a id="l01297" name="l01297"></a><span class="lineno"> 1297</span>    <span class="keywordflow">while</span> (1) {</div>
-<div class="line"><a id="l01298" name="l01298"></a><span class="lineno"> 1298</span>      ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;💔 Safe mode: Init failed, system halted&quot;</span>);</div>
-<div class="line"><a id="l01299" name="l01299"></a><span class="lineno"> 1299</span>      <span class="comment">// Note: No watchdog reset in safe mode - task not registered</span></div>
-<div class="line"><a id="l01300" name="l01300"></a><span class="lineno"> 1300</span>      vTaskDelay(pdMS_TO_TICKS(5000));</div>
-<div class="line"><a id="l01301" name="l01301"></a><span class="lineno"> 1301</span>    }</div>
-<div class="line"><a id="l01302" name="l01302"></a><span class="lineno"> 1302</span>  }</div>
-<div class="line"><a id="l01303" name="l01303"></a><span class="lineno"> 1303</span> </div>
-<div class="line"><a id="l01304" name="l01304"></a><span class="lineno"> 1304</span>  <span class="comment">// Task Watchdog Timer is automatically initialized by ESP-IDF</span></div>
-<div class="line"><a id="l01305" name="l01305"></a><span class="lineno"> 1305</span>  <span class="comment">// (CONFIG_ESP_TASK_WDT_INIT=y in sdkconfig)</span></div>
-<div class="line"><a id="l01306" name="l01306"></a><span class="lineno"> 1306</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Task Watchdog Timer initialized automatically by ESP-IDF&quot;</span>);</div>
+<div class="line"><a id="l01259" name="l01259"></a><span class="lineno"> 1259</span>  <span class="comment">// Initialize console and UART FIRST - before any system initialization</span></div>
+<div class="line"><a id="l01260" name="l01260"></a><span class="lineno"> 1260</span>  <span class="comment">// This ensures that safe mode can output error messages</span></div>
+<div class="line"><a id="l01261" name="l01261"></a><span class="lineno"> 1261</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🔄 Initializing console and UART...&quot;</span>);</div>
+<div class="line"><a id="l01262" name="l01262"></a><span class="lineno"> 1262</span>  <a class="code hl_function" href="main_8c.html#ae52825df5837e0f8f5e814f48cafb722">init_console</a>();</div>
+<div class="line"><a id="l01263" name="l01263"></a><span class="lineno"> 1263</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✅ Console and UART initialized successfully&quot;</span>);</div>
+<div class="line"><a id="l01264" name="l01264"></a><span class="lineno"> 1264</span> </div>
+<div class="line"><a id="l01265" name="l01265"></a><span class="lineno"> 1265</span>  <span class="comment">// System initialization with error recovery</span></div>
+<div class="line"><a id="l01266" name="l01266"></a><span class="lineno"> 1266</span>  ret = <a class="code hl_function" href="main_8c.html#ae27993c1756124d9fa6e8af4958409ef">main_system_init</a>();</div>
+<div class="line"><a id="l01267" name="l01267"></a><span class="lineno"> 1267</span>  <span class="keywordflow">if</span> (ret != ESP_OK) {</div>
+<div class="line"><a id="l01268" name="l01268"></a><span class="lineno"> 1268</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;❌ System init failed: %s&quot;</span>, esp_err_to_name(ret));</div>
+<div class="line"><a id="l01269" name="l01269"></a><span class="lineno"> 1269</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🔄 Entering safe mode - basic UART only&quot;</span>);</div>
+<div class="line"><a id="l01270" name="l01270"></a><span class="lineno"> 1270</span> </div>
+<div class="line"><a id="l01271" name="l01271"></a><span class="lineno"> 1271</span>    <span class="comment">// Safe mode - jen UART pro debugging</span></div>
+<div class="line"><a id="l01272" name="l01272"></a><span class="lineno"> 1272</span>    <span class="keywordflow">while</span> (1) {</div>
+<div class="line"><a id="l01273" name="l01273"></a><span class="lineno"> 1273</span>      ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;💔 Safe mode: Init failed, system halted&quot;</span>);</div>
+<div class="line"><a id="l01274" name="l01274"></a><span class="lineno"> 1274</span>      <span class="comment">// Note: No watchdog reset in safe mode - task not registered</span></div>
+<div class="line"><a id="l01275" name="l01275"></a><span class="lineno"> 1275</span>      vTaskDelay(pdMS_TO_TICKS(5000));</div>
+<div class="line"><a id="l01276" name="l01276"></a><span class="lineno"> 1276</span>    }</div>
+<div class="line"><a id="l01277" name="l01277"></a><span class="lineno"> 1277</span>  }</div>
+<div class="line"><a id="l01278" name="l01278"></a><span class="lineno"> 1278</span> </div>
+<div class="line"><a id="l01279" name="l01279"></a><span class="lineno"> 1279</span>  <span class="comment">// Task Watchdog Timer is automatically initialized by ESP-IDF</span></div>
+<div class="line"><a id="l01280" name="l01280"></a><span class="lineno"> 1280</span>  <span class="comment">// (CONFIG_ESP_TASK_WDT_INIT=y in sdkconfig)</span></div>
+<div class="line"><a id="l01281" name="l01281"></a><span class="lineno"> 1281</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Task Watchdog Timer initialized automatically by ESP-IDF&quot;</span>);</div>
+<div class="line"><a id="l01282" name="l01282"></a><span class="lineno"> 1282</span> </div>
+<div class="line"><a id="l01283" name="l01283"></a><span class="lineno"> 1283</span>  <span class="comment">// Create system tasks</span></div>
+<div class="line"><a id="l01284" name="l01284"></a><span class="lineno"> 1284</span>  ret = <a class="code hl_function" href="main_8c.html#a2dbcd7c01e5197da615bb4fe6c5b29b0">create_system_tasks</a>();</div>
+<div class="line"><a id="l01285" name="l01285"></a><span class="lineno"> 1285</span>  <span class="keywordflow">if</span> (ret != ESP_OK) {</div>
+<div class="line"><a id="l01286" name="l01286"></a><span class="lineno"> 1286</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;❌ Task creation failed: %s&quot;</span>, esp_err_to_name(ret));</div>
+<div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🔄 Entering safe mode - basic UART only&quot;</span>);</div>
+<div class="line"><a id="l01288" name="l01288"></a><span class="lineno"> 1288</span> </div>
+<div class="line"><a id="l01289" name="l01289"></a><span class="lineno"> 1289</span>    <span class="comment">// Safe mode - jen UART pro debugging</span></div>
+<div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span>    <span class="keywordflow">while</span> (1) {</div>
+<div class="line"><a id="l01291" name="l01291"></a><span class="lineno"> 1291</span>      ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;💔 Safe mode: Task creation failed, system halted&quot;</span>);</div>
+<div class="line"><a id="l01292" name="l01292"></a><span class="lineno"> 1292</span>      <span class="comment">// Note: No watchdog reset in safe mode - task not registered</span></div>
+<div class="line"><a id="l01293" name="l01293"></a><span class="lineno"> 1293</span>      vTaskDelay(pdMS_TO_TICKS(5000));</div>
+<div class="line"><a id="l01294" name="l01294"></a><span class="lineno"> 1294</span>    }</div>
+<div class="line"><a id="l01295" name="l01295"></a><span class="lineno"> 1295</span>  }</div>
+<div class="line"><a id="l01296" name="l01296"></a><span class="lineno"> 1296</span> </div>
+<div class="line"><a id="l01297" name="l01297"></a><span class="lineno"> 1297</span>  <span class="comment">// CRITICAL: Reset watchdog AFTER task creation</span></div>
+<div class="line"><a id="l01298" name="l01298"></a><span class="lineno"> 1298</span>  <a class="code hl_function" href="main_8c.html#a16454398c460e4d7161a90c808248ec2">main_task_wdt_reset_safe</a>();</div>
+<div class="line"><a id="l01299" name="l01299"></a><span class="lineno"> 1299</span> </div>
+<div class="line"><a id="l01300" name="l01300"></a><span class="lineno"> 1300</span>  <span class="comment">// PŘIDAT: Vrátit normální WDT timeout po inicializaci - OPTIMALIZOVÁNO pro</span></div>
+<div class="line"><a id="l01301" name="l01301"></a><span class="lineno"> 1301</span>  <span class="comment">// web server</span></div>
+<div class="line"><a id="l01302" name="l01302"></a><span class="lineno"> 1302</span>  twdt_config.timeout_ms = 8000;          <span class="comment">// Zvýšeno na 8 sekund pro web server</span></div>
+<div class="line"><a id="l01303" name="l01303"></a><span class="lineno"> 1303</span>  esp_task_wdt_reconfigure(&amp;twdt_config); <span class="comment">// Použít reconfigure místo init</span></div>
+<div class="line"><a id="l01304" name="l01304"></a><span class="lineno"> 1304</span> </div>
+<div class="line"><a id="l01305" name="l01305"></a><span class="lineno"> 1305</span>  <span class="comment">// Main task is already registered with TWDT at the beginning of app_main()</span></div>
+<div class="line"><a id="l01306" name="l01306"></a><span class="lineno"> 1306</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✓ Main task already registered with Task Watchdog Timer&quot;</span>);</div>
 <div class="line"><a id="l01307" name="l01307"></a><span class="lineno"> 1307</span> </div>
-<div class="line"><a id="l01308" name="l01308"></a><span class="lineno"> 1308</span>  <span class="comment">// Create system tasks</span></div>
-<div class="line"><a id="l01309" name="l01309"></a><span class="lineno"> 1309</span>  ret = <a class="code hl_function" href="main_8c.html#a2dbcd7c01e5197da615bb4fe6c5b29b0">create_system_tasks</a>();</div>
-<div class="line"><a id="l01310" name="l01310"></a><span class="lineno"> 1310</span>  <span class="keywordflow">if</span> (ret != ESP_OK) {</div>
-<div class="line"><a id="l01311" name="l01311"></a><span class="lineno"> 1311</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;❌ Task creation failed: %s&quot;</span>, esp_err_to_name(ret));</div>
-<div class="line"><a id="l01312" name="l01312"></a><span class="lineno"> 1312</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🔄 Entering safe mode - basic UART only&quot;</span>);</div>
-<div class="line"><a id="l01313" name="l01313"></a><span class="lineno"> 1313</span> </div>
-<div class="line"><a id="l01314" name="l01314"></a><span class="lineno"> 1314</span>    <span class="comment">// Safe mode - jen UART pro debugging</span></div>
-<div class="line"><a id="l01315" name="l01315"></a><span class="lineno"> 1315</span>    <span class="keywordflow">while</span> (1) {</div>
-<div class="line"><a id="l01316" name="l01316"></a><span class="lineno"> 1316</span>      ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;💔 Safe mode: Task creation failed, system halted&quot;</span>);</div>
-<div class="line"><a id="l01317" name="l01317"></a><span class="lineno"> 1317</span>      <span class="comment">// Note: No watchdog reset in safe mode - task not registered</span></div>
-<div class="line"><a id="l01318" name="l01318"></a><span class="lineno"> 1318</span>      vTaskDelay(pdMS_TO_TICKS(5000));</div>
-<div class="line"><a id="l01319" name="l01319"></a><span class="lineno"> 1319</span>    }</div>
-<div class="line"><a id="l01320" name="l01320"></a><span class="lineno"> 1320</span>  }</div>
-<div class="line"><a id="l01321" name="l01321"></a><span class="lineno"> 1321</span> </div>
-<div class="line"><a id="l01322" name="l01322"></a><span class="lineno"> 1322</span>  <span class="comment">// CRITICAL: Reset watchdog AFTER task creation</span></div>
-<div class="line"><a id="l01323" name="l01323"></a><span class="lineno"> 1323</span>  <a class="code hl_function" href="main_8c.html#a16454398c460e4d7161a90c808248ec2">main_task_wdt_reset_safe</a>();</div>
-<div class="line"><a id="l01324" name="l01324"></a><span class="lineno"> 1324</span> </div>
-<div class="line"><a id="l01325" name="l01325"></a><span class="lineno"> 1325</span>  <span class="comment">// PŘIDAT: Vrátit normální WDT timeout po inicializaci - OPTIMALIZOVÁNO pro</span></div>
-<div class="line"><a id="l01326" name="l01326"></a><span class="lineno"> 1326</span>  <span class="comment">// web server</span></div>
-<div class="line"><a id="l01327" name="l01327"></a><span class="lineno"> 1327</span>  twdt_config.timeout_ms = 8000;          <span class="comment">// Zvýšeno na 8 sekund pro web server</span></div>
-<div class="line"><a id="l01328" name="l01328"></a><span class="lineno"> 1328</span>  esp_task_wdt_reconfigure(&amp;twdt_config); <span class="comment">// Použít reconfigure místo init</span></div>
-<div class="line"><a id="l01329" name="l01329"></a><span class="lineno"> 1329</span> </div>
-<div class="line"><a id="l01330" name="l01330"></a><span class="lineno"> 1330</span>  <span class="comment">// Main task is already registered with TWDT at the beginning of app_main()</span></div>
-<div class="line"><a id="l01331" name="l01331"></a><span class="lineno"> 1331</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✓ Main task already registered with Task Watchdog Timer&quot;</span>);</div>
+<div class="line"><a id="l01308" name="l01308"></a><span class="lineno"> 1308</span>  <span class="comment">// Wait for tasks to initialize (startup banner now handled by UART task)</span></div>
+<div class="line"><a id="l01309" name="l01309"></a><span class="lineno"> 1309</span>  vTaskDelay(pdMS_TO_TICKS(200));</div>
+<div class="line"><a id="l01310" name="l01310"></a><span class="lineno"> 1310</span> </div>
+<div class="line"><a id="l01311" name="l01311"></a><span class="lineno"> 1311</span>  <span class="comment">// Main application loop</span></div>
+<div class="line"><a id="l01312" name="l01312"></a><span class="lineno"> 1312</span>  <span class="comment">// uint32_t loop_count = 0; // Unused variable removed</span></div>
+<div class="line"><a id="l01313" name="l01313"></a><span class="lineno"> 1313</span>  uint32_t last_status_time = 0;</div>
+<div class="line"><a id="l01314" name="l01314"></a><span class="lineno"> 1314</span>  uint32_t last_demo_move_time =</div>
+<div class="line"><a id="l01315" name="l01315"></a><span class="lineno"> 1315</span>      0; <span class="comment">// Track time in ms instead of seconds for finer granularity</span></div>
+<div class="line"><a id="l01316" name="l01316"></a><span class="lineno"> 1316</span> </div>
+<div class="line"><a id="l01317" name="l01317"></a><span class="lineno"> 1317</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎯 Main application loop started&quot;</span>);</div>
+<div class="line"><a id="l01318" name="l01318"></a><span class="lineno"> 1318</span> </div>
+<div class="line"><a id="l01319" name="l01319"></a><span class="lineno"> 1319</span>  <span class="keywordflow">for</span> (;;) {</div>
+<div class="line"><a id="l01320" name="l01320"></a><span class="lineno"> 1320</span>    <span class="comment">// CRITICAL: Reset watchdog for main task in every iteration</span></div>
+<div class="line"><a id="l01321" name="l01321"></a><span class="lineno"> 1321</span>    <a class="code hl_function" href="main_8c.html#a16454398c460e4d7161a90c808248ec2">main_task_wdt_reset_safe</a>();</div>
+<div class="line"><a id="l01322" name="l01322"></a><span class="lineno"> 1322</span> </div>
+<div class="line"><a id="l01323" name="l01323"></a><span class="lineno"> 1323</span>    <span class="comment">// Get current time in ms</span></div>
+<div class="line"><a id="l01324" name="l01324"></a><span class="lineno"> 1324</span>    uint32_t current_time_ms = esp_timer_get_time() / 1000;</div>
+<div class="line"><a id="l01325" name="l01325"></a><span class="lineno"> 1325</span>    uint32_t current_time_sec = current_time_ms / 1000;</div>
+<div class="line"><a id="l01326" name="l01326"></a><span class="lineno"> 1326</span> </div>
+<div class="line"><a id="l01327" name="l01327"></a><span class="lineno"> 1327</span>    <span class="comment">// Periodic system status logging (respects quiet_mode and verbose_mode)</span></div>
+<div class="line"><a id="l01328" name="l01328"></a><span class="lineno"> 1328</span>    <span class="keywordflow">if</span> (current_time_sec - last_status_time &gt;= 60) { <span class="comment">// Every 60 seconds</span></div>
+<div class="line"><a id="l01329" name="l01329"></a><span class="lineno"> 1329</span>      ESP_LOGI(</div>
+<div class="line"><a id="l01330" name="l01330"></a><span class="lineno"> 1330</span>          <a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🔄 System Status: Uptime=%lu s, FreeHeap=%zu bytes, Tasks=%d&quot;</span>,</div>
+<div class="line"><a id="l01331" name="l01331"></a><span class="lineno"> 1331</span>          current_time_sec, esp_get_free_heap_size(), uxTaskGetNumberOfTasks());</div>
 <div class="line"><a id="l01332" name="l01332"></a><span class="lineno"> 1332</span> </div>
-<div class="line"><a id="l01333" name="l01333"></a><span class="lineno"> 1333</span>  <span class="comment">// Wait for tasks to initialize (startup banner now handled by UART task)</span></div>
-<div class="line"><a id="l01334" name="l01334"></a><span class="lineno"> 1334</span>  vTaskDelay(pdMS_TO_TICKS(200));</div>
-<div class="line"><a id="l01335" name="l01335"></a><span class="lineno"> 1335</span> </div>
-<div class="line"><a id="l01336" name="l01336"></a><span class="lineno"> 1336</span>  <span class="comment">// Main application loop</span></div>
-<div class="line"><a id="l01337" name="l01337"></a><span class="lineno"> 1337</span>  <span class="comment">// uint32_t loop_count = 0; // Unused variable removed</span></div>
-<div class="line"><a id="l01338" name="l01338"></a><span class="lineno"> 1338</span>  uint32_t last_status_time = 0;</div>
-<div class="line"><a id="l01339" name="l01339"></a><span class="lineno"> 1339</span>  uint32_t last_demo_move_time =</div>
-<div class="line"><a id="l01340" name="l01340"></a><span class="lineno"> 1340</span>      0; <span class="comment">// Track time in ms instead of seconds for finer granularity</span></div>
-<div class="line"><a id="l01341" name="l01341"></a><span class="lineno"> 1341</span> </div>
-<div class="line"><a id="l01342" name="l01342"></a><span class="lineno"> 1342</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎯 Main application loop started&quot;</span>);</div>
-<div class="line"><a id="l01343" name="l01343"></a><span class="lineno"> 1343</span> </div>
-<div class="line"><a id="l01344" name="l01344"></a><span class="lineno"> 1344</span>  <span class="keywordflow">for</span> (;;) {</div>
-<div class="line"><a id="l01345" name="l01345"></a><span class="lineno"> 1345</span>    <span class="comment">// CRITICAL: Reset watchdog for main task in every iteration</span></div>
-<div class="line"><a id="l01346" name="l01346"></a><span class="lineno"> 1346</span>    <a class="code hl_function" href="main_8c.html#a16454398c460e4d7161a90c808248ec2">main_task_wdt_reset_safe</a>();</div>
+<div class="line"><a id="l01333" name="l01333"></a><span class="lineno"> 1333</span>      <span class="comment">// LOGS REMOVED FOR BREVITY</span></div>
+<div class="line"><a id="l01334" name="l01334"></a><span class="lineno"> 1334</span>      last_status_time = current_time_sec;</div>
+<div class="line"><a id="l01335" name="l01335"></a><span class="lineno"> 1335</span>    }</div>
+<div class="line"><a id="l01336" name="l01336"></a><span class="lineno"> 1336</span> </div>
+<div class="line"><a id="l01337" name="l01337"></a><span class="lineno"> 1337</span>    <span class="comment">// Demo mode processing</span></div>
+<div class="line"><a id="l01338" name="l01338"></a><span class="lineno"> 1338</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="main_8c.html#af252e203098e091d068b85d637b1083d">demo_mode_enabled</a>) {</div>
+<div class="line"><a id="l01339" name="l01339"></a><span class="lineno"> 1339</span>      <span class="keywordflow">if</span> (current_time_ms - last_demo_move_time &gt;= <a class="code hl_variable" href="main_8c.html#aa999d9fce86efd55be4fb1bce525e69e">current_demo_delay_ms</a>) {</div>
+<div class="line"><a id="l01340" name="l01340"></a><span class="lineno"> 1340</span>        ESP_LOGI(</div>
+<div class="line"><a id="l01341" name="l01341"></a><span class="lineno"> 1341</span>            <a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
+<div class="line"><a id="l01342" name="l01342"></a><span class="lineno"> 1342</span>            <span class="stringliteral">&quot;⏱️ DEMO TICK: Time=%lu, Last=%lu, Delay=%lu -&gt; EXECUTING PROBE&quot;</span>,</div>
+<div class="line"><a id="l01343" name="l01343"></a><span class="lineno"> 1343</span>            current_time_ms, last_demo_move_time, <a class="code hl_variable" href="main_8c.html#aa999d9fce86efd55be4fb1bce525e69e">current_demo_delay_ms</a>);</div>
+<div class="line"><a id="l01344" name="l01344"></a><span class="lineno"> 1344</span> </div>
+<div class="line"><a id="l01345" name="l01345"></a><span class="lineno"> 1345</span>        <a class="code hl_function" href="main_8c.html#a47be0f08c5acbba3a901be7d65e4cb8a">execute_demo_move</a>();</div>
+<div class="line"><a id="l01346" name="l01346"></a><span class="lineno"> 1346</span>        last_demo_move_time = current_time_ms;</div>
 <div class="line"><a id="l01347" name="l01347"></a><span class="lineno"> 1347</span> </div>
-<div class="line"><a id="l01348" name="l01348"></a><span class="lineno"> 1348</span>    <span class="comment">// Get current time in ms</span></div>
-<div class="line"><a id="l01349" name="l01349"></a><span class="lineno"> 1349</span>    uint32_t current_time_ms = esp_timer_get_time() / 1000;</div>
-<div class="line"><a id="l01350" name="l01350"></a><span class="lineno"> 1350</span>    uint32_t current_time_sec = current_time_ms / 1000;</div>
-<div class="line"><a id="l01351" name="l01351"></a><span class="lineno"> 1351</span> </div>
-<div class="line"><a id="l01352" name="l01352"></a><span class="lineno"> 1352</span>    <span class="comment">// Periodic system status logging (respects quiet_mode and verbose_mode)</span></div>
-<div class="line"><a id="l01353" name="l01353"></a><span class="lineno"> 1353</span>    <span class="keywordflow">if</span> (current_time_sec - last_status_time &gt;= 60) { <span class="comment">// Every 60 seconds</span></div>
-<div class="line"><a id="l01354" name="l01354"></a><span class="lineno"> 1354</span>      ESP_LOGI(</div>
-<div class="line"><a id="l01355" name="l01355"></a><span class="lineno"> 1355</span>          <a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🔄 System Status: Uptime=%lu s, FreeHeap=%zu bytes, Tasks=%d&quot;</span>,</div>
-<div class="line"><a id="l01356" name="l01356"></a><span class="lineno"> 1356</span>          current_time_sec, esp_get_free_heap_size(), uxTaskGetNumberOfTasks());</div>
-<div class="line"><a id="l01357" name="l01357"></a><span class="lineno"> 1357</span> </div>
-<div class="line"><a id="l01358" name="l01358"></a><span class="lineno"> 1358</span>      <span class="comment">// LOGS REMOVED FOR BREVITY</span></div>
-<div class="line"><a id="l01359" name="l01359"></a><span class="lineno"> 1359</span>      last_status_time = current_time_sec;</div>
-<div class="line"><a id="l01360" name="l01360"></a><span class="lineno"> 1360</span>    }</div>
-<div class="line"><a id="l01361" name="l01361"></a><span class="lineno"> 1361</span> </div>
-<div class="line"><a id="l01362" name="l01362"></a><span class="lineno"> 1362</span>    <span class="comment">// Demo mode processing</span></div>
-<div class="line"><a id="l01363" name="l01363"></a><span class="lineno"> 1363</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="main_8c.html#af252e203098e091d068b85d637b1083d">demo_mode_enabled</a>) {</div>
-<div class="line"><a id="l01364" name="l01364"></a><span class="lineno"> 1364</span>      <span class="keywordflow">if</span> (current_time_ms - last_demo_move_time &gt;= <a class="code hl_variable" href="main_8c.html#aa999d9fce86efd55be4fb1bce525e69e">current_demo_delay_ms</a>) {</div>
-<div class="line"><a id="l01365" name="l01365"></a><span class="lineno"> 1365</span>        ESP_LOGI(</div>
-<div class="line"><a id="l01366" name="l01366"></a><span class="lineno"> 1366</span>            <a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
-<div class="line"><a id="l01367" name="l01367"></a><span class="lineno"> 1367</span>            <span class="stringliteral">&quot;⏱️ DEMO TICK: Time=%lu, Last=%lu, Delay=%lu -&gt; EXECUTING PROBE&quot;</span>,</div>
-<div class="line"><a id="l01368" name="l01368"></a><span class="lineno"> 1368</span>            current_time_ms, last_demo_move_time, <a class="code hl_variable" href="main_8c.html#aa999d9fce86efd55be4fb1bce525e69e">current_demo_delay_ms</a>);</div>
-<div class="line"><a id="l01369" name="l01369"></a><span class="lineno"> 1369</span> </div>
-<div class="line"><a id="l01370" name="l01370"></a><span class="lineno"> 1370</span>        <a class="code hl_function" href="main_8c.html#a47be0f08c5acbba3a901be7d65e4cb8a">execute_demo_move</a>();</div>
-<div class="line"><a id="l01371" name="l01371"></a><span class="lineno"> 1371</span>        last_demo_move_time = current_time_ms;</div>
-<div class="line"><a id="l01372" name="l01372"></a><span class="lineno"> 1372</span> </div>
-<div class="line"><a id="l01373" name="l01373"></a><span class="lineno"> 1373</span>        <span class="comment">// ⏳ Fixed delay between moves (accounting for animation time already</span></div>
-<div class="line"><a id="l01374" name="l01374"></a><span class="lineno"> 1374</span>        <span class="comment">// in execute_demo_move) execute_demo_move already waits: 1500ms</span></div>
-<div class="line"><a id="l01375" name="l01375"></a><span class="lineno"> 1375</span>        <span class="comment">// (pickup) + 800ms (drop) = 2300ms So we only need small extra delay</span></div>
-<div class="line"><a id="l01376" name="l01376"></a><span class="lineno"> 1376</span>        <span class="comment">// for board refresh</span></div>
-<div class="line"><a id="l01377" name="l01377"></a><span class="lineno"> 1377</span>        <a class="code hl_variable" href="main_8c.html#aa999d9fce86efd55be4fb1bce525e69e">current_demo_delay_ms</a> = 500; <span class="comment">// Just 0.5s extra = total ~2.8s per move</span></div>
-<div class="line"><a id="l01378" name="l01378"></a><span class="lineno"> 1378</span>      }</div>
-<div class="line"><a id="l01379" name="l01379"></a><span class="lineno"> 1379</span>    }</div>
-<div class="line"><a id="l01380" name="l01380"></a><span class="lineno"> 1380</span> </div>
-<div class="line"><a id="l01381" name="l01381"></a><span class="lineno"> 1381</span>    <span class="comment">// Short delay to allow frequent checks (interruption, etc.) but not starve</span></div>
-<div class="line"><a id="l01382" name="l01382"></a><span class="lineno"> 1382</span>    <span class="comment">// WDT</span></div>
-<div class="line"><a id="l01383" name="l01383"></a><span class="lineno"> 1383</span>    vTaskDelay(pdMS_TO_TICKS(100));</div>
-<div class="line"><a id="l01384" name="l01384"></a><span class="lineno"> 1384</span>  }</div>
-<div class="line"><a id="l01385" name="l01385"></a><span class="lineno"> 1385</span>}</div>
+<div class="line"><a id="l01348" name="l01348"></a><span class="lineno"> 1348</span>        <span class="comment">// ⏳ Fixed delay between moves (accounting for animation time already</span></div>
+<div class="line"><a id="l01349" name="l01349"></a><span class="lineno"> 1349</span>        <span class="comment">// in execute_demo_move) execute_demo_move already waits: 1500ms</span></div>
+<div class="line"><a id="l01350" name="l01350"></a><span class="lineno"> 1350</span>        <span class="comment">// (pickup) + 800ms (drop) = 2300ms So we only need small extra delay</span></div>
+<div class="line"><a id="l01351" name="l01351"></a><span class="lineno"> 1351</span>        <span class="comment">// for board refresh</span></div>
+<div class="line"><a id="l01352" name="l01352"></a><span class="lineno"> 1352</span>        <a class="code hl_variable" href="main_8c.html#aa999d9fce86efd55be4fb1bce525e69e">current_demo_delay_ms</a> = 500; <span class="comment">// Just 0.5s extra = total ~2.8s per move</span></div>
+<div class="line"><a id="l01353" name="l01353"></a><span class="lineno"> 1353</span>      }</div>
+<div class="line"><a id="l01354" name="l01354"></a><span class="lineno"> 1354</span>    }</div>
+<div class="line"><a id="l01355" name="l01355"></a><span class="lineno"> 1355</span> </div>
+<div class="line"><a id="l01356" name="l01356"></a><span class="lineno"> 1356</span>    <span class="comment">// Short delay to allow frequent checks (interruption, etc.) but not starve</span></div>
+<div class="line"><a id="l01357" name="l01357"></a><span class="lineno"> 1357</span>    <span class="comment">// WDT</span></div>
+<div class="line"><a id="l01358" name="l01358"></a><span class="lineno"> 1358</span>    vTaskDelay(pdMS_TO_TICKS(100));</div>
+<div class="line"><a id="l01359" name="l01359"></a><span class="lineno"> 1359</span>  }</div>
+<div class="line"><a id="l01360" name="l01360"></a><span class="lineno"> 1360</span>}</div>
 </div>
 <div class="ttc" id="aanimation__task_8c_html_a18ab65be2c5b763305a8d6c1fa886392"><div class="ttname"><a href="animation__task_8c.html#a18ab65be2c5b763305a8d6c1fa886392">animation_task_start</a></div><div class="ttdeci">void animation_task_start(void *pvParameters)</div><div class="ttdoc">Spusti animation task.</div><div class="ttdef"><b>Definition</b> <a href="animation__task_8c_source.html#l01052">animation_task.c:1052</a></div></div>
 <div class="ttc" id="aanimation__task_8h_html"><div class="ttname"><a href="animation__task_8h.html">animation_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - Hlavicka Animation Tasku.</div></div>
@@ -1245,7 +1220,7 @@ $(function(){initNavTree('main_8c_source.html','',''); });
 <div class="ttc" id="afreertos__chess_8h_html_adbb9d0dfbf98763aa25c6a52814f0bf8"><div class="ttname"><a href="freertos__chess_8h.html#adbb9d0dfbf98763aa25c6a52814f0bf8">BUTTON_TASK_STACK_SIZE</a></div><div class="ttdeci">#define BUTTON_TASK_STACK_SIZE</div><div class="ttdoc">Velikost stacku Button tasku (3KB - nezmeneno, jiz optimalni).</div><div class="ttdef"><b>Definition</b> <a href="freertos__chess_8h_source.html#l00220">freertos_chess.h:220</a></div></div>
 <div class="ttc" id="agame__led__animations_8h_html"><div class="ttname"><a href="game__led__animations_8h.html">game_led_animations.h</a></div><div class="ttdoc">ESP32-C6 Chess System - Advanced LED Animations Header.</div></div>
 <div class="ttc" id="agame__led__animations_8h_html_aff587ca038d004104b274391cb221113"><div class="ttname"><a href="game__led__animations_8h.html#aff587ca038d004104b274391cb221113">init_endgame_animation_system</a></div><div class="ttdeci">#define init_endgame_animation_system()</div><div class="ttdoc">Alias pro kompatibilitu s existujícím kódem.</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8h_source.html#l00206">game_led_animations.h:206</a></div></div>
-<div class="ttc" id="agame__task_8c_html_ab26d022ec766e04addd46d9b6da9768a"><div class="ttname"><a href="game__task_8c.html#ab26d022ec766e04addd46d9b6da9768a">game_task_start</a></div><div class="ttdeci">void game_task_start(void *pvParameters)</div><div class="ttdoc">Spusti game task.</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l08816">game_task.c:8816</a></div></div>
+<div class="ttc" id="agame__task_8c_html_ab26d022ec766e04addd46d9b6da9768a"><div class="ttname"><a href="game__task_8c.html#ab26d022ec766e04addd46d9b6da9768a">game_task_start</a></div><div class="ttdeci">void game_task_start(void *pvParameters)</div><div class="ttdoc">Spusti game task.</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l08785">game_task.c:8785</a></div></div>
 <div class="ttc" id="agame__task_8h_html"><div class="ttname"><a href="game__task_8h.html">game_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - Game Task Hlavicka.</div></div>
 <div class="ttc" id="aled__task_8h_html"><div class="ttname"><a href="led__task_8h.html">led_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - LED Task Hlavicka.</div></div>
 <div class="ttc" id="aled__task_8h_html_a31b820a4bfe33d0cf54a107c339d6d07"><div class="ttname"><a href="led__task_8h.html#a31b820a4bfe33d0cf54a107c339d6d07">led_update_button_availability_from_game</a></div><div class="ttdeci">void led_update_button_availability_from_game(void)</div><div class="ttdoc">Aktualizuj dostupnost tlacitek podle stavu hry.</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l02779">led_task.c:2779</a></div></div>
@@ -1261,11 +1236,11 @@ $(function(){initNavTree('main_8c_source.html','',''); });
 <div class="ttc" id="amain_8c_html_a2dbcd7c01e5197da615bb4fe6c5b29b0"><div class="ttname"><a href="main_8c.html#a2dbcd7c01e5197da615bb4fe6c5b29b0">create_system_tasks</a></div><div class="ttdeci">esp_err_t create_system_tasks(void)</div><div class="ttdoc">Vytvori vsechny systemove tasky.</div><div class="ttdef"><b>Definition</b> <a href="#l00755">main.c:755</a></div></div>
 <div class="ttc" id="amain_8c_html_a36e9302901a63037025cd7970fa8adbe"><div class="ttname"><a href="main_8c.html#a36e9302901a63037025cd7970fa8adbe">web_server_task_handle</a></div><div class="ttdeci">TaskHandle_t web_server_task_handle</div><div class="ttdoc">Handle pro Web Server task.</div><div class="ttdef"><b>Definition</b> <a href="#l00245">main.c:245</a></div></div>
 <div class="ttc" id="amain_8c_html_a47be0f08c5acbba3a901be7d65e4cb8a"><div class="ttname"><a href="main_8c.html#a47be0f08c5acbba3a901be7d65e4cb8a">execute_demo_move</a></div><div class="ttdeci">void execute_demo_move(void)</div><div class="ttdoc">Vykona jeden demo tah.</div><div class="ttdef"><b>Definition</b> <a href="#l00558">main.c:558</a></div></div>
-<div class="ttc" id="amain_8c_html_a4894ad0ac4d99cffa56d58649a1850fb"><div class="ttname"><a href="main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb">show_boot_animation_and_board</a></div><div class="ttdeci">void show_boot_animation_and_board(void)</div><div class="ttdoc">Zobrazi centralizovanou boot animaci a sachovnici.</div><div class="ttdef"><b>Definition</b> <a href="#l00967">main.c:967</a></div></div>
+<div class="ttc" id="amain_8c_html_a4894ad0ac4d99cffa56d58649a1850fb"><div class="ttname"><a href="main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb">show_boot_animation_and_board</a></div><div class="ttdeci">void show_boot_animation_and_board(void)</div><div class="ttdoc">Zobrazi centralizovanou boot animaci a sachovnici.</div><div class="ttdef"><b>Definition</b> <a href="#l00944">main.c:944</a></div></div>
 <div class="ttc" id="amain_8c_html_a4973ab5b9a06d7ed486bc100be691f42"><div class="ttname"><a href="main_8c.html#a4973ab5b9a06d7ed486bc100be691f42">demo_moves_count</a></div><div class="ttdeci">static int demo_moves_count</div><div class="ttdoc">Current game&#39;s move count.</div><div class="ttdef"><b>Definition</b> <a href="#l00320">main.c:320</a></div></div>
 <div class="ttc" id="amain_8c_html_a4e4967ac70f1e8a89b2fea62027a968c"><div class="ttname"><a href="main_8c.html#a4e4967ac70f1e8a89b2fea62027a968c">uart_task_handle</a></div><div class="ttdeci">TaskHandle_t uart_task_handle</div><div class="ttdoc">Handle pro UART task.</div><div class="ttdef"><b>Definition</b> <a href="#l00236">main.c:236</a></div></div>
 <div class="ttc" id="amain_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="#l00193">main.c:193</a></div></div>
-<div class="ttc" id="amain_8c_html_a630544a7f0a2cc40d8a7fefab7e2fe70"><div class="ttname"><a href="main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70">app_main</a></div><div class="ttdeci">void app_main(void)</div><div class="ttdoc">Hlavni funkce aplikace.</div><div class="ttdef"><b>Definition</b> <a href="#l01251">main.c:1251</a></div></div>
+<div class="ttc" id="amain_8c_html_a630544a7f0a2cc40d8a7fefab7e2fe70"><div class="ttname"><a href="main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70">app_main</a></div><div class="ttdeci">void app_main(void)</div><div class="ttdoc">Hlavni funkce aplikace.</div><div class="ttdef"><b>Definition</b> <a href="#l01228">main.c:1228</a></div></div>
 <div class="ttc" id="amain_8c_html_a66025d47b9e143dea05d41ea2a76d46b"><div class="ttname"><a href="main_8c.html#a66025d47b9e143dea05d41ea2a76d46b">DEMO_GAMES_COUNT</a></div><div class="ttdeci">static const int DEMO_GAMES_COUNT</div><div class="ttdoc">Total number of demo games.</div><div class="ttdef"><b>Definition</b> <a href="#l00308">main.c:308</a></div></div>
 <div class="ttc" id="amain_8c_html_a6cf81c896b094e20ff5752ee1133a8f2"><div class="ttname"><a href="main_8c.html#a6cf81c896b094e20ff5752ee1133a8f2">led_task_handle</a></div><div class="ttdeci">TaskHandle_t led_task_handle</div><div class="ttdoc">Handle pro LED task.</div><div class="ttdef"><b>Definition</b> <a href="#l00230">main.c:230</a></div></div>
 <div class="ttc" id="amain_8c_html_a6e05201e522856e3cd984bade768be7e"><div class="ttname"><a href="main_8c.html#a6e05201e522856e3cd984bade768be7e">toggle_demo_mode</a></div><div class="ttdeci">void toggle_demo_mode(bool enabled)</div><div class="ttdoc">Prepina demo mod zapnuto/vypnuto.</div><div class="ttdef"><b>Definition</b> <a href="#l00501">main.c:501</a></div></div>

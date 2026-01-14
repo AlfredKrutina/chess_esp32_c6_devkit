@@ -11,7 +11,7 @@ var searchData=
   ['king_5frow_8',['king_row',['../structking__resignation__state__t.html#a8aa2d198aefd1c851caa794ed1c1af41',1,'king_resignation_state_t']]],
   ['king_5fto_5fcol_9',['king_to_col',['../structcastling__positions__t.html#a6b2b0a29876d269219f706fa857eb78e',1,'castling_positions_t']]],
   ['king_5fto_5frow_10',['king_to_row',['../structcastling__positions__t.html#af10c6d54bf7046e73a6a0d5d48a88bf9',1,'castling_positions_t']]],
-  ['kladené_20otázky_11',['❓ FAQ (Často kladené otázky)',['../index.html#autotoc_md156',1,'']]],
+  ['kladené_20otázky_11',['❓ FAQ (Často kladené otázky)',['../index.html#autotoc_md157',1,'']]],
   ['knight_5fmoves_12',['knight_moves',['../game__task_8c.html#aa8992a10c771c05333aaea769d0cc506',1,'game_task.c']]],
   ['komponent_13',['Struktura komponent',['../index.html#autotoc_md109',1,'']]],
   ['komponenty_14',['Komponenty',['../index.html#autotoc_md102',1,'']]],
@@ -20,11 +20,11 @@ var searchData=
   ['komunikace_20mezi_20tasky_17',['FRONTY (QUEUES) - KOMUNIKACE MEZI TASKY',['../main_8c.html#autotoc_md5',1,'']]],
   ['komunikace_20mezi_20tasky_18',['Komunikace mezi tasky',['../index.html#autotoc_md108',1,'']]],
   ['komunikace_20queues_19',['KOMUNIKACE (QUEUES)',['../web__server__task_8c.html#autotoc_md86',1,'']]],
-  ['komunita_20',['Open Source komunita',['../index.html#autotoc_md183',1,'']]],
-  ['komunita_20esp32_21',['Komunita ESP32',['../index.html#autotoc_md182',1,'']]],
+  ['komunita_20',['Open Source komunita',['../index.html#autotoc_md184',1,'']]],
+  ['komunita_20esp32_21',['Komunita ESP32',['../index.html#autotoc_md183',1,'']]],
   ['konfigurace_22',['Konfigurace',['../index.html#autotoc_md114',1,'']]],
   ['konzole_23',['UART Konzole',['../index.html#autotoc_md117',1,'']]],
   ['kriticka_20pravidla_24',['KRITICKA PRAVIDLA',['../main_8c.html#autotoc_md9',1,'KRITICKA PRAVIDLA'],['../button__task_8c.html#autotoc_md18',1,'KRITICKA PRAVIDLA'],['../game__task_8c.html#autotoc_md35',1,'KRITICKA PRAVIDLA'],['../led__task_8c.html#autotoc_md51',1,'KRITICKA PRAVIDLA'],['../matrix__task_8c.html#autotoc_md62',1,'KRITICKA PRAVIDLA'],['../uart__task_8c.html#autotoc_md79',1,'KRITICKA PRAVIDLA'],['../web__server__task_8c.html#autotoc_md90',1,'KRITICKA PRAVIDLA']]],
-  ['krutina_20software_20firmware_25',['Alfred Krutina - Software &amp;amp; Firmware',['../index.html#autotoc_md168',1,'']]],
+  ['krutina_20software_20firmware_25',['Alfred Krutina - Software &amp;amp; Firmware',['../index.html#autotoc_md169',1,'']]],
   ['které_20jsme_20řešili_26',['🐛 Výzvy, které jsme řešili',['../index.html#autotoc_md129',1,'']]]
 ];

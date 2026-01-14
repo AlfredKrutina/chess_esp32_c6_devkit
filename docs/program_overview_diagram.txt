@@ -1,0 +1,67 @@
+# Přehledový diagram programu - CZECHMATE v2.4
+# Zkopírujte tento text do https://mermaid.live/ pro vizualizaci
+#
+# Tento diagram poskytuje jednoduchý přehled architektury programu
+# a základního flow. Vhodný pro tisk na A4 (na výšku - portrait).
+
+flowchart TD
+    subgraph HW["🔌 HARDWARE"]
+        LED_HW["WS2812B<br/>64 LED"]
+        MATRIX_HW["Reed Switch<br/>8×8 Matrix"]
+        BUTTON_HW["Buttons<br/>4 tlačítka"]
+        UART_HW["UART<br/>Serial"]
+    end
+
+    subgraph INPUT["📥 VSTUP"]
+        MATRIX_TASK["matrixTask<br/>Priorita 6<br/>10ms cyklus<br/>Skenování matice"]
+        BUTTON_TASK["buttonTask<br/>Priorita 5<br/>5ms cyklus<br/>Skenování tlačítek"]
+        UART_TASK["uartTask<br/>Priorita 3<br/>1ms cyklus<br/>UART komunikace"]
+        WEB_TASK["webServerTask<br/>Priorita 3<br/>HTTP server"]
+    end
+
+    subgraph CORE["⚙️ JÁDRO SYSTÉMU"]
+        GQ["game_command_queue<br/>FIFO"]
+        BQ["button_event_queue<br/>FIFO"]
+        GAME_TASK["gameTask<br/>Priorita 4<br/>100ms cyklus<br/>Šachová logika<br/>Validace tahů<br/>Konec hry"]
+    end
+
+    subgraph OUTPUT["📤 VÝSTUP"]
+        LED_TASK["ledTask<br/>Priorita 7<br/>33ms cyklus<br/>LED ovládání<br/>Animace"]
+        URQ["uart_response_queue<br/>FIFO"]
+    end
+
+    %% Hardware → Input Tasks
+    MATRIX_HW -->|GPIO Scan| MATRIX_TASK
+    BUTTON_HW -->|GPIO Scan| BUTTON_TASK
+    UART_HW <-->|Read/Write| UART_TASK
+
+    %% Input Tasks → Queues → Core
+    MATRIX_TASK -->|xQueueSend| GQ
+    BUTTON_TASK -->|xQueueSend| BQ
+    UART_TASK -->|xQueueSend| GQ
+    WEB_TASK -->|xQueueSend| GQ
+    
+    GQ -->|xQueueReceive| GAME_TASK
+    BQ -->|xQueueReceive| GAME_TASK
+
+    %% Core → Output
+    GAME_TASK -->|led_set_pixel_safe<br/>thread-safe| LED_TASK
+    GAME_TASK -->|xQueueSend| URQ
+    URQ -->|xQueueReceive| UART_TASK
+    WEB_TASK -.->|game_get_status_json<br/>game_get_board_json<br/>thread-safe| GAME_TASK
+
+    %% Output → Hardware
+    LED_TASK -->|WS2812B protokol| LED_HW
+
+    %% Styling
+    classDef hardware fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef input fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef core fill:#f3e5f5,stroke:#4a148c,stroke-width:3px
+    classDef output fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef queue fill:#f5f5f5,stroke:#757575,stroke-width:1px,stroke-dasharray: 5 5
+
+    class LED_HW,MATRIX_HW,BUTTON_HW,UART_HW hardware
+    class MATRIX_TASK,BUTTON_TASK,UART_TASK,WEB_TASK input
+    class GAME_TASK core
+    class LED_TASK,URQ output
+    class GQ,BQ queue

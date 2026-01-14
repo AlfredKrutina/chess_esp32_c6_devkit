@@ -10,15 +10,15 @@ var searchData=
   ['handle_5fled_5fpattern_5fcommand_7',['handle_led_pattern_command',['../uart__commands__extended_8h.html#a294aca3ab988c08ae29b5f13fe09d05a',1,'handle_led_pattern_command(char *argv[], int argc):&#160;uart_commands_extended.c'],['../uart__commands__extended_8c.html#a294aca3ab988c08ae29b5f13fe09d05a',1,'handle_led_pattern_command(char *argv[], int argc):&#160;uart_commands_extended.c']]],
   ['handle_5fled_5ftest_5fcommand_8',['handle_led_test_command',['../uart__commands__extended_8h.html#a25a982b28768b290cb56ecde22bf1560',1,'handle_led_test_command(char *argv[], int argc):&#160;uart_commands_extended.c'],['../uart__commands__extended_8c.html#a25a982b28768b290cb56ecde22bf1560',1,'handle_led_test_command(char *argv[], int argc):&#160;uart_commands_extended.c']]],
   ['handler_9',['handler',['../structuart__command__t.html#a6fa82e290fa673960dfbda11d905bfd3',1,'uart_command_t']]],
-  ['hardware_10',['Hardware',['../index.html#autotoc_md101',1,'🛠️ Hardware'],['../index.html#autotoc_md126',1,'Hardware'],['../index.html#autotoc_md169',1,'Matěj Jager - Hardware']]],
+  ['hardware_10',['Hardware',['../index.html#autotoc_md101',1,'🛠️ Hardware'],['../index.html#autotoc_md126',1,'Hardware'],['../index.html#autotoc_md170',1,'Matěj Jager - Hardware']]],
   ['hardware_20gpio_20mapping_11',['HARDWARE (GPIO MAPPING)',['../matrix__task_8c.html#autotoc_md60',1,'']]],
-  ['hardware_20problémy_12',['Hardware problémy',['../index.html#autotoc_md153',1,'']]],
+  ['hardware_20problémy_12',['Hardware problémy',['../index.html#autotoc_md154',1,'']]],
   ['hardware_20výzvy_20matěj_13',['Hardware výzvy (Matěj)',['../index.html#autotoc_md130',1,'']]],
   ['hardware_5ferrors_14',['hardware_errors',['../structled__health__stats__t.html#ac6ba5967b998bd74c35dab640990cca9',1,'led_health_stats_t']]],
   ['hardware_5finitialized_15',['hardware_initialized',['../freertos__chess_8c.html#ae37ba709842162d9a8328959d0cb0e05',1,'freertos_chess.c']]],
   ['has_5finvalid_5fpiece_16',['has_invalid_piece',['../game__task_8c.html#aaf8f442c7b06c825971fa6dc67e06e66',1,'game_task.c']]],
   ['has_5flast_5fmove_17',['has_last_move',['../game__task_8c.html#aae58883f4e5761e9d840b243daf855a7',1,'game_task.c']]],
-  ['historie_20verzí_18',['📝 Historie verzí',['../index.html#autotoc_md158',1,'']]],
+  ['historie_20verzí_18',['📝 Historie verzí',['../index.html#autotoc_md159',1,'']]],
   ['history_5findex_19',['history_index',['../game__task_8c.html#a2342129729fb9edaa9cf56931d99c00e',1,'game_task.c']]],
   ['history_5fnavigation_5findex_20',['history_navigation_index',['../uart__task_8c.html#af64b20d5ad64044c58134e0b9a19d398',1,'uart_task.c']]],
   ['hlavní_20funkce_21',['🎯 Hlavní funkce',['../index.html#autotoc_md99',1,'']]],
@@ -57,5 +57,5 @@ var searchData=
   ['http_5fserver_5fmax_5furi_5flen_54',['HTTP_SERVER_MAX_URI_LEN',['../web__server__task_8c.html#ac6dafba2315f7dd8ef7954d67c1c58ef',1,'web_server_task.c']]],
   ['http_5fserver_5fport_55',['HTTP_SERVER_PORT',['../web__server__task_8c.html#a4f905ddd4da1a3e205a8935f4babb25b',1,'web_server_task.c']]],
   ['httpd_5fhandle_56',['httpd_handle',['../web__server__task_8c.html#a19b0be42f085a9e121651e3a21813ce8',1,'web_server_task.c']]],
-  ['hymel_20youtube_57',['Shawn Hymel (YouTube)',['../index.html#autotoc_md179',1,'']]]
+  ['hymel_20youtube_57',['Shawn Hymel (YouTube)',['../index.html#autotoc_md180',1,'']]]
 ];

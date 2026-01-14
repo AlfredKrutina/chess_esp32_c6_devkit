@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['učitelé_0',['Učitelé',['../index.html#autotoc_md177',1,'']]],
-  ['užitečné_20odkazy_1',['🔗 Užitečné odkazy',['../index.html#autotoc_md174',1,'']]],
+  ['učitelé_0',['Učitelé',['../index.html#autotoc_md178',1,'']]],
+  ['užitečné_20odkazy_1',['🔗 Užitečné odkazy',['../index.html#autotoc_md175',1,'']]],
   ['uart_20konzole_2',['UART Konzole',['../index.html#autotoc_md117',1,'']]],
   ['uart_5fanimation_5fcommand_5fdispatcher_3',['uart_animation_command_dispatcher',['../uart__commands__extended_8h.html#a6bd963956e3a304abd305b05f126b5fc',1,'uart_animation_command_dispatcher(int argc, char **argv):&#160;uart_commands_extended.c'],['../uart__commands__extended_8c.html#a6bd963956e3a304abd305b05f126b5fc',1,'uart_animation_command_dispatcher(int argc, char **argv):&#160;uart_commands_extended.c']]],
   ['uart_5fbaud_5frate_4',['UART_BAUD_RATE',['../uart__task_8c.html#a615aed21aa6825462b7c17b0c238ffe2',1,'uart_task.c']]],

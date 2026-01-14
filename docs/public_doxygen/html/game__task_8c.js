@@ -18,7 +18,6 @@ var game__task_8c =
     [ "DEMO_MAX_INTERVAL_MS", "game__task_8c.html#a9d0135e87ed646894c9f20a29572e9e9", null ],
     [ "DEMO_MIN_INTERVAL_MS", "game__task_8c.html#a7e5175effe0673fdfe9cc5eba2d886bd", null ],
     [ "DEMO_MOVE_EXECUTION_DELAY_MS", "game__task_8c.html#ae3018fd2ec7531ed59747ce1c2dc84ac", null ],
-    [ "GAME_TIMEOUT_MS", "game__task_8c.html#a7c142d5c6e367ea741d1a57eab9f545b", null ],
     [ "MAX_ADVANTAGE_HISTORY", "game__task_8c.html#a80792d272b6a0d629d67d2a0cf00f55a", null ],
     [ "MAX_CAPTURED_PIECES", "game__task_8c.html#a22be28ff1955061a9bd8d64006fe6115", null ],
     [ "MAX_MOVES_HISTORY", "game__task_8c.html#a28d6040fd0cdaaa59aef59c0a4529ce6", null ],

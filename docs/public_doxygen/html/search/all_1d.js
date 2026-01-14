@@ -1,17 +1,17 @@
 var searchData=
 [
-  ['vývoj_0',['🔧 Vývoj',['../index.html#autotoc_md146',1,'']]],
+  ['vývoj_0',['🔧 Vývoj',['../index.html#autotoc_md147',1,'']]],
   ['výzvy_20alfred_1',['Software výzvy (Alfred)',['../index.html#autotoc_md131',1,'']]],
   ['výzvy_20které_20jsme_20řešili_2',['🐛 Výzvy, které jsme řešili',['../index.html#autotoc_md129',1,'']]],
   ['výzvy_20matěj_3',['Hardware výzvy (Matěj)',['../index.html#autotoc_md130',1,'']]],
-  ['v2_200_200_4',['v2.0.0',['../index.html#autotoc_md161',1,'']]],
-  ['v2_203_200_5',['v2.3.0',['../index.html#autotoc_md160',1,'']]],
+  ['v2_200_200_4',['v2.0.0',['../index.html#autotoc_md162',1,'']]],
+  ['v2_203_200_5',['v2.3.0',['../index.html#autotoc_md161',1,'']]],
   ['v2_204_6',['CZECHMATE v2.4',['../index.html',1,'']]],
-  ['v2_204_200_20aktuální_7',['v2.4.0 (aktuální)',['../index.html#autotoc_md159',1,'']]],
+  ['v2_204_200_20aktuální_7',['v2.4.0 (aktuální)',['../index.html#autotoc_md160',1,'']]],
   ['validate_5fchess_5fsquares_8',['validate_chess_squares',['../uart__task_8c.html#a86e9ed02bc7633c27662831ea262f799',1,'uart_task.c']]],
   ['validate_5fgpio_5fpin_9',['validate_gpio_pin',['../freertos__chess_8c.html#a1ceecb2e00128b59e0224f35608eaf6c',1,'freertos_chess.c']]],
   ['verbose_5fmode_10',['verbose_mode',['../structsystem__config__t.html#af8c07d8eebb3404469c34764d2c3fe74',1,'system_config_t']]],
-  ['verzí_11',['📝 Historie verzí',['../index.html#autotoc_md158',1,'']]],
+  ['verzí_11',['📝 Historie verzí',['../index.html#autotoc_md159',1,'']]],
   ['visual_5ferror_5fcheck_5fnot_5fresolved_12',['visual_error_check_not_resolved',['../visual__error__system_8h.html#a0f02317b17f5b0281f661f19deae1499',1,'visual_error_system.h']]],
   ['visual_5ferror_5fclear_13',['visual_error_clear',['../visual__error__system_8h.html#a314097cc7e5312622bbd6ad0981a7ece',1,'visual_error_system.h']]],
   ['visual_5ferror_5fclear_5fall_14',['visual_error_clear_all',['../visual__error__system_8h.html#a2a68c37b08f7acbbefa6b31d6a79c9d3',1,'visual_error_system.h']]],
@@ -31,5 +31,5 @@ var searchData=
   ['visual_5ferror_5ftype_5ft_28',['visual_error_type_t',['../visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da',1,'visual_error_system.h']]],
   ['visual_5ferror_5fupdate_29',['visual_error_update',['../visual__error__system_8h.html#aaef03c095e26b53373ea8d44a3fe3af1',1,'visual_error_system.h']]],
   ['visual_5ferror_5fwrong_5fturn_30',['visual_error_wrong_turn',['../visual__error__system_8h.html#a6060ef6aeb2a280f76fceabc6d78f68a',1,'visual_error_system.h']]],
-  ['vylepšení_31',['🔮 Budoucí vylepšení',['../index.html#autotoc_md165',1,'']]]
+  ['vylepšení_31',['🔮 Budoucí vylepšení',['../index.html#autotoc_md166',1,'']]]
 ];

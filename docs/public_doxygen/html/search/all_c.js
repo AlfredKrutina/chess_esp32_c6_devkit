@@ -109,8 +109,8 @@ var searchData=
   ['esc_5fstate_5fesc_106',['ESC_STATE_ESC',['../uart__task_8c.html#a945fae464be4b4e1c782a66a4401856facb373f962a04b4ce988e888e6cee6105',1,'uart_task.c']]],
   ['esc_5fstate_5fnone_107',['ESC_STATE_NONE',['../uart__task_8c.html#a945fae464be4b4e1c782a66a4401856fa08f8d80eed5895fa184c992527d86067',1,'uart_task.c']]],
   ['esc_5fstate_5ft_108',['esc_state_t',['../uart__task_8c.html#a945fae464be4b4e1c782a66a4401856f',1,'uart_task.c']]],
-  ['esp_20idf_20tým_109',['ESP-IDF tým',['../index.html#autotoc_md178',1,'']]],
-  ['esp32_110',['Komunita ESP32',['../index.html#autotoc_md182',1,'']]],
+  ['esp_20idf_20tým_109',['ESP-IDF tým',['../index.html#autotoc_md179',1,'']]],
+  ['esp32_110',['Komunita ESP32',['../index.html#autotoc_md183',1,'']]],
   ['execute_5fcommand_111',['execute_command',['../uart__task_8c.html#a015b3be04ff0b73780f9c39e0197a98f',1,'uart_task.c']]],
   ['execute_5fdemo_5fmove_112',['execute_demo_move',['../main_8c.html#a47be0f08c5acbba3a901be7d65e4cb8a',1,'main.c']]]
 ];

@@ -1,0 +1,633 @@
+# Mermaid Sequence Diagramy pro CZECHMATE v2.4
+# Vložte obsah tohoto souboru do https://mermaid.live/ pro vizualizaci
+
+# =============================================================================
+# 1. Fyzický tah (Matrix → Game → LED)
+# =============================================================================
+
+sequenceDiagram
+    participant M as matrixTask
+    participant GQ as gameCommandQueue
+    participant G as gameTask
+    participant L as ledTask
+    participant A as animationTask
+    participant AQ as animationCommandQueue
+
+    Note over M: Skenování 8x8 matice přes FreeRTOS timer<br/>Detekce Reed Switchů pomocí time-multiplexingu
+    
+    M->>M: matrix_scan_all() - Sken všech řádků s mutex ochranou, Debounce (3x sken)
+    M->>M: matrix_detect_moves() - Detekce změn, piece_lifted detected (e2)
+    M->>GQ: xQueueSend(GAME_CMD_PICKUP) from: e2
+    activate GQ
+    G->>GQ: xQueueReceive() - zpracování příkazů z FIFO fronty
+    deactivate GQ
+    
+    Note over G: game_process_commands() - game_process_pickup_command() - Validace figurky
+    G->>G: Kontrola, zda je tah možný - game_get_available_moves()
+    G->>L: led_set_pixel_safe() - Zvýraznění zdroje (žlutá) - PŘÍMÉ VOLÁNÍ s led_mutex
+    G->>L: led_set_pixel_safe() - Zobrazení validních tahů (zelená)
+    
+    Note over L: LED batch update systém - led_commit_pending_changes()<br/>WS2812B refresh (33ms cyklus)
+    
+    M->>M: matrix_scan_all() - Další sken (time-multiplexing: 20ms matrix, 5ms buttons)
+    M->>M: matrix_detect_moves() - piece_placed detected (e4)
+    M->>GQ: xQueueSend(GAME_CMD_DROP) from: e2, to: e4
+    activate GQ
+    G->>GQ: xQueueReceive() - zpracování DROP příkazu
+    deactivate GQ
+    
+    Note over G: game_process_drop_command() - Validace tahu - game_is_valid_move()<br/>Kontrola šachových pravidel
+    
+    alt Tah je validní
+        G->>G: game_execute_move() - Aktualizace board[][] - Změna hráče - Kontrola šach/mat
+        G->>L: led_execute_command_new() - LED_CMD_ANIM_MOVE_PATH - PŘÍMÉ VOLÁNÍ
+        Note over L: Move path animace - žlutá → zelená přechod
+        
+        opt Endgame detekován (šachmat/pat/remíza)
+            G->>AQ: xQueueSend() - animation command pro endgame animaci
+            activate AQ
+            A->>AQ: xQueueReceive()
+            deactivate AQ
+            A->>L: led_set_pixel_safe() - Endgame wave animace
+        end
+        
+        G->>L: led_clear_board_only() - Zhasnutí zvýraznění
+    else Tah není validní
+        G->>L: led_set_pixel_safe() - Červená (chyba) - Zdroj + cíl - Error handling flow
+        Note over G: Error recovery state aktivní - čekání na korekci tahu
+        G->>L: led_clear_board_only() - Po návratu figurky zhasnutí
+    end
+    
+    Note over L: Kontinuální LED update - 33ms cyklus - Batch commit změn
+
+# =============================================================================
+# 2. Tah přes UART
+# =============================================================================
+
+sequenceDiagram
+    participant U as uartTask
+    participant GQ as gameCommandQueue
+    participant G as gameTask
+    participant L as ledTask
+    participant URQ as uartResponseQueue
+
+    Note over U: uart_task_legacy_loop() - Čtení znaků z UART - Parsování příkazů
+    U->>U: uart_process_input() - "move e2e4"
+    U->>U: uart_parse_command() - Parsování "move" příkazu
+    U->>U: uart_cmd_move() - Validace notace - Převod na chess_move_command_t
+    U->>GQ: xQueueSend(GAME_CMD_MAKE_MOVE) from: e2, to: e4 - response_queue: uart_response_queue
+    activate GQ
+    G->>GQ: xQueueReceive() - zpracování příkazů
+    deactivate GQ
+    
+    Note over G: game_process_commands() - game_process_chess_move()
+    G->>G: convert_notation_to_coords() - Převod e2→[1,4], e4→[3,4]
+    G->>G: game_is_valid_move() - Validace šachových pravidel
+    
+    alt Tah je validní
+        G->>L: led_set_pixel_safe() - Zvýraznění zdroje (žlutá)
+        G->>L: game_get_available_moves() - Zobrazení validních tahů
+        G->>G: game_execute_move() - Aktualizace board[][] - Změna hráče
+        G->>L: led_execute_command_new() - LED_CMD_ANIM_MOVE_PATH
+        Note over L: Move path animace - žlutá → zelená
+        G->>G: game_check_end_game_conditions() - Šach? Mat? Remíza?
+        G->>URQ: xQueueSend(response) - "✅ MOVE EXECUTED"
+        activate URQ
+        U->>URQ: xQueueReceive()
+        deactivate URQ
+        U->>U: uart_send_formatted() - Výpis výsledku - pomocí uart_mutex
+    else Tah není validní
+        G->>URQ: xQueueSend(error_response) - "❌ Invalid move"
+        activate URQ
+        U->>URQ: xQueueReceive()
+        deactivate URQ
+        U->>U: uart_send_error() - Výpis chyby
+    end
+
+# =============================================================================
+# 3. Button Events a Promoce
+# =============================================================================
+
+sequenceDiagram
+    participant BT as buttonTask
+    participant BQ as buttonEventQueue
+    participant GQ as gameCommandQueue
+    participant G as gameTask
+    participant L as ledTask
+
+    Note over BT: Hardware GPIO scan - Button press detection - 5ms cyklus
+    BT->>BT: button_process_events() - GPIO scan - Debounce kontrola (50ms)
+    BT->>BT: button_handle_press() - button_id: QUEEN (0)
+    BT->>BQ: xQueueSend(BUTTON_EVENT_PRESS) - button_id: 0 (QUEEN)
+    activate BQ
+    G->>BQ: xQueueReceive(button_event_queue)
+    deactivate BQ
+    
+    Note over G: game_process_commands() - Zpracování button eventů
+    
+    opt Promotion button
+        G->>G: game_process_promotion_button(0) - choice = PROMOTION_QUEEN
+        Note over G: game_process_promotion_command() - Promoce pěšce - Aktualizace board[][]
+        G->>L: led_set_pixel_safe() - Promoční animace - PŘÍMÉ VOLÁNÍ
+        G->>G: game_check_end_game_conditions()
+    end
+    
+    opt Reset button
+        G->>G: game_reset_game() - Reset na počáteční pozici
+        G->>L: led_show_chess_board() - Zobrazení počáteční pozice
+    end
+    
+    Note over L: Button LED feedback - Zelená/Modrá/Červená - podle dostupnosti
+
+# =============================================================================
+# 4. Startup sekvence
+# =============================================================================
+
+sequenceDiagram
+    participant HW as ESP32_Hardware
+    participant M as app_main
+    participant NVS as NVS_Flash
+    participant Q as Queues
+    participant MTX as Mutexes
+    participant T as TaskCreation
+    participant WDT as Watchdog
+    participant LT as ledTask
+    participant MT as matrixTask
+    participant GT as gameTask
+    participant UT as uartTask
+
+    HW->>M: Boot → app_main()
+    Note over M: ESP32-C6 Chess v2.4 - Inicializace systému
+    M->>WDT: esp_task_wdt_reconfigure() - 10s timeout (init)
+    M->>WDT: esp_task_wdt_add(NULL) - Registrace main task
+    M->>NVS: nvs_flash_init() - Non-Volatile Storage
+    NVS-->>M: ESP_OK
+    
+    M->>Q: xQueueCreate(game_command_queue, 50)
+    M->>Q: xQueueCreate(button_event_queue, 5)
+    M->>Q: xQueueCreate(animation_command_queue, 5)
+    Q-->>M: Queue handles
+    
+    M->>MTX: xSemaphoreCreateMutex() - uart_mutex
+    M->>MTX: xSemaphoreCreateMutex() - led_mutex, matrix_mutex
+    MTX-->>M: Mutex handles
+    
+    Note over T: Vytváření tasků - v pořadí priority
+    M->>T: xTaskCreate(led_task, P7, 16KB)
+    T->>LT: led_task_start()
+    LT->>LT: led_hardware_init() - WS2812B init
+    LT->>WDT: esp_task_wdt_add(NULL)
+    
+    M->>T: xTaskCreate(matrix_task, P6, 8KB)
+    T->>MT: matrix_task_start()
+    MT->>MT: matrix_reset() - GPIO init
+    MT->>WDT: esp_task_wdt_add(NULL)
+    
+    M->>T: xTaskCreate(button_task, P5, 3KB)
+    M->>T: xTaskCreate(game_task, P4, 10KB)
+    M->>T: xTaskCreate(uart_task, P3, 10KB) - SUSPENDED
+    M->>T: xTaskCreate(animation_task, P3, 2KB)
+    M->>T: xTaskCreate(web_server_task, P3, 20KB)
+    M->>T: xTaskCreate(test_task, P1, 4KB)
+    
+    Note over M: vTaskDelay(1000ms) - Čekání na inicializaci
+    M->>LT: show_boot_animation_and_board() - Boot animace
+    M->>GT: initialize_chess_game() - Počáteční pozice
+    M->>UT: vTaskResume(uart_task_handle) - Resume po boot animaci
+    M->>WDT: esp_task_wdt_reconfigure() - 8s timeout (normal)
+    
+    Note over M: FreeRTOS Scheduler - převezme řízení<br/>app_main() NIKDY NEKONČÍ
+
+# =============================================================================
+# 5. Promotion flow (kompletní)
+# =============================================================================
+
+sequenceDiagram
+    participant M as matrixTask
+    participant GQ as gameCommandQueue
+    participant G as gameTask
+    participant L as ledTask
+    participant BQ as buttonEventQueue
+    participant BT as buttonTask
+    participant U as uartTask
+
+    Note over M: Pěšec dosáhl poslední řady
+    M->>GQ: GAME_CMD_DROP - from: e7, to: e8
+    activate GQ
+    G->>GQ: xQueueReceive()
+    deactivate GQ
+    
+    Note over G: game_process_drop_command() - game_execute_move()
+    G->>G: game_check_promotion_needed() - board[7][col] == PAWN
+    
+    alt Pěšec na poslední řadě
+        G->>G: promotion_state.pending = true - promotion_state.square = e8 - promotion_state.player = WHITE
+        G->>L: led_set_pixel_safe() - LED 64-67: ZELENÁ (White) - LED 68-71: MODRÁ (Black)
+        G->>U: printf() - "👑 PAWN PROMOTION AVAILABLE!" - Menu s možnostmi
+        Note over G: Matrix events PAUSED - Čekání na výběr figury
+        
+        par Fyzické tlačítko
+            BT->>BQ: BUTTON_EVENT_PRESS - button_id: 0 (QUEEN)
+            activate BQ
+            G->>BQ: xQueueReceive(button_event_queue)
+            deactivate BQ
+            G->>G: game_process_promotion_button(0) - choice = PROMOTION_QUEEN
+        and UART příkaz
+            U->>GQ: GAME_CMD_PROMOTION - square: e8, piece: QUEEN
+            activate GQ
+            G->>GQ: xQueueReceive()
+            deactivate GQ
+            G->>G: game_process_promotion_command() - choice = PROMOTION_QUEEN
+        end
+        
+        G->>G: game_execute_promotion(choice) - board[7][4] = PIECE_WHITE_QUEEN
+        G->>L: led_set_pixel_safe() - Promoční animace - Pestré efekty
+        G->>G: promotion_state.pending = false - Matrix events RESUMED
+        G->>G: game_check_end_game_conditions() - Kontrola šach/mat
+        G->>G: current_player = BLACK - Změna hráče
+    end
+
+# =============================================================================
+# 6. Castling flow (dvoufázový)
+# =============================================================================
+
+sequenceDiagram
+    participant M as matrixTask
+    participant GQ as gameCommandQueue
+    participant G as gameTask
+    participant L as ledTask
+
+    Note over M: Hráč zvedá krále z e1
+    M->>GQ: GAME_CMD_PICKUP - from: e1
+    activate GQ
+    G->>GQ: xQueueReceive()
+    deactivate GQ
+    G->>G: game_process_pickup_command() - Zvýraznění e1
+    
+    Note over M: Hráč pokládá krále na g1 (kingside)
+    M->>GQ: GAME_CMD_DROP - from: e1, to: g1
+    activate GQ
+    G->>GQ: xQueueReceive()
+    deactivate GQ
+    
+    Note over G: game_process_drop_command() - Detekce rošády: king move 2 squares
+    G->>G: game_is_valid_move() - Kontrola rošádových podmínek:<br/>Král a věž se nehýbaly, Pole mezi nimi prázdná,<br/>Král není v šachu, Pole nejsou napadená
+    
+    alt Rošáda validní
+        G->>G: game_execute_move() - board[0][4] = EMPTY - board[0][6] = KING
+        G->>G: castling_state.in_progress = true - castling_state.rook_from = h1 - castling_state.rook_to = f1
+        G->>L: led_set_pixel_safe() - Zvýraznění věže h1 (žlutá) - Zvýraznění f1 (zelená)
+        G->>L: game_start_repeating_rook_animation() - Opakující se animace pohybu věže
+        Note over G: Čekání na pohyb věže - Matrix events stále aktivní
+        
+        M->>GQ: GAME_CMD_PICKUP - from: h1
+        activate GQ
+        G->>GQ: xQueueReceive()
+        deactivate GQ
+        M->>GQ: GAME_CMD_DROP - from: h1, to: f1
+        activate GQ
+        G->>GQ: xQueueReceive()
+        deactivate GQ
+        
+        G->>G: game_check_castling_completion() - Kontrola správného tahu věže
+        
+        alt Věž na správné pozici
+            G->>G: board[0][7] = EMPTY - board[0][5] = ROOK
+            G->>G: white_king_moved = true - white_rook_h_moved = true
+            G->>L: show_castling_completion_animation() - Zlatá animace
+            G->>G: castling_state.in_progress = false - current_player = BLACK
+            G->>G: game_check_end_game_conditions()
+        else Věž na špatné pozici
+            G->>L: led_set_pixel_safe() - Červená (chyba)
+            Note over G: Čeká na správný tah věže
+        end
+    end
+
+# =============================================================================
+# 7. Web server flow
+# =============================================================================
+
+sequenceDiagram
+    participant C as WebClient
+    participant WS as webServerTask
+    participant GQ as gameCommandQueue
+    participant G as gameTask
+    participant L as ledTask
+
+    Note over C: Uživatel klikne na šachovnici - e2 → e4
+    C->>WS: POST /api/move - {"from":"e2","to":"e4"}
+    WS->>WS: http_post_move_handler() - Parsování JSON
+    WS->>WS: web_is_locked() - Kontrola zámku
+    
+    alt Web není zamčený
+        WS->>WS: chess_move_command_t cmd - GAME_CMD_MAKE_MOVE - from: e2, to: e4
+        WS->>GQ: xQueueSend(cmd, 100ms)
+        activate GQ
+        Note over WS: Non-blocking - Okamžitý return
+        WS->>C: HTTP 200 OK - {"success":true,"message":"Move queued"}
+        G->>GQ: xQueueReceive()
+        deactivate GQ
+        
+        Note over G: game_process_commands() - game_process_chess_move()
+        G->>G: game_is_valid_move() - Validace tahu
+        
+        alt Tah validní
+            G->>G: game_execute_move() - Aktualizace board[][]
+            G->>L: led_execute_command_new() - Move path animace
+            G->>G: game_check_end_game_conditions()
+            G->>G: current_player = BLACK
+        end
+    else Web zamčený
+        WS->>C: HTTP 403 Forbidden - {"success":false,"message":"Web locked"}
+    end
+    
+    Note over C: Polling každé 500ms - GET /api/status - GET /api/board
+    C->>WS: GET /api/status
+    WS->>G: game_get_status_json() - Přímé volání API
+    G-->>WS: JSON status
+    WS->>C: HTTP 200 OK - {"game_state":"active",...}
+    
+    C->>WS: GET /api/board
+    WS->>G: game_get_board_json() - Přímé volání API
+    G-->>WS: JSON board[8][8]
+    WS->>C: HTTP 200 OK - {"board":[[...],...]}
+
+# =============================================================================
+# 8. Endgame detection flow
+# =============================================================================
+
+sequenceDiagram
+    participant G as gameTask
+    participant L as ledTask
+    participant AQ as animationCommandQueue
+    participant A as animationTask
+    participant U as uartTask
+    participant WS as webServerTask
+
+    Note over G: Po každém tahu: game_check_end_game_conditions()
+    G->>G: game_is_king_in_check(current_player) - Kontrola šachu
+    G->>G: game_has_legal_moves(current_player) - Kontrola validních tahů
+    
+    alt Šach + žádné tahy (Checkmate)
+        G->>G: current_result_type = RESULT_BLACK_WINS / RESULT_WHITE_WINS
+        G->>G: game_update_endgame_statistics() - Aktualizace statistik
+        G->>G: timer_pause() - Zastavení hodin
+        G->>L: start_endgame_animation() - ENDGAME_ANIM_VICTORY_WAVE - Vlnový efekt
+        G->>U: game_print_endgame_report_uart() - Kompletní report
+        G->>WS: game_get_status_json() - JSON s game_state="finished"
+        Note over G: Rozlišení typu šachmatu: En passant, Castling, Promotion, Discovered check
+    else Není šach + žádné tahy (Stalemate)
+        G->>G: current_result_type = RESULT_DRAW_STALEMATE
+        G->>G: game_update_endgame_statistics()
+        G->>G: timer_pause()
+        G->>L: start_endgame_animation() - ENDGAME_ANIM_DRAW
+        G->>U: game_print_endgame_report_uart()
+    else 50-Move Rule
+        G->>G: moves_without_capture >= 100 - Kontrola počítadla
+        G->>G: current_result_type = RESULT_DRAW_50_MOVE
+        G->>G: game_update_endgame_statistics()
+        G->>G: timer_pause()
+        G->>L: start_endgame_animation()
+        G->>U: game_print_endgame_report_uart()
+    else Threefold Repetition
+        G->>G: game_is_position_repeated() - Kontrola historie pozic
+        G->>G: current_result_type = RESULT_DRAW_REPETITION
+        G->>G: game_update_endgame_statistics()
+        G->>G: timer_pause()
+        G->>L: start_endgame_animation()
+        G->>U: game_print_endgame_report_uart()
+    else Insufficient Material
+        G->>G: game_is_insufficient_material() - King vs King, King+Bishop, etc.
+        G->>G: current_result_type = RESULT_DRAW_INSUFFICIENT
+        G->>G: game_update_endgame_statistics()
+        G->>G: timer_pause()
+        G->>L: start_endgame_animation()
+        G->>U: game_print_endgame_report_uart()
+    end
+    
+    Note over G: current_game_state = GAME_STATE_FINISHED - Hra ukončena
+
+# =============================================================================
+# 9. Timer timeout flow
+# =============================================================================
+
+sequenceDiagram
+    participant TS as timerSystem
+    participant G as gameTask
+    participant GQ as gameCommandQueue
+    participant L as ledTask
+    participant U as uartTask
+
+    Note over TS: Timer běží pro aktuálního hráče
+    TS->>TS: timer_check_timeout() - Kontrola každou sekundu
+    
+    alt Čas vypršel
+        TS->>GQ: xQueueSend(GAME_CMD_TIMER_TIMEOUT) - Timeout event
+        activate GQ
+        G->>GQ: xQueueReceive()
+        deactivate GQ
+        
+        Note over G: game_process_timer_command() - game_handle_time_expiration()
+        G->>TS: timer_get_state() - Získání stavu timeru
+        TS-->>G: timer_data.is_white_turn
+        G->>G: winner = opposite_player - Určení vítěze
+        G->>G: current_game_state = GAME_STATE_FINISHED<br/>current_result_type = RESULT_WHITE_WINS / RESULT_BLACK_WINS<br/>current_endgame_reason = ENDGAME_REASON_TIMEOUT
+        G->>G: game_update_endgame_statistics() - Aktualizace statistik
+        G->>TS: timer_pause() - Zastavení timeru
+        G->>L: start_endgame_animation() - ENDGAME_ANIM_VICTORY_WAVE - Vlnový efekt pro vítěze
+        G->>U: game_print_endgame_report_uart() - "🏆 White wins by timeout!"
+        Note over G: endgame_report_requested = true - Pro asynchronní výpis
+    end
+    
+    Note over G: game_update_timer_display() - Voláno každý cyklus - game_task main loop
+
+# =============================================================================
+# 10. En passant flow (brání mimochodem)
+# =============================================================================
+
+sequenceDiagram
+    participant M as matrixTask
+    participant GQ as gameCommandQueue
+    participant G as gameTask
+    participant L as ledTask
+
+    Note over M: První tah: Bílý pěšec se pohybuje o 2 pole (e2→e4)
+    M->>GQ: GAME_CMD_DROP - from: e2, to: e4
+    activate GQ
+    G->>GQ: xQueueReceive()
+    deactivate GQ
+    
+    Note over G: game_execute_move_enhanced() - Detekce double move (2 pole)
+    G->>G: Pěšec se pohybuje o 2 pole → en_passant_available = true<br/>en_passant_target_row = 3 (mezi e2 a e4), en_passant_target_col = 4<br/>en_passant_victim_row = 3, en_passant_victim_col = 4
+    
+    Note over M: Druhý tah: Černý pěšec může provést en passant (d5→e4 přes e5)
+    M->>GQ: GAME_CMD_PICKUP - from: d5
+    activate GQ
+    G->>GQ: xQueueReceive()
+    deactivate GQ
+    G->>L: led_set_pixel_safe() - Zvýraznění d5 (žlutá)
+    G->>L: led_set_pixel_safe() - Zobrazení validních tahů včetně e4 (en passant)
+    
+    M->>GQ: GAME_CMD_DROP - from: d5, to: e4
+    activate GQ
+    G->>GQ: xQueueReceive()
+    deactivate GQ
+    
+    Note over G: game_process_drop_command() - game_is_valid_move() - Detekce en passant
+    G->>G: game_is_en_passant_possible() - Kontrola:<br/>poslední tah byl pěšec o 2 pole,<br/>útočící pěšec vedle,<br/>cílové pole = en_passant_target
+    
+    alt En passant validní
+        G->>G: extended_move.move_type = MOVE_TYPE_EN_PASSANT
+        G->>G: game_execute_move_enhanced() - MOVE_TYPE_EN_PASSANT case
+        G->>G: board[e4][4] = PIECE_BLACK_PAWN - Pěšec se přesune na e4<br/>board[e5][4] = PIECE_EMPTY - Odstranění bílého pěšce z e4 (en passant victim)<br/>last_move_type = LAST_MOVE_EN_PASSANT
+        G->>L: led_execute_command_new() - LED_CMD_ANIM_MOVE_PATH - Animace en passant tahu
+        Note over L: Zobrazení pohybu d5→e4 a odstranění pěšce z e4
+        G->>G: en_passant_available = false - En passant možný pouze jeden tah
+        G->>G: game_check_end_game_conditions()
+    end
+
+# =============================================================================
+# 11. Error handling flow (zpracování neplatných tahů)
+# =============================================================================
+
+sequenceDiagram
+    participant M as matrixTask
+    participant GQ as gameCommandQueue
+    participant G as gameTask
+    participant L as ledTask
+    participant U as uartTask
+
+    Note over M: Hráč provádí neplatný tah (např. pěšec šikmo bez braní)
+    M->>GQ: GAME_CMD_PICKUP - from: e2
+    activate GQ
+    G->>GQ: xQueueReceive()
+    deactivate GQ
+    G->>L: led_set_pixel_safe() - Zvýraznění e2 (žlutá) - Zobrazení validních tahů (zelená)
+    
+    M->>GQ: GAME_CMD_DROP - from: e2, to: f3 (neplatný tah)
+    activate GQ
+    G->>GQ: xQueueReceive()
+    deactivate GQ
+    
+    Note over G: game_process_drop_command() - game_is_valid_move() - Validace tahu
+    G->>G: game_is_valid_move() - Kontrola šachových pravidel → false (neplatný tah)
+    
+    alt Neplatný tah detekován
+        G->>G: error_recovery_state.waiting_for_move_correction = true<br/>error_recovery_state.invalid_row = 5 (f3)<br/>error_recovery_state.invalid_col = 5 (f3)<br/>error_recovery_state.original_valid_row = 1 (e2)<br/>error_recovery_state.original_valid_col = 4 (e2)
+        G->>L: game_show_invalid_move_error_with_blink() - Červené blikání na f3
+        Note over L: blink_state.active = true - 10x bliknutí, interval 300ms<br/>Červená barva pro upoutání pozornosti
+        G->>G: board[5][5] = lifted_piece - Figurka je na neplatné pozici (fyzická realita)<br/>current_game_state = GAME_STATE_WAITING_FOR_RETURN
+        G->>U: game_send_response_to_uart() - "❌ Invalid move to f3 - return to ORIGINAL e2 or find valid move"
+        Note over G: Matrix events stále aktivní - čekání na korekci tahu
+        
+        M->>GQ: GAME_CMD_PICKUP - from: f3 (hráč zvedá figurku z neplatné pozice)
+        activate GQ
+        G->>GQ: xQueueReceive()
+        deactivate GQ
+        Note over G: game_process_pickup_command() - Detekce error recovery state
+        G->>G: game_stop_error_blink() - Zastavení blikání
+        G->>L: led_clear_board_only() - Vymazání červeného zvýraznění
+        G->>L: led_set_pixel_safe() - Zvýraznění e2 (zelená) - Návrat na původní pozici
+        G->>L: led_set_pixel_safe() - Zobrazení validních tahů (zelená)
+        Note over M: Hráč vrací figurku na e2 nebo vybírá validní tah
+    end
+
+# =============================================================================
+# 12. LED update cycle detail
+# =============================================================================
+
+sequenceDiagram
+    participant G as gameTask
+    participant L as ledTask
+    participant LM as ledMutex
+    participant HW as WS2812B_Hardware
+
+    Note over L: LED task main loop - 33ms cyklus (30 FPS) - led_task_start()
+    
+    loop Každý cyklus (33ms)
+        L->>L: esp_task_wdt_reset_safe() - Watchdog reset
+        L->>L: led_process_commands() - Zpracování příkazů z fronty (pokud existuje)
+        L->>L: led_update_animation() - Aktualizace animací
+        L->>L: led_update_endgame_wave() - Non-blocking endgame animace
+        L->>L: led_process_button_blink_timers() - Button LED feedback
+        Note over L: Batch update systém - sbírání změn
+        L->>LM: xSemaphoreTake(led_unified_mutex, timeout) - Získání mutexu
+        activate LM
+        L->>L: led_privileged_batch_commit() - Commit všech pending změn
+        Note over L: Procházení led_changed_flags[] - pouze změněné LED
+        
+        loop Pro každou změněnou LED
+            L->>HW: led_strip_set_pixel() - Nastavení barvy LED v bufferu
+            L->>L: led_changed_flags[i] = false - Označení jako zpracováno
+        end
+        
+        L->>HW: led_strip_refresh() - JEDEN refresh všech LED (timing-critical)
+        Note over HW: WS2812B protokol - 800kHz, reset pulse - Hardware refresh
+        L->>LM: xSemaphoreGive(led_unified_mutex) - Uvolnění mutexu
+        deactivate LM
+        L->>L: led_changes_pending = false
+        L->>L: vTaskDelayUntil(33ms) - Čekání na další cyklus
+    end
+    
+    Note over G: game_task volá led_set_pixel_safe() - PŘÍMÉ VOLÁNÍ s mutex ochranou
+    G->>LM: xSemaphoreTake(led_unified_mutex, timeout)
+    activate LM
+    G->>L: led_set_pixel_internal() - Nastavení barvy v led_states[]
+    G->>L: led_pending_changes[index] = color - Přidání do batch bufferu
+    G->>L: led_changed_flags[index] = true - Označení jako změněno
+    G->>L: led_changes_pending = true
+    G->>LM: xSemaphoreGive(led_unified_mutex)
+    deactivate LM
+    
+    Note over G,L: Batch systém: změny se sbírají a commitují v 33ms cyklu LED tasku
+
+# =============================================================================
+# 13. Matrix scanning detail (time-multiplexing)
+# =============================================================================
+
+sequenceDiagram
+    participant MT as matrixTask
+    participant FT as freeRTOS_Timer
+    participant MM as matrixMutex
+    participant BT as buttonTask
+    participant GPIO as GPIO_Hardware
+
+    Note over FT: FreeRTOS timer callback - matrix_scan_timer_callback() - Periodické volání
+    
+    loop Každý cyklus (25ms celkem)
+        FT->>MT: matrix_scan_timer_callback() - Timer callback
+        Note over MT: Time-multiplexing: 20ms matrix scanning, 5ms button scanning
+        
+        rect rgb(200, 220, 255)
+            Note over MT,GPIO: Matrix scanning window (0-20ms)
+            MT->>MM: xSemaphoreTake(matrix_mutex, timeout) - Získání mutexu
+            activate MM
+            MT->>MT: matrix_scan_all() - Skenování všech 8 řádků
+            
+            loop Pro každý řádek (0-7)
+                MT->>GPIO: gpio_set_level(row_pin, LOW) - Aktivace řádku
+                MT->>GPIO: esp_rom_delay_us(2000) - 2ms stabilizace
+                
+                loop Pro každý sloupec (0-7)
+                    MT->>GPIO: gpio_get_level(col_pin) - Čtení Reed Switch
+                    MT->>MT: matrix_state[row*8+col] = (pin_level == 0) ? 1 : 0
+                end
+                
+                MT->>GPIO: gpio_config(row_pin, INPUT) - Deaktivace řádku
+            end
+            
+            MT->>MT: matrix_detect_moves() - Detekce změn (piece_lifted, piece_placed)
+            MT->>MT: memcpy(matrix_previous, matrix_state) - Uložení stavu
+            MT->>MM: xSemaphoreGive(matrix_mutex) - Uvolnění mutexu
+            deactivate MM
+        end
+        
+        rect rgb(255, 220, 200)
+            Note over MT,BT: Button scanning window (20-25ms)
+            MT->>MT: matrix_release_rows_for_buttons() - Nastavení všech row pinů na HIGH
+            MT->>BT: Button task může bezpečně číst column piny (GPIO 18-25)
+            Note over BT: button_task scanuje tlačítka během tohoto okna
+        end
+    end
+    
+    Note over MT: Debouncing: každý senzor musí být stabilní 3x za sebou před detekcí změny<br/>Move detection: piece_lifted → piece_placed → GAME_CMD_PICKUP/DROP přes game_command_queue

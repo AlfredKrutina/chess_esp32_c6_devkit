@@ -10,22 +10,14 @@ Testovací dokumentace:
 - `TEST_RESULTS.md` - Výsledky testů
 - `KNOWN_ISSUES.md` - Známé problémy
 
-### 📁 stability/
-Analýzy stability a dlouhověkosti kódu:
-- `STABILITY_ANALYSIS.md` - Analýza stability kódu
-- `STABILITY_RISK_ANALYSIS.md` - Analýza rizik stability
-- `STABILITY_FIXES_APPLIED.md` - Aplikované opravy stability
-
-### 📁 summaries/
-Shrnutí a přehledy:
-- `DOCUMENTATION_SUMMARY.md` - Shrnutí dokumentace
-- `CLEANUP_SUMMARY.md` - Shrnutí úklidu
-
 ### 📁 archive/
-Archivované a backup soubory:
+Archivované soubory:
+- `md_documents/` - Archivované MD dokumenty (historické záznamy, plány)
+  - `stability/` - Analýzy stability
+  - `summaries/` - Shrnutí a přehledy
+  - `main_flow_fixes_plan.md` - Plán oprav diagramu (implementováno)
 - Backup soubory (.bak, .bak2, atd.)
 - Staré verze souborů
-- Dočasné soubory
 
 ### 📁 doxygen/
 **Výstupní složka pro Doxygen dokumentaci** (generovaná automaticky, ignorována v .gitignore)

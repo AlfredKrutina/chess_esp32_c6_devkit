@@ -311,7 +311,7 @@ var searchData=
   ['legal_5fmoves_5fbuffer_308',['legal_moves_buffer',['../game__task_8c.html#a743bcb69a1d8c2d43776b4320477738a',1,'game_task.c']]],
   ['legal_5fmoves_5fcount_309',['legal_moves_count',['../game__task_8c.html#a5b26569ffdd2946a02907fb9875307cf',1,'game_task.c']]],
   ['length_310',['length',['../structinput__buffer__t.html#a46a4cd3407d6ca0eadb41800b7e52e54',1,'input_buffer_t']]],
-  ['licence_311',['📄 Licence',['../index.html#autotoc_md172',1,'']]],
+  ['licence_311',['📄 Licence',['../index.html#autotoc_md173',1,'']]],
   ['lifted_5fpiece_312',['lifted_piece',['../game__task_8c.html#a39ddf6298a44867b27f8f0672eee5c96',1,'game_task.c']]],
   ['lifted_5fpiece_5fcol_313',['lifted_piece_col',['../game__task_8c.html#ac6b4fa04af83701dd9196051e02d67f2',1,'game_task.c']]],
   ['lifted_5fpiece_5frow_314',['lifted_piece_row',['../game__task_8c.html#a879607e096b78cf354a1c67cd43b010a',1,'game_task.c']]],

@@ -1,6 +1,5 @@
 var NAVTREEINDEX5 =
 {
-"game__task_8h.html#a009d7069912fb2689b7443575d3def38":[3,0,0,6,0,2,47],
 "game__task_8h.html#a0ace822d82e2da6de18559787be957d0":[3,0,0,6,0,2,69],
 "game__task_8h.html#a0df29c9e5d4723c41477e530799976b0":[3,0,0,6,0,2,64],
 "game__task_8h.html#a138dd79d240e644870a7d53580720206":[3,0,0,6,0,2,57],
@@ -241,13 +240,14 @@ var NAVTREEINDEX5 =
 "index.html#autotoc_md140":[0,8,0],
 "index.html#autotoc_md141":[0,8,1],
 "index.html#autotoc_md142":[0,8,2],
-"index.html#autotoc_md144":[0,9],
-"index.html#autotoc_md146":[0,10],
-"index.html#autotoc_md147":[0,10,0],
-"index.html#autotoc_md148":[0,10,1],
-"index.html#autotoc_md150":[0,11],
-"index.html#autotoc_md152":[0,12],
-"index.html#autotoc_md153":[0,12,0],
-"index.html#autotoc_md154":[0,12,1],
-"index.html#autotoc_md156":[0,13]
+"index.html#autotoc_md143":[0,8,3],
+"index.html#autotoc_md145":[0,9],
+"index.html#autotoc_md147":[0,10],
+"index.html#autotoc_md148":[0,10,0],
+"index.html#autotoc_md149":[0,10,1],
+"index.html#autotoc_md151":[0,11],
+"index.html#autotoc_md153":[0,12],
+"index.html#autotoc_md154":[0,12,0],
+"index.html#autotoc_md155":[0,12,1],
+"index.html#autotoc_md157":[0,13]
 };

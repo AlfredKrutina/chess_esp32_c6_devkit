@@ -390,6 +390,12 @@ Pro tisk a sdílení:
 ./create_pdf_simple.sh
 ```
 
+### Mermaid Sequence Diagramy
+
+Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování příkazů, speciální tahy, error handling a další.
+
+[Mermaid Sequence Diagramy](diagrams_mermaid.html) - Kompletní sekvenční diagramy všech programových flow
+
 Více informací o dokumentaci: [docs/README.md](docs/README.md)
 
 ---

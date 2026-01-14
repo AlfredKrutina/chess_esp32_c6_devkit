@@ -33,7 +33,7 @@ var searchData=
   ['blue_30',['blue',['../structled__command__t.html#a79b80c2980e53738a06f92d305bba3a7',1,'led_command_t']]],
   ['board_31',['board',['../game__task_8c.html#acd8995588803c845a38aeae9849f7be8',1,'game_task.c']]],
   ['brightness_32',['brightness',['../structled__pixel__t.html#a5cb1f7787f6504a80d57c3dbe4da536b',1,'led_pixel_t']]],
-  ['budoucí_20vylepšení_33',['🔮 Budoucí vylepšení',['../index.html#autotoc_md165',1,'']]],
+  ['budoucí_20vylepšení_33',['🔮 Budoucí vylepšení',['../index.html#autotoc_md166',1,'']]],
   ['buffer_34',['buffer',['../structinput__buffer__t.html#a610a358b649f0993a69f3f5fe1ae885b',1,'input_buffer_t']]],
   ['buffer_5fpool_35',['buffer_pool',['../shared__buffer__pool_8c.html#a3a69a0ca798cdd0bfa8f5ce01a6ae34e',1,'shared_buffer_pool.c']]],
   ['buffer_5fpool_5fdeinit_36',['buffer_pool_deinit',['../shared__buffer__pool_8h.html#ab7941cd3b2567eec4538fb234680a9bf',1,'buffer_pool_deinit(void):&#160;shared_buffer_pool.c'],['../shared__buffer__pool_8c.html#ab7941cd3b2567eec4538fb234680a9bf',1,'buffer_pool_deinit(void):&#160;shared_buffer_pool.c']]],
