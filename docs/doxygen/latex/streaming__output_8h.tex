@@ -1,0 +1,758 @@
+\doxysection{Dokumentace souboru streaming\+\_\+output.\+h}
+\hypertarget{streaming__output_8h}{}\label{streaming__output_8h}\index{streaming\_output.h@{streaming\_output.h}}
+
+
+ESP32-\/\+C6 Chess System -\/ Hlavicka Streaming Output Systemu.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+{\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro streaming\+\_\+output.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{streaming__output_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové struktury}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structstreaming__output__t}{streaming\+\_\+output\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Konfigurace streaming vystupu. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structstreaming__stats__t}{streaming\+\_\+stats\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Statistiky streamovani. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Definice maker}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{streaming__output_8h_a23a8466caaf2282acdc686a4a9dde41d}{STREAM\+\_\+\+LINE\+\_\+\+BUFFER\+\_\+\+SIZE}}~256
+\begin{DoxyCompactList}\small\item\em Velikost radkoveho bufferu (misto velkych bufferu). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{streaming__output_8h_a69dfd27db3e015fc85f81dea4affbbeb}{STREAM\+\_\+\+MAX\+\_\+\+OUTPUT\+\_\+\+TARGETS}}~4
+\begin{DoxyCompactList}\small\item\em Maximalni pocet soucastnych vystupnich cilu. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{streaming__output_8h_ad0fce4a1af286f625bf5aa844e794cb2}{STREAM\+\_\+\+CHESS\+\_\+\+BOARD}}(board\+\_\+array)
+\begin{DoxyCompactList}\small\item\em Pomocne makro pro streamovani sachovnice z pole figurek. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{streaming__output_8h_a51d51314482adade900fa2659aede2b5}{STREAM\+\_\+\+LED\+\_\+\+BOARD}}(led\+\_\+array)
+\begin{DoxyCompactList}\small\item\em Pomocne makro pro streamovani LED sachovnice z pole LED stavu. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{streaming__output_8h_a6c724a82f7d007d4bffa449079138389}{STREAM\+\_\+\+CHUNKED\+\_\+\+REPORT}}(title)
+\begin{DoxyCompactList}\small\item\em Pomocne makro pro streamovani velkych reportu po castech. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{streaming__output_8h_a8caa346fb405cea674904eee2b84abad}{STREAM\+\_\+\+REPORT\+\_\+\+END}}()
+\begin{DoxyCompactList}\small\item\em Ukoncovaci makro pro STREAM\+\_\+\+CHUNKED\+\_\+\+REPORT. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Výčty}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454}{stream\+\_\+type\+\_\+t}} \{ \mbox{\hyperlink{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454a041393ad29ad01be710ecd3d8d77c2b9}{STREAM\+\_\+\+UART}} = 0
+, \mbox{\hyperlink{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454ae9b3c32d282a15b603c991744840756b}{STREAM\+\_\+\+WEB}}
+, \mbox{\hyperlink{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454ab09258d1ed838a3032df63357bc7d4b7}{STREAM\+\_\+\+QUEUE}}
+ \}
+\begin{DoxyCompactList}\small\item\em Typy vystupnich proudu. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8}{stream\+\_\+line\+\_\+ending\+\_\+t}} \{ \mbox{\hyperlink{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8aabee12901eb5b407a8ed908c56f14c88}{STREAM\+\_\+\+LF}} = 0
+, \mbox{\hyperlink{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8a54fc8c6ca2040ea2b614ef90ae36a068}{STREAM\+\_\+\+CRLF}}
+ \}
+\begin{DoxyCompactList}\small\item\em Typy koncu radku. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_a5ce23c8be43f17f9b75c37d63fdb7eac}{streaming\+\_\+output\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuj streaming output system. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{streaming__output_8h_a936645e3895fd2cd3cda93e2b9302a4d}{streaming\+\_\+output\+\_\+deinit}} (void)
+\begin{DoxyCompactList}\small\item\em Deinicializuj streaming output system. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_a8aa67921edc9b4e0c2ffcf2660a96982}{streaming\+\_\+set\+\_\+uart\+\_\+output}} (int uart\+\_\+port)
+\begin{DoxyCompactList}\small\item\em Nastav UART jako vystupni cil. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_aae842b19f1975942c5b3674cb42fbddb}{streaming\+\_\+set\+\_\+web\+\_\+output}} (void \texorpdfstring{$\ast$}{*}web\+\_\+client)
+\begin{DoxyCompactList}\small\item\em Nastav web klienta jako vystupni cil. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_aca427711530c81651095df3f70106d66}{streaming\+\_\+set\+\_\+queue\+\_\+output}} (Queue\+Handle\+\_\+t queue)
+\begin{DoxyCompactList}\small\item\em Nastav Free\+RTOS frontu jako vystupni cil. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_a19603309bb16a4e39d500f27a16101c1}{stream\+\_\+printf}} (const char \texorpdfstring{$\ast$}{*}format,...) \mbox{\hyperlink{game__led__animations_8c_a36f229bbda63818246ec86181b1fdd42}{\+\_\+\+\_\+attribute\+\_\+\+\_\+}}((format(printf
+\begin{DoxyCompactList}\small\item\em Zapis formatovany retezec do aktualniho vystupniho proudu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_a70b4216dd32edbb9b820bb46e0c6b45b}{stream\+\_\+write}} (const char \texorpdfstring{$\ast$}{*}data, size\+\_\+t len)
+\begin{DoxyCompactList}\small\item\em Zapis surova data do aktualniho vystupniho proudu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_a81bb5955edffac0083f39e3114c99386}{stream\+\_\+writeln}} (const char \texorpdfstring{$\ast$}{*}data)
+\begin{DoxyCompactList}\small\item\em Zapis retezec s koncem radku do aktualniho vystupniho proudu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_aee33cf86bf19206f11756f9e94544b6d}{stream\+\_\+flush}} (void)
+\begin{DoxyCompactList}\small\item\em Flush vystupni proud. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_a1435caf264b122a887df306e6b1b9d11}{stream\+\_\+set\+\_\+auto\+\_\+flush}} (bool enabled)
+\begin{DoxyCompactList}\small\item\em Zapni/vypni automaticky flush po kazdem zapisu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_a9173e4c76c40d5e2c7aeb6e63bd4cb31}{stream\+\_\+set\+\_\+line\+\_\+ending}} (\mbox{\hyperlink{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8}{stream\+\_\+line\+\_\+ending\+\_\+t}} ending)
+\begin{DoxyCompactList}\small\item\em Nastav typ konce radku pro writeln operace. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_a59f0895b69aa9d69a3386adbc8f6c6e5}{stream\+\_\+board\+\_\+header}} (void)
+\begin{DoxyCompactList}\small\item\em Streamuj hlavicku sachovnice (popisky sloupcu a horni okraj). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_aeee82161b919e7c2993a0a40b564cf9f}{stream\+\_\+board\+\_\+row}} (int row, const char \texorpdfstring{$\ast$}{*}pieces)
+\begin{DoxyCompactList}\small\item\em Streamuj jeden radek sachovnice. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_ab702b0aa249cc6463ecd01db54bea295}{stream\+\_\+board\+\_\+footer}} (void)
+\begin{DoxyCompactList}\small\item\em Streamuj paticku sachovnice (spodni okraj a popisky sloupcu). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_a2bf893bcdd558c5d065c5b2dba1b369c}{stream\+\_\+led\+\_\+board\+\_\+header}} (void)
+\begin{DoxyCompactList}\small\item\em Streamuj hlavicku LED sachovnice s emoji indikatory. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{streaming__output_8h_a812ce05742f894755d8b5d0b14019776}{stream\+\_\+led\+\_\+board\+\_\+row}} (int row, const uint32\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+colors)
+\begin{DoxyCompactList}\small\item\em Streamuj jeden radek LED sachovnice s barevnymi emoji indikatory. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{streaming__output_8h_a2be8864cdaed57fd8249185a4ade538f}{streaming\+\_\+print\+\_\+stats}} (void)
+\begin{DoxyCompactList}\small\item\em Vypis statistiky streaming vystupu do logu. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structstreaming__stats__t}{streaming\+\_\+stats\+\_\+t}} \mbox{\hyperlink{streaming__output_8h_aad4c641177bba008c8ec5c0a0265ac7c}{streaming\+\_\+get\+\_\+stats}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej statistiky streaming vystupu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{streaming__output_8h_acf5e7d713d834d6fb513201f5f761582}{streaming\+\_\+reset\+\_\+stats}} (void)
+\begin{DoxyCompactList}\small\item\em Resetuj vsechny statisticke citace. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{streaming__output_8h_a251a50a8653a9c02de813b176cfa1718}{streaming\+\_\+is\+\_\+healthy}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda je streaming output system ve zdravem stavu. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System -\/ Hlavicka Streaming Output Systemu. 
+
+Nahradi pameti intenzivni budovani stringu primym streaming vystupem\+:
+\begin{DoxyItemize}
+\item Eliminuje potrebu velkych bufferu (usetri 2KB+ na velky vystup)
+\item Snizuje fragmentaci pameti
+\item Umoznuje real-\/time postupny vystup
+\item Podporuje vice vystupnich cilu (UART, Web, Queue)
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/01-\/27
+\end{DoxyDate}
+Streaming Output System umoznuje efektivni vypis velkych textu bez budovani velkych stringu v pameti. Posila data primo do vystupu, coz eliminuje potrebu velkych bufferu a zlepsuje performance.
+
+\begin{DoxyParagraph}{Priklad pouziti\+:}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{streaming__output_8h_a5ce23c8be43f17f9b75c37d63fdb7eac}{streaming\_output\_init}}();}
+\DoxyCodeLine{\mbox{\hyperlink{streaming__output_8h_a59f0895b69aa9d69a3386adbc8f6c6e5}{stream\_board\_header}}();}
+\DoxyCodeLine{\textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ row\ =\ 7;\ row\ >=\ 0;\ row-\/-\/)\ \{}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{streaming__output_8h_aeee82161b919e7c2993a0a40b564cf9f}{stream\_board\_row}}(row,\ piece\_chars);}
+\DoxyCodeLine{\}}
+\DoxyCodeLine{\mbox{\hyperlink{streaming__output_8h_ab702b0aa249cc6463ecd01db54bea295}{stream\_board\_footer}}();}
+
+\end{DoxyCode}
+ 
+\end{DoxyParagraph}
+
+
+Definice v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{streaming__output_8h_doc-define-members}
+\doxysubsection{Dokumentace definic maker}
+\Hypertarget{streaming__output_8h_ad0fce4a1af286f625bf5aa844e794cb2}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_CHESS\_BOARD@{STREAM\_CHESS\_BOARD}}
+\index{STREAM\_CHESS\_BOARD@{STREAM\_CHESS\_BOARD}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{STREAM\_CHESS\_BOARD}{STREAM\_CHESS\_BOARD}}
+{\footnotesize\ttfamily \label{streaming__output_8h_ad0fce4a1af286f625bf5aa844e794cb2} 
+\#define STREAM\+\_\+\+CHESS\+\_\+\+BOARD(\begin{DoxyParamCaption}\item[{}]{board\+\_\+array}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{do}\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ stream\_board\_header();\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ for\ (\textcolor{keywordtype}{int}\ row\ =\ 7;\ row\ >=\ 0;\ row-\/-\/)\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ row\_pieces[9]\ =\ \{0\};\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ for\ (\textcolor{keywordtype}{int}\ col\ =\ 0;\ col\ <\ 8;\ col++)\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\_t}}\ piece\ =\ board\_array[row][col];\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ row\_pieces[col]\ =\ get\_piece\_char(piece);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \}\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ stream\_board\_row(row,\ row\_pieces);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ esp\_task\_wdt\_reset();\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ stream\_board\_footer();\ \(\backslash\)}
+\DoxyCodeLine{\}\ \textcolor{keywordflow}{while}(0)}
+
+\end{DoxyCode}
+
+
+Pomocne makro pro streamovani sachovnice z pole figurek. 
+
+Pouziti\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\_t}}\ \mbox{\hyperlink{game__task_8c_acd8995588803c845a38aeae9849f7be8}{board}}[8][8];}
+\DoxyCodeLine{\mbox{\hyperlink{streaming__output_8h_ad0fce4a1af286f625bf5aa844e794cb2}{STREAM\_CHESS\_BOARD}}(\mbox{\hyperlink{game__task_8c_acd8995588803c845a38aeae9849f7be8}{board}});}
+
+\end{DoxyCode}
+
+
+Toto makro eliminuje potrebu docasnych string bufferu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00290}{290}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{streaming__output_8h_a6c724a82f7d007d4bffa449079138389}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_CHUNKED\_REPORT@{STREAM\_CHUNKED\_REPORT}}
+\index{STREAM\_CHUNKED\_REPORT@{STREAM\_CHUNKED\_REPORT}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{STREAM\_CHUNKED\_REPORT}{STREAM\_CHUNKED\_REPORT}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a6c724a82f7d007d4bffa449079138389} 
+\#define STREAM\+\_\+\+CHUNKED\+\_\+\+REPORT(\begin{DoxyParamCaption}\item[{}]{title}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{do}\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ esp\_err\_t\ \_stream\_result\ =\ ESP\_OK;\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \_stream\_result\ |=\ \mbox{\hyperlink{streaming__output_8h_a81bb5955edffac0083f39e3114c99386}{stream\_writeln}}(\textcolor{stringliteral}{"{}"{}});\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \_stream\_result\ |=\ \mbox{\hyperlink{streaming__output_8h_a81bb5955edffac0083f39e3114c99386}{stream\_writeln}}(\textcolor{stringliteral}{"{}════════════════════════════════════════════════════════════════"{}});\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \_stream\_result\ |=\ \mbox{\hyperlink{streaming__output_8h_a19603309bb16a4e39d500f27a16101c1}{stream\_printf}}(\textcolor{stringliteral}{"{}📊\ \%s\(\backslash\)n"{}},\ title);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \_stream\_result\ |=\ \mbox{\hyperlink{streaming__output_8h_a81bb5955edffac0083f39e3114c99386}{stream\_writeln}}(\textcolor{stringliteral}{"{}════════════════════════════════════════════════════════════════"{}});\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ esp\_task\_wdt\_reset();\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ if\ (\_stream\_result\ ==\ ESP\_OK)}
+
+\end{DoxyCode}
+
+
+Pomocne makro pro streamovani velkych reportu po castech. 
+
+Pouziti\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{streaming__output_8h_a6c724a82f7d007d4bffa449079138389}{STREAM\_CHUNKED\_REPORT}}(\textcolor{stringliteral}{"{}Nazev\ Reportu"{}})\ \{}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{streaming__output_8h_a19603309bb16a4e39d500f27a16101c1}{stream\_printf}}(\textcolor{stringliteral}{"{}Radek\ 1:\ \%s\(\backslash\)n"{}},\ data1);}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{streaming__output_8h_a19603309bb16a4e39d500f27a16101c1}{stream\_printf}}(\textcolor{stringliteral}{"{}Radek\ 2:\ \%d\(\backslash\)n"{}},\ data2);}
+\DoxyCodeLine{\ \ \ \ \textcolor{comment}{//\ ...\ dalsi\ radky}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Toto makro automaticky zpracovava watchdog resety a kontrolu chyb. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00339}{339}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{streaming__output_8h_a51d51314482adade900fa2659aede2b5}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_LED\_BOARD@{STREAM\_LED\_BOARD}}
+\index{STREAM\_LED\_BOARD@{STREAM\_LED\_BOARD}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{STREAM\_LED\_BOARD}{STREAM\_LED\_BOARD}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a51d51314482adade900fa2659aede2b5} 
+\#define STREAM\+\_\+\+LED\+\_\+\+BOARD(\begin{DoxyParamCaption}\item[{}]{led\+\_\+array}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{do}\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ stream\_led\_board\_header();\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ for\ (\textcolor{keywordtype}{int}\ row\ =\ 7;\ row\ >=\ 0;\ row-\/-\/)\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ stream\_led\_board\_row(row,\ led\_array);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ esp\_task\_wdt\_reset();\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ stream\_writeln(\textcolor{stringliteral}{"{}\ +-\/-\/-\/+-\/-\/-\/+-\/-\/-\/+-\/-\/-\/+-\/-\/-\/+-\/-\/-\/+-\/-\/-\/+-\/-\/-\/+"{}});\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ stream\_writeln(\textcolor{stringliteral}{"{}\ \ \ \ \ a\ \ \ b\ \ \ c\ \ \ d\ \ \ e\ \ \ f\ \ \ g\ \ \ h"{}});\ \(\backslash\)}
+\DoxyCodeLine{\}\ \textcolor{keywordflow}{while}(0)}
+
+\end{DoxyCode}
+
+
+Pomocne makro pro streamovani LED sachovnice z pole LED stavu. 
+
+Pouziti\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{uint32\_t\ \mbox{\hyperlink{led__task_8c_a3a21d6fc11052b5e1badc86408a5f3b2}{led\_states}}[64];}
+\DoxyCodeLine{\mbox{\hyperlink{streaming__output_8h_a51d51314482adade900fa2659aede2b5}{STREAM\_LED\_BOARD}}(\mbox{\hyperlink{led__task_8c_a3a21d6fc11052b5e1badc86408a5f3b2}{led\_states}});}
+
+\end{DoxyCode}
+
+
+Toto makro eliminuje potrebu velkych string bufferu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00315}{315}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{streaming__output_8h_a23a8466caaf2282acdc686a4a9dde41d}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_LINE\_BUFFER\_SIZE@{STREAM\_LINE\_BUFFER\_SIZE}}
+\index{STREAM\_LINE\_BUFFER\_SIZE@{STREAM\_LINE\_BUFFER\_SIZE}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{STREAM\_LINE\_BUFFER\_SIZE}{STREAM\_LINE\_BUFFER\_SIZE}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a23a8466caaf2282acdc686a4a9dde41d} 
+\#define STREAM\+\_\+\+LINE\+\_\+\+BUFFER\+\_\+\+SIZE~256}
+
+
+
+Velikost radkoveho bufferu (misto velkych bufferu). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00049}{49}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{streaming__output_8h_a69dfd27db3e015fc85f81dea4affbbeb}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_MAX\_OUTPUT\_TARGETS@{STREAM\_MAX\_OUTPUT\_TARGETS}}
+\index{STREAM\_MAX\_OUTPUT\_TARGETS@{STREAM\_MAX\_OUTPUT\_TARGETS}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{STREAM\_MAX\_OUTPUT\_TARGETS}{STREAM\_MAX\_OUTPUT\_TARGETS}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a69dfd27db3e015fc85f81dea4affbbeb} 
+\#define STREAM\+\_\+\+MAX\+\_\+\+OUTPUT\+\_\+\+TARGETS~4}
+
+
+
+Maximalni pocet soucastnych vystupnich cilu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00051}{51}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{streaming__output_8h_a8caa346fb405cea674904eee2b84abad}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_REPORT\_END@{STREAM\_REPORT\_END}}
+\index{STREAM\_REPORT\_END@{STREAM\_REPORT\_END}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{STREAM\_REPORT\_END}{STREAM\_REPORT\_END}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a8caa346fb405cea674904eee2b84abad} 
+\#define STREAM\+\_\+\+REPORT\+\_\+\+END(\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \_stream\_result\ |=\ \mbox{\hyperlink{streaming__output_8h_a81bb5955edffac0083f39e3114c99386}{stream\_writeln}}(\textcolor{stringliteral}{"{}════════════════════════════════════════════════════════════════"{}});\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ esp\_task\_wdt\_reset();\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ if\ (\_stream\_result\ !=\ ESP\_OK)\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGE(\textcolor{stringliteral}{"{}STREAMING"{}},\ \textcolor{stringliteral}{"{}Report\ streaming\ failed:\ \%s"{}},\ esp\_err\_to\_name(\_stream\_result));\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \}\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \textcolor{keywordflow}{while}(0)}
+
+\end{DoxyCode}
+
+
+Ukoncovaci makro pro STREAM\+\_\+\+CHUNKED\+\_\+\+REPORT. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00352}{352}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{streaming__output_8h_doc-enum-members}
+\doxysubsection{Dokumentace výčtových typů}
+\Hypertarget{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8}\index{streaming\_output.h@{streaming\_output.h}!stream\_line\_ending\_t@{stream\_line\_ending\_t}}
+\index{stream\_line\_ending\_t@{stream\_line\_ending\_t}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_line\_ending\_t}{stream\_line\_ending\_t}}
+{\footnotesize\ttfamily \label{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8} 
+enum \mbox{\hyperlink{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8}{stream\+\_\+line\+\_\+ending\+\_\+t}}}
+
+
+
+Typy koncu radku. 
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STREAM\_LF@{STREAM\_LF}!streaming\_output.h@{streaming\_output.h}}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_LF@{STREAM\_LF}}}\Hypertarget{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8aabee12901eb5b407a8ed908c56f14c88}\label{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8aabee12901eb5b407a8ed908c56f14c88} 
+STREAM\+\_\+\+LF&Unix konec radku (~\newline
+). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STREAM\_CRLF@{STREAM\_CRLF}!streaming\_output.h@{streaming\_output.h}}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_CRLF@{STREAM\_CRLF}}}\Hypertarget{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8a54fc8c6ca2040ea2b614ef90ae36a068}\label{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8a54fc8c6ca2040ea2b614ef90ae36a068} 
+STREAM\+\_\+\+CRLF&Windows konec radku (\textbackslash{}r~\newline
+). \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00069}{69}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454}\index{streaming\_output.h@{streaming\_output.h}!stream\_type\_t@{stream\_type\_t}}
+\index{stream\_type\_t@{stream\_type\_t}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_type\_t}{stream\_type\_t}}
+{\footnotesize\ttfamily \label{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454} 
+enum \mbox{\hyperlink{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454}{stream\+\_\+type\+\_\+t}}}
+
+
+
+Typy vystupnich proudu. 
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STREAM\_UART@{STREAM\_UART}!streaming\_output.h@{streaming\_output.h}}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_UART@{STREAM\_UART}}}\Hypertarget{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454a041393ad29ad01be710ecd3d8d77c2b9}\label{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454a041393ad29ad01be710ecd3d8d77c2b9} 
+STREAM\+\_\+\+UART&UART/\+USB Serial JTAG vystup. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STREAM\_WEB@{STREAM\_WEB}!streaming\_output.h@{streaming\_output.h}}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_WEB@{STREAM\_WEB}}}\Hypertarget{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454ae9b3c32d282a15b603c991744840756b}\label{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454ae9b3c32d282a15b603c991744840756b} 
+STREAM\+\_\+\+WEB&Web server HTTP odpoved. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STREAM\_QUEUE@{STREAM\_QUEUE}!streaming\_output.h@{streaming\_output.h}}\index{streaming\_output.h@{streaming\_output.h}!STREAM\_QUEUE@{STREAM\_QUEUE}}}\Hypertarget{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454ab09258d1ed838a3032df63357bc7d4b7}\label{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454ab09258d1ed838a3032df63357bc7d4b7} 
+STREAM\+\_\+\+QUEUE&Free\+RTOS fronta vystup. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00060}{60}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{streaming__output_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{streaming__output_8h_ab702b0aa249cc6463ecd01db54bea295}\index{streaming\_output.h@{streaming\_output.h}!stream\_board\_footer@{stream\_board\_footer}}
+\index{stream\_board\_footer@{stream\_board\_footer}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_board\_footer()}{stream\_board\_footer()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_ab702b0aa249cc6463ecd01db54bea295} 
+esp\+\_\+err\+\_\+t stream\+\_\+board\+\_\+footer (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Streamuj paticku sachovnice (spodni okraj a popisky sloupcu). 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00459}{459}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a59f0895b69aa9d69a3386adbc8f6c6e5}\index{streaming\_output.h@{streaming\_output.h}!stream\_board\_header@{stream\_board\_header}}
+\index{stream\_board\_header@{stream\_board\_header}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_board\_header()}{stream\_board\_header()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a59f0895b69aa9d69a3386adbc8f6c6e5} 
+esp\+\_\+err\+\_\+t stream\+\_\+board\+\_\+header (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Streamuj hlavicku sachovnice (popisky sloupcu a horni okraj). 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00423}{423}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_aeee82161b919e7c2993a0a40b564cf9f}\index{streaming\_output.h@{streaming\_output.h}!stream\_board\_row@{stream\_board\_row}}
+\index{stream\_board\_row@{stream\_board\_row}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_board\_row()}{stream\_board\_row()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_aeee82161b919e7c2993a0a40b564cf9f} 
+esp\+\_\+err\+\_\+t stream\+\_\+board\+\_\+row (\begin{DoxyParamCaption}\item[{int}]{row}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{pieces}{}\end{DoxyParamCaption})}
+
+
+
+Streamuj jeden radek sachovnice. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Cislo radku (0-\/7, kde 0=rank 1, 7=rank 8) \\
+\hline
+{\em pieces} & Retezec 8 znaku reprezentujicich figurky v tomto radku \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00433}{433}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_aee33cf86bf19206f11756f9e94544b6d}\index{streaming\_output.h@{streaming\_output.h}!stream\_flush@{stream\_flush}}
+\index{stream\_flush@{stream\_flush}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_flush()}{stream\_flush()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_aee33cf86bf19206f11756f9e94544b6d} 
+esp\+\_\+err\+\_\+t stream\+\_\+flush (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Flush vystupni proud. 
+
+Zajisti ze vsechna data jsou poslana do vystupu.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00373}{373}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a2bf893bcdd558c5d065c5b2dba1b369c}\index{streaming\_output.h@{streaming\_output.h}!stream\_led\_board\_header@{stream\_led\_board\_header}}
+\index{stream\_led\_board\_header@{stream\_led\_board\_header}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_led\_board\_header()}{stream\_led\_board\_header()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a2bf893bcdd558c5d065c5b2dba1b369c} 
+esp\+\_\+err\+\_\+t stream\+\_\+led\+\_\+board\+\_\+header (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Streamuj hlavicku LED sachovnice s emoji indikatory. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00469}{469}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a812ce05742f894755d8b5d0b14019776}\index{streaming\_output.h@{streaming\_output.h}!stream\_led\_board\_row@{stream\_led\_board\_row}}
+\index{stream\_led\_board\_row@{stream\_led\_board\_row}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_led\_board\_row()}{stream\_led\_board\_row()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a812ce05742f894755d8b5d0b14019776} 
+esp\+\_\+err\+\_\+t stream\+\_\+led\+\_\+board\+\_\+row (\begin{DoxyParamCaption}\item[{int}]{row}{, }\item[{const uint32\+\_\+t \texorpdfstring{$\ast$}{*}}]{led\+\_\+colors}{}\end{DoxyParamCaption})}
+
+
+
+Streamuj jeden radek LED sachovnice s barevnymi emoji indikatory. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Cislo radku (0-\/7) \\
+\hline
+{\em led\+\_\+colors} & Pole 64 LED barev (RGB hodnoty) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00482}{482}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a19603309bb16a4e39d500f27a16101c1}\index{streaming\_output.h@{streaming\_output.h}!stream\_printf@{stream\_printf}}
+\index{stream\_printf@{stream\_printf}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_printf()}{stream\_printf()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a19603309bb16a4e39d500f27a16101c1} 
+esp\+\_\+err\+\_\+t stream\+\_\+printf (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{format}{, }\item[{}]{...}{}\end{DoxyParamCaption})}
+
+
+
+Zapis formatovany retezec do aktualniho vystupniho proudu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em format} & Formatovaci retezec (printf styl) \\
+\hline
+{\em ...} & Promenne argumenty pro formatovaci retezec \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+\Hypertarget{streaming__output_8h_a1435caf264b122a887df306e6b1b9d11}\index{streaming\_output.h@{streaming\_output.h}!stream\_set\_auto\_flush@{stream\_set\_auto\_flush}}
+\index{stream\_set\_auto\_flush@{stream\_set\_auto\_flush}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_set\_auto\_flush()}{stream\_set\_auto\_flush()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a1435caf264b122a887df306e6b1b9d11} 
+esp\+\_\+err\+\_\+t stream\+\_\+set\+\_\+auto\+\_\+flush (\begin{DoxyParamCaption}\item[{bool}]{enabled}{}\end{DoxyParamCaption})}
+
+
+
+Zapni/vypni automaticky flush po kazdem zapisu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em enabled} & true pro zapnuti auto-\/flush, false pro vypnuti \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00387}{387}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a9173e4c76c40d5e2c7aeb6e63bd4cb31}\index{streaming\_output.h@{streaming\_output.h}!stream\_set\_line\_ending@{stream\_set\_line\_ending}}
+\index{stream\_set\_line\_ending@{stream\_set\_line\_ending}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_set\_line\_ending()}{stream\_set\_line\_ending()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a9173e4c76c40d5e2c7aeb6e63bd4cb31} 
+esp\+\_\+err\+\_\+t stream\+\_\+set\+\_\+line\+\_\+ending (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8}{stream\+\_\+line\+\_\+ending\+\_\+t}}}]{ending}{}\end{DoxyParamCaption})}
+
+
+
+Nastav typ konce radku pro writeln operace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em ending} & Typ konce radku (STREAM\+\_\+\+LF nebo STREAM\+\_\+\+CRLF) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00403}{403}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a70b4216dd32edbb9b820bb46e0c6b45b}\index{streaming\_output.h@{streaming\_output.h}!stream\_write@{stream\_write}}
+\index{stream\_write@{stream\_write}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_write()}{stream\_write()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a70b4216dd32edbb9b820bb46e0c6b45b} 
+esp\+\_\+err\+\_\+t esp\+\_\+err\+\_\+t stream\+\_\+write (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{data}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Zapis surova data do aktualniho vystupniho proudu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em data} & Data k zapsani \\
+\hline
+{\em len} & Delka dat v bajtech \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00205}{205}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a81bb5955edffac0083f39e3114c99386}\index{streaming\_output.h@{streaming\_output.h}!stream\_writeln@{stream\_writeln}}
+\index{stream\_writeln@{stream\_writeln}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{stream\_writeln()}{stream\_writeln()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a81bb5955edffac0083f39e3114c99386} 
+esp\+\_\+err\+\_\+t stream\+\_\+writeln (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{data}{}\end{DoxyParamCaption})}
+
+
+
+Zapis retezec s koncem radku do aktualniho vystupniho proudu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em data} & Retezec k zapsani (bez konce radku) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00248}{248}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_aad4c641177bba008c8ec5c0a0265ac7c}\index{streaming\_output.h@{streaming\_output.h}!streaming\_get\_stats@{streaming\_get\_stats}}
+\index{streaming\_get\_stats@{streaming\_get\_stats}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{streaming\_get\_stats()}{streaming\_get\_stats()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_aad4c641177bba008c8ec5c0a0265ac7c} 
+\mbox{\hyperlink{structstreaming__stats__t}{streaming\+\_\+stats\+\_\+t}} streaming\+\_\+get\+\_\+stats (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej statistiky streaming vystupu. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Struktura s aktualnimi statistikami 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00562}{562}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a251a50a8653a9c02de813b176cfa1718}\index{streaming\_output.h@{streaming\_output.h}!streaming\_is\_healthy@{streaming\_is\_healthy}}
+\index{streaming\_is\_healthy@{streaming\_is\_healthy}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{streaming\_is\_healthy()}{streaming\_is\_healthy()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a251a50a8653a9c02de813b176cfa1718} 
+bool streaming\+\_\+is\+\_\+healthy (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je streaming output system ve zdravem stavu. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je zdravy, false pokud jsou detekovany problemy 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00573}{573}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a936645e3895fd2cd3cda93e2b9302a4d}\index{streaming\_output.h@{streaming\_output.h}!streaming\_output\_deinit@{streaming\_output\_deinit}}
+\index{streaming\_output\_deinit@{streaming\_output\_deinit}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{streaming\_output\_deinit()}{streaming\_output\_deinit()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a936645e3895fd2cd3cda93e2b9302a4d} 
+void streaming\+\_\+output\+\_\+deinit (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Deinicializuj streaming output system. 
+
+Uvolni mutex a vymaze interni stav. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00093}{93}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a5ce23c8be43f17f9b75c37d63fdb7eac}\index{streaming\_output.h@{streaming\_output.h}!streaming\_output\_init@{streaming\_output\_init}}
+\index{streaming\_output\_init@{streaming\_output\_init}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{streaming\_output\_init()}{streaming\_output\_init()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a5ce23c8be43f17f9b75c37d63fdb7eac} 
+esp\+\_\+err\+\_\+t streaming\+\_\+output\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuj streaming output system. 
+
+Vytvori mutex pro thread-\/safe pristup a nastavi vychozi vystup na UART.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+ERR\+\_\+\+NO\+\_\+\+MEM pri selhani vytvoreni mutexu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00061}{61}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a2be8864cdaed57fd8249185a4ade538f}\index{streaming\_output.h@{streaming\_output.h}!streaming\_print\_stats@{streaming\_print\_stats}}
+\index{streaming\_print\_stats@{streaming\_print\_stats}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{streaming\_print\_stats()}{streaming\_print\_stats()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a2be8864cdaed57fd8249185a4ade538f} 
+void streaming\+\_\+print\+\_\+stats (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vypis statistiky streaming vystupu do logu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00536}{536}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_acf5e7d713d834d6fb513201f5f761582}\index{streaming\_output.h@{streaming\_output.h}!streaming\_reset\_stats@{streaming\_reset\_stats}}
+\index{streaming\_reset\_stats@{streaming\_reset\_stats}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{streaming\_reset\_stats()}{streaming\_reset\_stats()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_acf5e7d713d834d6fb513201f5f761582} 
+void streaming\+\_\+reset\+\_\+stats (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Resetuj vsechny statisticke citace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00567}{567}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_aca427711530c81651095df3f70106d66}\index{streaming\_output.h@{streaming\_output.h}!streaming\_set\_queue\_output@{streaming\_set\_queue\_output}}
+\index{streaming\_set\_queue\_output@{streaming\_set\_queue\_output}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{streaming\_set\_queue\_output()}{streaming\_set\_queue\_output()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_aca427711530c81651095df3f70106d66} 
+esp\+\_\+err\+\_\+t streaming\+\_\+set\+\_\+queue\+\_\+output (\begin{DoxyParamCaption}\item[{Queue\+Handle\+\_\+t}]{queue}{}\end{DoxyParamCaption})}
+
+
+
+Nastav Free\+RTOS frontu jako vystupni cil. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em queue} & Handle fronty pro posilani vystupnich zprav \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+ERR\+\_\+\+TIMEOUT pri selhani ziskani mutexu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00154}{154}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_a8aa67921edc9b4e0c2ffcf2660a96982}\index{streaming\_output.h@{streaming\_output.h}!streaming\_set\_uart\_output@{streaming\_set\_uart\_output}}
+\index{streaming\_set\_uart\_output@{streaming\_set\_uart\_output}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{streaming\_set\_uart\_output()}{streaming\_set\_uart\_output()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_a8aa67921edc9b4e0c2ffcf2660a96982} 
+esp\+\_\+err\+\_\+t streaming\+\_\+set\+\_\+uart\+\_\+output (\begin{DoxyParamCaption}\item[{int}]{uart\+\_\+port}{}\end{DoxyParamCaption})}
+
+
+
+Nastav UART jako vystupni cil. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em uart\+\_\+port} & Cislo UART portu (obvykle 0 pro USB Serial JTAG) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+ERR\+\_\+\+TIMEOUT pri selhani ziskani mutexu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00114}{114}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+
+\Hypertarget{streaming__output_8h_aae842b19f1975942c5b3674cb42fbddb}\index{streaming\_output.h@{streaming\_output.h}!streaming\_set\_web\_output@{streaming\_set\_web\_output}}
+\index{streaming\_set\_web\_output@{streaming\_set\_web\_output}!streaming\_output.h@{streaming\_output.h}}
+\doxysubsubsection{\texorpdfstring{streaming\_set\_web\_output()}{streaming\_set\_web\_output()}}
+{\footnotesize\ttfamily \label{streaming__output_8h_aae842b19f1975942c5b3674cb42fbddb} 
+esp\+\_\+err\+\_\+t streaming\+\_\+set\+\_\+web\+\_\+output (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{web\+\_\+client}{}\end{DoxyParamCaption})}
+
+
+
+Nastav web klienta jako vystupni cil. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em web\+\_\+client} & Handle web klienta (implementacne specificky) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+ERR\+\_\+\+TIMEOUT pri selhani ziskani mutexu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8c_source_l00134}{134}} v souboru \mbox{\hyperlink{streaming__output_8c_source}{streaming\+\_\+output.\+c}}.
+

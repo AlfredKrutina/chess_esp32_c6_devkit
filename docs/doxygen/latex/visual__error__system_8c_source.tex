@@ -1,0 +1,574 @@
+\doxysection{visual\+\_\+error\+\_\+system.\+c}
+\hypertarget{visual__error__system_8c_source}{}\label{visual__error__system_8c_source}\index{visual\_error\_system.c@{visual\_error\_system.c}}
+\mbox{\hyperlink{visual__error__system_8c}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00019}00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{visual__error__system_8h}{visual\_error\_system.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00020}00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__state__manager_8h}{led\_state\_manager.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00021}00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{unified__animation__manager_8h}{unified\_animation\_manager.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00022}00022\ \textcolor{preprocessor}{\#include\ "{}esp\_log.h"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00023}00023\ \textcolor{preprocessor}{\#include\ "{}string.h"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00025}\mbox{\hyperlink{visual__error__system_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00025}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}}\ =\ \textcolor{stringliteral}{"{}ERROR\_SYS"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00027}00027\ \textcolor{comment}{//\ Error\ system\ state}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00028}\mbox{\hyperlink{visual__error__system_8c_ab2336e816f0a31f0e3e85fba396e4340}{00028}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00029}\mbox{\hyperlink{visual__error__system_8c_af09b5a75ac80e161207fc294e3e25b0a}{00029}}\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structerror__system__config__t}{error\_system\_config\_t}}\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00030}\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{00030}}\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structerror__guidance__t}{error\_guidance\_t}}\ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00031}\mbox{\hyperlink{visual__error__system_8c_ab48772c5b7b95dc1acb27d1e15a62b33}{00031}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{visual__error__system_8c_ab48772c5b7b95dc1acb27d1e15a62b33}{displaying\_error}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00032}\mbox{\hyperlink{visual__error__system_8c_a32b1c50c1082ad40d9f9f13fd28cedd7}{00032}}\ \textcolor{keyword}{static}\ uint8\_t\ \mbox{\hyperlink{visual__error__system_8c_a32b1c50c1082ad40d9f9f13fd28cedd7}{active\_error\_count}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00034}00034\ \textcolor{comment}{//\ Forward\ declarations}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00035}00035\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{visual__error__system_8c_a54c1656bcbedc160755be684d142eb0d}{error\_flash\_leds}}(uint8\_t*\ led\_positions,\ uint8\_t\ count,\ uint8\_t\ r,\ uint8\_t\ g,\ uint8\_t\ b);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00036}00036\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{visual__error__system_8c_aeba836e63e2862dbe66eaf5bb661b3e2}{error\_pulse\_leds}}(uint8\_t*\ led\_positions,\ uint8\_t\ count,\ uint8\_t\ r,\ uint8\_t\ g,\ uint8\_t\ b);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00037}00037\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{visual__error__system_8c_a22a3df3379553a74340a2c29dc7daa8e}{error\_get\_message\_for\_type}}(\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\_error\_type\_t}}\ type);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00038}00038\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{visual__error__system_8c_a5c587418bdd52f02272c53ec8568d77b}{error\_get\_hint\_for\_type}}(\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\_error\_type\_t}}\ type);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00039}00039\ \textcolor{keyword}{static}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_aabbf0dffdf236db70fe15daa48dcd3ec}{error\_get\_color\_for\_type}}(\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\_error\_type\_t}}\ type,\ uint8\_t*\ r,\ uint8\_t*\ g,\ uint8\_t*\ b);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00041}\mbox{\hyperlink{visual__error__system_8h_ac995527f0c28a1e3c3e6182139d06430}{00041}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_ac995527f0c28a1e3c3e6182139d06430}{error\_system\_init}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structerror__system__config__t}{error\_system\_config\_t}}*\ config)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00042}00042\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00043}00043\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Error\ system\ already\ initialized"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00044}00044\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00045}00045\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00046}00046\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00047}00047\ \ \ \ \ \textcolor{keywordflow}{if}\ (!config)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00048}00048\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Invalid\ configuration\ provided"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00049}00049\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00050}00050\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00051}00051\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00052}00052\ \ \ \ \ \textcolor{comment}{//\ Initialize\ configuration}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00053}00053\ \ \ \ \ memcpy(\&\mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}},\ config,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{structerror__system__config__t}{error\_system\_config\_t}}));}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00054}00054\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00055}00055\ \ \ \ \ \textcolor{comment}{//\ Initialize\ last\ error}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00056}00056\ \ \ \ \ memset(\&\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{structerror__guidance__t}{error\_guidance\_t}}));}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00057}00057\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00058}00058\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_ab48772c5b7b95dc1acb27d1e15a62b33}{displaying\_error}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00059}00059\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a32b1c50c1082ad40d9f9f13fd28cedd7}{active\_error\_count}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00060}00060\ \ \ \ \ \mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00061}00061\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00062}00062\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Visual\ Error\ System\ initialized"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00063}00063\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ Flash\ count:\ \%d"{}},\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.flash\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00064}00064\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ Flash\ duration:\ \%dms"{}},\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.flash\_duration\_ms);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00065}00065\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ Guidance\ duration:\ \%dms"{}},\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.guidance\_duration\_ms);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00066}00066\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ Recovery\ hints:\ \%s"{}},\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.enable\_recovery\_hints\ ?\ \textcolor{stringliteral}{"{}enabled"{}}\ :\ \textcolor{stringliteral}{"{}disabled"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00067}00067\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ Max\ concurrent\ errors:\ \%d"{}},\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.max\_concurrent\_errors);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00068}00068\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00069}00069\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00070}00070\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00071}00071\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00072}\mbox{\hyperlink{visual__error__system_8h_ad70233d9512da8d6108776c773e942e3}{00072}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_ad70233d9512da8d6108776c773e942e3}{error\_system\_deinit}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00073}00073\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00074}00074\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00075}00075\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00076}00076\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00077}00077\ \ \ \ \ \textcolor{comment}{//\ Clear\ all\ error\ indicators}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00078}00078\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_ac94fcd47b6a08516a34bd10162b320bd}{error\_clear\_all\_indicators}}();}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00079}00079\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00080}00080\ \ \ \ \ \mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00081}00081\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Error\ system\ deinitialized"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00082}00082\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00083}00083\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00084}00084\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00085}00085\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00086}\mbox{\hyperlink{visual__error__system_8h_aeb7e8d4b5498f2ea0e6fe7e48bf5cad5}{00086}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_aeb7e8d4b5498f2ea0e6fe7e48bf5cad5}{error\_show\_visual}}(\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\_error\_type\_t}}\ error\_type,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structchess__move__t}{chess\_move\_t}}*\ failed\_move)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00087}00087\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00089}00089\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00090}00090\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00091}00091\ \ \ \ \ \textcolor{keywordflow}{if}\ (error\_type\ >=\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaa4b2a9220810b2bab7cfee40145ece36}{ERROR\_VISUAL\_COUNT}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00092}00092\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00093}00093\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00094}00094\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00095}00095\ \ \ \ \ \textcolor{comment}{//\ Check\ if\ we\ can\ display\ more\ errors}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00096}00096\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{visual__error__system_8c_a32b1c50c1082ad40d9f9f13fd28cedd7}{active\_error\_count}}\ >=\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.max\_concurrent\_errors)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00097}00097\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Maximum\ concurrent\ errors\ reached,\ ignoring\ new\ error"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00098}00098\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00099}00099\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00100}00100\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00101}00101\ \ \ \ \ \textcolor{comment}{//\ Clear\ previous\ error\ indicators}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00102}00102\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_ac94fcd47b6a08516a34bd10162b320bd}{error\_clear\_all\_indicators}}();}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00103}00103\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00104}00104\ \ \ \ \ \textcolor{comment}{//\ Get\ error\ color}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00105}00105\ \ \ \ \ uint8\_t\ r,\ g,\ b;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00106}00106\ \ \ \ \ esp\_err\_t\ color\_result\ =\ \mbox{\hyperlink{visual__error__system_8c_aabbf0dffdf236db70fe15daa48dcd3ec}{error\_get\_color\_for\_type}}(error\_type,\ \&r,\ \&g,\ \&b);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00107}00107\ \ \ \ \ \textcolor{keywordflow}{if}\ (color\_result\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ get\ color\ for\ error\ type\ \%d"{}},\ error\_type);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00109}00109\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ color\_result;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00110}00110\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00111}00111\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00112}00112\ \ \ \ \ \textcolor{comment}{//\ Get\ LED\ positions\ for\ error}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00113}00113\ \ \ \ \ uint8\_t\ led\_positions[8];}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00114}00114\ \ \ \ \ uint8\_t\ led\_count\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00115}00115\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00116}00116\ \ \ \ \ \textcolor{keywordflow}{if}\ (failed\_move)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00117}00117\ \ \ \ \ \ \ \ \ esp\_err\_t\ pos\_result\ =\ \mbox{\hyperlink{visual__error__system_8c_a05cea41b9d878ee84c04cfa3c4b8d987}{error\_get\_led\_positions\_for\_move}}(failed\_move,\ led\_positions,\ \&led\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00118}00118\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pos\_result\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ get\ LED\ positions\ for\ move"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ pos\_result;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00121}00121\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00122}00122\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00123}00123\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Generic\ error\ -\/\ flash\ first\ 8\ board\ LEDs\ only\ (array\ size\ is\ 8!)}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00124}00124\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ✅\ CRITICAL\ BUG\ FIX:\ Was\ i\ <\ 64\ causing\ buffer\ overflow!}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00125}00125\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 8;\ i++)\ \{\ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ led\_positions[i]\ =\ i;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00127}00127\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00128}00128\ \ \ \ \ \ \ \ \ led\_count\ =\ 8;\ \ \textcolor{comment}{//\ ✅\ FIXED:\ Only\ 8\ LEDs,\ not\ 64}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00129}00129\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00130}00130\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00131}00131\ \ \ \ \ \textcolor{comment}{//\ Store\ error\ information}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00132}00132\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.error\_type\ =\ error\_type;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00133}00133\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.error\_led\_count\ =\ led\_count;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00134}00134\ \ \ \ \ memcpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.error\_led\_positions,\ led\_positions,\ led\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00135}00135\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.display\_duration\_ms\ =\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.flash\_duration\_ms\ *\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.flash\_count;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00136}00136\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00137}00137\ \ \ \ \ \textcolor{comment}{//\ Set\ error\ messages}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00138}00138\ \ \ \ \ strncpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message,\ \mbox{\hyperlink{visual__error__system_8c_a22a3df3379553a74340a2c29dc7daa8e}{error\_get\_message\_for\_type}}(error\_type),\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00139}00139\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message[\textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message)\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00140}00140\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00141}00141\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.enable\_recovery\_hints)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00142}00142\ \ \ \ \ \ \ \ \ strncpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint,\ \mbox{\hyperlink{visual__error__system_8c_a5c587418bdd52f02272c53ec8568d77b}{error\_get\_hint\_for\_type}}(error\_type),\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00143}00143\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint[\textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint)\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00144}00144\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00145}00145\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint[0]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00146}00146\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00147}00147\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00148}00148\ \ \ \ \ \textcolor{comment}{//\ Display\ error\ visually}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00149}00149\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a54c1656bcbedc160755be684d142eb0d}{error\_flash\_leds}}(led\_positions,\ led\_count,\ r,\ g,\ b);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00150}00150\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00151}00151\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_ab48772c5b7b95dc1acb27d1e15a62b33}{displaying\_error}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00152}00152\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a32b1c50c1082ad40d9f9f13fd28cedd7}{active\_error\_count}}++;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00153}00153\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00154}00154\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Displaying\ error:\ \%s"{}},\ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00155}00155\ \ \ \ \ \textcolor{keywordflow}{if}\ (strlen(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint)\ >\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00156}00156\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Recovery\ hint:\ \%s"{}},\ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00157}00157\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00158}00158\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00159}00159\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00160}00160\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00161}00161\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00162}\mbox{\hyperlink{visual__error__system_8h_a46114d68c2b1fcc68370988272a94445}{00162}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_a46114d68c2b1fcc68370988272a94445}{error\_show\_blocking\_path}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00164}00164\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00165}00165\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00166}00166\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00167}00167\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00168}00168\ \ \ \ \ \textcolor{comment}{//\ Get\ LED\ positions\ for\ source\ and\ destination}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00169}00169\ \ \ \ \ uint8\_t\ from\_led\_positions[8],\ to\_led\_positions[8];}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00170}00170\ \ \ \ \ uint8\_t\ from\_count\ =\ 0,\ to\_count\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00171}00171\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00172}00172\ \ \ \ \ esp\_err\_t\ from\_result\ =\ \mbox{\hyperlink{visual__error__system_8c_a272ee1742d41b587ae4d72681377bb19}{error\_get\_led\_positions\_for\_square}}(from\_row,\ from\_col,\ from\_led\_positions,\ \&from\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00173}00173\ \ \ \ \ esp\_err\_t\ to\_result\ =\ \mbox{\hyperlink{visual__error__system_8c_a272ee1742d41b587ae4d72681377bb19}{error\_get\_led\_positions\_for\_square}}(to\_row,\ to\_col,\ to\_led\_positions,\ \&to\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00174}00174\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00175}00175\ \ \ \ \ \textcolor{keywordflow}{if}\ (from\_result\ !=\ ESP\_OK\ ||\ to\_result\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00176}00176\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00177}00177\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00178}00178\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00179}00179\ \ \ \ \ \textcolor{comment}{//\ Flash\ source\ in\ red,\ destination\ in\ orange}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00180}00180\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a54c1656bcbedc160755be684d142eb0d}{error\_flash\_leds}}(from\_led\_positions,\ from\_count,\ 255,\ 0,\ 0);\ \textcolor{comment}{//\ Red\ for\ source}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00181}00181\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a54c1656bcbedc160755be684d142eb0d}{error\_flash\_leds}}(to\_led\_positions,\ to\_count,\ 255,\ 165,\ 0);\ \ \ \textcolor{comment}{//\ Orange\ for\ destination}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00182}00182\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00183}00183\ \ \ \ \ \textcolor{comment}{//\ Store\ error\ information}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00184}00184\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.error\_type\ =\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaed9dfe2a8f8f05f26129f9da5350ceb0}{ERROR\_VISUAL\_PIECE\_BLOCKING}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00185}00185\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.error\_led\_count\ =\ from\_count\ +\ to\_count;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00186}00186\ \ \ \ \ memcpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.error\_led\_positions,\ from\_led\_positions,\ from\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00187}00187\ \ \ \ \ memcpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.error\_led\_positions\ +\ from\_count,\ to\_led\_positions,\ to\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00188}00188\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00189}00189\ \ \ \ \ strncpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message,\ \textcolor{stringliteral}{"{}Path\ is\ blocked\ by\ another\ piece"{}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00190}00190\ \ \ \ \ strncpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint,\ \textcolor{stringliteral}{"{}Remove\ the\ blocking\ piece\ or\ choose\ a\ different\ path"{}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00191}00191\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00192}00192\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_ab48772c5b7b95dc1acb27d1e15a62b33}{displaying\_error}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00193}00193\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a32b1c50c1082ad40d9f9f13fd28cedd7}{active\_error\_count}}++;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00194}00194\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00195}00195\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Showing\ blocking\ path\ error:\ \%s"{}},\ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00196}00196\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00197}00197\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00198}00198\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00199}00199\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00200}\mbox{\hyperlink{visual__error__system_8h_a3cecc0d8e7cadda0a383b72eae511e69}{00200}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_a3cecc0d8e7cadda0a383b72eae511e69}{error\_show\_check\_escape\_options}}(uint8\_t\ king\_row,\ uint8\_t\ king\_col)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00201}00201\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00202}00202\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00203}00203\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00204}00204\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00205}00205\ \ \ \ \ \textcolor{comment}{//\ Get\ LED\ position\ for\ king}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00206}00206\ \ \ \ \ uint8\_t\ king\_led\_positions[8];}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00207}00207\ \ \ \ \ uint8\_t\ king\_count\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00208}00208\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00209}00209\ \ \ \ \ esp\_err\_t\ king\_result\ =\ \mbox{\hyperlink{visual__error__system_8c_a272ee1742d41b587ae4d72681377bb19}{error\_get\_led\_positions\_for\_square}}(king\_row,\ king\_col,\ king\_led\_positions,\ \&king\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00210}00210\ \ \ \ \ \textcolor{keywordflow}{if}\ (king\_result\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00211}00211\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ king\_result;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00212}00212\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00213}00213\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00214}00214\ \ \ \ \ \textcolor{comment}{//\ Flash\ king\ in\ purple}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00215}00215\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a54c1656bcbedc160755be684d142eb0d}{error\_flash\_leds}}(king\_led\_positions,\ king\_count,\ 128,\ 0,\ 128);\ \textcolor{comment}{//\ Purple\ for\ check}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00216}00216\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00217}00217\ \ \ \ \ \textcolor{comment}{//\ Store\ error\ information}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00218}00218\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.error\_type\ =\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa50b4433db1a1a2fddea20bb8b7493f16}{ERROR\_VISUAL\_CHECK\_VIOLATION}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00219}00219\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.error\_led\_count\ =\ king\_count;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00220}00220\ \ \ \ \ memcpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.error\_led\_positions,\ king\_led\_positions,\ king\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00221}00221\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00222}00222\ \ \ \ \ strncpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message,\ \textcolor{stringliteral}{"{}King\ is\ in\ check\ -\/\ this\ move\ is\ not\ allowed"{}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00223}00223\ \ \ \ \ strncpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint,\ \textcolor{stringliteral}{"{}Move\ the\ king\ out\ of\ check\ or\ block\ the\ attacking\ piece"{}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00224}00224\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00225}00225\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_ab48772c5b7b95dc1acb27d1e15a62b33}{displaying\_error}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00226}00226\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a32b1c50c1082ad40d9f9f13fd28cedd7}{active\_error\_count}}++;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00227}00227\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00228}00228\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Showing\ check\ violation\ error:\ \%s"{}},\ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00229}00229\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00230}00230\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00231}00231\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00232}00232\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00233}\mbox{\hyperlink{visual__error__system_8h_ac94fcd47b6a08516a34bd10162b320bd}{00233}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_ac94fcd47b6a08516a34bd10162b320bd}{error\_clear\_all\_indicators}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00234}00234\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00235}00235\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00236}00236\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00237}00237\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00238}00238\ \ \ \ \ \textcolor{comment}{//\ Clear\ error\ layer}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00239}00239\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8h_a710d786eed5ca03bce7a093daf527041}{led\_clear\_layer}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231ba48fc31f3c8eeefb7eee5050df35b02e9}{LED\_LAYER\_ERROR}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00240}00240\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00241}00241\ \ \ \ \ \textcolor{comment}{//\ Force\ update}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00242}00242\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8h_a3f91b15c961fecfee68b7367424b4a39}{led\_force\_full\_update}}();}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00243}00243\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00244}00244\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_ab48772c5b7b95dc1acb27d1e15a62b33}{displaying\_error}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00245}00245\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a32b1c50c1082ad40d9f9f13fd28cedd7}{active\_error\_count}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00246}00246\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00247}00247\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Cleared\ all\ error\ indicators"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00248}00248\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00249}00249\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00250}00250\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00251}00251\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00252}\mbox{\hyperlink{visual__error__system_8h_a4c6190405f3084c622bcf74002ffabf4}{00252}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_a7f8dc092b20a9a0638066774da141476}{error\_guide\_correct\_move}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structchess__move__t}{chess\_move\_t}}*\ suggested\_move)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00253}00253\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00254}00254\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00255}00255\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00256}00256\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00257}00257\ \ \ \ \ \textcolor{keywordflow}{if}\ (!suggested\_move)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00258}00258\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00259}00259\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00260}00260\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00261}00261\ \ \ \ \ \textcolor{comment}{//\ Get\ LED\ positions\ for\ suggested\ move}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00262}00262\ \ \ \ \ uint8\_t\ led\_positions[8];}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00263}00263\ \ \ \ \ uint8\_t\ led\_count\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00264}00264\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00265}00265\ \ \ \ \ esp\_err\_t\ pos\_result\ =\ \mbox{\hyperlink{visual__error__system_8c_a05cea41b9d878ee84c04cfa3c4b8d987}{error\_get\_led\_positions\_for\_move}}(suggested\_move,\ led\_positions,\ \&led\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00266}00266\ \ \ \ \ \textcolor{keywordflow}{if}\ (pos\_result\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00267}00267\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ pos\_result;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00268}00268\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00269}00269\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00270}00270\ \ \ \ \ \textcolor{comment}{//\ Pulse\ LEDs\ in\ green\ to\ show\ correct\ move}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00271}00271\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_aeba836e63e2862dbe66eaf5bb661b3e2}{error\_pulse\_leds}}(led\_positions,\ led\_count,\ 0,\ 255,\ 0);\ \textcolor{comment}{//\ Green\ for\ correct\ move}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00272}00272\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00273}00273\ \ \ \ \ \textcolor{comment}{//\ Store\ guidance\ information}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00274}00274\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.guidance\_led\_count\ =\ led\_count;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00275}00275\ \ \ \ \ memcpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.guidance\_led\_positions,\ led\_positions,\ led\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00276}00276\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00277}00277\ \ \ \ \ strncpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint,\ \textcolor{stringliteral}{"{}Try\ this\ move\ instead"{}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00278}00278\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00279}00279\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Showing\ correct\ move\ guidance"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00280}00280\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00281}00281\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00282}00282\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00283}00283\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00284}\mbox{\hyperlink{visual__error__system_8h_ad9afe9c1a8c014529460b0fea1f05fa9}{00284}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_ad9afe9c1a8c014529460b0fea1f05fa9}{error\_guide\_piece\_selection}}(uint8\_t*\ movable\_pieces,\ uint8\_t\ count)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00285}00285\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00286}00286\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00287}00287\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00288}00288\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00289}00289\ \ \ \ \ \textcolor{keywordflow}{if}\ (!movable\_pieces\ ||\ count\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00290}00290\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00291}00291\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00292}00292\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00293}00293\ \ \ \ \ \textcolor{comment}{//\ Pulse\ movable\ pieces\ in\ blue}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00294}00294\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_aeba836e63e2862dbe66eaf5bb661b3e2}{error\_pulse\_leds}}(movable\_pieces,\ count,\ 0,\ 0,\ 255);\ \textcolor{comment}{//\ Blue\ for\ movable\ pieces}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00295}00295\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00296}00296\ \ \ \ \ \textcolor{comment}{//\ Store\ guidance\ information}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00297}00297\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.guidance\_led\_count\ =\ count;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00298}00298\ \ \ \ \ memcpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.guidance\_led\_positions,\ movable\_pieces,\ count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00299}00299\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00300}00300\ \ \ \ \ strncpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint,\ \textcolor{stringliteral}{"{}Select\ one\ of\ these\ pieces\ to\ move"{}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00301}00301\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00302}00302\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Showing\ piece\ selection\ guidance\ for\ \%d\ pieces"{}},\ count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00303}00303\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00304}00304\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00305}00305\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00306}00306\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00307}\mbox{\hyperlink{visual__error__system_8h_a36edba382e6f3074f4305522f4b6df05}{00307}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_a36edba382e6f3074f4305522f4b6df05}{error\_guide\_valid\_destinations}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00308}00308\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00309}00309\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00310}00310\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00311}00311\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00312}00312\ \ \ \ \ \textcolor{comment}{//\ This\ would\ need\ to\ be\ implemented\ with\ actual\ move\ generation}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00313}00313\ \ \ \ \ \textcolor{comment}{//\ For\ now,\ just\ show\ the\ source\ square}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00314}00314\ \ \ \ \ uint8\_t\ source\_led\_positions[8];}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00315}00315\ \ \ \ \ uint8\_t\ source\_count\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00316}00316\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00317}00317\ \ \ \ \ esp\_err\_t\ source\_result\ =\ \mbox{\hyperlink{visual__error__system_8c_a272ee1742d41b587ae4d72681377bb19}{error\_get\_led\_positions\_for\_square}}(from\_row,\ from\_col,\ source\_led\_positions,\ \&source\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00318}00318\ \ \ \ \ \textcolor{keywordflow}{if}\ (source\_result\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00319}00319\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ source\_result;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00320}00320\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00321}00321\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00322}00322\ \ \ \ \ \textcolor{comment}{//\ Pulse\ source\ square\ in\ yellow}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00323}00323\ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_aeba836e63e2862dbe66eaf5bb661b3e2}{error\_pulse\_leds}}(source\_led\_positions,\ source\_count,\ 255,\ 255,\ 0);\ \textcolor{comment}{//\ Yellow\ for\ source}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00324}00324\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00325}00325\ \ \ \ \ strncpy(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint,\ \textcolor{stringliteral}{"{}Valid\ destinations\ will\ be\ highlighted"{}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00326}00326\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00327}00327\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Showing\ valid\ destinations\ guidance\ from\ (\%d,\%d)"{}},\ from\_row,\ from\_col);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00328}00328\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00329}00329\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00330}00330\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00331}00331\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00332}\mbox{\hyperlink{visual__error__system_8h_a69eece35bee75f5f08536a8de6b06bdc}{00332}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{visual__error__system_8c_a69eece35bee75f5f08536a8de6b06bdc}{error\_get\_last\_message}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00333}00333\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00334}00334\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Error\ system\ not\ initialized"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00335}00335\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00336}00336\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00337}00337\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.user\_message;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00338}00338\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00339}00339\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00340}\mbox{\hyperlink{visual__error__system_8h_a4791aa096cc4979c684bea5221dc8f4f}{00340}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{visual__error__system_8c_a4791aa096cc4979c684bea5221dc8f4f}{error\_get\_recovery\_hint}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00341}00341\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00342}00342\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Error\ system\ not\ initialized"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00343}00343\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00344}00344\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00345}00345\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{visual__error__system_8c_a6f820630feb824600d909cbb27937851}{last\_error}}.recovery\_hint;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00346}00346\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00347}00347\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00348}\mbox{\hyperlink{visual__error__system_8c_a43209f153740f14d9ad4fcbbf9cb94ce}{00348}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{visual__error__system_8c_a43209f153740f14d9ad4fcbbf9cb94ce}{error\_get\_error\_type\_name}}(\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\_error\_type\_t}}\ type)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00349}00349\ \ \ \ \ \textcolor{keywordflow}{switch}\ (type)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00350}00350\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaf8203fd08d0fbab4c43496ac51ca7ff6}{ERROR\_VISUAL\_INVALID\_MOVE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Invalid\ Move"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00351}00351\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaed9dfe2a8f8f05f26129f9da5350ceb0}{ERROR\_VISUAL\_PIECE\_BLOCKING}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Piece\ Blocking"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00352}00352\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa50b4433db1a1a2fddea20bb8b7493f16}{ERROR\_VISUAL\_CHECK\_VIOLATION}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Check\ Violation"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00353}00353\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa08d581ce669e4bc1cbd55c29e43032a5}{ERROR\_VISUAL\_NO\_PIECE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}No\ Piece"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00354}00354\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa65797988f25b00cbddea2cbce6b38e46}{ERROR\_VISUAL\_WRONG\_TURN}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Wrong\ Turn"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00355}00355\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa39a6b8b12fd8e563fa0456178fddda19}{ERROR\_VISUAL\_SYSTEM\_ERROR}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}System\ Error"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00356}00356\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa8296825b7936ac8bbe6081a3d050a8c7}{ERROR\_VISUAL\_INVALID\_SYNTAX}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Invalid\ Syntax"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00357}00357\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Unknown\ Error"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00358}00358\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00359}00359\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00360}00360\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00361}\mbox{\hyperlink{visual__error__system_8h_a463e7fa72dbf8c609d0e2740791d969f}{00361}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_a463e7fa72dbf8c609d0e2740791d969f}{error\_get\_status}}(\textcolor{keywordtype}{char}*\ buffer,\ \textcolor{keywordtype}{size\_t}\ buffer\_size)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00362}00362\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer\ ||\ buffer\_size\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00363}00363\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00364}00364\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00365}00365\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00366}00366\ \ \ \ \ \textcolor{keywordtype}{int}\ written\ =\ snprintf(buffer,\ buffer\_size,}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00367}00367\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Visual\ Error\ System\ Status:\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00368}00368\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ Initialized:\ \%s\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00369}00369\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ Displaying\ error:\ \%s\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00370}00370\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ Active\ errors:\ \%d/\%d\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00371}00371\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ Flash\ count:\ \%d\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00372}00372\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ Flash\ duration:\ \%lums\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00373}00373\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ Recovery\ hints:\ \%s\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00374}00374\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8c_ab2336e816f0a31f0e3e85fba396e4340}{system\_initialized}}\ ?\ \textcolor{stringliteral}{"{}Yes"{}}\ :\ \textcolor{stringliteral}{"{}No"{}},}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00375}00375\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_ab48772c5b7b95dc1acb27d1e15a62b33}{displaying\_error}}\ ?\ \textcolor{stringliteral}{"{}Yes"{}}\ :\ \textcolor{stringliteral}{"{}No"{}},}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00376}00376\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{visual__error__system_8c_a32b1c50c1082ad40d9f9f13fd28cedd7}{active\_error\_count}},}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00377}00377\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.max\_concurrent\_errors,}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00378}00378\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.flash\_count,}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00379}00379\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.flash\_duration\_ms,}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00380}00380\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.enable\_recovery\_hints\ ?\ \textcolor{stringliteral}{"{}Yes"{}}\ :\ \textcolor{stringliteral}{"{}No"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00381}00381\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00382}00382\ \ \ \ \ \textcolor{keywordflow}{if}\ (written\ >=\ buffer\_size)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00383}00383\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00384}00384\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00385}00385\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00386}00386\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00387}00387\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00388}00388\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00389}\mbox{\hyperlink{visual__error__system_8c_a4470983fe742a87855a011f765d9137c}{00389}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{visual__error__system_8c_a4470983fe742a87855a011f765d9137c}{error\_is\_displaying}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00390}00390\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{visual__error__system_8c_ab48772c5b7b95dc1acb27d1e15a62b33}{displaying\_error}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00391}00391\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00392}00392\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00393}\mbox{\hyperlink{visual__error__system_8c_a4e04de1e171c71b4c32364f0ae8b232e}{00393}}\ uint8\_t\ \mbox{\hyperlink{visual__error__system_8c_a4e04de1e171c71b4c32364f0ae8b232e}{error\_get\_active\_count}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00394}00394\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{visual__error__system_8c_a32b1c50c1082ad40d9f9f13fd28cedd7}{active\_error\_count}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00395}00395\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00396}00396\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00397}\mbox{\hyperlink{visual__error__system_8h_affeb147a450f8cb876aa449cd2810459}{00397}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_affeb147a450f8cb876aa449cd2810459}{error\_set\_config}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structerror__system__config__t}{error\_system\_config\_t}}*\ config)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00398}00398\ \ \ \ \ \textcolor{keywordflow}{if}\ (!config)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00399}00399\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00400}00400\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00401}00401\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00402}00402\ \ \ \ \ memcpy(\&\mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}},\ config,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{structerror__system__config__t}{error\_system\_config\_t}}));}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00403}00403\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Error\ system\ configuration\ updated"{}});}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00404}00404\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00405}00405\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00406}00406\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00407}00407\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00408}\mbox{\hyperlink{visual__error__system_8h_ae69d7d8836ef3c8815256f5522ca5dff}{00408}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_ae69d7d8836ef3c8815256f5522ca5dff}{error\_set\_flash\_count}}(uint8\_t\ count)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00409}00409\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.flash\_count\ =\ count;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00410}00410\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Flash\ count\ set\ to\ \%d"{}},\ count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00411}00411\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00412}00412\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00413}00413\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00414}00414\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00415}\mbox{\hyperlink{visual__error__system_8h_a0031642405bf7dfbf920a89dba3c10a4}{00415}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_a0031642405bf7dfbf920a89dba3c10a4}{error\_set\_flash\_duration}}(uint32\_t\ duration\_ms)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00416}00416\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.flash\_duration\_ms\ =\ duration\_ms;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00417}00417\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Flash\ duration\ set\ to\ \%dms"{}},\ duration\_ms);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00418}00418\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00419}00419\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00420}00420\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00421}00421\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00422}\mbox{\hyperlink{visual__error__system_8h_a4dda5bf9ea83f0ad9fc924e59f3b39f2}{00422}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_a4dda5bf9ea83f0ad9fc924e59f3b39f2}{error\_convert\_move\_error\_to\_visual}}(\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\_error\_t}}\ move\_error,\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\_error\_type\_t}}*\ visual\_type)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00423}00423\ \ \ \ \ \textcolor{keywordflow}{if}\ (!visual\_type)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00424}00424\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00425}00425\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00426}00426\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00427}00427\ \ \ \ \ \textcolor{keywordflow}{switch}\ (move\_error)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00428}00428\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a4100d3557901ed1bf26cadf95436db60}{MOVE\_ERROR\_NONE}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00429}00429\ \ \ \ \ \ \ \ \ \ \ \ \ *visual\_type\ =\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaa4b2a9220810b2bab7cfee40145ece36}{ERROR\_VISUAL\_COUNT}};\ \textcolor{comment}{//\ No\ visual\ error}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00430}00430\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00431}00431\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1afdd1c5dd74c3751769aee3f28589cdea}{MOVE\_ERROR\_INVALID\_MOVE}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00432}00432\ \ \ \ \ \ \ \ \ \ \ \ \ *visual\_type\ =\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaf8203fd08d0fbab4c43496ac51ca7ff6}{ERROR\_VISUAL\_INVALID\_MOVE}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00433}00433\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00434}00434\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ab4cb258bbbe0300855b48b6f2d1b066f}{MOVE\_ERROR\_PIECE\_NOT\_FOUND}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00435}00435\ \ \ \ \ \ \ \ \ \ \ \ \ *visual\_type\ =\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaed9dfe2a8f8f05f26129f9da5350ceb0}{ERROR\_VISUAL\_PIECE\_BLOCKING}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00436}00436\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00437}00437\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a2fb8b41d9e36545a7a9410d4b8528215}{MOVE\_ERROR\_CHECK\_VIOLATION}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00438}00438\ \ \ \ \ \ \ \ \ \ \ \ \ *visual\_type\ =\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa50b4433db1a1a2fddea20bb8b7493f16}{ERROR\_VISUAL\_CHECK\_VIOLATION}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00439}00439\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00440}00440\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ae25a34f37cd35bcd83411aecc8f439f1}{MOVE\_ERROR\_NO\_PIECE}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00441}00441\ \ \ \ \ \ \ \ \ \ \ \ \ *visual\_type\ =\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa08d581ce669e4bc1cbd55c29e43032a5}{ERROR\_VISUAL\_NO\_PIECE}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00442}00442\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00443}00443\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a5723bd10d7972babaac58c5fa122371e}{MOVE\_ERROR\_WRONG\_COLOR}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00444}00444\ \ \ \ \ \ \ \ \ \ \ \ \ *visual\_type\ =\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa65797988f25b00cbddea2cbce6b38e46}{ERROR\_VISUAL\_WRONG\_TURN}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00445}00445\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00446}00446\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00447}00447\ \ \ \ \ \ \ \ \ \ \ \ \ *visual\_type\ =\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa39a6b8b12fd8e563fa0456178fddda19}{ERROR\_VISUAL\_SYSTEM\_ERROR}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00448}00448\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00449}00449\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00450}00450\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00451}00451\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00452}00452\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00453}00453\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00454}\mbox{\hyperlink{visual__error__system_8h_a05cea41b9d878ee84c04cfa3c4b8d987}{00454}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_a05cea41b9d878ee84c04cfa3c4b8d987}{error\_get\_led\_positions\_for\_move}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structchess__move__t}{chess\_move\_t}}*\ move,\ uint8\_t*\ led\_positions,\ uint8\_t*\ count)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00455}00455\ \ \ \ \ \textcolor{keywordflow}{if}\ (!move\ ||\ !led\_positions\ ||\ !count)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00456}00456\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00457}00457\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00458}00458\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00459}00459\ \ \ \ \ \textcolor{comment}{//\ Get\ LED\ positions\ for\ source\ and\ destination\ squares}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00460}00460\ \ \ \ \ uint8\_t\ from\_positions[8],\ to\_positions[8];}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00461}00461\ \ \ \ \ uint8\_t\ from\_count\ =\ 0,\ to\_count\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00462}00462\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00463}00463\ \ \ \ \ esp\_err\_t\ from\_result\ =\ \mbox{\hyperlink{visual__error__system_8c_a272ee1742d41b587ae4d72681377bb19}{error\_get\_led\_positions\_for\_square}}(move-\/>\mbox{\hyperlink{structchess__move__t_a87e6934d4b28fea1a59c341d6cbe9eb7}{from\_row}},\ move-\/>\mbox{\hyperlink{structchess__move__t_a3b8bdb363c16e1f221da6c3e80d9aa70}{from\_col}},\ from\_positions,\ \&from\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00464}00464\ \ \ \ \ esp\_err\_t\ to\_result\ =\ \mbox{\hyperlink{visual__error__system_8c_a272ee1742d41b587ae4d72681377bb19}{error\_get\_led\_positions\_for\_square}}(move-\/>\mbox{\hyperlink{structchess__move__t_a12ee5250e947928c028f50b4c28c9d24}{to\_row}},\ move-\/>\mbox{\hyperlink{structchess__move__t_a481848c592fd4bcac9b17b995ac18de1}{to\_col}},\ to\_positions,\ \&to\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00465}00465\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00466}00466\ \ \ \ \ \textcolor{keywordflow}{if}\ (from\_result\ !=\ ESP\_OK\ ||\ to\_result\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00467}00467\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00468}00468\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00469}00469\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00470}00470\ \ \ \ \ \textcolor{comment}{//\ Combine\ positions}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00471}00471\ \ \ \ \ *count\ =\ from\_count\ +\ to\_count;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00472}00472\ \ \ \ \ memcpy(led\_positions,\ from\_positions,\ from\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00473}00473\ \ \ \ \ memcpy(led\_positions\ +\ from\_count,\ to\_positions,\ to\_count);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00474}00474\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00475}00475\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00476}00476\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00477}00477\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00478}\mbox{\hyperlink{visual__error__system_8h_a272ee1742d41b587ae4d72681377bb19}{00478}}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_a272ee1742d41b587ae4d72681377bb19}{error\_get\_led\_positions\_for\_square}}(uint8\_t\ row,\ uint8\_t\ col,\ uint8\_t*\ led\_positions,\ uint8\_t*\ count)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00479}00479\ \ \ \ \ \textcolor{keywordflow}{if}\ (!led\_positions\ ||\ !count)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00480}00480\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00481}00481\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00482}00482\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00483}00483\ \ \ \ \ \textcolor{keywordflow}{if}\ (row\ >=\ 8\ ||\ col\ >=\ 8)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00484}00484\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00485}00485\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00486}00486\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00487}00487\ \ \ \ \ \textcolor{comment}{//\ Convert\ chess\ position\ to\ LED\ index}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00488}00488\ \ \ \ \ uint8\_t\ led\_index\ =\ row\ *\ 8\ +\ col;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00489}00489\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00490}00490\ \ \ \ \ led\_positions[0]\ =\ led\_index;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00491}00491\ \ \ \ \ *count\ =\ 1;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00492}00492\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00493}00493\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00494}00494\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00495}00495\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00496}00496\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00497}00497\ \textcolor{comment}{//\ INTERNI\ POMOCNE\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00498}00498\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00499}00499\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00500}00500\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00513}\mbox{\hyperlink{visual__error__system_8c_a54c1656bcbedc160755be684d142eb0d}{00513}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{visual__error__system_8c_a54c1656bcbedc160755be684d142eb0d}{error\_flash\_leds}}(uint8\_t*\ led\_positions,\ uint8\_t\ count,\ uint8\_t\ r,\ uint8\_t\ g,\ uint8\_t\ b)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00514}00514\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ flash\ =\ 0;\ flash\ <\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.flash\_count;\ flash++)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00515}00515\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Flash\ on}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00516}00516\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ i\ =\ 0;\ i\ <\ count;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00517}00517\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8h_abe61cff6332fff6f402834c6aaf32ca7}{led\_set\_pixel\_layer}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231ba48fc31f3c8eeefb7eee5050df35b02e9}{LED\_LAYER\_ERROR}},\ led\_positions[i],\ r,\ g,\ b);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00518}00518\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00519}00519\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8h_a3f91b15c961fecfee68b7367424b4a39}{led\_force\_full\_update}}();}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00520}00520\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00521}00521\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Flash\ off}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00522}00522\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ i\ =\ 0;\ i\ <\ count;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00523}00523\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8h_abe61cff6332fff6f402834c6aaf32ca7}{led\_set\_pixel\_layer}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231ba48fc31f3c8eeefb7eee5050df35b02e9}{LED\_LAYER\_ERROR}},\ led\_positions[i],\ 0,\ 0,\ 0);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00524}00524\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00525}00525\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8h_a3f91b15c961fecfee68b7367424b4a39}{led\_force\_full\_update}}();}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00526}00526\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00527}00527\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00528}00528\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00541}\mbox{\hyperlink{visual__error__system_8c_aeba836e63e2862dbe66eaf5bb661b3e2}{00541}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{visual__error__system_8c_aeba836e63e2862dbe66eaf5bb661b3e2}{error\_pulse\_leds}}(uint8\_t*\ led\_positions,\ uint8\_t\ count,\ uint8\_t\ r,\ uint8\_t\ g,\ uint8\_t\ b)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00542}00542\ \ \ \ \ \textcolor{comment}{//\ Simple\ pulsing\ -\/\ in\ full\ implementation,\ use\ animation\ manager}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00543}00543\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ i\ =\ 0;\ i\ <\ count;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00544}00544\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8h_abe61cff6332fff6f402834c6aaf32ca7}{led\_set\_pixel\_layer}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231ba48fc31f3c8eeefb7eee5050df35b02e9}{LED\_LAYER\_ERROR}},\ led\_positions[i],\ r,\ g,\ b);}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00545}00545\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00546}00546\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8h_a3f91b15c961fecfee68b7367424b4a39}{led\_force\_full\_update}}();}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00547}00547\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00548}00548\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00557}\mbox{\hyperlink{visual__error__system_8c_a22a3df3379553a74340a2c29dc7daa8e}{00557}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{visual__error__system_8c_a22a3df3379553a74340a2c29dc7daa8e}{error\_get\_message\_for\_type}}(\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\_error\_type\_t}}\ type)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00558}00558\ \ \ \ \ \textcolor{keywordflow}{switch}\ (type)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00559}00559\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaf8203fd08d0fbab4c43496ac51ca7ff6}{ERROR\_VISUAL\_INVALID\_MOVE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Invalid\ move\ -\/\ this\ piece\ cannot\ move\ there"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00560}00560\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaed9dfe2a8f8f05f26129f9da5350ceb0}{ERROR\_VISUAL\_PIECE\_BLOCKING}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Path\ is\ blocked\ by\ another\ piece"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00561}00561\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa50b4433db1a1a2fddea20bb8b7493f16}{ERROR\_VISUAL\_CHECK\_VIOLATION}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}King\ is\ in\ check\ -\/\ this\ move\ is\ not\ allowed"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00562}00562\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa08d581ce669e4bc1cbd55c29e43032a5}{ERROR\_VISUAL\_NO\_PIECE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}No\ piece\ on\ this\ square"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00563}00563\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa65797988f25b00cbddea2cbce6b38e46}{ERROR\_VISUAL\_WRONG\_TURN}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}It's\ not\ your\ turn\ to\ move"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00564}00564\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa39a6b8b12fd8e563fa0456178fddda19}{ERROR\_VISUAL\_SYSTEM\_ERROR}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}System\ error\ occurred"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00565}00565\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa8296825b7936ac8bbe6081a3d050a8c7}{ERROR\_VISUAL\_INVALID\_SYNTAX}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Invalid\ command\ syntax"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00566}00566\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Unknown\ error\ occurred"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00567}00567\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00568}00568\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00569}00569\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00578}\mbox{\hyperlink{visual__error__system_8c_a5c587418bdd52f02272c53ec8568d77b}{00578}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{visual__error__system_8c_a5c587418bdd52f02272c53ec8568d77b}{error\_get\_hint\_for\_type}}(\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\_error\_type\_t}}\ type)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00579}00579\ \ \ \ \ \textcolor{keywordflow}{switch}\ (type)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00580}00580\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaf8203fd08d0fbab4c43496ac51ca7ff6}{ERROR\_VISUAL\_INVALID\_MOVE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Try\ moving\ to\ a\ different\ square"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00581}00581\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaed9dfe2a8f8f05f26129f9da5350ceb0}{ERROR\_VISUAL\_PIECE\_BLOCKING}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Remove\ the\ blocking\ piece\ or\ choose\ a\ different\ path"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00582}00582\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa50b4433db1a1a2fddea20bb8b7493f16}{ERROR\_VISUAL\_CHECK\_VIOLATION}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Move\ the\ king\ out\ of\ check\ or\ block\ the\ attacking\ piece"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00583}00583\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa08d581ce669e4bc1cbd55c29e43032a5}{ERROR\_VISUAL\_NO\_PIECE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Select\ a\ square\ that\ contains\ a\ piece"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00584}00584\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa65797988f25b00cbddea2cbce6b38e46}{ERROR\_VISUAL\_WRONG\_TURN}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Wait\ for\ your\ opponent\ to\ move"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00585}00585\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa39a6b8b12fd8e563fa0456178fddda19}{ERROR\_VISUAL\_SYSTEM\_ERROR}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Try\ again\ or\ restart\ the\ system"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00586}00586\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa8296825b7936ac8bbe6081a3d050a8c7}{ERROR\_VISUAL\_INVALID\_SYNTAX}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Check\ the\ command\ format\ and\ try\ again"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00587}00587\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Try\ a\ different\ approach"{}};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00588}00588\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00589}00589\ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00590}00590\ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00608}\mbox{\hyperlink{visual__error__system_8c_aabbf0dffdf236db70fe15daa48dcd3ec}{00608}}\ \textcolor{keyword}{static}\ esp\_err\_t\ \mbox{\hyperlink{visual__error__system_8c_aabbf0dffdf236db70fe15daa48dcd3ec}{error\_get\_color\_for\_type}}(\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\_error\_type\_t}}\ type,\ uint8\_t*\ r,\ uint8\_t*\ g,\ uint8\_t*\ b)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00609}00609\ \ \ \ \ \textcolor{keywordflow}{if}\ (!r\ ||\ !g\ ||\ !b)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00610}00610\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00611}00611\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00612}00612\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00613}00613\ \ \ \ \ \textcolor{keywordflow}{switch}\ (type)\ \{}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00614}00614\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaf8203fd08d0fbab4c43496ac51ca7ff6}{ERROR\_VISUAL\_INVALID\_MOVE}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00615}00615\ \ \ \ \ \ \ \ \ \ \ \ \ *r\ =\ 255;\ *g\ =\ 0;\ *b\ =\ 0;\ \textcolor{comment}{//\ Red}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00616}00616\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00617}00617\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaed9dfe2a8f8f05f26129f9da5350ceb0}{ERROR\_VISUAL\_PIECE\_BLOCKING}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00618}00618\ \ \ \ \ \ \ \ \ \ \ \ \ *r\ =\ 255;\ *g\ =\ 165;\ *b\ =\ 0;\ \textcolor{comment}{//\ Orange}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00619}00619\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00620}00620\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa50b4433db1a1a2fddea20bb8b7493f16}{ERROR\_VISUAL\_CHECK\_VIOLATION}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00621}00621\ \ \ \ \ \ \ \ \ \ \ \ \ *r\ =\ 128;\ *g\ =\ 0;\ *b\ =\ 128;\ \textcolor{comment}{//\ Purple}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00622}00622\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00623}00623\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa08d581ce669e4bc1cbd55c29e43032a5}{ERROR\_VISUAL\_NO\_PIECE}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00624}00624\ \ \ \ \ \ \ \ \ \ \ \ \ *r\ =\ 255;\ *g\ =\ 255;\ *b\ =\ 0;\ \textcolor{comment}{//\ Yellow}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00625}00625\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00626}00626\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa65797988f25b00cbddea2cbce6b38e46}{ERROR\_VISUAL\_WRONG\_TURN}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00627}00627\ \ \ \ \ \ \ \ \ \ \ \ \ *r\ =\ 0;\ *g\ =\ 0;\ *b\ =\ 255;\ \textcolor{comment}{//\ Blue}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00628}00628\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00629}00629\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa39a6b8b12fd8e563fa0456178fddda19}{ERROR\_VISUAL\_SYSTEM\_ERROR}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00630}00630\ \ \ \ \ \ \ \ \ \ \ \ \ *r\ =\ 255;\ *g\ =\ 255;\ *b\ =\ 255;\ \textcolor{comment}{//\ White}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00631}00631\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00632}00632\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa8296825b7936ac8bbe6081a3d050a8c7}{ERROR\_VISUAL\_INVALID\_SYNTAX}}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00633}00633\ \ \ \ \ \ \ \ \ \ \ \ \ *r\ =\ 0;\ *g\ =\ 255;\ *b\ =\ 255;\ \textcolor{comment}{//\ Cyan}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00634}00634\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00635}00635\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00636}00636\ \ \ \ \ \ \ \ \ \ \ \ \ *r\ =\ 128;\ *g\ =\ 128;\ *b\ =\ 128;\ \textcolor{comment}{//\ Gray}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00637}00637\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00638}00638\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00639}00639\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00640}00640\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{visual__error__system_8c_source_l00641}00641\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,161 @@
+\doxysection{Dokumentace struktury led\+\_\+command\+\_\+t}
+\hypertarget{structled__command__t}{}\label{structled__command__t}\index{led\_command\_t@{led\_command\_t}}
+
+
+Struktura LED prikazu.  
+
+
+
+
+{\ttfamily \#include $<$chess\+\_\+types.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66d}{led\+\_\+command\+\_\+type\+\_\+t}} \mbox{\hyperlink{structled__command__t_a7665b1fa37b249a3377af43862c1040b}{type}}
+\begin{DoxyCompactList}\small\item\em Typ LED prikazu. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__command__t_ae1ef770e3412d70be11bb43b7d2736ee}{led\+\_\+index}}
+\begin{DoxyCompactList}\small\item\em Index LED (0-\/72). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__command__t_a6465f3443696b28dbff862b0cd143257}{red}}
+\begin{DoxyCompactList}\small\item\em Cervena komponenta (0-\/255). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__command__t_ac0ef067ae80b28a440ca65558ff3a9e0}{green}}
+\begin{DoxyCompactList}\small\item\em Zelena komponenta (0-\/255). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__command__t_a79b80c2980e53738a06f92d305bba3a7}{blue}}
+\begin{DoxyCompactList}\small\item\em Modra komponenta (0-\/255). \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structled__command__t_a42fe1a9d7b5330a035a60be952b37dfc}{duration\+\_\+ms}}
+\begin{DoxyCompactList}\small\item\em Doba trvani efektu v milisekundach. \end{DoxyCompactList}\item 
+void \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structled__command__t_a8fb54529dc345b2f804899e68a519163}{data}}
+\begin{DoxyCompactList}\small\item\em Dodatecna data specifick pro prikaz. \end{DoxyCompactList}\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{structled__command__t_a4c27aa01b250ef21991565d3876cc24f}{response\+\_\+queue}}
+\begin{DoxyCompactList}\small\item\em Fronta pro poslani odpovedi. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Struktura LED prikazu. 
+
+Tato struktura obsahuje vsechny informace potrebne pro provedeni LED prikazu (barva, index, cas trvani, atd.). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00433}{433}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structled__command__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structled__command__t_a79b80c2980e53738a06f92d305bba3a7}\index{led\_command\_t@{led\_command\_t}!blue@{blue}}
+\index{blue@{blue}!led\_command\_t@{led\_command\_t}}
+\doxysubsubsection{\texorpdfstring{blue}{blue}}
+{\footnotesize\ttfamily \label{structled__command__t_a79b80c2980e53738a06f92d305bba3a7} 
+uint8\+\_\+t led\+\_\+command\+\_\+t\+::blue}
+
+
+
+Modra komponenta (0-\/255). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00438}{438}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__command__t_a8fb54529dc345b2f804899e68a519163}\index{led\_command\_t@{led\_command\_t}!data@{data}}
+\index{data@{data}!led\_command\_t@{led\_command\_t}}
+\doxysubsubsection{\texorpdfstring{data}{data}}
+{\footnotesize\ttfamily \label{structled__command__t_a8fb54529dc345b2f804899e68a519163} 
+void\texorpdfstring{$\ast$}{*} led\+\_\+command\+\_\+t\+::data}
+
+
+
+Dodatecna data specifick pro prikaz. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00440}{440}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__command__t_a42fe1a9d7b5330a035a60be952b37dfc}\index{led\_command\_t@{led\_command\_t}!duration\_ms@{duration\_ms}}
+\index{duration\_ms@{duration\_ms}!led\_command\_t@{led\_command\_t}}
+\doxysubsubsection{\texorpdfstring{duration\_ms}{duration\_ms}}
+{\footnotesize\ttfamily \label{structled__command__t_a42fe1a9d7b5330a035a60be952b37dfc} 
+uint32\+\_\+t led\+\_\+command\+\_\+t\+::duration\+\_\+ms}
+
+
+
+Doba trvani efektu v milisekundach. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00439}{439}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__command__t_ac0ef067ae80b28a440ca65558ff3a9e0}\index{led\_command\_t@{led\_command\_t}!green@{green}}
+\index{green@{green}!led\_command\_t@{led\_command\_t}}
+\doxysubsubsection{\texorpdfstring{green}{green}}
+{\footnotesize\ttfamily \label{structled__command__t_ac0ef067ae80b28a440ca65558ff3a9e0} 
+uint8\+\_\+t led\+\_\+command\+\_\+t\+::green}
+
+
+
+Zelena komponenta (0-\/255). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00437}{437}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__command__t_ae1ef770e3412d70be11bb43b7d2736ee}\index{led\_command\_t@{led\_command\_t}!led\_index@{led\_index}}
+\index{led\_index@{led\_index}!led\_command\_t@{led\_command\_t}}
+\doxysubsubsection{\texorpdfstring{led\_index}{led\_index}}
+{\footnotesize\ttfamily \label{structled__command__t_ae1ef770e3412d70be11bb43b7d2736ee} 
+uint8\+\_\+t led\+\_\+command\+\_\+t\+::led\+\_\+index}
+
+
+
+Index LED (0-\/72). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00435}{435}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__command__t_a6465f3443696b28dbff862b0cd143257}\index{led\_command\_t@{led\_command\_t}!red@{red}}
+\index{red@{red}!led\_command\_t@{led\_command\_t}}
+\doxysubsubsection{\texorpdfstring{red}{red}}
+{\footnotesize\ttfamily \label{structled__command__t_a6465f3443696b28dbff862b0cd143257} 
+uint8\+\_\+t led\+\_\+command\+\_\+t\+::red}
+
+
+
+Cervena komponenta (0-\/255). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00436}{436}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__command__t_a4c27aa01b250ef21991565d3876cc24f}\index{led\_command\_t@{led\_command\_t}!response\_queue@{response\_queue}}
+\index{response\_queue@{response\_queue}!led\_command\_t@{led\_command\_t}}
+\doxysubsubsection{\texorpdfstring{response\_queue}{response\_queue}}
+{\footnotesize\ttfamily \label{structled__command__t_a4c27aa01b250ef21991565d3876cc24f} 
+Queue\+Handle\+\_\+t led\+\_\+command\+\_\+t\+::response\+\_\+queue}
+
+
+
+Fronta pro poslani odpovedi. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00441}{441}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__command__t_a7665b1fa37b249a3377af43862c1040b}\index{led\_command\_t@{led\_command\_t}!type@{type}}
+\index{type@{type}!led\_command\_t@{led\_command\_t}}
+\doxysubsubsection{\texorpdfstring{type}{type}}
+{\footnotesize\ttfamily \label{structled__command__t_a7665b1fa37b249a3377af43862c1040b} 
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66d}{led\+\_\+command\+\_\+type\+\_\+t}} led\+\_\+command\+\_\+t\+::type}
+
+
+
+Typ LED prikazu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00434}{434}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{chess__types_8h}{chess\+\_\+types.\+h}}\end{DoxyCompactItemize}

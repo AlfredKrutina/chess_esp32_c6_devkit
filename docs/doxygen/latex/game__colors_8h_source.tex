@@ -1,0 +1,58 @@
+\doxysection{game\+\_\+colors.\+h}
+\hypertarget{game__colors_8h_source}{}\label{game__colors_8h_source}\index{game\_colors.h@{game\_colors.h}}
+\mbox{\hyperlink{game__colors_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00012}00012\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00013}00013\ \textcolor{preprocessor}{\#ifndef\ GAME\_COLORS\_H}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00014}00014\ \textcolor{preprocessor}{\#define\ GAME\_COLORS\_H}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ <stdarg.h>}\ \ \textcolor{comment}{//\ For\ va\_list\ support\ in\ helpers}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00019}00019\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00020}00020\ \textcolor{comment}{//\ BASIC\ ANSI\ ESCAPE\ SEQUENCES}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00021}00021\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00023}00023\ \textcolor{comment}{//\ Color\ codes}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00024}\mbox{\hyperlink{game__colors_8h_a7f026776e12ac1b5e7736c24b756085d}{00024}}\ \textcolor{preprocessor}{\#define\ ANSI\_RED\ \ \ \ \ "{}\(\backslash\)033[91m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00025}\mbox{\hyperlink{game__colors_8h_ad050fd71ced44460a0c723a1715c40e5}{00025}}\ \textcolor{preprocessor}{\#define\ ANSI\_GREEN\ \ \ "{}\(\backslash\)033[92m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00026}\mbox{\hyperlink{game__colors_8h_af6e8b5c7b35e8bff4c581efd8019c798}{00026}}\ \textcolor{preprocessor}{\#define\ ANSI\_YELLOW\ \ "{}\(\backslash\)033[93m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00027}\mbox{\hyperlink{game__colors_8h_a50a197ede59d7694515c3dad4557cf00}{00027}}\ \textcolor{preprocessor}{\#define\ ANSI\_BLUE\ \ \ \ "{}\(\backslash\)033[94m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00028}\mbox{\hyperlink{game__colors_8h_a8a9c0853e05b02c03acdfaab90f534c8}{00028}}\ \textcolor{preprocessor}{\#define\ ANSI\_MAGENTA\ "{}\(\backslash\)033[95m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00029}\mbox{\hyperlink{game__colors_8h_a8e74e295b54795a32a16ea744f6aed5e}{00029}}\ \textcolor{preprocessor}{\#define\ ANSI\_CYAN\ \ \ \ "{}\(\backslash\)033[96m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00030}\mbox{\hyperlink{game__colors_8h_a81a44be9e5e45edcb6be0d83133c1aa0}{00030}}\ \textcolor{preprocessor}{\#define\ ANSI\_GRAY\ \ \ \ "{}\(\backslash\)033[90m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00031}\mbox{\hyperlink{game__colors_8h_a141dae929732a29e6654ebc4741d6c93}{00031}}\ \textcolor{preprocessor}{\#define\ ANSI\_WHITE\ \ \ "{}\(\backslash\)033[97m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00033}00033\ \textcolor{comment}{//\ Text\ formatting}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00034}\mbox{\hyperlink{game__colors_8h_a46587b83544b8e9be045bb93f644ac82}{00034}}\ \textcolor{preprocessor}{\#define\ ANSI\_BOLD\ \ \ \ "{}\(\backslash\)033[1m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00035}\mbox{\hyperlink{game__colors_8h_a51fea81bd0f75dcc2fc1b341d9cc7958}{00035}}\ \textcolor{preprocessor}{\#define\ ANSI\_DIM\ \ \ \ \ "{}\(\backslash\)033[2m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00036}\mbox{\hyperlink{game__colors_8h_af77a445894f2f750d43cf2182cd29e55}{00036}}\ \textcolor{preprocessor}{\#define\ ANSI\_RESET\ \ \ "{}\(\backslash\)033[0m"{}}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00038}00038\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00039}00039\ \textcolor{comment}{//\ COMPOSITE\ FORMATTING\ MACROS}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00040}00040\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00046}\mbox{\hyperlink{game__colors_8h_a60d4e1d55cc7102123ffe5c3539ec165}{00046}}\ \textcolor{preprocessor}{\#define\ FMT\_ERROR(msg)\ \ \ ANSI\_RED\ ANSI\_BOLD\ msg\ ANSI\_RESET}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00047}00047\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00052}\mbox{\hyperlink{game__colors_8h_abd9912e75415821ab3192e7cf4542b6d}{00052}}\ \textcolor{preprocessor}{\#define\ FMT\_INFO(msg)\ \ \ \ ANSI\_YELLOW\ ANSI\_BOLD\ msg\ ANSI\_RESET}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00058}\mbox{\hyperlink{game__colors_8h_a3bfaa4ef17d08f922b975ab28af9b499}{00058}}\ \textcolor{preprocessor}{\#define\ FMT\_HINT(msg)\ \ \ \ ANSI\_GRAY\ msg\ ANSI\_RESET}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00064}\mbox{\hyperlink{game__colors_8h_a4c5526bcd50bcf745bcbebcd4bc1b1e4}{00064}}\ \textcolor{preprocessor}{\#define\ FMT\_DATA(msg)\ \ \ \ ANSI\_CYAN\ ANSI\_BOLD\ msg\ ANSI\_RESET}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00065}00065\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00066}00066\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00067}00067\ \textcolor{comment}{//\ COLOR\ CONTROL}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00068}00068\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00069}00069\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00074}00074\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{game__colors_8h_a922aae80bb2a95e80fc13e4badd82b2a}{g\_colors\_enabled}};}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00075}00075\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00085}\mbox{\hyperlink{game__colors_8h_ad8228dde623643def2b9c5f77bfe178f}{00085}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{game__colors_8h_ad8228dde623643def2b9c5f77bfe178f}{disable\_all\_colors}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00086}00086\ \ \ \ \ \textcolor{comment}{//\ Future:\ Could\ implement\ runtime\ color\ disable\ by}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00087}00087\ \ \ \ \ \textcolor{comment}{//\ redefining\ macros\ to\ empty\ strings}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00088}00088\ \ \ \ \ \mbox{\hyperlink{game__colors_8h_a922aae80bb2a95e80fc13e4badd82b2a}{g\_colors\_enabled}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00089}00089\ \}}
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00090}00090\ }
+\DoxyCodeLine{\Hypertarget{game__colors_8h_source_l00091}00091\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ GAME\_COLORS\_H}}
+
+\end{DoxyCode}

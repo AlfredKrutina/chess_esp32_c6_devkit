@@ -1,0 +1,232 @@
+\doxysection{Dokumentace struktury castling\+\_\+led\+\_\+config\+\_\+t}
+\hypertarget{structcastling__led__config__t}{}\label{structcastling__led__config__t}\index{castling\_led\_config\_t@{castling\_led\_config\_t}}
+
+
+LED konfigurace pro rosadu.  
+
+
+
+
+{\ttfamily \#include $<$enhanced\+\_\+castling\+\_\+system.\+h$>$}
+
+
+
+Diagram pro castling\+\_\+led\+\_\+config\+\_\+t\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=211pt]{structcastling__led__config__t__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+struct \{\\
+\>\mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}} \mbox{\hyperlink{structcastling__led__config__t_a1fe1b245d36f081d19965a5289f9f712}{king\_highlight}}\\
+\>\>{\em Zvyrazneni krale (zlata). }\\
+\>\mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}} \mbox{\hyperlink{structcastling__led__config__t_af99e940507d3ef2e8fb16664fd167360}{king\_destination}}\\
+\>\>{\em Cilove pole krale (zelena). }\\
+\>\mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}} \mbox{\hyperlink{structcastling__led__config__t_a82da172dc989a50b96d81778b283e067}{rook\_highlight}}\\
+\>\>{\em Zvyrazneni veze (stribrna). }\\
+\>\mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}} \mbox{\hyperlink{structcastling__led__config__t_acce48927878d078580e8acc3e47294dc}{rook\_destination}}\\
+\>\>{\em Cilove pole veze (modra). }\\
+\>\mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}} \mbox{\hyperlink{structcastling__led__config__t_aa84e4a577f5bc80b788921512546b748}{error\_indication}}\\
+\>\>{\em Chybove pole (cervena). }\\
+\>\mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}} \mbox{\hyperlink{structcastling__led__config__t_a09f718a9ce213215e3d661ffd636a879}{path\_guidance}}\\
+\>\>{\em Vedeni cesty (zluta). }\\
+\} \mbox{\hyperlink{structcastling__led__config__t_abb030c5d0841242d7878ae92a3ff6c31}{colors}}\\
+
+\end{tabbing}\begin{DoxyCompactList}\small\item\em Paleta barev pro rosadu. \end{DoxyCompactList}\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+struct \{\\
+\>uint32\_t \mbox{\hyperlink{structcastling__led__config__t_a94c260b9495c4ff37f896d47baea1f9a}{pulsing\_speed}}\\
+\>\>{\em Rychlost pulzovani. }\\
+\>uint32\_t \mbox{\hyperlink{structcastling__led__config__t_a6c699c147c9888fb2919a2fb790277a9}{guidance\_speed}}\\
+\>\>{\em Rychlost vedoucich animaci. }\\
+\>uint8\_t \mbox{\hyperlink{structcastling__led__config__t_a12575b4c400d92d567187cdf9b5127a8}{error\_flash\_count}}\\
+\>\>{\em Pocet chybovych bliknuti. }\\
+\>uint32\_t \mbox{\hyperlink{structcastling__led__config__t_a0478760a2694c3ca13222f3e64083b03}{completion\_celebration\_duration}}\\
+\>\>{\em Delka oslavne animace. }\\
+\} \mbox{\hyperlink{structcastling__led__config__t_a9126cd142c5d8a01981e4c13ae3fd62d}{timing}}\\
+
+\end{tabbing}\begin{DoxyCompactList}\small\item\em Casovani animaci. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+LED konfigurace pro rosadu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00104}{104}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structcastling__led__config__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structcastling__led__config__t_abb030c5d0841242d7878ae92a3ff6c31}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!colors@{colors}}
+\index{colors@{colors}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{[struct]}{[struct]}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_abb030c5d0841242d7878ae92a3ff6c31} 
+struct  \{ ... \}  castling\+\_\+led\+\_\+config\+\_\+t\+::colors}
+
+
+
+Paleta barev pro rosadu. 
+
+\Hypertarget{structcastling__led__config__t_a0478760a2694c3ca13222f3e64083b03}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!completion\_celebration\_duration@{completion\_celebration\_duration}}
+\index{completion\_celebration\_duration@{completion\_celebration\_duration}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{completion\_celebration\_duration}{completion\_celebration\_duration}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_a0478760a2694c3ca13222f3e64083b03} 
+uint32\+\_\+t castling\+\_\+led\+\_\+config\+\_\+t\+::completion\+\_\+celebration\+\_\+duration}
+
+
+
+Delka oslavne animace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00120}{120}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__led__config__t_a12575b4c400d92d567187cdf9b5127a8}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!error\_flash\_count@{error\_flash\_count}}
+\index{error\_flash\_count@{error\_flash\_count}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{error\_flash\_count}{error\_flash\_count}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_a12575b4c400d92d567187cdf9b5127a8} 
+uint8\+\_\+t castling\+\_\+led\+\_\+config\+\_\+t\+::error\+\_\+flash\+\_\+count}
+
+
+
+Pocet chybovych bliknuti. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00119}{119}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__led__config__t_aa84e4a577f5bc80b788921512546b748}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!error\_indication@{error\_indication}}
+\index{error\_indication@{error\_indication}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{error\_indication}{error\_indication}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_aa84e4a577f5bc80b788921512546b748} 
+\mbox{\hyperlink{structrgb__color__t}{rgb\+\_\+color\+\_\+t}} castling\+\_\+led\+\_\+config\+\_\+t\+::error\+\_\+indication}
+
+
+
+Chybove pole (cervena). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00111}{111}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__led__config__t_a6c699c147c9888fb2919a2fb790277a9}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!guidance\_speed@{guidance\_speed}}
+\index{guidance\_speed@{guidance\_speed}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{guidance\_speed}{guidance\_speed}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_a6c699c147c9888fb2919a2fb790277a9} 
+uint32\+\_\+t castling\+\_\+led\+\_\+config\+\_\+t\+::guidance\+\_\+speed}
+
+
+
+Rychlost vedoucich animaci. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00118}{118}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__led__config__t_af99e940507d3ef2e8fb16664fd167360}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!king\_destination@{king\_destination}}
+\index{king\_destination@{king\_destination}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{king\_destination}{king\_destination}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_af99e940507d3ef2e8fb16664fd167360} 
+\mbox{\hyperlink{structrgb__color__t}{rgb\+\_\+color\+\_\+t}} castling\+\_\+led\+\_\+config\+\_\+t\+::king\+\_\+destination}
+
+
+
+Cilove pole krale (zelena). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00108}{108}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__led__config__t_a1fe1b245d36f081d19965a5289f9f712}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!king\_highlight@{king\_highlight}}
+\index{king\_highlight@{king\_highlight}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{king\_highlight}{king\_highlight}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_a1fe1b245d36f081d19965a5289f9f712} 
+\mbox{\hyperlink{structrgb__color__t}{rgb\+\_\+color\+\_\+t}} castling\+\_\+led\+\_\+config\+\_\+t\+::king\+\_\+highlight}
+
+
+
+Zvyrazneni krale (zlata). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00107}{107}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__led__config__t_a09f718a9ce213215e3d661ffd636a879}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!path\_guidance@{path\_guidance}}
+\index{path\_guidance@{path\_guidance}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{path\_guidance}{path\_guidance}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_a09f718a9ce213215e3d661ffd636a879} 
+\mbox{\hyperlink{structrgb__color__t}{rgb\+\_\+color\+\_\+t}} castling\+\_\+led\+\_\+config\+\_\+t\+::path\+\_\+guidance}
+
+
+
+Vedeni cesty (zluta). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00112}{112}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__led__config__t_a94c260b9495c4ff37f896d47baea1f9a}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!pulsing\_speed@{pulsing\_speed}}
+\index{pulsing\_speed@{pulsing\_speed}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{pulsing\_speed}{pulsing\_speed}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_a94c260b9495c4ff37f896d47baea1f9a} 
+uint32\+\_\+t castling\+\_\+led\+\_\+config\+\_\+t\+::pulsing\+\_\+speed}
+
+
+
+Rychlost pulzovani. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00117}{117}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__led__config__t_acce48927878d078580e8acc3e47294dc}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!rook\_destination@{rook\_destination}}
+\index{rook\_destination@{rook\_destination}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{rook\_destination}{rook\_destination}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_acce48927878d078580e8acc3e47294dc} 
+\mbox{\hyperlink{structrgb__color__t}{rgb\+\_\+color\+\_\+t}} castling\+\_\+led\+\_\+config\+\_\+t\+::rook\+\_\+destination}
+
+
+
+Cilove pole veze (modra). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00110}{110}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__led__config__t_a82da172dc989a50b96d81778b283e067}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!rook\_highlight@{rook\_highlight}}
+\index{rook\_highlight@{rook\_highlight}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{rook\_highlight}{rook\_highlight}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_a82da172dc989a50b96d81778b283e067} 
+\mbox{\hyperlink{structrgb__color__t}{rgb\+\_\+color\+\_\+t}} castling\+\_\+led\+\_\+config\+\_\+t\+::rook\+\_\+highlight}
+
+
+
+Zvyrazneni veze (stribrna). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00109}{109}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__led__config__t_a9126cd142c5d8a01981e4c13ae3fd62d}\index{castling\_led\_config\_t@{castling\_led\_config\_t}!timing@{timing}}
+\index{timing@{timing}!castling\_led\_config\_t@{castling\_led\_config\_t}}
+\doxysubsubsection{\texorpdfstring{[struct]}{[struct]}}
+{\footnotesize\ttfamily \label{structcastling__led__config__t_a9126cd142c5d8a01981e4c13ae3fd62d} 
+struct  \{ ... \}  castling\+\_\+led\+\_\+config\+\_\+t\+::timing}
+
+
+
+Casovani animaci. 
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{enhanced__castling__system_8h}{enhanced\+\_\+castling\+\_\+system.\+h}}\end{DoxyCompactItemize}

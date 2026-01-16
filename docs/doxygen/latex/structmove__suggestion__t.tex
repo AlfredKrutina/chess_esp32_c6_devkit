@@ -1,0 +1,193 @@
+\doxysection{Dokumentace struktury move\+\_\+suggestion\+\_\+t}
+\hypertarget{structmove__suggestion__t}{}\label{structmove__suggestion__t}\index{move\_suggestion\_t@{move\_suggestion\_t}}
+
+
+Struktura navrhu tahu pro analyzu.  
+
+
+
+
+{\ttfamily \#include $<$chess\+\_\+types.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structmove__suggestion__t_a940eca031248f8df49031c483af30f13}{from\+\_\+row}}
+\begin{DoxyCompactList}\small\item\em Zdrojovy radek (0-\/7). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structmove__suggestion__t_a5805172608c1e85601ee674644b69fe7}{from\+\_\+col}}
+\begin{DoxyCompactList}\small\item\em Zdrojovy sloupec (0-\/7). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structmove__suggestion__t_a81af2edcc02d5fef8b48fb1c8fe22134}{to\+\_\+row}}
+\begin{DoxyCompactList}\small\item\em Cilovy radek (0-\/7). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structmove__suggestion__t_a68a17ae426e3f81008e87b1f92090935}{to\+\_\+col}}
+\begin{DoxyCompactList}\small\item\em Cilovy sloupec (0-\/7). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \mbox{\hyperlink{structmove__suggestion__t_a95bfdc4963cc77122f941663554a8a67}{piece}}
+\begin{DoxyCompactList}\small\item\em Figurka ktera se pohybuje. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structmove__suggestion__t_a58f2cd5416633410aebfa8f80320e3aa}{is\+\_\+capture}}
+\begin{DoxyCompactList}\small\item\em Je to sebrani? \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structmove__suggestion__t_a39763b8b278db010f5dfff7a4beb264a}{is\+\_\+check}}
+\begin{DoxyCompactList}\small\item\em Vyvola to sach? \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structmove__suggestion__t_aa9a5da748efa93feb7e3f7c4f06e7839}{is\+\_\+castling}}
+\begin{DoxyCompactList}\small\item\em Je to rosada? \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structmove__suggestion__t_a77114011b2edb38b0218c36ce67cf0e6}{is\+\_\+en\+\_\+passant}}
+\begin{DoxyCompactList}\small\item\em Je to en passant? \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{structmove__suggestion__t_a96c798a72d6ed66a18c8b2d1e840e604}{score}}
+\begin{DoxyCompactList}\small\item\em Skore tahu (pro AI evaluaci, vyssi = lepsi). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Struktura navrhu tahu pro analyzu. 
+
+Tato struktura obsahuje informace o navrženem tahu vcetne skore a specialnich vlastnosti (capture, check, rosada, en passant). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00573}{573}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structmove__suggestion__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structmove__suggestion__t_a5805172608c1e85601ee674644b69fe7}\index{move\_suggestion\_t@{move\_suggestion\_t}!from\_col@{from\_col}}
+\index{from\_col@{from\_col}!move\_suggestion\_t@{move\_suggestion\_t}}
+\doxysubsubsection{\texorpdfstring{from\_col}{from\_col}}
+{\footnotesize\ttfamily \label{structmove__suggestion__t_a5805172608c1e85601ee674644b69fe7} 
+uint8\+\_\+t move\+\_\+suggestion\+\_\+t\+::from\+\_\+col}
+
+
+
+Zdrojovy sloupec (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00575}{575}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmove__suggestion__t_a940eca031248f8df49031c483af30f13}\index{move\_suggestion\_t@{move\_suggestion\_t}!from\_row@{from\_row}}
+\index{from\_row@{from\_row}!move\_suggestion\_t@{move\_suggestion\_t}}
+\doxysubsubsection{\texorpdfstring{from\_row}{from\_row}}
+{\footnotesize\ttfamily \label{structmove__suggestion__t_a940eca031248f8df49031c483af30f13} 
+uint8\+\_\+t move\+\_\+suggestion\+\_\+t\+::from\+\_\+row}
+
+
+
+Zdrojovy radek (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00574}{574}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmove__suggestion__t_a58f2cd5416633410aebfa8f80320e3aa}\index{move\_suggestion\_t@{move\_suggestion\_t}!is\_capture@{is\_capture}}
+\index{is\_capture@{is\_capture}!move\_suggestion\_t@{move\_suggestion\_t}}
+\doxysubsubsection{\texorpdfstring{is\_capture}{is\_capture}}
+{\footnotesize\ttfamily \label{structmove__suggestion__t_a58f2cd5416633410aebfa8f80320e3aa} 
+bool move\+\_\+suggestion\+\_\+t\+::is\+\_\+capture}
+
+
+
+Je to sebrani? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00579}{579}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmove__suggestion__t_aa9a5da748efa93feb7e3f7c4f06e7839}\index{move\_suggestion\_t@{move\_suggestion\_t}!is\_castling@{is\_castling}}
+\index{is\_castling@{is\_castling}!move\_suggestion\_t@{move\_suggestion\_t}}
+\doxysubsubsection{\texorpdfstring{is\_castling}{is\_castling}}
+{\footnotesize\ttfamily \label{structmove__suggestion__t_aa9a5da748efa93feb7e3f7c4f06e7839} 
+bool move\+\_\+suggestion\+\_\+t\+::is\+\_\+castling}
+
+
+
+Je to rosada? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00581}{581}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmove__suggestion__t_a39763b8b278db010f5dfff7a4beb264a}\index{move\_suggestion\_t@{move\_suggestion\_t}!is\_check@{is\_check}}
+\index{is\_check@{is\_check}!move\_suggestion\_t@{move\_suggestion\_t}}
+\doxysubsubsection{\texorpdfstring{is\_check}{is\_check}}
+{\footnotesize\ttfamily \label{structmove__suggestion__t_a39763b8b278db010f5dfff7a4beb264a} 
+bool move\+\_\+suggestion\+\_\+t\+::is\+\_\+check}
+
+
+
+Vyvola to sach? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00580}{580}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmove__suggestion__t_a77114011b2edb38b0218c36ce67cf0e6}\index{move\_suggestion\_t@{move\_suggestion\_t}!is\_en\_passant@{is\_en\_passant}}
+\index{is\_en\_passant@{is\_en\_passant}!move\_suggestion\_t@{move\_suggestion\_t}}
+\doxysubsubsection{\texorpdfstring{is\_en\_passant}{is\_en\_passant}}
+{\footnotesize\ttfamily \label{structmove__suggestion__t_a77114011b2edb38b0218c36ce67cf0e6} 
+bool move\+\_\+suggestion\+\_\+t\+::is\+\_\+en\+\_\+passant}
+
+
+
+Je to en passant? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00582}{582}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmove__suggestion__t_a95bfdc4963cc77122f941663554a8a67}\index{move\_suggestion\_t@{move\_suggestion\_t}!piece@{piece}}
+\index{piece@{piece}!move\_suggestion\_t@{move\_suggestion\_t}}
+\doxysubsubsection{\texorpdfstring{piece}{piece}}
+{\footnotesize\ttfamily \label{structmove__suggestion__t_a95bfdc4963cc77122f941663554a8a67} 
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} move\+\_\+suggestion\+\_\+t\+::piece}
+
+
+
+Figurka ktera se pohybuje. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00578}{578}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmove__suggestion__t_a96c798a72d6ed66a18c8b2d1e840e604}\index{move\_suggestion\_t@{move\_suggestion\_t}!score@{score}}
+\index{score@{score}!move\_suggestion\_t@{move\_suggestion\_t}}
+\doxysubsubsection{\texorpdfstring{score}{score}}
+{\footnotesize\ttfamily \label{structmove__suggestion__t_a96c798a72d6ed66a18c8b2d1e840e604} 
+int move\+\_\+suggestion\+\_\+t\+::score}
+
+
+
+Skore tahu (pro AI evaluaci, vyssi = lepsi). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00583}{583}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmove__suggestion__t_a68a17ae426e3f81008e87b1f92090935}\index{move\_suggestion\_t@{move\_suggestion\_t}!to\_col@{to\_col}}
+\index{to\_col@{to\_col}!move\_suggestion\_t@{move\_suggestion\_t}}
+\doxysubsubsection{\texorpdfstring{to\_col}{to\_col}}
+{\footnotesize\ttfamily \label{structmove__suggestion__t_a68a17ae426e3f81008e87b1f92090935} 
+uint8\+\_\+t move\+\_\+suggestion\+\_\+t\+::to\+\_\+col}
+
+
+
+Cilovy sloupec (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00577}{577}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmove__suggestion__t_a81af2edcc02d5fef8b48fb1c8fe22134}\index{move\_suggestion\_t@{move\_suggestion\_t}!to\_row@{to\_row}}
+\index{to\_row@{to\_row}!move\_suggestion\_t@{move\_suggestion\_t}}
+\doxysubsubsection{\texorpdfstring{to\_row}{to\_row}}
+{\footnotesize\ttfamily \label{structmove__suggestion__t_a81af2edcc02d5fef8b48fb1c8fe22134} 
+uint8\+\_\+t move\+\_\+suggestion\+\_\+t\+::to\+\_\+row}
+
+
+
+Cilovy radek (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00576}{576}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{chess__types_8h}{chess\+\_\+types.\+h}}\end{DoxyCompactItemize}

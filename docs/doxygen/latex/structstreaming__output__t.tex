@@ -1,0 +1,127 @@
+\doxysection{Dokumentace struktury streaming\+\_\+output\+\_\+t}
+\hypertarget{structstreaming__output__t}{}\label{structstreaming__output__t}\index{streaming\_output\_t@{streaming\_output\_t}}
+
+
+Konfigurace streaming vystupu.  
+
+
+
+
+{\ttfamily \#include $<$streaming\+\_\+output.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454}{stream\+\_\+type\+\_\+t}} \mbox{\hyperlink{structstreaming__output__t_a895a5d5ffe995c94373720aa83bd6f24}{type}}
+\begin{DoxyCompactList}\small\item\em Typ vystupniho proudu. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{structstreaming__output__t_a0d62b26ed0234853854e4c89678bdedf}{uart\+\_\+port}}
+\begin{DoxyCompactList}\small\item\em Cislo UART portu (pro UART proudy). \end{DoxyCompactList}\item 
+void \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structstreaming__output__t_a4e343bdd2228d1d6b6ba12be90294f79}{web\+\_\+client}}
+\begin{DoxyCompactList}\small\item\em Handle web klienta (pro web proudy). \end{DoxyCompactList}\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{structstreaming__output__t_aca41fa5e6f2cf2ddf2d0693cdb71cbc9}{queue}}
+\begin{DoxyCompactList}\small\item\em Handle fronty (pro queue proudy). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structstreaming__output__t_a69827b451c4042f64dfccd148efd41b7}{auto\+\_\+flush}}
+\begin{DoxyCompactList}\small\item\em Automaticky flush po zapisu. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8}{stream\+\_\+line\+\_\+ending\+\_\+t}} \mbox{\hyperlink{structstreaming__output__t_a977a9f506e1525f07917df0db54ddf4f}{line\+\_\+ending}}
+\begin{DoxyCompactList}\small\item\em Typ konce radku. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Konfigurace streaming vystupu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00077}{77}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structstreaming__output__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structstreaming__output__t_a69827b451c4042f64dfccd148efd41b7}\index{streaming\_output\_t@{streaming\_output\_t}!auto\_flush@{auto\_flush}}
+\index{auto\_flush@{auto\_flush}!streaming\_output\_t@{streaming\_output\_t}}
+\doxysubsubsection{\texorpdfstring{auto\_flush}{auto\_flush}}
+{\footnotesize\ttfamily \label{structstreaming__output__t_a69827b451c4042f64dfccd148efd41b7} 
+bool streaming\+\_\+output\+\_\+t\+::auto\+\_\+flush}
+
+
+
+Automaticky flush po zapisu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00082}{82}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{structstreaming__output__t_a977a9f506e1525f07917df0db54ddf4f}\index{streaming\_output\_t@{streaming\_output\_t}!line\_ending@{line\_ending}}
+\index{line\_ending@{line\_ending}!streaming\_output\_t@{streaming\_output\_t}}
+\doxysubsubsection{\texorpdfstring{line\_ending}{line\_ending}}
+{\footnotesize\ttfamily \label{structstreaming__output__t_a977a9f506e1525f07917df0db54ddf4f} 
+\mbox{\hyperlink{streaming__output_8h_affdaded1b69ffceddaa030802cd994a8}{stream\+\_\+line\+\_\+ending\+\_\+t}} streaming\+\_\+output\+\_\+t\+::line\+\_\+ending}
+
+
+
+Typ konce radku. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00083}{83}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{structstreaming__output__t_aca41fa5e6f2cf2ddf2d0693cdb71cbc9}\index{streaming\_output\_t@{streaming\_output\_t}!queue@{queue}}
+\index{queue@{queue}!streaming\_output\_t@{streaming\_output\_t}}
+\doxysubsubsection{\texorpdfstring{queue}{queue}}
+{\footnotesize\ttfamily \label{structstreaming__output__t_aca41fa5e6f2cf2ddf2d0693cdb71cbc9} 
+Queue\+Handle\+\_\+t streaming\+\_\+output\+\_\+t\+::queue}
+
+
+
+Handle fronty (pro queue proudy). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00081}{81}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{structstreaming__output__t_a895a5d5ffe995c94373720aa83bd6f24}\index{streaming\_output\_t@{streaming\_output\_t}!type@{type}}
+\index{type@{type}!streaming\_output\_t@{streaming\_output\_t}}
+\doxysubsubsection{\texorpdfstring{type}{type}}
+{\footnotesize\ttfamily \label{structstreaming__output__t_a895a5d5ffe995c94373720aa83bd6f24} 
+\mbox{\hyperlink{streaming__output_8h_aebb40016c198e3e5e1f82c86929dc454}{stream\+\_\+type\+\_\+t}} streaming\+\_\+output\+\_\+t\+::type}
+
+
+
+Typ vystupniho proudu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00078}{78}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{structstreaming__output__t_a0d62b26ed0234853854e4c89678bdedf}\index{streaming\_output\_t@{streaming\_output\_t}!uart\_port@{uart\_port}}
+\index{uart\_port@{uart\_port}!streaming\_output\_t@{streaming\_output\_t}}
+\doxysubsubsection{\texorpdfstring{uart\_port}{uart\_port}}
+{\footnotesize\ttfamily \label{structstreaming__output__t_a0d62b26ed0234853854e4c89678bdedf} 
+int streaming\+\_\+output\+\_\+t\+::uart\+\_\+port}
+
+
+
+Cislo UART portu (pro UART proudy). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00079}{79}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{structstreaming__output__t_a4e343bdd2228d1d6b6ba12be90294f79}\index{streaming\_output\_t@{streaming\_output\_t}!web\_client@{web\_client}}
+\index{web\_client@{web\_client}!streaming\_output\_t@{streaming\_output\_t}}
+\doxysubsubsection{\texorpdfstring{web\_client}{web\_client}}
+{\footnotesize\ttfamily \label{structstreaming__output__t_a4e343bdd2228d1d6b6ba12be90294f79} 
+void\texorpdfstring{$\ast$}{*} streaming\+\_\+output\+\_\+t\+::web\+\_\+client}
+
+
+
+Handle web klienta (pro web proudy). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00080}{80}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{streaming__output_8h}{streaming\+\_\+output.\+h}}\end{DoxyCompactItemize}

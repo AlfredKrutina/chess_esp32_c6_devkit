@@ -1,0 +1,666 @@
+\doxysection{game\+\_\+led\+\_\+animations.\+c}
+\hypertarget{game__led__animations_8c_source}{}\label{game__led__animations_8c_source}\index{game\_led\_animations.c@{game\_led\_animations.c}}
+\mbox{\hyperlink{game__led__animations_8c}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00020}00020\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00021}00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{game__led__animations_8h}{game\_led\_animations.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00022}00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__task__simple_8h}{led\_task\_simple.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00023}00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__mapping_8h}{led\_mapping.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00024}00024\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}freertos/task.h"{}}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}freertos/timers.h"{}}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}esp\_log.h"{}}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00028}00028\ \textcolor{preprocessor}{\#include\ "{}esp\_timer.h"{}}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00029}00029\ \textcolor{preprocessor}{\#include\ <math.h>}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00030}00030\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00032}\mbox{\hyperlink{game__led__animations_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00032}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}}\ =\ \textcolor{stringliteral}{"{}GAME\_LED\_ANIMATIONS"{}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00034}00034\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00035}00035\ \textcolor{comment}{//\ GLOBÁLNÍ\ PROMĚNNÉ\ PRO\ ANIMACE}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00036}00036\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00038}00038\ \textcolor{comment}{//\ Stav\ animačního\ systému}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00039}\mbox{\hyperlink{game__led__animations_8c_a613683b2a29d20556b1ad11c52bdfdb9}{00039}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{game__led__animations_8c_a613683b2a29d20556b1ad11c52bdfdb9}{animation\_system\_active}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00040}\mbox{\hyperlink{game__led__animations_8c_a0ff12f065a2e5fbd5d81bff9fd425cbf}{00040}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{game__led__animations_8c_a0ff12f065a2e5fbd5d81bff9fd425cbf}{endgame\_animation\_running}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00041}\mbox{\hyperlink{game__led__animations_8c_a76483b95c5cbeaec7b68b61fdba3e1b0}{00041}}\ \textcolor{keyword}{static}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\_animation\_type\_t}}\ \mbox{\hyperlink{game__led__animations_8c_a76483b95c5cbeaec7b68b61fdba3e1b0}{current\_endgame\_animation}}\ =\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757}{ENDGAME\_ANIM\_VICTORY\_WAVE}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00042}\mbox{\hyperlink{game__led__animations_8c_abb6170c1df734838bc417eff360db75a}{00042}}\ \textcolor{keyword}{static}\ uint8\_t\ \mbox{\hyperlink{game__led__animations_8c_abb6170c1df734838bc417eff360db75a}{winning\_king\_position}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00044}00044\ \textcolor{comment}{//\ Timer\ pro\ animace}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00045}\mbox{\hyperlink{game__led__animations_8c_a43f6b3d51a255773c25e705a8df30eb2}{00045}}\ \textcolor{keyword}{static}\ TimerHandle\_t\ \mbox{\hyperlink{game__led__animations_8c_a43f6b3d51a255773c25e705a8df30eb2}{animation\_timer}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00046}\mbox{\hyperlink{game__led__animations_8c_ace720982d876787deb18d63449924dce}{00046}}\ \textcolor{keyword}{static}\ TimerHandle\_t\ \mbox{\hyperlink{game__led__animations_8c_ace720982d876787deb18d63449924dce}{subtle\_animation\_timer}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00047}00047\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00048}00048\ \textcolor{comment}{//\ Stav\ pro\ vlnovou\ animaci}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00049}\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{00049}}\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structwave__animation__state__t}{wave\_animation\_state\_t}}\ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00050}00050\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00051}00051\ \textcolor{comment}{//\ Jemné\ animace}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00052}\mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{00052}}\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structsubtle__animation__state__t}{subtle\_animation\_state\_t}}\ \mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}}[64]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00053}\mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{00053}}\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structsubtle__animation__state__t}{subtle\_animation\_state\_t}}\ \mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}}[9]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00054}00054\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00055}00055\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00056}00056\ \textcolor{comment}{//\ BARVY\ A\ PALETY\ PRO\ ANIMACE}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00057}00057\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00059}00059\ \textcolor{comment}{//\ Základní\ RGB\ barvy}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00060}\mbox{\hyperlink{game__led__animations_8c_a867cddabd2cfa07bb13afb8529f29378}{00060}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{uart__task_8c_ad86358bf19927183dd7b4ae215a29731}{COLOR\_RED}}\ =\ \{255,\ 0,\ 0\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00061}\mbox{\hyperlink{game__led__animations_8c_a9439369a6a8cbd157e2f327e3cb118ed}{00061}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{uart__task_8c_afc9149f5de51bd9ac4f5ebbfa153f018}{COLOR\_GREEN}}\ =\ \{0,\ 255,\ 0\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00062}\mbox{\hyperlink{game__led__animations_8c_a061e154b37b6f87ae92477358995ba95}{00062}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{uart__task_8c_a23c70d699a5a775bc2e1ebeb8603f630}{COLOR\_BLUE}}\ =\ \{0,\ 0,\ 255\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00063}\mbox{\hyperlink{game__led__animations_8c_ad35904f84034100fc638eba6afaa39a2}{00063}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{uart__task_8c_a4534b577b74a58b0f4b7be027af664e0}{COLOR\_YELLOW}}\ =\ \{255,\ 255,\ 0\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00064}\mbox{\hyperlink{game__led__animations_8c_a8ddfd053713152224b52e3ed2267be88}{00064}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{game__led__animations_8c_a8ddfd053713152224b52e3ed2267be88}{COLOR\_ORANGE}}\ =\ \{255,\ 165,\ 0\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00065}\mbox{\hyperlink{game__led__animations_8c_afdb7e8b9694b6a7dcfb76fb9bef5b572}{00065}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{game__led__animations_8c_afdb7e8b9694b6a7dcfb76fb9bef5b572}{COLOR\_PURPLE}}\ =\ \{128,\ 0,\ 128\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00066}\mbox{\hyperlink{game__led__animations_8c_ab4c3aaf13591bf876d0c3699c4eacca0}{00066}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{uart__task_8c_a9b44987ffdc2af19b635206b94334b69}{COLOR\_WHITE}}\ =\ \{255,\ 255,\ 255\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00067}\mbox{\hyperlink{game__led__animations_8c_a4216ddd7650cfba7cc15973e9509576c}{00067}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{game__led__animations_8c_a4216ddd7650cfba7cc15973e9509576c}{COLOR\_GOLD}}\ =\ \{255,\ 215,\ 0\};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00068}00068\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00069}00069\ \textcolor{comment}{//\ Palety\ pro\ vlnovou\ animaci}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00070}\mbox{\hyperlink{game__led__animations_8c_a564b17e3bc280df01e678c047bd222a1}{00070}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{game__led__animations_8c_a564b17e3bc280df01e678c047bd222a1}{wave\_blue\_palette}}[]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00071}00071\ \ \ \ \ \{0,\ 100,\ 255\},\ \ \ \ \textcolor{comment}{//\ Světle\ modrá}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00072}00072\ \ \ \ \ \{0,\ 150,\ 255\},\ \ \ \ \textcolor{comment}{//\ Modrá}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00073}00073\ \ \ \ \ \{0,\ 200,\ 255\},\ \ \ \ \textcolor{comment}{//\ Intenzivní\ modrá}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00074}00074\ \ \ \ \ \{100,\ 220,\ 255\},\ \ \textcolor{comment}{//\ Světlá\ modrá}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00075}00075\ \ \ \ \ \{0,\ 255,\ 255\}\ \ \ \ \ \textcolor{comment}{//\ Cyan}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00076}00076\ \};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00077}00077\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00078}\mbox{\hyperlink{game__led__animations_8c_a06640a5d84f366f00c51139f93704f21}{00078}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{game__led__animations_8c_a06640a5d84f366f00c51139f93704f21}{enemy\_red\_palette}}[]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00079}00079\ \ \ \ \ \{255,\ 0,\ 0\},\ \ \ \ \ \ \textcolor{comment}{//\ Červená}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00080}00080\ \ \ \ \ \{255,\ 50,\ 0\},\ \ \ \ \ \textcolor{comment}{//\ Oranžovo-\/červená}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00081}00081\ \ \ \ \ \{255,\ 100,\ 0\},\ \ \ \ \textcolor{comment}{//\ Oranžová}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00082}00082\ \ \ \ \ \{255,\ 150,\ 0\},\ \ \ \ \textcolor{comment}{//\ Světle\ oranžová}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00083}00083\ \ \ \ \ \{255,\ 200,\ 100\}\ \ \ \textcolor{comment}{//\ Krémová}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00084}00084\ \};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00085}00085\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00086}00086\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00087}00087\ \textcolor{comment}{//\ POMOCNÉ\ FUNKCE\ PRO\ BAREVNÉ\ PŘECHODY}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00088}00088\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00089}00089\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00101}\mbox{\hyperlink{game__led__animations_8c_a36f229bbda63818246ec86181b1fdd42}{00101}}\ \mbox{\hyperlink{game__led__animations_8c_a36f229bbda63818246ec86181b1fdd42}{\_\_attribute\_\_}}((unused))\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{unified__animation__manager_8c_a0e552d083d40a494e5bec582a329faac}{interpolate\_color}}(\mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ from,\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ to,\ \textcolor{keywordtype}{float}\ progress)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00102}00102\ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ result;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00103}00103\ \ \ \ \ result.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ =\ from.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ +\ (to.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ -\/\ from.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}})\ *\ progress;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00104}00104\ \ \ \ \ result.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ =\ from.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ +\ (to.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ -\/\ from.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}})\ *\ progress;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00105}00105\ \ \ \ \ result.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ =\ from.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ +\ (to.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ -\/\ from.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}})\ *\ progress;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00106}00106\ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00107}00107\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00108}00108\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00112}\mbox{\hyperlink{game__led__animations_8c_ae0c1dab4ee7a18e66fc96b45fe59e0c6}{00112}}\ \textcolor{keyword}{static}\ esp\_err\_t\ \mbox{\hyperlink{game__led__animations_8c_ae0c1dab4ee7a18e66fc96b45fe59e0c6}{apply\_color\_safe}}(uint8\_t\ led\_index,\ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ color)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00113}00113\ \ \ \ \ \textcolor{keywordflow}{if}\ (led\_index\ >=\ 73)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00114}00114\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Invalid\ LED\ index:\ \%d"{}},\ led\_index);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00115}00115\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00116}00116\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00117}00117\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00118}00118\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(led\_index,\ color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}},\ color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}},\ color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00119}00119\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00120}00120\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00124}\mbox{\hyperlink{game__led__animations_8c_a4dd115ab709bac86fcd837af7bc2c791}{00124}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{game__led__animations_8c_a4dd115ab709bac86fcd837af7bc2c791}{get\_board\_distance}}(uint8\_t\ pos1,\ uint8\_t\ pos2)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00125}00125\ \ \ \ \ uint8\_t\ row1,\ col1,\ row2,\ col2;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00126}00126\ \ \ \ \ \mbox{\hyperlink{led__mapping_8h_afa2f63d0405f6da06cdeceee60aaa9d7}{led\_index\_to\_chess\_pos}}(pos1,\ \&row1,\ \&col1);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00127}00127\ \ \ \ \ \mbox{\hyperlink{led__mapping_8h_afa2f63d0405f6da06cdeceee60aaa9d7}{led\_index\_to\_chess\_pos}}(pos2,\ \&row2,\ \&col2);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00128}00128\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00129}00129\ \ \ \ \ \textcolor{keywordtype}{float}\ dx\ =\ col2\ -\/\ col1;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00130}00130\ \ \ \ \ \textcolor{keywordtype}{float}\ dy\ =\ row2\ -\/\ row1;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00131}00131\ \ \ \ \ \textcolor{keywordflow}{return}\ sqrtf(dx*dx\ +\ dy*dy);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00132}00132\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00133}00133\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00134}00134\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00135}00135\ \textcolor{comment}{//\ ENDGAME\ ANIMACE\ -\/\ IMPLEMENTACE\ VŠECH\ 5\ TYPŮ}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00136}00136\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00137}00137\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00141}\mbox{\hyperlink{game__led__animations_8c_a30cf1a62ddf72a59e47db6c5a7d16bd3}{00141}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{game__led__animations_8c_a30cf1a62ddf72a59e47db6c5a7d16bd3}{endgame\_animation\_victory\_wave}}(uint32\_t\ frame)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00142}00142\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.frame\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00143}00143\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Inicializace\ vlny}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00144}00144\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.center\_pos\ =\ \mbox{\hyperlink{game__led__animations_8c_abb6170c1df734838bc417eff360db75a}{winning\_king\_position}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00145}00145\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.max\_radius\ =\ 10.0f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00146}00146\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.current\_radius\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00147}00147\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.wave\_speed\ =\ 0.3f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00148}00148\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.active\_waves\ =\ 3;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00149}00149\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00150}00150\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{game__led__animations_8h_a1767d604401a9b047932166494ed7b9e}{MAX\_WAVES}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00151}00151\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.waves[i].radius\ =\ -\/2.0f\ *\ i;\ \textcolor{comment}{//\ Postupné\ spouštění\ vln}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00152}00152\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.waves[i].active\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00153}00153\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00154}00154\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00155}00155\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🌊\ Victory\ Wave\ animation\ started\ from\ position\ \%d"{}},\ \mbox{\hyperlink{game__led__animations_8c_abb6170c1df734838bc417eff360db75a}{winning\_king\_position}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00156}00156\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00157}00157\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00158}00158\ \ \ \ \ \textcolor{comment}{//\ Aktualizace\ všech\ vln}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00159}00159\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ wave\_idx\ =\ 0;\ wave\_idx\ <\ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.active\_waves;\ wave\_idx++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00160}00160\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.waves[wave\_idx].active)\ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00161}00161\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00162}00162\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.waves[wave\_idx].radius\ +=\ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.wave\_speed;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00163}00163\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00164}00164\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Vlna\ je\ aktivní\ pouze\ pokud\ má\ pozitivní\ rádius}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00165}00165\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.waves[wave\_idx].radius\ <\ 0)\ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00166}00166\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00167}00167\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Aplikace\ vlny\ na\ LED}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00168}00168\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ led\ =\ 0;\ led\ <\ 64;\ led++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00169}00169\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ distance\ =\ \mbox{\hyperlink{game__led__animations_8c_a4dd115ab709bac86fcd837af7bc2c791}{get\_board\_distance}}(\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.center\_pos,\ led);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00170}00170\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ wave\_radius\ =\ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.waves[wave\_idx].radius;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00171}00171\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00172}00172\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Kontrola\ zda\ je\ LED\ v\ dosahu\ vlny}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (distance\ >=\ wave\_radius\ -\/\ 0.5f\ \&\&\ distance\ <=\ wave\_radius\ +\ 0.5f)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00174}00174\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ wave\_color;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00176}00176\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ Zde\ by\ měla\ být\ kontrola\ zda\ je\ na\ pozici\ nepřátelská\ figurka}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ enemy\_piece\_here\ =\ \textcolor{keyword}{false};\ \textcolor{comment}{//\ Placeholder\ -\/\ implementovat\ podle\ game\ stavu}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (enemy\_piece\_here)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Použij\ červenou\ paletu\ pro\ nepřátelské\ figurky}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ palette\_idx\ =\ wave\_idx\ \%\ (\textcolor{keyword}{sizeof}(\mbox{\hyperlink{game__led__animations_8c_a06640a5d84f366f00c51139f93704f21}{enemy\_red\_palette}})\ /\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{game__led__animations_8c_a06640a5d84f366f00c51139f93704f21}{enemy\_red\_palette}}[0]));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00182}00182\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ wave\_color\ =\ \mbox{\hyperlink{game__led__animations_8c_a06640a5d84f366f00c51139f93704f21}{enemy\_red\_palette}}[palette\_idx];}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Použij\ modrou\ paletu\ pro\ normální\ vlnu}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00185}00185\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ palette\_idx\ =\ wave\_idx\ \%\ (\textcolor{keyword}{sizeof}(\mbox{\hyperlink{game__led__animations_8c_a564b17e3bc280df01e678c047bd222a1}{wave\_blue\_palette}})\ /\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{game__led__animations_8c_a564b17e3bc280df01e678c047bd222a1}{wave\_blue\_palette}}[0]));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00186}00186\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ wave\_color\ =\ \mbox{\hyperlink{game__led__animations_8c_a564b17e3bc280df01e678c047bd222a1}{wave\_blue\_palette}}[palette\_idx];}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00187}00187\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00188}00188\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Fade\ efekt\ pro\ hezčí\ vlnu}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ fade\ =\ 1.0f\ -\/\ fabsf(distance\ -\/\ wave\_radius)\ /\ 0.5f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ wave\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ *=\ fade;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ wave\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ *=\ fade;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00193}00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ wave\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ *=\ fade;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00195}00195\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ae0c1dab4ee7a18e66fc96b45fe59e0c6}{apply\_color\_safe}}(led,\ wave\_color);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00196}00196\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00197}00197\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00198}00198\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00199}00199\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Deaktivace\ vlny\ pokud\ je\ mimo\ board}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00200}00200\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.waves[wave\_idx].radius\ >\ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.max\_radius)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00201}00201\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.waves[wave\_idx].active\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00202}00202\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00203}00203\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00204}00204\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00205}00205\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.frame++;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00206}00206\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00207}00207\ \ \ \ \ \textcolor{comment}{//\ Restart\ animace\ když\ všechny\ vlny\ dorazily\ na\ okraj}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00208}00208\ \ \ \ \ \textcolor{keywordtype}{bool}\ any\_active\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00209}00209\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.active\_waves;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00210}00210\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.waves[i].active)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00211}00211\ \ \ \ \ \ \ \ \ \ \ \ \ any\_active\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00212}00212\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00213}00213\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00214}00214\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00215}00215\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00216}00216\ \ \ \ \ \textcolor{keywordflow}{if}\ (!any\_active)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00217}00217\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Restart\ s\ malým\ zpožděním}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00218}00218\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}.frame\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00219}00219\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00220}00220\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00221}00221\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00222}00222\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00226}\mbox{\hyperlink{game__led__animations_8c_a769b87cd1cca43fe03922727d6b1378b}{00226}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{game__led__animations_8c_a769b87cd1cca43fe03922727d6b1378b}{endgame\_animation\_victory\_circles}}(uint32\_t\ frame)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00227}00227\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{float}\ circle\_radius\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00228}00228\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ circle\_phase\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00229}00229\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00230}00230\ \ \ \ \ \textcolor{comment}{//\ Vyčisti\ board}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00231}00231\ \ \ \ \ \mbox{\hyperlink{led__task_8h_afff280b4c9b7261d1a086e0cfa356604}{led\_clear\_all\_safe}}();}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00232}00232\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00233}00233\ \ \ \ \ circle\_radius\ +=\ 0.2f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00234}00234\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00235}00235\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ led\ =\ 0;\ led\ <\ 64;\ led++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00236}00236\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ distance\ =\ \mbox{\hyperlink{game__led__animations_8c_a4dd115ab709bac86fcd837af7bc2c791}{get\_board\_distance}}(\mbox{\hyperlink{game__led__animations_8c_abb6170c1df734838bc417eff360db75a}{winning\_king\_position}},\ led);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00237}00237\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00238}00238\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Několik\ kruhů\ s\ různými\ fázemi}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00239}00239\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ c\ =\ 0;\ c\ <\ 3;\ c++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ circle\_r\ =\ circle\_radius\ -\/\ c\ *\ 1.5f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00241}00241\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (circle\_r\ <=\ 0)\ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00242}00242\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00243}00243\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (fabsf(distance\ -\/\ circle\_r)\ <\ 0.7f)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00244}00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ color\ =\ \mbox{\hyperlink{game__led__animations_8c_a4216ddd7650cfba7cc15973e9509576c}{COLOR\_GOLD}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Různé\ barvy\ pro\ různé\ kruhy}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (c)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 0:\ color\ =\ \mbox{\hyperlink{game__led__animations_8c_a4216ddd7650cfba7cc15973e9509576c}{COLOR\_GOLD}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 1:\ color\ =\ \mbox{\hyperlink{game__led__animations_8c_a8ddfd053713152224b52e3ed2267be88}{COLOR\_ORANGE}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00250}00250\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 2:\ color\ =\ \mbox{\hyperlink{uart__task_8c_a4534b577b74a58b0f4b7be027af664e0}{COLOR\_YELLOW}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00251}00251\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00252}00252\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00253}00253\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Fade\ efekt}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00254}00254\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ fade\ =\ 1.0f\ -\/\ fabsf(distance\ -\/\ circle\_r)\ /\ 0.7f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ *=\ fade;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00256}00256\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ *=\ fade;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00257}00257\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ *=\ fade;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00259}00259\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ae0c1dab4ee7a18e66fc96b45fe59e0c6}{apply\_color\_safe}}(led,\ color);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00260}00260\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00261}00261\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00262}00262\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00263}00263\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00264}00264\ \ \ \ \ \textcolor{comment}{//\ Reset\ když\ kruhy\ dorazí\ na\ okraj}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00265}00265\ \ \ \ \ \textcolor{keywordflow}{if}\ (circle\_radius\ >\ 10.0f)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00266}00266\ \ \ \ \ \ \ \ \ circle\_radius\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00267}00267\ \ \ \ \ \ \ \ \ circle\_phase++;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00268}00268\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00269}00269\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00270}00270\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00271}00271\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00275}\mbox{\hyperlink{game__led__animations_8c_a4f47ddefd68242ce100d748cc7493aff}{00275}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{game__led__animations_8c_a4f47ddefd68242ce100d748cc7493aff}{endgame\_animation\_victory\_cascade}}(uint32\_t\ frame)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00276}00276\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ cascade\_row\ =\ 7;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00277}00277\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ cascade\_phase\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00278}00278\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00279}00279\ \ \ \ \ \textcolor{comment}{//\ Aplikuj\ kaskádu\ řádek\ po\ řádku}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00280}00280\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ col\ =\ 0;\ col\ <\ 8;\ col++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00281}00281\ \ \ \ \ \ \ \ \ uint8\_t\ led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(cascade\_row,\ col);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00282}00282\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00283}00283\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ cascade\_color;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00284}00284\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (cascade\_phase\ \%\ 3)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00285}00285\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 0:\ cascade\_color\ =\ \mbox{\hyperlink{game__led__animations_8c_afdb7e8b9694b6a7dcfb76fb9bef5b572}{COLOR\_PURPLE}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00286}00286\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 1:\ cascade\_color\ =\ \mbox{\hyperlink{uart__task_8c_a23c70d699a5a775bc2e1ebeb8603f630}{COLOR\_BLUE}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00287}00287\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 2:\ cascade\_color\ =\ \mbox{\hyperlink{uart__task_8c_a9b44987ffdc2af19b635206b94334b69}{COLOR\_WHITE}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00288}00288\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00289}00289\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00290}00290\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ae0c1dab4ee7a18e66fc96b45fe59e0c6}{apply\_color\_safe}}(led,\ cascade\_color);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00291}00291\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00292}00292\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00293}00293\ \ \ \ \ \textcolor{comment}{//\ Pohni\ se\ na\ další\ řádek}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00294}00294\ \ \ \ \ cascade\_row-\/-\/;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00295}00295\ \ \ \ \ \textcolor{keywordflow}{if}\ (cascade\_row\ <\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00296}00296\ \ \ \ \ \ \ \ \ cascade\_row\ =\ 7;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00297}00297\ \ \ \ \ \ \ \ \ cascade\_phase++;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00298}00298\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00299}00299\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Vyčisti\ board\ mezi\ fázemi}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00300}00300\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_afff280b4c9b7261d1a086e0cfa356604}{led\_clear\_all\_safe}}();}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00301}00301\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(300));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00302}00302\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00303}00303\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00304}00304\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00308}\mbox{\hyperlink{game__led__animations_8c_ab31da73e7fa32113a7c05f187bb9468f}{00308}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{game__led__animations_8c_ab31da73e7fa32113a7c05f187bb9468f}{endgame\_animation\_victory\_fireworks}}(uint32\_t\ frame)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00309}00309\ \ \ \ \ \textcolor{keyword}{static}\ \mbox{\hyperlink{structfirework__t}{firework\_t}}\ fireworks[\mbox{\hyperlink{game__led__animations_8h_ad146c422c93828b517dc1801a40ca01f}{MAX\_FIREWORKS}}];}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00310}00310\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ fireworks\_initialized\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00311}00311\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00312}00312\ \ \ \ \ \textcolor{keywordflow}{if}\ (!fireworks\_initialized)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00313}00313\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Inicializace\ ohňostrojů}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00314}00314\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{game__led__animations_8h_ad146c422c93828b517dc1801a40ca01f}{MAX\_FIREWORKS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00315}00315\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[i].\mbox{\hyperlink{structfirework__t_a81ca0f04b4c781a1f799eb96a3395009}{center\_x}}\ =\ rand()\ \%\ 8;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00316}00316\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[i].\mbox{\hyperlink{structfirework__t_a37330f2a3b0e7da717cfccb0912b8cfd}{center\_y}}\ =\ rand()\ \%\ 8;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00317}00317\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[i].\mbox{\hyperlink{structfirework__t_a25ee75b0312399808b4c1aa7d36cdacb}{radius}}\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00318}00318\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[i].\mbox{\hyperlink{structfirework__t_a6ed1b298267dbca24bf65e40f7661b24}{max\_radius}}\ =\ 2.0f\ +\ (rand()\ \%\ 3);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00319}00319\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[i].\mbox{\hyperlink{structfirework__t_a01940dbfdce44ef9a569aaa7820353fd}{color\_idx}}\ =\ rand()\ \%\ 3;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00320}00320\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[i].\mbox{\hyperlink{structfirework__t_ab8dfb88348a42289cd5ce7a31b40c77b}{active}}\ =\ (i\ ==\ 0);\ \textcolor{comment}{//\ Spusť\ první\ ohňostroj}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00321}00321\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[i].\mbox{\hyperlink{structfirework__t_accc9b17020e87c721a531237aa0b78c3}{delay}}\ =\ i\ *\ 10;\ \textcolor{comment}{//\ Postupné\ spouštění}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00322}00322\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00323}00323\ \ \ \ \ \ \ \ \ fireworks\_initialized\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00324}00324\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00325}00325\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00326}00326\ \ \ \ \ \textcolor{comment}{//\ Vyčisti\ board}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00327}00327\ \ \ \ \ \mbox{\hyperlink{led__task_8h_afff280b4c9b7261d1a086e0cfa356604}{led\_clear\_all\_safe}}();}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00328}00328\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00329}00329\ \ \ \ \ \textcolor{comment}{//\ Aktualizace\ ohňostrojů}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00330}00330\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ f\ =\ 0;\ f\ <\ \mbox{\hyperlink{game__led__animations_8h_ad146c422c93828b517dc1801a40ca01f}{MAX\_FIREWORKS}};\ f++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00331}00331\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!fireworks[f].active)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00332}00332\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Aktivace\ s\ zpožděním}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00333}00333\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (fireworks[f].delay\ >\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00334}00334\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[f].\mbox{\hyperlink{structfirework__t_accc9b17020e87c721a531237aa0b78c3}{delay}}-\/-\/;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00335}00335\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (fireworks[f].radius\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00336}00336\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[f].\mbox{\hyperlink{structfirework__t_ab8dfb88348a42289cd5ce7a31b40c77b}{active}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00337}00337\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00338}00338\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00339}00339\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00340}00340\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00341}00341\ \ \ \ \ \ \ \ \ fireworks[f].\mbox{\hyperlink{structfirework__t_a25ee75b0312399808b4c1aa7d36cdacb}{radius}}\ +=\ 0.15f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00342}00342\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00343}00343\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Vykreslení\ ohňostroje}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00344}00344\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ led\ =\ 0;\ led\ <\ 64;\ led++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00345}00345\ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ led\_x,\ led\_y;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00346}00346\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__mapping_8h_afa2f63d0405f6da06cdeceee60aaa9d7}{led\_index\_to\_chess\_pos}}(led,\ \&led\_y,\ \&led\_x);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00347}00347\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00348}00348\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ dx\ =\ led\_x\ -\/\ fireworks[f].\mbox{\hyperlink{structfirework__t_a81ca0f04b4c781a1f799eb96a3395009}{center\_x}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00349}00349\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ dy\ =\ led\_y\ -\/\ fireworks[f].\mbox{\hyperlink{structfirework__t_a37330f2a3b0e7da717cfccb0912b8cfd}{center\_y}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00350}00350\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ distance\ =\ sqrtf(dx*dx\ +\ dy*dy);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00351}00351\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00352}00352\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (fabsf(distance\ -\/\ fireworks[f].radius)\ <\ 0.8f)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00353}00353\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ firework\_color;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00354}00354\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (fireworks[f].color\_idx)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00355}00355\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 0:\ firework\_color\ =\ \mbox{\hyperlink{uart__task_8c_ad86358bf19927183dd7b4ae215a29731}{COLOR\_RED}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00356}00356\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 1:\ firework\_color\ =\ \mbox{\hyperlink{uart__task_8c_afc9149f5de51bd9ac4f5ebbfa153f018}{COLOR\_GREEN}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00357}00357\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 2:\ firework\_color\ =\ \mbox{\hyperlink{uart__task_8c_a23c70d699a5a775bc2e1ebeb8603f630}{COLOR\_BLUE}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00358}00358\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:\ firework\_color\ =\ \mbox{\hyperlink{uart__task_8c_a9b44987ffdc2af19b635206b94334b69}{COLOR\_WHITE}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00359}00359\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00360}00360\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00361}00361\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Fade\ efekt}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00362}00362\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ fade\ =\ 1.0f\ -\/\ (fireworks[f].\mbox{\hyperlink{structfirework__t_a25ee75b0312399808b4c1aa7d36cdacb}{radius}}\ /\ fireworks[f].\mbox{\hyperlink{structfirework__t_a6ed1b298267dbca24bf65e40f7661b24}{max\_radius}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00363}00363\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ firework\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ *=\ fade;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00364}00364\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ firework\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ *=\ fade;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00365}00365\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ firework\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ *=\ fade;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00366}00366\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00367}00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ae0c1dab4ee7a18e66fc96b45fe59e0c6}{apply\_color\_safe}}(led,\ firework\_color);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00368}00368\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00369}00369\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00370}00370\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00371}00371\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Deaktivace\ když\ ohňostroj\ dorazí\ na\ maximum}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00372}00372\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (fireworks[f].radius\ >\ fireworks[f].max\_radius)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00373}00373\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[f].\mbox{\hyperlink{structfirework__t_ab8dfb88348a42289cd5ce7a31b40c77b}{active}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00374}00374\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[f].\mbox{\hyperlink{structfirework__t_a25ee75b0312399808b4c1aa7d36cdacb}{radius}}\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00375}00375\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00376}00376\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Restart\ s\ novými\ parametry}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00377}00377\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[f].\mbox{\hyperlink{structfirework__t_a81ca0f04b4c781a1f799eb96a3395009}{center\_x}}\ =\ rand()\ \%\ 8;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00378}00378\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[f].\mbox{\hyperlink{structfirework__t_a37330f2a3b0e7da717cfccb0912b8cfd}{center\_y}}\ =\ rand()\ \%\ 8;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00379}00379\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[f].\mbox{\hyperlink{structfirework__t_a6ed1b298267dbca24bf65e40f7661b24}{max\_radius}}\ =\ 2.0f\ +\ (rand()\ \%\ 3);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00380}00380\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[f].\mbox{\hyperlink{structfirework__t_a01940dbfdce44ef9a569aaa7820353fd}{color\_idx}}\ =\ rand()\ \%\ 3;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00381}00381\ \ \ \ \ \ \ \ \ \ \ \ \ fireworks[f].\mbox{\hyperlink{structfirework__t_accc9b17020e87c721a531237aa0b78c3}{delay}}\ =\ rand()\ \%\ 30;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00382}00382\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00383}00383\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00384}00384\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00385}00385\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00389}\mbox{\hyperlink{game__led__animations_8c_a9ca82a56a74ac5dc7ffa31f24b5d57fe}{00389}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{game__led__animations_8c_a9ca82a56a74ac5dc7ffa31f24b5d57fe}{endgame\_animation\_victory\_crown}}(uint32\_t\ frame)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00390}00390\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ crown\_phase\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00391}00391\ \ \ \ \ \textcolor{comment}{//\ Crown\ pattern\ -\/\ calculated\ at\ runtime\ due\ to\ serpentine\ layout}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00392}00392\ \ \ \ \ uint8\_t\ crown\_pattern[21];}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00393}00393\ \ \ \ \ crown\_pattern[0]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(7,\ 0);\ crown\_pattern[1]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(7,\ 1);\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00394}00394\ \ \ \ \ crown\_pattern[2]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(7,\ 2);\ crown\_pattern[3]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(7,\ 3);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00395}00395\ \ \ \ \ crown\_pattern[4]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(7,\ 4);\ crown\_pattern[5]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(7,\ 5);\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00396}00396\ \ \ \ \ crown\_pattern[6]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(7,\ 6);\ crown\_pattern[7]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(7,\ 7);\ \ \textcolor{comment}{//\ Horní\ řádek}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00397}00397\ \ \ \ \ crown\_pattern[8]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(6,\ 1);\ crown\_pattern[9]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(6,\ 3);\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00398}00398\ \ \ \ \ crown\_pattern[10]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(6,\ 5);\ crown\_pattern[11]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(6,\ 7);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00399}00399\ \ \ \ \ crown\_pattern[12]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(6,\ 1);\ crown\_pattern[13]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(6,\ 3);\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00400}00400\ \ \ \ \ crown\_pattern[14]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(6,\ 5);\ \ \textcolor{comment}{//\ Vrcholky\ korunky}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00401}00401\ \ \ \ \ crown\_pattern[15]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(5,\ 1);\ crown\_pattern[16]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(5,\ 2);\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00402}00402\ \ \ \ \ crown\_pattern[17]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(5,\ 3);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00403}00403\ \ \ \ \ crown\_pattern[18]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(5,\ 4);\ crown\_pattern[19]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(5,\ 5);\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00404}00404\ \ \ \ \ crown\_pattern[20]\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(5,\ 6);\ \ \ \textcolor{comment}{//\ Spodek\ korunky}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00405}00405\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00406}00406\ \ \ \ \ \textcolor{comment}{//\ Vyčisti\ board}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00407}00407\ \ \ \ \ \mbox{\hyperlink{led__task_8h_afff280b4c9b7261d1a086e0cfa356604}{led\_clear\_all\_safe}}();}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00408}00408\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00409}00409\ \ \ \ \ \textcolor{comment}{//\ Nakreslí\ korunku\ postupně}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00410}00410\ \ \ \ \ \textcolor{keywordtype}{int}\ crown\_size\ =\ \textcolor{keyword}{sizeof}(crown\_pattern)\ /\ \textcolor{keyword}{sizeof}(crown\_pattern[0]);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00411}00411\ \ \ \ \ \textcolor{keywordtype}{int}\ visible\_parts\ =\ (frame\ /\ 3)\ \%\ (crown\_size\ +\ 10);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00412}00412\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00413}00413\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ visible\_parts\ \&\&\ i\ <\ crown\_size;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00414}00414\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ crown\_color;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00415}00415\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00416}00416\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Různé\ barvy\ podle\ fáze}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00417}00417\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (crown\_phase\ \%\ 4)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00418}00418\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 0:\ crown\_color\ =\ \mbox{\hyperlink{game__led__animations_8c_a4216ddd7650cfba7cc15973e9509576c}{COLOR\_GOLD}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00419}00419\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 1:\ crown\_color\ =\ \mbox{\hyperlink{uart__task_8c_a4534b577b74a58b0f4b7be027af664e0}{COLOR\_YELLOW}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00420}00420\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 2:\ crown\_color\ =\ \mbox{\hyperlink{game__led__animations_8c_a8ddfd053713152224b52e3ed2267be88}{COLOR\_ORANGE}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00421}00421\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 3:\ crown\_color\ =\ \mbox{\hyperlink{uart__task_8c_a9b44987ffdc2af19b635206b94334b69}{COLOR\_WHITE}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00422}00422\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00423}00423\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00424}00424\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Blikání\ pro\ dramatický\ efekt}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00425}00425\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((frame\ /\ 5)\ \%\ 2\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00426}00426\ \ \ \ \ \ \ \ \ \ \ \ \ crown\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ =\ crown\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ *\ 0.7f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00427}00427\ \ \ \ \ \ \ \ \ \ \ \ \ crown\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ =\ crown\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ *\ 0.7f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00428}00428\ \ \ \ \ \ \ \ \ \ \ \ \ crown\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ =\ crown\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ *\ 0.7f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00429}00429\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00430}00430\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00431}00431\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ae0c1dab4ee7a18e66fc96b45fe59e0c6}{apply\_color\_safe}}(crown\_pattern[i],\ crown\_color);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00432}00432\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00433}00433\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00434}00434\ \ \ \ \ \textcolor{comment}{//\ Změna\ fáze}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00435}00435\ \ \ \ \ \textcolor{keywordflow}{if}\ (visible\_parts\ >=\ crown\_size)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00436}00436\ \ \ \ \ \ \ \ \ crown\_phase++;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00437}00437\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00438}00438\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00439}00439\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00440}00440\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00441}00441\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00442}00442\ \textcolor{comment}{//\ JEMNÉ\ ANIMACE\ PRO\ FIGURKY\ A\ TLAČÍTKA}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00443}00443\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00444}00444\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00448}\mbox{\hyperlink{game__led__animations_8c_ac3099afed7bffbea6eaba00603a015a9}{00448}}\ esp\_err\_t\ \mbox{\hyperlink{game__led__animations_8c_ac3099afed7bffbea6eaba00603a015a9}{start\_subtle\_piece\_animation}}(uint8\_t\ piece\_position,\ \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08}{subtle\_anim\_type\_t}}\ anim\_type)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00449}00449\ \ \ \ \ \textcolor{keywordflow}{if}\ (piece\_position\ >=\ 64)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00450}00450\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00451}00451\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00452}00452\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00453}00453\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}}[piece\_position].active\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00454}00454\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}}[piece\_position].type\ =\ anim\_type;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00455}00455\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}}[piece\_position].frame\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00456}00456\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}}[piece\_position].base\_color\ =\ \mbox{\hyperlink{uart__task_8c_a4534b577b74a58b0f4b7be027af664e0}{COLOR\_YELLOW}};\ \textcolor{comment}{//\ Základní\ barva\ pro\ pohyblivé\ figurky}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00457}00457\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00458}00458\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Started\ subtle\ animation\ for\ piece\ at\ \%d,\ type\ \%d"{}},\ piece\_position,\ anim\_type);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00459}00459\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00460}00460\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00461}00461\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00465}\mbox{\hyperlink{game__led__animations_8c_abb3b14cd5eb31a70450c0a404902e4e0}{00465}}\ esp\_err\_t\ \mbox{\hyperlink{game__led__animations_8c_abb3b14cd5eb31a70450c0a404902e4e0}{start\_subtle\_button\_animation}}(uint8\_t\ button\_id,\ \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08}{subtle\_anim\_type\_t}}\ anim\_type)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00466}00466\ \ \ \ \ \textcolor{keywordflow}{if}\ (button\_id\ >=\ 9)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00467}00467\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00468}00468\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00469}00469\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00470}00470\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}}[button\_id].active\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00471}00471\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}}[button\_id].type\ =\ anim\_type;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00472}00472\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}}[button\_id].frame\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00473}00473\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}}[button\_id].base\_color\ =\ \mbox{\hyperlink{uart__task_8c_afc9149f5de51bd9ac4f5ebbfa153f018}{COLOR\_GREEN}};\ \textcolor{comment}{//\ Základní\ barva\ pro\ dostupná\ tlačítka}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00474}00474\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00475}00475\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Started\ subtle\ animation\ for\ button\ \%d,\ type\ \%d"{}},\ button\_id,\ anim\_type);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00476}00476\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00477}00477\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00478}00478\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00482}\mbox{\hyperlink{game__led__animations_8c_a5fb652dd2b2cbe7cdac3b9cbaa30763c}{00482}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{game__led__animations_8c_a5fb652dd2b2cbe7cdac3b9cbaa30763c}{apply\_subtle\_animation}}(uint8\_t\ led\_index,\ \mbox{\hyperlink{structsubtle__animation__state__t}{subtle\_animation\_state\_t}}*\ anim)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00483}00483\ \ \ \ \ \textcolor{keywordflow}{if}\ (!anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_acf12e9fc843cf75d5976e43e64c73a95}{active}})\ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00484}00484\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00485}00485\ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ result\_color\ =\ anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_a7260489ddfb0f0039463d116b0341250}{base\_color}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00486}00486\ \ \ \ \ \textcolor{keywordtype}{float}\ wave\_progress\ =\ sinf(anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_abb3851357c569eed9dadb3d1930d62e2}{frame}}\ *\ 0.1f);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00487}00487\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00488}00488\ \ \ \ \ \textcolor{keywordflow}{switch}\ (anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_a28a89503fb8a1a8db1aaf1cef5feac3c}{type}})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00489}00489\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03}{SUBTLE\_ANIM\_GENTLE\_WAVE}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00490}00490\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Jemná\ vlna\ -\/\ mírné\ změny\ v\ sytosti}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00491}00491\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ =\ anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_a7260489ddfb0f0039463d116b0341250}{base\_color}}.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ *\ (0.9f\ +\ 0.1f\ *\ wave\_progress);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00492}00492\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ =\ anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_a7260489ddfb0f0039463d116b0341250}{base\_color}}.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ *\ (0.9f\ +\ 0.1f\ *\ wave\_progress);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00493}00493\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ =\ anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_a7260489ddfb0f0039463d116b0341250}{base\_color}}.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ *\ (0.9f\ +\ 0.1f\ *\ wave\_progress);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00494}00494\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00495}00495\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00496}00496\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0}{SUBTLE\_ANIM\_WARM\_GLOW}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00497}00497\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Teplé\ záření\ -\/\ směs\ se\ žlutou/oranžovou}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00498}00498\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ glow\_intensity\ =\ (wave\_progress\ +\ 1.0f)\ /\ 2.0f\ *\ 0.15f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00499}00499\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ =\ anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_a7260489ddfb0f0039463d116b0341250}{base\_color}}.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ +\ 40\ *\ glow\_intensity;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00500}00500\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ =\ anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_a7260489ddfb0f0039463d116b0341250}{base\_color}}.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ +\ 20\ *\ glow\_intensity;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00501}00501\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Modrá\ zůstává\ stejná}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00502}00502\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00503}00503\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00504}00504\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4}{SUBTLE\_ANIM\_COOL\_PULSE}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00505}00505\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Chladné\ pulzování\ -\/\ směs\ s\ modrou/fialovou}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00506}00506\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ pulse\_intensity\ =\ (wave\_progress\ +\ 1.0f)\ /\ 2.0f\ *\ 0.1f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00507}00507\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ =\ anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_a7260489ddfb0f0039463d116b0341250}{base\_color}}.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ +\ 30\ *\ pulse\_intensity;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00508}00508\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ =\ anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_a7260489ddfb0f0039463d116b0341250}{base\_color}}.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ *\ (1.0f\ -\/\ pulse\_intensity\ *\ 0.2f);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00509}00509\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00510}00510\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00511}00511\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf}{SUBTLE\_ANIM\_WHITE\_WINS}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00512}00512\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Bílý\ vítězí\ -\/\ bílá\ animace\ s\ jemným\ pulzováním}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00513}00513\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ white\_intensity\ =\ (wave\_progress\ +\ 1.0f)\ /\ 2.0f\ *\ 0.2f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00514}00514\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ =\ 255\ *\ (0.8f\ +\ white\_intensity);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00515}00515\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ =\ 255\ *\ (0.8f\ +\ white\_intensity);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00516}00516\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ =\ 255\ *\ (0.8f\ +\ white\_intensity);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00517}00517\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00518}00518\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00519}00519\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3}{SUBTLE\_ANIM\_BLACK\_WINS}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00520}00520\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Černý\ vítězí\ -\/\ černá\ animace\ s\ jemným\ pulzováním}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00521}00521\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ black\_intensity\ =\ (wave\_progress\ +\ 1.0f)\ /\ 2.0f\ *\ 0.1f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00522}00522\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ =\ 50\ *\ (0.5f\ +\ black\_intensity);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00523}00523\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ =\ 50\ *\ (0.5f\ +\ black\_intensity);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00524}00524\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ =\ 50\ *\ (0.5f\ +\ black\_intensity);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00525}00525\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00526}00526\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00527}00527\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f}{SUBTLE\_ANIM\_DRAW}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00528}00528\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Remíza\ -\/\ neutrální\ animace\ s\ šedou}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00529}00529\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ draw\_intensity\ =\ (wave\_progress\ +\ 1.0f)\ /\ 2.0f\ *\ 0.15f;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00530}00530\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ =\ 128\ *\ (0.8f\ +\ draw\_intensity);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00531}00531\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ =\ 128\ *\ (0.8f\ +\ draw\_intensity);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00532}00532\ \ \ \ \ \ \ \ \ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ =\ 128\ *\ (0.8f\ +\ draw\_intensity);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00533}00533\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00534}00534\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00535}00535\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00536}00536\ \ \ \ \ \textcolor{comment}{//\ Omez\ barvy\ na\ validní\ rozsah}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00537}00537\ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}\ =\ fminf(255,\ fmaxf(0,\ result\_color.\mbox{\hyperlink{structrgb__color__t_a43cb2f2dc1e60fa14bf93d90f9d7015e}{r}}));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00538}00538\ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}\ =\ fminf(255,\ fmaxf(0,\ result\_color.\mbox{\hyperlink{structrgb__color__t_ae73935f5f2386b4c62fd24a8ec6d5512}{g}}));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00539}00539\ \ \ \ \ result\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}\ =\ fminf(255,\ fmaxf(0,\ result\_color.\mbox{\hyperlink{structrgb__color__t_a6e7156f19f70236f20113f612b7ea1d2}{b}}));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00540}00540\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00541}00541\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ae0c1dab4ee7a18e66fc96b45fe59e0c6}{apply\_color\_safe}}(led\_index,\ result\_color);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00542}00542\ \ \ \ \ anim-\/>\mbox{\hyperlink{structsubtle__animation__state__t_abb3851357c569eed9dadb3d1930d62e2}{frame}}++;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00543}00543\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00544}00544\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00548}\mbox{\hyperlink{game__led__animations_8c_aea794bf814cff2d03ccd30530878876f}{00548}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{game__led__animations_8c_aea794bf814cff2d03ccd30530878876f}{subtle\_animation\_timer\_callback}}(TimerHandle\_t\ timer)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00549}00549\ \ \ \ \ \textcolor{comment}{//\ Aplikuj\ jemné\ animace\ na\ figurky}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00550}00550\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 64;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00551}00551\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}}[i].active)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00552}00552\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a5fb652dd2b2cbe7cdac3b9cbaa30763c}{apply\_subtle\_animation}}(i,\ \&\mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}}[i]);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00553}00553\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00554}00554\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00555}00555\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00556}00556\ \ \ \ \ \textcolor{comment}{//\ Aplikuj\ jemné\ animace\ na\ tlačítka}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00557}00557\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 9;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00558}00558\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}}[i].active)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00559}00559\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a5fb652dd2b2cbe7cdac3b9cbaa30763c}{apply\_subtle\_animation}}(64\ +\ i,\ \&\mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}}[i]);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00560}00560\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00561}00561\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00562}00562\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00563}00563\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00564}00564\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00565}00565\ \textcolor{comment}{//\ HLAVNÍ\ ANIMAČNÍ\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00566}00566\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00567}00567\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00571}\mbox{\hyperlink{game__led__animations_8c_af4170c2454c1c13a7c40fecb32c032d3}{00571}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{game__led__animations_8c_af4170c2454c1c13a7c40fecb32c032d3}{animation\_timer\_callback}}(TimerHandle\_t\ timer)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00572}00572\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{game__led__animations_8c_a0ff12f065a2e5fbd5d81bff9fd425cbf}{endgame\_animation\_running}})\ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00573}00573\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00574}00574\ \ \ \ \ \textcolor{keyword}{static}\ uint32\_t\ frame\_counter\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00575}00575\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00576}00576\ \ \ \ \ \textcolor{keywordflow}{switch}\ (\mbox{\hyperlink{game__led__animations_8c_a76483b95c5cbeaec7b68b61fdba3e1b0}{current\_endgame\_animation}})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00577}00577\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757}{ENDGAME\_ANIM\_VICTORY\_WAVE}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00578}00578\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a30cf1a62ddf72a59e47db6c5a7d16bd3}{endgame\_animation\_victory\_wave}}(frame\_counter);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00579}00579\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00580}00580\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00581}00581\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6}{ENDGAME\_ANIM\_VICTORY\_CIRCLES}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00582}00582\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a769b87cd1cca43fe03922727d6b1378b}{endgame\_animation\_victory\_circles}}(frame\_counter);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00583}00583\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00584}00584\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00585}00585\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415}{ENDGAME\_ANIM\_VICTORY\_CASCADE}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00586}00586\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a4f47ddefd68242ce100d748cc7493aff}{endgame\_animation\_victory\_cascade}}(frame\_counter);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00587}00587\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00588}00588\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00589}00589\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37}{ENDGAME\_ANIM\_VICTORY\_FIREWORKS}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00590}00590\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ab31da73e7fa32113a7c05f187bb9468f}{endgame\_animation\_victory\_fireworks}}(frame\_counter);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00591}00591\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00592}00592\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00593}00593\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99}{ENDGAME\_ANIM\_VICTORY\_CROWN}}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00594}00594\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a9ca82a56a74ac5dc7ffa31f24b5d57fe}{endgame\_animation\_victory\_crown}}(frame\_counter);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00595}00595\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00596}00596\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00597}00597\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00598}00598\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Unknown\ endgame\ animation\ type:\ \%d"{}},\ \mbox{\hyperlink{game__led__animations_8c_a76483b95c5cbeaec7b68b61fdba3e1b0}{current\_endgame\_animation}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00599}00599\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00600}00600\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00601}00601\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00602}00602\ \ \ \ \ frame\_counter++;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00603}00603\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00604}00604\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00605}00605\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00606}00606\ \textcolor{comment}{//\ VEŘEJNÉ\ API\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00607}00607\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00608}00608\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00609}\mbox{\hyperlink{game__led__animations_8c_a9c35ac742c83bf78240d93599dd54556}{00609}}\ esp\_err\_t\ \mbox{\hyperlink{game__led__animations_8c_a9c35ac742c83bf78240d93599dd54556}{game\_led\_animations\_init}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00610}00610\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__led__animations_8c_a613683b2a29d20556b1ad11c52bdfdb9}{animation\_system\_active}})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00611}00611\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ system\ already\ initialized"{}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00612}00612\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00613}00613\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00614}00614\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00615}00615\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Initializing\ advanced\ LED\ animation\ system..."{}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00616}00616\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00617}00617\ \ \ \ \ \textcolor{comment}{//\ Vytvoř\ timery\ pro\ animace}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00618}00618\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a43f6b3d51a255773c25e705a8df30eb2}{animation\_timer}}\ =\ xTimerCreate(}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00619}00619\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}EndgameAnim"{}},}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00620}00620\ \ \ \ \ \ \ \ \ pdMS\_TO\_TICKS(100),\ \textcolor{comment}{//\ 100ms\ interval\ pro\ plynulé\ animace}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00621}00621\ \ \ \ \ \ \ \ \ pdTRUE,\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Auto-\/reload}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00622}00622\ \ \ \ \ \ \ \ \ NULL,}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00623}00623\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_af4170c2454c1c13a7c40fecb32c032d3}{animation\_timer\_callback}}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00624}00624\ \ \ \ \ );}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00625}00625\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00626}00626\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ace720982d876787deb18d63449924dce}{subtle\_animation\_timer}}\ =\ xTimerCreate(}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00627}00627\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}SubtleAnim"{}},\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00628}00628\ \ \ \ \ \ \ \ \ pdMS\_TO\_TICKS(50),\ \ \textcolor{comment}{//\ 50ms\ interval\ pro\ jemné\ animace}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00629}00629\ \ \ \ \ \ \ \ \ pdTRUE,}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00630}00630\ \ \ \ \ \ \ \ \ NULL,}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00631}00631\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_aea794bf814cff2d03ccd30530878876f}{subtle\_animation\_timer\_callback}}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00632}00632\ \ \ \ \ );}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00633}00633\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00634}00634\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{game__led__animations_8c_a43f6b3d51a255773c25e705a8df30eb2}{animation\_timer}}\ ||\ !\mbox{\hyperlink{game__led__animations_8c_ace720982d876787deb18d63449924dce}{subtle\_animation\_timer}})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00635}00635\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ animation\ timers"{}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00636}00636\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00637}00637\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00638}00638\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00639}00639\ \ \ \ \ \textcolor{comment}{//\ Inicializuj\ stavy}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00640}00640\ \ \ \ \ memset(\&\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00641}00641\ \ \ \ \ memset(\mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}}));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00642}00642\ \ \ \ \ memset(\mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}}));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00643}00643\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00644}00644\ \ \ \ \ \textcolor{comment}{//\ Spusť\ timer\ pro\ jemné\ animace}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00645}00645\ \ \ \ \ xTimerStart(\mbox{\hyperlink{game__led__animations_8c_ace720982d876787deb18d63449924dce}{subtle\_animation\_timer}},\ 0);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00646}00646\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00647}00647\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a613683b2a29d20556b1ad11c52bdfdb9}{animation\_system\_active}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00648}00648\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Advanced\ LED\ animation\ system\ initialized\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00649}00649\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00650}00650\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00651}00651\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00652}00652\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00653}\mbox{\hyperlink{game__led__animations_8c_a512b0ba5745a638b00545a16423c4e17}{00653}}\ esp\_err\_t\ \mbox{\hyperlink{game__led__animations_8c_a512b0ba5745a638b00545a16423c4e17}{start\_endgame\_animation}}(\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\_animation\_type\_t}}\ animation\_type,\ uint8\_t\ king\_position)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00654}00654\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{game__led__animations_8c_a613683b2a29d20556b1ad11c52bdfdb9}{animation\_system\_active}})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00655}00655\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ system\ not\ initialized"{}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00656}00656\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00657}00657\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00658}00658\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00659}00659\ \ \ \ \ \textcolor{keywordflow}{if}\ (animation\_type\ >=\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9}{ENDGAME\_ANIM\_MAX}})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00660}00660\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Invalid\ animation\ type:\ \%d"{}},\ animation\_type);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00661}00661\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00662}00662\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00663}00663\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00664}00664\ \ \ \ \ \textcolor{keywordflow}{if}\ (king\_position\ >=\ 64)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00665}00665\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Invalid\ king\ position:\ \%d"{}},\ king\_position);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00666}00666\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00667}00667\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00668}00668\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00669}00669\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🎬\ Starting\ endgame\ animation\ \%d\ from\ position\ \%d"{}},\ animation\_type,\ king\_position);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00670}00670\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00671}00671\ \ \ \ \ \textcolor{comment}{//\ Zastaví\ předchozí\ animaci\ pokud\ běží}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00672}00672\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__led__animations_8c_a0ff12f065a2e5fbd5d81bff9fd425cbf}{endgame\_animation\_running}})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00673}00673\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ad8316144bc70b897342c47d341b52b5b}{stop\_endgame\_animation}}();}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00674}00674\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00675}00675\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00676}00676\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a76483b95c5cbeaec7b68b61fdba3e1b0}{current\_endgame\_animation}}\ =\ animation\_type;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00677}00677\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_abb6170c1df734838bc417eff360db75a}{winning\_king\_position}}\ =\ king\_position;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00678}00678\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a0ff12f065a2e5fbd5d81bff9fd425cbf}{endgame\_animation\_running}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00679}00679\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00680}00680\ \ \ \ \ \textcolor{comment}{//\ Reset\ stavů\ pro\ novou\ animaci}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00681}00681\ \ \ \ \ memset(\&\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{game__led__animations_8c_af779e4140456fa6d1f3451df49addddc}{wave\_state}}));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00682}00682\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00683}00683\ \ \ \ \ \textcolor{comment}{//\ Spustí\ timer}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00684}00684\ \ \ \ \ xTimerStart(\mbox{\hyperlink{game__led__animations_8c_a43f6b3d51a255773c25e705a8df30eb2}{animation\_timer}},\ 0);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00685}00685\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00686}00686\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00687}00687\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00688}00688\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00689}\mbox{\hyperlink{game__led__animations_8c_ad8316144bc70b897342c47d341b52b5b}{00689}}\ esp\_err\_t\ \mbox{\hyperlink{game__led__animations_8c_ad8316144bc70b897342c47d341b52b5b}{stop\_endgame\_animation}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00690}00690\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{game__led__animations_8c_a0ff12f065a2e5fbd5d81bff9fd425cbf}{endgame\_animation\_running}})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00691}00691\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00692}00692\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00693}00693\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00694}00694\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🛑\ Stopping\ endgame\ animation"{}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00695}00695\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00696}00696\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a0ff12f065a2e5fbd5d81bff9fd425cbf}{endgame\_animation\_running}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00697}00697\ \ \ \ \ xTimerStop(\mbox{\hyperlink{game__led__animations_8c_a43f6b3d51a255773c25e705a8df30eb2}{animation\_timer}},\ 0);}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00698}00698\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00699}00699\ \ \ \ \ \textcolor{comment}{//\ Vyčisti\ board}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00700}00700\ \ \ \ \ \mbox{\hyperlink{led__task_8h_afff280b4c9b7261d1a086e0cfa356604}{led\_clear\_all\_safe}}();}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00701}00701\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00702}00702\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00703}00703\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00704}00704\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00705}\mbox{\hyperlink{game__led__animations_8c_abc332d95d86dbce7893f640161167edb}{00705}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{game__led__animations_8c_abc332d95d86dbce7893f640161167edb}{is\_endgame\_animation\_running}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00706}00706\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{game__led__animations_8c_a0ff12f065a2e5fbd5d81bff9fd425cbf}{endgame\_animation\_running}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00707}00707\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00708}00708\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00709}\mbox{\hyperlink{game__led__animations_8c_a657e1bb5d40ff05278f1fd817295a34b}{00709}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{game__led__animations_8c_a657e1bb5d40ff05278f1fd817295a34b}{get\_endgame\_animation\_name}}(\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\_animation\_type\_t}}\ animation\_type)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00710}00710\ \ \ \ \ \textcolor{keywordflow}{switch}\ (animation\_type)\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00711}00711\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757}{ENDGAME\_ANIM\_VICTORY\_WAVE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Victory\ Wave"{}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00712}00712\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6}{ENDGAME\_ANIM\_VICTORY\_CIRCLES}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Victory\ Circles"{}};\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00713}00713\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415}{ENDGAME\_ANIM\_VICTORY\_CASCADE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Victory\ Cascade"{}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00714}00714\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37}{ENDGAME\_ANIM\_VICTORY\_FIREWORKS}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Victory\ Fireworks"{}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00715}00715\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99}{ENDGAME\_ANIM\_VICTORY\_CROWN}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Victory\ Crown"{}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00716}00716\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Unknown"{}};}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00717}00717\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00718}00718\ \}}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00719}00719\ }
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00720}\mbox{\hyperlink{game__led__animations_8c_a7d2e178a6334fe293dd266e15b194ceb}{00720}}\ esp\_err\_t\ \mbox{\hyperlink{game__led__animations_8c_a7d2e178a6334fe293dd266e15b194ceb}{stop\_all\_subtle\_animations}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00721}00721\ \ \ \ \ memset(\mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{game__led__animations_8c_a5f7ea887a638f622964d93b2786353c5}{subtle\_pieces}}));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00722}00722\ \ \ \ \ memset(\mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{game__led__animations_8c_a3d474a43fe7077af5724dcc84d18ec10}{subtle\_buttons}}));}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00723}00723\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}All\ subtle\ animations\ stopped"{}});}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00724}00724\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{game__led__animations_8c_source_l00725}00725\ \}}
+
+\end{DoxyCode}

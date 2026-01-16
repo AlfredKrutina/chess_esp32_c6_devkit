@@ -1,0 +1,79 @@
+\doxysection{matrix\+\_\+task.\+h}
+\hypertarget{matrix__task_8h_source}{}\label{matrix__task_8h_source}\index{matrix\_task.h@{matrix\_task.h}}
+\mbox{\hyperlink{matrix__task_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00027}00027\ \textcolor{preprocessor}{\#ifndef\ MATRIX\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00028}00028\ \textcolor{preprocessor}{\#define\ MATRIX\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00030}00030\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00031}00031\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00032}00032\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00033}00033\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00035}00035\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00036}00036\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00037}00037\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00038}00038\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00039}00039\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00040}00040\ \textcolor{comment}{//\ PROTOTYPY\ TASK\ FUNKCI}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00041}00041\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00051}00051\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_a61e7f4685d87d40d712b5de9b8d22222}{matrix\_task\_start}}(\textcolor{keywordtype}{void}\ *pvParameters);}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00053}00053\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00054}00054\ \textcolor{comment}{//\ FUNKCE\ PRO\ SKENOVANI\ MATICE}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00055}00055\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00065}00065\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_a395c914a55ec3ebc25a3a3af66d6bba8}{matrix\_scan\_row}}(uint8\_t\ row);}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00066}00066\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00073}00073\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_a86518ffc745875b5c3c34d7c96f7e186}{matrix\_scan\_all}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00074}00074\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00075}00075\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00076}00076\ \textcolor{comment}{//\ FUNKCE\ PRO\ DETEKCI\ TAHU}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00077}00077\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00078}00078\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00085}00085\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_ad81a1142e821938e81029ad1d88f57d7}{matrix\_detect\_moves}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00086}00086\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00096}00096\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_a9f313f74d8c7d9bac02294a7f873eb75}{matrix\_detect\_complete\_move}}(uint8\_t\ from\_square,\ uint8\_t\ to\_square);}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00097}00097\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00098}00098\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00099}00099\ \textcolor{comment}{//\ UTILITY\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00100}00100\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00101}00101\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00108}00108\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_ab2ee938ff9e39dbaeed9729d194db94a}{matrix\_square\_to\_notation}}(uint8\_t\ square,\ \textcolor{keywordtype}{char}*\ notation);}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00109}00109\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00116}00116\ uint8\_t\ \mbox{\hyperlink{matrix__task_8h_a7401a07900074895370aa1ba67a95c56}{matrix\_notation\_to\_square}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ notation);}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00117}00117\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00123}00123\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_a4879f19808c12282ff427342dfea0f12}{matrix\_print\_state}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00124}00124\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00134}00134\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_ac791c32154297e3ceebd47d8096cc8b9}{matrix\_simulate\_move}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ from,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ to);}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00135}00135\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00141}00141\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_a62798e0c14260b016d8d1739dedc2056}{matrix\_get\_state}}(uint8\_t*\ state\_buffer);}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00142}00142\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00143}00143\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00144}00144\ \textcolor{comment}{//\ FUNKCE\ PRO\ ZPRACOVANI\ PRIKAZU}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00145}00145\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00146}00146\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00153}00153\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_a60eff3fc23741f64ce1c24d5d556906b}{matrix\_process\_commands}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00154}00154\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00160}00160\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_aa7161ac2bf0076cc5ddfc91270c2bd34}{matrix\_reset}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00161}00161\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00162}00162\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00163}00163\ \textcolor{comment}{//\ TIME-\/MULTIPLEXING\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00164}00164\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00165}00165\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00176}00176\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_a9afd14fa75a6cfa6e37480b4935cd285}{matrix\_release\_pins}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00177}00177\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00187}00187\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{matrix__task_8h_a8162927b4230f6777b1d42deec017797}{matrix\_acquire\_pins}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00188}00188\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00194}00194\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{matrix__task_8h_a4ffeb65e7984e50f1ad65b6a92c304cf}{matrix\_pins\_released}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00195}00195\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00196}00196\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00197}00197\ \}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00198}00198\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00199}00199\ }
+\DoxyCodeLine{\Hypertarget{matrix__task_8h_source_l00200}00200\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ MATRIX\_TASK\_H}}
+
+\end{DoxyCode}

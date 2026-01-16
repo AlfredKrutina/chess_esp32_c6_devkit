@@ -1,0 +1,246 @@
+\doxysection{Dokumentace souboru promotion\+\_\+button\+\_\+task.\+h}
+\hypertarget{promotion__button__task_8h}{}\label{promotion__button__task_8h}\index{promotion\_button\_task.h@{promotion\_button\_task.h}}
+
+
+Promotion Button Task hlavicka pro ESP32-\/\+C6 sachovy projekt.  
+
+
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/task.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+Graf závislostí na vkládaných souborech pro promotion\+\_\+button\+\_\+task.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{promotion__button__task_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Definice maker}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{promotion__button__task_8h_a58d022d18b73ee9efae31b39b6fd4343}{PROMOTION\+\_\+\+BUTTON\+\_\+\+TASK\+\_\+\+PRIORITY}}~3
+\begin{DoxyCompactList}\small\item\em Priorita promotion button tasku. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{promotion__button__task_8h_a4a7c298b8b954ba4e407167ec242242b}{promotion\+\_\+button\+\_\+task\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuje promotion button task. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{promotion__button__task_8h_a31932e440404a48bbeee15bd30220f31}{promotion\+\_\+button\+\_\+task}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Hlavni funkce promotion button tasku. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{promotion__button__task_8h_a8e3a45fc9ac9fcda6e243449b9de66ff}{process\+\_\+promotion\+\_\+choice}} (\mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}{promotion\+\_\+choice\+\_\+t}} choice)
+\begin{DoxyCompactList}\small\item\em Zpracuj volbu promoci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{promotion__button__task_8h_a0e0d52d07d70caef22af40a2969e79c3}{simulate\+\_\+promotion\+\_\+button\+\_\+press}} (uint8\+\_\+t button\+\_\+index)
+\begin{DoxyCompactList}\small\item\em Simuluj stisknuti promotion tlacitka. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{promotion__button__task_8h_af6e9bc64868813a9a0c6134a471aefc9}{promotion\+\_\+button\+\_\+is\+\_\+initialized}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda je promotion button task inicializovan. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{promotion__button__task_8h_acc92043a584171d17f29d9e0ae9bbd1a}{promotion\+\_\+button\+\_\+get\+\_\+event\+\_\+count}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej pocet zpracovanych button udalosti. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Promotion Button Task hlavicka pro ESP32-\/\+C6 sachovy projekt. 
+
+Tato hlavicka definuje rozhrani pro promotion button task\+:
+\begin{DoxyItemize}
+\item Inicializace promotion button tasku a Free\+RTOS komponent
+\item Zpracovani tlacitek pro volbu promoci (dama, vez, strelec, kun)
+\item Simulacni rezim bez hardware (pro development)
+\item Integrace s game taskem pro promoci
+\item 4 tlacitka pro ruzne typy promoci
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+0 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/16
+\end{DoxyDate}
+Tento task zpracovava tlacitka pro promoci pescu. Kdyz pesec dojde na konec sachovnice, hrac muze vybrat na co ho promenit pomoci tlacitek (dama, vez, strelec, kun). 
+
+Definice v souboru \mbox{\hyperlink{promotion__button__task_8h_source}{promotion\+\_\+button\+\_\+task.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{promotion__button__task_8h_doc-define-members}
+\doxysubsection{Dokumentace definic maker}
+\Hypertarget{promotion__button__task_8h_a58d022d18b73ee9efae31b39b6fd4343}\index{promotion\_button\_task.h@{promotion\_button\_task.h}!PROMOTION\_BUTTON\_TASK\_PRIORITY@{PROMOTION\_BUTTON\_TASK\_PRIORITY}}
+\index{PROMOTION\_BUTTON\_TASK\_PRIORITY@{PROMOTION\_BUTTON\_TASK\_PRIORITY}!promotion\_button\_task.h@{promotion\_button\_task.h}}
+\doxysubsubsection{\texorpdfstring{PROMOTION\_BUTTON\_TASK\_PRIORITY}{PROMOTION\_BUTTON\_TASK\_PRIORITY}}
+{\footnotesize\ttfamily \label{promotion__button__task_8h_a58d022d18b73ee9efae31b39b6fd4343} 
+\#define PROMOTION\+\_\+\+BUTTON\+\_\+\+TASK\+\_\+\+PRIORITY~3}
+
+
+
+Priorita promotion button tasku. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{promotion__button__task_8h_source_l00041}{41}} v souboru \mbox{\hyperlink{promotion__button__task_8h_source}{promotion\+\_\+button\+\_\+task.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{promotion__button__task_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{promotion__button__task_8h_a8e3a45fc9ac9fcda6e243449b9de66ff}\index{promotion\_button\_task.h@{promotion\_button\_task.h}!process\_promotion\_choice@{process\_promotion\_choice}}
+\index{process\_promotion\_choice@{process\_promotion\_choice}!promotion\_button\_task.h@{promotion\_button\_task.h}}
+\doxysubsubsection{\texorpdfstring{process\_promotion\_choice()}{process\_promotion\_choice()}}
+{\footnotesize\ttfamily \label{promotion__button__task_8h_a8e3a45fc9ac9fcda6e243449b9de66ff} 
+esp\+\_\+err\+\_\+t process\+\_\+promotion\+\_\+choice (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}{promotion\+\_\+choice\+\_\+t}}}]{choice}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj volbu promoci. 
+
+Zpracuje volbu hrace pro promoci pescu (dama, vez, strelec, kun).
+
+
+\begin{DoxyParams}{Parametry}
+{\em choice} & Volba promoci (PROMOTION\+\_\+\+QUEEN, PROMOTION\+\_\+\+ROOK, atd.) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+ERR\+\_\+\+INVALID\+\_\+\+STATE pokud task neni inicializovan
+\end{DoxyReturn}
+
+\begin{DoxyParams}{Parametry}
+{\em choice} & Typ promoci (QUEEN, ROOK, BISHOP, KNIGHT) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{promotion__button__task_8c_source_l00099}{99}} v souboru \mbox{\hyperlink{promotion__button__task_8c_source}{promotion\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{promotion__button__task_8h_acc92043a584171d17f29d9e0ae9bbd1a}\index{promotion\_button\_task.h@{promotion\_button\_task.h}!promotion\_button\_get\_event\_count@{promotion\_button\_get\_event\_count}}
+\index{promotion\_button\_get\_event\_count@{promotion\_button\_get\_event\_count}!promotion\_button\_task.h@{promotion\_button\_task.h}}
+\doxysubsubsection{\texorpdfstring{promotion\_button\_get\_event\_count()}{promotion\_button\_get\_event\_count()}}
+{\footnotesize\ttfamily \label{promotion__button__task_8h_acc92043a584171d17f29d9e0ae9bbd1a} 
+uint32\+\_\+t promotion\+\_\+button\+\_\+get\+\_\+event\+\_\+count (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej pocet zpracovanych button udalosti. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Pocet zpracovanych udalosti od startu
+\end{DoxyReturn}
+Ziskej pocet zpracovanych button udalosti.
+
+\begin{DoxyReturn}{Návratová hodnota}
+Pocet udalosti 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{promotion__button__task_8c_source_l00179}{179}} v souboru \mbox{\hyperlink{promotion__button__task_8c_source}{promotion\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{promotion__button__task_8h_af6e9bc64868813a9a0c6134a471aefc9}\index{promotion\_button\_task.h@{promotion\_button\_task.h}!promotion\_button\_is\_initialized@{promotion\_button\_is\_initialized}}
+\index{promotion\_button\_is\_initialized@{promotion\_button\_is\_initialized}!promotion\_button\_task.h@{promotion\_button\_task.h}}
+\doxysubsubsection{\texorpdfstring{promotion\_button\_is\_initialized()}{promotion\_button\_is\_initialized()}}
+{\footnotesize\ttfamily \label{promotion__button__task_8h_af6e9bc64868813a9a0c6134a471aefc9} 
+bool promotion\+\_\+button\+\_\+is\+\_\+initialized (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je promotion button task inicializovan. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je task inicializovan
+
+True pokud je task inicializovan 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{promotion__button__task_8c_source_l00169}{169}} v souboru \mbox{\hyperlink{promotion__button__task_8c_source}{promotion\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{promotion__button__task_8h_a31932e440404a48bbeee15bd30220f31}\index{promotion\_button\_task.h@{promotion\_button\_task.h}!promotion\_button\_task@{promotion\_button\_task}}
+\index{promotion\_button\_task@{promotion\_button\_task}!promotion\_button\_task.h@{promotion\_button\_task.h}}
+\doxysubsubsection{\texorpdfstring{promotion\_button\_task()}{promotion\_button\_task()}}
+{\footnotesize\ttfamily \label{promotion__button__task_8h_a31932e440404a48bbeee15bd30220f31} 
+void promotion\+\_\+button\+\_\+task (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Hlavni funkce promotion button tasku. 
+
+Bezi v nekonecne smycce a zpracovava promotion tlacitka. V simulacnim rezimu pouze loguje udalosti.
+
+
+\begin{DoxyParams}{Parametry}
+{\em pv\+Parameters} & Parametry tasku (nepouzivane)\\
+\hline
+{\em pv\+Parameters} & Parametry tasku (nepouzivane) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{promotion__button__task_8c_source_l00076}{76}} v souboru \mbox{\hyperlink{promotion__button__task_8c_source}{promotion\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{promotion__button__task_8h_a4a7c298b8b954ba4e407167ec242242b}\index{promotion\_button\_task.h@{promotion\_button\_task.h}!promotion\_button\_task\_init@{promotion\_button\_task\_init}}
+\index{promotion\_button\_task\_init@{promotion\_button\_task\_init}!promotion\_button\_task.h@{promotion\_button\_task.h}}
+\doxysubsubsection{\texorpdfstring{promotion\_button\_task\_init()}{promotion\_button\_task\_init()}}
+{\footnotesize\ttfamily \label{promotion__button__task_8h_a4a7c298b8b954ba4e407167ec242242b} 
+esp\+\_\+err\+\_\+t promotion\+\_\+button\+\_\+task\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuje promotion button task. 
+
+Vytvori Free\+RTOS task pro zpracovani promotion tlacitek.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+ERR\+\_\+\+NO\+\_\+\+MEM pri nedostatku pameti
+\end{DoxyReturn}
+Inicializuje promotion button task.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{promotion__button__task_8c_source_l00042}{42}} v souboru \mbox{\hyperlink{promotion__button__task_8c_source}{promotion\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{promotion__button__task_8h_a0e0d52d07d70caef22af40a2969e79c3}\index{promotion\_button\_task.h@{promotion\_button\_task.h}!simulate\_promotion\_button\_press@{simulate\_promotion\_button\_press}}
+\index{simulate\_promotion\_button\_press@{simulate\_promotion\_button\_press}!promotion\_button\_task.h@{promotion\_button\_task.h}}
+\doxysubsubsection{\texorpdfstring{simulate\_promotion\_button\_press()}{simulate\_promotion\_button\_press()}}
+{\footnotesize\ttfamily \label{promotion__button__task_8h_a0e0d52d07d70caef22af40a2969e79c3} 
+esp\+\_\+err\+\_\+t simulate\+\_\+promotion\+\_\+button\+\_\+press (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+index}{}\end{DoxyParamCaption})}
+
+
+
+Simuluj stisknuti promotion tlacitka. 
+
+Pro testovani -\/ simuluje stisknuti jednoho ze 4 promotion tlacitek.
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+index} & Index tlacitka (0-\/3\+: dama, vez, strelec, kun) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+ERR\+\_\+\+INVALID\+\_\+\+ARG pri neplatnem indexu
+\end{DoxyReturn}
+Simuluj stisknuti promotion tlacitka.
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+index} & Index tlacitka (0=QUEEN, 1=ROOK, 2=BISHOP, 3=KNIGHT) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{promotion__button__task_8c_source_l00137}{137}} v souboru \mbox{\hyperlink{promotion__button__task_8c_source}{promotion\+\_\+button\+\_\+task.\+c}}.
+

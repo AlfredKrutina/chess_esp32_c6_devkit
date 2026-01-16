@@ -1,0 +1,136 @@
+\doxysection{promotion\+\_\+button\+\_\+task.\+c}
+\hypertarget{promotion__button__task_8c_source}{}\label{promotion__button__task_8c_source}\index{promotion\_button\_task.c@{promotion\_button\_task.c}}
+\mbox{\hyperlink{promotion__button__task_8c}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00023}00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{promotion__button__task_8h}{promotion\_button\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00024}00024\ \textcolor{preprocessor}{\#include\ "{}esp\_log.h"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}esp\_task\_wdt.h"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}freertos/task.h"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00028}00028\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00029}00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}\ \ \textcolor{comment}{//\ OPRAVENO:\ Přidán\ include\ pro\ konstanty}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00031}\mbox{\hyperlink{promotion__button__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00031}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}}\ =\ \textcolor{stringliteral}{"{}PROMOTION\_BUTTON\_TASK"{}};\ \ \textcolor{comment}{//\ Tag\ pro\ ESP-\/IDF\ logovani}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00033}00033\ \textcolor{comment}{//\ Promotion\ button\ task\ status}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00034}\mbox{\hyperlink{promotion__button__task_8c_abbaaee3316ba8718fb74559d7c93df9b}{00034}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{promotion__button__task_8c_abbaaee3316ba8718fb74559d7c93df9b}{promotion\_button\_initialized}}\ =\ \textcolor{keyword}{false};\ \ \ \textcolor{comment}{//\ Stav\ inicializace\ promotion\ button\ tasku}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00035}\mbox{\hyperlink{promotion__button__task_8c_ab36b66e9f95206af3b83dfa622d5cc7d}{00035}}\ \textcolor{keyword}{static}\ uint32\_t\ \mbox{\hyperlink{promotion__button__task_8c_ab36b66e9f95206af3b83dfa622d5cc7d}{button\_event\_count}}\ =\ 0;\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Pocet\ zpracovanych\ tlacitkovych\ udalosti}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00042}\mbox{\hyperlink{promotion__button__task_8h_a4a7c298b8b954ba4e407167ec242242b}{00042}}\ esp\_err\_t\ \mbox{\hyperlink{promotion__button__task_8c_a4a7c298b8b954ba4e407167ec242242b}{promotion\_button\_task\_init}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00043}00043\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00044}00044\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{promotion__button__task_8c_abbaaee3316ba8718fb74559d7c93df9b}{promotion\_button\_initialized}})\ \{\ \ \textcolor{comment}{//\ Kontrola\ ze\ task\ uz\ neni\ inicializovan}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00045}00045\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00046}00046\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00047}00047\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00048}00048\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Initializing\ promotion\ button\ task\ (SIMULATION\ MODE)..."{}});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00049}00049\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00050}00050\ \ \ \ \ \textcolor{comment}{//\ Create\ promotion\ button\ task}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00051}00051\ \ \ \ \ BaseType\_t\ task\_created\ =\ xTaskCreate(}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00052}00052\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{promotion__button__task_8h_a31932e440404a48bbeee15bd30220f31}{promotion\_button\_task}},\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Funkce\ promotion\ button\ tasku}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}promotion\_button\_task"{}},\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Nazev\ tasku}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00054}00054\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a0777cbb816d50dcb813a9bf1b98dd46e}{PROMOTION\_BUTTON\_TASK\_STACK\_SIZE}},\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ OPRAVENO:\ Místo\ hardcodované\ 2048\ -\/\ velikost\ stacku}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00055}00055\ \ \ \ \ \ \ \ \ NULL,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Task\ parameters\ (unused)}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00056}00056\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a58d022d18b73ee9efae31b39b6fd4343}{PROMOTION\_BUTTON\_TASK\_PRIORITY}},\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ OPRAVENO:\ Místo\ hardcodované\ 3\ -\/\ priorita\ tasku}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00057}00057\ \ \ \ \ \ \ \ \ NULL\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Task\ handle\ (unused)}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00058}00058\ \ \ \ \ );}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00059}00059\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00060}00060\ \ \ \ \ \textcolor{keywordflow}{if}\ (task\_created\ !=\ pdPASS)\ \{\ \ \textcolor{comment}{//\ Kontrola\ ze\ task\ byl\ vytvoren\ uspesne}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00061}00061\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ promotion\ button\ task"{}});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00062}00062\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;\ \ \textcolor{comment}{//\ Chyba:\ nedostatek\ pameti}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00063}00063\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00064}00064\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00065}00065\ \ \ \ \ \mbox{\hyperlink{promotion__button__task_8c_abbaaee3316ba8718fb74559d7c93df9b}{promotion\_button\_initialized}}\ =\ \textcolor{keyword}{true};\ \ \textcolor{comment}{//\ Označení\ ze\ task\ je\ inicializovan}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00066}00066\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Promotion\ button\ task\ initialized\ successfully\ (SIMULATION\ MODE)"{}});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00067}00067\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00068}00068\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;\ \ \textcolor{comment}{//\ Uspech}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00069}00069\ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00076}\mbox{\hyperlink{promotion__button__task_8h_a31932e440404a48bbeee15bd30220f31}{00076}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{promotion__button__task_8c_a31932e440404a48bbeee15bd30220f31}{promotion\_button\_task}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00077}00077\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00078}00078\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Promotion\ button\ task\ started\ (SIMULATION\ MODE)"{}});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00079}00079\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00080}00080\ \ \ \ \ TickType\_t\ last\_wake\_time\ =\ xTaskGetTickCount();\ \textcolor{comment}{//\ Cas\ posledniho\ probuzeni\ pro\ periodicke\ spousteni}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00081}00081\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00082}00082\ \ \ \ \ \textcolor{keywordflow}{while}\ (1)\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00083}00083\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ CRITICAL:\ Reset\ watchdog\ for\ promotion\ button\ task\ in\ every\ iteration}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00084}00084\ \ \ \ \ \ \ \ \ esp\_task\_wdt\_reset();}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00085}00085\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00086}00086\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Process\ promotion\ button\ events\ (simulation\ mode\ -\/\ no\ real\ queue)}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00087}00087\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ Implement\ queue\ communication\ in\ the\ future}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00089}00089\ \ \ \ \ \ \ \ \ vTaskDelayUntil(\&last\_wake\_time,\ pdMS\_TO\_TICKS(100));\ \ \textcolor{comment}{//\ Cekani\ 100ms\ mezi\ cykly\ (10\ Hz)}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00090}00090\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00091}00091\ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00092}00092\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00099}\mbox{\hyperlink{promotion__button__task_8h_a8e3a45fc9ac9fcda6e243449b9de66ff}{00099}}\ esp\_err\_t\ \mbox{\hyperlink{promotion__button__task_8c_a8e3a45fc9ac9fcda6e243449b9de66ff}{process\_promotion\_choice}}(\mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}{promotion\_choice\_t}}\ choice)}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00100}00100\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00101}00101\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{promotion__button__task_8c_abbaaee3316ba8718fb74559d7c93df9b}{promotion\_button\_initialized}})\ \{\ \ \textcolor{comment}{//\ Kontrola\ inicializace\ promotion\ button\ tasku}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00102}00102\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00103}00103\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00104}00104\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00105}00105\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Processing\ promotion\ choice:\ \%d"{}},\ choice);}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00106}00106\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00107}00107\ \ \ \ \ \textcolor{keywordflow}{switch}\ (choice)\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237ace7ae3bfdb598aeffb32c01d08805045}{PROMOTION\_QUEEN}}:\ \ \textcolor{comment}{//\ Promoce\ na\ damu}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Promotion\ choice:\ QUEEN"{}});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00110}00110\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00111}00111\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237a86adcf7f4dd13fe13c310740b684fd85}{PROMOTION\_ROOK}}:\ \ \ \textcolor{comment}{//\ Promoce\ na\ vez}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Promotion\ choice:\ ROOK"{}});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00114}00114\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237af76338fd133ad75d03265525fab6a060}{PROMOTION\_BISHOP}}:\ \textcolor{comment}{//\ Promoce\ na\ strelce}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Promotion\ choice:\ BISHOP"{}});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00116}00116\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00117}00117\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237a38e92903ca7d679f019bbc0895c00910}{PROMOTION\_KNIGHT}}:\ \textcolor{comment}{//\ Promoce\ na\ kune}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00118}00118\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Promotion\ choice:\ KNIGHT"{}});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00120}00120\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:\ \ \textcolor{comment}{//\ Neznamy\ typ\ promoce}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Unknown\ promotion\ choice:\ \%d"{}},\ choice);}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00123}00123\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00124}00124\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00125}00125\ \ \ \ \ \textcolor{comment}{//\ TODO:\ Send\ promotion\ choice\ to\ game\ task}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00126}00126\ \ \ \ \ \textcolor{comment}{//\ For\ now,\ just\ log\ the\ choice}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00127}00127\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00128}00128\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;\ \ \textcolor{comment}{//\ Uspech}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00129}00129\ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00130}00130\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00137}\mbox{\hyperlink{promotion__button__task_8h_a0e0d52d07d70caef22af40a2969e79c3}{00137}}\ esp\_err\_t\ \mbox{\hyperlink{promotion__button__task_8c_a0e0d52d07d70caef22af40a2969e79c3}{simulate\_promotion\_button\_press}}(uint8\_t\ button\_index)}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00138}00138\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00139}00139\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{promotion__button__task_8c_abbaaee3316ba8718fb74559d7c93df9b}{promotion\_button\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00140}00140\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00141}00141\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00142}00142\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00143}00143\ \ \ \ \ \textcolor{keywordflow}{if}\ (button\_index\ >=\ 4)\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00144}00144\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Invalid\ button\ index:\ \%d\ (must\ be\ 0-\/3)"{}},\ button\_index);}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00145}00145\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00146}00146\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00147}00147\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00148}00148\ \ \ \ \ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}{promotion\_choice\_t}}\ choice;}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00149}00149\ \ \ \ \ \textcolor{keywordflow}{switch}\ (button\_index)\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00150}00150\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 0:\ choice\ =\ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237ace7ae3bfdb598aeffb32c01d08805045}{PROMOTION\_QUEEN}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00151}00151\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 1:\ choice\ =\ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237a86adcf7f4dd13fe13c310740b684fd85}{PROMOTION\_ROOK}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00152}00152\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 2:\ choice\ =\ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237af76338fd133ad75d03265525fab6a060}{PROMOTION\_BISHOP}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00153}00153\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 3:\ choice\ =\ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237a38e92903ca7d679f019bbc0895c00910}{PROMOTION\_KNIGHT}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00154}00154\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:\ choice\ =\ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237ace7ae3bfdb598aeffb32c01d08805045}{PROMOTION\_QUEEN}};\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00155}00155\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00156}00156\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00157}00157\ \ \ \ \ \textcolor{comment}{//\ Simulation\ mode\ -\/\ just\ log\ the\ event}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00158}00158\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00159}00159\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Simulated\ promotion\ button\ \%d\ press\ (choice:\ \%d)"{}},\ button\_index,\ choice);}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00160}00160\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00161}00161\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00162}00162\ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00163}00163\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00169}\mbox{\hyperlink{promotion__button__task_8h_af6e9bc64868813a9a0c6134a471aefc9}{00169}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{promotion__button__task_8c_af6e9bc64868813a9a0c6134a471aefc9}{promotion\_button\_is\_initialized}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00170}00170\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00171}00171\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{promotion__button__task_8c_abbaaee3316ba8718fb74559d7c93df9b}{promotion\_button\_initialized}};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00172}00172\ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00173}00173\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00179}\mbox{\hyperlink{promotion__button__task_8h_acc92043a584171d17f29d9e0ae9bbd1a}{00179}}\ uint32\_t\ \mbox{\hyperlink{promotion__button__task_8c_acc92043a584171d17f29d9e0ae9bbd1a}{promotion\_button\_get\_event\_count}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00180}00180\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00181}00181\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{promotion__button__task_8c_ab36b66e9f95206af3b83dfa622d5cc7d}{button\_event\_count}};}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8c_source_l00182}00182\ \}}
+
+\end{DoxyCode}

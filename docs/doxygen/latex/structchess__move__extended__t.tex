@@ -1,0 +1,225 @@
+\doxysection{Dokumentace struktury chess\+\_\+move\+\_\+extended\+\_\+t}
+\hypertarget{structchess__move__extended__t}{}\label{structchess__move__extended__t}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+
+
+Rozsirena struktura tahu pro kompletni sachovou logiku.  
+
+
+
+
+{\ttfamily \#include $<$chess\+\_\+types.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structchess__move__extended__t_a7e73820058cbbef9a1cfa47dfd1e5f9e}{from\+\_\+row}}
+\begin{DoxyCompactList}\small\item\em Zdrojovy radek (0-\/7). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structchess__move__extended__t_a8ff4fcb8d2a94dfbc8f099a4815534c8}{from\+\_\+col}}
+\begin{DoxyCompactList}\small\item\em Zdrojovy sloupec (0-\/7). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structchess__move__extended__t_a287d533872003ff749138ed16e12d299}{to\+\_\+row}}
+\begin{DoxyCompactList}\small\item\em Cilovy radek (0-\/7). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structchess__move__extended__t_aa5a0ffb4e21787a7ad0b6843b296ceda}{to\+\_\+col}}
+\begin{DoxyCompactList}\small\item\em Cilovy sloupec (0-\/7). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \mbox{\hyperlink{structchess__move__extended__t_aec665ac464d3a9223022d74795a4a8ab}{piece}}
+\begin{DoxyCompactList}\small\item\em Figurka ktera se pohybuje. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \mbox{\hyperlink{structchess__move__extended__t_a16faacd78ba6e8d0036fe058422762d0}{captured\+\_\+piece}}
+\begin{DoxyCompactList}\small\item\em Sebrana figurka. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576}{move\+\_\+type\+\_\+t}} \mbox{\hyperlink{structchess__move__extended__t_ae6200dd0d0fe9610ed5ee1de3d410aa0}{move\+\_\+type}}
+\begin{DoxyCompactList}\small\item\em Typ tahu (normal, capture, castle, ...). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}{promotion\+\_\+choice\+\_\+t}} \mbox{\hyperlink{structchess__move__extended__t_ad18a1ba58a42a71b7004dc78a654a0dc}{promotion\+\_\+piece}}
+\begin{DoxyCompactList}\small\item\em Figurka pro promoci (pokud je to promoce). \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structchess__move__extended__t_a446b69d07624770d7f9caed4a8f9c01a}{timestamp}}
+\begin{DoxyCompactList}\small\item\em Casova znamka tahu. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structchess__move__extended__t_ab73d86e56bd5ce7bae6cc0029f8ab1e4}{is\+\_\+check}}
+\begin{DoxyCompactList}\small\item\em Je to sach? \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structchess__move__extended__t_a888c1191497c06e0485a65c7a5b8223a}{is\+\_\+checkmate}}
+\begin{DoxyCompactList}\small\item\em Je to mat? \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structchess__move__extended__t_a64548a3d3b994e79cfddb1ff7ec47680}{is\+\_\+stalemate}}
+\begin{DoxyCompactList}\small\item\em Je to pat? \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Rozsirena struktura tahu pro kompletni sachovou logiku. 
+
+Obsahuje vsechny informace o tahu vcetne specialnich vlastnosti jako je promoce, sach, mat a pat. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00201}{201}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structchess__move__extended__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structchess__move__extended__t_a16faacd78ba6e8d0036fe058422762d0}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!captured\_piece@{captured\_piece}}
+\index{captured\_piece@{captured\_piece}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{captured\_piece}{captured\_piece}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_a16faacd78ba6e8d0036fe058422762d0} 
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} chess\+\_\+move\+\_\+extended\+\_\+t\+::captured\+\_\+piece}
+
+
+
+Sebrana figurka. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00207}{207}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_a8ff4fcb8d2a94dfbc8f099a4815534c8}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!from\_col@{from\_col}}
+\index{from\_col@{from\_col}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{from\_col}{from\_col}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_a8ff4fcb8d2a94dfbc8f099a4815534c8} 
+uint8\+\_\+t chess\+\_\+move\+\_\+extended\+\_\+t\+::from\+\_\+col}
+
+
+
+Zdrojovy sloupec (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00203}{203}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_a7e73820058cbbef9a1cfa47dfd1e5f9e}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!from\_row@{from\_row}}
+\index{from\_row@{from\_row}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{from\_row}{from\_row}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_a7e73820058cbbef9a1cfa47dfd1e5f9e} 
+uint8\+\_\+t chess\+\_\+move\+\_\+extended\+\_\+t\+::from\+\_\+row}
+
+
+
+Zdrojovy radek (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00202}{202}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_ab73d86e56bd5ce7bae6cc0029f8ab1e4}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!is\_check@{is\_check}}
+\index{is\_check@{is\_check}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{is\_check}{is\_check}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_ab73d86e56bd5ce7bae6cc0029f8ab1e4} 
+bool chess\+\_\+move\+\_\+extended\+\_\+t\+::is\+\_\+check}
+
+
+
+Je to sach? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00211}{211}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_a888c1191497c06e0485a65c7a5b8223a}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!is\_checkmate@{is\_checkmate}}
+\index{is\_checkmate@{is\_checkmate}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{is\_checkmate}{is\_checkmate}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_a888c1191497c06e0485a65c7a5b8223a} 
+bool chess\+\_\+move\+\_\+extended\+\_\+t\+::is\+\_\+checkmate}
+
+
+
+Je to mat? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00212}{212}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_a64548a3d3b994e79cfddb1ff7ec47680}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!is\_stalemate@{is\_stalemate}}
+\index{is\_stalemate@{is\_stalemate}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{is\_stalemate}{is\_stalemate}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_a64548a3d3b994e79cfddb1ff7ec47680} 
+bool chess\+\_\+move\+\_\+extended\+\_\+t\+::is\+\_\+stalemate}
+
+
+
+Je to pat? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00213}{213}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_ae6200dd0d0fe9610ed5ee1de3d410aa0}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!move\_type@{move\_type}}
+\index{move\_type@{move\_type}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{move\_type}{move\_type}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_ae6200dd0d0fe9610ed5ee1de3d410aa0} 
+\mbox{\hyperlink{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576}{move\+\_\+type\+\_\+t}} chess\+\_\+move\+\_\+extended\+\_\+t\+::move\+\_\+type}
+
+
+
+Typ tahu (normal, capture, castle, ...). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00208}{208}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_aec665ac464d3a9223022d74795a4a8ab}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!piece@{piece}}
+\index{piece@{piece}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{piece}{piece}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_aec665ac464d3a9223022d74795a4a8ab} 
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} chess\+\_\+move\+\_\+extended\+\_\+t\+::piece}
+
+
+
+Figurka ktera se pohybuje. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00206}{206}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_ad18a1ba58a42a71b7004dc78a654a0dc}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!promotion\_piece@{promotion\_piece}}
+\index{promotion\_piece@{promotion\_piece}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{promotion\_piece}{promotion\_piece}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_ad18a1ba58a42a71b7004dc78a654a0dc} 
+\mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}{promotion\+\_\+choice\+\_\+t}} chess\+\_\+move\+\_\+extended\+\_\+t\+::promotion\+\_\+piece}
+
+
+
+Figurka pro promoci (pokud je to promoce). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00209}{209}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_a446b69d07624770d7f9caed4a8f9c01a}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!timestamp@{timestamp}}
+\index{timestamp@{timestamp}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{timestamp}{timestamp}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_a446b69d07624770d7f9caed4a8f9c01a} 
+uint32\+\_\+t chess\+\_\+move\+\_\+extended\+\_\+t\+::timestamp}
+
+
+
+Casova znamka tahu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00210}{210}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_aa5a0ffb4e21787a7ad0b6843b296ceda}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!to\_col@{to\_col}}
+\index{to\_col@{to\_col}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{to\_col}{to\_col}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_aa5a0ffb4e21787a7ad0b6843b296ceda} 
+uint8\+\_\+t chess\+\_\+move\+\_\+extended\+\_\+t\+::to\+\_\+col}
+
+
+
+Cilovy sloupec (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00205}{205}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__extended__t_a287d533872003ff749138ed16e12d299}\index{chess\_move\_extended\_t@{chess\_move\_extended\_t}!to\_row@{to\_row}}
+\index{to\_row@{to\_row}!chess\_move\_extended\_t@{chess\_move\_extended\_t}}
+\doxysubsubsection{\texorpdfstring{to\_row}{to\_row}}
+{\footnotesize\ttfamily \label{structchess__move__extended__t_a287d533872003ff749138ed16e12d299} 
+uint8\+\_\+t chess\+\_\+move\+\_\+extended\+\_\+t\+::to\+\_\+row}
+
+
+
+Cilovy radek (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00204}{204}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{chess__types_8h}{chess\+\_\+types.\+h}}\end{DoxyCompactItemize}

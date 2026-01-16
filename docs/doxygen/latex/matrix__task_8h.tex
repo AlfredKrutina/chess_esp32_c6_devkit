@@ -1,0 +1,372 @@
+\doxysection{Dokumentace souboru matrix\+\_\+task.\+h}
+\hypertarget{matrix__task_8h}{}\label{matrix__task_8h}\index{matrix\_task.h@{matrix\_task.h}}
+
+
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Matrix Task Hlavicka.  
+
+
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro matrix\+\_\+task.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{matrix__task_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{matrix__task_8h_a61e7f4685d87d40d712b5de9b8d22222}{matrix\+\_\+task\+\_\+start}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Spusti matrix task. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_a395c914a55ec3ebc25a3a3af66d6bba8}{matrix\+\_\+scan\+\_\+row}} (uint8\+\_\+t row)
+\begin{DoxyCompactList}\small\item\em Oskenuj jeden radek matice. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_a86518ffc745875b5c3c34d7c96f7e186}{matrix\+\_\+scan\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Oskenuj celou matici. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_ad81a1142e821938e81029ad1d88f57d7}{matrix\+\_\+detect\+\_\+moves}} (void)
+\begin{DoxyCompactList}\small\item\em Detekuj tahy z matice. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_a9f313f74d8c7d9bac02294a7f873eb75}{matrix\+\_\+detect\+\_\+complete\+\_\+move}} (uint8\+\_\+t from\+\_\+square, uint8\+\_\+t to\+\_\+square)
+\begin{DoxyCompactList}\small\item\em Detekuj kompletni tah. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_ab2ee938ff9e39dbaeed9729d194db94a}{matrix\+\_\+square\+\_\+to\+\_\+notation}} (uint8\+\_\+t square, char \texorpdfstring{$\ast$}{*}notation)
+\begin{DoxyCompactList}\small\item\em Prevede cislo pole na sachovou notaci. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{matrix__task_8h_a7401a07900074895370aa1ba67a95c56}{matrix\+\_\+notation\+\_\+to\+\_\+square}} (const char \texorpdfstring{$\ast$}{*}notation)
+\begin{DoxyCompactList}\small\item\em Prevede sachovou notaci na cislo pole. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_a4879f19808c12282ff427342dfea0f12}{matrix\+\_\+print\+\_\+state}} (void)
+\begin{DoxyCompactList}\small\item\em Vypis aktualni stav matice. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_ac791c32154297e3ceebd47d8096cc8b9}{matrix\+\_\+simulate\+\_\+move}} (const char \texorpdfstring{$\ast$}{*}from, const char \texorpdfstring{$\ast$}{*}to)
+\begin{DoxyCompactList}\small\item\em Simuluj tah v matici. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_a62798e0c14260b016d8d1739dedc2056}{matrix\+\_\+get\+\_\+state}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}state\+\_\+buffer)
+\begin{DoxyCompactList}\small\item\em Ziskej stav matice. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_a60eff3fc23741f64ce1c24d5d556906b}{matrix\+\_\+process\+\_\+commands}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj matrix prikazy z fronty. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_aa7161ac2bf0076cc5ddfc91270c2bd34}{matrix\+\_\+reset}} (void)
+\begin{DoxyCompactList}\small\item\em Resetuj stav matice. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_a9afd14fa75a6cfa6e37480b4935cd285}{matrix\+\_\+release\+\_\+pins}} (void)
+\begin{DoxyCompactList}\small\item\em Uvolni matrix row piny pro button scanning. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{matrix__task_8h_a8162927b4230f6777b1d42deec017797}{matrix\+\_\+acquire\+\_\+pins}} (void)
+\begin{DoxyCompactList}\small\item\em Znovu aktivuj matrix row piny pro matrix scanning. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{matrix__task_8h_a4ffeb65e7984e50f1ad65b6a92c304cf}{matrix\+\_\+pins\+\_\+released}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda jsou matrix piny uvolnene pro button scan. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Matrix Task Hlavicka. 
+
+Tato hlavicka definuje rozhrani pro matrix task\+:
+\begin{DoxyItemize}
+\item Skenovani 8x8 reed switch matice
+\item Detekce a validace tahu
+\item Generovani maticovych udalosti
+\item Time-\/multiplexed GPIO ovladani
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/24
+\end{DoxyDate}
+Matrix task je zodpovedny za detekci figurek na sachovnici pomoci 8x8 reed switch matice. Skenuje matici kazdych 20ms a detekuje kdy hrac zvedne nebo polozi figurku. Komunikuje s game taskem pres fronty.
+
+Hardware\+:
+\begin{DoxyItemize}
+\item 8x8 reed switch matice
+\item Row piny\+: GPIO10-\/11,18-\/23 (vystupy)
+\item Column piny\+: GPIO0-\/3,6,14,16-\/17 (vstupy s pull-\/up)
+\item Time-\/multiplexed s tlacitkama 
+\end{DoxyItemize}
+
+Definice v souboru \mbox{\hyperlink{matrix__task_8h_source}{matrix\+\_\+task.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{matrix__task_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{matrix__task_8h_a8162927b4230f6777b1d42deec017797}\index{matrix\_task.h@{matrix\_task.h}!matrix\_acquire\_pins@{matrix\_acquire\_pins}}
+\index{matrix\_acquire\_pins@{matrix\_acquire\_pins}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_acquire\_pins()}{matrix\_acquire\_pins()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a8162927b4230f6777b1d42deec017797} 
+void matrix\+\_\+acquire\+\_\+pins (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Znovu aktivuj matrix row piny pro matrix scanning. 
+
+Obnovi normalni matrix scanning rezim. Vola se po button scan window.
+
+Tato funkce obnovi matrix scanning po button scan window. Matrix muze pokracovat v normalnim skenovani.
+
+Obnovi normalni matrix scanning rezim po button scan window.
+
+Tato funkce je volana po button scan window. Matrix muze pokracovat v normalnim skenovani. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00846}{846}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_a9f313f74d8c7d9bac02294a7f873eb75}\index{matrix\_task.h@{matrix\_task.h}!matrix\_detect\_complete\_move@{matrix\_detect\_complete\_move}}
+\index{matrix\_detect\_complete\_move@{matrix\_detect\_complete\_move}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_detect\_complete\_move()}{matrix\_detect\_complete\_move()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a9f313f74d8c7d9bac02294a7f873eb75} 
+void matrix\+\_\+detect\+\_\+complete\+\_\+move (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+square}{, }\item[{uint8\+\_\+t}]{to\+\_\+square}{}\end{DoxyParamCaption})}
+
+
+
+Detekuj kompletni tah. 
+
+Detekuje kompletni tah (zvednutí + položení figurky) a posle MATRIX\+\_\+\+EVENT\+\_\+\+MOVE\+\_\+\+DETECTED udalost.
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+square} & Zdrojove pole (0-\/63) \\
+\hline
+{\em to\+\_\+square} & Cilove pole (0-\/63) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00596}{596}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_ad81a1142e821938e81029ad1d88f57d7}\index{matrix\_task.h@{matrix\_task.h}!matrix\_detect\_moves@{matrix\_detect\_moves}}
+\index{matrix\_detect\_moves@{matrix\_detect\_moves}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_detect\_moves()}{matrix\_detect\_moves()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_ad81a1142e821938e81029ad1d88f57d7} 
+void matrix\+\_\+detect\+\_\+moves (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Detekuj tahy z matice. 
+
+Hleda prechody 1-\/\texorpdfstring{$>$}{>}0 (figurka zvednuta) a 0-\/\texorpdfstring{$>$}{>}1 (figurka polozena) a generuje maticove udalosti. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00517}{517}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_a62798e0c14260b016d8d1739dedc2056}\index{matrix\_task.h@{matrix\_task.h}!matrix\_get\_state@{matrix\_get\_state}}
+\index{matrix\_get\_state@{matrix\_get\_state}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_get\_state()}{matrix\_get\_state()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a62798e0c14260b016d8d1739dedc2056} 
+void matrix\+\_\+get\+\_\+state (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{state\+\_\+buffer}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej stav matice. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+\mbox{\texttt{out}}  & {\em state\+\_\+buffer} & Buffer pro 64-\/prvkove pole stavu (1 = piece, 0 = empty) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00643}{643}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_a7401a07900074895370aa1ba67a95c56}\index{matrix\_task.h@{matrix\_task.h}!matrix\_notation\_to\_square@{matrix\_notation\_to\_square}}
+\index{matrix\_notation\_to\_square@{matrix\_notation\_to\_square}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_notation\_to\_square()}{matrix\_notation\_to\_square()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a7401a07900074895370aa1ba67a95c56} 
+uint8\+\_\+t matrix\+\_\+notation\+\_\+to\+\_\+square (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{notation}{}\end{DoxyParamCaption})}
+
+
+
+Prevede sachovou notaci na cislo pole. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em notation} & Sachova notace (napr. "{}e2"{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Cislo pole (0-\/63) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00626}{626}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_a4ffeb65e7984e50f1ad65b6a92c304cf}\index{matrix\_task.h@{matrix\_task.h}!matrix\_pins\_released@{matrix\_pins\_released}}
+\index{matrix\_pins\_released@{matrix\_pins\_released}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_pins\_released()}{matrix\_pins\_released()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a4ffeb65e7984e50f1ad65b6a92c304cf} 
+bool matrix\+\_\+pins\+\_\+released (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda jsou matrix piny uvolnene pro button scan. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud jsou piny uvolnene (vsechny rows HIGH)
+\end{DoxyReturn}
+Overi zda jsou matrix piny uvolnene pro button scan.
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud jsou vsechny row piny HIGH (uvolnene) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00859}{859}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_a4879f19808c12282ff427342dfea0f12}\index{matrix\_task.h@{matrix\_task.h}!matrix\_print\_state@{matrix\_print\_state}}
+\index{matrix\_print\_state@{matrix\_print\_state}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_print\_state()}{matrix\_print\_state()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a4879f19808c12282ff427342dfea0f12} 
+void matrix\+\_\+print\+\_\+state (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vypis aktualni stav matice. 
+
+Vypise 8x8 matici s aktualni stav vsech poli (0 = prazdne, 1 = figurka). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00651}{651}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_a60eff3fc23741f64ce1c24d5d556906b}\index{matrix\_task.h@{matrix\_task.h}!matrix\_process\_commands@{matrix\_process\_commands}}
+\index{matrix\_process\_commands@{matrix\_process\_commands}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_process\_commands()}{matrix\_process\_commands()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a60eff3fc23741f64ce1c24d5d556906b} 
+void matrix\+\_\+process\+\_\+commands (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj matrix prikazy z fronty. 
+
+Cte prikazy z matrix\+\_\+command\+\_\+queue a vykonava je (scan, reset, test, calibrate, enable/disable). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00748}{748}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_a9afd14fa75a6cfa6e37480b4935cd285}\index{matrix\_task.h@{matrix\_task.h}!matrix\_release\_pins@{matrix\_release\_pins}}
+\index{matrix\_release\_pins@{matrix\_release\_pins}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_release\_pins()}{matrix\_release\_pins()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a9afd14fa75a6cfa6e37480b4935cd285} 
+void matrix\+\_\+release\+\_\+pins (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Uvolni matrix row piny pro button scanning. 
+
+Nastavi vsechny row piny na HIGH (neaktivni stav) aby button task mohl cist column piny bez interference. Vola se pred button scan window.
+
+Tato funkce MUSI byt volana pred \doxylink{button__task_8c_a5fb2a771d8252d20fc0ad4d97667d4df}{button\+\_\+scan\+\_\+all()} aby nedoslo ke konfliktum na sdilenych column pinech (MATRIX\+\_\+\+COL\+\_\+0-\/7).
+
+Nastavi vsechny row piny na HIGH (neaktivni stav) aby button task mohl cist column piny bez interference.
+
+Tato funkce je volana pred button scan window (20-\/25ms). Vsechny row piny jsou nastaveny na HIGH (pulled up) takze column piny mohou byt bezpecne cteny pro button detection. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00827}{827}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_aa7161ac2bf0076cc5ddfc91270c2bd34}\index{matrix\_task.h@{matrix\_task.h}!matrix\_reset@{matrix\_reset}}
+\index{matrix\_reset@{matrix\_reset}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_reset()}{matrix\_reset()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_aa7161ac2bf0076cc5ddfc91270c2bd34} 
+void matrix\+\_\+reset (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Resetuj stav matice. 
+
+Vymaze vsechny vnitrni stavy matice a resetuje detekci tahu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00792}{792}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_a86518ffc745875b5c3c34d7c96f7e186}\index{matrix\_task.h@{matrix\_task.h}!matrix\_scan\_all@{matrix\_scan\_all}}
+\index{matrix\_scan\_all@{matrix\_scan\_all}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_scan\_all()}{matrix\_scan\_all()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a86518ffc745875b5c3c34d7c96f7e186} 
+void matrix\+\_\+scan\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Oskenuj celou matici. 
+
+Oskenuje vsech 8 radku matice a detekuje zmeny stavu. Pouziva mutex pro thread-\/safe pristup ke stavu matice. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00327}{327}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_a395c914a55ec3ebc25a3a3af66d6bba8}\index{matrix\_task.h@{matrix\_task.h}!matrix\_scan\_row@{matrix\_scan\_row}}
+\index{matrix\_scan\_row@{matrix\_scan\_row}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_scan\_row()}{matrix\_scan\_row()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a395c914a55ec3ebc25a3a3af66d6bba8} 
+void matrix\+\_\+scan\+\_\+row (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{}\end{DoxyParamCaption})}
+
+
+
+Oskenuj jeden radek matice. 
+
+Nastavi radkovy pin na HIGH, precte vsechny sloupcove piny a aktualizuje stav matice pro tento radek.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek k oskenovani (0-\/7) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00309}{309}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_ac791c32154297e3ceebd47d8096cc8b9}\index{matrix\_task.h@{matrix\_task.h}!matrix\_simulate\_move@{matrix\_simulate\_move}}
+\index{matrix\_simulate\_move@{matrix\_simulate\_move}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_simulate\_move()}{matrix\_simulate\_move()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_ac791c32154297e3ceebd47d8096cc8b9} 
+void matrix\+\_\+simulate\+\_\+move (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{from}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{to}{}\end{DoxyParamCaption})}
+
+
+
+Simuluj tah v matici. 
+
+Pro testovani -\/ simuluje zvednutí figurky z jednoho pole a polozeni na jine pole.
+
+
+\begin{DoxyParams}{Parametry}
+{\em from} & Zdrojova sachova notace (napr. "{}e2"{}) \\
+\hline
+{\em to} & Cilova sachova notace (napr. "{}e4"{}) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00721}{721}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_ab2ee938ff9e39dbaeed9729d194db94a}\index{matrix\_task.h@{matrix\_task.h}!matrix\_square\_to\_notation@{matrix\_square\_to\_notation}}
+\index{matrix\_square\_to\_notation@{matrix\_square\_to\_notation}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_square\_to\_notation()}{matrix\_square\_to\_notation()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_ab2ee938ff9e39dbaeed9729d194db94a} 
+void matrix\+\_\+square\+\_\+to\+\_\+notation (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{square}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{notation}{}\end{DoxyParamCaption})}
+
+
+
+Prevede cislo pole na sachovou notaci. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+ & {\em square} & Cislo pole (0-\/63) \\
+\hline
+\mbox{\texttt{out}}  & {\em notation} & Vystupni buffer pro notaci (min. 3 znaky) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00614}{614}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+
+\Hypertarget{matrix__task_8h_a61e7f4685d87d40d712b5de9b8d22222}\index{matrix\_task.h@{matrix\_task.h}!matrix\_task\_start@{matrix\_task\_start}}
+\index{matrix\_task\_start@{matrix\_task\_start}!matrix\_task.h@{matrix\_task.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_task\_start()}{matrix\_task\_start()}}
+{\footnotesize\ttfamily \label{matrix__task_8h_a61e7f4685d87d40d712b5de9b8d22222} 
+void matrix\+\_\+task\+\_\+start (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Spusti matrix task. 
+
+Hlavni funkce matrix tasku. Bezi v nekonecne smycce a zpracovava skenovani matice kazdych 1ms. Detekuje pohyb figurek a generuje udalosti.
+
+
+\begin{DoxyParams}{Parametry}
+{\em pv\+Parameters} & Parametry tasku (nepouzivane) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00873}{873}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+

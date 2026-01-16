@@ -1,0 +1,98 @@
+\doxysection{button\+\_\+task.\+h}
+\hypertarget{button__task_8h_source}{}\label{button__task_8h_source}\index{button\_task.h@{button\_task.h}}
+\mbox{\hyperlink{button__task_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00023}00023\ \textcolor{preprocessor}{\#ifndef\ BUTTON\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00024}00024\ \textcolor{preprocessor}{\#define\ BUTTON\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00025}00025\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00028}00028\ \textcolor{preprocessor}{\#include\ "{}freertos/task.h"{}}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00029}00029\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00030}00030\ \textcolor{preprocessor}{\#include\ "{}freertos/semphr.h"{}}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00031}00031\ \textcolor{preprocessor}{\#include\ "{}freertos/timers.h"{}}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00032}00032\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00033}00033\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00034}00034\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00035}00035\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00038}00038\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00039}00039\ \textcolor{comment}{//\ KONSTANTY\ A\ DEFINICE}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00040}00040\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00046}\mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749a}{00046}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00047}\mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aab087f951763dfe8096343e91583f716c}{00047}}\ \ \ \ \ \mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aab087f951763dfe8096343e91583f716c}{BUTTON\_CMD\_RESET}}\ =\ 0,\ \ \ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00048}\mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aa067222378ede91b20155161e53d1f26b}{00048}}\ \ \ \ \ \mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aa067222378ede91b20155161e53d1f26b}{BUTTON\_CMD\_STATUS}},\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00049}\mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aac3e1e97088df34ca580325c9a48a6b84}{00049}}\ \ \ \ \ \mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aac3e1e97088df34ca580325c9a48a6b84}{BUTTON\_CMD\_TEST}}\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00050}00050\ \}\ \mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749a}{button\_command\_t}};}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00051}00051\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00053}00053\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00054}00054\ \textcolor{comment}{//\ PROTOTYPY\ TASK\ FUNKCI}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00055}00055\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00066}00066\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_af93b7fa55287e83f6caf447e756de6d2}{button\_task\_start}}(\textcolor{keywordtype}{void}\ *pvParameters);}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00067}00067\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00068}00068\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00069}00069\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00070}00070\ \textcolor{comment}{//\ FUNKCE\ PRO\ SKENOVANI\ TLACITEK}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00071}00071\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00072}00072\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00080}00080\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_a5fb2a771d8252d20fc0ad4d97667d4df}{button\_scan\_all}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00081}00081\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00087}00087\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_a133a427b3e47eeb0e857d1efd4bbfe57}{button\_simulate\_press}}(uint8\_t\ button\_id);}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00088}00088\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00094}00094\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_a2f22af1e62d703a6cd12cfa7d7058865}{button\_simulate\_release}}(uint8\_t\ button\_id);}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00095}00095\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00096}00096\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00097}00097\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00098}00098\ \textcolor{comment}{//\ FUNKCE\ PRO\ ZPRACOVANI\ BUTTON\ UDALOSTI}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00099}00099\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00101}00101\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00108}00108\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_aedc6316fcaee517a7a57905a217d44b8}{button\_process\_events}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00109}00109\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00115}00115\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_aae052fa1d3a64d8c90bb3ec9dc3e4210}{button\_handle\_press}}(uint8\_t\ button\_id);}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00116}00116\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00122}00122\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_a52544805262bb1776fcdb432960eb7be}{button\_handle\_release}}(uint8\_t\ button\_id);}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00123}00123\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00132}00132\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_a506457119e2e5819ca95c3e876de7d5e}{button\_check\_double\_press}}(uint8\_t\ button\_id);}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00133}00133\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00141}00141\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_a9c76fbdf52fcd61692a0ace95907507f}{button\_send\_event}}(uint8\_t\ button\_id,\ \mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904b}{button\_event\_type\_t}}\ event\_type,\ uint32\_t\ duration);}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00142}00142\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00143}00143\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00144}00144\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00145}00145\ \textcolor{comment}{//\ FUNKCE\ PRO\ LED\ FEEDBACK\ TLACITEK}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00146}00146\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00147}00147\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00148}00148\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00158}00158\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_a558352d2b9df8e61bfada7d422249e64}{button\_update\_led\_feedback}}(uint8\_t\ button\_id,\ \textcolor{keywordtype}{bool}\ pressed);}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00159}00159\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00168}00168\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_ad004f184d705cb6e12a079c8105867bc}{button\_set\_led\_color}}(uint8\_t\ led\_index,\ uint8\_t\ red,\ uint8\_t\ green,\ uint8\_t\ blue);}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00169}00169\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00170}00170\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00171}00171\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00172}00172\ \textcolor{comment}{//\ FUNKCE\ PRO\ ZPRACOVANI\ PRIKAZU}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00173}00173\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00174}00174\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00175}00175\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00181}00181\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_a0e6a1befa86d6dcea575c1effa25fb6d}{button\_process\_commands}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00182}00182\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00188}00188\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_a97c84f568244fb112e4828e2985529ec}{button\_reset\_all}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00189}00189\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00195}00195\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_a1573d1d2a02b4e2b619b9ef45e09fda5}{button\_print\_status}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00196}00196\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00203}00203\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8h_ae20ae1cc0ee0a2af8cdae453a22296a2}{button\_test\_all}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00204}00204\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00205}00205\ }
+\DoxyCodeLine{\Hypertarget{button__task_8h_source_l00206}00206\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ BUTTON\_TASK\_H}}
+
+\end{DoxyCode}

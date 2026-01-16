@@ -1,0 +1,712 @@
+\doxysection{enhanced\+\_\+castling\+\_\+system.\+c}
+\hypertarget{enhanced__castling__system_8c_source}{}\label{enhanced__castling__system_8c_source}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\mbox{\hyperlink{enhanced__castling__system_8c}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00020}00020\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00021}00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{enhanced__castling__system_8h}{enhanced\_castling\_system.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00022}00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00023}00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{game__led__animations_8h}{game\_led\_animations.h}}"{}}\ \textcolor{comment}{//\ For\ rgb\_color\_t}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00024}00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__task_8h}{led\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__mapping_8h}{led\_mapping.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}esp\_log.h"{}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}esp\_timer.h"{}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00028}00028\ \textcolor{preprocessor}{\#include\ "{}string.h"{}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00030}\mbox{\hyperlink{enhanced__castling__system_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00030}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}}\ =\ \textcolor{stringliteral}{"{}ENHANCED\_CASTLING"{}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00032}00032\ \textcolor{comment}{//\ Global\ castling\ system\ instance}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00033}\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{00033}}\ \mbox{\hyperlink{structenhanced__castling__system__t}{enhanced\_castling\_system\_t}}\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00035}00035\ \textcolor{comment}{//\ LED\ configuration\ with\ default\ values}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00036}\mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{00036}}\ \mbox{\hyperlink{structcastling__led__config__t}{castling\_led\_config\_t}}\ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00037}00037\ \ \ \ \ .colors\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00038}00038\ \ \ \ \ \ \ \ \ .king\_highlight\ =\ \{.r\ =\ 255,\ .g\ =\ 215,\ .b\ =\ 0\},\ \ \ \ \ \ \textcolor{comment}{//\ Zlatá}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00039}00039\ \ \ \ \ \ \ \ \ .king\_destination\ =\ \{.r\ =\ 0,\ .g\ =\ 255,\ .b\ =\ 0\},\ \ \ \ \ \ \textcolor{comment}{//\ Zelená}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00040}00040\ \ \ \ \ \ \ \ \ .rook\_highlight\ =\ \{.r\ =\ 192,\ .g\ =\ 192,\ .b\ =\ 192\},\ \ \ \ \textcolor{comment}{//\ Stříbrná}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00041}00041\ \ \ \ \ \ \ \ \ .rook\_destination\ =\ \{.r\ =\ 0,\ .g\ =\ 0,\ .b\ =\ 255\},\ \ \ \ \ \ \textcolor{comment}{//\ Modrá}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00042}00042\ \ \ \ \ \ \ \ \ .error\_indication\ =\ \{.r\ =\ 255,\ .g\ =\ 0,\ .b\ =\ 0\},\ \ \ \ \ \ \textcolor{comment}{//\ Červená}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00043}00043\ \ \ \ \ \ \ \ \ .path\_guidance\ =\ \{.r\ =\ 255,\ .g\ =\ 255,\ .b\ =\ 0\}\ \ \ \ \ \ \ \ \textcolor{comment}{//\ Žlutá}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00044}00044\ \ \ \ \ \},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00045}00045\ \ \ \ \ .timing\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00046}00046\ \ \ \ \ \ \ \ \ .pulsing\_speed\ =\ 500,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 500ms}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00047}00047\ \ \ \ \ \ \ \ \ .guidance\_speed\ =\ 300,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 300ms}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00048}00048\ \ \ \ \ \ \ \ \ .error\_flash\_count\ =\ 3,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 3x\ bliknutí}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00049}00049\ \ \ \ \ \ \ \ \ .completion\_celebration\_duration\ =\ 2000\ \textcolor{comment}{//\ 2s}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00050}00050\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00051}00051\ \};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00053}00053\ \textcolor{comment}{//\ Error\ information\ lookup\ table}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00054}\mbox{\hyperlink{enhanced__castling__system_8c_a5a197b52b2c4d4ef9749cf548d08f361}{00054}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structcastling__error__info__t}{castling\_error\_info\_t}}\ \mbox{\hyperlink{enhanced__castling__system_8c_a5a197b52b2c4d4ef9749cf548d08f361}{error\_info}}[]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00055}00055\ \ \ \ \ [\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a573c50f91e017666758f1305c0b66dd4}{CASTLING\_ERROR\_NONE}}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00056}00056\ \ \ \ \ \ \ \ \ .error\_type\ =\ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a573c50f91e017666758f1305c0b66dd4}{CASTLING\_ERROR\_NONE}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00057}00057\ \ \ \ \ \ \ \ \ .description\ =\ \textcolor{stringliteral}{"{}No\ error"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00058}00058\ \ \ \ \ \ \ \ \ .error\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00059}00059\ \ \ \ \ \ \ \ \ .correction\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00060}00060\ \ \ \ \ \ \ \ \ .recovery\_action\ =\ NULL}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00061}00061\ \ \ \ \ \},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00062}00062\ \ \ \ \ [\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a1db8f8d658faee09a9c932202bb42cce}{CASTLING\_ERROR\_WRONG\_KING\_POSITION}}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00063}00063\ \ \ \ \ \ \ \ \ .error\_type\ =\ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a1db8f8d658faee09a9c932202bb42cce}{CASTLING\_ERROR\_WRONG\_KING\_POSITION}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00064}00064\ \ \ \ \ \ \ \ \ .description\ =\ \textcolor{stringliteral}{"{}King\ is\ not\ in\ correct\ position\ for\ castling"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00065}00065\ \ \ \ \ \ \ \ \ .error\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00066}00066\ \ \ \ \ \ \ \ \ .correction\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00067}00067\ \ \ \ \ \ \ \ \ .recovery\_action\ =\ \mbox{\hyperlink{enhanced__castling__system_8c_afe8c7b5de0f3719166f89e975059247c}{castling\_recover\_king\_wrong\_position}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00068}00068\ \ \ \ \ \},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00069}00069\ \ \ \ \ [\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a722a013d2eb253c852c9903fbb05fa50}{CASTLING\_ERROR\_WRONG\_ROOK\_POSITION}}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00070}00070\ \ \ \ \ \ \ \ \ .error\_type\ =\ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a722a013d2eb253c852c9903fbb05fa50}{CASTLING\_ERROR\_WRONG\_ROOK\_POSITION}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00071}00071\ \ \ \ \ \ \ \ \ .description\ =\ \textcolor{stringliteral}{"{}Rook\ is\ not\ in\ correct\ position\ for\ castling"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00072}00072\ \ \ \ \ \ \ \ \ .error\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00073}00073\ \ \ \ \ \ \ \ \ .correction\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00074}00074\ \ \ \ \ \ \ \ \ .recovery\_action\ =\ \mbox{\hyperlink{enhanced__castling__system_8c_a61e387e4475acd4a6c9db96fc1333e1f}{castling\_recover\_rook\_wrong\_position}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00075}00075\ \ \ \ \ \},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00076}00076\ \ \ \ \ [\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1aad564a60d4b825e5595c9d6375cae76e}{CASTLING\_ERROR\_TIMEOUT}}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00077}00077\ \ \ \ \ \ \ \ \ .error\_type\ =\ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1aad564a60d4b825e5595c9d6375cae76e}{CASTLING\_ERROR\_TIMEOUT}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00078}00078\ \ \ \ \ \ \ \ \ .description\ =\ \textcolor{stringliteral}{"{}Castling\ timeout\ -\/\ move\ too\ slow"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00079}00079\ \ \ \ \ \ \ \ \ .error\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00080}00080\ \ \ \ \ \ \ \ \ .correction\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00081}00081\ \ \ \ \ \ \ \ \ .recovery\_action\ =\ \mbox{\hyperlink{enhanced__castling__system_8c_ae58c1122476af928bccd44407c0e5822}{castling\_recover\_timeout\_error}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00082}00082\ \ \ \ \ \},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00083}00083\ \ \ \ \ [\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a90e0b9f36c173915167b09f99a664084}{CASTLING\_ERROR\_INVALID\_SEQUENCE}}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00084}00084\ \ \ \ \ \ \ \ \ .error\_type\ =\ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a90e0b9f36c173915167b09f99a664084}{CASTLING\_ERROR\_INVALID\_SEQUENCE}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00085}00085\ \ \ \ \ \ \ \ \ .description\ =\ \textcolor{stringliteral}{"{}Invalid\ move\ sequence\ for\ castling"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00086}00086\ \ \ \ \ \ \ \ \ .error\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00087}00087\ \ \ \ \ \ \ \ \ .correction\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ .recovery\_action\ =\ \mbox{\hyperlink{enhanced__castling__system_8c_a12f1ed6212174d4f9532880ea94601a3}{castling\_show\_correct\_positions}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00089}00089\ \ \ \ \ \},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00090}00090\ \ \ \ \ [\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a38d391c73001939d7a3b2f25f8d0f293}{CASTLING\_ERROR\_HARDWARE\_FAILURE}}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00091}00091\ \ \ \ \ \ \ \ \ .error\_type\ =\ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a38d391c73001939d7a3b2f25f8d0f293}{CASTLING\_ERROR\_HARDWARE\_FAILURE}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00092}00092\ \ \ \ \ \ \ \ \ .description\ =\ \textcolor{stringliteral}{"{}Hardware\ failure\ during\ castling"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00093}00093\ \ \ \ \ \ \ \ \ .error\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00094}00094\ \ \ \ \ \ \ \ \ .correction\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00095}00095\ \ \ \ \ \ \ \ \ .recovery\_action\ =\ NULL}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00096}00096\ \ \ \ \ \},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00097}00097\ \ \ \ \ [\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1ae1237a1a1e6880432a366a357f452a3c}{CASTLING\_ERROR\_GAME\_STATE\_INVALID}}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00098}00098\ \ \ \ \ \ \ \ \ .error\_type\ =\ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1ae1237a1a1e6880432a366a357f452a3c}{CASTLING\_ERROR\_GAME\_STATE\_INVALID}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00099}00099\ \ \ \ \ \ \ \ \ .description\ =\ \textcolor{stringliteral}{"{}Game\ state\ is\ invalid\ for\ castling"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00100}00100\ \ \ \ \ \ \ \ \ .error\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00101}00101\ \ \ \ \ \ \ \ \ .correction\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00102}00102\ \ \ \ \ \ \ \ \ .recovery\_action\ =\ NULL}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00103}00103\ \ \ \ \ \},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00104}00104\ \ \ \ \ [\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a7df1f2f16b2c41d3e5b7f92eb9862eaf}{CASTLING\_ERROR\_MAX\_ERRORS\_EXCEEDED}}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00105}00105\ \ \ \ \ \ \ \ \ .error\_type\ =\ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a7df1f2f16b2c41d3e5b7f92eb9862eaf}{CASTLING\_ERROR\_MAX\_ERRORS\_EXCEEDED}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00106}00106\ \ \ \ \ \ \ \ \ .description\ =\ \textcolor{stringliteral}{"{}Maximum\ errors\ exceeded\ -\/\ castling\ cancelled"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00107}00107\ \ \ \ \ \ \ \ \ .error\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ .correction\_led\_positions\ =\ \{0\},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00109}00109\ \ \ \ \ \ \ \ \ .recovery\_action\ =\ \mbox{\hyperlink{enhanced__castling__system_8c_a4733364aef5fb97b725594cada6e7679}{castling\_show\_tutorial}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00110}00110\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00111}00111\ \};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00112}00112\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00116}\mbox{\hyperlink{enhanced__castling__system_8c_a61f43ef55c76d2c5863819a96679f86d}{00116}}\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8c_a61f43ef55c76d2c5863819a96679f86d}{enhanced\_castling\_init}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00117}00117\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00118}00118\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🏰\ Initializing\ Enhanced\ Castling\ System"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00119}00119\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00120}00120\ \ \ \ \ \textcolor{comment}{//\ Reset\ system\ state}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00121}00121\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_af27a9e2af8a688e4ef4f6ea423ff5952}{castling\_reset\_system}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00122}00122\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00123}00123\ \ \ \ \ \textcolor{comment}{//\ Set\ default\ configuration}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00124}00124\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.max\_errors\ =\ 3;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00125}00125\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.completion\_callback\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00126}00126\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00127}00127\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Enhanced\ Castling\ System\ initialized"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00128}00128\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00129}00129\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00130}00130\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00134}\mbox{\hyperlink{enhanced__castling__system_8c_a68473225caaf82fb02dbe69dd2b0ac90}{00134}}\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8c_a68473225caaf82fb02dbe69dd2b0ac90}{enhanced\_castling\_start}}(\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\_t}}\ \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}},\ \textcolor{keywordtype}{bool}\ is\_kingside)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00135}00135\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00136}00136\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00137}00137\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}⚠️\ Castling\ already\ active\ -\/\ cancelling\ previous"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00138}00138\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a84967829c955ce40cb552af8f336c88d}{enhanced\_castling\_cancel}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00139}00139\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00140}00140\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00141}00141\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🏰\ Starting\ castling:\ \%s\ \%s"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00142}00142\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}}\ ==\ \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f}{PLAYER\_WHITE}}\ ?\ \textcolor{stringliteral}{"{}White"{}}\ :\ \textcolor{stringliteral}{"{}Black"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00143}00143\ \ \ \ \ \ \ \ \ \ \ \ \ \ is\_kingside\ ?\ \textcolor{stringliteral}{"{}kingside"{}}\ :\ \textcolor{stringliteral}{"{}queenside"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00144}00144\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00145}00145\ \ \ \ \ \textcolor{comment}{//\ Initialize\ system}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00146}00146\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00147}00147\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.player\ =\ \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00148}00148\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.is\_kingside\ =\ is\_kingside;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00149}00149\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.error\_count\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00150}00150\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00151}00151\ \ \ \ \ \textcolor{comment}{//\ Calculate\ positions}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00152}00152\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a7fea86462c2fa344578489036f7fb9eb}{castling\_calculate\_positions}}(\mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}},\ is\_kingside);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00153}00153\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00154}00154\ \ \ \ \ \textcolor{comment}{//\ Start\ with\ king\ lift\ phase}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00155}00155\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a2addf80390a5195a77495585144214c4}{enhanced\_castling\_update\_phase}}(\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a6b8198b3c2a1bd0fc46f7d18dbfc04a6}{CASTLING\_STATE\_KING\_LIFTED}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00156}00156\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00157}00157\ \ \ \ \ \textcolor{comment}{//\ Show\ initial\ guidance}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00158}00158\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_aef98d7b498beb12daa3096022ec887e7}{castling\_show\_king\_guidance}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00159}00159\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00160}00160\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b}{castling\_log\_state\_change}}(\textcolor{stringliteral}{"{}Castling\ started"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00161}00161\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00162}00162\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00163}00163\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00167}\mbox{\hyperlink{enhanced__castling__system_8c_a71c6334fe7eed0d589acfeb1cb6aeaaf}{00167}}\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8c_a71c6334fe7eed0d589acfeb1cb6aeaaf}{enhanced\_castling\_handle\_king\_lift}}(uint8\_t\ row,\ uint8\_t\ col)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00168}00168\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00169}00169\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00170}00170\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00171}00171\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00172}00172\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00173}00173\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\ !=\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a6b8198b3c2a1bd0fc46f7d18dbfc04a6}{CASTLING\_STATE\_KING\_LIFTED}})\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00174}00174\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}⚠️\ King\ lift\ in\ wrong\ phase:\ \%d"{}},\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00175}00175\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a90e0b9f36c173915167b09f99a664084}{CASTLING\_ERROR\_INVALID\_SEQUENCE}},\ row,\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00176}00176\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00177}00177\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00178}00178\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00179}00179\ \ \ \ \ \textcolor{comment}{//\ Validate\ king\ position}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00180}00180\ \ \ \ \ \textcolor{keywordflow}{if}\ (row\ !=\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row\ ||\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00181}00181\ \ \ \ \ \ \ \ \ col\ !=\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00182}00182\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Wrong\ king\ position:\ \%d,\%d\ (expected\ \%d,\%d)"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ row,\ col,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00184}00184\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a1db8f8d658faee09a9c932202bb42cce}{CASTLING\_ERROR\_WRONG\_KING\_POSITION}},\ row,\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00185}00185\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00186}00186\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00187}00187\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00188}00188\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ King\ lifted\ from\ correct\ position:\ \%c\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ col,\ row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00190}00190\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00191}00191\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b}{castling\_log\_state\_change}}(\textcolor{stringliteral}{"{}King\ lifted"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00192}00192\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00193}00193\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00194}00194\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00198}\mbox{\hyperlink{enhanced__castling__system_8c_ac1a783168547602db601cce5f25f5ef6}{00198}}\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8c_ac1a783168547602db601cce5f25f5ef6}{enhanced\_castling\_handle\_king\_drop}}(uint8\_t\ row,\ uint8\_t\ col)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00199}00199\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00200}00200\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00201}00201\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00202}00202\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00203}00203\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00204}00204\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\ !=\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a6b8198b3c2a1bd0fc46f7d18dbfc04a6}{CASTLING\_STATE\_KING\_LIFTED}})\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00205}00205\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}⚠️\ King\ drop\ in\ wrong\ phase:\ \%d"{}},\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00206}00206\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a90e0b9f36c173915167b09f99a664084}{CASTLING\_ERROR\_INVALID\_SEQUENCE}},\ row,\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00207}00207\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00208}00208\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00209}00209\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00210}00210\ \ \ \ \ \textcolor{comment}{//\ Validate\ king\ move}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00211}00211\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_ae7bdbea7f5cfb9978bd0603bc5f4b4d0}{castling\_validate\_king\_move}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00212}00212\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ row,\ col))\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00214}00214\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Invalid\ king\ move:\ \%c\%d\ -\/>\ \%c\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00215}00215\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row\ +\ 1,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ col,\ row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00217}00217\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a1db8f8d658faee09a9c932202bb42cce}{CASTLING\_ERROR\_WRONG\_KING\_POSITION}},\ row,\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00218}00218\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00219}00219\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00220}00220\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00221}00221\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ King\ moved\ to\ correct\ position:\ \%c\%d"{}},\ \textcolor{charliteral}{'a'}\ +\ col,\ row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00222}00222\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00223}00223\ \ \ \ \ \textcolor{comment}{//\ Update\ phase\ to\ waiting\ for\ rook}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00224}00224\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a2addf80390a5195a77495585144214c4}{enhanced\_castling\_update\_phase}}(\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984ac9da4000210f2ea7dcbde1e49ecad0df}{CASTLING\_STATE\_KING\_MOVED\_WAITING\_ROOK}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00225}00225\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00226}00226\ \ \ \ \ \textcolor{comment}{//\ Show\ rook\ guidance}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00227}00227\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5dc5a20cfdaf9d84030f5072778aff1}{castling\_show\_rook\_guidance}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00228}00228\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00229}00229\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b}{castling\_log\_state\_change}}(\textcolor{stringliteral}{"{}King\ moved,\ waiting\ for\ rook"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00230}00230\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00231}00231\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00232}00232\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00236}\mbox{\hyperlink{enhanced__castling__system_8c_a1298ed566772765b083158dd04d7617e}{00236}}\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8c_a1298ed566772765b083158dd04d7617e}{enhanced\_castling\_handle\_rook\_lift}}(uint8\_t\ row,\ uint8\_t\ col)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00237}00237\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00238}00238\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00239}00239\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00240}00240\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00241}00241\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00242}00242\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\ !=\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984ac9da4000210f2ea7dcbde1e49ecad0df}{CASTLING\_STATE\_KING\_MOVED\_WAITING\_ROOK}})\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00243}00243\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}⚠️\ Rook\ lift\ in\ wrong\ phase:\ \%d"{}},\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00244}00244\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a90e0b9f36c173915167b09f99a664084}{CASTLING\_ERROR\_INVALID\_SEQUENCE}},\ row,\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00245}00245\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00246}00246\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00247}00247\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00248}00248\ \ \ \ \ \textcolor{comment}{//\ Validate\ rook\ position}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00249}00249\ \ \ \ \ \textcolor{keywordflow}{if}\ (row\ !=\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row\ ||\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00250}00250\ \ \ \ \ \ \ \ \ col\ !=\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00251}00251\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Wrong\ rook\ position:\ \%d,\%d\ (expected\ \%d,\%d)"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00252}00252\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ row,\ col,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00253}00253\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a722a013d2eb253c852c9903fbb05fa50}{CASTLING\_ERROR\_WRONG\_ROOK\_POSITION}},\ row,\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00254}00254\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00255}00255\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00256}00256\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00257}00257\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Rook\ lifted\ from\ correct\ position:\ \%c\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ col,\ row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00259}00259\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00260}00260\ \ \ \ \ \textcolor{comment}{//\ Update\ phase\ to\ rook\ moved}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00261}00261\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a2addf80390a5195a77495585144214c4}{enhanced\_castling\_update\_phase}}(\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a1dc5694d8891c142687e57791894626c}{CASTLING\_STATE\_ROOK\_LIFTED}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00262}00262\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00263}00263\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b}{castling\_log\_state\_change}}(\textcolor{stringliteral}{"{}Rook\ lifted"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00264}00264\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00265}00265\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00266}00266\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00270}\mbox{\hyperlink{enhanced__castling__system_8c_ad0b372fd30752be5c2817d04115ad28d}{00270}}\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8c_ad0b372fd30752be5c2817d04115ad28d}{enhanced\_castling\_handle\_rook\_drop}}(uint8\_t\ row,\ uint8\_t\ col)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00271}00271\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00272}00272\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00273}00273\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;\ \textcolor{comment}{//\ Not\ an\ error\ if\ castling\ not\ active}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00274}00274\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00275}00275\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00276}00276\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\ !=\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a1dc5694d8891c142687e57791894626c}{CASTLING\_STATE\_ROOK\_LIFTED}})\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00277}00277\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}⚠️\ Rook\ drop\ in\ wrong\ phase:\ \%d"{}},\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00278}00278\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a90e0b9f36c173915167b09f99a664084}{CASTLING\_ERROR\_INVALID\_SEQUENCE}},\ row,\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00279}00279\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00280}00280\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00281}00281\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00282}00282\ \ \ \ \ \textcolor{comment}{//\ Validate\ rook\ move}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00283}00283\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a1669c97b2e5dcb839542b59392dbacbd}{castling\_validate\_rook\_move}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00284}00284\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00285}00285\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ row,\ col))\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00286}00286\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Invalid\ rook\ move:\ \%c\%d\ -\/>\ \%c\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00287}00287\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row\ +\ 1,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00288}00288\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ col,\ row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00289}00289\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a722a013d2eb253c852c9903fbb05fa50}{CASTLING\_ERROR\_WRONG\_ROOK\_POSITION}},\ row,\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00290}00290\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00291}00291\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00292}00292\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00293}00293\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Rook\ moved\ to\ correct\ position:\ \%c\%d"{}},\ \textcolor{charliteral}{'a'}\ +\ col,\ row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00294}00294\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00295}00295\ \ \ \ \ \textcolor{comment}{//\ Complete\ castling}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00296}00296\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a2addf80390a5195a77495585144214c4}{enhanced\_castling\_update\_phase}}(\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984afb7f4437b4f3c44a900f182d8757bd52}{CASTLING\_STATE\_COMPLETING}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00297}00297\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00298}00298\ \ \ \ \ \textcolor{comment}{//\ Show\ completion\ celebration}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00299}00299\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a6ccaa8b8a98da9de19017ad2fc611628}{castling\_show\_completion\_celebration}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00300}00300\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00301}00301\ \ \ \ \ \textcolor{comment}{//\ Complete\ castling}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00302}00302\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a2addf80390a5195a77495585144214c4}{enhanced\_castling\_update\_phase}}(\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a8de3374bdedd9647eee7fc63b937ba9d}{CASTLING\_STATE\_COMPLETED}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00303}00303\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00304}00304\ \ \ \ \ \textcolor{comment}{//\ Call\ completion\ callback\ if\ set}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00305}00305\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.completion\_callback)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00306}00306\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.completion\_callback(\textcolor{keyword}{true});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00307}00307\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00308}00308\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00309}00309\ \ \ \ \ \textcolor{comment}{//\ Reset\ system}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00310}00310\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_af27a9e2af8a688e4ef4f6ea423ff5952}{castling\_reset\_system}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00311}00311\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00312}00312\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b}{castling\_log\_state\_change}}(\textcolor{stringliteral}{"{}Castling\ completed\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00313}00313\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00314}00314\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00315}00315\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00319}\mbox{\hyperlink{enhanced__castling__system_8c_a84967829c955ce40cb552af8f336c88d}{00319}}\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8c_a84967829c955ce40cb552af8f336c88d}{enhanced\_castling\_cancel}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00320}00320\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00321}00321\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00322}00322\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;\ \textcolor{comment}{//\ Already\ inactive}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00323}00323\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00324}00324\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00325}00325\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Cancelling\ castling\ sequence"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00326}00326\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00327}00327\ \ \ \ \ \textcolor{comment}{//\ Clear\ all\ LED\ indications}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00328}00328\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ae909113298c4be97e6a36572d3efeb4f}{castling\_clear\_all\_indications}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00329}00329\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00330}00330\ \ \ \ \ \textcolor{comment}{//\ Call\ completion\ callback\ with\ failure}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00331}00331\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.completion\_callback)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00332}00332\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.completion\_callback(\textcolor{keyword}{false});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00333}00333\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00334}00334\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00335}00335\ \ \ \ \ \textcolor{comment}{//\ Reset\ system}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00336}00336\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_af27a9e2af8a688e4ef4f6ea423ff5952}{castling\_reset\_system}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00337}00337\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00338}00338\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b}{castling\_log\_state\_change}}(\textcolor{stringliteral}{"{}Castling\ cancelled"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00339}00339\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00340}00340\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00341}00341\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00345}\mbox{\hyperlink{enhanced__castling__system_8c_a551d56ee547e30c59358ecfbef86302b}{00345}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{enhanced__castling__system_8c_a551d56ee547e30c59358ecfbef86302b}{enhanced\_castling\_is\_active}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00346}00346\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00347}00347\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00348}00348\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00349}00349\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00353}\mbox{\hyperlink{enhanced__castling__system_8c_a573e41c1cc049dbb2722bc68b25f174b}{00353}}\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\_phase\_t}}\ \mbox{\hyperlink{enhanced__castling__system_8c_a573e41c1cc049dbb2722bc68b25f174b}{enhanced\_castling\_get\_phase}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00354}00354\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00355}00355\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00356}00356\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00357}00357\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00361}\mbox{\hyperlink{enhanced__castling__system_8c_a2addf80390a5195a77495585144214c4}{00361}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_a2addf80390a5195a77495585144214c4}{enhanced\_castling\_update\_phase}}(\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\_phase\_t}}\ new\_phase)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00362}00362\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00363}00363\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\ =\ new\_phase;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00364}00364\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\_start\_time\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00365}00365\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00366}00366\ \ \ \ \ \textcolor{comment}{//\ Set\ timeout\ according\ to\ phase}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00367}00367\ \ \ \ \ \textcolor{keywordflow}{switch}\ (new\_phase)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00368}00368\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a6b8198b3c2a1bd0fc46f7d18dbfc04a6}{CASTLING\_STATE\_KING\_LIFTED}}:}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00369}00369\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\_timeout\_ms\ =\ 30000;\ \textcolor{comment}{//\ 30s\ na\ přemístění\ krále}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00370}00370\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00371}00371\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984ac9da4000210f2ea7dcbde1e49ecad0df}{CASTLING\_STATE\_KING\_MOVED\_WAITING\_ROOK}}:}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00372}00372\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\_timeout\_ms\ =\ 60000;\ \textcolor{comment}{//\ 60s\ na\ věž}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00373}00373\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00374}00374\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a1dc5694d8891c142687e57791894626c}{CASTLING\_STATE\_ROOK\_LIFTED}}:}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00375}00375\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\_timeout\_ms\ =\ 30000;\ \textcolor{comment}{//\ 30s\ na\ přemístění\ věže}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00376}00376\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00377}00377\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00378}00378\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\_timeout\_ms\ =\ 10000;\ \textcolor{comment}{//\ Výchozí\ timeout}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00379}00379\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00380}00380\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00381}00381\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00382}00382\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Phase\ changed\ to:\ \%d,\ timeout:\ \%lums"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00383}00383\ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_phase,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\_timeout\_ms);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00384}00384\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00385}00385\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00389}\mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{00389}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\_error\_t}}\ error,\ uint8\_t\ row,\ uint8\_t\ col)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00390}00390\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00391}00391\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.error\_count++;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00392}00392\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00393}00393\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Castling\ error\ \%d\ at\ position\ \%d,\%d\ (count:\ \%d/\%d)"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00394}00394\ \ \ \ \ \ \ \ \ \ \ \ \ \ error,\ row,\ col,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.error\_count,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.max\_errors);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00395}00395\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00396}00396\ \ \ \ \ \textcolor{comment}{//\ Show\ error\ indication}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00397}00397\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_af9ae62a763763e34333532307fe30289}{castling\_show\_error\_indication}}(error);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00398}00398\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00399}00399\ \ \ \ \ \textcolor{comment}{//\ Execute\ recovery\ action\ if\ available}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00400}00400\ \ \ \ \ \textcolor{keywordflow}{if}\ (error\ <\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{enhanced__castling__system_8c_a5a197b52b2c4d4ef9749cf548d08f361}{error\_info}})\ /\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{enhanced__castling__system_8c_a5a197b52b2c4d4ef9749cf548d08f361}{error\_info}}[0])\ \&\&\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00401}00401\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a5a197b52b2c4d4ef9749cf548d08f361}{error\_info}}[error].recovery\_action)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00402}00402\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a5a197b52b2c4d4ef9749cf548d08f361}{error\_info}}[error].recovery\_action();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00403}00403\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00404}00404\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00405}00405\ \ \ \ \ \textcolor{comment}{//\ Check\ if\ max\ errors\ exceeded}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00406}00406\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.error\_count\ >=\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.max\_errors)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00407}00407\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Maximum\ errors\ exceeded\ -\/\ cancelling\ castling"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00408}00408\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a7df1f2f16b2c41d3e5b7f92eb9862eaf}{CASTLING\_ERROR\_MAX\_ERRORS\_EXCEEDED}},\ row,\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00409}00409\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a84967829c955ce40cb552af8f336c88d}{enhanced\_castling\_cancel}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00410}00410\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00411}00411\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00412}00412\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00416}\mbox{\hyperlink{enhanced__castling__system_8c_a7fea86462c2fa344578489036f7fb9eb}{00416}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_a7fea86462c2fa344578489036f7fb9eb}{castling\_calculate\_positions}}(\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\_t}}\ \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}},\ \textcolor{keywordtype}{bool}\ is\_kingside)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00417}00417\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00418}00418\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}}\ ==\ \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f}{PLAYER\_WHITE}})\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00419}00419\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00420}00420\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col\ =\ 4;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00421}00421\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_row\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00422}00422\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_col\ =\ is\_kingside\ ?\ 6\ :\ 2;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00423}00423\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00424}00424\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00425}00425\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col\ =\ is\_kingside\ ?\ 7\ :\ 0;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00426}00426\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_row\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00427}00427\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_col\ =\ is\_kingside\ ?\ 5\ :\ 3;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00428}00428\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00429}00429\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row\ =\ 7;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00430}00430\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col\ =\ 4;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00431}00431\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_row\ =\ 7;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00432}00432\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_col\ =\ is\_kingside\ ?\ 6\ :\ 2;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00433}00433\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00434}00434\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row\ =\ 7;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00435}00435\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col\ =\ is\_kingside\ ?\ 7\ :\ 0;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00436}00436\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_row\ =\ 7;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00437}00437\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_col\ =\ is\_kingside\ ?\ 5\ :\ 3;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00438}00438\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00439}00439\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00440}00440\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Calculated\ positions:\ King\ \%c\%d-\/>\%c\%d,\ Rook\ \%c\%d-\/>\%c\%d"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00441}00441\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row\ +\ 1,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00442}00442\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_col,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_row\ +\ 1,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00443}00443\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row\ +\ 1,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00444}00444\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_col,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00445}00445\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00446}00446\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00450}\mbox{\hyperlink{enhanced__castling__system_8c_ae7bdbea7f5cfb9978bd0603bc5f4b4d0}{00450}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{enhanced__castling__system_8c_ae7bdbea7f5cfb9978bd0603bc5f4b4d0}{castling\_validate\_king\_move}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00451}00451\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00452}00452\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00453}00453\ \ \ \ \ \textcolor{keywordflow}{return}\ (from\_row\ ==\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row\ \&\&}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00454}00454\ \ \ \ \ \ \ \ \ \ \ \ \ from\_col\ ==\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col\ \&\&}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00455}00455\ \ \ \ \ \ \ \ \ \ \ \ \ to\_row\ ==\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_row\ \&\&}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00456}00456\ \ \ \ \ \ \ \ \ \ \ \ \ to\_col\ ==\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00457}00457\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00458}00458\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00462}\mbox{\hyperlink{enhanced__castling__system_8c_a1669c97b2e5dcb839542b59392dbacbd}{00462}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{enhanced__castling__system_8c_a1669c97b2e5dcb839542b59392dbacbd}{castling\_validate\_rook\_move}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00463}00463\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00464}00464\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00465}00465\ \ \ \ \ \textcolor{keywordflow}{return}\ (from\_row\ ==\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row\ \&\&}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00466}00466\ \ \ \ \ \ \ \ \ \ \ \ \ from\_col\ ==\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col\ \&\&}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00467}00467\ \ \ \ \ \ \ \ \ \ \ \ \ to\_row\ ==\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_row\ \&\&}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00468}00468\ \ \ \ \ \ \ \ \ \ \ \ \ to\_col\ ==\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00469}00469\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00470}00470\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00474}\mbox{\hyperlink{enhanced__castling__system_8c_a104226173b83a62df2d44053ed147131}{00474}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{enhanced__castling__system_8c_a104226173b83a62df2d44053ed147131}{castling\_validate\_sequence}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00475}00475\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00476}00476\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active\ \&\&\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00477}00477\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\ !=\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984adab804b233835495e7fc3d21592a228a}{CASTLING\_STATE\_IDLE}}\ \&\&}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00478}00478\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\ !=\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a0ddeffb101a9b2c9a7a288bbb22b714e}{CASTLING\_STATE\_ERROR\_RECOVERY}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00479}00479\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00480}00480\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00484}\mbox{\hyperlink{enhanced__castling__system_8c_a3e4dc75c38e98d97cf35f984fa66b2ce}{00484}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e4dc75c38e98d97cf35f984fa66b2ce}{castling\_is\_timeout\_expired}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00485}00485\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00486}00486\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00487}00487\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00488}00488\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00489}00489\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00490}00490\ \ \ \ \ uint32\_t\ current\_time\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00491}00491\ \ \ \ \ uint32\_t\ elapsed\ =\ current\_time\ -\/\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\_start\_time;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00492}00492\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00493}00493\ \ \ \ \ \textcolor{keywordflow}{return}\ elapsed\ >\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\_timeout\_ms;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00494}00494\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00495}00495\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00499}\mbox{\hyperlink{enhanced__castling__system_8c_af27a9e2af8a688e4ef4f6ea423ff5952}{00499}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_af27a9e2af8a688e4ef4f6ea423ff5952}{castling\_reset\_system}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00500}00500\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00501}00501\ \ \ \ \ memset(\&\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}));}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00502}00502\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase\ =\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984adab804b233835495e7fc3d21592a228a}{CASTLING\_STATE\_IDLE}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00503}00503\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00504}00504\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00505}00505\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00509}\mbox{\hyperlink{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b}{00509}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b}{castling\_log\_state\_change}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ action)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00510}00510\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00511}00511\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🏰\ \%s\ -\/\ Phase:\ \%d,\ Active:\ \%s,\ Errors:\ \%d/\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00512}00512\ \ \ \ \ \ \ \ \ \ \ \ \ \ action,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.phase,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00513}00513\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active\ ?\ \textcolor{stringliteral}{"{}Yes"{}}\ :\ \textcolor{stringliteral}{"{}No"{}},}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00514}00514\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.error\_count,\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.max\_errors);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00515}00515\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00516}00516\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00520}\mbox{\hyperlink{enhanced__castling__system_8c_aef98d7b498beb12daa3096022ec887e7}{00520}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_aef98d7b498beb12daa3096022ec887e7}{castling\_show\_king\_guidance}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00521}00521\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00522}00522\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00523}00523\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00524}00524\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00525}00525\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00526}00526\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}👑\ Showing\ king\ guidance\ for\ castling"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00527}00527\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00528}00528\ \ \ \ \ \textcolor{comment}{//\ Clear\ previous\ indications}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00529}00529\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ae909113298c4be97e6a36572d3efeb4f}{castling\_clear\_all\_indications}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00530}00530\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00531}00531\ \ \ \ \ \textcolor{comment}{//\ Highlight\ king\ position\ in\ gold}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00532}00532\ \ \ \ \ uint8\_t\ king\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00533}00533\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00534}00534\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(king\_led,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00535}00535\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.king\_highlight.r,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00536}00536\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.king\_highlight.g,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00537}00537\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.king\_highlight.b);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00538}00538\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00539}00539\ \ \ \ \ \textcolor{comment}{//\ Highlight\ king\ destination\ in\ green}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00540}00540\ \ \ \ \ uint8\_t\ king\_dest\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00541}00541\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00542}00542\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(king\_dest\_led,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00543}00543\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.king\_destination.r,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00544}00544\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.king\_destination.g,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00545}00545\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.king\_destination.b);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00546}00546\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00547}00547\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.showing\_guidance\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00548}00548\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00552}\mbox{\hyperlink{enhanced__castling__system_8c_ad5dc5a20cfdaf9d84030f5072778aff1}{00552}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_ad5dc5a20cfdaf9d84030f5072778aff1}{castling\_show\_rook\_guidance}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00553}00553\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00554}00554\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00555}00555\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00556}00556\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00557}00557\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00558}00558\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🏰\ Showing\ rook\ guidance\ for\ castling"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00559}00559\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00560}00560\ \ \ \ \ \textcolor{comment}{//\ Clear\ previous\ indications}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00561}00561\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ae909113298c4be97e6a36572d3efeb4f}{castling\_clear\_all\_indications}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00562}00562\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00563}00563\ \ \ \ \ \textcolor{comment}{//\ Highlight\ rook\ position\ in\ silver}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00564}00564\ \ \ \ \ uint8\_t\ rook\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00565}00565\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00566}00566\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(rook\_led,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00567}00567\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.rook\_highlight.r,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00568}00568\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.rook\_highlight.g,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00569}00569\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.rook\_highlight.b);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00570}00570\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00571}00571\ \ \ \ \ \textcolor{comment}{//\ Highlight\ rook\ destination\ in\ blue}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00572}00572\ \ \ \ \ uint8\_t\ rook\_dest\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00573}00573\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00574}00574\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(rook\_dest\_led,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00575}00575\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.rook\_destination.r,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00576}00576\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.rook\_destination.g,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00577}00577\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.rook\_destination.b);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00578}00578\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00579}00579\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.showing\_guidance\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00580}00580\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00584}\mbox{\hyperlink{enhanced__castling__system_8c_af9ae62a763763e34333532307fe30289}{00584}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_af9ae62a763763e34333532307fe30289}{castling\_show\_error\_indication}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\_error\_t}}\ error)}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00585}00585\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00586}00586\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00587}00587\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00588}00588\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00589}00589\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00590}00590\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Showing\ error\ indication\ for\ error:\ \%d"{}},\ error);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00591}00591\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00592}00592\ \ \ \ \ \textcolor{comment}{//\ Clear\ previous\ indications}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00593}00593\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ae909113298c4be97e6a36572d3efeb4f}{castling\_clear\_all\_indications}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00594}00594\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00595}00595\ \ \ \ \ \textcolor{comment}{//\ Flash\ error\ color\ on\ all\ relevant\ positions}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00596}00596\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.timing.error\_flash\_count;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00597}00597\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Flash\ king\ position}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00598}00598\ \ \ \ \ \ \ \ \ uint8\_t\ king\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00599}00599\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00600}00600\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(king\_led,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00601}00601\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.error\_indication.r,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00602}00602\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.error\_indication.g,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00603}00603\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.error\_indication.b);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00604}00604\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00605}00605\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Flash\ rook\ position}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00606}00606\ \ \ \ \ \ \ \ \ uint8\_t\ rook\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00607}00607\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00608}00608\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(rook\_led,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00609}00609\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.error\_indication.r,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00610}00610\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.error\_indication.g,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00611}00611\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}}.colors.error\_indication.b);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00612}00612\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00613}00613\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(200));}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00614}00614\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00615}00615\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Clear}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00616}00616\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ab245ceabb580934b6117f59343c6d9a2}{led\_clear\_board\_only}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00617}00617\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(200));}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00618}00618\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00619}00619\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00620}00620\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.showing\_error\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00621}00621\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00625}\mbox{\hyperlink{enhanced__castling__system_8c_a6ccaa8b8a98da9de19017ad2fc611628}{00625}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_a6ccaa8b8a98da9de19017ad2fc611628}{castling\_show\_completion\_celebration}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00626}00626\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00627}00627\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.active)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00628}00628\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00629}00629\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00630}00630\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00631}00631\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🎉\ Showing\ castling\ completion\ celebration"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00632}00632\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00633}00633\ \ \ \ \ \textcolor{comment}{//\ Clear\ previous\ indications}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00634}00634\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ae909113298c4be97e6a36572d3efeb4f}{castling\_clear\_all\_indications}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00635}00635\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00636}00636\ \ \ \ \ \textcolor{comment}{//\ Show\ celebration\ animation}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00637}00637\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ cycle\ =\ 0;\ cycle\ <\ 3;\ cycle++)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00638}00638\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Rainbow\ effect\ on\ king\ and\ rook\ positions}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00639}00639\ \ \ \ \ \ \ \ \ uint8\_t\ king\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00640}00640\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00641}00641\ \ \ \ \ \ \ \ \ uint8\_t\ rook\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00642}00642\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00643}00643\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00644}00644\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Cycle\ through\ colors}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00645}00645\ \ \ \ \ \ \ \ \ uint8\_t\ colors[][3]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00646}00646\ \ \ \ \ \ \ \ \ \ \ \ \ \{255,\ 0,\ 0\},\ \ \ \ \textcolor{comment}{//\ Red}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00647}00647\ \ \ \ \ \ \ \ \ \ \ \ \ \{0,\ 255,\ 0\},\ \ \ \ \textcolor{comment}{//\ Green}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00648}00648\ \ \ \ \ \ \ \ \ \ \ \ \ \{0,\ 0,\ 255\},\ \ \ \ \textcolor{comment}{//\ Blue}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00649}00649\ \ \ \ \ \ \ \ \ \ \ \ \ \{255,\ 255,\ 0\},\ \ \textcolor{comment}{//\ Yellow}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00650}00650\ \ \ \ \ \ \ \ \ \ \ \ \ \{255,\ 0,\ 255\},\ \ \textcolor{comment}{//\ Magenta}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00651}00651\ \ \ \ \ \ \ \ \ \ \ \ \ \{0,\ 255,\ 255\}\ \ \ \textcolor{comment}{//\ Cyan}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00652}00652\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00653}00653\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00654}00654\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 6;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00655}00655\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(king\_led,\ colors[i][0],\ colors[i][1],\ colors[i][2]);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00656}00656\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(rook\_led,\ colors[i][0],\ colors[i][1],\ colors[i][2]);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00657}00657\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00658}00658\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00659}00659\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00660}00660\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00661}00661\ \ \ \ \ \textcolor{comment}{//\ Final\ state\ -\/\ show\ completed\ positions}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00662}00662\ \ \ \ \ uint8\_t\ king\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00663}00663\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00664}00664\ \ \ \ \ uint8\_t\ rook\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00665}00665\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00666}00666\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00667}00667\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(king\_led,\ 0,\ 255,\ 0);\ \ \textcolor{comment}{//\ Green\ for\ success}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00668}00668\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(rook\_led,\ 0,\ 255,\ 0);\ \ \textcolor{comment}{//\ Green\ for\ success}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00669}00669\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00673}\mbox{\hyperlink{enhanced__castling__system_8c_ae909113298c4be97e6a36572d3efeb4f}{00673}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_ae909113298c4be97e6a36572d3efeb4f}{castling\_clear\_all\_indications}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00674}00674\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00675}00675\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🧹\ Clearing\ all\ castling\ indications"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00676}00676\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00677}00677\ \ \ \ \ \textcolor{comment}{//\ Clear\ board\ LEDs}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00678}00678\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ab245ceabb580934b6117f59343c6d9a2}{led\_clear\_board\_only}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00679}00679\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00680}00680\ \ \ \ \ \textcolor{comment}{//\ Reset\ LED\ state}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00681}00681\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.showing\_error\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00682}00682\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.showing\_guidance\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00683}00683\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00684}00684\ \ \ \ \ \textcolor{comment}{//\ Stop\ any\ running\ animations}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00685}00685\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.king\_animation\_id\ !=\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00686}00686\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ Stop\ animation\ if\ animation\ manager\ is\ available}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00687}00687\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.king\_animation\_id\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00688}00688\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00689}00689\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00690}00690\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.rook\_animation\_id\ !=\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00691}00691\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ Stop\ animation\ if\ animation\ manager\ is\ available}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00692}00692\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.rook\_animation\_id\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00693}00693\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00694}00694\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00695}00695\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.guidance\_animation\_id\ !=\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00696}00696\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ Stop\ animation\ if\ animation\ manager\ is\ available}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00697}00697\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.led\_state.guidance\_animation\_id\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00698}00698\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00699}00699\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00700}00700\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00704}\mbox{\hyperlink{enhanced__castling__system_8c_afe8c7b5de0f3719166f89e975059247c}{00704}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_afe8c7b5de0f3719166f89e975059247c}{castling\_recover\_king\_wrong\_position}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00705}00705\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00706}00706\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Recovering\ from\ king\ wrong\ position\ error"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00707}00707\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00708}00708\ \ \ \ \ \textcolor{comment}{//\ Show\ correct\ king\ position}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00709}00709\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_aef98d7b498beb12daa3096022ec887e7}{castling\_show\_king\_guidance}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00710}00710\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00711}00711\ \ \ \ \ \textcolor{comment}{//\ Show\ error\ message}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00712}00712\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ King\ must\ be\ at\ \%c\%d\ for\ castling"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00713}00713\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00714}00714\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00715}00715\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00716}00716\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00720}\mbox{\hyperlink{enhanced__castling__system_8c_a61e387e4475acd4a6c9db96fc1333e1f}{00720}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_a61e387e4475acd4a6c9db96fc1333e1f}{castling\_recover\_rook\_wrong\_position}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00721}00721\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00722}00722\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Recovering\ from\ rook\ wrong\ position\ error"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00723}00723\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00724}00724\ \ \ \ \ \textcolor{comment}{//\ Show\ correct\ rook\ position}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00725}00725\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5dc5a20cfdaf9d84030f5072778aff1}{castling\_show\_rook\_guidance}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00726}00726\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00727}00727\ \ \ \ \ \textcolor{comment}{//\ Show\ error\ message}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00728}00728\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Rook\ must\ be\ at\ \%c\%d\ for\ castling"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00729}00729\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00730}00730\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00731}00731\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00732}00732\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00736}\mbox{\hyperlink{enhanced__castling__system_8c_ae58c1122476af928bccd44407c0e5822}{00736}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_ae58c1122476af928bccd44407c0e5822}{castling\_recover\_timeout\_error}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00737}00737\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00738}00738\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Recovering\ from\ timeout\ error"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00739}00739\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00740}00740\ \ \ \ \ \textcolor{comment}{//\ Show\ timeout\ indication}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00741}00741\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_af9ae62a763763e34333532307fe30289}{castling\_show\_error\_indication}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1aad564a60d4b825e5595c9d6375cae76e}{CASTLING\_ERROR\_TIMEOUT}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00742}00742\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00743}00743\ \ \ \ \ \textcolor{comment}{//\ Show\ tutorial\ after\ delay}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00744}00744\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(2000));}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00745}00745\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a4733364aef5fb97b725594cada6e7679}{castling\_show\_tutorial}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00746}00746\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00747}00747\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00751}\mbox{\hyperlink{enhanced__castling__system_8c_a12f1ed6212174d4f9532880ea94601a3}{00751}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_a12f1ed6212174d4f9532880ea94601a3}{castling\_show\_correct\_positions}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00752}00752\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00753}00753\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}📚\ Showing\ correct\ positions\ for\ castling"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00754}00754\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00755}00755\ \ \ \ \ \textcolor{comment}{//\ Clear\ board}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00756}00756\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ab245ceabb580934b6117f59343c6d9a2}{led\_clear\_board\_only}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00757}00757\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00758}00758\ \ \ \ \ \textcolor{comment}{//\ Show\ both\ king\ and\ rook\ guidance}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00759}00759\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_aef98d7b498beb12daa3096022ec887e7}{castling\_show\_king\_guidance}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00760}00760\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00761}00761\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_ad5dc5a20cfdaf9d84030f5072778aff1}{castling\_show\_rook\_guidance}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00762}00762\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00763}00763\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00767}\mbox{\hyperlink{enhanced__castling__system_8c_a4733364aef5fb97b725594cada6e7679}{00767}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8c_a4733364aef5fb97b725594cada6e7679}{castling\_show\_tutorial}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00768}00768\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00769}00769\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}📖\ Showing\ castling\ tutorial"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00770}00770\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00771}00771\ \ \ \ \ \textcolor{comment}{//\ Clear\ board}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00772}00772\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ab245ceabb580934b6117f59343c6d9a2}{led\_clear\_board\_only}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00773}00773\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00774}00774\ \ \ \ \ \textcolor{comment}{//\ Show\ step-\/by-\/step\ tutorial}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00775}00775\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}📖\ Castling\ Tutorial:"{}});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00776}00776\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ \ 1.\ Move\ king\ from\ \%c\%d\ to\ \%c\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00777}00777\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00778}00778\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row\ +\ 1,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00779}00779\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_col,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00780}00780\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_to\_row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00781}00781\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ \ 2.\ Move\ rook\ from\ \%c\%d\ to\ \%c\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00782}00782\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00783}00783\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row\ +\ 1,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00784}00784\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{charliteral}{'a'}\ +\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_col,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00785}00785\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_to\_row\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00786}00786\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00787}00787\ \ \ \ \ \textcolor{comment}{//\ Visual\ tutorial\ -\/\ show\ positions\ one\ by\ one}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00788}00788\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ step\ =\ 0;\ step\ <\ 3;\ step++)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00789}00789\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ab245ceabb580934b6117f59343c6d9a2}{led\_clear\_board\_only}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00790}00790\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00791}00791\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (step\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00792}00792\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Show\ king\ position}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00793}00793\ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ king\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00794}00794\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.king\_from\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00795}00795\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(king\_led,\ 255,\ 215,\ 0);\ \textcolor{comment}{//\ Gold}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00796}00796\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (step\ ==\ 1)\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00797}00797\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Show\ rook\ position}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00798}00798\ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ rook\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(\mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_row,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00799}00799\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}}.positions.rook\_from\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00800}00800\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(rook\_led,\ 192,\ 192,\ 192);\ \textcolor{comment}{//\ Silver}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00801}00801\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00802}00802\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Show\ both\ positions}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00803}00803\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8c_a12f1ed6212174d4f9532880ea94601a3}{castling\_show\_correct\_positions}}();}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00804}00804\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00805}00805\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00806}00806\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1500));}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00807}00807\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8c_source_l00808}00808\ \}}
+
+\end{DoxyCode}

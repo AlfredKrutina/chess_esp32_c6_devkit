@@ -1,0 +1,945 @@
+\doxysection{Dokumentace souboru unified\+\_\+animation\+\_\+manager.\+c}
+\hypertarget{unified__animation__manager_8c}{}\label{unified__animation__manager_8c}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+
+
+Implementace Unified Animation Manageru.  
+
+
+{\ttfamily \#include "{}unified\+\_\+animation\+\_\+manager.\+h"{}}\newline
+{\ttfamily \#include "{}led\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+timer.\+h"{}}\newline
+{\ttfamily \#include "{}string.\+h"{}}\newline
+{\ttfamily \#include "{}math.\+h"{}}\newline
+{\ttfamily \#include "{}led\+\_\+mapping.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro unified\+\_\+animation\+\_\+manager.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{unified__animation__manager_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Definice maker}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{unified__animation__manager_8c_ac6afabdc09a49a433ee19d8a9486056d}{min}}(a,  b)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_ae5eb26e747498c71310a20a4192bc72f}{animation\+\_\+update\+\_\+smooth\+\_\+interpolation}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_ac04fe1937e5690c98392d978cc881e11}{animation\+\_\+update\+\_\+pulsing}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\begin{DoxyCompactList}\small\item\em Aktualizuje pulzujici animaci. \end{DoxyCompactList}\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_af169c31b4728fd389cef9a2551f8947f}{animation\+\_\+update\+\_\+flashing}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\begin{DoxyCompactList}\small\item\em Aktualizuje blikajici animaci. \end{DoxyCompactList}\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_a0b5d021f7052366508f19b0db7306d40}{animation\+\_\+update\+\_\+rainbow}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\begin{DoxyCompactList}\small\item\em Aktualizuje duhovou animaci. \end{DoxyCompactList}\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_aafd47a4efcf1e963e6482eff96b5245f}{animation\+\_\+update\+\_\+endgame\+\_\+wave}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_abbf20a753fe8fa0727e662f11ee90345}{animation\+\_\+update\+\_\+endgame\+\_\+circles}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_a46689763d76e1db929b64d98231853ac}{animation\+\_\+update\+\_\+endgame\+\_\+cascade}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_ad17f4fad4ae0f10e95213a0ce3133992}{animation\+\_\+update\+\_\+endgame\+\_\+fireworks}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_aa5f953a8aa6e4bffdd2f54b5cbc72287}{animation\+\_\+update\+\_\+endgame\+\_\+draw\+\_\+spiral}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_a92561caf8e46454153425870bdb25f86}{animation\+\_\+update\+\_\+endgame\+\_\+draw\+\_\+pulse}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_a5921d60e99902cb914cb21751e6a6b1d}{animation\+\_\+update\+\_\+promotion}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_a4f09ab7845e085532967e5bda04847ed}{animation\+\_\+is\+\_\+valid\+\_\+id}} (uint32\+\_\+t anim\+\_\+id)
+\item 
+static \mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{unified__animation__manager_8c_a0cd70e6c0a667a6075d7d11ceec61451}{animation\+\_\+find\+\_\+by\+\_\+id}} (uint32\+\_\+t anim\+\_\+id)
+\item 
+static void \mbox{\hyperlink{unified__animation__manager_8c_a164aec003efd8bc175f2ffa31694fa57}{animation\+\_\+cleanup}} (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\item 
+static float \mbox{\hyperlink{unified__animation__manager_8c_a44a07045bc7d0b9019e122b6ee2f1c59}{ease\+\_\+in\+\_\+out\+\_\+cubic}} (float t)
+\item 
+static void \mbox{\hyperlink{unified__animation__manager_8c_a0e552d083d40a494e5bec582a329faac}{interpolate\+\_\+color}} (uint8\+\_\+t from\+\_\+r, uint8\+\_\+t from\+\_\+g, uint8\+\_\+t from\+\_\+b, uint8\+\_\+t to\+\_\+r, uint8\+\_\+t to\+\_\+g, uint8\+\_\+t to\+\_\+b, float progress, uint8\+\_\+t \texorpdfstring{$\ast$}{*}out\+\_\+r, uint8\+\_\+t \texorpdfstring{$\ast$}{*}out\+\_\+g, uint8\+\_\+t \texorpdfstring{$\ast$}{*}out\+\_\+b)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_abe2de9761634e293a13f1f493274aa8e}{animation\+\_\+manager\+\_\+init}} (const \mbox{\hyperlink{structanimation__config__t}{animation\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Inicializuj unified animation manager. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_ae6ff7c3686a9e96ec165a58721319443}{animation\+\_\+manager\+\_\+deinit}} (void)
+\begin{DoxyCompactList}\small\item\em Deinicializuj unified animation manager. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a94483a3f8c95cb093d2a278b8cde1c9e}{unified\+\_\+animation\+\_\+create}} (\mbox{\hyperlink{unified__animation__manager_8h_a7e703c09ba390bb0306ced9d307690df}{animation\+\_\+type\+\_\+t}} type, \mbox{\hyperlink{unified__animation__manager_8h_a1d14f93d2747753699b61ea7f84c97a6}{animation\+\_\+priority\+\_\+t}} priority)
+\begin{DoxyCompactList}\small\item\em Vytvor novou animaci (alokuj slot). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a694f6eb2c55639e1db5ae412d4d7a7ef}{animation\+\_\+start\+\_\+move}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t from\+\_\+led, uint8\+\_\+t to\+\_\+led, uint32\+\_\+t duration\+\_\+ms)
+\begin{DoxyCompactList}\small\item\em Spust move animaci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a865d7b302c8f41c03db42d4582ee053f}{animation\+\_\+start\+\_\+guidance}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+array, uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Spust guidance animaci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a881cf8eb8ba5108cffb4feb7ef24ddd0}{animation\+\_\+start\+\_\+error}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t led\+\_\+index, uint32\+\_\+t flash\+\_\+count)
+\begin{DoxyCompactList}\small\item\em Spust error animaci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_aeb5fac10b7dd203cb0a5d078f6822bda}{animation\+\_\+start\+\_\+capture}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t led\+\_\+index, uint32\+\_\+t duration\+\_\+ms)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a76bbc5ad4b103bd31bdc2bd601684504}{animation\+\_\+start\+\_\+confirmation}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t led\+\_\+index)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a36e475c8eb3e48ea57c29780f6058e78}{animation\+\_\+start\+\_\+endgame\+\_\+draw\+\_\+spiral}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t center\+\_\+led)
+\begin{DoxyCompactList}\small\item\em Spust endgame draw spiral animaci (pro remi). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a5e3e1269aa710141f350d3a185db6f08}{animation\+\_\+start\+\_\+endgame\+\_\+draw\+\_\+pulse}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t center\+\_\+led)
+\begin{DoxyCompactList}\small\item\em Spust endgame draw pulse animaci (pro remi). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_aff6580f58fa39d825446daecc92ff0b2}{animation\+\_\+start\+\_\+endgame\+\_\+wave}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t center\+\_\+led, uint8\+\_\+t winner\+\_\+color)
+\begin{DoxyCompactList}\small\item\em Spust endgame wave animaci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_aa71a3707a1b82c7f11477d902dc5ba7e}{animation\+\_\+start\+\_\+endgame\+\_\+circles}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t center\+\_\+led, uint8\+\_\+t winner\+\_\+color)
+\begin{DoxyCompactList}\small\item\em Spust endgame circles animaci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_ac8d933a0a6f26e8a53d88f5f0839386e}{animation\+\_\+start\+\_\+endgame\+\_\+cascade}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t center\+\_\+led, uint8\+\_\+t winner\+\_\+color)
+\begin{DoxyCompactList}\small\item\em Spust endgame cascade animaci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_afe5c5efdb84c2b6f51b9b704cb9e83a8}{animation\+\_\+start\+\_\+endgame\+\_\+fireworks}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t center\+\_\+led, uint8\+\_\+t winner\+\_\+color)
+\begin{DoxyCompactList}\small\item\em Spust endgame fireworks animaci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a11b526f2f45df5e367c9ec63500c7fc1}{unified\+\_\+animation\+\_\+stop}} (uint32\+\_\+t anim\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Zastav animaci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_ae02f54c8a3a0d8afb0aa9464197b3783}{animation\+\_\+stop\+\_\+all\+\_\+except\+\_\+priority}} (\mbox{\hyperlink{unified__animation__manager_8h_a1d14f93d2747753699b61ea7f84c97a6}{animation\+\_\+priority\+\_\+t}} min\+\_\+priority)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a00e3ed0913caba4f42ed8749b9e41d6f}{unified\+\_\+animation\+\_\+stop\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Zastav vsechny animace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{unified__animation__manager_8c_a9bc50ba514bea1a1279e8ecb31a73244}{animation\+\_\+manager\+\_\+update}} (void)
+\begin{DoxyCompactList}\small\item\em Aktualizuj animation manager (alias pro animation\+\_\+update\+\_\+all). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{unified__animation__manager_8c_a86f6ae8f90264777401b852a9202bf3a}{animation\+\_\+is\+\_\+running}} (uint32\+\_\+t anim\+\_\+id)
+\item 
+uint8\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a449fc7b4f2f2b3cf900240d8cb32fbab}{animation\+\_\+get\+\_\+active\+\_\+count}} (void)
+\begin{DoxyCompactList}\small\item\em Pocet aktivnich animaci. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_ad150f160a7f6d0eb9b5ef771babb4dd7}{animation\+\_\+get\+\_\+active\+\_\+count\+\_\+by\+\_\+priority}} (\mbox{\hyperlink{unified__animation__manager_8h_a1d14f93d2747753699b61ea7f84c97a6}{animation\+\_\+priority\+\_\+t}} priority)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_aa371ad1236f7b8be7ae05594a60c5cc5}{animation\+\_\+set\+\_\+config}} (const \mbox{\hyperlink{structanimation__config__t}{animation\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_ab95793a00db8ed7da51122351a09118c}{animation\+\_\+set\+\_\+default\+\_\+duration}} (uint32\+\_\+t duration\+\_\+ms)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a3a668868f9c356dd7a43849fc9ea9783}{animation\+\_\+set\+\_\+update\+\_\+frequency}} (uint8\+\_\+t frequency\+\_\+hz)
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{unified__animation__manager_8c_ad8fa6c8e6d94097dba44ab216e49019a}{animation\+\_\+get\+\_\+type\+\_\+name}} (\mbox{\hyperlink{unified__animation__manager_8h_a7e703c09ba390bb0306ced9d307690df}{animation\+\_\+type\+\_\+t}} type)
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{unified__animation__manager_8c_ad2efb6e514f013ee5204a67b5f63d88d}{animation\+\_\+get\+\_\+priority\+\_\+name}} (\mbox{\hyperlink{unified__animation__manager_8h_a1d14f93d2747753699b61ea7f84c97a6}{animation\+\_\+priority\+\_\+t}} priority)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_ad08789a012eae8685138f3c02f20f96a}{animation\+\_\+get\+\_\+status}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t buffer\+\_\+size)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a6b72a254b0978ba666bddc35551e3a8d}{animation\+\_\+start\+\_\+promotion}} (uint32\+\_\+t anim\+\_\+id, uint8\+\_\+t promotion\+\_\+led)
+\begin{DoxyCompactList}\small\item\em Spust promotion animaci. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{unified__animation__manager_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}} = "{}ANIM\+\_\+\+MGR"{}
+\item 
+static bool \mbox{\hyperlink{unified__animation__manager_8c_a056b36df10f165cd5a6b993fc63fa152}{manager\+\_\+initialized}} = false
+\item 
+static \mbox{\hyperlink{structanimation__config__t}{animation\+\_\+config\+\_\+t}} \mbox{\hyperlink{unified__animation__manager_8c_a2e2bf556f54a319a5416488e0290e4d4}{current\+\_\+config}}
+\item 
+static \mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \mbox{\hyperlink{unified__animation__manager_8c_a4136accd8b976228e8391ba4c8e04879}{animations}} \mbox{[}16\mbox{]}
+\item 
+static uint32\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_ad3b6e14b9ad4bca4c07f67b318ed0e79}{next\+\_\+animation\+\_\+id}} = 1
+\item 
+static uint32\+\_\+t \mbox{\hyperlink{unified__animation__manager_8c_a0bb6dcf519e5bcc59b766b1a23c2535c}{last\+\_\+update\+\_\+time}} = 0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Implementace Unified Animation Manageru. 
+
+Tento modul poskytuje jednotne rozhrani pro vsechny LED animace. Umožnuje spravovat vice animaci soucasne a poskytuje pokrocile funkce pro animace.
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+5.\+0 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/09-\/06
+\end{DoxyDate}
+Unified Animation Manager je centralni system pro spravu vsech LED animaci v systemu. Umožnuje spustit vice animaci soucasne, spravuje jejich zivotni cyklus a poskytuje pokrocile efekty. 
+
+Definice v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{unified__animation__manager_8c_doc-define-members}
+\doxysubsection{Dokumentace definic maker}
+\Hypertarget{unified__animation__manager_8c_ac6afabdc09a49a433ee19d8a9486056d}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!min@{min}}
+\index{min@{min}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{min}{min}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ac6afabdc09a49a433ee19d8a9486056d} 
+\#define min(\begin{DoxyParamCaption}\item[{}]{a}{, }\item[{}]{b}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{((a)\ <\ (b)\ ?\ (a)\ :\ (b))}
+
+\end{DoxyCode}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00029}{29}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{unified__animation__manager_8c_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{unified__animation__manager_8c_a164aec003efd8bc175f2ffa31694fa57}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_cleanup@{animation\_cleanup}}
+\index{animation\_cleanup@{animation\_cleanup}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_cleanup()}{animation\_cleanup()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a164aec003efd8bc175f2ffa31694fa57} 
+void animation\+\_\+cleanup (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00941}{941}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a0cd70e6c0a667a6075d7d11ceec61451}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_find\_by\_id@{animation\_find\_by\_id}}
+\index{animation\_find\_by\_id@{animation\_find\_by\_id}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_find\_by\_id()}{animation\_find\_by\_id()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a0cd70e6c0a667a6075d7d11ceec61451} 
+\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*} animation\+\_\+find\+\_\+by\+\_\+id (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00927}{927}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a449fc7b4f2f2b3cf900240d8cb32fbab}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_get\_active\_count@{animation\_get\_active\_count}}
+\index{animation\_get\_active\_count@{animation\_get\_active\_count}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_get\_active\_count()}{animation\_get\_active\_count()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a449fc7b4f2f2b3cf900240d8cb32fbab} 
+uint8\+\_\+t animation\+\_\+get\+\_\+active\+\_\+count (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Pocet aktivnich animaci. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Pocet bezicich animaci 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00527}{527}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ad150f160a7f6d0eb9b5ef771babb4dd7}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_get\_active\_count\_by\_priority@{animation\_get\_active\_count\_by\_priority}}
+\index{animation\_get\_active\_count\_by\_priority@{animation\_get\_active\_count\_by\_priority}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_get\_active\_count\_by\_priority()}{animation\_get\_active\_count\_by\_priority()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ad150f160a7f6d0eb9b5ef771babb4dd7} 
+uint8\+\_\+t animation\+\_\+get\+\_\+active\+\_\+count\+\_\+by\+\_\+priority (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_a1d14f93d2747753699b61ea7f84c97a6}{animation\+\_\+priority\+\_\+t}}}]{priority}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00537}{537}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ad2efb6e514f013ee5204a67b5f63d88d}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_get\_priority\_name@{animation\_get\_priority\_name}}
+\index{animation\_get\_priority\_name@{animation\_get\_priority\_name}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_get\_priority\_name()}{animation\_get\_priority\_name()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ad2efb6e514f013ee5204a67b5f63d88d} 
+const char \texorpdfstring{$\ast$}{*} animation\+\_\+get\+\_\+priority\+\_\+name (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_a1d14f93d2747753699b61ea7f84c97a6}{animation\+\_\+priority\+\_\+t}}}]{priority}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00999}{999}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ad08789a012eae8685138f3c02f20f96a}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_get\_status@{animation\_get\_status}}
+\index{animation\_get\_status@{animation\_get\_status}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_get\_status()}{animation\_get\_status()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ad08789a012eae8685138f3c02f20f96a} 
+esp\+\_\+err\+\_\+t animation\+\_\+get\+\_\+status (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{buffer\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l01010}{1010}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ad8fa6c8e6d94097dba44ab216e49019a}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_get\_type\_name@{animation\_get\_type\_name}}
+\index{animation\_get\_type\_name@{animation\_get\_type\_name}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_get\_type\_name()}{animation\_get\_type\_name()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ad8fa6c8e6d94097dba44ab216e49019a} 
+const char \texorpdfstring{$\ast$}{*} animation\+\_\+get\+\_\+type\+\_\+name (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_a7e703c09ba390bb0306ced9d307690df}{animation\+\_\+type\+\_\+t}}}]{type}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00982}{982}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a86f6ae8f90264777401b852a9202bf3a}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_is\_running@{animation\_is\_running}}
+\index{animation\_is\_running@{animation\_is\_running}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_is\_running()}{animation\_is\_running()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a86f6ae8f90264777401b852a9202bf3a} 
+bool animation\+\_\+is\+\_\+running (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00522}{522}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a4f09ab7845e085532967e5bda04847ed}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_is\_valid\_id@{animation\_is\_valid\_id}}
+\index{animation\_is\_valid\_id@{animation\_is\_valid\_id}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_is\_valid\_id()}{animation\_is\_valid\_id()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a4f09ab7845e085532967e5bda04847ed} 
+bool animation\+\_\+is\+\_\+valid\+\_\+id (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00923}{923}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ae6ff7c3686a9e96ec165a58721319443}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_manager\_deinit@{animation\_manager\_deinit}}
+\index{animation\_manager\_deinit@{animation\_manager\_deinit}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_manager\_deinit()}{animation\_manager\_deinit()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ae6ff7c3686a9e96ec165a58721319443} 
+esp\+\_\+err\+\_\+t animation\+\_\+manager\+\_\+deinit (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Deinicializuj unified animation manager. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00106}{106}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_abe2de9761634e293a13f1f493274aa8e}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_manager\_init@{animation\_manager\_init}}
+\index{animation\_manager\_init@{animation\_manager\_init}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_manager\_init()}{animation\_manager\_init()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_abe2de9761634e293a13f1f493274aa8e} 
+esp\+\_\+err\+\_\+t animation\+\_\+manager\+\_\+init (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structanimation__config__t}{animation\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuj unified animation manager. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em config} & Konfigurace manageru \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00072}{72}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a9bc50ba514bea1a1279e8ecb31a73244}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_manager\_update@{animation\_manager\_update}}
+\index{animation\_manager\_update@{animation\_manager\_update}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_manager\_update()}{animation\_manager\_update()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a9bc50ba514bea1a1279e8ecb31a73244} 
+void animation\+\_\+manager\+\_\+update (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Aktualizuj animation manager (alias pro animation\+\_\+update\+\_\+all). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00477}{477}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_aa371ad1236f7b8be7ae05594a60c5cc5}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_set\_config@{animation\_set\_config}}
+\index{animation\_set\_config@{animation\_set\_config}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_set\_config()}{animation\_set\_config()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_aa371ad1236f7b8be7ae05594a60c5cc5} 
+esp\+\_\+err\+\_\+t animation\+\_\+set\+\_\+config (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structanimation__config__t}{animation\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00955}{955}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ab95793a00db8ed7da51122351a09118c}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_set\_default\_duration@{animation\_set\_default\_duration}}
+\index{animation\_set\_default\_duration@{animation\_set\_default\_duration}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_set\_default\_duration()}{animation\_set\_default\_duration()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ab95793a00db8ed7da51122351a09118c} 
+esp\+\_\+err\+\_\+t animation\+\_\+set\+\_\+default\+\_\+duration (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{duration\+\_\+ms}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00966}{966}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a3a668868f9c356dd7a43849fc9ea9783}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_set\_update\_frequency@{animation\_set\_update\_frequency}}
+\index{animation\_set\_update\_frequency@{animation\_set\_update\_frequency}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_set\_update\_frequency()}{animation\_set\_update\_frequency()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a3a668868f9c356dd7a43849fc9ea9783} 
+esp\+\_\+err\+\_\+t animation\+\_\+set\+\_\+update\+\_\+frequency (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{frequency\+\_\+hz}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00972}{972}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_aeb5fac10b7dd203cb0a5d078f6822bda}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_capture@{animation\_start\_capture}}
+\index{animation\_start\_capture@{animation\_start\_capture}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_capture()}{animation\_start\_capture()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_aeb5fac10b7dd203cb0a5d078f6822bda} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+capture (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{led\+\_\+index}{, }\item[{uint32\+\_\+t}]{duration\+\_\+ms}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00240}{240}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a76bbc5ad4b103bd31bdc2bd601684504}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_confirmation@{animation\_start\_confirmation}}
+\index{animation\_start\_confirmation@{animation\_start\_confirmation}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_confirmation()}{animation\_start\_confirmation()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a76bbc5ad4b103bd31bdc2bd601684504} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+confirmation (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{led\+\_\+index}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00263}{263}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ac8d933a0a6f26e8a53d88f5f0839386e}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_endgame\_cascade@{animation\_start\_endgame\_cascade}}
+\index{animation\_start\_endgame\_cascade@{animation\_start\_endgame\_cascade}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_endgame\_cascade()}{animation\_start\_endgame\_cascade()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ac8d933a0a6f26e8a53d88f5f0839386e} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+endgame\+\_\+cascade (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{center\+\_\+led}{, }\item[{uint8\+\_\+t}]{winner\+\_\+color}{}\end{DoxyParamCaption})}
+
+
+
+Spust endgame cascade animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace \\
+\hline
+{\em center\+\_\+led} & Stredova LED pozice \\
+\hline
+{\em winner\+\_\+color} & Barva viteze \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00383}{383}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_aa71a3707a1b82c7f11477d902dc5ba7e}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_endgame\_circles@{animation\_start\_endgame\_circles}}
+\index{animation\_start\_endgame\_circles@{animation\_start\_endgame\_circles}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_endgame\_circles()}{animation\_start\_endgame\_circles()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_aa71a3707a1b82c7f11477d902dc5ba7e} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+endgame\+\_\+circles (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{center\+\_\+led}{, }\item[{uint8\+\_\+t}]{winner\+\_\+color}{}\end{DoxyParamCaption})}
+
+
+
+Spust endgame circles animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace \\
+\hline
+{\em center\+\_\+led} & Stredova LED pozice \\
+\hline
+{\em winner\+\_\+color} & Barva viteze \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00356}{356}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a5e3e1269aa710141f350d3a185db6f08}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_endgame\_draw\_pulse@{animation\_start\_endgame\_draw\_pulse}}
+\index{animation\_start\_endgame\_draw\_pulse@{animation\_start\_endgame\_draw\_pulse}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_endgame\_draw\_pulse()}{animation\_start\_endgame\_draw\_pulse()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a5e3e1269aa710141f350d3a185db6f08} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+endgame\+\_\+draw\+\_\+pulse (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{center\+\_\+led}{}\end{DoxyParamCaption})}
+
+
+
+Spust endgame draw pulse animaci (pro remi). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace \\
+\hline
+{\em center\+\_\+led} & Stredova LED pozice \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00305}{305}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a36e475c8eb3e48ea57c29780f6058e78}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_endgame\_draw\_spiral@{animation\_start\_endgame\_draw\_spiral}}
+\index{animation\_start\_endgame\_draw\_spiral@{animation\_start\_endgame\_draw\_spiral}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_endgame\_draw\_spiral()}{animation\_start\_endgame\_draw\_spiral()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a36e475c8eb3e48ea57c29780f6058e78} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+endgame\+\_\+draw\+\_\+spiral (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{center\+\_\+led}{}\end{DoxyParamCaption})}
+
+
+
+Spust endgame draw spiral animaci (pro remi). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace \\
+\hline
+{\em center\+\_\+led} & Stredova LED pozice \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00285}{285}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_afe5c5efdb84c2b6f51b9b704cb9e83a8}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_endgame\_fireworks@{animation\_start\_endgame\_fireworks}}
+\index{animation\_start\_endgame\_fireworks@{animation\_start\_endgame\_fireworks}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_endgame\_fireworks()}{animation\_start\_endgame\_fireworks()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_afe5c5efdb84c2b6f51b9b704cb9e83a8} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+endgame\+\_\+fireworks (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{center\+\_\+led}{, }\item[{uint8\+\_\+t}]{winner\+\_\+color}{}\end{DoxyParamCaption})}
+
+
+
+Spust endgame fireworks animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace \\
+\hline
+{\em center\+\_\+led} & Stredova LED pozice \\
+\hline
+{\em winner\+\_\+color} & Barva viteze \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00410}{410}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_aff6580f58fa39d825446daecc92ff0b2}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_endgame\_wave@{animation\_start\_endgame\_wave}}
+\index{animation\_start\_endgame\_wave@{animation\_start\_endgame\_wave}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_endgame\_wave()}{animation\_start\_endgame\_wave()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_aff6580f58fa39d825446daecc92ff0b2} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+endgame\+\_\+wave (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{center\+\_\+led}{, }\item[{uint8\+\_\+t}]{winner\+\_\+color}{}\end{DoxyParamCaption})}
+
+
+
+Spust endgame wave animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace (ziskane z unified\+\_\+animation\+\_\+create) \\
+\hline
+{\em center\+\_\+led} & Stredova LED pozice (kral) \\
+\hline
+{\em winner\+\_\+color} & Barva viteze (0=white, 1=black) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00329}{329}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a881cf8eb8ba5108cffb4feb7ef24ddd0}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_error@{animation\_start\_error}}
+\index{animation\_start\_error@{animation\_start\_error}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_error()}{animation\_start\_error()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a881cf8eb8ba5108cffb4feb7ef24ddd0} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+error (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{led\+\_\+index}{, }\item[{uint32\+\_\+t}]{flash\+\_\+count}{}\end{DoxyParamCaption})}
+
+
+
+Spust error animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace \\
+\hline
+{\em led\+\_\+index} & LED pozice \\
+\hline
+{\em flash\+\_\+count} & Pocet bliknuti \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00217}{217}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a865d7b302c8f41c03db42d4582ee053f}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_guidance@{animation\_start\_guidance}}
+\index{animation\_start\_guidance@{animation\_start\_guidance}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_guidance()}{animation\_start\_guidance()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a865d7b302c8f41c03db42d4582ee053f} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+guidance (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{led\+\_\+array}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Spust guidance animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace \\
+\hline
+{\em led\+\_\+array} & Pole LED k zvyrazneni \\
+\hline
+{\em count} & Pocet LED \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00195}{195}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a694f6eb2c55639e1db5ae412d4d7a7ef}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_move@{animation\_start\_move}}
+\index{animation\_start\_move@{animation\_start\_move}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_move()}{animation\_start\_move()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a694f6eb2c55639e1db5ae412d4d7a7ef} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+move (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{from\+\_\+led}{, }\item[{uint8\+\_\+t}]{to\+\_\+led}{, }\item[{uint32\+\_\+t}]{duration\+\_\+ms}{}\end{DoxyParamCaption})}
+
+
+
+Spust move animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace \\
+\hline
+{\em from\+\_\+led} & Zdrojova LED \\
+\hline
+{\em to\+\_\+led} & Cilova LED \\
+\hline
+{\em duration\+\_\+ms} & Delka animace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00168}{168}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a6b72a254b0978ba666bddc35551e3a8d}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_start\_promotion@{animation\_start\_promotion}}
+\index{animation\_start\_promotion@{animation\_start\_promotion}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_start\_promotion()}{animation\_start\_promotion()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a6b72a254b0978ba666bddc35551e3a8d} 
+esp\+\_\+err\+\_\+t animation\+\_\+start\+\_\+promotion (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{, }\item[{uint8\+\_\+t}]{promotion\+\_\+led}{}\end{DoxyParamCaption})}
+
+
+
+Spust promotion animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace \\
+\hline
+{\em promotion\+\_\+led} & LED pozice promoce \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l01040}{1040}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ae02f54c8a3a0d8afb0aa9464197b3783}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_stop\_all\_except\_priority@{animation\_stop\_all\_except\_priority}}
+\index{animation\_stop\_all\_except\_priority@{animation\_stop\_all\_except\_priority}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_stop\_all\_except\_priority()}{animation\_stop\_all\_except\_priority()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ae02f54c8a3a0d8afb0aa9464197b3783} 
+esp\+\_\+err\+\_\+t animation\+\_\+stop\+\_\+all\+\_\+except\+\_\+priority (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_a1d14f93d2747753699b61ea7f84c97a6}{animation\+\_\+priority\+\_\+t}}}]{min\+\_\+priority}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00449}{449}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a46689763d76e1db929b64d98231853ac}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_endgame\_cascade@{animation\_update\_endgame\_cascade}}
+\index{animation\_update\_endgame\_cascade@{animation\_update\_endgame\_cascade}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_endgame\_cascade()}{animation\_update\_endgame\_cascade()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a46689763d76e1db929b64d98231853ac} 
+bool animation\+\_\+update\+\_\+endgame\+\_\+cascade (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00747}{747}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_abbf20a753fe8fa0727e662f11ee90345}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_endgame\_circles@{animation\_update\_endgame\_circles}}
+\index{animation\_update\_endgame\_circles@{animation\_update\_endgame\_circles}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_endgame\_circles()}{animation\_update\_endgame\_circles()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_abbf20a753fe8fa0727e662f11ee90345} 
+bool animation\+\_\+update\+\_\+endgame\+\_\+circles (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00703}{703}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a92561caf8e46454153425870bdb25f86}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_endgame\_draw\_pulse@{animation\_update\_endgame\_draw\_pulse}}
+\index{animation\_update\_endgame\_draw\_pulse@{animation\_update\_endgame\_draw\_pulse}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_endgame\_draw\_pulse()}{animation\_update\_endgame\_draw\_pulse()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a92561caf8e46454153425870bdb25f86} 
+bool animation\+\_\+update\+\_\+endgame\+\_\+draw\+\_\+pulse (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00884}{884}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_aa5f953a8aa6e4bffdd2f54b5cbc72287}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_endgame\_draw\_spiral@{animation\_update\_endgame\_draw\_spiral}}
+\index{animation\_update\_endgame\_draw\_spiral@{animation\_update\_endgame\_draw\_spiral}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_endgame\_draw\_spiral()}{animation\_update\_endgame\_draw\_spiral()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_aa5f953a8aa6e4bffdd2f54b5cbc72287} 
+bool animation\+\_\+update\+\_\+endgame\+\_\+draw\+\_\+spiral (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00837}{837}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ad17f4fad4ae0f10e95213a0ce3133992}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_endgame\_fireworks@{animation\_update\_endgame\_fireworks}}
+\index{animation\_update\_endgame\_fireworks@{animation\_update\_endgame\_fireworks}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_endgame\_fireworks()}{animation\_update\_endgame\_fireworks()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ad17f4fad4ae0f10e95213a0ce3133992} 
+bool animation\+\_\+update\+\_\+endgame\+\_\+fireworks (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00792}{792}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_aafd47a4efcf1e963e6482eff96b5245f}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_endgame\_wave@{animation\_update\_endgame\_wave}}
+\index{animation\_update\_endgame\_wave@{animation\_update\_endgame\_wave}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_endgame\_wave()}{animation\_update\_endgame\_wave()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_aafd47a4efcf1e963e6482eff96b5245f} 
+bool animation\+\_\+update\+\_\+endgame\+\_\+wave (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00661}{661}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_af169c31b4728fd389cef9a2551f8947f}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_flashing@{animation\_update\_flashing}}
+\index{animation\_update\_flashing@{animation\_update\_flashing}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_flashing()}{animation\_update\_flashing()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_af169c31b4728fd389cef9a2551f8947f} 
+bool animation\+\_\+update\+\_\+flashing (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Aktualizuje blikajici animaci. 
+
+Vytvari binarni blikajici efekt (zapnuto/vypnuto).
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim} & Ukazatel na stav animace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud animace pokracuje 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00609}{609}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a5921d60e99902cb914cb21751e6a6b1d}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_promotion@{animation\_update\_promotion}}
+\index{animation\_update\_promotion@{animation\_update\_promotion}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_promotion()}{animation\_update\_promotion()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a5921d60e99902cb914cb21751e6a6b1d} 
+bool animation\+\_\+update\+\_\+promotion (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l01063}{1063}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ac04fe1937e5690c98392d978cc881e11}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_pulsing@{animation\_update\_pulsing}}
+\index{animation\_update\_pulsing@{animation\_update\_pulsing}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_pulsing()}{animation\_update\_pulsing()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ac04fe1937e5690c98392d978cc881e11} 
+bool animation\+\_\+update\+\_\+pulsing (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Aktualizuje pulzujici animaci. 
+
+Vytvari plynuly pulzujici efekt pomoci sinus funkce. Intenzita se meni mezi 30\% a 100\%.
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim} & Ukazatel na stav animace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud animace pokracuje 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00589}{589}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a0b5d021f7052366508f19b0db7306d40}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_rainbow@{animation\_update\_rainbow}}
+\index{animation\_update\_rainbow@{animation\_update\_rainbow}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_rainbow()}{animation\_update\_rainbow()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a0b5d021f7052366508f19b0db7306d40} 
+bool animation\+\_\+update\+\_\+rainbow (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Aktualizuje duhovou animaci. 
+
+Provadi plynuly prechod pres vse
+
+chny barvy duhy pomoci HSV-\/\texorpdfstring{$>$}{>}RGB konverze. Obsahuje jemne pulzovani jasu pro dynamictejsi efekt.
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim} & Ukazatel na stav animace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud animace pokracuje 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00632}{632}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ae5eb26e747498c71310a20a4192bc72f}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animation\_update\_smooth\_interpolation@{animation\_update\_smooth\_interpolation}}
+\index{animation\_update\_smooth\_interpolation@{animation\_update\_smooth\_interpolation}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animation\_update\_smooth\_interpolation()}{animation\_update\_smooth\_interpolation()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ae5eb26e747498c71310a20a4192bc72f} 
+bool animation\+\_\+update\+\_\+smooth\+\_\+interpolation (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00548}{548}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a44a07045bc7d0b9019e122b6ee2f1c59}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!ease\_in\_out\_cubic@{ease\_in\_out\_cubic}}
+\index{ease\_in\_out\_cubic@{ease\_in\_out\_cubic}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{ease\_in\_out\_cubic()}{ease\_in\_out\_cubic()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a44a07045bc7d0b9019e122b6ee2f1c59} 
+float ease\+\_\+in\+\_\+out\+\_\+cubic (\begin{DoxyParamCaption}\item[{float}]{t}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00058}{58}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a0e552d083d40a494e5bec582a329faac}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!interpolate\_color@{interpolate\_color}}
+\index{interpolate\_color@{interpolate\_color}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{interpolate\_color()}{interpolate\_color()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a0e552d083d40a494e5bec582a329faac} 
+void interpolate\+\_\+color (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+r}{, }\item[{uint8\+\_\+t}]{from\+\_\+g}{, }\item[{uint8\+\_\+t}]{from\+\_\+b}{, }\item[{uint8\+\_\+t}]{to\+\_\+r}{, }\item[{uint8\+\_\+t}]{to\+\_\+g}{, }\item[{uint8\+\_\+t}]{to\+\_\+b}{, }\item[{float}]{progress}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{out\+\_\+r}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{out\+\_\+g}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{out\+\_\+b}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00062}{62}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a94483a3f8c95cb093d2a278b8cde1c9e}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!unified\_animation\_create@{unified\_animation\_create}}
+\index{unified\_animation\_create@{unified\_animation\_create}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{unified\_animation\_create()}{unified\_animation\_create()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a94483a3f8c95cb093d2a278b8cde1c9e} 
+uint32\+\_\+t unified\+\_\+animation\+\_\+create (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{unified__animation__manager_8h_a7e703c09ba390bb0306ced9d307690df}{animation\+\_\+type\+\_\+t}}}]{type}{, }\item[{\mbox{\hyperlink{unified__animation__manager_8h_a1d14f93d2747753699b61ea7f84c97a6}{animation\+\_\+priority\+\_\+t}}}]{priority}{}\end{DoxyParamCaption})}
+
+
+
+Vytvor novou animaci (alokuj slot). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em type} & Typ animace \\
+\hline
+{\em priority} & Priorita animace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ID animace nebo 0 pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00120}{120}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a11b526f2f45df5e367c9ec63500c7fc1}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!unified\_animation\_stop@{unified\_animation\_stop}}
+\index{unified\_animation\_stop@{unified\_animation\_stop}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{unified\_animation\_stop()}{unified\_animation\_stop()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a11b526f2f45df5e367c9ec63500c7fc1} 
+esp\+\_\+err\+\_\+t unified\+\_\+animation\+\_\+stop (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{anim\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Zastav animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim\+\_\+id} & ID animace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00437}{437}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a00e3ed0913caba4f42ed8749b9e41d6f}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!unified\_animation\_stop\_all@{unified\_animation\_stop\_all}}
+\index{unified\_animation\_stop\_all@{unified\_animation\_stop\_all}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{unified\_animation\_stop\_all()}{unified\_animation\_stop\_all()}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a00e3ed0913caba4f42ed8749b9e41d6f} 
+esp\+\_\+err\+\_\+t unified\+\_\+animation\+\_\+stop\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zastav vsechny animace. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00463}{463}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{unified__animation__manager_8c_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{unified__animation__manager_8c_a4136accd8b976228e8391ba4c8e04879}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!animations@{animations}}
+\index{animations@{animations}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{animations}{animations}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a4136accd8b976228e8391ba4c8e04879} 
+\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} animations\mbox{[}16\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00037}{37}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a2e2bf556f54a319a5416488e0290e4d4}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!current\_config@{current\_config}}
+\index{current\_config@{current\_config}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{current\_config}{current\_config}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a2e2bf556f54a319a5416488e0290e4d4} 
+\mbox{\hyperlink{structanimation__config__t}{animation\+\_\+config\+\_\+t}} current\+\_\+config\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00036}{36}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a0bb6dcf519e5bcc59b766b1a23c2535c}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!last\_update\_time@{last\_update\_time}}
+\index{last\_update\_time@{last\_update\_time}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{last\_update\_time}{last\_update\_time}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a0bb6dcf519e5bcc59b766b1a23c2535c} 
+uint32\+\_\+t last\+\_\+update\+\_\+time = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00039}{39}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a056b36df10f165cd5a6b993fc63fa152}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!manager\_initialized@{manager\_initialized}}
+\index{manager\_initialized@{manager\_initialized}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{manager\_initialized}{manager\_initialized}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a056b36df10f165cd5a6b993fc63fa152} 
+bool manager\+\_\+initialized = false\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00035}{35}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_ad3b6e14b9ad4bca4c07f67b318ed0e79}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!next\_animation\_id@{next\_animation\_id}}
+\index{next\_animation\_id@{next\_animation\_id}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{next\_animation\_id}{next\_animation\_id}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_ad3b6e14b9ad4bca4c07f67b318ed0e79} 
+uint32\+\_\+t next\+\_\+animation\+\_\+id = 1\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00038}{38}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+
+\Hypertarget{unified__animation__manager_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{unified\_animation\_manager.c@{unified\_animation\_manager.c}!TAG@{TAG}}
+\index{TAG@{TAG}!unified\_animation\_manager.c@{unified\_animation\_manager.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{unified__animation__manager_8c_a5a85b9c772bbeb480b209a3e6ea92b4c} 
+const char\texorpdfstring{$\ast$}{*} TAG = "{}ANIM\+\_\+\+MGR"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8c_source_l00032}{32}} v souboru \mbox{\hyperlink{unified__animation__manager_8c_source}{unified\+\_\+animation\+\_\+manager.\+c}}.
+

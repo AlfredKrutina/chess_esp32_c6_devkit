@@ -1,0 +1,474 @@
+\doxysection{uart\+\_\+commands\+\_\+extended.\+c}
+\hypertarget{uart__commands__extended_8c_source}{}\label{uart__commands__extended_8c_source}\index{uart\_commands\_extended.c@{uart\_commands\_extended.c}}
+\mbox{\hyperlink{uart__commands__extended_8c}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00017}00017\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00018}00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{uart__commands__extended_8h}{uart\_commands\_extended.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00019}00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{game__led__animations_8h}{game\_led\_animations.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00020}00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__mapping_8h}{led\_mapping.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00021}00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__task_8h}{led\_task.h}}"{}}\ \ \textcolor{comment}{//\ For\ LED\ control\ functions}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00022}00022\ \textcolor{preprocessor}{\#include\ "{}esp\_log.h"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00023}00023\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00024}00024\ \textcolor{preprocessor}{\#include\ <stdio.h>}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00025}00025\ \textcolor{preprocessor}{\#include\ <stdlib.h>}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00027}\mbox{\hyperlink{uart__commands__extended_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00027}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}}\ =\ \textcolor{stringliteral}{"{}UART\_EXT"{}};}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00029}00029\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00030}00030\ \textcolor{comment}{//\ POMOCNÉ\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00031}00031\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00036}\mbox{\hyperlink{uart__commands__extended_8c_a077345de50407d4102d48247f457f88a}{00036}}\ \textcolor{keyword}{static}\ uint8\_t\ \mbox{\hyperlink{uart__commands__extended_8c_a077345de50407d4102d48247f457f88a}{parse\_king\_position}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ pos\_str)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00037}00037\ \ \ \ \ \textcolor{keywordflow}{if}\ (!pos\_str\ ||\ strlen(pos\_str)\ !=\ 2)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00038}00038\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 255;\ \textcolor{comment}{//\ Invalid}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00039}00039\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00040}00040\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00041}00041\ \ \ \ \ \textcolor{keywordtype}{char}\ file\ =\ pos\_str[0];}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00042}00042\ \ \ \ \ \textcolor{keywordtype}{char}\ rank\ =\ pos\_str[1];}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00043}00043\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00044}00044\ \ \ \ \ \textcolor{keywordflow}{if}\ (file\ <\ \textcolor{charliteral}{'a'}\ ||\ file\ >\ \textcolor{charliteral}{'h'}\ ||\ rank\ <\ \textcolor{charliteral}{'1'}\ ||\ rank\ >\ \textcolor{charliteral}{'8'})\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00045}00045\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 255;\ \textcolor{comment}{//\ Invalid}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00046}00046\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00047}00047\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00048}00048\ \ \ \ \ uint8\_t\ col\ =\ file\ -\/\ \textcolor{charliteral}{'a'};}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00049}00049\ \ \ \ \ uint8\_t\ row\ =\ rank\ -\/\ \textcolor{charliteral}{'1'};}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00050}00050\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00051}00051\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(row,\ col);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00052}00052\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00057}\mbox{\hyperlink{uart__commands__extended_8c_a2a78e4f624df8fcd55e57d48360a10e0}{00057}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8c_a2a78e4f624df8fcd55e57d48360a10e0}{position\_to\_string}}(uint8\_t\ pos,\ \textcolor{keywordtype}{char}*\ out\_str)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00058}00058\ \ \ \ \ \textcolor{keywordflow}{if}\ (pos\ >=\ 64)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00059}00059\ \ \ \ \ \ \ \ \ strcpy(out\_str,\ \textcolor{stringliteral}{"{}??"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00060}00060\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00061}00061\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00062}00062\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00063}00063\ \ \ \ \ uint8\_t\ row,\ col;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00064}00064\ \ \ \ \ \mbox{\hyperlink{led__mapping_8h_afa2f63d0405f6da06cdeceee60aaa9d7}{led\_index\_to\_chess\_pos}}(pos,\ \&row,\ \&col);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00065}00065\ \ \ \ \ \textcolor{keywordtype}{char}\ file\ =\ \textcolor{charliteral}{'a'}\ +\ col;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00066}00066\ \ \ \ \ \textcolor{keywordtype}{char}\ rank\ =\ \textcolor{charliteral}{'1'}\ +\ row;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00067}00067\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00068}00068\ \ \ \ \ out\_str[0]\ =\ file;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00069}00069\ \ \ \ \ out\_str[1]\ =\ rank;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00070}00070\ \ \ \ \ out\_str[2]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00071}00071\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00072}00072\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00073}00073\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00074}00074\ \textcolor{comment}{//\ IMPLEMENTACE\ PŘÍKAZŮ}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00075}00075\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00076}00076\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00077}\mbox{\hyperlink{uart__commands__extended_8h_ace118ff57c1728a13e4660df6234a4a8}{00077}}\ esp\_err\_t\ \mbox{\hyperlink{uart__commands__extended_8c_ace118ff57c1728a13e4660df6234a4a8}{cmd\_endgame\_animations}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv,\ \textcolor{keywordtype}{char}\ *response,\ \textcolor{keywordtype}{size\_t}\ response\_size)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00078}00078\ \ \ \ \ \textcolor{keywordflow}{if}\ (argc\ !=\ 1)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00079}00079\ \ \ \ \ \ \ \ \ snprintf(response,\ response\_size,}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}📋\ ENDGAME\ ANIMATIONS\ -\/\ Dostupné\ animace:\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}1.\ Victory\ Wave\ -\/\ Vlna\ od\ vítězného\ krále\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ Modré\ vlny\ šířící\ se\ od\ krále,\ červená\ modulace\ pro\ protihráče\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ Pokračuje\ dokud\ se\ nezastaví\ reset\ tlačítkem\ nebo\ novou\ hrou\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00086}00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}2.\ Victory\ Circles\ -\/\ Expandující\ kruhy\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ Tři\ barevné\ kruhy\ expandující\ ze\ středu\ šachovnice\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ Zlatá,\ oranžová\ a\ bílá\ barva\ v\ rotaci\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}3.\ Victory\ Cascade\ -\/\ Kaskádové\ padání\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ Diagonální\ vlna\ procházející\ šachovnicí\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ Efekt\ padajících\ figur\ s\ barevnými\ stíny\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}4.\ Victory\ Fireworks\ -\/\ Ohňostroj\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ Náhodné\ ohňostroje\ v\ různých\ barvách\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ Expandující\ kruhy\ simulující\ výbuchy\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}5.\ Victory\ Crown\ -\/\ Korunka\ vítěze\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ Zlatá\ korunka\ kolem\ vítězného\ krále\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ Pulsující\ efekt\ se\ středem\ na\ králi\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🎮\ Použití:\ 'endgame\ animation\ X\ [pozice]'\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ X\ =\ 1-\/5\ (typ\ animace)\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ pozice\ =\ např.\ 'e1',\ 'e8'\ (pozice\ krále,\ nepovinné)\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Příklady:\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}•\ endgame\ animation\ 1\ e1\ \ -\/\ Victory\ Wave\ od\ e1\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}•\ endgame\ animation\ 4\ \ \ \ \ -\/\ Victory\ Fireworks\ (bez\ krále)\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}•\ endgame\ animation\ 5\ d8\ \ -\/\ Victory\ Crown\ kolem\ d8"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00110}00110\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00111}00111\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00112}00112\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00113}00113\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}endgame\ animations\ příkaz\ vyžaduje\ přesně\ 0\ argumentů,\ obdrženo:\ \%d"{}},\ argc);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00114}00114\ \ \ \ \ snprintf(response,\ response\_size,\ \textcolor{stringliteral}{"{}❌\ Použití:\ 'endgame\ animations'\ (bez\ argumentů)"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00115}00115\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00116}00116\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00117}00117\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00118}\mbox{\hyperlink{uart__commands__extended_8h_aa1c75de10ba908b20b3384fc09d857e4}{00118}}\ esp\_err\_t\ \mbox{\hyperlink{uart__commands__extended_8c_aa1c75de10ba908b20b3384fc09d857e4}{cmd\_endgame\_animation}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv,\ \textcolor{keywordtype}{char}\ *response,\ \textcolor{keywordtype}{size\_t}\ response\_size)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00119}00119\ \ \ \ \ \textcolor{keywordflow}{if}\ (argc\ <\ 1\ ||\ argc\ >\ 2)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00120}00120\ \ \ \ \ \ \ \ \ snprintf(response,\ response\_size,}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}❌\ Nesprávný\ počet\ argumentů!\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🎮\ Použití:\ 'endgame\ animation\ X\ [pozice]'\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00124}00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ X\ =\ 1-\/5\ (typ\ animace)\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\ \ \ pozice\ =\ nepovinná\ pozice\ krále\ (např.\ 'e1')\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}💡\ Pro\ seznam\ všech\ animací\ použijte:\ 'endgame\ animations'"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00128}00128\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00129}00129\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00130}00130\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00131}00131\ \ \ \ \ \textcolor{comment}{//\ Parsování\ typu\ animace}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00132}00132\ \ \ \ \ \textcolor{keywordtype}{int}\ animation\_type\ =\ atoi(argv[0]);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00133}00133\ \ \ \ \ \textcolor{keywordflow}{if}\ (animation\_type\ <\ 1\ ||\ animation\_type\ >=\ \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9}{ENDGAME\_ANIM\_MAX}})\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00134}00134\ \ \ \ \ \ \ \ \ snprintf(response,\ response\_size,}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00135}00135\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}❌\ Neplatný\ typ\ animace:\ \%d\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00137}00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✅\ Dostupné\ typy:\ 1-\/5\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00138}00138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}💡\ Pro\ detaily\ použijte:\ 'endgame\ animations'"{}},\ animation\_type);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00139}00139\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00140}00140\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00141}00141\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00142}00142\ \ \ \ \ \textcolor{comment}{//\ Parsování\ pozice\ krále\ (pokud\ je\ zadána)}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00143}00143\ \ \ \ \ uint8\_t\ king\_pos\ =\ 28;\ \textcolor{comment}{//\ Default\ e4\ (střed\ šachovnice)}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00144}00144\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00145}00145\ \ \ \ \ \textcolor{keywordflow}{if}\ (argc\ ==\ 2)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00146}00146\ \ \ \ \ \ \ \ \ king\_pos\ =\ \mbox{\hyperlink{uart__commands__extended_8c_a077345de50407d4102d48247f457f88a}{parse\_king\_position}}(argv[1]);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00147}00147\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (king\_pos\ ==\ 255)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00148}00148\ \ \ \ \ \ \ \ \ \ \ \ \ snprintf(response,\ response\_size,}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00149}00149\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}❌\ Neplatná\ pozice\ krále:\ '\%s'\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00150}00150\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00151}00151\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✅\ Formát:\ písmeno\ a-\/h\ +\ číslice\ 1-\/8\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00152}00152\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}💡\ Příklady:\ e1,\ e8,\ d4,\ h7"{}},\ argv[1]);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00153}00153\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00154}00154\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00155}00155\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00156}00156\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00157}00157\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Spouštím\ endgame\ animaci\ typu\ \%d\ na\ pozici\ \%d"{}},\ animation\_type,\ king\_pos);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00158}00158\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00159}00159\ \ \ \ \ \textcolor{comment}{//\ Zastavíme\ předchozí\ animaci\ pokud\ běží}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00160}00160\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__led__animations_8c_abc332d95d86dbce7893f640161167edb}{is\_endgame\_animation\_running}}())\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00161}00161\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Zastavuji\ předchozí\ endgame\ animaci"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00162}00162\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ad8316144bc70b897342c47d341b52b5b}{stop\_endgame\_animation}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00163}00163\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Krátká\ pauza\ pro\ vyčištění}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00164}00164\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00165}00165\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00166}00166\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00167}00167\ \ \ \ \ \textcolor{comment}{//\ Spustíme\ novou\ animaci}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00168}00168\ \ \ \ \ esp\_err\_t\ result\ =\ \mbox{\hyperlink{game__led__animations_8c_a512b0ba5745a638b00545a16423c4e17}{start\_endgame\_animation}}((\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\_animation\_type\_t}})animation\_type,\ king\_pos);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00169}00169\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00170}00170\ \ \ \ \ \textcolor{keywordflow}{if}\ (result\ ==\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00171}00171\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ pos\_str[4];}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00172}00172\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{uart__commands__extended_8c_a2a78e4f624df8fcd55e57d48360a10e0}{position\_to\_string}}(king\_pos,\ pos\_str);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00173}00173\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00174}00174\ \ \ \ \ \ \ \ \ snprintf(response,\ response\_size,}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🎬\ Endgame\ animace\ spuštěna!\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00176}00176\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}📱\ Typ:\ \%s\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}👑\ Pozice\ krále:\ \%s\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}⏱️\ \ Animace\ poběží\ dokud\ nebude\ zastavena\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🛑\ Pro\ zastavení:\ 'led\ clear'\ nebo\ 'new\ game'\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00182}00182\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}💡\ Pro\ jiné\ animace:\ 'endgame\ animations'"{}},}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a657e1bb5d40ff05278f1fd817295a34b}{get\_endgame\_animation\_name}}((\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\_animation\_type\_t}})animation\_type),}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pos\_str);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00185}00185\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00186}00186\ \ \ \ \ \ \ \ \ snprintf(response,\ response\_size,}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00187}00187\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}❌\ Nepodařilo\ se\ spustit\ endgame\ animaci!\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00188}00188\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🔧\ Možné\ příčiny:\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}•\ Animační\ systém\ není\ inicializován\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}•\ Nedostatek\ paměti\ pro\ timer\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}•\ Systémová\ chyba\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00193}00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}💡\ Zkuste\ restart\ systému:\ 'reboot'"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00195}00195\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00196}00196\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00197}00197\ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00198}00198\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00199}00199\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00200}\mbox{\hyperlink{uart__commands__extended_8h_a77618cd8f49e406c505e2c0f8110efd2}{00200}}\ esp\_err\_t\ \mbox{\hyperlink{uart__commands__extended_8c_a77618cd8f49e406c505e2c0f8110efd2}{cmd\_stop\_animations}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv,\ \textcolor{keywordtype}{char}\ *response,\ \textcolor{keywordtype}{size\_t}\ response\_size)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00201}00201\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Zastavuji\ všechny\ animace"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00202}00202\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00203}00203\ \ \ \ \ \textcolor{keywordtype}{bool}\ was\_running\ =\ \mbox{\hyperlink{game__led__animations_8c_abc332d95d86dbce7893f640161167edb}{is\_endgame\_animation\_running}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00204}00204\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00205}00205\ \ \ \ \ \textcolor{comment}{//\ Zastavíme\ endgame\ animace}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00206}00206\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_ad8316144bc70b897342c47d341b52b5b}{stop\_endgame\_animation}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00207}00207\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00208}00208\ \ \ \ \ \textcolor{comment}{//\ Zastavíme\ jemné\ animace}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00209}00209\ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a7d2e178a6334fe293dd266e15b194ceb}{stop\_all\_subtle\_animations}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00210}00210\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00211}00211\ \ \ \ \ \textcolor{keywordflow}{if}\ (was\_running)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00212}00212\ \ \ \ \ \ \ \ \ snprintf(response,\ response\_size,}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🛑\ Všechny\ animace\ zastaveny!\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00215}00215\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✅\ Endgame\ animace:\ zastavena\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✅\ Jemné\ animace:\ zastaveny\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00217}00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✅\ Šachovnice:\ vyčištěna\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00218}00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00219}00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}💡\ Pro\ nové\ animace\ použijte:\ 'endgame\ animations'"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00220}00220\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00221}00221\ \ \ \ \ \ \ \ \ snprintf(response,\ response\_size,}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00222}00222\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}ℹ️\ \ Žádné\ animace\ neběžely\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00223}00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00224}00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✅\ Jemné\ animace:\ zastaveny\ (pro\ jistotu)\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00225}00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✅\ Šachovnice:\ vyčištěna\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00226}00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00227}00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}💡\ Pro\ spuštění\ animací:\ 'endgame\ animations'"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00228}00228\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00229}00229\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00230}00230\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00231}00231\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00232}00232\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00233}\mbox{\hyperlink{uart__commands__extended_8h_a7aea8ea2734d3e76a9cb31e39f8ecaa7}{00233}}\ esp\_err\_t\ \mbox{\hyperlink{uart__commands__extended_8c_a7aea8ea2734d3e76a9cb31e39f8ecaa7}{cmd\_animation\_status}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv,\ \textcolor{keywordtype}{char}\ *response,\ \textcolor{keywordtype}{size\_t}\ response\_size)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00234}00234\ \ \ \ \ \textcolor{keywordtype}{bool}\ endgame\_running\ =\ \mbox{\hyperlink{game__led__animations_8c_abc332d95d86dbce7893f640161167edb}{is\_endgame\_animation\_running}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00235}00235\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00236}00236\ \ \ \ \ snprintf(response,\ response\_size,}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00237}00237\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}📊\ STAV\ ANIMAČNÍHO\ SYSTÉMU\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00238}00238\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00239}00239\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🎬\ Endgame\ animace:\ \%s\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🎨\ Jemné\ animace:\ aktivní\ podle\ potřeby\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00241}00241\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}⚡\ Animační\ systém:\ \%s\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00242}00242\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🔄\ Refresh\ rate:\ 20\ FPS\ (50ms\ frame)\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00243}00243\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00244}00244\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%s"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}💡\ Dostupné\ příkazy:\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}•\ endgame\ animations\ \ \ \ \ -\/\ seznam\ animací\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}•\ endgame\ animation\ X\ \ \ \ -\/\ spustit\ animaci\ X\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}•\ stop\ animations\ \ \ \ \ \ \ \ -\/\ zastavit\ vše\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00250}00250\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}•\ animation\ status\ \ \ \ \ \ \ -\/\ tento\ přehled"{}},}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00251}00251\ \ \ \ \ \ \ \ \ \ \ \ \ endgame\_running\ ?\ \textcolor{stringliteral}{"{}🟢\ BĚŽÍ"{}}\ :\ \textcolor{stringliteral}{"{}🔴\ VYPNUTO"{}},}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00252}00252\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🟢\ INICIALIZOVÁN"{}},\ \textcolor{comment}{//\ Předpokládáme,\ že\ je\ inicializován\ pokud\ se\ příkaz\ spouští}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00253}00253\ \ \ \ \ \ \ \ \ \ \ \ \ endgame\_running\ ?\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00254}00254\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}🎭\ Animace\ běží\ na\ pozadí\ a\ automaticky\ se\ obnovuje"{}}\ :}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}😴\ Žádná\ endgame\ animace\ neběží"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00256}00256\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00257}00257\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00258}00258\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00259}00259\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00260}00260\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00261}00261\ \textcolor{comment}{//\ REGISTRACE\ PŘÍKAZŮ}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00262}00262\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00263}00263\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00264}\mbox{\hyperlink{uart__commands__extended_8h_a91f740ce224db3050d1f85890fdbbdce}{00264}}\ esp\_err\_t\ \mbox{\hyperlink{uart__commands__extended_8c_a91f740ce224db3050d1f85890fdbbdce}{register\_extended\_uart\_commands}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00265}00265\ \ \ \ \ \textcolor{comment}{//\ Simple\ registration\ -\/\ commands\ are\ handled\ by\ uart\_task.c\ directly}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00266}00266\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Rozšířené\ UART\ příkazy\ připraveny\ pro\ uart\_task.c"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00267}00267\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00268}00268\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00269}00269\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00270}00270\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00271}00271\ \textcolor{comment}{//\ DISPATCHER\ FUNKCE\ PRO\ ESP\ CONSOLE}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00272}00272\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00273}00273\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00274}\mbox{\hyperlink{uart__commands__extended_8h_a2c1f034f2745aa000fda3e70da59ccea}{00274}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{uart__commands__extended_8c_a2c1f034f2745aa000fda3e70da59ccea}{uart\_endgame\_command\_dispatcher}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00275}00275\ \ \ \ \ \textcolor{keywordtype}{char}\ response[1024];}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00276}00276\ \ \ \ \ esp\_err\_t\ result;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00277}00277\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00278}00278\ \ \ \ \ \textcolor{keywordflow}{if}\ (argc\ <\ 1)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00279}00279\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}❌\ Nedostatek\ argumentů!\ Použijte:\ endgame\ animations\ nebo\ endgame\ animation\ X\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00280}00280\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00281}00281\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00282}00282\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00283}00283\ \ \ \ \ \textcolor{keywordflow}{if}\ (strcmp(argv[0],\ \textcolor{stringliteral}{"{}animations"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00284}00284\ \ \ \ \ \ \ \ \ result\ =\ \mbox{\hyperlink{uart__commands__extended_8c_ace118ff57c1728a13e4660df6234a4a8}{cmd\_endgame\_animations}}(argc\ -\/\ 1,\ \&argv[1],\ response,\ \textcolor{keyword}{sizeof}(response));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00285}00285\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcmp(argv[0],\ \textcolor{stringliteral}{"{}animation"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00286}00286\ \ \ \ \ \ \ \ \ result\ =\ \mbox{\hyperlink{uart__commands__extended_8c_aa1c75de10ba908b20b3384fc09d857e4}{cmd\_endgame\_animation}}(argc\ -\/\ 1,\ \&argv[1],\ response,\ \textcolor{keyword}{sizeof}(response));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00287}00287\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00288}00288\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}❌\ Neznámý\ podpříkaz:\ '\%s'\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00289}00289\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}💡\ Použijte:\ 'endgame\ animations'\ nebo\ 'endgame\ animation\ X'\(\backslash\)n"{}},\ argv[0]);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00290}00290\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00291}00291\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00292}00292\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00293}00293\ \ \ \ \ \textcolor{comment}{//\ Vypíšeme\ odpověď}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00294}00294\ \ \ \ \ printf(\textcolor{stringliteral}{"{}\%s\(\backslash\)n"{}},\ response);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00295}00295\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00296}00296\ \ \ \ \ \textcolor{keywordflow}{return}\ (result\ ==\ ESP\_OK)\ ?\ 0\ :\ 1;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00297}00297\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00298}00298\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00299}\mbox{\hyperlink{uart__commands__extended_8h_ae57225727889bb7bd8541d02660e33a6}{00299}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{uart__commands__extended_8c_ae57225727889bb7bd8541d02660e33a6}{uart\_stop\_command\_dispatcher}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00300}00300\ \ \ \ \ \textcolor{keywordtype}{char}\ response[512];}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00301}00301\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00302}00302\ \ \ \ \ \textcolor{keywordflow}{if}\ (argc\ <\ 1\ ||\ strcmp(argv[0],\ \textcolor{stringliteral}{"{}animations"{}})\ !=\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00303}00303\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}❌\ Použijte:\ 'stop\ animations'\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00304}00304\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00305}00305\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00306}00306\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00307}00307\ \ \ \ \ esp\_err\_t\ result\ =\ \mbox{\hyperlink{uart__commands__extended_8c_a77618cd8f49e406c505e2c0f8110efd2}{cmd\_stop\_animations}}(argc\ -\/\ 1,\ \&argv[1],\ response,\ \textcolor{keyword}{sizeof}(response));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00308}00308\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00309}00309\ \ \ \ \ printf(\textcolor{stringliteral}{"{}\%s\(\backslash\)n"{}},\ response);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00310}00310\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00311}00311\ \ \ \ \ \textcolor{keywordflow}{return}\ (result\ ==\ ESP\_OK)\ ?\ 0\ :\ 1;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00312}00312\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00313}00313\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00314}\mbox{\hyperlink{uart__commands__extended_8h_a6bd963956e3a304abd305b05f126b5fc}{00314}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{uart__commands__extended_8c_a6bd963956e3a304abd305b05f126b5fc}{uart\_animation\_command\_dispatcher}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00315}00315\ \ \ \ \ \textcolor{keywordtype}{char}\ response[1024];}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00316}00316\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00317}00317\ \ \ \ \ \textcolor{keywordflow}{if}\ (argc\ <\ 1\ ||\ strcmp(argv[0],\ \textcolor{stringliteral}{"{}status"{}})\ !=\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00318}00318\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}❌\ Použijte:\ 'animation\ status'\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00319}00319\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00320}00320\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00321}00321\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00322}00322\ \ \ \ \ esp\_err\_t\ result\ =\ \mbox{\hyperlink{uart__commands__extended_8c_a7aea8ea2734d3e76a9cb31e39f8ecaa7}{cmd\_animation\_status}}(argc\ -\/\ 1,\ \&argv[1],\ response,\ \textcolor{keyword}{sizeof}(response));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00323}00323\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00324}00324\ \ \ \ \ printf(\textcolor{stringliteral}{"{}\%s\(\backslash\)n"{}},\ response);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00325}00325\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00326}00326\ \ \ \ \ \textcolor{keywordflow}{return}\ (result\ ==\ ESP\_OK)\ ?\ 0\ :\ 1;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00327}00327\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00328}00328\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00329}00329\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00330}00330\ \textcolor{comment}{//\ SIMPLE\ WRAPPER\ FUNCTIONS\ FOR\ UART\_TASK.C}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00331}00331\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00332}00332\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00336}\mbox{\hyperlink{uart__commands__extended_8h_a25a982b28768b290cb56ecde22bf1560}{00336}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8c_a25a982b28768b290cb56ecde22bf1560}{handle\_led\_test\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00337}00337\ \ \ \ \ printf(\textcolor{stringliteral}{"{}LED\ Test\ Command\ -\/\ Testing\ LED\ strip...\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00338}00338\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00339}00339\ \ \ \ \ \textcolor{comment}{//\ Test\ all\ LEDs\ with\ different\ colors}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00340}00340\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 64;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00341}00341\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(i,\ 255,\ 0,\ 0);\ \ \textcolor{comment}{//\ Red}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00342}00342\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(50));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00343}00343\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00344}00344\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00345}00345\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00346}00346\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 64;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00347}00347\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(i,\ 0,\ 255,\ 0);\ \ \textcolor{comment}{//\ Green}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00348}00348\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(50));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00349}00349\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00350}00350\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00351}00351\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00352}00352\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 64;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00353}00353\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(i,\ 0,\ 0,\ 255);\ \ \textcolor{comment}{//\ Blue}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00354}00354\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(50));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00355}00355\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00356}00356\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00357}00357\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00358}00358\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ab245ceabb580934b6117f59343c6d9a2}{led\_clear\_board\_only}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00359}00359\ \ \ \ \ printf(\textcolor{stringliteral}{"{}LED\ Test\ completed!\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00360}00360\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00361}00361\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00365}\mbox{\hyperlink{uart__commands__extended_8h_a294aca3ab988c08ae29b5f13fe09d05a}{00365}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8c_a294aca3ab988c08ae29b5f13fe09d05a}{handle\_led\_pattern\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00366}00366\ \ \ \ \ \textcolor{keywordflow}{if}\ (argc\ <\ 2)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00367}00367\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Usage:\ led\_pattern\ <pattern>\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00368}00368\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Available\ patterns:\ checker,\ rainbow,\ spiral,\ cross\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00369}00369\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00370}00370\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00371}00371\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00372}00372\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ab245ceabb580934b6117f59343c6d9a2}{led\_clear\_board\_only}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00373}00373\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00374}00374\ \ \ \ \ \textcolor{keywordflow}{if}\ (strcmp(argv[1],\ \textcolor{stringliteral}{"{}checker"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00375}00375\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Checker\ pattern}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00376}00376\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ row\ =\ 0;\ row\ <\ 8;\ row++)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00377}00377\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ col\ =\ 0;\ col\ <\ 8;\ col++)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00378}00378\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ((row\ +\ col)\ \%\ 2\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00379}00379\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(row,\ col);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00380}00380\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(led,\ 255,\ 255,\ 255);\ \ \textcolor{comment}{//\ White}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00381}00381\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00382}00382\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00383}00383\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00384}00384\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Checker\ pattern\ displayed\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00385}00385\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00386}00386\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcmp(argv[1],\ \textcolor{stringliteral}{"{}rainbow"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00387}00387\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Rainbow\ pattern\ -\/\ HSV\ to\ RGB\ konverze\ pro\ duhovy\ efekt}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00388}00388\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Pro\ kazdy\ LED\ pixel\ vypocitame\ jinou\ barvu\ na\ duhove\ skale}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00389}00389\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 64;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00390}00390\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Rozdelime\ 360°\ duhy\ mezi\ 64\ LED\ (0-\/360°)}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00391}00391\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ hue\ =\ (i\ *\ 360)\ /\ 64;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00392}00392\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00393}00393\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ HSV\ -\/>\ RGB\ konverze\ (zjednodusena\ verze)}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00394}00394\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Cervena:\ 0-\/60°\ plna,\ 60-\/120°\ klesa,\ jinak\ 0}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00395}00395\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ r\ =\ (hue\ <\ 60)\ ?\ 255\ :\ (hue\ <\ 120)\ ?\ 255\ -\/\ ((hue\ -\/\ 60)\ *\ 255)\ /\ 60\ :\ 0;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00396}00396\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Zelena:\ 0-\/60°\ roste,\ 60-\/180°\ plna,\ 180-\/240°\ klesa,\ jinak\ 0}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00397}00397\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ g\ =\ (hue\ <\ 60)\ ?\ (hue\ *\ 255)\ /\ 60\ :\ (hue\ <\ 180)\ ?\ 255\ :\ 255\ -\/\ ((hue\ -\/\ 180)\ *\ 255)\ /\ 60;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00398}00398\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Modra:\ 0-\/120°\ vypnuta,\ 120-\/240°\ roste,\ 240-\/360°\ plna}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00399}00399\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ b\ =\ (hue\ <\ 120)\ ?\ 0\ :\ (hue\ <\ 240)\ ?\ ((hue\ -\/\ 120)\ *\ 255)\ /\ 120\ :\ 255;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00400}00400\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00401}00401\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(i,\ r,\ g,\ b);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00402}00402\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00403}00403\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Rainbow\ pattern\ displayed\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00404}00404\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00405}00405\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00406}00406\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Unknown\ pattern:\ \%s\(\backslash\)r\(\backslash\)n"{}},\ argv[1]);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00407}00407\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00408}00408\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00409}00409\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00413}\mbox{\hyperlink{uart__commands__extended_8h_a0d0a671bd59866a24abecd0cd1ee9374}{00413}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8c_a0d0a671bd59866a24abecd0cd1ee9374}{handle\_led\_animation\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00414}00414\ \ \ \ \ \textcolor{keywordflow}{if}\ (argc\ <\ 2)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00415}00415\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Usage:\ led\_animation\ <animation>\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00416}00416\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Available\ animations:\ cascade,\ fireworks,\ crown,\ wave,\ circles\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00417}00417\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00418}00418\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00419}00419\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00420}00420\ \ \ \ \ \textcolor{keywordflow}{if}\ (strcmp(argv[1],\ \textcolor{stringliteral}{"{}cascade"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00421}00421\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Starting\ cascade\ animation...\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00422}00422\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a512b0ba5745a638b00545a16423c4e17}{start\_endgame\_animation}}(\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415}{ENDGAME\_ANIM\_VICTORY\_CASCADE}},\ 32);\ \textcolor{comment}{//\ Center\ position}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00423}00423\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00424}00424\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcmp(argv[1],\ \textcolor{stringliteral}{"{}fireworks"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00425}00425\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Starting\ fireworks\ animation...\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00426}00426\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a512b0ba5745a638b00545a16423c4e17}{start\_endgame\_animation}}(\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37}{ENDGAME\_ANIM\_VICTORY\_FIREWORKS}},\ 32);\ \textcolor{comment}{//\ Center\ position}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00427}00427\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00428}00428\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcmp(argv[1],\ \textcolor{stringliteral}{"{}crown"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00429}00429\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Starting\ crown\ animation...\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00430}00430\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a512b0ba5745a638b00545a16423c4e17}{start\_endgame\_animation}}(\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99}{ENDGAME\_ANIM\_VICTORY\_CROWN}},\ 32);\ \textcolor{comment}{//\ Center\ position}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00431}00431\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00432}00432\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcmp(argv[1],\ \textcolor{stringliteral}{"{}wave"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00433}00433\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Starting\ wave\ animation...\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00434}00434\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a512b0ba5745a638b00545a16423c4e17}{start\_endgame\_animation}}(\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757}{ENDGAME\_ANIM\_VICTORY\_WAVE}},\ 32);\ \textcolor{comment}{//\ Center\ position}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00435}00435\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00436}00436\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcmp(argv[1],\ \textcolor{stringliteral}{"{}circles"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00437}00437\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Starting\ circles\ animation...\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00438}00438\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__led__animations_8c_a512b0ba5745a638b00545a16423c4e17}{start\_endgame\_animation}}(\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6}{ENDGAME\_ANIM\_VICTORY\_CIRCLES}},\ 32);\ \textcolor{comment}{//\ Center\ position}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00439}00439\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00440}00440\ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00441}00441\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Unknown\ animation:\ \%s\(\backslash\)r\(\backslash\)n"{}},\ argv[1]);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00442}00442\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00443}00443\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00444}00444\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00448}\mbox{\hyperlink{uart__commands__extended_8h_a70c667d91da8b9165f7fbb815c32939b}{00448}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8c_a70c667d91da8b9165f7fbb815c32939b}{handle\_led\_clear\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00449}00449\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ab245ceabb580934b6117f59343c6d9a2}{led\_clear\_board\_only}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00450}00450\ \ \ \ \ printf(\textcolor{stringliteral}{"{}All\ LEDs\ cleared\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00451}00451\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00452}00452\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00456}\mbox{\hyperlink{uart__commands__extended_8h_a1eea20a3683af2f5c1a9782a8c12668c}{00456}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8c_a1eea20a3683af2f5c1a9782a8c12668c}{handle\_led\_brightness\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00457}00457\ \ \ \ \ \textcolor{keywordflow}{if}\ (argc\ <\ 2)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00458}00458\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Usage:\ led\_brightness\ <0-\/255>\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00459}00459\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00460}00460\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00461}00461\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00462}00462\ \ \ \ \ \textcolor{keywordtype}{int}\ brightness\ =\ atoi(argv[1]);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00463}00463\ \ \ \ \ \textcolor{keywordflow}{if}\ (brightness\ <\ 0\ ||\ brightness\ >\ 255)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00464}00464\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Brightness\ must\ be\ between\ 0\ and\ 255\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00465}00465\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00466}00466\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00467}00467\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00468}00468\ \ \ \ \ \textcolor{comment}{//\ Set\ brightness\ for\ all\ LEDs}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00469}00469\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 64;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00470}00470\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(i,\ brightness,\ brightness,\ brightness);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00471}00471\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00472}00472\ \ \ \ \ printf(\textcolor{stringliteral}{"{}Brightness\ set\ to\ \%d\(\backslash\)r\(\backslash\)n"{}},\ brightness);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00473}00473\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00474}00474\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00478}\mbox{\hyperlink{uart__commands__extended_8h_aa86478fbc78b81c0beb5703735519706}{00478}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8c_aa86478fbc78b81c0beb5703735519706}{handle\_chess\_pos\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00479}00479\ \ \ \ \ \textcolor{keywordflow}{if}\ (argc\ <\ 2)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00480}00480\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Usage:\ chess\_pos\ <position>\ (e.g.,\ a1,\ h8)\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00481}00481\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00482}00482\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00483}00483\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00484}00484\ \ \ \ \ uint8\_t\ led\_index\ =\ \mbox{\hyperlink{led__mapping_8h_ac190470b2f78837d3df987b0951264dd}{chess\_notation\_to\_led\_index}}(argv[1]);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00485}00485\ \ \ \ \ uint8\_t\ row,\ col;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00486}00486\ \ \ \ \ \mbox{\hyperlink{led__mapping_8h_afa2f63d0405f6da06cdeceee60aaa9d7}{led\_index\_to\_chess\_pos}}(led\_index,\ \&row,\ \&col);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00487}00487\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00488}00488\ \ \ \ \ printf(\textcolor{stringliteral}{"{}Position\ \%s\ -\/>\ LED\ index\ \%d\ (row\ \%d,\ col\ \%d)\(\backslash\)r\(\backslash\)n"{}},\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00489}00489\ \ \ \ \ \ \ \ \ \ \ \ argv[1],\ led\_index,\ row,\ col);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00490}00490\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00491}00491\ \ \ \ \ \textcolor{comment}{//\ Light\ up\ the\ position}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00492}00492\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ab245ceabb580934b6117f59343c6d9a2}{led\_clear\_board\_only}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00493}00493\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(led\_index,\ 255,\ 255,\ 0);\ \ \textcolor{comment}{//\ Yellow}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00494}00494\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00495}00495\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00499}\mbox{\hyperlink{uart__commands__extended_8h_ad8bb38053b28adcf807b63675070988c}{00499}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8c_ad8bb38053b28adcf807b63675070988c}{handle\_led\_mapping\_test\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00500}00500\ \ \ \ \ printf(\textcolor{stringliteral}{"{}Testing\ LED\ mapping\ (serpentine\ layout)...\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00501}00501\ \ \ \ \ \mbox{\hyperlink{led__mapping_8h_a8fdf823e1e4db3abca2c962afc09f826}{test\_led\_mapping}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00502}00502\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00503}00503\ \ \ \ \ \textcolor{comment}{//\ Visual\ test\ -\/\ show\ a\ pattern}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00504}00504\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ab245ceabb580934b6117f59343c6d9a2}{led\_clear\_board\_only}}();}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00505}00505\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 8;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00506}00506\ \ \ \ \ \ \ \ \ uint8\_t\ led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(i,\ i);\ \ \textcolor{comment}{//\ Diagonal}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00507}00507\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(led,\ 255,\ 0,\ 0);\ \ \textcolor{comment}{//\ Red}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00508}00508\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00509}00509\ \ \ \ \ printf(\textcolor{stringliteral}{"{}Diagonal\ pattern\ displayed\ for\ visual\ verification\(\backslash\)r\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00510}00510\ \}}
+
+\end{DoxyCode}

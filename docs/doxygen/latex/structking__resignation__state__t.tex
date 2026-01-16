@@ -1,0 +1,118 @@
+\doxysection{Dokumentace struktury king\+\_\+resignation\+\_\+state\+\_\+t}
+\hypertarget{structking__resignation__state__t}{}\label{structking__resignation__state__t}\index{king\_resignation\_state\_t@{king\_resignation\_state\_t}}
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{structking__resignation__state__t_a1186d33a02c7b828ad090842484f8f8c}{active}}
+\item 
+\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{structking__resignation__state__t_aae1c259379dddc3435700259e5bebe8a}{player}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structking__resignation__state__t_a8aa2d198aefd1c851caa794ed1c1af41}{king\+\_\+row}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structking__resignation__state__t_a37e62616ed1e01e5461649b7fbe074e2}{king\+\_\+col}}
+\item 
+Timer\+Handle\+\_\+t \mbox{\hyperlink{structking__resignation__state__t_ad466ba868c959c1683c6d3a8545380d0}{main\+\_\+timer}}
+\item 
+Timer\+Handle\+\_\+t \mbox{\hyperlink{structking__resignation__state__t_a1c717d8def9f7fdab3de11b94f78fd8a}{animation\+\_\+timer}}
+\item 
+uint64\+\_\+t \mbox{\hyperlink{structking__resignation__state__t_a3405dda1390652be995ba6af7ad4db56}{start\+\_\+time\+\_\+ms}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structking__resignation__state__t_aaf4fec46a7bd11bc464a3a3b22d21c9d}{last\+\_\+countdown\+\_\+sec}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00472}{472}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structking__resignation__state__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structking__resignation__state__t_a1186d33a02c7b828ad090842484f8f8c}\index{king\_resignation\_state\_t@{king\_resignation\_state\_t}!active@{active}}
+\index{active@{active}!king\_resignation\_state\_t@{king\_resignation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{active}{active}}
+{\footnotesize\ttfamily \label{structking__resignation__state__t_a1186d33a02c7b828ad090842484f8f8c} 
+bool king\+\_\+resignation\+\_\+state\+\_\+t\+::active}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00473}{473}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{structking__resignation__state__t_a1c717d8def9f7fdab3de11b94f78fd8a}\index{king\_resignation\_state\_t@{king\_resignation\_state\_t}!animation\_timer@{animation\_timer}}
+\index{animation\_timer@{animation\_timer}!king\_resignation\_state\_t@{king\_resignation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{animation\_timer}{animation\_timer}}
+{\footnotesize\ttfamily \label{structking__resignation__state__t_a1c717d8def9f7fdab3de11b94f78fd8a} 
+Timer\+Handle\+\_\+t king\+\_\+resignation\+\_\+state\+\_\+t\+::animation\+\_\+timer}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00477}{477}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{structking__resignation__state__t_a37e62616ed1e01e5461649b7fbe074e2}\index{king\_resignation\_state\_t@{king\_resignation\_state\_t}!king\_col@{king\_col}}
+\index{king\_col@{king\_col}!king\_resignation\_state\_t@{king\_resignation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{king\_col}{king\_col}}
+{\footnotesize\ttfamily \label{structking__resignation__state__t_a37e62616ed1e01e5461649b7fbe074e2} 
+uint8\+\_\+t king\+\_\+resignation\+\_\+state\+\_\+t\+::king\+\_\+col}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00475}{475}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{structking__resignation__state__t_a8aa2d198aefd1c851caa794ed1c1af41}\index{king\_resignation\_state\_t@{king\_resignation\_state\_t}!king\_row@{king\_row}}
+\index{king\_row@{king\_row}!king\_resignation\_state\_t@{king\_resignation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{king\_row}{king\_row}}
+{\footnotesize\ttfamily \label{structking__resignation__state__t_a8aa2d198aefd1c851caa794ed1c1af41} 
+uint8\+\_\+t king\+\_\+resignation\+\_\+state\+\_\+t\+::king\+\_\+row}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00475}{475}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{structking__resignation__state__t_aaf4fec46a7bd11bc464a3a3b22d21c9d}\index{king\_resignation\_state\_t@{king\_resignation\_state\_t}!last\_countdown\_sec@{last\_countdown\_sec}}
+\index{last\_countdown\_sec@{last\_countdown\_sec}!king\_resignation\_state\_t@{king\_resignation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{last\_countdown\_sec}{last\_countdown\_sec}}
+{\footnotesize\ttfamily \label{structking__resignation__state__t_aaf4fec46a7bd11bc464a3a3b22d21c9d} 
+uint8\+\_\+t king\+\_\+resignation\+\_\+state\+\_\+t\+::last\+\_\+countdown\+\_\+sec}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00479}{479}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{structking__resignation__state__t_ad466ba868c959c1683c6d3a8545380d0}\index{king\_resignation\_state\_t@{king\_resignation\_state\_t}!main\_timer@{main\_timer}}
+\index{main\_timer@{main\_timer}!king\_resignation\_state\_t@{king\_resignation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{main\_timer}{main\_timer}}
+{\footnotesize\ttfamily \label{structking__resignation__state__t_ad466ba868c959c1683c6d3a8545380d0} 
+Timer\+Handle\+\_\+t king\+\_\+resignation\+\_\+state\+\_\+t\+::main\+\_\+timer}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00476}{476}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{structking__resignation__state__t_aae1c259379dddc3435700259e5bebe8a}\index{king\_resignation\_state\_t@{king\_resignation\_state\_t}!player@{player}}
+\index{player@{player}!king\_resignation\_state\_t@{king\_resignation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{player}{player}}
+{\footnotesize\ttfamily \label{structking__resignation__state__t_aae1c259379dddc3435700259e5bebe8a} 
+\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} king\+\_\+resignation\+\_\+state\+\_\+t\+::player}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00474}{474}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{structking__resignation__state__t_a3405dda1390652be995ba6af7ad4db56}\index{king\_resignation\_state\_t@{king\_resignation\_state\_t}!start\_time\_ms@{start\_time\_ms}}
+\index{start\_time\_ms@{start\_time\_ms}!king\_resignation\_state\_t@{king\_resignation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{start\_time\_ms}{start\_time\_ms}}
+{\footnotesize\ttfamily \label{structking__resignation__state__t_a3405dda1390652be995ba6af7ad4db56} 
+uint64\+\_\+t king\+\_\+resignation\+\_\+state\+\_\+t\+::start\+\_\+time\+\_\+ms}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00478}{478}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{game__task_8c}{game\+\_\+task.\+c}}\end{DoxyCompactItemize}

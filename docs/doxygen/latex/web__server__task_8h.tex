@@ -1,0 +1,864 @@
+\doxysection{Dokumentace souboru web\+\_\+server\+\_\+task.\+h}
+\hypertarget{web__server__task_8h}{}\label{web__server__task_8h}\index{web\_server\_task.h@{web\_server\_task.h}}
+
+
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Web Server Task Hlavicka.  
+
+
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro web\+\_\+server\+\_\+task.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{web__server__task_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Výčty}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684}{web\+\_\+command\+\_\+type\+\_\+t}} \{ \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684aad9719bd0826f4a39d8295eff4581e7f}{WEB\+\_\+\+CMD\+\_\+\+START\+\_\+\+SERVER}}
+, \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684a7538e0d87ed15a4ba791f6b29c76ac0e}{WEB\+\_\+\+CMD\+\_\+\+STOP\+\_\+\+SERVER}}
+, \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0}{WEB\+\_\+\+CMD\+\_\+\+GET\+\_\+\+STATUS}}
+, \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92}{WEB\+\_\+\+CMD\+\_\+\+SET\+\_\+\+CONFIG}}
+ \}
+\begin{DoxyCompactList}\small\item\em Typy web server prikazu. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{web__server__task_8h_a706a239d45aec91411ba21ec2fe1b6f9}{web\+\_\+server\+\_\+task\+\_\+start}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Hlavni funkce Web Server tasku. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_aee13c30e5ba3aacbdb4adf76ac429f08}{web\+\_\+server\+\_\+process\+\_\+commands}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj web server prikazy z fronty. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_ae84a23138d1c5c146c9cadf884edaa85}{web\+\_\+server\+\_\+execute\+\_\+command}} (uint8\+\_\+t command)
+\begin{DoxyCompactList}\small\item\em Vykonaj web server prikaz. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a1449ade4d0e7558ec4fdb355d19b2d05}{web\+\_\+server\+\_\+start}} (void)
+\begin{DoxyCompactList}\small\item\em Spust web server. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a0d3daaa268fa6003470a334af7dbd2c1}{web\+\_\+server\+\_\+stop}} (void)
+\begin{DoxyCompactList}\small\item\em Zastav web server. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a46cb4e2e81f7578c9f230f5a3bcd11e9}{web\+\_\+server\+\_\+get\+\_\+status}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej status web serveru. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a46d1719629fd536b25bd288a334d338c}{web\+\_\+server\+\_\+set\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Nastav konfiguraci web serveru. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a64790e5afc3435f96af702391bf6a24d}{web\+\_\+server\+\_\+update\+\_\+state}} (void)
+\begin{DoxyCompactList}\small\item\em Aktualizuj stav web serveru. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a483e27ca5d114ebfc2d8e6ea723bb804}{web\+\_\+server\+\_\+handle\+\_\+root}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj GET / (hlavni stranka). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_acd8c0cf4c727a56b30cf72b6b48edcb4}{web\+\_\+server\+\_\+handle\+\_\+api\+\_\+status}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj GET /api/status (stav hry). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a3bba3e089bedf1e0e30e5e4cd1db5091}{web\+\_\+server\+\_\+handle\+\_\+api\+\_\+board}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj GET /api/board (sachovnice). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a4680b3adbb255bf863bcf5f81925b618}{web\+\_\+server\+\_\+handle\+\_\+api\+\_\+move}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj POST /api/move (tah). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a362473905ca28dd32196ec327d9ccaee}{web\+\_\+server\+\_\+websocket\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuj Web\+Socket. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a2cb5b9ee72f8acc55f6cb8f8b45f8bec}{web\+\_\+server\+\_\+websocket\+\_\+send\+\_\+update}} (const char \texorpdfstring{$\ast$}{*}data)
+\begin{DoxyCompactList}\small\item\em Posli aktualizaci pres Web\+Socket. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{web__server__task_8h_a29aa411112dd288259022706b7ff59ca}{web\+\_\+server\+\_\+is\+\_\+active}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda je web server aktivni. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{web__server__task_8h_ab47f0c904798d9ffc4f8e75f7ce8b5f3}{web\+\_\+server\+\_\+get\+\_\+client\+\_\+count}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej pocet pripojenych klientu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{web__server__task_8h_aed7d37015ce007d6f84d759c94ad5f26}{web\+\_\+server\+\_\+get\+\_\+uptime}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej uptime serveru. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_af8feae54c5bb7a79bc36e947985c7e9f}{web\+\_\+server\+\_\+log\+\_\+request}} (const char \texorpdfstring{$\ast$}{*}method, const char \texorpdfstring{$\ast$}{*}path)
+\begin{DoxyCompactList}\small\item\em Zaloguj HTTP pozadavek. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a81f3502fd237eb59ce2ebfc3999b9d36}{web\+\_\+server\+\_\+log\+\_\+error}} (const char \texorpdfstring{$\ast$}{*}error\+\_\+message)
+\begin{DoxyCompactList}\small\item\em Zaloguj chybu web serveru. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_ab18a2857822cb150c96fa252d484246a}{web\+\_\+server\+\_\+set\+\_\+port}} (uint16\+\_\+t port)
+\begin{DoxyCompactList}\small\item\em Nastav port serveru. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_ad915360105d028b5ebd3ca1b38e391d4}{web\+\_\+server\+\_\+set\+\_\+max\+\_\+clients}} (uint32\+\_\+t max\+\_\+clients)
+\begin{DoxyCompactList}\small\item\em Nastav maximum klientu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a74937acaf240abcaaac7d9260e412beb}{web\+\_\+server\+\_\+enable\+\_\+ssl}} (bool enable)
+\begin{DoxyCompactList}\small\item\em Zapni/vypni SSL. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{web__server__task_8h_aa8fab275f60059ceb3bc58df7650bf0b}{web\+\_\+server\+\_\+is\+\_\+task\+\_\+running}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda web server task bezi. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_a76a1b24d8a4f73007def0e2675cb2b1c}{web\+\_\+server\+\_\+stop\+\_\+task}} (void)
+\begin{DoxyCompactList}\small\item\em Zastav web server task. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{web__server__task_8h_ae0743c305f029ddda532f3823d8bd602}{web\+\_\+server\+\_\+reset}} (void)
+\begin{DoxyCompactList}\small\item\em Resetuj web server. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{web__server__task_8h_acc62bf6d95aba71aede977266f96e962}{wifi\+\_\+save\+\_\+config\+\_\+to\+\_\+nvs}} (const char \texorpdfstring{$\ast$}{*}ssid, const char \texorpdfstring{$\ast$}{*}password)
+\begin{DoxyCompactList}\small\item\em Ulozi Wi\+Fi STA konfiguraci do NVS. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{web__server__task_8h_ad3bda523e632b9d3152cdd73fe9d8d4c}{wifi\+\_\+connect\+\_\+sta}} (void)
+\begin{DoxyCompactList}\small\item\em Pripoji ESP32 k Wi\+Fi site jako Station. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{web__server__task_8h_a4a4813aac1f99fb986c17f6a4f5e40e2}{wifi\+\_\+disconnect\+\_\+sta}} (void)
+\begin{DoxyCompactList}\small\item\em Odpoji ESP32 od Wi\+Fi site. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{web__server__task_8h_a1b7f75613a5cab50704428a000610531}{wifi\+\_\+clear\+\_\+config\+\_\+from\+\_\+nvs}} (void)
+\begin{DoxyCompactList}\small\item\em Vymaze Wi\+Fi STA konfiguraci z NVS. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{web__server__task_8h_a96cbfc09f923b4548a4bb4c63f70237f}{wifi\+\_\+is\+\_\+sta\+\_\+connected}} (void)
+\begin{DoxyCompactList}\small\item\em Zjisti zda je STA pripojeno. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{web__server__task_8h_add53c7f34376bb856c868cab6321070b}{web\+\_\+is\+\_\+locked}} (void)
+\begin{DoxyCompactList}\small\item\em Zjisti, zda je web rozhrani zamcene. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{web__server__task_8h_a325753fb6460ffaa94c0c32237c8e7e1}{web\+\_\+lock\+\_\+set}} (bool locked)
+\begin{DoxyCompactList}\small\item\em Nastavi lock stav a ulozi do NVS. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{web__server__task_8h_afd6d2236bd4fcbbe7ccbbb0e7b4a71de}{web\+\_\+lock\+\_\+load\+\_\+from\+\_\+nvs}} (void)
+\begin{DoxyCompactList}\small\item\em Nacte lock stav z NVS. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{web__server__task_8h_a0915923195ef83ed0a4a8ab10cfe3d24}{wifi\+\_\+load\+\_\+config\+\_\+from\+\_\+nvs}} (char \texorpdfstring{$\ast$}{*}ssid, size\+\_\+t ssid\+\_\+len, char \texorpdfstring{$\ast$}{*}password, size\+\_\+t password\+\_\+len)
+\begin{DoxyCompactList}\small\item\em Nacte Wi\+Fi STA konfiguraci z NVS (pro externi pouziti). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{web__server__task_8h_a2fb41e5bc5236e57873eb55f1eadb51c}{wifi\+\_\+get\+\_\+sta\+\_\+ip}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t max\+\_\+len)
+\begin{DoxyCompactList}\small\item\em Ziska aktualni IP adresu STA rozhrani. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{web__server__task_8h_a0dd2f78dc29e5c5cd031dcdf59d587e6}{wifi\+\_\+get\+\_\+sta\+\_\+ssid}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t max\+\_\+len)
+\begin{DoxyCompactList}\small\item\em Ziska aktualni SSID STA rozhrani. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{web__server__task_8h_aa17b405ee779d94d3b6954dd83712591}{web\+\_\+server\+\_\+status\+\_\+queue}}
+\begin{DoxyCompactList}\small\item\em Fronta pro web server status. \end{DoxyCompactList}\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{web__server__task_8h_aaed4d7c5bc3e8140853498b965ec94e2}{web\+\_\+server\+\_\+command\+\_\+queue}}
+\begin{DoxyCompactList}\small\item\em Fronta pro web server prikazy. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Web Server Task Hlavicka. 
+
+Tato hlavicka definuje rozhrani pro web server task\+:
+\begin{DoxyItemize}
+\item Funkce pro ovladani web serveru
+\item Handlery HTTP pozadavku
+\item Web\+Socket funkce
+\item Konfigurace a status funkce
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/24
+\end{DoxyDate}
+Web Server Task spravuje Wi\+Fi Access Point a HTTP server pro vzdalene ovladani sachoveho systemu. Uzivatel se muze pripojit k Wi\+Fi hotspotu "{}\+ESP32-\/\+Czech\+Mate"{} a ovladat hru pres webovy prohlizec.
+
+Wi\+Fi konfigurace\+:
+\begin{DoxyItemize}
+\item SSID\+: ESP32-\/\+Czech\+Mate
+\item Heslo\+: 12345678
+\item IP\+: 192.\+168.\+4.\+1
+\item Kanal\+: 1
+\item Max pripojeni\+: 4
+\end{DoxyItemize}
+
+HTTP Endpointy\+:
+\begin{DoxyItemize}
+\item GET / -\/ Hlavni stranka s webovym rozhranim
+\item GET /api/board -\/ Aktualni stav sachovnice (JSON)
+\item GET /api/status -\/ Stav hry (JSON)
+\item GET /api/history -\/ Historie tahu (JSON)
+\item GET /api/captured -\/ Sebrane figurky (JSON)
+\item GET /api/advantage -\/ Material advantage graf (JSON)
+\item GET /api/timer -\/ Stav casoveho systemu (JSON)
+\item POST /api/timer/config -\/ Konfigurace casoveho systemu
+\item POST /api/timer/pause -\/ Pozastaveni timeru
+\item POST /api/timer/resume -\/ Obnoveni timeru
+\item POST /api/timer/reset -\/ Reset timeru 
+\end{DoxyItemize}
+
+Definice v souboru \mbox{\hyperlink{web__server__task_8h_source}{web\+\_\+server\+\_\+task.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{web__server__task_8h_doc-enum-members}
+\doxysubsection{Dokumentace výčtových typů}
+\Hypertarget{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684}\index{web\_server\_task.h@{web\_server\_task.h}!web\_command\_type\_t@{web\_command\_type\_t}}
+\index{web\_command\_type\_t@{web\_command\_type\_t}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_command\_type\_t}{web\_command\_type\_t}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684} 
+enum \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684}{web\+\_\+command\+\_\+type\+\_\+t}}}
+
+
+
+Typy web server prikazu. 
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{WEB\_CMD\_START\_SERVER@{WEB\_CMD\_START\_SERVER}!web\_server\_task.h@{web\_server\_task.h}}\index{web\_server\_task.h@{web\_server\_task.h}!WEB\_CMD\_START\_SERVER@{WEB\_CMD\_START\_SERVER}}}\Hypertarget{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684aad9719bd0826f4a39d8295eff4581e7f}\label{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684aad9719bd0826f4a39d8295eff4581e7f} 
+WEB\+\_\+\+CMD\+\_\+\+START\+\_\+\+SERVER&Spust web server. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{WEB\_CMD\_STOP\_SERVER@{WEB\_CMD\_STOP\_SERVER}!web\_server\_task.h@{web\_server\_task.h}}\index{web\_server\_task.h@{web\_server\_task.h}!WEB\_CMD\_STOP\_SERVER@{WEB\_CMD\_STOP\_SERVER}}}\Hypertarget{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684a7538e0d87ed15a4ba791f6b29c76ac0e}\label{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684a7538e0d87ed15a4ba791f6b29c76ac0e} 
+WEB\+\_\+\+CMD\+\_\+\+STOP\+\_\+\+SERVER&Zastav web server. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{WEB\_CMD\_GET\_STATUS@{WEB\_CMD\_GET\_STATUS}!web\_server\_task.h@{web\_server\_task.h}}\index{web\_server\_task.h@{web\_server\_task.h}!WEB\_CMD\_GET\_STATUS@{WEB\_CMD\_GET\_STATUS}}}\Hypertarget{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0}\label{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0} 
+WEB\+\_\+\+CMD\+\_\+\+GET\+\_\+\+STATUS&Ziskej status serveru. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{WEB\_CMD\_SET\_CONFIG@{WEB\_CMD\_SET\_CONFIG}!web\_server\_task.h@{web\_server\_task.h}}\index{web\_server\_task.h@{web\_server\_task.h}!WEB\_CMD\_SET\_CONFIG@{WEB\_CMD\_SET\_CONFIG}}}\Hypertarget{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92}\label{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92} 
+WEB\+\_\+\+CMD\+\_\+\+SET\+\_\+\+CONFIG&Nastav konfiguraci serveru. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8h_source_l00060}{60}} v souboru \mbox{\hyperlink{web__server__task_8h_source}{web\+\_\+server\+\_\+task.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{web__server__task_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{web__server__task_8h_add53c7f34376bb856c868cab6321070b}\index{web\_server\_task.h@{web\_server\_task.h}!web\_is\_locked@{web\_is\_locked}}
+\index{web\_is\_locked@{web\_is\_locked}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_is\_locked()}{web\_is\_locked()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_add53c7f34376bb856c868cab6321070b} 
+bool web\+\_\+is\+\_\+locked (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zjisti, zda je web rozhrani zamcene. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je zamcene, false pokud je odemcene 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00673}{673}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_afd6d2236bd4fcbbe7ccbbb0e7b4a71de}\index{web\_server\_task.h@{web\_server\_task.h}!web\_lock\_load\_from\_nvs@{web\_lock\_load\_from\_nvs}}
+\index{web\_lock\_load\_from\_nvs@{web\_lock\_load\_from\_nvs}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_lock\_load\_from\_nvs()}{web\_lock\_load\_from\_nvs()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_afd6d2236bd4fcbbe7ccbbb0e7b4a71de} 
+esp\+\_\+err\+\_\+t web\+\_\+lock\+\_\+load\+\_\+from\+\_\+nvs (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Nacte lock stav z NVS. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00629}{629}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a325753fb6460ffaa94c0c32237c8e7e1}\index{web\_server\_task.h@{web\_server\_task.h}!web\_lock\_set@{web\_lock\_set}}
+\index{web\_lock\_set@{web\_lock\_set}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_lock\_set()}{web\_lock\_set()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a325753fb6460ffaa94c0c32237c8e7e1} 
+esp\+\_\+err\+\_\+t web\+\_\+lock\+\_\+set (\begin{DoxyParamCaption}\item[{bool}]{locked}{}\end{DoxyParamCaption})}
+
+
+
+Nastavi lock stav a ulozi do NVS. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em locked} & True pro lock, false pro unlock \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00681}{681}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a74937acaf240abcaaac7d9260e412beb}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_enable\_ssl@{web\_server\_enable\_ssl}}
+\index{web\_server\_enable\_ssl@{web\_server\_enable\_ssl}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_enable\_ssl()}{web\_server\_enable\_ssl()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a74937acaf240abcaaac7d9260e412beb} 
+void web\+\_\+server\+\_\+enable\+\_\+ssl (\begin{DoxyParamCaption}\item[{bool}]{enable}{}\end{DoxyParamCaption})}
+
+
+
+Zapni/vypni SSL. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em enable} & true pro zapnuti SSL (HTTPS) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05056}{5056}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_ae84a23138d1c5c146c9cadf884edaa85}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_execute\_command@{web\_server\_execute\_command}}
+\index{web\_server\_execute\_command@{web\_server\_execute\_command}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_execute\_command()}{web\_server\_execute\_command()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_ae84a23138d1c5c146c9cadf884edaa85} 
+void web\+\_\+server\+\_\+execute\+\_\+command (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{command}{}\end{DoxyParamCaption})}
+
+
+
+Vykonaj web server prikaz. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em command} & Prikaz k vykonani (\doxylink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684}{web\+\_\+command\+\_\+type\+\_\+t}) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04865}{4865}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_ab47f0c904798d9ffc4f8e75f7ce8b5f3}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_get\_client\_count@{web\_server\_get\_client\_count}}
+\index{web\_server\_get\_client\_count@{web\_server\_get\_client\_count}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_get\_client\_count()}{web\_server\_get\_client\_count()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_ab47f0c904798d9ffc4f8e75f7ce8b5f3} 
+uint32\+\_\+t web\+\_\+server\+\_\+get\+\_\+client\+\_\+count (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej pocet pripojenych klientu. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Pocet aktualne pripojenych klientu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05015}{5015}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a46cb4e2e81f7578c9f230f5a3bcd11e9}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_get\_status@{web\_server\_get\_status}}
+\index{web\_server\_get\_status@{web\_server\_get\_status}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_get\_status()}{web\_server\_get\_status()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a46cb4e2e81f7578c9f230f5a3bcd11e9} 
+void web\+\_\+server\+\_\+get\+\_\+status (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej status web serveru. 
+
+Vypise stav serveru (aktivni, pocet klientu, uptime). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04938}{4938}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_aed7d37015ce007d6f84d759c94ad5f26}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_get\_uptime@{web\_server\_get\_uptime}}
+\index{web\_server\_get\_uptime@{web\_server\_get\_uptime}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_get\_uptime()}{web\_server\_get\_uptime()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_aed7d37015ce007d6f84d759c94ad5f26} 
+uint32\+\_\+t web\+\_\+server\+\_\+get\+\_\+uptime (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej uptime serveru. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Uptime v milisekundach od spusteni 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05017}{5017}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a3bba3e089bedf1e0e30e5e4cd1db5091}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_handle\_api\_board@{web\_server\_handle\_api\_board}}
+\index{web\_server\_handle\_api\_board@{web\_server\_handle\_api\_board}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_handle\_api\_board()}{web\_server\_handle\_api\_board()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a3bba3e089bedf1e0e30e5e4cd1db5091} 
+void web\+\_\+server\+\_\+handle\+\_\+api\+\_\+board (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj GET /api/board (sachovnice). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04984}{4984}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a4680b3adbb255bf863bcf5f81925b618}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_handle\_api\_move@{web\_server\_handle\_api\_move}}
+\index{web\_server\_handle\_api\_move@{web\_server\_handle\_api\_move}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_handle\_api\_move()}{web\_server\_handle\_api\_move()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a4680b3adbb255bf863bcf5f81925b618} 
+void web\+\_\+server\+\_\+handle\+\_\+api\+\_\+move (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj POST /api/move (tah). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04989}{4989}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_acd8c0cf4c727a56b30cf72b6b48edcb4}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_handle\_api\_status@{web\_server\_handle\_api\_status}}
+\index{web\_server\_handle\_api\_status@{web\_server\_handle\_api\_status}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_handle\_api\_status()}{web\_server\_handle\_api\_status()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_acd8c0cf4c727a56b30cf72b6b48edcb4} 
+void web\+\_\+server\+\_\+handle\+\_\+api\+\_\+status (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj GET /api/status (stav hry). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04979}{4979}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a483e27ca5d114ebfc2d8e6ea723bb804}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_handle\_root@{web\_server\_handle\_root}}
+\index{web\_server\_handle\_root@{web\_server\_handle\_root}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_handle\_root()}{web\_server\_handle\_root()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a483e27ca5d114ebfc2d8e6ea723bb804} 
+void web\+\_\+server\+\_\+handle\+\_\+root (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj GET / (hlavni stranka). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04974}{4974}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a29aa411112dd288259022706b7ff59ca}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_is\_active@{web\_server\_is\_active}}
+\index{web\_server\_is\_active@{web\_server\_is\_active}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_is\_active()}{web\_server\_is\_active()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a29aa411112dd288259022706b7ff59ca} 
+bool web\+\_\+server\+\_\+is\+\_\+active (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je web server aktivni. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud server bezi 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05013}{5013}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_aa8fab275f60059ceb3bc58df7650bf0b}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_is\_task\_running@{web\_server\_is\_task\_running}}
+\index{web\_server\_is\_task\_running@{web\_server\_is\_task\_running}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_is\_task\_running()}{web\_server\_is\_task\_running()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_aa8fab275f60059ceb3bc58df7650bf0b} 
+bool web\+\_\+server\+\_\+is\+\_\+task\+\_\+running (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda web server task bezi. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud task bezi 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05066}{5066}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a81f3502fd237eb59ce2ebfc3999b9d36}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_log\_error@{web\_server\_log\_error}}
+\index{web\_server\_log\_error@{web\_server\_log\_error}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_log\_error()}{web\_server\_log\_error()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a81f3502fd237eb59ce2ebfc3999b9d36} 
+void web\+\_\+server\+\_\+log\+\_\+error (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{error\+\_\+message}{}\end{DoxyParamCaption})}
+
+
+
+Zaloguj chybu web serveru. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+message} & Chybova zprava \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05034}{5034}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_af8feae54c5bb7a79bc36e947985c7e9f}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_log\_request@{web\_server\_log\_request}}
+\index{web\_server\_log\_request@{web\_server\_log\_request}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_log\_request()}{web\_server\_log\_request()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_af8feae54c5bb7a79bc36e947985c7e9f} 
+void web\+\_\+server\+\_\+log\+\_\+request (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{method}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{path}{}\end{DoxyParamCaption})}
+
+
+
+Zaloguj HTTP pozadavek. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em method} & HTTP metoda (GET, POST, atd.) \\
+\hline
+{\em path} & Cesta pozadavku (/api/board, atd.) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05026}{5026}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_aee13c30e5ba3aacbdb4adf76ac429f08}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_process\_commands@{web\_server\_process\_commands}}
+\index{web\_server\_process\_commands@{web\_server\_process\_commands}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_process\_commands()}{web\_server\_process\_commands()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_aee13c30e5ba3aacbdb4adf76ac429f08} 
+void web\+\_\+server\+\_\+process\+\_\+commands (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj web server prikazy z fronty. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04855}{4855}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_ae0743c305f029ddda532f3823d8bd602}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_reset@{web\_server\_reset}}
+\index{web\_server\_reset@{web\_server\_reset}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_reset()}{web\_server\_reset()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_ae0743c305f029ddda532f3823d8bd602} 
+void web\+\_\+server\+\_\+reset (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Resetuj web server. 
+
+Provede kompletni reset web serveru. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05073}{5073}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a46d1719629fd536b25bd288a334d338c}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_set\_config@{web\_server\_set\_config}}
+\index{web\_server\_set\_config@{web\_server\_set\_config}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_set\_config()}{web\_server\_set\_config()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a46d1719629fd536b25bd288a334d338c} 
+void web\+\_\+server\+\_\+set\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Nastav konfiguraci web serveru. 
+
+Zmeni konfiguraci serveru (port, max klientu, SSL). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04952}{4952}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_ad915360105d028b5ebd3ca1b38e391d4}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_set\_max\_clients@{web\_server\_set\_max\_clients}}
+\index{web\_server\_set\_max\_clients@{web\_server\_set\_max\_clients}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_set\_max\_clients()}{web\_server\_set\_max\_clients()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_ad915360105d028b5ebd3ca1b38e391d4} 
+void web\+\_\+server\+\_\+set\+\_\+max\+\_\+clients (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{max\+\_\+clients}{}\end{DoxyParamCaption})}
+
+
+
+Nastav maximum klientu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em max\+\_\+clients} & Maximalni pocet soucastne pripojenych klientu \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05051}{5051}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_ab18a2857822cb150c96fa252d484246a}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_set\_port@{web\_server\_set\_port}}
+\index{web\_server\_set\_port@{web\_server\_set\_port}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_set\_port()}{web\_server\_set\_port()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_ab18a2857822cb150c96fa252d484246a} 
+void web\+\_\+server\+\_\+set\+\_\+port (\begin{DoxyParamCaption}\item[{uint16\+\_\+t}]{port}{}\end{DoxyParamCaption})}
+
+
+
+Nastav port serveru. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em port} & Cislo portu (80 = HTTP standard) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05046}{5046}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a1449ade4d0e7558ec4fdb355d19b2d05}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_start@{web\_server\_start}}
+\index{web\_server\_start@{web\_server\_start}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_start()}{web\_server\_start()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a1449ade4d0e7558ec4fdb355d19b2d05} 
+void web\+\_\+server\+\_\+start (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Spust web server. 
+
+Inicializuje Wi\+Fi AP a spusti HTTP server. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04893}{4893}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a0d3daaa268fa6003470a334af7dbd2c1}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_stop@{web\_server\_stop}}
+\index{web\_server\_stop@{web\_server\_stop}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_stop()}{web\_server\_stop()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a0d3daaa268fa6003470a334af7dbd2c1} 
+void web\+\_\+server\+\_\+stop (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zastav web server. 
+
+Zastavi HTTP server a Wi\+Fi AP. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04917}{4917}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a76a1b24d8a4f73007def0e2675cb2b1c}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_stop\_task@{web\_server\_stop\_task}}
+\index{web\_server\_stop\_task@{web\_server\_stop\_task}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_stop\_task()}{web\_server\_stop\_task()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a76a1b24d8a4f73007def0e2675cb2b1c} 
+void web\+\_\+server\+\_\+stop\+\_\+task (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zastav web server task. 
+
+Ukonci web server task a uvolni prostredky. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05068}{5068}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a706a239d45aec91411ba21ec2fe1b6f9}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_task\_start@{web\_server\_task\_start}}
+\index{web\_server\_task\_start@{web\_server\_task\_start}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_task\_start()}{web\_server\_task\_start()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a706a239d45aec91411ba21ec2fe1b6f9} 
+void web\+\_\+server\+\_\+task\+\_\+start (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Hlavni funkce Web Server tasku. 
+
+Inicializuje Wi\+Fi AP, spusti HTTP server a zpracovava pozadavky.
+
+
+\begin{DoxyParams}{Parametry}
+{\em pv\+Parameters} & Parametry tasku (nepouzivane) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04723}{4723}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a64790e5afc3435f96af702391bf6a24d}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_update\_state@{web\_server\_update\_state}}
+\index{web\_server\_update\_state@{web\_server\_update\_state}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_update\_state()}{web\_server\_update\_state()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a64790e5afc3435f96af702391bf6a24d} 
+void web\+\_\+server\+\_\+update\+\_\+state (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Aktualizuj stav web serveru. 
+
+Periodicky aktualizuje interní stav serveru. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04961}{4961}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a362473905ca28dd32196ec327d9ccaee}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_websocket\_init@{web\_server\_websocket\_init}}
+\index{web\_server\_websocket\_init@{web\_server\_websocket\_init}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_websocket\_init()}{web\_server\_websocket\_init()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a362473905ca28dd32196ec327d9ccaee} 
+void web\+\_\+server\+\_\+websocket\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuj Web\+Socket. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l04998}{4998}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a2cb5b9ee72f8acc55f6cb8f8b45f8bec}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_websocket\_send\_update@{web\_server\_websocket\_send\_update}}
+\index{web\_server\_websocket\_send\_update@{web\_server\_websocket\_send\_update}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_websocket\_send\_update()}{web\_server\_websocket\_send\_update()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a2cb5b9ee72f8acc55f6cb8f8b45f8bec} 
+void web\+\_\+server\+\_\+websocket\+\_\+send\+\_\+update (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{data}{}\end{DoxyParamCaption})}
+
+
+
+Posli aktualizaci pres Web\+Socket. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em data} & Data k poslani (JSON string) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l05002}{5002}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a1b7f75613a5cab50704428a000610531}\index{web\_server\_task.h@{web\_server\_task.h}!wifi\_clear\_config\_from\_nvs@{wifi\_clear\_config\_from\_nvs}}
+\index{wifi\_clear\_config\_from\_nvs@{wifi\_clear\_config\_from\_nvs}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_clear\_config\_from\_nvs()}{wifi\_clear\_config\_from\_nvs()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a1b7f75613a5cab50704428a000610531} 
+esp\+\_\+err\+\_\+t wifi\+\_\+clear\+\_\+config\+\_\+from\+\_\+nvs (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vymaze Wi\+Fi STA konfiguraci z NVS. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00547}{547}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_ad3bda523e632b9d3152cdd73fe9d8d4c}\index{web\_server\_task.h@{web\_server\_task.h}!wifi\_connect\_sta@{wifi\_connect\_sta}}
+\index{wifi\_connect\_sta@{wifi\_connect\_sta}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_connect\_sta()}{wifi\_connect\_sta()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_ad3bda523e632b9d3152cdd73fe9d8d4c} 
+esp\+\_\+err\+\_\+t wifi\+\_\+connect\+\_\+sta (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Pripoji ESP32 k Wi\+Fi site jako Station. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00411}{411}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a4a4813aac1f99fb986c17f6a4f5e40e2}\index{web\_server\_task.h@{web\_server\_task.h}!wifi\_disconnect\_sta@{wifi\_disconnect\_sta}}
+\index{wifi\_disconnect\_sta@{wifi\_disconnect\_sta}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_disconnect\_sta()}{wifi\_disconnect\_sta()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a4a4813aac1f99fb986c17f6a4f5e40e2} 
+esp\+\_\+err\+\_\+t wifi\+\_\+disconnect\+\_\+sta (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Odpoji ESP32 od Wi\+Fi site. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00506}{506}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a2fb41e5bc5236e57873eb55f1eadb51c}\index{web\_server\_task.h@{web\_server\_task.h}!wifi\_get\_sta\_ip@{wifi\_get\_sta\_ip}}
+\index{wifi\_get\_sta\_ip@{wifi\_get\_sta\_ip}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_get\_sta\_ip()}{wifi\_get\_sta\_ip()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a2fb41e5bc5236e57873eb55f1eadb51c} 
+esp\+\_\+err\+\_\+t wifi\+\_\+get\+\_\+sta\+\_\+ip (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{max\+\_\+len}{}\end{DoxyParamCaption})}
+
+
+
+Ziska aktualni IP adresu STA rozhrani. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em buffer} & Buffer pro IP adresu (min 16 znaku) \\
+\hline
+{\em max\+\_\+len} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00332}{332}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a0dd2f78dc29e5c5cd031dcdf59d587e6}\index{web\_server\_task.h@{web\_server\_task.h}!wifi\_get\_sta\_ssid@{wifi\_get\_sta\_ssid}}
+\index{wifi\_get\_sta\_ssid@{wifi\_get\_sta\_ssid}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_get\_sta\_ssid()}{wifi\_get\_sta\_ssid()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a0dd2f78dc29e5c5cd031dcdf59d587e6} 
+esp\+\_\+err\+\_\+t wifi\+\_\+get\+\_\+sta\+\_\+ssid (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{max\+\_\+len}{}\end{DoxyParamCaption})}
+
+
+
+Ziska aktualni SSID STA rozhrani. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em buffer} & Buffer pro SSID (min 33 znaku) \\
+\hline
+{\em max\+\_\+len} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00341}{341}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a96cbfc09f923b4548a4bb4c63f70237f}\index{web\_server\_task.h@{web\_server\_task.h}!wifi\_is\_sta\_connected@{wifi\_is\_sta\_connected}}
+\index{wifi\_is\_sta\_connected@{wifi\_is\_sta\_connected}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_is\_sta\_connected()}{wifi\_is\_sta\_connected()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a96cbfc09f923b4548a4bb4c63f70237f} 
+bool wifi\+\_\+is\+\_\+sta\+\_\+connected (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zjisti zda je STA pripojeno. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je STA pripojeno, false jinak 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00582}{582}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_a0915923195ef83ed0a4a8ab10cfe3d24}\index{web\_server\_task.h@{web\_server\_task.h}!wifi\_load\_config\_from\_nvs@{wifi\_load\_config\_from\_nvs}}
+\index{wifi\_load\_config\_from\_nvs@{wifi\_load\_config\_from\_nvs}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_load\_config\_from\_nvs()}{wifi\_load\_config\_from\_nvs()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_a0915923195ef83ed0a4a8ab10cfe3d24} 
+esp\+\_\+err\+\_\+t wifi\+\_\+load\+\_\+config\+\_\+from\+\_\+nvs (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{ssid}{, }\item[{size\+\_\+t}]{ssid\+\_\+len}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{password}{, }\item[{size\+\_\+t}]{password\+\_\+len}{}\end{DoxyParamCaption})}
+
+
+
+Nacte Wi\+Fi STA konfiguraci z NVS (pro externi pouziti). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em ssid} & Buffer pro SSID (minimalne 33 znaku) \\
+\hline
+{\em ssid\+\_\+len} & Velikost bufferu pro SSID \\
+\hline
+{\em password} & Buffer pro heslo (minimalne 65 znaku) \\
+\hline
+{\em password\+\_\+len} & Velikost bufferu pro heslo \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+ERR\+\_\+\+NOT\+\_\+\+FOUND pokud konfigurace neexistuje 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00289}{289}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_acc62bf6d95aba71aede977266f96e962}\index{web\_server\_task.h@{web\_server\_task.h}!wifi\_save\_config\_to\_nvs@{wifi\_save\_config\_to\_nvs}}
+\index{wifi\_save\_config\_to\_nvs@{wifi\_save\_config\_to\_nvs}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_save\_config\_to\_nvs()}{wifi\_save\_config\_to\_nvs()}}
+{\footnotesize\ttfamily \label{web__server__task_8h_acc62bf6d95aba71aede977266f96e962} 
+esp\+\_\+err\+\_\+t wifi\+\_\+save\+\_\+config\+\_\+to\+\_\+nvs (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{ssid}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{password}{}\end{DoxyParamCaption})}
+
+
+
+Ulozi Wi\+Fi STA konfiguraci do NVS. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em ssid} & SSID Wi\+Fi site (max 32 znaku) \\
+\hline
+{\em password} & Heslo Wi\+Fi site (max 64 znaku) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00351}{351}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{web__server__task_8h_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{web__server__task_8h_aaed4d7c5bc3e8140853498b965ec94e2}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_command\_queue@{web\_server\_command\_queue}}
+\index{web\_server\_command\_queue@{web\_server\_command\_queue}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_command\_queue}{web\_server\_command\_queue}}
+{\footnotesize\ttfamily \label{web__server__task_8h_aaed4d7c5bc3e8140853498b965ec94e2} 
+Queue\+Handle\+\_\+t web\+\_\+server\+\_\+command\+\_\+queue\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Fronta pro web server prikazy. 
+
+Fronta pro web server prikazy. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00237}{237}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+
+\Hypertarget{web__server__task_8h_aa17b405ee779d94d3b6954dd83712591}\index{web\_server\_task.h@{web\_server\_task.h}!web\_server\_status\_queue@{web\_server\_status\_queue}}
+\index{web\_server\_status\_queue@{web\_server\_status\_queue}!web\_server\_task.h@{web\_server\_task.h}}
+\doxysubsubsection{\texorpdfstring{web\_server\_status\_queue}{web\_server\_status\_queue}}
+{\footnotesize\ttfamily \label{web__server__task_8h_aa17b405ee779d94d3b6954dd83712591} 
+Queue\+Handle\+\_\+t web\+\_\+server\+\_\+status\+\_\+queue\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Fronta pro web server status. 
+
+Fronta pro web server status. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00236}{236}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+

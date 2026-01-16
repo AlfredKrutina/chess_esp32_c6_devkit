@@ -1,0 +1,111 @@
+\doxysection{Dokumentace struktury streaming\+\_\+stats\+\_\+t}
+\hypertarget{structstreaming__stats__t}{}\label{structstreaming__stats__t}\index{streaming\_stats\_t@{streaming\_stats\_t}}
+
+
+Statistiky streamovani.  
+
+
+
+
+{\ttfamily \#include $<$streaming\+\_\+output.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structstreaming__stats__t_a3fc6196d74629ffc6f67cbbf37809557}{total\+\_\+writes}}
+\begin{DoxyCompactList}\small\item\em Celkovy pocet zapisu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structstreaming__stats__t_ad3c5da4429da544bd592650a4b8cea4a}{total\+\_\+bytes\+\_\+written}}
+\begin{DoxyCompactList}\small\item\em Celkovy pocet zapsanych bajtu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structstreaming__stats__t_acee577c89d193435135d780edd06e52d}{write\+\_\+errors}}
+\begin{DoxyCompactList}\small\item\em Pocet chyb pri zapisu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structstreaming__stats__t_ac3d6c57db9ede1dcdd8c63560a655326}{truncated\+\_\+writes}}
+\begin{DoxyCompactList}\small\item\em Pocet zkracenych zapisu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structstreaming__stats__t_a0e9598ecf82660615a899a243c1e191b}{mutex\+\_\+timeouts}}
+\begin{DoxyCompactList}\small\item\em Pocet mutex timeout chyb. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Statistiky streamovani. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00089}{89}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structstreaming__stats__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structstreaming__stats__t_a0e9598ecf82660615a899a243c1e191b}\index{streaming\_stats\_t@{streaming\_stats\_t}!mutex\_timeouts@{mutex\_timeouts}}
+\index{mutex\_timeouts@{mutex\_timeouts}!streaming\_stats\_t@{streaming\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{mutex\_timeouts}{mutex\_timeouts}}
+{\footnotesize\ttfamily \label{structstreaming__stats__t_a0e9598ecf82660615a899a243c1e191b} 
+uint32\+\_\+t streaming\+\_\+stats\+\_\+t\+::mutex\+\_\+timeouts}
+
+
+
+Pocet mutex timeout chyb. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00094}{94}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{structstreaming__stats__t_ad3c5da4429da544bd592650a4b8cea4a}\index{streaming\_stats\_t@{streaming\_stats\_t}!total\_bytes\_written@{total\_bytes\_written}}
+\index{total\_bytes\_written@{total\_bytes\_written}!streaming\_stats\_t@{streaming\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{total\_bytes\_written}{total\_bytes\_written}}
+{\footnotesize\ttfamily \label{structstreaming__stats__t_ad3c5da4429da544bd592650a4b8cea4a} 
+uint32\+\_\+t streaming\+\_\+stats\+\_\+t\+::total\+\_\+bytes\+\_\+written}
+
+
+
+Celkovy pocet zapsanych bajtu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00091}{91}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{structstreaming__stats__t_a3fc6196d74629ffc6f67cbbf37809557}\index{streaming\_stats\_t@{streaming\_stats\_t}!total\_writes@{total\_writes}}
+\index{total\_writes@{total\_writes}!streaming\_stats\_t@{streaming\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{total\_writes}{total\_writes}}
+{\footnotesize\ttfamily \label{structstreaming__stats__t_a3fc6196d74629ffc6f67cbbf37809557} 
+uint32\+\_\+t streaming\+\_\+stats\+\_\+t\+::total\+\_\+writes}
+
+
+
+Celkovy pocet zapisu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00090}{90}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{structstreaming__stats__t_ac3d6c57db9ede1dcdd8c63560a655326}\index{streaming\_stats\_t@{streaming\_stats\_t}!truncated\_writes@{truncated\_writes}}
+\index{truncated\_writes@{truncated\_writes}!streaming\_stats\_t@{streaming\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{truncated\_writes}{truncated\_writes}}
+{\footnotesize\ttfamily \label{structstreaming__stats__t_ac3d6c57db9ede1dcdd8c63560a655326} 
+uint32\+\_\+t streaming\+\_\+stats\+\_\+t\+::truncated\+\_\+writes}
+
+
+
+Pocet zkracenych zapisu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00093}{93}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+\Hypertarget{structstreaming__stats__t_acee577c89d193435135d780edd06e52d}\index{streaming\_stats\_t@{streaming\_stats\_t}!write\_errors@{write\_errors}}
+\index{write\_errors@{write\_errors}!streaming\_stats\_t@{streaming\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{write\_errors}{write\_errors}}
+{\footnotesize\ttfamily \label{structstreaming__stats__t_acee577c89d193435135d780edd06e52d} 
+uint32\+\_\+t streaming\+\_\+stats\+\_\+t\+::write\+\_\+errors}
+
+
+
+Pocet chyb pri zapisu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{streaming__output_8h_source_l00092}{92}} v souboru \mbox{\hyperlink{streaming__output_8h_source}{streaming\+\_\+output.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{streaming__output_8h}{streaming\+\_\+output.\+h}}\end{DoxyCompactItemize}

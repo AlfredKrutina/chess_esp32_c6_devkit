@@ -1,0 +1,129 @@
+\doxysection{Dokumentace struktury game\+\_\+response\+\_\+t}
+\hypertarget{structgame__response__t}{}\label{structgame__response__t}\index{game\_response\_t@{game\_response\_t}}
+
+
+Struktura game odpovedi pro UART komunikaci.  
+
+
+
+
+{\ttfamily \#include $<$chess\+\_\+types.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structgame__response__t_a3002d679599149eb947d042adf7d28a3}{type}}
+\begin{DoxyCompactList}\small\item\em Typ odpovedi (\doxylink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502}{game\+\_\+response\+\_\+type\+\_\+t}). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structgame__response__t_a94891c48651d30f6ab358f269e789130}{command\+\_\+type}}
+\begin{DoxyCompactList}\small\item\em Puvodni typ prikazu (\doxylink{chess__types_8h_ade7744437207164be6ca650b128bd9e4}{game\+\_\+command\+\_\+type\+\_\+t}). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structgame__response__t_a9b46f74a2c06621c440e9cd5bfd1c04e}{error\+\_\+code}}
+\begin{DoxyCompactList}\small\item\em Kod chyby (\doxylink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}, 0 pokud neni chyba). \end{DoxyCompactList}\item 
+char \mbox{\hyperlink{structgame__response__t_ae4afd8e408f8ec3943b6f8632b1333a7}{message}} \mbox{[}256\mbox{]}
+\begin{DoxyCompactList}\small\item\em Zprava pro uzivatele (human-\/readable). \end{DoxyCompactList}\item 
+char \mbox{\hyperlink{structgame__response__t_ae9f24fd59c3cda6c038d6099efe5ec03}{data}} \mbox{[}3584\mbox{]}
+\begin{DoxyCompactList}\small\item\em Data odpovedi (sachovnice \texorpdfstring{$\sim$}{\string~}3000 znaku, s bezpecnostni rezervou). \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structgame__response__t_a6ca9b6d2062bf38fa5e6c8fb01a3ca04}{timestamp}}
+\begin{DoxyCompactList}\small\item\em Casova znamka odpovedi (v milisekundach). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Struktura game odpovedi pro UART komunikaci. 
+
+Tato struktura obsahuje odpoved game tasku na prikaz. Je poslana zpet pres UART pro zobrazeni uzivateli. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00339}{339}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structgame__response__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structgame__response__t_a94891c48651d30f6ab358f269e789130}\index{game\_response\_t@{game\_response\_t}!command\_type@{command\_type}}
+\index{command\_type@{command\_type}!game\_response\_t@{game\_response\_t}}
+\doxysubsubsection{\texorpdfstring{command\_type}{command\_type}}
+{\footnotesize\ttfamily \label{structgame__response__t_a94891c48651d30f6ab358f269e789130} 
+uint8\+\_\+t game\+\_\+response\+\_\+t\+::command\+\_\+type}
+
+
+
+Puvodni typ prikazu (\doxylink{chess__types_8h_ade7744437207164be6ca650b128bd9e4}{game\+\_\+command\+\_\+type\+\_\+t}). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00341}{341}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structgame__response__t_ae9f24fd59c3cda6c038d6099efe5ec03}\index{game\_response\_t@{game\_response\_t}!data@{data}}
+\index{data@{data}!game\_response\_t@{game\_response\_t}}
+\doxysubsubsection{\texorpdfstring{data}{data}}
+{\footnotesize\ttfamily \label{structgame__response__t_ae9f24fd59c3cda6c038d6099efe5ec03} 
+char game\+\_\+response\+\_\+t\+::data\mbox{[}3584\mbox{]}}
+
+
+
+Data odpovedi (sachovnice \texorpdfstring{$\sim$}{\string~}3000 znaku, s bezpecnostni rezervou). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00344}{344}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structgame__response__t_a9b46f74a2c06621c440e9cd5bfd1c04e}\index{game\_response\_t@{game\_response\_t}!error\_code@{error\_code}}
+\index{error\_code@{error\_code}!game\_response\_t@{game\_response\_t}}
+\doxysubsubsection{\texorpdfstring{error\_code}{error\_code}}
+{\footnotesize\ttfamily \label{structgame__response__t_a9b46f74a2c06621c440e9cd5bfd1c04e} 
+uint8\+\_\+t game\+\_\+response\+\_\+t\+::error\+\_\+code}
+
+
+
+Kod chyby (\doxylink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}, 0 pokud neni chyba). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00342}{342}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structgame__response__t_ae4afd8e408f8ec3943b6f8632b1333a7}\index{game\_response\_t@{game\_response\_t}!message@{message}}
+\index{message@{message}!game\_response\_t@{game\_response\_t}}
+\doxysubsubsection{\texorpdfstring{message}{message}}
+{\footnotesize\ttfamily \label{structgame__response__t_ae4afd8e408f8ec3943b6f8632b1333a7} 
+char game\+\_\+response\+\_\+t\+::message\mbox{[}256\mbox{]}}
+
+
+
+Zprava pro uzivatele (human-\/readable). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00343}{343}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structgame__response__t_a6ca9b6d2062bf38fa5e6c8fb01a3ca04}\index{game\_response\_t@{game\_response\_t}!timestamp@{timestamp}}
+\index{timestamp@{timestamp}!game\_response\_t@{game\_response\_t}}
+\doxysubsubsection{\texorpdfstring{timestamp}{timestamp}}
+{\footnotesize\ttfamily \label{structgame__response__t_a6ca9b6d2062bf38fa5e6c8fb01a3ca04} 
+uint32\+\_\+t game\+\_\+response\+\_\+t\+::timestamp}
+
+
+
+Casova znamka odpovedi (v milisekundach). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00345}{345}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structgame__response__t_a3002d679599149eb947d042adf7d28a3}\index{game\_response\_t@{game\_response\_t}!type@{type}}
+\index{type@{type}!game\_response\_t@{game\_response\_t}}
+\doxysubsubsection{\texorpdfstring{type}{type}}
+{\footnotesize\ttfamily \label{structgame__response__t_a3002d679599149eb947d042adf7d28a3} 
+uint8\+\_\+t game\+\_\+response\+\_\+t\+::type}
+
+
+
+Typ odpovedi (\doxylink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502}{game\+\_\+response\+\_\+type\+\_\+t}). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00340}{340}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{chess__types_8h}{chess\+\_\+types.\+h}}\end{DoxyCompactItemize}

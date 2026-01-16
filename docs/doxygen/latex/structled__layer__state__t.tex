@@ -1,0 +1,168 @@
+\doxysection{Dokumentace struktury led\+\_\+layer\+\_\+state\+\_\+t}
+\hypertarget{structled__layer__state__t}{}\label{structled__layer__state__t}\index{led\_layer\_state\_t@{led\_layer\_state\_t}}
+
+
+LED vrstva.  
+
+
+
+
+{\ttfamily \#include $<$led\+\_\+state\+\_\+manager.\+h$>$}
+
+
+
+Diagram pro led\+\_\+layer\+\_\+state\+\_\+t\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=170pt]{structled__layer__state__t__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structled__pixel__t}{led\+\_\+pixel\+\_\+t}} \mbox{\hyperlink{structled__layer__state__t_ae8835f14508990758c1933e4fb5f8c41}{pixels}} \mbox{[}73\mbox{]}
+\begin{DoxyCompactList}\small\item\em 73 pixelu (64 sachovnice + 9 tlacitek) \end{DoxyCompactList}\item 
+\mbox{\hyperlink{led__state__manager_8h_a48277ad0ecc8bc035e62eeb7541a1936}{blend\+\_\+mode\+\_\+t}} \mbox{\hyperlink{structled__layer__state__t_a751d0f8893d44627cbe70a38cecf353b}{blend\+\_\+mode}}
+\begin{DoxyCompactList}\small\item\em Blending mode. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structled__layer__state__t_aa9705fa7af03de520f1494dc7b209615}{enabled}}
+\begin{DoxyCompactList}\small\item\em Je vrstva povolena? (legacy). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structled__layer__state__t_a8495dd827b717049ad56be88bf2eafa5}{layer\+\_\+enabled}}
+\begin{DoxyCompactList}\small\item\em Je vrstva povolena? \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__layer__state__t_a112df6c248bc73c864b6e0c401a1a87c}{master\+\_\+alpha}}
+\begin{DoxyCompactList}\small\item\em Master alpha pro celou vrstvu (legacy). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__layer__state__t_a2a85c68f064e0ea31442bf6a2ad2bb13}{layer\+\_\+opacity}}
+\begin{DoxyCompactList}\small\item\em Opacity vrstvy (0-\/255). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structled__layer__state__t_a238ba32530dd3a543bde13518ad7edd1}{dirty}}
+\begin{DoxyCompactList}\small\item\em Je vrstva dirty (potrebuje update)? \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structled__layer__state__t_ae5d91895551c0ec81b39011bcc7a07ff}{needs\+\_\+composite}}
+\begin{DoxyCompactList}\small\item\em Potrebuje prekompozici? \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+LED vrstva. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00110}{110}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structled__layer__state__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structled__layer__state__t_a751d0f8893d44627cbe70a38cecf353b}\index{led\_layer\_state\_t@{led\_layer\_state\_t}!blend\_mode@{blend\_mode}}
+\index{blend\_mode@{blend\_mode}!led\_layer\_state\_t@{led\_layer\_state\_t}}
+\doxysubsubsection{\texorpdfstring{blend\_mode}{blend\_mode}}
+{\footnotesize\ttfamily \label{structled__layer__state__t_a751d0f8893d44627cbe70a38cecf353b} 
+\mbox{\hyperlink{led__state__manager_8h_a48277ad0ecc8bc035e62eeb7541a1936}{blend\+\_\+mode\+\_\+t}} led\+\_\+layer\+\_\+state\+\_\+t\+::blend\+\_\+mode}
+
+
+
+Blending mode. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00112}{112}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__layer__state__t_a238ba32530dd3a543bde13518ad7edd1}\index{led\_layer\_state\_t@{led\_layer\_state\_t}!dirty@{dirty}}
+\index{dirty@{dirty}!led\_layer\_state\_t@{led\_layer\_state\_t}}
+\doxysubsubsection{\texorpdfstring{dirty}{dirty}}
+{\footnotesize\ttfamily \label{structled__layer__state__t_a238ba32530dd3a543bde13518ad7edd1} 
+bool led\+\_\+layer\+\_\+state\+\_\+t\+::dirty}
+
+
+
+Je vrstva dirty (potrebuje update)? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00117}{117}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__layer__state__t_aa9705fa7af03de520f1494dc7b209615}\index{led\_layer\_state\_t@{led\_layer\_state\_t}!enabled@{enabled}}
+\index{enabled@{enabled}!led\_layer\_state\_t@{led\_layer\_state\_t}}
+\doxysubsubsection{\texorpdfstring{enabled}{enabled}}
+{\footnotesize\ttfamily \label{structled__layer__state__t_aa9705fa7af03de520f1494dc7b209615} 
+bool led\+\_\+layer\+\_\+state\+\_\+t\+::enabled}
+
+
+
+Je vrstva povolena? (legacy). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00113}{113}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__layer__state__t_a8495dd827b717049ad56be88bf2eafa5}\index{led\_layer\_state\_t@{led\_layer\_state\_t}!layer\_enabled@{layer\_enabled}}
+\index{layer\_enabled@{layer\_enabled}!led\_layer\_state\_t@{led\_layer\_state\_t}}
+\doxysubsubsection{\texorpdfstring{layer\_enabled}{layer\_enabled}}
+{\footnotesize\ttfamily \label{structled__layer__state__t_a8495dd827b717049ad56be88bf2eafa5} 
+bool led\+\_\+layer\+\_\+state\+\_\+t\+::layer\+\_\+enabled}
+
+
+
+Je vrstva povolena? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00114}{114}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__layer__state__t_a2a85c68f064e0ea31442bf6a2ad2bb13}\index{led\_layer\_state\_t@{led\_layer\_state\_t}!layer\_opacity@{layer\_opacity}}
+\index{layer\_opacity@{layer\_opacity}!led\_layer\_state\_t@{led\_layer\_state\_t}}
+\doxysubsubsection{\texorpdfstring{layer\_opacity}{layer\_opacity}}
+{\footnotesize\ttfamily \label{structled__layer__state__t_a2a85c68f064e0ea31442bf6a2ad2bb13} 
+uint8\+\_\+t led\+\_\+layer\+\_\+state\+\_\+t\+::layer\+\_\+opacity}
+
+
+
+Opacity vrstvy (0-\/255). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00116}{116}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__layer__state__t_a112df6c248bc73c864b6e0c401a1a87c}\index{led\_layer\_state\_t@{led\_layer\_state\_t}!master\_alpha@{master\_alpha}}
+\index{master\_alpha@{master\_alpha}!led\_layer\_state\_t@{led\_layer\_state\_t}}
+\doxysubsubsection{\texorpdfstring{master\_alpha}{master\_alpha}}
+{\footnotesize\ttfamily \label{structled__layer__state__t_a112df6c248bc73c864b6e0c401a1a87c} 
+uint8\+\_\+t led\+\_\+layer\+\_\+state\+\_\+t\+::master\+\_\+alpha}
+
+
+
+Master alpha pro celou vrstvu (legacy). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00115}{115}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__layer__state__t_ae5d91895551c0ec81b39011bcc7a07ff}\index{led\_layer\_state\_t@{led\_layer\_state\_t}!needs\_composite@{needs\_composite}}
+\index{needs\_composite@{needs\_composite}!led\_layer\_state\_t@{led\_layer\_state\_t}}
+\doxysubsubsection{\texorpdfstring{needs\_composite}{needs\_composite}}
+{\footnotesize\ttfamily \label{structled__layer__state__t_ae5d91895551c0ec81b39011bcc7a07ff} 
+bool led\+\_\+layer\+\_\+state\+\_\+t\+::needs\+\_\+composite}
+
+
+
+Potrebuje prekompozici? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00118}{118}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__layer__state__t_ae8835f14508990758c1933e4fb5f8c41}\index{led\_layer\_state\_t@{led\_layer\_state\_t}!pixels@{pixels}}
+\index{pixels@{pixels}!led\_layer\_state\_t@{led\_layer\_state\_t}}
+\doxysubsubsection{\texorpdfstring{pixels}{pixels}}
+{\footnotesize\ttfamily \label{structled__layer__state__t_ae8835f14508990758c1933e4fb5f8c41} 
+\mbox{\hyperlink{structled__pixel__t}{led\+\_\+pixel\+\_\+t}} led\+\_\+layer\+\_\+state\+\_\+t\+::pixels\mbox{[}73\mbox{]}}
+
+
+
+73 pixelu (64 sachovnice + 9 tlacitek) 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00111}{111}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{led__state__manager_8h}{led\+\_\+state\+\_\+manager.\+h}}\end{DoxyCompactItemize}

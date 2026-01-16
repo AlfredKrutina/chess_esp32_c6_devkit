@@ -1,0 +1,346 @@
+\doxysection{Dokumentace souboru shared\+\_\+buffer\+\_\+pool.\+h}
+\hypertarget{shared__buffer__pool_8h}{}\label{shared__buffer__pool_8h}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+
+
+ESP32-\/\+C6 Chess System -\/ Hlavicka Shared Buffer Poolu.  
+
+
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+Graf závislostí na vkládaných souborech pro shared\+\_\+buffer\+\_\+pool.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=346pt]{shared__buffer__pool_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové struktury}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structbuffer__pool__stats__t}{buffer\+\_\+pool\+\_\+stats\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura statistik buffer poolu. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Definice maker}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{shared__buffer__pool_8h_a70318c0bb964a91191f81e8b06a264eb}{get\+\_\+shared\+\_\+buffer}}(size)
+\begin{DoxyCompactList}\small\item\em Ziskej sdileny buffer s automatickym sledovanim souboru/radky. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{shared__buffer__pool_8h_a4fd36e7fb9f9dff5eaa936115b4a5e48}{SAFE\+\_\+\+GET\+\_\+\+BUFFER}}(ptr,  size,  cleanup\+\_\+label)
+\begin{DoxyCompactList}\small\item\em Bezpecna alokace bufferu s kontrolou velikosti. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{shared__buffer__pool_8h_ab1e2b3bd6e04fde2a413dd3dae10c415}{SAFE\+\_\+\+RELEASE\+\_\+\+BUFFER}}(ptr)
+\begin{DoxyCompactList}\small\item\em Bezpecne uvolneni bufferu s kontrolou NULL. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{shared__buffer__pool_8h_a57e203054eac9c4b6834783c64844d9b}{buffer\+\_\+pool\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuje shared buffer pool. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{shared__buffer__pool_8h_ab7941cd3b2567eec4538fb234680a9bf}{buffer\+\_\+pool\+\_\+deinit}} (void)
+\begin{DoxyCompactList}\small\item\em Deinicializuje buffer pool a uvolni prostredky. \end{DoxyCompactList}\item 
+char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{shared__buffer__pool_8h_a985626f60ba733d611f238158cd15aac}{get\+\_\+shared\+\_\+buffer\+\_\+debug}} (size\+\_\+t min\+\_\+size, const char \texorpdfstring{$\ast$}{*}file, int line)
+\begin{DoxyCompactList}\small\item\em Ziskej sdileny buffer z poolu (interni funkce). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{shared__buffer__pool_8h_a2dcea7230ff8c3509b7b7adaeba9874e}{release\+\_\+shared\+\_\+buffer}} (char \texorpdfstring{$\ast$}{*}buffer)
+\begin{DoxyCompactList}\small\item\em Uvolni sdileny buffer zpet do poolu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{shared__buffer__pool_8h_a78258eeac6ef7d0f8d2cf999f0605b0c}{buffer\+\_\+pool\+\_\+print\+\_\+status}} (void)
+\begin{DoxyCompactList}\small\item\em Vypis detailni status buffer poolu do konzole. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structbuffer__pool__stats__t}{buffer\+\_\+pool\+\_\+stats\+\_\+t}} \mbox{\hyperlink{shared__buffer__pool_8h_a8d1141e7eeb3bedad5c0d1ad575a953d}{buffer\+\_\+pool\+\_\+get\+\_\+stats}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej statistiky buffer poolu. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{shared__buffer__pool_8h_acd58d78b420eb7bbeb83dd9b2d249be4}{buffer\+\_\+pool\+\_\+is\+\_\+healthy}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda je buffer pool ve zdravem stavu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{shared__buffer__pool_8h_a212c8f17c9792d37e2c884ef14ed8e69}{buffer\+\_\+pool\+\_\+detect\+\_\+leaks}} (void)
+\begin{DoxyCompactList}\small\item\em Detekuj potencialni buffer leaky. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System -\/ Hlavicka Shared Buffer Poolu. 
+
+Centralizovany buffer pool pro nahrazeni malloc/free volani a eliminaci problemuS fragmentace heapu v prikazech jako led\+\_\+board a endgame\+\_\+white.
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/01-\/27
+\end{DoxyDate}
+Shared Buffer Pool poskytuje predalokavane buffery misto dynamicke alokace. Eliminuje fragmentaci heapu a zlepsuje performance alokace pameti. Obsahuje 4 buffery o velikosti 2KB kazdy (celkem 8KB).
+
+Vyh ody\+:
+\begin{DoxyItemize}
+\item Eliminace fragmentace heapu
+\item Rychlejsi alokace (bez malloc overhead)
+\item Prevence memory leaku (automaticke sledovani)
+\item Detekce buffer leaku
+\end{DoxyItemize}
+
+Priklad pouziti\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keywordtype}{char}*\ buffer\ =\ \mbox{\hyperlink{shared__buffer__pool_8h_a70318c0bb964a91191f81e8b06a264eb}{get\_shared\_buffer}}(1536);}
+\DoxyCodeLine{\textcolor{keywordflow}{if}\ (buffer\ !=\ NULL)\ \{}
+\DoxyCodeLine{\ \ \ \ sprintf(buffer,\ \textcolor{stringliteral}{"{}Hello\ World"{}});}
+\DoxyCodeLine{\ \ \ \ printf(\textcolor{stringliteral}{"{}\%s\(\backslash\)n"{}},\ buffer);}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{shared__buffer__pool_8h_a2dcea7230ff8c3509b7b7adaeba9874e}{release\_shared\_buffer}}(buffer);}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+ 
+
+Definice v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{shared__buffer__pool_8h_doc-define-members}
+\doxysubsection{Dokumentace definic maker}
+\Hypertarget{shared__buffer__pool_8h_a70318c0bb964a91191f81e8b06a264eb}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!get\_shared\_buffer@{get\_shared\_buffer}}
+\index{get\_shared\_buffer@{get\_shared\_buffer}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{get\_shared\_buffer}{get\_shared\_buffer}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_a70318c0bb964a91191f81e8b06a264eb} 
+\#define get\+\_\+shared\+\_\+buffer(\begin{DoxyParamCaption}\item[{}]{size}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{shared__buffer__pool_8h_a985626f60ba733d611f238158cd15aac}{get\_shared\_buffer\_debug}}(size,\ \_\_FILE\_\_,\ \_\_LINE\_\_)}
+
+\end{DoxyCode}
+
+
+Ziskej sdileny buffer s automatickym sledovanim souboru/radky. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em size} & Minimalni pozadovana velikost bufferu v bajtech \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Ukazatel na buffer nebo NULL pri selhani
+\end{DoxyReturn}
+\begin{DoxyNote}{Poznámka}
+Pouziva makra {\bfseries{FILE}} a {\bfseries{LINE}} pro debug sledovani 
+\end{DoxyNote}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00058}{58}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+\Hypertarget{shared__buffer__pool_8h_a4fd36e7fb9f9dff5eaa936115b4a5e48}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!SAFE\_GET\_BUFFER@{SAFE\_GET\_BUFFER}}
+\index{SAFE\_GET\_BUFFER@{SAFE\_GET\_BUFFER}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{SAFE\_GET\_BUFFER}{SAFE\_GET\_BUFFER}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_a4fd36e7fb9f9dff5eaa936115b4a5e48} 
+\#define SAFE\+\_\+\+GET\+\_\+\+BUFFER(\begin{DoxyParamCaption}\item[{}]{ptr}{, }\item[{}]{size}{, }\item[{}]{cleanup\+\_\+label}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{do}\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ ptr\ =\ \mbox{\hyperlink{shared__buffer__pool_8h_a70318c0bb964a91191f81e8b06a264eb}{get\_shared\_buffer}}(size);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ if\ (ptr\ ==\ NULL)\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ ESP\_LOGE(\textcolor{stringliteral}{"{}BUFFER"{}},\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer\ of\ size\ \%zu"{}},\ size);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \textcolor{keywordflow}{goto}\ cleanup\_label;\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \(\backslash\)}
+\DoxyCodeLine{\}\ \textcolor{keywordflow}{while}(0)}
+
+\end{DoxyCode}
+
+
+Bezpecna alokace bufferu s kontrolou velikosti. 
+
+Pouziti\+: \doxylink{shared__buffer__pool_8h_a4fd36e7fb9f9dff5eaa936115b4a5e48}{SAFE\+\_\+\+GET\+\_\+\+BUFFER(ptr, size, cleanup\+\_\+label)}
+
+\begin{DoxyParagraph}{Priklad\+:}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keywordtype}{char}*\ buffer;}
+\DoxyCodeLine{\mbox{\hyperlink{shared__buffer__pool_8h_a4fd36e7fb9f9dff5eaa936115b4a5e48}{SAFE\_GET\_BUFFER}}(buffer,\ 1536,\ cleanup);}
+\DoxyCodeLine{\textcolor{comment}{//\ ...\ pouzij\ buffer\ ...}}
+\DoxyCodeLine{cleanup:}
+\DoxyCodeLine{\ \ \ \ \mbox{\hyperlink{shared__buffer__pool_8h_a2dcea7230ff8c3509b7b7adaeba9874e}{release\_shared\_buffer}}(buffer);}
+
+\end{DoxyCode}
+ 
+\end{DoxyParagraph}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00184}{184}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+\Hypertarget{shared__buffer__pool_8h_ab1e2b3bd6e04fde2a413dd3dae10c415}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!SAFE\_RELEASE\_BUFFER@{SAFE\_RELEASE\_BUFFER}}
+\index{SAFE\_RELEASE\_BUFFER@{SAFE\_RELEASE\_BUFFER}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{SAFE\_RELEASE\_BUFFER}{SAFE\_RELEASE\_BUFFER}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_ab1e2b3bd6e04fde2a413dd3dae10c415} 
+\#define SAFE\+\_\+\+RELEASE\+\_\+\+BUFFER(\begin{DoxyParamCaption}\item[{}]{ptr}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{do}\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ if\ (ptr\ !=\ NULL)\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ release\_shared\_buffer(ptr);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ ptr\ =\ NULL;\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \}\ \(\backslash\)}
+\DoxyCodeLine{\}\ \textcolor{keywordflow}{while}(0)}
+
+\end{DoxyCode}
+
+
+Bezpecne uvolneni bufferu s kontrolou NULL. 
+
+Pouziti\+: \doxylink{shared__buffer__pool_8h_ab1e2b3bd6e04fde2a413dd3dae10c415}{SAFE\+\_\+\+RELEASE\+\_\+\+BUFFER(ptr)} 
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00197}{197}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{shared__buffer__pool_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{shared__buffer__pool_8h_ab7941cd3b2567eec4538fb234680a9bf}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!buffer\_pool\_deinit@{buffer\_pool\_deinit}}
+\index{buffer\_pool\_deinit@{buffer\_pool\_deinit}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{buffer\_pool\_deinit()}{buffer\_pool\_deinit()}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_ab7941cd3b2567eec4538fb234680a9bf} 
+void buffer\+\_\+pool\+\_\+deinit (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Deinicializuje buffer pool a uvolni prostredky. 
+
+Kontroluje zda nejsou neuvolnene buffery (leak detection) a uvolni mutex. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8c_source_l00109}{109}} v souboru \mbox{\hyperlink{shared__buffer__pool_8c_source}{shared\+\_\+buffer\+\_\+pool.\+c}}.
+
+\Hypertarget{shared__buffer__pool_8h_a212c8f17c9792d37e2c884ef14ed8e69}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!buffer\_pool\_detect\_leaks@{buffer\_pool\_detect\_leaks}}
+\index{buffer\_pool\_detect\_leaks@{buffer\_pool\_detect\_leaks}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{buffer\_pool\_detect\_leaks()}{buffer\_pool\_detect\_leaks()}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_a212c8f17c9792d37e2c884ef14ed8e69} 
+void buffer\+\_\+pool\+\_\+detect\+\_\+leaks (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Detekuj potencialni buffer leaky. 
+
+Loguje varovani pro buffery drzene dele nez je ocekavano. Pomaha identifikovat zapomnute uvolneni bufferu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8c_source_l00359}{359}} v souboru \mbox{\hyperlink{shared__buffer__pool_8c_source}{shared\+\_\+buffer\+\_\+pool.\+c}}.
+
+\Hypertarget{shared__buffer__pool_8h_a8d1141e7eeb3bedad5c0d1ad575a953d}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!buffer\_pool\_get\_stats@{buffer\_pool\_get\_stats}}
+\index{buffer\_pool\_get\_stats@{buffer\_pool\_get\_stats}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{buffer\_pool\_get\_stats()}{buffer\_pool\_get\_stats()}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_a8d1141e7eeb3bedad5c0d1ad575a953d} 
+\mbox{\hyperlink{structbuffer__pool__stats__t}{buffer\+\_\+pool\+\_\+stats\+\_\+t}} buffer\+\_\+pool\+\_\+get\+\_\+stats (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej statistiky buffer poolu. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Struktura s aktualnimi statistikami 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8c_source_l00301}{301}} v souboru \mbox{\hyperlink{shared__buffer__pool_8c_source}{shared\+\_\+buffer\+\_\+pool.\+c}}.
+
+\Hypertarget{shared__buffer__pool_8h_a57e203054eac9c4b6834783c64844d9b}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!buffer\_pool\_init@{buffer\_pool\_init}}
+\index{buffer\_pool\_init@{buffer\_pool\_init}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{buffer\_pool\_init()}{buffer\_pool\_init()}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_a57e203054eac9c4b6834783c64844d9b} 
+esp\+\_\+err\+\_\+t buffer\+\_\+pool\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuje shared buffer pool. 
+
+Vytvori mutex pro thread-\/safe pristup a inicializuje vsechny buffery jako volne. Resetuje statistiky.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+ERR\+\_\+\+NO\+\_\+\+MEM pri selhani vytvoreni mutexu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8c_source_l00068}{68}} v souboru \mbox{\hyperlink{shared__buffer__pool_8c_source}{shared\+\_\+buffer\+\_\+pool.\+c}}.
+
+\Hypertarget{shared__buffer__pool_8h_acd58d78b420eb7bbeb83dd9b2d249be4}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!buffer\_pool\_is\_healthy@{buffer\_pool\_is\_healthy}}
+\index{buffer\_pool\_is\_healthy@{buffer\_pool\_is\_healthy}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{buffer\_pool\_is\_healthy()}{buffer\_pool\_is\_healthy()}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_acd58d78b420eb7bbeb83dd9b2d249be4} 
+bool buffer\+\_\+pool\+\_\+is\+\_\+healthy (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je buffer pool ve zdravem stavu. 
+
+Kontroluje zda nejsou preteceni, leaky nebo jine problemy.
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je pool zdravy, false pokud jsou detekovany problemy 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8c_source_l00322}{322}} v souboru \mbox{\hyperlink{shared__buffer__pool_8c_source}{shared\+\_\+buffer\+\_\+pool.\+c}}.
+
+\Hypertarget{shared__buffer__pool_8h_a78258eeac6ef7d0f8d2cf999f0605b0c}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!buffer\_pool\_print\_status@{buffer\_pool\_print\_status}}
+\index{buffer\_pool\_print\_status@{buffer\_pool\_print\_status}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{buffer\_pool\_print\_status()}{buffer\_pool\_print\_status()}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_a78258eeac6ef7d0f8d2cf999f0605b0c} 
+void buffer\+\_\+pool\+\_\+print\+\_\+status (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vypis detailni status buffer poolu do konzole. 
+
+Zobrazuje vsechny buffery, jejich stav (volny/pouzivany), vlastnika a statistiky. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8c_source_l00263}{263}} v souboru \mbox{\hyperlink{shared__buffer__pool_8c_source}{shared\+\_\+buffer\+\_\+pool.\+c}}.
+
+\Hypertarget{shared__buffer__pool_8h_a985626f60ba733d611f238158cd15aac}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!get\_shared\_buffer\_debug@{get\_shared\_buffer\_debug}}
+\index{get\_shared\_buffer\_debug@{get\_shared\_buffer\_debug}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{get\_shared\_buffer\_debug()}{get\_shared\_buffer\_debug()}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_a985626f60ba733d611f238158cd15aac} 
+char \texorpdfstring{$\ast$}{*} get\+\_\+shared\+\_\+buffer\+\_\+debug (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{min\+\_\+size}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{file}{, }\item[{int}]{line}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej sdileny buffer z poolu (interni funkce). 
+
+Hleda volny buffer v poolu a oznaci ho jako pouzivany. Loguje informace o alokaci pro debug ucely.
+
+
+\begin{DoxyParams}{Parametry}
+{\em min\+\_\+size} & Minimalni pozadovana velikost bufferu v bajtech \\
+\hline
+{\em file} & Nazev zdrojoveho souboru (pro debug) \\
+\hline
+{\em line} & Cislo radky (pro debug) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Ukazatel na buffer nebo NULL pokud alokace selhala
+\end{DoxyReturn}
+\begin{DoxyNote}{Poznámka}
+Nepouzivejte primo -\/ pouzijte makro \doxylink{shared__buffer__pool_8h_a70318c0bb964a91191f81e8b06a264eb}{get\+\_\+shared\+\_\+buffer()} 
+\end{DoxyNote}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8c_source_l00143}{143}} v souboru \mbox{\hyperlink{shared__buffer__pool_8c_source}{shared\+\_\+buffer\+\_\+pool.\+c}}.
+
+\Hypertarget{shared__buffer__pool_8h_a2dcea7230ff8c3509b7b7adaeba9874e}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}!release\_shared\_buffer@{release\_shared\_buffer}}
+\index{release\_shared\_buffer@{release\_shared\_buffer}!shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\doxysubsubsection{\texorpdfstring{release\_shared\_buffer()}{release\_shared\_buffer()}}
+{\footnotesize\ttfamily \label{shared__buffer__pool_8h_a2dcea7230ff8c3509b7b7adaeba9874e} 
+esp\+\_\+err\+\_\+t release\+\_\+shared\+\_\+buffer (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{}\end{DoxyParamCaption})}
+
+
+
+Uvolni sdileny buffer zpet do poolu. 
+
+Oznaci buffer jako volny a muze byt pouzit jinymi tasky.
+
+
+\begin{DoxyParams}{Parametry}
+{\em buffer} & Ukazatel na buffer k uvolneni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+ERR\+\_\+\+INVALID\+\_\+\+ARG pokud buffer je neplatny 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8c_source_l00203}{203}} v souboru \mbox{\hyperlink{shared__buffer__pool_8c_source}{shared\+\_\+buffer\+\_\+pool.\+c}}.
+

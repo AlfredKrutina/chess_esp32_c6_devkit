@@ -1,0 +1,234 @@
+\doxysection{Dokumentace souboru reset\+\_\+button\+\_\+task.\+c}
+\hypertarget{reset__button__task_8c}{}\label{reset__button__task_8c}\index{reset\_button\_task.c@{reset\_button\_task.c}}
+
+
+Reset button task\+: ovladani reset tlacitka pro restart hry.  
+
+
+{\ttfamily \#include "{}reset\+\_\+button\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+task\+\_\+wdt.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/task.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro reset\+\_\+button\+\_\+task.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{reset__button__task_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{reset__button__task_8c_adf092b27f7d985c1b6e1f5980a1ec99e}{reset\+\_\+button\+\_\+task\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuj reset button task. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{reset__button__task_8c_a2b2018c335a91336642118cc74af7b4a}{reset\+\_\+button\+\_\+task}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Hlavni funkce reset button tasku. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{reset__button__task_8c_a828ddd0ce9a37f1fbe484e6663d96a57}{process\+\_\+reset\+\_\+request}} (bool reset\+\_\+request)
+\begin{DoxyCompactList}\small\item\em Zpracuj pozadavek na reset hry. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{reset__button__task_8c_a9d96f74aeb8c8ab64a9ea78a857747dc}{simulate\+\_\+reset\+\_\+button\+\_\+press}} (bool pressed)
+\begin{DoxyCompactList}\small\item\em Simuluj stisknuti reset tlacitka (pro testovani). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{reset__button__task_8c_a9c119f00a30675bdd20fd69a03775b71}{reset\+\_\+button\+\_\+is\+\_\+initialized}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda je reset button task inicializovan. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{reset__button__task_8c_a06d02f46f762a840863c8353f7e7f506}{reset\+\_\+button\+\_\+get\+\_\+event\+\_\+count}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej pocet zpracovanych tlacitkovych udalosti. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{reset__button__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}} = "{}RESET\+\_\+\+BUTTON\+\_\+\+TASK"{}
+\item 
+static bool \mbox{\hyperlink{reset__button__task_8c_a2a86e8e816b985c84e78ba6b842e52bf}{reset\+\_\+button\+\_\+initialized}} = false
+\item 
+static uint32\+\_\+t \mbox{\hyperlink{reset__button__task_8c_ab36b66e9f95206af3b83dfa622d5cc7d}{button\+\_\+event\+\_\+count}} = 0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Reset button task\+: ovladani reset tlacitka pro restart hry. 
+
+Tento modul implementuje\+:
+\begin{DoxyItemize}
+\item Inicializaci reset button tasku a Free\+RTOS komponent
+\item Zpracovani reset tlacitka pro restart hry
+\item Simulacni rezim bez hardware (pro development)
+\item Integration s game taskem pro reset
+\item Jedno tlacitko pro reset cele hry
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+0 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/16
+\end{DoxyDate}
+Tento task zpracovava reset tlacitko pro restart hry. Kdyz hrac stiskne reset tlacitko, hra se restartuje do vychoziho stavu. Task detekuje stisknuti tlacitka a posila prikaz do game tasku. 
+
+Definice v souboru \mbox{\hyperlink{reset__button__task_8c_source}{reset\+\_\+button\+\_\+task.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{reset__button__task_8c_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{reset__button__task_8c_a828ddd0ce9a37f1fbe484e6663d96a57}\index{reset\_button\_task.c@{reset\_button\_task.c}!process\_reset\_request@{process\_reset\_request}}
+\index{process\_reset\_request@{process\_reset\_request}!reset\_button\_task.c@{reset\_button\_task.c}}
+\doxysubsubsection{\texorpdfstring{process\_reset\_request()}{process\_reset\_request()}}
+{\footnotesize\ttfamily \label{reset__button__task_8c_a828ddd0ce9a37f1fbe484e6663d96a57} 
+esp\+\_\+err\+\_\+t process\+\_\+reset\+\_\+request (\begin{DoxyParamCaption}\item[{bool}]{reset\+\_\+request}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj pozadavek na reset hry. 
+
+Zpracuj pozadavek na reset.
+
+
+\begin{DoxyParams}{Parametry}
+{\em reset\+\_\+request} & True pokud ma byt hra resetovana \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{reset__button__task_8c_source_l00098}{98}} v souboru \mbox{\hyperlink{reset__button__task_8c_source}{reset\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{reset__button__task_8c_a06d02f46f762a840863c8353f7e7f506}\index{reset\_button\_task.c@{reset\_button\_task.c}!reset\_button\_get\_event\_count@{reset\_button\_get\_event\_count}}
+\index{reset\_button\_get\_event\_count@{reset\_button\_get\_event\_count}!reset\_button\_task.c@{reset\_button\_task.c}}
+\doxysubsubsection{\texorpdfstring{reset\_button\_get\_event\_count()}{reset\_button\_get\_event\_count()}}
+{\footnotesize\ttfamily \label{reset__button__task_8c_a06d02f46f762a840863c8353f7e7f506} 
+uint32\+\_\+t reset\+\_\+button\+\_\+get\+\_\+event\+\_\+count (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej pocet zpracovanych tlacitkovych udalosti. 
+
+Ziskej pocet zpracovanych button udalosti.
+
+\begin{DoxyReturn}{Návratová hodnota}
+Pocet udalosti 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{reset__button__task_8c_source_l00149}{149}} v souboru \mbox{\hyperlink{reset__button__task_8c_source}{reset\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{reset__button__task_8c_a9c119f00a30675bdd20fd69a03775b71}\index{reset\_button\_task.c@{reset\_button\_task.c}!reset\_button\_is\_initialized@{reset\_button\_is\_initialized}}
+\index{reset\_button\_is\_initialized@{reset\_button\_is\_initialized}!reset\_button\_task.c@{reset\_button\_task.c}}
+\doxysubsubsection{\texorpdfstring{reset\_button\_is\_initialized()}{reset\_button\_is\_initialized()}}
+{\footnotesize\ttfamily \label{reset__button__task_8c_a9c119f00a30675bdd20fd69a03775b71} 
+bool reset\+\_\+button\+\_\+is\+\_\+initialized (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je reset button task inicializovan. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+True pokud je task inicializovan 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{reset__button__task_8c_source_l00139}{139}} v souboru \mbox{\hyperlink{reset__button__task_8c_source}{reset\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{reset__button__task_8c_a2b2018c335a91336642118cc74af7b4a}\index{reset\_button\_task.c@{reset\_button\_task.c}!reset\_button\_task@{reset\_button\_task}}
+\index{reset\_button\_task@{reset\_button\_task}!reset\_button\_task.c@{reset\_button\_task.c}}
+\doxysubsubsection{\texorpdfstring{reset\_button\_task()}{reset\_button\_task()}}
+{\footnotesize\ttfamily \label{reset__button__task_8c_a2b2018c335a91336642118cc74af7b4a} 
+void reset\+\_\+button\+\_\+task (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Hlavni funkce reset button tasku. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em pv\+Parameters} & Parametry tasku (nepouzivane) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{reset__button__task_8c_source_l00075}{75}} v souboru \mbox{\hyperlink{reset__button__task_8c_source}{reset\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{reset__button__task_8c_adf092b27f7d985c1b6e1f5980a1ec99e}\index{reset\_button\_task.c@{reset\_button\_task.c}!reset\_button\_task\_init@{reset\_button\_task\_init}}
+\index{reset\_button\_task\_init@{reset\_button\_task\_init}!reset\_button\_task.c@{reset\_button\_task.c}}
+\doxysubsubsection{\texorpdfstring{reset\_button\_task\_init()}{reset\_button\_task\_init()}}
+{\footnotesize\ttfamily \label{reset__button__task_8c_adf092b27f7d985c1b6e1f5980a1ec99e} 
+esp\+\_\+err\+\_\+t reset\+\_\+button\+\_\+task\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuj reset button task. 
+
+Inicializuje reset button task.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{reset__button__task_8c_source_l00041}{41}} v souboru \mbox{\hyperlink{reset__button__task_8c_source}{reset\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{reset__button__task_8c_a9d96f74aeb8c8ab64a9ea78a857747dc}\index{reset\_button\_task.c@{reset\_button\_task.c}!simulate\_reset\_button\_press@{simulate\_reset\_button\_press}}
+\index{simulate\_reset\_button\_press@{simulate\_reset\_button\_press}!reset\_button\_task.c@{reset\_button\_task.c}}
+\doxysubsubsection{\texorpdfstring{simulate\_reset\_button\_press()}{simulate\_reset\_button\_press()}}
+{\footnotesize\ttfamily \label{reset__button__task_8c_a9d96f74aeb8c8ab64a9ea78a857747dc} 
+esp\+\_\+err\+\_\+t simulate\+\_\+reset\+\_\+button\+\_\+press (\begin{DoxyParamCaption}\item[{bool}]{pressed}{}\end{DoxyParamCaption})}
+
+
+
+Simuluj stisknuti reset tlacitka (pro testovani). 
+
+Simuluj stisknuti/uvolneni reset tlacitka.
+
+
+\begin{DoxyParams}{Parametry}
+{\em pressed} & True pokud je tlacitko stisknuto \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{reset__button__task_8c_source_l00121}{121}} v souboru \mbox{\hyperlink{reset__button__task_8c_source}{reset\+\_\+button\+\_\+task.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{reset__button__task_8c_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{reset__button__task_8c_ab36b66e9f95206af3b83dfa622d5cc7d}\index{reset\_button\_task.c@{reset\_button\_task.c}!button\_event\_count@{button\_event\_count}}
+\index{button\_event\_count@{button\_event\_count}!reset\_button\_task.c@{reset\_button\_task.c}}
+\doxysubsubsection{\texorpdfstring{button\_event\_count}{button\_event\_count}}
+{\footnotesize\ttfamily \label{reset__button__task_8c_ab36b66e9f95206af3b83dfa622d5cc7d} 
+uint32\+\_\+t button\+\_\+event\+\_\+count = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{reset__button__task_8c_source_l00034}{34}} v souboru \mbox{\hyperlink{reset__button__task_8c_source}{reset\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{reset__button__task_8c_a2a86e8e816b985c84e78ba6b842e52bf}\index{reset\_button\_task.c@{reset\_button\_task.c}!reset\_button\_initialized@{reset\_button\_initialized}}
+\index{reset\_button\_initialized@{reset\_button\_initialized}!reset\_button\_task.c@{reset\_button\_task.c}}
+\doxysubsubsection{\texorpdfstring{reset\_button\_initialized}{reset\_button\_initialized}}
+{\footnotesize\ttfamily \label{reset__button__task_8c_a2a86e8e816b985c84e78ba6b842e52bf} 
+bool reset\+\_\+button\+\_\+initialized = false\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{reset__button__task_8c_source_l00033}{33}} v souboru \mbox{\hyperlink{reset__button__task_8c_source}{reset\+\_\+button\+\_\+task.\+c}}.
+
+\Hypertarget{reset__button__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{reset\_button\_task.c@{reset\_button\_task.c}!TAG@{TAG}}
+\index{TAG@{TAG}!reset\_button\_task.c@{reset\_button\_task.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{reset__button__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c} 
+const char\texorpdfstring{$\ast$}{*} TAG = "{}RESET\+\_\+\+BUTTON\+\_\+\+TASK"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{reset__button__task_8c_source_l00030}{30}} v souboru \mbox{\hyperlink{reset__button__task_8c_source}{reset\+\_\+button\+\_\+task.\+c}}.
+

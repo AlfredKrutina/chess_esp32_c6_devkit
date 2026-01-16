@@ -1,0 +1,218 @@
+\doxysection{Dokumentace souboru led\+\_\+mapping.\+h}
+\hypertarget{led__mapping_8h}{}\label{led__mapping_8h}\index{led\_mapping.h@{led\_mapping.h}}
+
+
+ESP32-\/\+C6 Chess System -\/ LED Mapovani funkce.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+Graf závislostí na vkládaných souborech pro led\+\_\+mapping.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=159pt]{led__mapping_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\+\_\+pos\+\_\+to\+\_\+led\+\_\+index}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Prevede sachovnicovou pozici na LED index. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{led__mapping_8h_afa2f63d0405f6da06cdeceee60aaa9d7}{led\+\_\+index\+\_\+to\+\_\+chess\+\_\+pos}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t \texorpdfstring{$\ast$}{*}row, uint8\+\_\+t \texorpdfstring{$\ast$}{*}col)
+\begin{DoxyCompactList}\small\item\em Prevede LED index na sachovnicovou pozici. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{led__mapping_8h_ac190470b2f78837d3df987b0951264dd}{chess\+\_\+notation\+\_\+to\+\_\+led\+\_\+index}} (const char \texorpdfstring{$\ast$}{*}notation)
+\begin{DoxyCompactList}\small\item\em Prevede sachovou notaci na LED index. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{led__mapping_8h_a8fdf823e1e4db3abca2c962afc09f826}{test\+\_\+led\+\_\+mapping}} (void)
+\begin{DoxyCompactList}\small\item\em Testuje spravnost LED mapovani. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System -\/ LED Mapovani funkce. 
+
+Tento modul poskytuje funkce pro prevod mezi sachovnicovymi pozicemi a LED indexy. Pouziva serpentine layout pro optimalni rozlozeni LED na sachovnici.
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/24
+\end{DoxyDate}
+LED Mapping modul prevadi sachovnicove pozice (radek, sloupec) na LED indexy a vice versa. Pouziva serpentine layout pro hadovite rozlozeni LED pasku\+:
+\begin{DoxyItemize}
+\item Sude radky\+: a-\/\texorpdfstring{$>$}{>}h (zleva doprava)
+\item Liche radky\+: h-\/\texorpdfstring{$>$}{>}a (zprava doleva)
+\end{DoxyItemize}
+
+Priklad serpentine layout\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Radek\ 1:\ LED\ \ 0,\ \ 1,\ \ 2,\ \ 3,\ \ 4,\ \ 5,\ \ 6,\ \ 7\ \ (a1-\/>h1)}
+\DoxyCodeLine{Radek\ 2:\ LED\ 15,\ 14,\ 13,\ 12,\ 11,\ 10,\ \ 9,\ \ 8\ \ (h2-\/>a2)}
+\DoxyCodeLine{Radek\ 3:\ LED\ 16,\ 17,\ 18,\ 19,\ 20,\ 21,\ 22,\ 23\ \ (a3-\/>h3)}
+\DoxyCodeLine{...}
+
+\end{DoxyCode}
+ 
+
+Definice v souboru \mbox{\hyperlink{led__mapping_8h_source}{led\+\_\+mapping.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{led__mapping_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{led__mapping_8h_ac190470b2f78837d3df987b0951264dd}\index{led\_mapping.h@{led\_mapping.h}!chess\_notation\_to\_led\_index@{chess\_notation\_to\_led\_index}}
+\index{chess\_notation\_to\_led\_index@{chess\_notation\_to\_led\_index}!led\_mapping.h@{led\_mapping.h}}
+\doxysubsubsection{\texorpdfstring{chess\_notation\_to\_led\_index()}{chess\_notation\_to\_led\_index()}}
+{\footnotesize\ttfamily \label{led__mapping_8h_ac190470b2f78837d3df987b0951264dd} 
+uint8\+\_\+t chess\+\_\+notation\+\_\+to\+\_\+led\+\_\+index (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{notation}{}\end{DoxyParamCaption})}
+
+
+
+Prevede sachovou notaci na LED index. 
+
+Tato funkce prevede sachovou notaci (napr. "{}e2"{}, "{}a8"{}) na LED index pouzitim serpentine layoutu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em notation} & Sachova notace ve formatu "{}e2"{} (pismeno a-\/h, cislice 1-\/8) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+LED index (0-\/63) pro danou notaci, nebo 0 pri chybe
+\end{DoxyReturn}
+\begin{DoxyNote}{Poznámka}
+Funkce automaticky osetruje neplatne vstupy a loguje chybu
+\end{DoxyNote}
+\begin{DoxyParagraph}{Priklad pouziti\+:}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{uint8\_t\ led\ =\ \mbox{\hyperlink{led__mapping_8h_ac190470b2f78837d3df987b0951264dd}{chess\_notation\_to\_led\_index}}(\textcolor{stringliteral}{"{}e4"{}});\ \ \textcolor{comment}{//\ LED\ pro\ pole\ e4}}
+
+\end{DoxyCode}
+
+\end{DoxyParagraph}
+Prevede sachovou notaci na LED index.
+
+Preklada sachovou notaci (napr. "{}e2"{}, "{}a1"{}) na LED index. Notace musi byt ve formatu \mbox{[}a-\/h\mbox{]}\mbox{[}1-\/8\mbox{]}.
+
+
+\begin{DoxyParams}{Parametry}
+{\em notation} & Sachova notace (napr. "{}e2"{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+LED index (0-\/63) nebo 0 pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__mapping_8c_source_l00090}{90}} v souboru \mbox{\hyperlink{led__mapping_8c_source}{led\+\_\+mapping.\+c}}.
+
+\Hypertarget{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}\index{led\_mapping.h@{led\_mapping.h}!chess\_pos\_to\_led\_index@{chess\_pos\_to\_led\_index}}
+\index{chess\_pos\_to\_led\_index@{chess\_pos\_to\_led\_index}!led\_mapping.h@{led\_mapping.h}}
+\doxysubsubsection{\texorpdfstring{chess\_pos\_to\_led\_index()}{chess\_pos\_to\_led\_index()}}
+{\footnotesize\ttfamily \label{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df} 
+uint8\+\_\+t chess\+\_\+pos\+\_\+to\+\_\+led\+\_\+index (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Prevede sachovnicovou pozici na LED index. 
+
+Tato funkce prevede souradnice sachovnice (radek, sloupec) na LED index v serpentine layoutu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek sachovnice (0-\/7, kde 0 = rank 1, 7 = rank 8) \\
+\hline
+{\em col} & Sloupec sachovnice (0-\/7, kde 0 = file a, 7 = file h) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+LED index (0-\/63) pro pozici na sachovnici
+\end{DoxyReturn}
+\begin{DoxyNote}{Poznámka}
+Funkce automaticky osetruje neplatne vstupy a loguje chybu
+\end{DoxyNote}
+Prevede sachovnicovou pozici na LED index.
+
+Layout\+: a1,b1,c1,d1,e1,f1,g1,h1, h2,g2,f2,e2,d2,c2,b2,a2, a3,b3,c3... Sachovnice je otocena po Y ose (a1 je na h1 pozici).
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek (0-\/7, kde 0=rank 1, 7=rank 8) ~\newline
+ \\
+\hline
+{\em col} & Sloupec (0-\/7, kde 0=a, 7=h) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+LED index (0-\/63) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__mapping_8c_source_l00030}{30}} v souboru \mbox{\hyperlink{led__mapping_8c_source}{led\+\_\+mapping.\+c}}.
+
+\Hypertarget{led__mapping_8h_afa2f63d0405f6da06cdeceee60aaa9d7}\index{led\_mapping.h@{led\_mapping.h}!led\_index\_to\_chess\_pos@{led\_index\_to\_chess\_pos}}
+\index{led\_index\_to\_chess\_pos@{led\_index\_to\_chess\_pos}!led\_mapping.h@{led\_mapping.h}}
+\doxysubsubsection{\texorpdfstring{led\_index\_to\_chess\_pos()}{led\_index\_to\_chess\_pos()}}
+{\footnotesize\ttfamily \label{led__mapping_8h_afa2f63d0405f6da06cdeceee60aaa9d7} 
+void led\+\_\+index\+\_\+to\+\_\+chess\+\_\+pos (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{row}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Prevede LED index na sachovnicovou pozici. 
+
+Tato funkce prevede LED index na souradnice sachovnice (radek, sloupec) v serpentine layoutu.
+
+
+\begin{DoxyParams}[1]{Parametry}
+ & {\em led\+\_\+index} & LED index (0-\/63) \\
+\hline
+\mbox{\texttt{out}}  & {\em row} & Ukazatel na vystupni radek (0-\/7) \\
+\hline
+\mbox{\texttt{out}}  & {\em col} & Ukazatel na vystupni sloupec (0-\/7)\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Poznámka}
+Funkce automaticky osetruje neplatne vstupy a loguje chybu
+\end{DoxyNote}
+Prevede LED index na sachovnicovou pozici.
+
+Obracenou operaci k \doxylink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\+\_\+pos\+\_\+to\+\_\+led\+\_\+index()}. Ze LED indexu vypocita pozici radku a sloupce na sachovnici.
+
+
+\begin{DoxyParams}[1]{Parametry}
+ & {\em led\+\_\+index} & LED index (0-\/63) \\
+\hline
+\mbox{\texttt{out}}  & {\em row} & Ukazatel na radek (0-\/7) \\
+\hline
+\mbox{\texttt{out}}  & {\em col} & Ukazatel na sloupec (0-\/7) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__mapping_8c_source_l00060}{60}} v souboru \mbox{\hyperlink{led__mapping_8c_source}{led\+\_\+mapping.\+c}}.
+
+\Hypertarget{led__mapping_8h_a8fdf823e1e4db3abca2c962afc09f826}\index{led\_mapping.h@{led\_mapping.h}!test\_led\_mapping@{test\_led\_mapping}}
+\index{test\_led\_mapping@{test\_led\_mapping}!led\_mapping.h@{led\_mapping.h}}
+\doxysubsubsection{\texorpdfstring{test\_led\_mapping()}{test\_led\_mapping()}}
+{\footnotesize\ttfamily \label{led__mapping_8h_a8fdf823e1e4db3abca2c962afc09f826} 
+void test\+\_\+led\+\_\+mapping (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Testuje spravnost LED mapovani. 
+
+Tato funkce provede automaticky test vsech znamych pozic a overi spravnost prevodu mezi pozicemi a LED indexy.
+
+\begin{DoxyNote}{Poznámka}
+Vysledky testu jsou vypisovany do logu
+\end{DoxyNote}
+Testuje spravnost LED mapovani.
+
+Testuje funkcnost LED mapovani na znamych pozicich. Kontroluje prevody notace-\/\texorpdfstring{$>$}{>}LED a LED-\/\texorpdfstring{$>$}{>}pozice. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__mapping_8c_source_l00117}{117}} v souboru \mbox{\hyperlink{led__mapping_8c_source}{led\+\_\+mapping.\+c}}.
+

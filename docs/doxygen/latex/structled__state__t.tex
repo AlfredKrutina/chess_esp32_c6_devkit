@@ -1,0 +1,136 @@
+\doxysection{Dokumentace struktury led\+\_\+state\+\_\+t}
+\hypertarget{structled__state__t}{}\label{structled__state__t}\index{led\_state\_t@{led\_state\_t}}
+
+
+Kompletni LED stav (vsechny vrstvy).  
+
+
+
+
+{\ttfamily \#include $<$led\+\_\+state\+\_\+manager.\+h$>$}
+
+
+
+Diagram pro led\+\_\+state\+\_\+t\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=254pt]{structled__state__t__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structled__layer__state__t}{led\+\_\+layer\+\_\+state\+\_\+t}} \mbox{\hyperlink{structled__state__t_a28f07abcdc7ee3321597cffc5ea8411d}{layers}} \mbox{[}\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231ba0d615861daf40238f3c436677a7a581b}{LED\+\_\+\+LAYER\+\_\+\+COUNT}}\mbox{]}
+\begin{DoxyCompactList}\small\item\em Vsechny vrstvy. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structled__pixel__t}{led\+\_\+pixel\+\_\+t}} \mbox{\hyperlink{structled__state__t_afc5601630c57ab8013c4edd741cd319f}{composite}} \mbox{[}64\mbox{]}
+\begin{DoxyCompactList}\small\item\em Finalni slozeny obraz. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structled__state__t_ac3040efe9cad342ad5a6474de2467157}{dirty\+\_\+pixels}} \mbox{[}64\mbox{]}
+\begin{DoxyCompactList}\small\item\em Dirty pixel mapa. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structled__state__t_a2d6fa87d252e94ba3acf105b8f33eeae}{needs\+\_\+update}}
+\begin{DoxyCompactList}\small\item\em Potrebuje update? \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structled__state__t_a8a87e46e82ac9a67e08c5daf17afdf46}{last\+\_\+update\+\_\+time}}
+\begin{DoxyCompactList}\small\item\em Cas posledniho update. \end{DoxyCompactList}\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{structled__state__t_a90d938528de22889c8fe760576c40c3d}{mutex}}
+\begin{DoxyCompactList}\small\item\em Mutex pro thread-\/safety. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Kompletni LED stav (vsechny vrstvy). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00124}{124}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structled__state__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structled__state__t_afc5601630c57ab8013c4edd741cd319f}\index{led\_state\_t@{led\_state\_t}!composite@{composite}}
+\index{composite@{composite}!led\_state\_t@{led\_state\_t}}
+\doxysubsubsection{\texorpdfstring{composite}{composite}}
+{\footnotesize\ttfamily \label{structled__state__t_afc5601630c57ab8013c4edd741cd319f} 
+\mbox{\hyperlink{structled__pixel__t}{led\+\_\+pixel\+\_\+t}} led\+\_\+state\+\_\+t\+::composite\mbox{[}64\mbox{]}}
+
+
+
+Finalni slozeny obraz. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00126}{126}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__state__t_ac3040efe9cad342ad5a6474de2467157}\index{led\_state\_t@{led\_state\_t}!dirty\_pixels@{dirty\_pixels}}
+\index{dirty\_pixels@{dirty\_pixels}!led\_state\_t@{led\_state\_t}}
+\doxysubsubsection{\texorpdfstring{dirty\_pixels}{dirty\_pixels}}
+{\footnotesize\ttfamily \label{structled__state__t_ac3040efe9cad342ad5a6474de2467157} 
+bool led\+\_\+state\+\_\+t\+::dirty\+\_\+pixels\mbox{[}64\mbox{]}}
+
+
+
+Dirty pixel mapa. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00127}{127}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__state__t_a8a87e46e82ac9a67e08c5daf17afdf46}\index{led\_state\_t@{led\_state\_t}!last\_update\_time@{last\_update\_time}}
+\index{last\_update\_time@{last\_update\_time}!led\_state\_t@{led\_state\_t}}
+\doxysubsubsection{\texorpdfstring{last\_update\_time}{last\_update\_time}}
+{\footnotesize\ttfamily \label{structled__state__t_a8a87e46e82ac9a67e08c5daf17afdf46} 
+uint32\+\_\+t led\+\_\+state\+\_\+t\+::last\+\_\+update\+\_\+time}
+
+
+
+Cas posledniho update. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00129}{129}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__state__t_a28f07abcdc7ee3321597cffc5ea8411d}\index{led\_state\_t@{led\_state\_t}!layers@{layers}}
+\index{layers@{layers}!led\_state\_t@{led\_state\_t}}
+\doxysubsubsection{\texorpdfstring{layers}{layers}}
+{\footnotesize\ttfamily \label{structled__state__t_a28f07abcdc7ee3321597cffc5ea8411d} 
+\mbox{\hyperlink{structled__layer__state__t}{led\+\_\+layer\+\_\+state\+\_\+t}} led\+\_\+state\+\_\+t\+::layers\mbox{[}\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231ba0d615861daf40238f3c436677a7a581b}{LED\+\_\+\+LAYER\+\_\+\+COUNT}}\mbox{]}}
+
+
+
+Vsechny vrstvy. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00125}{125}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__state__t_a90d938528de22889c8fe760576c40c3d}\index{led\_state\_t@{led\_state\_t}!mutex@{mutex}}
+\index{mutex@{mutex}!led\_state\_t@{led\_state\_t}}
+\doxysubsubsection{\texorpdfstring{mutex}{mutex}}
+{\footnotesize\ttfamily \label{structled__state__t_a90d938528de22889c8fe760576c40c3d} 
+Semaphore\+Handle\+\_\+t led\+\_\+state\+\_\+t\+::mutex}
+
+
+
+Mutex pro thread-\/safety. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00130}{130}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+\Hypertarget{structled__state__t_a2d6fa87d252e94ba3acf105b8f33eeae}\index{led\_state\_t@{led\_state\_t}!needs\_update@{needs\_update}}
+\index{needs\_update@{needs\_update}!led\_state\_t@{led\_state\_t}}
+\doxysubsubsection{\texorpdfstring{needs\_update}{needs\_update}}
+{\footnotesize\ttfamily \label{structled__state__t_a2d6fa87d252e94ba3acf105b8f33eeae} 
+bool led\+\_\+state\+\_\+t\+::needs\+\_\+update}
+
+
+
+Potrebuje update? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8h_source_l00128}{128}} v souboru \mbox{\hyperlink{led__state__manager_8h_source}{led\+\_\+state\+\_\+manager.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{led__state__manager_8h}{led\+\_\+state\+\_\+manager.\+h}}\end{DoxyCompactItemize}

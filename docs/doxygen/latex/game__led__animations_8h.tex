@@ -1,0 +1,434 @@
+\doxysection{Dokumentace souboru game\+\_\+led\+\_\+animations.\+h}
+\hypertarget{game__led__animations_8h}{}\label{game__led__animations_8h}\index{game\_led\_animations.h@{game\_led\_animations.h}}
+
+
+ESP32-\/\+C6 Chess System -\/ Advanced LED Animations Header.  
+
+
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/timers.\+h"{}}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+Graf závislostí na vkládaných souborech pro game\+\_\+led\+\_\+animations.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{game__led__animations_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové struktury}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structrgb__color__t}{rgb\+\_\+color\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em RGB barva. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structwave__t}{wave\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Stav jedné vlny. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structwave__animation__state__t}{wave\+\_\+animation\+\_\+state\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Stav vlnové animace. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structfirework__t}{firework\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Stav ohňostroje. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structsubtle__animation__state__t}{subtle\+\_\+animation\+\_\+state\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Stav jemné animace. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Definice maker}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{game__led__animations_8h_a1767d604401a9b047932166494ed7b9e}{MAX\+\_\+\+WAVES}}~5
+\item 
+\#define \mbox{\hyperlink{game__led__animations_8h_ad146c422c93828b517dc1801a40ca01f}{MAX\+\_\+\+FIREWORKS}}~6
+\item 
+\#define \mbox{\hyperlink{game__led__animations_8h_aff587ca038d004104b274391cb221113}{init\+\_\+endgame\+\_\+animation\+\_\+system}}()
+\begin{DoxyCompactList}\small\item\em Alias pro kompatibilitu s existujícím kódem. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Výčty}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\+\_\+animation\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757}{ENDGAME\+\_\+\+ANIM\+\_\+\+VICTORY\+\_\+\+WAVE}} = 1
+, \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6}{ENDGAME\+\_\+\+ANIM\+\_\+\+VICTORY\+\_\+\+CIRCLES}} = 2
+, \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415}{ENDGAME\+\_\+\+ANIM\+\_\+\+VICTORY\+\_\+\+CASCADE}} = 3
+, \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37}{ENDGAME\+\_\+\+ANIM\+\_\+\+VICTORY\+\_\+\+FIREWORKS}} = 4
+, \newline
+\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99}{ENDGAME\+\_\+\+ANIM\+\_\+\+VICTORY\+\_\+\+CROWN}} = 5
+, \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9}{ENDGAME\+\_\+\+ANIM\+\_\+\+MAX}}
+ \}
+\begin{DoxyCompactList}\small\item\em Typy endgame animací \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08}{subtle\+\_\+anim\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03}{SUBTLE\+\_\+\+ANIM\+\_\+\+GENTLE\+\_\+\+WAVE}} = 0
+, \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0}{SUBTLE\+\_\+\+ANIM\+\_\+\+WARM\+\_\+\+GLOW}} = 1
+, \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4}{SUBTLE\+\_\+\+ANIM\+\_\+\+COOL\+\_\+\+PULSE}} = 2
+, \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf}{SUBTLE\+\_\+\+ANIM\+\_\+\+WHITE\+\_\+\+WINS}} = 3
+, \newline
+\mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3}{SUBTLE\+\_\+\+ANIM\+\_\+\+BLACK\+\_\+\+WINS}} = 4
+, \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f}{SUBTLE\+\_\+\+ANIM\+\_\+\+DRAW}} = 5
+ \}
+\begin{DoxyCompactList}\small\item\em Typy jemných animací \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__led__animations_8h_a9c35ac742c83bf78240d93599dd54556}{game\+\_\+led\+\_\+animations\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializace animačního systému. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__led__animations_8h_a512b0ba5745a638b00545a16423c4e17}{start\+\_\+endgame\+\_\+animation}} (\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\+\_\+animation\+\_\+type\+\_\+t}} animation\+\_\+type, uint8\+\_\+t king\+\_\+position)
+\begin{DoxyCompactList}\small\item\em Spuštění endgame animace. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__led__animations_8h_ad8316144bc70b897342c47d341b52b5b}{stop\+\_\+endgame\+\_\+animation}} (void)
+\begin{DoxyCompactList}\small\item\em Zastavení endgame animace. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__led__animations_8h_abc332d95d86dbce7893f640161167edb}{is\+\_\+endgame\+\_\+animation\+\_\+running}} (void)
+\begin{DoxyCompactList}\small\item\em Kontrola zda běží endgame animace. \end{DoxyCompactList}\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{game__led__animations_8h_a657e1bb5d40ff05278f1fd817295a34b}{get\+\_\+endgame\+\_\+animation\+\_\+name}} (\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\+\_\+animation\+\_\+type\+\_\+t}} animation\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Získání názvu animace. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__led__animations_8h_ac3099afed7bffbea6eaba00603a015a9}{start\+\_\+subtle\+\_\+piece\+\_\+animation}} (uint8\+\_\+t piece\+\_\+position, \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08}{subtle\+\_\+anim\+\_\+type\+\_\+t}} anim\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Spuštění jemné animace pro figurku. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__led__animations_8h_abb3b14cd5eb31a70450c0a404902e4e0}{start\+\_\+subtle\+\_\+button\+\_\+animation}} (uint8\+\_\+t button\+\_\+id, \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08}{subtle\+\_\+anim\+\_\+type\+\_\+t}} anim\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Spuštění jemné animace pro tlačítko. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__led__animations_8h_a7d2e178a6334fe293dd266e15b194ceb}{stop\+\_\+all\+\_\+subtle\+\_\+animations}} (void)
+\begin{DoxyCompactList}\small\item\em Zastavení všech jemných animací \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__led__animations_8h_acb38fb824c92dc6d289f623bc15fcac6}{activate\+\_\+subtle\+\_\+animations\+\_\+for\+\_\+movable\+\_\+pieces}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}movable\+\_\+positions, uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Aktivace jemných animací pro pohyblivé figurky. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__led__animations_8h_ae9a2e770a4936e32e42c67ebb236ce01}{activate\+\_\+subtle\+\_\+animations\+\_\+for\+\_\+buttons}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}available\+\_\+buttons, uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Aktivace jemných animací pro dostupná tlačítka. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System -\/ Advanced LED Animations Header. 
+
+Header pro pokročilé LED animace s kompletním API
+
+Author\+: Alfred Krutina Version\+: 2.\+5 -\/ ADVANCED ANIMATIONS Date\+: 2025-\/09-\/04 
+
+Definice v souboru \mbox{\hyperlink{game__led__animations_8h_source}{game\+\_\+led\+\_\+animations.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{game__led__animations_8h_doc-define-members}
+\doxysubsection{Dokumentace definic maker}
+\Hypertarget{game__led__animations_8h_aff587ca038d004104b274391cb221113}\index{game\_led\_animations.h@{game\_led\_animations.h}!init\_endgame\_animation\_system@{init\_endgame\_animation\_system}}
+\index{init\_endgame\_animation\_system@{init\_endgame\_animation\_system}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{init\_endgame\_animation\_system}{init\_endgame\_animation\_system}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_aff587ca038d004104b274391cb221113} 
+\#define init\+\_\+endgame\+\_\+animation\+\_\+system(\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{game__led__animations_8c_a9c35ac742c83bf78240d93599dd54556}{game\_led\_animations\_init}}()}
+
+\end{DoxyCode}
+
+
+Alias pro kompatibilitu s existujícím kódem. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8h_source_l00206}{206}} v souboru \mbox{\hyperlink{game__led__animations_8h_source}{game\+\_\+led\+\_\+animations.\+h}}.
+
+\Hypertarget{game__led__animations_8h_ad146c422c93828b517dc1801a40ca01f}\index{game\_led\_animations.h@{game\_led\_animations.h}!MAX\_FIREWORKS@{MAX\_FIREWORKS}}
+\index{MAX\_FIREWORKS@{MAX\_FIREWORKS}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_FIREWORKS}{MAX\_FIREWORKS}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_ad146c422c93828b517dc1801a40ca01f} 
+\#define MAX\+\_\+\+FIREWORKS~6}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8h_source_l00030}{30}} v souboru \mbox{\hyperlink{game__led__animations_8h_source}{game\+\_\+led\+\_\+animations.\+h}}.
+
+\Hypertarget{game__led__animations_8h_a1767d604401a9b047932166494ed7b9e}\index{game\_led\_animations.h@{game\_led\_animations.h}!MAX\_WAVES@{MAX\_WAVES}}
+\index{MAX\_WAVES@{MAX\_WAVES}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_WAVES}{MAX\_WAVES}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_a1767d604401a9b047932166494ed7b9e} 
+\#define MAX\+\_\+\+WAVES~5}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8h_source_l00029}{29}} v souboru \mbox{\hyperlink{game__led__animations_8h_source}{game\+\_\+led\+\_\+animations.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{game__led__animations_8h_doc-enum-members}
+\doxysubsection{Dokumentace výčtových typů}
+\Hypertarget{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}\index{game\_led\_animations.h@{game\_led\_animations.h}!endgame\_animation\_type\_t@{endgame\_animation\_type\_t}}
+\index{endgame\_animation\_type\_t@{endgame\_animation\_type\_t}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{endgame\_animation\_type\_t}{endgame\_animation\_type\_t}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159} 
+enum \mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\+\_\+animation\+\_\+type\+\_\+t}}}
+
+
+
+Typy endgame animací 
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ENDGAME\_ANIM\_VICTORY\_WAVE@{ENDGAME\_ANIM\_VICTORY\_WAVE}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!ENDGAME\_ANIM\_VICTORY\_WAVE@{ENDGAME\_ANIM\_VICTORY\_WAVE}}}\Hypertarget{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757}\label{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757} 
+ENDGAME\+\_\+\+ANIM\+\_\+\+VICTORY\+\_\+\+WAVE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ENDGAME\_ANIM\_VICTORY\_CIRCLES@{ENDGAME\_ANIM\_VICTORY\_CIRCLES}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!ENDGAME\_ANIM\_VICTORY\_CIRCLES@{ENDGAME\_ANIM\_VICTORY\_CIRCLES}}}\Hypertarget{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6}\label{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6} 
+ENDGAME\+\_\+\+ANIM\+\_\+\+VICTORY\+\_\+\+CIRCLES&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ENDGAME\_ANIM\_VICTORY\_CASCADE@{ENDGAME\_ANIM\_VICTORY\_CASCADE}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!ENDGAME\_ANIM\_VICTORY\_CASCADE@{ENDGAME\_ANIM\_VICTORY\_CASCADE}}}\Hypertarget{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415}\label{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415} 
+ENDGAME\+\_\+\+ANIM\+\_\+\+VICTORY\+\_\+\+CASCADE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ENDGAME\_ANIM\_VICTORY\_FIREWORKS@{ENDGAME\_ANIM\_VICTORY\_FIREWORKS}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!ENDGAME\_ANIM\_VICTORY\_FIREWORKS@{ENDGAME\_ANIM\_VICTORY\_FIREWORKS}}}\Hypertarget{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37}\label{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37} 
+ENDGAME\+\_\+\+ANIM\+\_\+\+VICTORY\+\_\+\+FIREWORKS&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ENDGAME\_ANIM\_VICTORY\_CROWN@{ENDGAME\_ANIM\_VICTORY\_CROWN}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!ENDGAME\_ANIM\_VICTORY\_CROWN@{ENDGAME\_ANIM\_VICTORY\_CROWN}}}\Hypertarget{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99}\label{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99} 
+ENDGAME\+\_\+\+ANIM\+\_\+\+VICTORY\+\_\+\+CROWN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ENDGAME\_ANIM\_MAX@{ENDGAME\_ANIM\_MAX}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!ENDGAME\_ANIM\_MAX@{ENDGAME\_ANIM\_MAX}}}\Hypertarget{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9}\label{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9} 
+ENDGAME\+\_\+\+ANIM\+\_\+\+MAX&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8h_source_l00039}{39}} v souboru \mbox{\hyperlink{game__led__animations_8h_source}{game\+\_\+led\+\_\+animations.\+h}}.
+
+\Hypertarget{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08}\index{game\_led\_animations.h@{game\_led\_animations.h}!subtle\_anim\_type\_t@{subtle\_anim\_type\_t}}
+\index{subtle\_anim\_type\_t@{subtle\_anim\_type\_t}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{subtle\_anim\_type\_t}{subtle\_anim\_type\_t}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08} 
+enum \mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08}{subtle\+\_\+anim\+\_\+type\+\_\+t}}}
+
+
+
+Typy jemných animací 
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SUBTLE\_ANIM\_GENTLE\_WAVE@{SUBTLE\_ANIM\_GENTLE\_WAVE}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!SUBTLE\_ANIM\_GENTLE\_WAVE@{SUBTLE\_ANIM\_GENTLE\_WAVE}}}\Hypertarget{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03}\label{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03} 
+SUBTLE\+\_\+\+ANIM\+\_\+\+GENTLE\+\_\+\+WAVE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SUBTLE\_ANIM\_WARM\_GLOW@{SUBTLE\_ANIM\_WARM\_GLOW}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!SUBTLE\_ANIM\_WARM\_GLOW@{SUBTLE\_ANIM\_WARM\_GLOW}}}\Hypertarget{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0}\label{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0} 
+SUBTLE\+\_\+\+ANIM\+\_\+\+WARM\+\_\+\+GLOW&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SUBTLE\_ANIM\_COOL\_PULSE@{SUBTLE\_ANIM\_COOL\_PULSE}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!SUBTLE\_ANIM\_COOL\_PULSE@{SUBTLE\_ANIM\_COOL\_PULSE}}}\Hypertarget{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4}\label{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4} 
+SUBTLE\+\_\+\+ANIM\+\_\+\+COOL\+\_\+\+PULSE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SUBTLE\_ANIM\_WHITE\_WINS@{SUBTLE\_ANIM\_WHITE\_WINS}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!SUBTLE\_ANIM\_WHITE\_WINS@{SUBTLE\_ANIM\_WHITE\_WINS}}}\Hypertarget{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf}\label{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf} 
+SUBTLE\+\_\+\+ANIM\+\_\+\+WHITE\+\_\+\+WINS&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SUBTLE\_ANIM\_BLACK\_WINS@{SUBTLE\_ANIM\_BLACK\_WINS}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!SUBTLE\_ANIM\_BLACK\_WINS@{SUBTLE\_ANIM\_BLACK\_WINS}}}\Hypertarget{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3}\label{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3} 
+SUBTLE\+\_\+\+ANIM\+\_\+\+BLACK\+\_\+\+WINS&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SUBTLE\_ANIM\_DRAW@{SUBTLE\_ANIM\_DRAW}!game\_led\_animations.h@{game\_led\_animations.h}}\index{game\_led\_animations.h@{game\_led\_animations.h}!SUBTLE\_ANIM\_DRAW@{SUBTLE\_ANIM\_DRAW}}}\Hypertarget{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f}\label{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f} 
+SUBTLE\+\_\+\+ANIM\+\_\+\+DRAW&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8h_source_l00051}{51}} v souboru \mbox{\hyperlink{game__led__animations_8h_source}{game\+\_\+led\+\_\+animations.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{game__led__animations_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{game__led__animations_8h_ae9a2e770a4936e32e42c67ebb236ce01}\index{game\_led\_animations.h@{game\_led\_animations.h}!activate\_subtle\_animations\_for\_buttons@{activate\_subtle\_animations\_for\_buttons}}
+\index{activate\_subtle\_animations\_for\_buttons@{activate\_subtle\_animations\_for\_buttons}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{activate\_subtle\_animations\_for\_buttons()}{activate\_subtle\_animations\_for\_buttons()}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_ae9a2e770a4936e32e42c67ebb236ce01} 
+esp\+\_\+err\+\_\+t activate\+\_\+subtle\+\_\+animations\+\_\+for\+\_\+buttons (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{available\+\_\+buttons}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Aktivace jemných animací pro dostupná tlačítka. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em available\+\_\+buttons} & Pole dostupných tlačítek \\
+\hline
+{\em count} & Počet tlačítek \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK při úspěchu 
+\end{DoxyReturn}
+\Hypertarget{game__led__animations_8h_acb38fb824c92dc6d289f623bc15fcac6}\index{game\_led\_animations.h@{game\_led\_animations.h}!activate\_subtle\_animations\_for\_movable\_pieces@{activate\_subtle\_animations\_for\_movable\_pieces}}
+\index{activate\_subtle\_animations\_for\_movable\_pieces@{activate\_subtle\_animations\_for\_movable\_pieces}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{activate\_subtle\_animations\_for\_movable\_pieces()}{activate\_subtle\_animations\_for\_movable\_pieces()}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_acb38fb824c92dc6d289f623bc15fcac6} 
+esp\+\_\+err\+\_\+t activate\+\_\+subtle\+\_\+animations\+\_\+for\+\_\+movable\+\_\+pieces (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{movable\+\_\+positions}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Aktivace jemných animací pro pohyblivé figurky. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em movable\+\_\+positions} & Pole pozic pohyblivých figur \\
+\hline
+{\em count} & Počet pozic \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK při úspěchu 
+\end{DoxyReturn}
+\Hypertarget{game__led__animations_8h_a9c35ac742c83bf78240d93599dd54556}\index{game\_led\_animations.h@{game\_led\_animations.h}!game\_led\_animations\_init@{game\_led\_animations\_init}}
+\index{game\_led\_animations\_init@{game\_led\_animations\_init}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{game\_led\_animations\_init()}{game\_led\_animations\_init()}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_a9c35ac742c83bf78240d93599dd54556} 
+esp\+\_\+err\+\_\+t game\+\_\+led\+\_\+animations\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializace animačního systému. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK při úspěchu, error kód při selhání 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8c_source_l00609}{609}} v souboru \mbox{\hyperlink{game__led__animations_8c_source}{game\+\_\+led\+\_\+animations.\+c}}.
+
+\Hypertarget{game__led__animations_8h_a657e1bb5d40ff05278f1fd817295a34b}\index{game\_led\_animations.h@{game\_led\_animations.h}!get\_endgame\_animation\_name@{get\_endgame\_animation\_name}}
+\index{get\_endgame\_animation\_name@{get\_endgame\_animation\_name}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{get\_endgame\_animation\_name()}{get\_endgame\_animation\_name()}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_a657e1bb5d40ff05278f1fd817295a34b} 
+const char \texorpdfstring{$\ast$}{*} get\+\_\+endgame\+\_\+animation\+\_\+name (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\+\_\+animation\+\_\+type\+\_\+t}}}]{animation\+\_\+type}{}\end{DoxyParamCaption})}
+
+
+
+Získání názvu animace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em animation\+\_\+type} & Typ animace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Název animace jako string 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8c_source_l00709}{709}} v souboru \mbox{\hyperlink{game__led__animations_8c_source}{game\+\_\+led\+\_\+animations.\+c}}.
+
+\Hypertarget{game__led__animations_8h_abc332d95d86dbce7893f640161167edb}\index{game\_led\_animations.h@{game\_led\_animations.h}!is\_endgame\_animation\_running@{is\_endgame\_animation\_running}}
+\index{is\_endgame\_animation\_running@{is\_endgame\_animation\_running}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{is\_endgame\_animation\_running()}{is\_endgame\_animation\_running()}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_abc332d95d86dbce7893f640161167edb} 
+bool is\+\_\+endgame\+\_\+animation\+\_\+running (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Kontrola zda běží endgame animace. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud běží animace 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8c_source_l00705}{705}} v souboru \mbox{\hyperlink{game__led__animations_8c_source}{game\+\_\+led\+\_\+animations.\+c}}.
+
+\Hypertarget{game__led__animations_8h_a512b0ba5745a638b00545a16423c4e17}\index{game\_led\_animations.h@{game\_led\_animations.h}!start\_endgame\_animation@{start\_endgame\_animation}}
+\index{start\_endgame\_animation@{start\_endgame\_animation}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{start\_endgame\_animation()}{start\_endgame\_animation()}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_a512b0ba5745a638b00545a16423c4e17} 
+esp\+\_\+err\+\_\+t start\+\_\+endgame\+\_\+animation (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{game__led__animations_8h_a30603ef39ed3a32a5ae1be1274874159}{endgame\+\_\+animation\+\_\+type\+\_\+t}}}]{animation\+\_\+type}{, }\item[{uint8\+\_\+t}]{king\+\_\+position}{}\end{DoxyParamCaption})}
+
+
+
+Spuštění endgame animace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em animation\+\_\+type} & Typ animace (1-\/5) \\
+\hline
+{\em king\+\_\+position} & Pozice vítězného krále (0-\/63) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK při úspěchu, error kód při selhání 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8c_source_l00653}{653}} v souboru \mbox{\hyperlink{game__led__animations_8c_source}{game\+\_\+led\+\_\+animations.\+c}}.
+
+\Hypertarget{game__led__animations_8h_abb3b14cd5eb31a70450c0a404902e4e0}\index{game\_led\_animations.h@{game\_led\_animations.h}!start\_subtle\_button\_animation@{start\_subtle\_button\_animation}}
+\index{start\_subtle\_button\_animation@{start\_subtle\_button\_animation}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{start\_subtle\_button\_animation()}{start\_subtle\_button\_animation()}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_abb3b14cd5eb31a70450c0a404902e4e0} 
+esp\+\_\+err\+\_\+t start\+\_\+subtle\+\_\+button\+\_\+animation (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+id}{, }\item[{\mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08}{subtle\+\_\+anim\+\_\+type\+\_\+t}}}]{anim\+\_\+type}{}\end{DoxyParamCaption})}
+
+
+
+Spuštění jemné animace pro tlačítko. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+id} & ID tlačítka (0-\/8) \\
+\hline
+{\em anim\+\_\+type} & Typ jemné animace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK při úspěchu, error kód při selhání 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8c_source_l00465}{465}} v souboru \mbox{\hyperlink{game__led__animations_8c_source}{game\+\_\+led\+\_\+animations.\+c}}.
+
+\Hypertarget{game__led__animations_8h_ac3099afed7bffbea6eaba00603a015a9}\index{game\_led\_animations.h@{game\_led\_animations.h}!start\_subtle\_piece\_animation@{start\_subtle\_piece\_animation}}
+\index{start\_subtle\_piece\_animation@{start\_subtle\_piece\_animation}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{start\_subtle\_piece\_animation()}{start\_subtle\_piece\_animation()}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_ac3099afed7bffbea6eaba00603a015a9} 
+esp\+\_\+err\+\_\+t start\+\_\+subtle\+\_\+piece\+\_\+animation (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{piece\+\_\+position}{, }\item[{\mbox{\hyperlink{game__led__animations_8h_aaf8aea34899d30734001c2e6a651bc08}{subtle\+\_\+anim\+\_\+type\+\_\+t}}}]{anim\+\_\+type}{}\end{DoxyParamCaption})}
+
+
+
+Spuštění jemné animace pro figurku. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em piece\+\_\+position} & Pozice figurky (0-\/63) \\
+\hline
+{\em anim\+\_\+type} & Typ jemné animace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK při úspěchu, error kód při selhání 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8c_source_l00448}{448}} v souboru \mbox{\hyperlink{game__led__animations_8c_source}{game\+\_\+led\+\_\+animations.\+c}}.
+
+\Hypertarget{game__led__animations_8h_a7d2e178a6334fe293dd266e15b194ceb}\index{game\_led\_animations.h@{game\_led\_animations.h}!stop\_all\_subtle\_animations@{stop\_all\_subtle\_animations}}
+\index{stop\_all\_subtle\_animations@{stop\_all\_subtle\_animations}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{stop\_all\_subtle\_animations()}{stop\_all\_subtle\_animations()}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_a7d2e178a6334fe293dd266e15b194ceb} 
+esp\+\_\+err\+\_\+t stop\+\_\+all\+\_\+subtle\+\_\+animations (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zastavení všech jemných animací 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK při úspěchu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8c_source_l00720}{720}} v souboru \mbox{\hyperlink{game__led__animations_8c_source}{game\+\_\+led\+\_\+animations.\+c}}.
+
+\Hypertarget{game__led__animations_8h_ad8316144bc70b897342c47d341b52b5b}\index{game\_led\_animations.h@{game\_led\_animations.h}!stop\_endgame\_animation@{stop\_endgame\_animation}}
+\index{stop\_endgame\_animation@{stop\_endgame\_animation}!game\_led\_animations.h@{game\_led\_animations.h}}
+\doxysubsubsection{\texorpdfstring{stop\_endgame\_animation()}{stop\_endgame\_animation()}}
+{\footnotesize\ttfamily \label{game__led__animations_8h_ad8316144bc70b897342c47d341b52b5b} 
+esp\+\_\+err\+\_\+t stop\+\_\+endgame\+\_\+animation (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zastavení endgame animace. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK při úspěchu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__animations_8c_source_l00689}{689}} v souboru \mbox{\hyperlink{game__led__animations_8c_source}{game\+\_\+led\+\_\+animations.\+c}}.
+

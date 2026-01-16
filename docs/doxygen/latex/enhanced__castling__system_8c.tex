@@ -1,0 +1,586 @@
+\doxysection{Dokumentace souboru enhanced\+\_\+castling\+\_\+system.\+c}
+\hypertarget{enhanced__castling__system_8c}{}\label{enhanced__castling__system_8c}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+
+
+Implementace Enhanced Castling Systemu.  
+
+
+{\ttfamily \#include "{}enhanced\+\_\+castling\+\_\+system.\+h"{}}\newline
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+{\ttfamily \#include "{}game\+\_\+led\+\_\+animations.\+h"{}}\newline
+{\ttfamily \#include "{}led\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}led\+\_\+mapping.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+timer.\+h"{}}\newline
+{\ttfamily \#include "{}string.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro enhanced\+\_\+castling\+\_\+system.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{enhanced__castling__system_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{enhanced__castling__system_8c_a61f43ef55c76d2c5863819a96679f86d}{enhanced\+\_\+castling\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize enhanced castling system. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{enhanced__castling__system_8c_a68473225caaf82fb02dbe69dd2b0ac90}{enhanced\+\_\+castling\+\_\+start}} (\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}}, bool is\+\_\+kingside)
+\begin{DoxyCompactList}\small\item\em Start castling sequence. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{enhanced__castling__system_8c_a71c6334fe7eed0d589acfeb1cb6aeaaf}{enhanced\+\_\+castling\+\_\+handle\+\_\+king\+\_\+lift}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Handle king lift event. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{enhanced__castling__system_8c_ac1a783168547602db601cce5f25f5ef6}{enhanced\+\_\+castling\+\_\+handle\+\_\+king\+\_\+drop}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Handle king drop event. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{enhanced__castling__system_8c_a1298ed566772765b083158dd04d7617e}{enhanced\+\_\+castling\+\_\+handle\+\_\+rook\+\_\+lift}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Handle rook lift event. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{enhanced__castling__system_8c_ad0b372fd30752be5c2817d04115ad28d}{enhanced\+\_\+castling\+\_\+handle\+\_\+rook\+\_\+drop}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Handle rook drop event. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{enhanced__castling__system_8c_a84967829c955ce40cb552af8f336c88d}{enhanced\+\_\+castling\+\_\+cancel}} (void)
+\begin{DoxyCompactList}\small\item\em Cancel current castling sequence. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{enhanced__castling__system_8c_a551d56ee547e30c59358ecfbef86302b}{enhanced\+\_\+castling\+\_\+is\+\_\+active}} (void)
+\begin{DoxyCompactList}\small\item\em Check if castling is currently active. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\+\_\+phase\+\_\+t}} \mbox{\hyperlink{enhanced__castling__system_8c_a573e41c1cc049dbb2722bc68b25f174b}{enhanced\+\_\+castling\+\_\+get\+\_\+phase}} (void)
+\begin{DoxyCompactList}\small\item\em Get current castling phase. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_a2addf80390a5195a77495585144214c4}{enhanced\+\_\+castling\+\_\+update\+\_\+phase}} (\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\+\_\+phase\+\_\+t}} new\+\_\+phase)
+\begin{DoxyCompactList}\small\item\em Update castling phase with timeout handling. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}{enhanced\+\_\+castling\+\_\+handle\+\_\+error}} (\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\+\_\+error\+\_\+t}} error, uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Handle castling error. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_a7fea86462c2fa344578489036f7fb9eb}{castling\+\_\+calculate\+\_\+positions}} (\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}}, bool is\+\_\+kingside)
+\begin{DoxyCompactList}\small\item\em Calculate castling positions. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{enhanced__castling__system_8c_ae7bdbea7f5cfb9978bd0603bc5f4b4d0}{castling\+\_\+validate\+\_\+king\+\_\+move}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Validate king move for castling. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{enhanced__castling__system_8c_a1669c97b2e5dcb839542b59392dbacbd}{castling\+\_\+validate\+\_\+rook\+\_\+move}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Validate rook move for castling. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{enhanced__castling__system_8c_a104226173b83a62df2d44053ed147131}{castling\+\_\+validate\+\_\+sequence}} (void)
+\begin{DoxyCompactList}\small\item\em Validate castling sequence. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{enhanced__castling__system_8c_a3e4dc75c38e98d97cf35f984fa66b2ce}{castling\+\_\+is\+\_\+timeout\+\_\+expired}} (void)
+\begin{DoxyCompactList}\small\item\em Check if timeout has expired. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_af27a9e2af8a688e4ef4f6ea423ff5952}{castling\+\_\+reset\+\_\+system}} (void)
+\begin{DoxyCompactList}\small\item\em Reset castling system. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b}{castling\+\_\+log\+\_\+state\+\_\+change}} (const char \texorpdfstring{$\ast$}{*}action)
+\begin{DoxyCompactList}\small\item\em Log state change. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_aef98d7b498beb12daa3096022ec887e7}{castling\+\_\+show\+\_\+king\+\_\+guidance}} (void)
+\begin{DoxyCompactList}\small\item\em Show king guidance for castling. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_ad5dc5a20cfdaf9d84030f5072778aff1}{castling\+\_\+show\+\_\+rook\+\_\+guidance}} (void)
+\begin{DoxyCompactList}\small\item\em Show rook guidance for castling. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_af9ae62a763763e34333532307fe30289}{castling\+\_\+show\+\_\+error\+\_\+indication}} (\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\+\_\+error\+\_\+t}} error)
+\begin{DoxyCompactList}\small\item\em Show error indication. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_a6ccaa8b8a98da9de19017ad2fc611628}{castling\+\_\+show\+\_\+completion\+\_\+celebration}} (void)
+\begin{DoxyCompactList}\small\item\em Show completion celebration. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_ae909113298c4be97e6a36572d3efeb4f}{castling\+\_\+clear\+\_\+all\+\_\+indications}} (void)
+\begin{DoxyCompactList}\small\item\em Clear all castling indications. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_afe8c7b5de0f3719166f89e975059247c}{castling\+\_\+recover\+\_\+king\+\_\+wrong\+\_\+position}} (void)
+\begin{DoxyCompactList}\small\item\em Recover from king wrong position error. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_a61e387e4475acd4a6c9db96fc1333e1f}{castling\+\_\+recover\+\_\+rook\+\_\+wrong\+\_\+position}} (void)
+\begin{DoxyCompactList}\small\item\em Recover from rook wrong position error. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_ae58c1122476af928bccd44407c0e5822}{castling\+\_\+recover\+\_\+timeout\+\_\+error}} (void)
+\begin{DoxyCompactList}\small\item\em Recover from timeout error. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_a12f1ed6212174d4f9532880ea94601a3}{castling\+\_\+show\+\_\+correct\+\_\+positions}} (void)
+\begin{DoxyCompactList}\small\item\em Show correct positions for castling. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{enhanced__castling__system_8c_a4733364aef5fb97b725594cada6e7679}{castling\+\_\+show\+\_\+tutorial}} (void)
+\begin{DoxyCompactList}\small\item\em Show castling tutorial. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{enhanced__castling__system_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}} = "{}ENHANCED\+\_\+\+CASTLING"{}
+\item 
+\mbox{\hyperlink{structenhanced__castling__system__t}{enhanced\+\_\+castling\+\_\+system\+\_\+t}} \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\+\_\+system}} = \{0\}
+\begin{DoxyCompactList}\small\item\em Globalni instance castling systemu. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structcastling__led__config__t}{castling\+\_\+led\+\_\+config\+\_\+t}} \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\+\_\+led\+\_\+config}}
+\begin{DoxyCompactList}\small\item\em LED konfigurace pro rosadu. \end{DoxyCompactList}\item 
+static const \mbox{\hyperlink{structcastling__error__info__t}{castling\+\_\+error\+\_\+info\+\_\+t}} \mbox{\hyperlink{enhanced__castling__system_8c_a5a197b52b2c4d4ef9749cf548d08f361}{error\+\_\+info}} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Implementace Enhanced Castling Systemu. 
+
+Tento modul implementuje komplexni system pro rochadu s\+:
+\begin{DoxyItemize}
+\item Centralizovanou spravou stavu
+\item Pokrocilym LED navodem a indikaci chyb
+\item Inteligentnim error recovery
+\item Timeout handling
+\item Vizualnim navodem pro hrace
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+ESP32 Chess Team 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Datum}
+2024
+\end{DoxyDate}
+Enhanced Castling System je pokrocily system pro spravu rochady v sachovem systemu. Poskytuje vizualni navod pro hrace a pomaha s provedenim rochady podle pravidel. 
+
+Definice v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{enhanced__castling__system_8c_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{enhanced__castling__system_8c_a7fea86462c2fa344578489036f7fb9eb}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_calculate\_positions@{castling\_calculate\_positions}}
+\index{castling\_calculate\_positions@{castling\_calculate\_positions}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_calculate\_positions()}{castling\_calculate\_positions()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a7fea86462c2fa344578489036f7fb9eb} 
+void castling\+\_\+calculate\+\_\+positions (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{player}{, }\item[{bool}]{is\+\_\+kingside}{}\end{DoxyParamCaption})}
+
+
+
+Calculate castling positions. 
+
+Vypocitej pozice pro rosadu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00416}{416}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_ae909113298c4be97e6a36572d3efeb4f}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_clear\_all\_indications@{castling\_clear\_all\_indications}}
+\index{castling\_clear\_all\_indications@{castling\_clear\_all\_indications}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_clear\_all\_indications()}{castling\_clear\_all\_indications()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_ae909113298c4be97e6a36572d3efeb4f} 
+void castling\+\_\+clear\+\_\+all\+\_\+indications (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Clear all castling indications. 
+
+Vymaz vsechny indikace rosady. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00673}{673}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a3e4dc75c38e98d97cf35f984fa66b2ce}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_is\_timeout\_expired@{castling\_is\_timeout\_expired}}
+\index{castling\_is\_timeout\_expired@{castling\_is\_timeout\_expired}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_is\_timeout\_expired()}{castling\_is\_timeout\_expired()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a3e4dc75c38e98d97cf35f984fa66b2ce} 
+bool castling\+\_\+is\+\_\+timeout\+\_\+expired (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Check if timeout has expired. 
+
+Overi zda vyprsel timeout. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00484}{484}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_log\_state\_change@{castling\_log\_state\_change}}
+\index{castling\_log\_state\_change@{castling\_log\_state\_change}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_log\_state\_change()}{castling\_log\_state\_change()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_aee86001fa49a0428f9241c1e7427069b} 
+void castling\+\_\+log\+\_\+state\+\_\+change (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{action}{}\end{DoxyParamCaption})}
+
+
+
+Log state change. 
+
+Zaloguj zmenu stavu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00509}{509}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_afe8c7b5de0f3719166f89e975059247c}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_recover\_king\_wrong\_position@{castling\_recover\_king\_wrong\_position}}
+\index{castling\_recover\_king\_wrong\_position@{castling\_recover\_king\_wrong\_position}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_recover\_king\_wrong\_position()}{castling\_recover\_king\_wrong\_position()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_afe8c7b5de0f3719166f89e975059247c} 
+void castling\+\_\+recover\+\_\+king\+\_\+wrong\+\_\+position (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Recover from king wrong position error. 
+
+Obnova z chyby nespravne pozice krale. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00704}{704}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a61e387e4475acd4a6c9db96fc1333e1f}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_recover\_rook\_wrong\_position@{castling\_recover\_rook\_wrong\_position}}
+\index{castling\_recover\_rook\_wrong\_position@{castling\_recover\_rook\_wrong\_position}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_recover\_rook\_wrong\_position()}{castling\_recover\_rook\_wrong\_position()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a61e387e4475acd4a6c9db96fc1333e1f} 
+void castling\+\_\+recover\+\_\+rook\+\_\+wrong\+\_\+position (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Recover from rook wrong position error. 
+
+Obnova z chyby nespravne pozice veze. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00720}{720}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_ae58c1122476af928bccd44407c0e5822}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_recover\_timeout\_error@{castling\_recover\_timeout\_error}}
+\index{castling\_recover\_timeout\_error@{castling\_recover\_timeout\_error}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_recover\_timeout\_error()}{castling\_recover\_timeout\_error()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_ae58c1122476af928bccd44407c0e5822} 
+void castling\+\_\+recover\+\_\+timeout\+\_\+error (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Recover from timeout error. 
+
+Obnova z chyby timeoutu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00736}{736}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_af27a9e2af8a688e4ef4f6ea423ff5952}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_reset\_system@{castling\_reset\_system}}
+\index{castling\_reset\_system@{castling\_reset\_system}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_reset\_system()}{castling\_reset\_system()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_af27a9e2af8a688e4ef4f6ea423ff5952} 
+void castling\+\_\+reset\+\_\+system (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Reset castling system. 
+
+Resetuj castling system. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00499}{499}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a6ccaa8b8a98da9de19017ad2fc611628}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_show\_completion\_celebration@{castling\_show\_completion\_celebration}}
+\index{castling\_show\_completion\_celebration@{castling\_show\_completion\_celebration}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_show\_completion\_celebration()}{castling\_show\_completion\_celebration()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a6ccaa8b8a98da9de19017ad2fc611628} 
+void castling\+\_\+show\+\_\+completion\+\_\+celebration (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Show completion celebration. 
+
+Zobraz oslavu dokonceni rosady. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00625}{625}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a12f1ed6212174d4f9532880ea94601a3}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_show\_correct\_positions@{castling\_show\_correct\_positions}}
+\index{castling\_show\_correct\_positions@{castling\_show\_correct\_positions}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_show\_correct\_positions()}{castling\_show\_correct\_positions()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a12f1ed6212174d4f9532880ea94601a3} 
+void castling\+\_\+show\+\_\+correct\+\_\+positions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Show correct positions for castling. 
+
+Zobraz spravne pozice pro rosadu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00751}{751}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_af9ae62a763763e34333532307fe30289}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_show\_error\_indication@{castling\_show\_error\_indication}}
+\index{castling\_show\_error\_indication@{castling\_show\_error\_indication}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_show\_error\_indication()}{castling\_show\_error\_indication()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_af9ae62a763763e34333532307fe30289} 
+void castling\+\_\+show\+\_\+error\+\_\+indication (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\+\_\+error\+\_\+t}}}]{error}{}\end{DoxyParamCaption})}
+
+
+
+Show error indication. 
+
+Zobraz chybovou indikaci. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00584}{584}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_aef98d7b498beb12daa3096022ec887e7}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_show\_king\_guidance@{castling\_show\_king\_guidance}}
+\index{castling\_show\_king\_guidance@{castling\_show\_king\_guidance}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_show\_king\_guidance()}{castling\_show\_king\_guidance()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_aef98d7b498beb12daa3096022ec887e7} 
+void castling\+\_\+show\+\_\+king\+\_\+guidance (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Show king guidance for castling. 
+
+Zobraz LED navod pro krale. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00520}{520}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_ad5dc5a20cfdaf9d84030f5072778aff1}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_show\_rook\_guidance@{castling\_show\_rook\_guidance}}
+\index{castling\_show\_rook\_guidance@{castling\_show\_rook\_guidance}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_show\_rook\_guidance()}{castling\_show\_rook\_guidance()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_ad5dc5a20cfdaf9d84030f5072778aff1} 
+void castling\+\_\+show\+\_\+rook\+\_\+guidance (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Show rook guidance for castling. 
+
+Zobraz LED navod pro vez. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00552}{552}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a4733364aef5fb97b725594cada6e7679}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_show\_tutorial@{castling\_show\_tutorial}}
+\index{castling\_show\_tutorial@{castling\_show\_tutorial}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_show\_tutorial()}{castling\_show\_tutorial()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a4733364aef5fb97b725594cada6e7679} 
+void castling\+\_\+show\+\_\+tutorial (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Show castling tutorial. 
+
+Zobraz tutorial rosady. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00767}{767}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_ae7bdbea7f5cfb9978bd0603bc5f4b4d0}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_validate\_king\_move@{castling\_validate\_king\_move}}
+\index{castling\_validate\_king\_move@{castling\_validate\_king\_move}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_validate\_king\_move()}{castling\_validate\_king\_move()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_ae7bdbea7f5cfb9978bd0603bc5f4b4d0} 
+bool castling\+\_\+validate\+\_\+king\+\_\+move (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Validate king move for castling. 
+
+Validuj tah krale pro rosadu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00450}{450}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a1669c97b2e5dcb839542b59392dbacbd}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_validate\_rook\_move@{castling\_validate\_rook\_move}}
+\index{castling\_validate\_rook\_move@{castling\_validate\_rook\_move}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_validate\_rook\_move()}{castling\_validate\_rook\_move()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a1669c97b2e5dcb839542b59392dbacbd} 
+bool castling\+\_\+validate\+\_\+rook\+\_\+move (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Validate rook move for castling. 
+
+Validuj tah veze pro rosadu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00462}{462}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a104226173b83a62df2d44053ed147131}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_validate\_sequence@{castling\_validate\_sequence}}
+\index{castling\_validate\_sequence@{castling\_validate\_sequence}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_validate\_sequence()}{castling\_validate\_sequence()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a104226173b83a62df2d44053ed147131} 
+bool castling\+\_\+validate\+\_\+sequence (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Validate castling sequence. 
+
+Validuj sekvenci rosady. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00474}{474}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a84967829c955ce40cb552af8f336c88d}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_cancel@{enhanced\_castling\_cancel}}
+\index{enhanced\_castling\_cancel@{enhanced\_castling\_cancel}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_cancel()}{enhanced\_castling\_cancel()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a84967829c955ce40cb552af8f336c88d} 
+esp\+\_\+err\+\_\+t enhanced\+\_\+castling\+\_\+cancel (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Cancel current castling sequence. 
+
+Zrus aktualni sekvenci rosady. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00319}{319}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a573e41c1cc049dbb2722bc68b25f174b}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_get\_phase@{enhanced\_castling\_get\_phase}}
+\index{enhanced\_castling\_get\_phase@{enhanced\_castling\_get\_phase}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_get\_phase()}{enhanced\_castling\_get\_phase()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a573e41c1cc049dbb2722bc68b25f174b} 
+\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\+\_\+phase\+\_\+t}} enhanced\+\_\+castling\+\_\+get\+\_\+phase (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Get current castling phase. 
+
+Ziskej aktualni fazi rosady. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00353}{353}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_handle\_error@{enhanced\_castling\_handle\_error}}
+\index{enhanced\_castling\_handle\_error@{enhanced\_castling\_handle\_error}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_handle\_error()}{enhanced\_castling\_handle\_error()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a0996145f3c92961e6d97861fb01e0fff} 
+void enhanced\+\_\+castling\+\_\+handle\+\_\+error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\+\_\+error\+\_\+t}}}]{error}{, }\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Handle castling error. 
+
+Zpracuj chybu rosady. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00389}{389}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_ac1a783168547602db601cce5f25f5ef6}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_handle\_king\_drop@{enhanced\_castling\_handle\_king\_drop}}
+\index{enhanced\_castling\_handle\_king\_drop@{enhanced\_castling\_handle\_king\_drop}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_handle\_king\_drop()}{enhanced\_castling\_handle\_king\_drop()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_ac1a783168547602db601cce5f25f5ef6} 
+esp\+\_\+err\+\_\+t enhanced\+\_\+castling\+\_\+handle\+\_\+king\+\_\+drop (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Handle king drop event. 
+
+Zpracuj udalost polozeni krale. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00198}{198}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a71c6334fe7eed0d589acfeb1cb6aeaaf}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_handle\_king\_lift@{enhanced\_castling\_handle\_king\_lift}}
+\index{enhanced\_castling\_handle\_king\_lift@{enhanced\_castling\_handle\_king\_lift}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_handle\_king\_lift()}{enhanced\_castling\_handle\_king\_lift()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a71c6334fe7eed0d589acfeb1cb6aeaaf} 
+esp\+\_\+err\+\_\+t enhanced\+\_\+castling\+\_\+handle\+\_\+king\+\_\+lift (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Handle king lift event. 
+
+Zpracuj udalost zvednutí krale. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00167}{167}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_ad0b372fd30752be5c2817d04115ad28d}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_handle\_rook\_drop@{enhanced\_castling\_handle\_rook\_drop}}
+\index{enhanced\_castling\_handle\_rook\_drop@{enhanced\_castling\_handle\_rook\_drop}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_handle\_rook\_drop()}{enhanced\_castling\_handle\_rook\_drop()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_ad0b372fd30752be5c2817d04115ad28d} 
+esp\+\_\+err\+\_\+t enhanced\+\_\+castling\+\_\+handle\+\_\+rook\+\_\+drop (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Handle rook drop event. 
+
+Zpracuj udalost polozeni veze. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00270}{270}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a1298ed566772765b083158dd04d7617e}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_handle\_rook\_lift@{enhanced\_castling\_handle\_rook\_lift}}
+\index{enhanced\_castling\_handle\_rook\_lift@{enhanced\_castling\_handle\_rook\_lift}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_handle\_rook\_lift()}{enhanced\_castling\_handle\_rook\_lift()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a1298ed566772765b083158dd04d7617e} 
+esp\+\_\+err\+\_\+t enhanced\+\_\+castling\+\_\+handle\+\_\+rook\+\_\+lift (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Handle rook lift event. 
+
+Zpracuj udalost zvednutí veze. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00236}{236}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a61f43ef55c76d2c5863819a96679f86d}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_init@{enhanced\_castling\_init}}
+\index{enhanced\_castling\_init@{enhanced\_castling\_init}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_init()}{enhanced\_castling\_init()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a61f43ef55c76d2c5863819a96679f86d} 
+esp\+\_\+err\+\_\+t enhanced\+\_\+castling\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize enhanced castling system. 
+
+Inicializuj enhanced castling system. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00116}{116}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a551d56ee547e30c59358ecfbef86302b}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_is\_active@{enhanced\_castling\_is\_active}}
+\index{enhanced\_castling\_is\_active@{enhanced\_castling\_is\_active}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_is\_active()}{enhanced\_castling\_is\_active()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a551d56ee547e30c59358ecfbef86302b} 
+bool enhanced\+\_\+castling\+\_\+is\+\_\+active (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Check if castling is currently active. 
+
+Overi zda je rosada aktualne aktivni. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00345}{345}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a68473225caaf82fb02dbe69dd2b0ac90}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_start@{enhanced\_castling\_start}}
+\index{enhanced\_castling\_start@{enhanced\_castling\_start}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_start()}{enhanced\_castling\_start()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a68473225caaf82fb02dbe69dd2b0ac90} 
+esp\+\_\+err\+\_\+t enhanced\+\_\+castling\+\_\+start (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{player}{, }\item[{bool}]{is\+\_\+kingside}{}\end{DoxyParamCaption})}
+
+
+
+Start castling sequence. 
+
+Spust sekvenci rosady. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00134}{134}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a2addf80390a5195a77495585144214c4}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!enhanced\_castling\_update\_phase@{enhanced\_castling\_update\_phase}}
+\index{enhanced\_castling\_update\_phase@{enhanced\_castling\_update\_phase}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{enhanced\_castling\_update\_phase()}{enhanced\_castling\_update\_phase()}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a2addf80390a5195a77495585144214c4} 
+void enhanced\+\_\+castling\+\_\+update\+\_\+phase (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\+\_\+phase\+\_\+t}}}]{new\+\_\+phase}{}\end{DoxyParamCaption})}
+
+
+
+Update castling phase with timeout handling. 
+
+Aktualizuj fazi rosady s timeout handlingem. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00361}{361}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{enhanced__castling__system_8c_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_led\_config@{castling\_led\_config}}
+\index{castling\_led\_config@{castling\_led\_config}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_led\_config}{castling\_led\_config}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84} 
+\mbox{\hyperlink{structcastling__led__config__t}{castling\+\_\+led\+\_\+config\+\_\+t}} castling\+\_\+led\+\_\+config}
+
+{\bfseries Inicializační hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ .colors\ =\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .king\_highlight\ =\ \{.r\ =\ 255,\ .g\ =\ 215,\ .b\ =\ 0\},\ \ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .king\_destination\ =\ \{.r\ =\ 0,\ .g\ =\ 255,\ .b\ =\ 0\},\ \ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .rook\_highlight\ =\ \{.r\ =\ 192,\ .g\ =\ 192,\ .b\ =\ 192\},\ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .rook\_destination\ =\ \{.r\ =\ 0,\ .g\ =\ 0,\ .b\ =\ 255\},\ \ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .error\_indication\ =\ \{.r\ =\ 255,\ .g\ =\ 0,\ .b\ =\ 0\},\ \ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .path\_guidance\ =\ \{.r\ =\ 255,\ .g\ =\ 255,\ .b\ =\ 0\}\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \},}
+\DoxyCodeLine{\ \ \ \ .timing\ =\ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .pulsing\_speed\ =\ 500,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .guidance\_speed\ =\ 300,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .error\_flash\_count\ =\ 3,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ .completion\_celebration\_duration\ =\ 2000\ }
+\DoxyCodeLine{\ \ \ \ \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+LED konfigurace pro rosadu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00036}{36}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!castling\_system@{castling\_system}}
+\index{castling\_system@{castling\_system}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{castling\_system}{castling\_system}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638} 
+\mbox{\hyperlink{structenhanced__castling__system__t}{enhanced\+\_\+castling\+\_\+system\+\_\+t}} castling\+\_\+system = \{0\}}
+
+
+
+Globalni instance castling systemu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00033}{33}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a5a197b52b2c4d4ef9749cf548d08f361}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!error\_info@{error\_info}}
+\index{error\_info@{error\_info}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{error\_info}{error\_info}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a5a197b52b2c4d4ef9749cf548d08f361} 
+const \mbox{\hyperlink{structcastling__error__info__t}{castling\+\_\+error\+\_\+info\+\_\+t}} error\+\_\+info\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00054}{54}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+
+\Hypertarget{enhanced__castling__system_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{enhanced\_castling\_system.c@{enhanced\_castling\_system.c}!TAG@{TAG}}
+\index{TAG@{TAG}!enhanced\_castling\_system.c@{enhanced\_castling\_system.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{enhanced__castling__system_8c_a5a85b9c772bbeb480b209a3e6ea92b4c} 
+const char\texorpdfstring{$\ast$}{*} TAG = "{}ENHANCED\+\_\+\+CASTLING"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8c_source_l00030}{30}} v souboru \mbox{\hyperlink{enhanced__castling__system_8c_source}{enhanced\+\_\+castling\+\_\+system.\+c}}.
+

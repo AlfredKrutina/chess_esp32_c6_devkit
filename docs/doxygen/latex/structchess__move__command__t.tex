@@ -1,0 +1,235 @@
+\doxysection{Dokumentace struktury chess\+\_\+move\+\_\+command\+\_\+t}
+\hypertarget{structchess__move__command__t}{}\label{structchess__move__command__t}\index{chess\_move\_command\_t@{chess\_move\_command\_t}}
+
+
+Struktura prikazu pro sachovy tah pres UART.  
+
+
+
+
+{\ttfamily \#include $<$chess\+\_\+types.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structchess__move__command__t_a87f810beeb0b0322d2b99c87d5a7c91c}{type}}
+\begin{DoxyCompactList}\small\item\em Typ prikazu (\doxylink{chess__types_8h_ade7744437207164be6ca650b128bd9e4}{game\+\_\+command\+\_\+type\+\_\+t}). \end{DoxyCompactList}\item 
+char \mbox{\hyperlink{structchess__move__command__t_a51b8eb6617ef0642c722008827f2d3d1}{from\+\_\+notation}} \mbox{[}8\mbox{]}
+\begin{DoxyCompactList}\small\item\em Zdrojova notace (napr. "{}e2"{}) -\/ zvetseno z 4 na 8 pro bezpecnost. \end{DoxyCompactList}\item 
+char \mbox{\hyperlink{structchess__move__command__t_a3396c5f2d92b68852cb9fcf6e79500fc}{to\+\_\+notation}} \mbox{[}8\mbox{]}
+\begin{DoxyCompactList}\small\item\em Cilova notace (napr. "{}e4"{}) -\/ zvetseno z 4 na 8 pro bezpecnost. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structchess__move__command__t_a431384d6ef7f4db67d9a0946a7211ef1}{player}}
+\begin{DoxyCompactList}\small\item\em Hrac provadejici prikaz (PLAYER\+\_\+\+WHITE nebo PLAYER\+\_\+\+BLACK). \end{DoxyCompactList}\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{structchess__move__command__t_a750e92bc6c9a40c005e3e48947dd10b5}{response\+\_\+queue}}
+\begin{DoxyCompactList}\small\item\em Fronta pro poslani odpovedi. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structchess__move__command__t_ae6e4449e8345fed34c9c685eba9f1363}{promotion\+\_\+choice}}
+\begin{DoxyCompactList}\small\item\em Volba promoci (pro promotion prikazy). \end{DoxyCompactList}\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+union \{\\
+\>struct \{\\
+\>\>uint8\_t \mbox{\hyperlink{structchess__move__command__t_a19b5d713be6ea325b1121180f0382263}{time\_control\_type}}\\
+\>\>\>{\em Typ casove kontroly (pro GAME\_CMD\_SET\_TIME\_CONTROL). }\\
+\>\>uint32\_t \mbox{\hyperlink{structchess__move__command__t_ab1469d3613ac521e6521da4c7fabad75}{custom\_minutes}}\\
+\>\>\>{\em Vlastni minuty (pro vlastni casovou kontrolu). }\\
+\>\>uint32\_t \mbox{\hyperlink{structchess__move__command__t_aa66efcd3b24e2c130ede000aca79466d}{custom\_increment}}\\
+\>\>\>{\em Vlastni increment (pro vlastni casovou kontrolu). }\\
+\>\} \mbox{\hyperlink{structchess__move__command__t_ae05888f64383039d1414ffa36ae22aa9}{timer\_config}}\\
+\>\>\>{\em Konfigurace timeru. }\\
+\>struct \{\\
+\>\>bool \mbox{\hyperlink{structchess__move__command__t_a7ee2cb22f123d144e42a6a0a6eb6d05a}{is\_white\_turn}}\\
+\>\>\>{\em Je na tahu bily? (pro timer operace). }\\
+\>\} \mbox{\hyperlink{structchess__move__command__t_af494be6080aeefa370736fedfe0eb0c5}{timer\_state}}\\
+\>\>\>{\em Stav timeru. }\\
+\} \mbox{\hyperlink{structchess__move__command__t_a2e078f65d1fab8a9ebd51547cd733fd9}{timer\_data}}\\
+
+\end{tabbing}\begin{DoxyCompactList}\small\item\em Union pro timer data. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Struktura prikazu pro sachovy tah pres UART. 
+
+Tato struktura se pouziva pro poslani prikazu game tasku pres frontu. Obsahuje vsechny potrebne informace pro provedeni tahu a zpracovani odpovedi. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00296}{296}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structchess__move__command__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structchess__move__command__t_aa66efcd3b24e2c130ede000aca79466d}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!custom\_increment@{custom\_increment}}
+\index{custom\_increment@{custom\_increment}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{custom\_increment}{custom\_increment}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_aa66efcd3b24e2c130ede000aca79466d} 
+uint32\+\_\+t chess\+\_\+move\+\_\+command\+\_\+t\+::custom\+\_\+increment}
+
+
+
+Vlastni increment (pro vlastni casovou kontrolu). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00309}{309}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__command__t_ab1469d3613ac521e6521da4c7fabad75}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!custom\_minutes@{custom\_minutes}}
+\index{custom\_minutes@{custom\_minutes}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{custom\_minutes}{custom\_minutes}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_ab1469d3613ac521e6521da4c7fabad75} 
+uint32\+\_\+t chess\+\_\+move\+\_\+command\+\_\+t\+::custom\+\_\+minutes}
+
+
+
+Vlastni minuty (pro vlastni casovou kontrolu). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00308}{308}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__command__t_a51b8eb6617ef0642c722008827f2d3d1}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!from\_notation@{from\_notation}}
+\index{from\_notation@{from\_notation}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{from\_notation}{from\_notation}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_a51b8eb6617ef0642c722008827f2d3d1} 
+char chess\+\_\+move\+\_\+command\+\_\+t\+::from\+\_\+notation\mbox{[}8\mbox{]}}
+
+
+
+Zdrojova notace (napr. "{}e2"{}) -\/ zvetseno z 4 na 8 pro bezpecnost. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00298}{298}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__command__t_a7ee2cb22f123d144e42a6a0a6eb6d05a}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!is\_white\_turn@{is\_white\_turn}}
+\index{is\_white\_turn@{is\_white\_turn}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{is\_white\_turn}{is\_white\_turn}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_a7ee2cb22f123d144e42a6a0a6eb6d05a} 
+bool chess\+\_\+move\+\_\+command\+\_\+t\+::is\+\_\+white\+\_\+turn}
+
+
+
+Je na tahu bily? (pro timer operace). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00312}{312}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__command__t_a431384d6ef7f4db67d9a0946a7211ef1}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!player@{player}}
+\index{player@{player}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{player}{player}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_a431384d6ef7f4db67d9a0946a7211ef1} 
+uint8\+\_\+t chess\+\_\+move\+\_\+command\+\_\+t\+::player}
+
+
+
+Hrac provadejici prikaz (PLAYER\+\_\+\+WHITE nebo PLAYER\+\_\+\+BLACK). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00300}{300}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__command__t_ae6e4449e8345fed34c9c685eba9f1363}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!promotion\_choice@{promotion\_choice}}
+\index{promotion\_choice@{promotion\_choice}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{promotion\_choice}{promotion\_choice}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_ae6e4449e8345fed34c9c685eba9f1363} 
+uint8\+\_\+t chess\+\_\+move\+\_\+command\+\_\+t\+::promotion\+\_\+choice}
+
+
+
+Volba promoci (pro promotion prikazy). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00302}{302}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__command__t_a750e92bc6c9a40c005e3e48947dd10b5}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!response\_queue@{response\_queue}}
+\index{response\_queue@{response\_queue}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{response\_queue}{response\_queue}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_a750e92bc6c9a40c005e3e48947dd10b5} 
+Queue\+Handle\+\_\+t chess\+\_\+move\+\_\+command\+\_\+t\+::response\+\_\+queue}
+
+
+
+Fronta pro poslani odpovedi. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00301}{301}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__command__t_a19b5d713be6ea325b1121180f0382263}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!time\_control\_type@{time\_control\_type}}
+\index{time\_control\_type@{time\_control\_type}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{time\_control\_type}{time\_control\_type}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_a19b5d713be6ea325b1121180f0382263} 
+uint8\+\_\+t chess\+\_\+move\+\_\+command\+\_\+t\+::time\+\_\+control\+\_\+type}
+
+
+
+Typ casove kontroly (pro GAME\+\_\+\+CMD\+\_\+\+SET\+\_\+\+TIME\+\_\+\+CONTROL). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00307}{307}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__command__t_ae05888f64383039d1414ffa36ae22aa9}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!timer\_config@{timer\_config}}
+\index{timer\_config@{timer\_config}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{[struct]}{[struct]}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_ae05888f64383039d1414ffa36ae22aa9} 
+struct  \{ ... \}  chess\+\_\+move\+\_\+command\+\_\+t\+::timer\+\_\+config}
+
+
+
+Konfigurace timeru. 
+
+\Hypertarget{structchess__move__command__t_a2e078f65d1fab8a9ebd51547cd733fd9}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!timer\_data@{timer\_data}}
+\index{timer\_data@{timer\_data}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{[union]}{[union]}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_a2e078f65d1fab8a9ebd51547cd733fd9} 
+union  \{ ... \}  chess\+\_\+move\+\_\+command\+\_\+t\+::timer\+\_\+data}
+
+
+
+Union pro timer data. 
+
+\Hypertarget{structchess__move__command__t_af494be6080aeefa370736fedfe0eb0c5}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!timer\_state@{timer\_state}}
+\index{timer\_state@{timer\_state}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{[struct]}{[struct]}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_af494be6080aeefa370736fedfe0eb0c5} 
+struct  \{ ... \}  chess\+\_\+move\+\_\+command\+\_\+t\+::timer\+\_\+state}
+
+
+
+Stav timeru. 
+
+\Hypertarget{structchess__move__command__t_a3396c5f2d92b68852cb9fcf6e79500fc}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!to\_notation@{to\_notation}}
+\index{to\_notation@{to\_notation}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{to\_notation}{to\_notation}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_a3396c5f2d92b68852cb9fcf6e79500fc} 
+char chess\+\_\+move\+\_\+command\+\_\+t\+::to\+\_\+notation\mbox{[}8\mbox{]}}
+
+
+
+Cilova notace (napr. "{}e4"{}) -\/ zvetseno z 4 na 8 pro bezpecnost. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00299}{299}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structchess__move__command__t_a87f810beeb0b0322d2b99c87d5a7c91c}\index{chess\_move\_command\_t@{chess\_move\_command\_t}!type@{type}}
+\index{type@{type}!chess\_move\_command\_t@{chess\_move\_command\_t}}
+\doxysubsubsection{\texorpdfstring{type}{type}}
+{\footnotesize\ttfamily \label{structchess__move__command__t_a87f810beeb0b0322d2b99c87d5a7c91c} 
+uint8\+\_\+t chess\+\_\+move\+\_\+command\+\_\+t\+::type}
+
+
+
+Typ prikazu (\doxylink{chess__types_8h_ade7744437207164be6ca650b128bd9e4}{game\+\_\+command\+\_\+type\+\_\+t}). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00297}{297}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{chess__types_8h}{chess\+\_\+types.\+h}}\end{DoxyCompactItemize}

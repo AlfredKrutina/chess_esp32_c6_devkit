@@ -24,9 +24,9 @@
  *    - Nacteni firmware z flash
  *    - Skok na app_main()
  *
- * 2. app_main() - NASA FUNKCE:
+ * 2. app_main() - HLAVNI FUNKCE:
  *    a) NVS init (Non-Volatile Storage pro WiFi config)
- *    b) Vytvor fronty:
+ *    b) Vytvoreni front:
  *       - game_command_queue (20 zprav)
  *       - button_event_queue (5 zprav)
  *       - LED se ovladaji primymi volanimi (fronta byla odstranena)
@@ -70,7 +70,7 @@
  * - Obsah: BUTTON_PRESSED, BUTTON_RELEASED
  *
  * =============================================================================
- * TASK PRIORITY (DULEZITE!)
+ * TASK PRIORITY 
  * =============================================================================
  *
  * ESP32 ma 25 priorit (0 = nejnizsi, 24 = nejvyssi):
@@ -111,13 +111,13 @@
  *    Fronty MUSI existovat PRED spustenim tasku
  *
  * 2. NIKDY nespust task bez queue!
- *    ❌ xTaskCreate(game_task, ...) PRED game_command_queue = xQueueCreate(...)
+ *    xTaskCreate(game_task, ...) PRED game_command_queue = xQueueCreate(...)
  *    Task by mel NULL pointer -> crash
  *
  * 3. NIKDY nemen priority nahodne!
  *    led_task ma nejvyssi prioritu (7) pro kriticky LED timing
  *
- * 4. VZDY kontroluj navratove hodnoty!
+ * 4. VZDY kontroluj navratove hodnoty.
  *    xTaskCreate vraci pdPASS pokud uspesne
  *    xQueueCreate vraci handle nebo NULL
  *
@@ -178,7 +178,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include "matter_task.h"  // DISABLED - Matter not needed
+// #include "matter_task.h"  // DISABLED - Matter neni podporovan touhle verzi FW
 #include "config_manager.h"
 #include "game_led_animations.h"
 #include "uart_commands_extended.h"
@@ -475,7 +475,7 @@ void initialize_chess_game(void) {
     ESP_LOGE(TAG, "❌ Game command queue not available");
   }
 
-  // ✅ CRITICAL FIX: Update button LED availability after game starts
+  //Update button LED availability after game starts
   extern void led_update_button_availability_from_game(void);
   led_update_button_availability_from_game();
 
@@ -567,7 +567,7 @@ void execute_demo_move(void) {
            DEMO_GAME_NAMES[current_demo_game], demo_move_index + 1,
            demo_moves_count, move);
 
-  // ✅ NEW: Use PICKUP/DROP commands for realistic demo (like up/dn)
+  // Use PICKUP/DROP commands for realistic demo (like up/dn)
   if (strlen(move) == 4 && game_command_queue != NULL) {
     chess_move_command_t cmd = {0};
 
@@ -577,7 +577,7 @@ void execute_demo_move(void) {
 
     ESP_LOGI(TAG, "  ⬆️  Lifting piece from %c%c...", move[0], move[1]);
 
-    // ✅ Set response queue for feedback
+    // Set response queue for feedback
     cmd.response_queue = uart_response_queue;
 
     if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
@@ -585,7 +585,7 @@ void execute_demo_move(void) {
       return;
     }
 
-    // ⏳ Longer delay for Pickup animation
+    // Longer delay for Pickup animation
     vTaskDelay(pdMS_TO_TICKS(1500)); // 1.5 seconds
 
     // Step 2: DROP command (place piece on destination square)
@@ -594,7 +594,7 @@ void execute_demo_move(void) {
 
     ESP_LOGI(TAG, "  ⬇️  Placing piece on %c%c...", move[2], move[3]);
 
-    // ✅ Set response queue for feedback
+    // Set response queue for feedback
     cmd.response_queue = uart_response_queue;
 
     if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
@@ -602,7 +602,7 @@ void execute_demo_move(void) {
       return;
     }
 
-    // ⏳ Wait for DROP animation
+    //  Wait for DROP animation
     vTaskDelay(pdMS_TO_TICKS(800)); // 0.8 seconds
 
     // Step 3: CASTLING Handling
@@ -853,29 +853,6 @@ esp_err_t create_system_tasks(void) {
            "✓ Animation task created successfully (%dKB stack) - will "
            "self-register with TWDT",
            ANIMATION_TASK_STACK_SIZE / 1024);
-
-  // Create Screen Saver task - DISABLED to prevent LED conflicts
-  // result = xTaskCreate(
-  //     (TaskFunction_t)screen_saver_task_start, "screen_saver_task",
-  //     SCREEN_SAVER_TASK_STACK_SIZE, NULL, SCREEN_SAVER_TASK_PRIORITY,
-  //     &screen_saver_task_handle
-  // );
-
-  // if (result != pdPASS) {
-  //     ESP_LOGE(TAG, "Failed to create Screen Saver task");
-  //     return ESP_FAIL;
-  // }
-
-  // CRITICAL: Register Screen Saver task with Task Watchdog Timer - DISABLED
-  // ret = esp_task_wdt_add(screen_saver_task_handle);
-  // if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
-  //     ESP_LOGW(TAG, "Warning: Screen Saver task WDT registration failed: %s",
-  //     esp_err_to_name(ret));
-  //     // Continue anyway - task will still work
-  // }
-  // Suppress ESP_ERR_INVALID_ARG without logging (task already registered)
-
-  ESP_LOGI(TAG, "✓ Screen Saver task DISABLED to prevent LED conflicts");
 
   // Create Test task
   result = xTaskCreate((TaskFunction_t)test_task_start, "test_task",
@@ -1186,7 +1163,7 @@ void show_boot_animation_and_board(void) {
     printf("] %3d%% - %s", progress, status_messages[message_index]);
     fflush(stdout);
 
-    // ✅ Spustit LED boot animaci podle progress
+    // Spustit LED boot animaci podle progress
     led_boot_animation_step((uint8_t)progress);
 
     // CRITICAL: Reset watchdog timer during loading (only if registered)
@@ -1251,17 +1228,15 @@ void show_boot_animation_and_board(void) {
 void app_main(void) {
   ESP_LOGI(TAG, "🎯 ESP32-C6 Chess System v2.4 starting...");
   ESP_LOGI(TAG, "📅 Build Timestamp: %s %s", __DATE__, __TIME__);
-  ESP_LOGI(TAG, "🔧 CHECK THIS: If timestamp matches your clock, you are "
-                "running NEW code!");
   ESP_LOGI(TAG,
            "===============================================================");
 
-  // PŘIDAT: Zvýšení WDT timeout pro inicializaci
+  // Zvýšení WDT timeout pro inicializaci
   esp_task_wdt_config_t twdt_config = {
       .timeout_ms = 10000, // 10 sekund pro init - OPTIMALIZOVÁNO pro web server
       .idle_core_mask = 0,
       .trigger_panic = true};
-  // CRITICAL: Use reconfigure instead of init to avoid "TWDT already
+  // Use reconfigure instead of init to avoid "TWDT already
   // initialized" error
   esp_err_t ret = esp_task_wdt_reconfigure(&twdt_config);
   if (ret == ESP_ERR_INVALID_STATE) {
@@ -1272,7 +1247,7 @@ void app_main(void) {
     ESP_LOGI(TAG, "TWDT configured with 15s timeout");
   }
 
-  // CRITICAL: Add main task to Task Watchdog Timer BEFORE any initialization
+  // Add main task to Task Watchdog Timer BEFORE any initialization
   ret = esp_task_wdt_add(NULL);
   if (ret != ESP_OK && ret != ESP_ERR_INVALID_ARG) {
     ESP_LOGE(TAG, "Failed to add main task to TWDT: %s", esp_err_to_name(ret));

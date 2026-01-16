@@ -1,0 +1,770 @@
+\doxysection{Dokumentace souboru led\+\_\+state\+\_\+manager.\+c}
+\hypertarget{led__state__manager_8c}{}\label{led__state__manager_8c}\index{led\_state\_manager.c@{led\_state\_manager.c}}
+
+
+Implementace LED State Manageru.  
+
+
+{\ttfamily \#include "{}led\+\_\+state\+\_\+manager.\+h"{}}\newline
+{\ttfamily \#include "{}led\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+timer.\+h"{}}\newline
+{\ttfamily \#include "{}string.\+h"{}}\newline
+{\ttfamily \#include "{}math.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro led\+\_\+state\+\_\+manager.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{led__state__manager_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{led__state__manager_8c_ab0e2cf384e338253fa57595534da19e5}{led\+\_\+composite\+\_\+pixel}} (uint8\+\_\+t led\+\_\+index)
+\begin{DoxyCompactList}\small\item\em Provede kompozici vsech vrstev pro jeden LED pixel. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20}{led\+\_\+apply\+\_\+brightness}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t \texorpdfstring{$\ast$}{*}r, uint8\+\_\+t \texorpdfstring{$\ast$}{*}g, uint8\+\_\+t \texorpdfstring{$\ast$}{*}b)
+\begin{DoxyCompactList}\small\item\em Aplikuje jas na RGB hodnoty. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{led__state__manager_8c_af99a3c5e617122fc1975cb7516f67cb7}{led\+\_\+mark\+\_\+dirty}} (uint8\+\_\+t led\+\_\+index)
+\begin{DoxyCompactList}\small\item\em Oznaci pixel jako dirty (potrebuje update). \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{led__state__manager_8c_a6f1add3d4b49d1580292fa88b8a33d29}{led\+\_\+clear\+\_\+dirty}} (uint8\+\_\+t led\+\_\+index)
+\begin{DoxyCompactList}\small\item\em Vymaze dirty flag pro pixel. \end{DoxyCompactList}\item 
+static bool \mbox{\hyperlink{led__state__manager_8c_aa543c3e91a16b3fdde64309d7c1742a7}{led\+\_\+is\+\_\+layer\+\_\+enabled}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer)
+\begin{DoxyCompactList}\small\item\em Overi zda je vrstva aktivni. \end{DoxyCompactList}\item 
+static uint8\+\_\+t \mbox{\hyperlink{led__state__manager_8c_aede0d4ee4414771f62812fb528746af4}{led\+\_\+get\+\_\+layer\+\_\+brightness}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer)
+\begin{DoxyCompactList}\small\item\em Ziska jas vrstvy. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ad6abb4aadf5a51d12bd7666f7199c724}{led\+\_\+manager\+\_\+init}} (const \mbox{\hyperlink{structled__manager__config__t}{led\+\_\+manager\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Inicializuj LED manager s konfiguraci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a0e1288bada603c6fa05e27c504043639}{led\+\_\+manager\+\_\+deinit}} (void)
+\begin{DoxyCompactList}\small\item\em Deinicializuj LED manager. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}{led\+\_\+set\+\_\+pixel\+\_\+layer}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t led\+\_\+index, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b)
+\begin{DoxyCompactList}\small\item\em Nastav pixel ve vrstve primo podle LED indexu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a710d786eed5ca03bce7a093daf527041}{led\+\_\+clear\+\_\+layer}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer)
+\begin{DoxyCompactList}\small\item\em Vymaz vrstvu (alias pro led\+\_\+state\+\_\+clear\+\_\+layer). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a80147ffbd0f8c6fe9e9390dd710195e3}{led\+\_\+set\+\_\+layer\+\_\+opacity}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t opacity)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a393b301ba78a74e2768530ee7b86573f}{led\+\_\+enable\+\_\+layer}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, bool enable)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a40289bfb1bef83bce9cd41e4a5306545}{led\+\_\+set\+\_\+layer\+\_\+brightness}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t brightness)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_aeff6d8517fb4956b1d4df351544c57bb}{led\+\_\+composite\+\_\+and\+\_\+update}} (void)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a3f91b15c961fecfee68b7367424b4a39}{led\+\_\+force\+\_\+full\+\_\+update}} (void)
+\begin{DoxyCompactList}\small\item\em Vynuc okamzity full update vsech LED. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a571aad292e2263e9d782457f8e026e0f}{led\+\_\+get\+\_\+dirty\+\_\+count}} (void)
+\item 
+uint8\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a23eaaf20c7e72afecbdcb21bb9b2af23}{led\+\_\+get\+\_\+dirty\+\_\+count\+\_\+by\+\_\+layer}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ac2f041e67d008f43c140ba461a346e0a}{led\+\_\+fade\+\_\+pixel}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t target\+\_\+r, uint8\+\_\+t target\+\_\+g, uint8\+\_\+t target\+\_\+b, uint32\+\_\+t duration\+\_\+ms)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_aba0f2c2275e342c31ec8ac161299b0ef}{led\+\_\+pulse\+\_\+pixel}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b, uint32\+\_\+t period\+\_\+ms, uint8\+\_\+t pulse\+\_\+count)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ad5f296e945ac223050cba2e4264701ba}{led\+\_\+rainbow\+\_\+pixel}} (uint8\+\_\+t led\+\_\+index, uint32\+\_\+t duration\+\_\+ms)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a9814a093e435d1f453c7ecbd64817d5f}{led\+\_\+set\+\_\+multiple\+\_\+pixels}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+indices, uint8\+\_\+t count, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ad188631e97fc317e2376f2b4c65ef62e}{led\+\_\+clear\+\_\+multiple\+\_\+pixels}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+indices, uint8\+\_\+t count)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_af8241d26504ce9a50bd8f1d05d29aaa9}{led\+\_\+fade\+\_\+multiple\+\_\+pixels}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+indices, uint8\+\_\+t count, uint8\+\_\+t target\+\_\+r, uint8\+\_\+t target\+\_\+g, uint8\+\_\+t target\+\_\+b, uint32\+\_\+t duration\+\_\+ms)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a79a1e941945444641da26f81f396a0ea}{led\+\_\+set\+\_\+global\+\_\+brightness}} (uint8\+\_\+t brightness)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a09ad253b4572afc82ba7b977fb8be163}{led\+\_\+set\+\_\+pixel\+\_\+brightness}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t brightness)
+\item 
+uint8\+\_\+t \mbox{\hyperlink{led__state__manager_8c_af3727770a26c0a0e796cab4969fcd909}{led\+\_\+get\+\_\+global\+\_\+brightness}} (void)
+\item 
+uint8\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a560bcb09877849b8df1bce3f370dfa50}{led\+\_\+get\+\_\+pixel\+\_\+brightness}} (uint8\+\_\+t led\+\_\+index)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a1123bf9a4fa107a05fc3251ae1c7d009}{led\+\_\+hsv\+\_\+to\+\_\+rgb}} (float h, float s, float v, uint8\+\_\+t \texorpdfstring{$\ast$}{*}r, uint8\+\_\+t \texorpdfstring{$\ast$}{*}g, uint8\+\_\+t \texorpdfstring{$\ast$}{*}b)
+\begin{DoxyCompactList}\small\item\em HSV to RGB konverze. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a6bf9d2280f7e13b64c909142e7158fd4}{led\+\_\+rgb\+\_\+to\+\_\+hsv}} (uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b, float \texorpdfstring{$\ast$}{*}h, float \texorpdfstring{$\ast$}{*}s, float \texorpdfstring{$\ast$}{*}v)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ae6932cf91967f91c556ac275b48ec9fb}{led\+\_\+interpolate\+\_\+color}} (uint8\+\_\+t r1, uint8\+\_\+t g1, uint8\+\_\+t b1, uint8\+\_\+t r2, uint8\+\_\+t g2, uint8\+\_\+t b2, float progress, uint8\+\_\+t \texorpdfstring{$\ast$}{*}out\+\_\+r, uint8\+\_\+t \texorpdfstring{$\ast$}{*}out\+\_\+g, uint8\+\_\+t \texorpdfstring{$\ast$}{*}out\+\_\+b)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a4768576d3c7535b5f97b6a0464b7e9c2}{led\+\_\+get\+\_\+status}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t buffer\+\_\+size)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ad10f07d8155009ce798f6b9bb7f84bda}{led\+\_\+get\+\_\+layer\+\_\+status}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t buffer\+\_\+size)
+\item 
+bool \mbox{\hyperlink{led__state__manager_8c_a229cf0585f4420c02ff501bf89c88471}{led\+\_\+is\+\_\+pixel\+\_\+dirty}} (uint8\+\_\+t led\+\_\+index)
+\item 
+uint32\+\_\+t \mbox{\hyperlink{led__state__manager_8c_af25cb1c55819d4184e7270d9ab9ee0a1}{led\+\_\+get\+\_\+last\+\_\+update\+\_\+time}} (uint8\+\_\+t led\+\_\+index)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a34e79246641dfad5e2ea7e2fa2129163}{led\+\_\+set\+\_\+config}} (const \mbox{\hyperlink{structled__manager__config__t}{led\+\_\+manager\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Nastav konfiguraci LED manageru. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ab2f7c69ab57eff54259e52d5bdb36fc0}{led\+\_\+set\+\_\+update\+\_\+frequency}} (uint8\+\_\+t frequency\+\_\+hz)
+\begin{DoxyCompactList}\small\item\em Nastav frekvenci aktualizace. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a7f2c282caa434a66a0a90e65374603a0}{led\+\_\+set\+\_\+transition\+\_\+duration}} (uint32\+\_\+t duration\+\_\+ms)
+\begin{DoxyCompactList}\small\item\em Nastav delku prechodu. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{led__state__manager_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}} = "{}LED\+\_\+\+MGR"{}
+\item 
+static bool \mbox{\hyperlink{led__state__manager_8c_a056b36df10f165cd5a6b993fc63fa152}{manager\+\_\+initialized}} = false
+\item 
+static \mbox{\hyperlink{structled__manager__config__t}{led\+\_\+manager\+\_\+config\+\_\+t}} \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\+\_\+config}}
+\item 
+static \mbox{\hyperlink{structled__layer__state__t}{led\+\_\+layer\+\_\+state\+\_\+t}} \mbox{\hyperlink{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922}{layers}} \mbox{[}\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231ba0d615861daf40238f3c436677a7a581b}{LED\+\_\+\+LAYER\+\_\+\+COUNT}}\mbox{]}
+\item 
+static uint8\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1}{global\+\_\+brightness}} = 255
+\item 
+static uint32\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a0bb6dcf519e5bcc59b766b1a23c2535c}{last\+\_\+update\+\_\+time}} = 0
+\item 
+static uint8\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a660e94e6e13b2e261064fed4b752f20b}{dirty\+\_\+count}} = 0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Implementace LED State Manageru. 
+
+Tento modul spravuje stav LED systemu a poskytuje pokrocile funkce pro ovladani LED. Umožnuje vrstveni efektu a spravu priority zobrazeni.
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+5.\+0 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/09-\/06
+\end{DoxyDate}
+LED State Manager je centralni system pro spravu stavu LED. Umožnuje vrstveni ruznych efektu, spravu priority a pokrocile funkce pro ovladani LED systemu. 
+
+Definice v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{led__state__manager_8c_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_apply\_brightness@{led\_apply\_brightness}}
+\index{led\_apply\_brightness@{led\_apply\_brightness}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_apply\_brightness()}{led\_apply\_brightness()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20} 
+void led\+\_\+apply\+\_\+brightness (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{r}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{g}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{b}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Aplikuje jas na RGB hodnoty. 
+
+Aplikuje globalni jas i jas specificky pro dany pixel. Hodnoty jsou zmenseny proporcionalne podle nastaveni jasu.
+
+
+\begin{DoxyParams}[1]{Parametry}
+ & {\em led\+\_\+index} & Index LED pixelu (0-\/72) \\
+\hline
+\mbox{\texttt{in,out}}  & {\em r} & Ukazatel na cervenou komponentu \\
+\hline
+\mbox{\texttt{in,out}}  & {\em g} & Ukazatel na zelenou komponentu \\
+\hline
+\mbox{\texttt{in,out}}  & {\em b} & Ukazatel na modrou komponentu \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00754}{754}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a6f1add3d4b49d1580292fa88b8a33d29}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_clear\_dirty@{led\_clear\_dirty}}
+\index{led\_clear\_dirty@{led\_clear\_dirty}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_clear\_dirty()}{led\_clear\_dirty()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a6f1add3d4b49d1580292fa88b8a33d29} 
+void led\+\_\+clear\+\_\+dirty (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Vymaze dirty flag pro pixel. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em led\+\_\+index} & Index LED pixelu (0-\/72) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00780}{780}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a710d786eed5ca03bce7a093daf527041}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_clear\_layer@{led\_clear\_layer}}
+\index{led\_clear\_layer@{led\_clear\_layer}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_clear\_layer()}{led\_clear\_layer()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a710d786eed5ca03bce7a093daf527041} 
+esp\+\_\+err\+\_\+t led\+\_\+clear\+\_\+layer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{}\end{DoxyParamCaption})}
+
+
+
+Vymaz vrstvu (alias pro led\+\_\+state\+\_\+clear\+\_\+layer). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em layer} & Vrstva \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00150}{150}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_ad188631e97fc317e2376f2b4c65ef62e}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_clear\_multiple\_pixels@{led\_clear\_multiple\_pixels}}
+\index{led\_clear\_multiple\_pixels@{led\_clear\_multiple\_pixels}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_clear\_multiple\_pixels()}{led\_clear\_multiple\_pixels()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_ad188631e97fc317e2376f2b4c65ef62e} 
+esp\+\_\+err\+\_\+t led\+\_\+clear\+\_\+multiple\+\_\+pixels (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{led\+\_\+indices}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00387}{387}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_aeff6d8517fb4956b1d4df351544c57bb}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_composite\_and\_update@{led\_composite\_and\_update}}
+\index{led\_composite\_and\_update@{led\_composite\_and\_update}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_composite\_and\_update()}{led\_composite\_and\_update()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_aeff6d8517fb4956b1d4df351544c57bb} 
+esp\+\_\+err\+\_\+t led\+\_\+composite\+\_\+and\+\_\+update (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00243}{243}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_ab0e2cf384e338253fa57595534da19e5}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_composite\_pixel@{led\_composite\_pixel}}
+\index{led\_composite\_pixel@{led\_composite\_pixel}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_composite\_pixel()}{led\_composite\_pixel()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_ab0e2cf384e338253fa57595534da19e5} 
+void led\+\_\+composite\+\_\+pixel (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Provede kompozici vsech vrstev pro jeden LED pixel. 
+
+Slouci vsechny aktivni vrstvy (od nejnizsi po nejvyssi) do finalniho RGB pixelu. Pouziva alpha blending pro spravu pruhlednosti vrstev.
+
+
+\begin{DoxyParams}{Parametry}
+{\em led\+\_\+index} & Index LED pixelu (0-\/72) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00684}{684}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a393b301ba78a74e2768530ee7b86573f}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_enable\_layer@{led\_enable\_layer}}
+\index{led\_enable\_layer@{led\_enable\_layer}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_enable\_layer()}{led\_enable\_layer()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a393b301ba78a74e2768530ee7b86573f} 
+esp\+\_\+err\+\_\+t led\+\_\+enable\+\_\+layer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{, }\item[{bool}]{enable}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00199}{199}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_af8241d26504ce9a50bd8f1d05d29aaa9}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_fade\_multiple\_pixels@{led\_fade\_multiple\_pixels}}
+\index{led\_fade\_multiple\_pixels@{led\_fade\_multiple\_pixels}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_fade\_multiple\_pixels()}{led\_fade\_multiple\_pixels()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_af8241d26504ce9a50bd8f1d05d29aaa9} 
+esp\+\_\+err\+\_\+t led\+\_\+fade\+\_\+multiple\+\_\+pixels (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{led\+\_\+indices}{, }\item[{uint8\+\_\+t}]{count}{, }\item[{uint8\+\_\+t}]{target\+\_\+r}{, }\item[{uint8\+\_\+t}]{target\+\_\+g}{, }\item[{uint8\+\_\+t}]{target\+\_\+b}{, }\item[{uint32\+\_\+t}]{duration\+\_\+ms}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00391}{391}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_ac2f041e67d008f43c140ba461a346e0a}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_fade\_pixel@{led\_fade\_pixel}}
+\index{led\_fade\_pixel@{led\_fade\_pixel}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_fade\_pixel()}{led\_fade\_pixel()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_ac2f041e67d008f43c140ba461a346e0a} 
+esp\+\_\+err\+\_\+t led\+\_\+fade\+\_\+pixel (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{, }\item[{uint8\+\_\+t}]{target\+\_\+r}{, }\item[{uint8\+\_\+t}]{target\+\_\+g}{, }\item[{uint8\+\_\+t}]{target\+\_\+b}{, }\item[{uint32\+\_\+t}]{duration\+\_\+ms}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00311}{311}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a3f91b15c961fecfee68b7367424b4a39}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_force\_full\_update@{led\_force\_full\_update}}
+\index{led\_force\_full\_update@{led\_force\_full\_update}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_force\_full\_update()}{led\_force\_full\_update()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a3f91b15c961fecfee68b7367424b4a39} 
+esp\+\_\+err\+\_\+t led\+\_\+force\+\_\+full\+\_\+update (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vynuc okamzity full update vsech LED. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00278}{278}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a571aad292e2263e9d782457f8e026e0f}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_get\_dirty\_count@{led\_get\_dirty\_count}}
+\index{led\_get\_dirty\_count@{led\_get\_dirty\_count}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_get\_dirty\_count()}{led\_get\_dirty\_count()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a571aad292e2263e9d782457f8e026e0f} 
+uint8\+\_\+t led\+\_\+get\+\_\+dirty\+\_\+count (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00292}{292}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a23eaaf20c7e72afecbdcb21bb9b2af23}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_get\_dirty\_count\_by\_layer@{led\_get\_dirty\_count\_by\_layer}}
+\index{led\_get\_dirty\_count\_by\_layer@{led\_get\_dirty\_count\_by\_layer}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_get\_dirty\_count\_by\_layer()}{led\_get\_dirty\_count\_by\_layer()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a23eaaf20c7e72afecbdcb21bb9b2af23} 
+uint8\+\_\+t led\+\_\+get\+\_\+dirty\+\_\+count\+\_\+by\+\_\+layer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00296}{296}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_af3727770a26c0a0e796cab4969fcd909}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_get\_global\_brightness@{led\_get\_global\_brightness}}
+\index{led\_get\_global\_brightness@{led\_get\_global\_brightness}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_get\_global\_brightness()}{led\_get\_global\_brightness()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_af3727770a26c0a0e796cab4969fcd909} 
+uint8\+\_\+t led\+\_\+get\+\_\+global\+\_\+brightness (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00450}{450}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_af25cb1c55819d4184e7270d9ab9ee0a1}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_get\_last\_update\_time@{led\_get\_last\_update\_time}}
+\index{led\_get\_last\_update\_time@{led\_get\_last\_update\_time}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_get\_last\_update\_time()}{led\_get\_last\_update\_time()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_af25cb1c55819d4184e7270d9ab9ee0a1} 
+uint32\+\_\+t led\+\_\+get\+\_\+last\+\_\+update\+\_\+time (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00627}{627}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_aede0d4ee4414771f62812fb528746af4}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_get\_layer\_brightness@{led\_get\_layer\_brightness}}
+\index{led\_get\_layer\_brightness@{led\_get\_layer\_brightness}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_get\_layer\_brightness()}{led\_get\_layer\_brightness()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_aede0d4ee4414771f62812fb528746af4} 
+uint8\+\_\+t led\+\_\+get\+\_\+layer\+\_\+brightness (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Ziska jas vrstvy. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em layer} & Vrstva \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Jas vrstvy (0-\/255) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00806}{806}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_ad10f07d8155009ce798f6b9bb7f84bda}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_get\_layer\_status@{led\_get\_layer\_status}}
+\index{led\_get\_layer\_status@{led\_get\_layer\_status}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_get\_layer\_status()}{led\_get\_layer\_status()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_ad10f07d8155009ce798f6b9bb7f84bda} 
+esp\+\_\+err\+\_\+t led\+\_\+get\+\_\+layer\+\_\+status (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{buffer\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00582}{582}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a560bcb09877849b8df1bce3f370dfa50}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_get\_pixel\_brightness@{led\_get\_pixel\_brightness}}
+\index{led\_get\_pixel\_brightness@{led\_get\_pixel\_brightness}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_get\_pixel\_brightness()}{led\_get\_pixel\_brightness()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a560bcb09877849b8df1bce3f370dfa50} 
+uint8\+\_\+t led\+\_\+get\+\_\+pixel\+\_\+brightness (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00454}{454}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a4768576d3c7535b5f97b6a0464b7e9c2}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_get\_status@{led\_get\_status}}
+\index{led\_get\_status@{led\_get\_status}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_get\_status()}{led\_get\_status()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a4768576d3c7535b5f97b6a0464b7e9c2} 
+esp\+\_\+err\+\_\+t led\+\_\+get\+\_\+status (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{buffer\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00555}{555}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a1123bf9a4fa107a05fc3251ae1c7d009}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_hsv\_to\_rgb@{led\_hsv\_to\_rgb}}
+\index{led\_hsv\_to\_rgb@{led\_hsv\_to\_rgb}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_hsv\_to\_rgb()}{led\_hsv\_to\_rgb()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a1123bf9a4fa107a05fc3251ae1c7d009} 
+esp\+\_\+err\+\_\+t led\+\_\+hsv\+\_\+to\+\_\+rgb (\begin{DoxyParamCaption}\item[{float}]{h}{, }\item[{float}]{s}{, }\item[{float}]{v}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{r}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{g}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{b}{}\end{DoxyParamCaption})}
+
+
+
+HSV to RGB konverze. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em h} & Hue (0.\+0-\/1.\+0) \\
+\hline
+{\em s} & Saturation (0.\+0-\/1.\+0) \\
+\hline
+{\em v} & Value (0.\+0-\/1.\+0) \\
+\hline
+{\em r} & Vystupni Red (0-\/255) \\
+\hline
+{\em g} & Vystupni Green (0-\/255) \\
+\hline
+{\em b} & Vystupni Blue (0-\/255) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00470}{470}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_ae6932cf91967f91c556ac275b48ec9fb}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_interpolate\_color@{led\_interpolate\_color}}
+\index{led\_interpolate\_color@{led\_interpolate\_color}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_interpolate\_color()}{led\_interpolate\_color()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_ae6932cf91967f91c556ac275b48ec9fb} 
+esp\+\_\+err\+\_\+t led\+\_\+interpolate\+\_\+color (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{r1}{, }\item[{uint8\+\_\+t}]{g1}{, }\item[{uint8\+\_\+t}]{b1}{, }\item[{uint8\+\_\+t}]{r2}{, }\item[{uint8\+\_\+t}]{g2}{, }\item[{uint8\+\_\+t}]{b2}{, }\item[{float}]{progress}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{out\+\_\+r}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{out\+\_\+g}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{out\+\_\+b}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00537}{537}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_aa543c3e91a16b3fdde64309d7c1742a7}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_is\_layer\_enabled@{led\_is\_layer\_enabled}}
+\index{led\_is\_layer\_enabled@{led\_is\_layer\_enabled}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_is\_layer\_enabled()}{led\_is\_layer\_enabled()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_aa543c3e91a16b3fdde64309d7c1742a7} 
+bool led\+\_\+is\+\_\+layer\+\_\+enabled (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Overi zda je vrstva aktivni. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em layer} & Vrstva k overeni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je vrstva aktivni 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00792}{792}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a229cf0585f4420c02ff501bf89c88471}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_is\_pixel\_dirty@{led\_is\_pixel\_dirty}}
+\index{led\_is\_pixel\_dirty@{led\_is\_pixel\_dirty}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_is\_pixel\_dirty()}{led\_is\_pixel\_dirty()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a229cf0585f4420c02ff501bf89c88471} 
+bool led\+\_\+is\+\_\+pixel\+\_\+dirty (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00612}{612}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a0e1288bada603c6fa05e27c504043639}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_manager\_deinit@{led\_manager\_deinit}}
+\index{led\_manager\_deinit@{led\_manager\_deinit}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_manager\_deinit()}{led\_manager\_deinit()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a0e1288bada603c6fa05e27c504043639} 
+esp\+\_\+err\+\_\+t led\+\_\+manager\+\_\+deinit (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Deinicializuj LED manager. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00091}{91}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_ad6abb4aadf5a51d12bd7666f7199c724}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_manager\_init@{led\_manager\_init}}
+\index{led\_manager\_init@{led\_manager\_init}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_manager\_init()}{led\_manager\_init()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_ad6abb4aadf5a51d12bd7666f7199c724} 
+esp\+\_\+err\+\_\+t led\+\_\+manager\+\_\+init (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structled__manager__config__t}{led\+\_\+manager\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuj LED manager s konfiguraci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em config} & Konfigurace manageru \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00044}{44}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_af99a3c5e617122fc1975cb7516f67cb7}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_mark\_dirty@{led\_mark\_dirty}}
+\index{led\_mark\_dirty@{led\_mark\_dirty}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_mark\_dirty()}{led\_mark\_dirty()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_af99a3c5e617122fc1975cb7516f67cb7} 
+void led\+\_\+mark\+\_\+dirty (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Oznaci pixel jako dirty (potrebuje update). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em led\+\_\+index} & Index LED pixelu (0-\/72) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00769}{769}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_aba0f2c2275e342c31ec8ac161299b0ef}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_pulse\_pixel@{led\_pulse\_pixel}}
+\index{led\_pulse\_pixel@{led\_pulse\_pixel}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_pulse\_pixel()}{led\_pulse\_pixel()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_aba0f2c2275e342c31ec8ac161299b0ef} 
+esp\+\_\+err\+\_\+t led\+\_\+pulse\+\_\+pixel (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{, }\item[{uint8\+\_\+t}]{r}{, }\item[{uint8\+\_\+t}]{g}{, }\item[{uint8\+\_\+t}]{b}{, }\item[{uint32\+\_\+t}]{period\+\_\+ms}{, }\item[{uint8\+\_\+t}]{pulse\+\_\+count}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00326}{326}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_ad5f296e945ac223050cba2e4264701ba}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_rainbow\_pixel@{led\_rainbow\_pixel}}
+\index{led\_rainbow\_pixel@{led\_rainbow\_pixel}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_rainbow\_pixel()}{led\_rainbow\_pixel()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_ad5f296e945ac223050cba2e4264701ba} 
+esp\+\_\+err\+\_\+t led\+\_\+rainbow\+\_\+pixel (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{, }\item[{uint32\+\_\+t}]{duration\+\_\+ms}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00347}{347}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a6bf9d2280f7e13b64c909142e7158fd4}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_rgb\_to\_hsv@{led\_rgb\_to\_hsv}}
+\index{led\_rgb\_to\_hsv@{led\_rgb\_to\_hsv}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_rgb\_to\_hsv()}{led\_rgb\_to\_hsv()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a6bf9d2280f7e13b64c909142e7158fd4} 
+esp\+\_\+err\+\_\+t led\+\_\+rgb\+\_\+to\+\_\+hsv (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{r}{, }\item[{uint8\+\_\+t}]{g}{, }\item[{uint8\+\_\+t}]{b}{, }\item[{float \texorpdfstring{$\ast$}{*}}]{h}{, }\item[{float \texorpdfstring{$\ast$}{*}}]{s}{, }\item[{float \texorpdfstring{$\ast$}{*}}]{v}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00500}{500}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a34e79246641dfad5e2ea7e2fa2129163}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_set\_config@{led\_set\_config}}
+\index{led\_set\_config@{led\_set\_config}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_config()}{led\_set\_config()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a34e79246641dfad5e2ea7e2fa2129163} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+config (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structled__manager__config__t}{led\+\_\+manager\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Nastav konfiguraci LED manageru. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em config} & Nova konfigurace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00643}{643}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a79a1e941945444641da26f81f396a0ea}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_set\_global\_brightness@{led\_set\_global\_brightness}}
+\index{led\_set\_global\_brightness@{led\_set\_global\_brightness}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_global\_brightness()}{led\_set\_global\_brightness()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a79a1e941945444641da26f81f396a0ea} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+global\+\_\+brightness (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{brightness}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00413}{413}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a40289bfb1bef83bce9cd41e4a5306545}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_set\_layer\_brightness@{led\_set\_layer\_brightness}}
+\index{led\_set\_layer\_brightness@{led\_set\_layer\_brightness}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_layer\_brightness()}{led\_set\_layer\_brightness()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a40289bfb1bef83bce9cd41e4a5306545} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+layer\+\_\+brightness (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{, }\item[{uint8\+\_\+t}]{brightness}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00221}{221}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a80147ffbd0f8c6fe9e9390dd710195e3}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_set\_layer\_opacity@{led\_set\_layer\_opacity}}
+\index{led\_set\_layer\_opacity@{led\_set\_layer\_opacity}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_layer\_opacity()}{led\_set\_layer\_opacity()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a80147ffbd0f8c6fe9e9390dd710195e3} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+layer\+\_\+opacity (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{, }\item[{uint8\+\_\+t}]{opacity}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00177}{177}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a9814a093e435d1f453c7ecbd64817d5f}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_set\_multiple\_pixels@{led\_set\_multiple\_pixels}}
+\index{led\_set\_multiple\_pixels@{led\_set\_multiple\_pixels}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_multiple\_pixels()}{led\_set\_multiple\_pixels()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a9814a093e435d1f453c7ecbd64817d5f} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+multiple\+\_\+pixels (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{led\+\_\+indices}{, }\item[{uint8\+\_\+t}]{count}{, }\item[{uint8\+\_\+t}]{r}{, }\item[{uint8\+\_\+t}]{g}{, }\item[{uint8\+\_\+t}]{b}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00366}{366}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a09ad253b4572afc82ba7b977fb8be163}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_set\_pixel\_brightness@{led\_set\_pixel\_brightness}}
+\index{led\_set\_pixel\_brightness@{led\_set\_pixel\_brightness}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_pixel\_brightness()}{led\_set\_pixel\_brightness()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a09ad253b4572afc82ba7b977fb8be163} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+pixel\+\_\+brightness (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{, }\item[{uint8\+\_\+t}]{brightness}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00430}{430}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_set\_pixel\_layer@{led\_set\_pixel\_layer}}
+\index{led\_set\_pixel\_layer@{led\_set\_pixel\_layer}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_pixel\_layer()}{led\_set\_pixel\_layer()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+pixel\+\_\+layer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}}}]{layer}{, }\item[{uint8\+\_\+t}]{led\+\_\+index}{, }\item[{uint8\+\_\+t}]{r}{, }\item[{uint8\+\_\+t}]{g}{, }\item[{uint8\+\_\+t}]{b}{}\end{DoxyParamCaption})}
+
+
+
+Nastav pixel ve vrstve primo podle LED indexu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em layer} & Vrstva \\
+\hline
+{\em led\+\_\+index} & LED index (0-\/72) \\
+\hline
+{\em r} & Cervena (0-\/255) \\
+\hline
+{\em g} & Zelena (0-\/255) \\
+\hline
+{\em b} & Modra (0-\/255) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00110}{110}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a7f2c282caa434a66a0a90e65374603a0}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_set\_transition\_duration@{led\_set\_transition\_duration}}
+\index{led\_set\_transition\_duration@{led\_set\_transition\_duration}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_transition\_duration()}{led\_set\_transition\_duration()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a7f2c282caa434a66a0a90e65374603a0} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+transition\+\_\+duration (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{duration\+\_\+ms}{}\end{DoxyParamCaption})}
+
+
+
+Nastav delku prechodu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em duration\+\_\+ms} & Delka v ms \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00665}{665}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_ab2f7c69ab57eff54259e52d5bdb36fc0}\index{led\_state\_manager.c@{led\_state\_manager.c}!led\_set\_update\_frequency@{led\_set\_update\_frequency}}
+\index{led\_set\_update\_frequency@{led\_set\_update\_frequency}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_update\_frequency()}{led\_set\_update\_frequency()}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_ab2f7c69ab57eff54259e52d5bdb36fc0} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+update\+\_\+frequency (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{frequency\+\_\+hz}{}\end{DoxyParamCaption})}
+
+
+
+Nastav frekvenci aktualizace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em frequency\+\_\+hz} & Frekvence v Hz (1-\/60) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00654}{654}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{led__state__manager_8c_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{led__state__manager_8c_a68b7b8603078ea293af759db43776975}\index{led\_state\_manager.c@{led\_state\_manager.c}!current\_config@{current\_config}}
+\index{current\_config@{current\_config}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{current\_config}{current\_config}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a68b7b8603078ea293af759db43776975} 
+\mbox{\hyperlink{structled__manager__config__t}{led\+\_\+manager\+\_\+config\+\_\+t}} current\+\_\+config\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00030}{30}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a660e94e6e13b2e261064fed4b752f20b}\index{led\_state\_manager.c@{led\_state\_manager.c}!dirty\_count@{dirty\_count}}
+\index{dirty\_count@{dirty\_count}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{dirty\_count}{dirty\_count}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a660e94e6e13b2e261064fed4b752f20b} 
+uint8\+\_\+t dirty\+\_\+count = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00034}{34}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1}\index{led\_state\_manager.c@{led\_state\_manager.c}!global\_brightness@{global\_brightness}}
+\index{global\_brightness@{global\_brightness}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{global\_brightness}{global\_brightness}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1} 
+uint8\+\_\+t global\+\_\+brightness = 255\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00032}{32}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a0bb6dcf519e5bcc59b766b1a23c2535c}\index{led\_state\_manager.c@{led\_state\_manager.c}!last\_update\_time@{last\_update\_time}}
+\index{last\_update\_time@{last\_update\_time}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{last\_update\_time}{last\_update\_time}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a0bb6dcf519e5bcc59b766b1a23c2535c} 
+uint32\+\_\+t last\+\_\+update\+\_\+time = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00033}{33}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922}\index{led\_state\_manager.c@{led\_state\_manager.c}!layers@{layers}}
+\index{layers@{layers}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{layers}{layers}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922} 
+\mbox{\hyperlink{structled__layer__state__t}{led\+\_\+layer\+\_\+state\+\_\+t}} layers\mbox{[}\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231ba0d615861daf40238f3c436677a7a581b}{LED\+\_\+\+LAYER\+\_\+\+COUNT}}\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00031}{31}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a056b36df10f165cd5a6b993fc63fa152}\index{led\_state\_manager.c@{led\_state\_manager.c}!manager\_initialized@{manager\_initialized}}
+\index{manager\_initialized@{manager\_initialized}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{manager\_initialized}{manager\_initialized}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a056b36df10f165cd5a6b993fc63fa152} 
+bool manager\+\_\+initialized = false\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00029}{29}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+
+\Hypertarget{led__state__manager_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{led\_state\_manager.c@{led\_state\_manager.c}!TAG@{TAG}}
+\index{TAG@{TAG}!led\_state\_manager.c@{led\_state\_manager.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{led__state__manager_8c_a5a85b9c772bbeb480b209a3e6ea92b4c} 
+const char\texorpdfstring{$\ast$}{*} TAG = "{}LED\+\_\+\+MGR"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__state__manager_8c_source_l00026}{26}} v souboru \mbox{\hyperlink{led__state__manager_8c_source}{led\+\_\+state\+\_\+manager.\+c}}.
+

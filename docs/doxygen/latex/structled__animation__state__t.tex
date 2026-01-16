@@ -1,0 +1,217 @@
+\doxysection{Dokumentace struktury led\+\_\+animation\+\_\+state\+\_\+t}
+\hypertarget{structled__animation__state__t}{}\label{structled__animation__state__t}\index{led\_animation\_state\_t@{led\_animation\_state\_t}}
+
+
+Stav animace pro LED efekty.  
+
+
+
+
+{\ttfamily \#include $<$chess\+\_\+types.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{structled__animation__state__t_a87fea1e33aa73c51d4a62b16e317ce7c}{is\+\_\+active}}
+\begin{DoxyCompactList}\small\item\em Je animace aktivni? \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__animation__state__t_a0f6462d7758bbbe06d2ce2f2e9afabc8}{animation\+\_\+type}}
+\begin{DoxyCompactList}\small\item\em Typ animace. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__animation__state__t_ae0449ec5d8c12b23b647aabd6abac77a}{current\+\_\+frame}}
+\begin{DoxyCompactList}\small\item\em Aktualni snimek animace. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__animation__state__t_ae1e66294a9876ce015ec1c03e9aa7ddc}{total\+\_\+frames}}
+\begin{DoxyCompactList}\small\item\em Celkovy pocet snimku. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structled__animation__state__t_a10114c4e3964d053486143e4d1b848dc}{frame\+\_\+duration\+\_\+ms}}
+\begin{DoxyCompactList}\small\item\em Doba trvani jednoho snimku v ms. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structled__animation__state__t_af2a9ad7a9d458c2c3cbb5c17c2bed39d}{last\+\_\+update\+\_\+time}}
+\begin{DoxyCompactList}\small\item\em Casova znamka posledni aktualizace. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__animation__state__t_adec8168c3173a7ed92dc6a00aa9211d7}{source\+\_\+square}}
+\begin{DoxyCompactList}\small\item\em Zdrojove pole (0-\/63). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__animation__state__t_ac88657853a4666cd6bc861a4ae2b8a75}{target\+\_\+square}}
+\begin{DoxyCompactList}\small\item\em Cilove pole (0-\/63). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__animation__state__t_aecd9be7048baa443db3554414befd371}{color\+\_\+r}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__animation__state__t_a28829e2c6bb0831613cf5075e845e3e1}{color\+\_\+g}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structled__animation__state__t_ae70ab943e9cd6f98a372be2bcd18404c}{color\+\_\+b}}
+\begin{DoxyCompactList}\small\item\em Barvy animace (RGB). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structled__animation__state__t_a2e62ade81888805e7bc4e2262e1f2336}{interrupt\+\_\+on\+\_\+placement}}
+\begin{DoxyCompactList}\small\item\em Zastav animaci pri polozeni figurky? \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Stav animace pro LED efekty. 
+
+Obsahuje informace o probiha jici LED animaci (typ, snimky, barvy, atd.). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00672}{672}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structled__animation__state__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structled__animation__state__t_a0f6462d7758bbbe06d2ce2f2e9afabc8}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!animation\_type@{animation\_type}}
+\index{animation\_type@{animation\_type}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{animation\_type}{animation\_type}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_a0f6462d7758bbbe06d2ce2f2e9afabc8} 
+uint8\+\_\+t led\+\_\+animation\+\_\+state\+\_\+t\+::animation\+\_\+type}
+
+
+
+Typ animace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00674}{674}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_ae70ab943e9cd6f98a372be2bcd18404c}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!color\_b@{color\_b}}
+\index{color\_b@{color\_b}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{color\_b}{color\_b}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_ae70ab943e9cd6f98a372be2bcd18404c} 
+uint8\+\_\+t led\+\_\+animation\+\_\+state\+\_\+t\+::color\+\_\+b}
+
+
+
+Barvy animace (RGB). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00681}{681}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_a28829e2c6bb0831613cf5075e845e3e1}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!color\_g@{color\_g}}
+\index{color\_g@{color\_g}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{color\_g}{color\_g}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_a28829e2c6bb0831613cf5075e845e3e1} 
+uint8\+\_\+t led\+\_\+animation\+\_\+state\+\_\+t\+::color\+\_\+g}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00681}{681}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_aecd9be7048baa443db3554414befd371}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!color\_r@{color\_r}}
+\index{color\_r@{color\_r}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{color\_r}{color\_r}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_aecd9be7048baa443db3554414befd371} 
+uint8\+\_\+t led\+\_\+animation\+\_\+state\+\_\+t\+::color\+\_\+r}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00681}{681}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_ae0449ec5d8c12b23b647aabd6abac77a}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!current\_frame@{current\_frame}}
+\index{current\_frame@{current\_frame}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{current\_frame}{current\_frame}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_ae0449ec5d8c12b23b647aabd6abac77a} 
+uint8\+\_\+t led\+\_\+animation\+\_\+state\+\_\+t\+::current\+\_\+frame}
+
+
+
+Aktualni snimek animace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00675}{675}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_a10114c4e3964d053486143e4d1b848dc}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!frame\_duration\_ms@{frame\_duration\_ms}}
+\index{frame\_duration\_ms@{frame\_duration\_ms}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{frame\_duration\_ms}{frame\_duration\_ms}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_a10114c4e3964d053486143e4d1b848dc} 
+uint32\+\_\+t led\+\_\+animation\+\_\+state\+\_\+t\+::frame\+\_\+duration\+\_\+ms}
+
+
+
+Doba trvani jednoho snimku v ms. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00677}{677}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_a2e62ade81888805e7bc4e2262e1f2336}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!interrupt\_on\_placement@{interrupt\_on\_placement}}
+\index{interrupt\_on\_placement@{interrupt\_on\_placement}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{interrupt\_on\_placement}{interrupt\_on\_placement}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_a2e62ade81888805e7bc4e2262e1f2336} 
+bool led\+\_\+animation\+\_\+state\+\_\+t\+::interrupt\+\_\+on\+\_\+placement}
+
+
+
+Zastav animaci pri polozeni figurky? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00682}{682}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_a87fea1e33aa73c51d4a62b16e317ce7c}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!is\_active@{is\_active}}
+\index{is\_active@{is\_active}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{is\_active}{is\_active}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_a87fea1e33aa73c51d4a62b16e317ce7c} 
+bool led\+\_\+animation\+\_\+state\+\_\+t\+::is\+\_\+active}
+
+
+
+Je animace aktivni? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00673}{673}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_af2a9ad7a9d458c2c3cbb5c17c2bed39d}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!last\_update\_time@{last\_update\_time}}
+\index{last\_update\_time@{last\_update\_time}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{last\_update\_time}{last\_update\_time}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_af2a9ad7a9d458c2c3cbb5c17c2bed39d} 
+uint32\+\_\+t led\+\_\+animation\+\_\+state\+\_\+t\+::last\+\_\+update\+\_\+time}
+
+
+
+Casova znamka posledni aktualizace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00678}{678}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_adec8168c3173a7ed92dc6a00aa9211d7}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!source\_square@{source\_square}}
+\index{source\_square@{source\_square}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{source\_square}{source\_square}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_adec8168c3173a7ed92dc6a00aa9211d7} 
+uint8\+\_\+t led\+\_\+animation\+\_\+state\+\_\+t\+::source\+\_\+square}
+
+
+
+Zdrojove pole (0-\/63). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00679}{679}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_ac88657853a4666cd6bc861a4ae2b8a75}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!target\_square@{target\_square}}
+\index{target\_square@{target\_square}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{target\_square}{target\_square}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_ac88657853a4666cd6bc861a4ae2b8a75} 
+uint8\+\_\+t led\+\_\+animation\+\_\+state\+\_\+t\+::target\+\_\+square}
+
+
+
+Cilove pole (0-\/63). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00680}{680}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structled__animation__state__t_ae1e66294a9876ce015ec1c03e9aa7ddc}\index{led\_animation\_state\_t@{led\_animation\_state\_t}!total\_frames@{total\_frames}}
+\index{total\_frames@{total\_frames}!led\_animation\_state\_t@{led\_animation\_state\_t}}
+\doxysubsubsection{\texorpdfstring{total\_frames}{total\_frames}}
+{\footnotesize\ttfamily \label{structled__animation__state__t_ae1e66294a9876ce015ec1c03e9aa7ddc} 
+uint8\+\_\+t led\+\_\+animation\+\_\+state\+\_\+t\+::total\+\_\+frames}
+
+
+
+Celkovy pocet snimku. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00676}{676}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{chess__types_8h}{chess\+\_\+types.\+h}}\end{DoxyCompactItemize}

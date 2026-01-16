@@ -1,0 +1,264 @@
+\doxysection{Dokumentace struktury chess\+\_\+timer\+\_\+t}
+\hypertarget{structchess__timer__t}{}\label{structchess__timer__t}\index{chess\_timer\_t@{chess\_timer\_t}}
+
+
+Stav casoveho systemu.  
+
+
+
+
+{\ttfamily \#include $<$timer\+\_\+system.\+h$>$}
+
+
+
+Diagram pro chess\+\_\+timer\+\_\+t\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=189pt]{structchess__timer__t__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structchess__timer__t_a7d0e2964acf12e9046f18f07e99486c4}{white\+\_\+time\+\_\+ms}}
+\begin{DoxyCompactList}\small\item\em Zbyvajici cas bileho. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structchess__timer__t_a258578da63390a476c98ed0cee25867c}{black\+\_\+time\+\_\+ms}}
+\begin{DoxyCompactList}\small\item\em Zbyvajici cas cerneho. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structchess__timer__t_a7f7510da4fac73ade5242b40627e62c5}{move\+\_\+start\+\_\+time}}
+\begin{DoxyCompactList}\small\item\em Cas zacatku tahu (esp\+\_\+timer\+\_\+get\+\_\+time()). \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structchess__timer__t_ac77301ca2e97bf1a65e71ea92937a893}{last\+\_\+move\+\_\+time}}
+\begin{DoxyCompactList}\small\item\em Cas posledniho tahu. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structchess__timer__t_a31819afd556ed4a6266abee25bef7f70}{timer\+\_\+running}}
+\begin{DoxyCompactList}\small\item\em Je-\/li timer aktivni. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structchess__timer__t_a5fbbe88e66de5ea14c6570f5526a39ae}{is\+\_\+white\+\_\+turn}}
+\begin{DoxyCompactList}\small\item\em Je-\/li na tahu bily. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structchess__timer__t_ac4990048c62805c9cec772b9d7005abe}{game\+\_\+paused}}
+\begin{DoxyCompactList}\small\item\em Je-\/li hra pozastavena. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structchess__timer__t_a7389bbc57384b8534999549a9f36b9f2}{time\+\_\+expired}}
+\begin{DoxyCompactList}\small\item\em Vyprsel-\/li cas. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}} \mbox{\hyperlink{structchess__timer__t_a07b9f7d20041000000ac867e286454e5}{config}}
+\begin{DoxyCompactList}\small\item\em Aktualni konfigurace. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structchess__timer__t_a2821d53bca4e86476b744bc2fb372461}{total\+\_\+moves}}
+\begin{DoxyCompactList}\small\item\em Celkovy pocet tahu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structchess__timer__t_a9f1982f8c62719b0b75a2f0c5147c0aa}{avg\+\_\+move\+\_\+time\+\_\+ms}}
+\begin{DoxyCompactList}\small\item\em Prumerny cas na tah. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structchess__timer__t_ad20283280bacabc85f2662834c6e659b}{warning\+\_\+30s\+\_\+shown}}
+\begin{DoxyCompactList}\small\item\em Upozorneni na 30s bylo zobrazeno. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structchess__timer__t_a3509cb6dc20f8a0fd54d869fb90e69f8}{warning\+\_\+10s\+\_\+shown}}
+\begin{DoxyCompactList}\small\item\em Upozorneni na 10s bylo zobrazeno. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structchess__timer__t_ac73b4959948d7f77c5cff4d9dcd671ca}{warning\+\_\+5s\+\_\+shown}}
+\begin{DoxyCompactList}\small\item\em Upozorneni na 5s bylo zobrazeno. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Stav casoveho systemu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00074}{74}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structchess__timer__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structchess__timer__t_a9f1982f8c62719b0b75a2f0c5147c0aa}\index{chess\_timer\_t@{chess\_timer\_t}!avg\_move\_time\_ms@{avg\_move\_time\_ms}}
+\index{avg\_move\_time\_ms@{avg\_move\_time\_ms}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{avg\_move\_time\_ms}{avg\_move\_time\_ms}}
+{\footnotesize\ttfamily \label{structchess__timer__t_a9f1982f8c62719b0b75a2f0c5147c0aa} 
+uint32\+\_\+t chess\+\_\+timer\+\_\+t\+::avg\+\_\+move\+\_\+time\+\_\+ms}
+
+
+
+Prumerny cas na tah. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00092}{92}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_a258578da63390a476c98ed0cee25867c}\index{chess\_timer\_t@{chess\_timer\_t}!black\_time\_ms@{black\_time\_ms}}
+\index{black\_time\_ms@{black\_time\_ms}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{black\_time\_ms}{black\_time\_ms}}
+{\footnotesize\ttfamily \label{structchess__timer__t_a258578da63390a476c98ed0cee25867c} 
+uint32\+\_\+t chess\+\_\+timer\+\_\+t\+::black\+\_\+time\+\_\+ms}
+
+
+
+Zbyvajici cas cerneho. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00077}{77}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_a07b9f7d20041000000ac867e286454e5}\index{chess\_timer\_t@{chess\_timer\_t}!config@{config}}
+\index{config@{config}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{config}{config}}
+{\footnotesize\ttfamily \label{structchess__timer__t_a07b9f7d20041000000ac867e286454e5} 
+\mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}} chess\+\_\+timer\+\_\+t\+::config}
+
+
+
+Aktualni konfigurace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00088}{88}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_ac4990048c62805c9cec772b9d7005abe}\index{chess\_timer\_t@{chess\_timer\_t}!game\_paused@{game\_paused}}
+\index{game\_paused@{game\_paused}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{game\_paused}{game\_paused}}
+{\footnotesize\ttfamily \label{structchess__timer__t_ac4990048c62805c9cec772b9d7005abe} 
+bool chess\+\_\+timer\+\_\+t\+::game\+\_\+paused}
+
+
+
+Je-\/li hra pozastavena. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00084}{84}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_a5fbbe88e66de5ea14c6570f5526a39ae}\index{chess\_timer\_t@{chess\_timer\_t}!is\_white\_turn@{is\_white\_turn}}
+\index{is\_white\_turn@{is\_white\_turn}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{is\_white\_turn}{is\_white\_turn}}
+{\footnotesize\ttfamily \label{structchess__timer__t_a5fbbe88e66de5ea14c6570f5526a39ae} 
+bool chess\+\_\+timer\+\_\+t\+::is\+\_\+white\+\_\+turn}
+
+
+
+Je-\/li na tahu bily. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00083}{83}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_ac77301ca2e97bf1a65e71ea92937a893}\index{chess\_timer\_t@{chess\_timer\_t}!last\_move\_time@{last\_move\_time}}
+\index{last\_move\_time@{last\_move\_time}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{last\_move\_time}{last\_move\_time}}
+{\footnotesize\ttfamily \label{structchess__timer__t_ac77301ca2e97bf1a65e71ea92937a893} 
+uint32\+\_\+t chess\+\_\+timer\+\_\+t\+::last\+\_\+move\+\_\+time}
+
+
+
+Cas posledniho tahu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00079}{79}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_a7f7510da4fac73ade5242b40627e62c5}\index{chess\_timer\_t@{chess\_timer\_t}!move\_start\_time@{move\_start\_time}}
+\index{move\_start\_time@{move\_start\_time}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{move\_start\_time}{move\_start\_time}}
+{\footnotesize\ttfamily \label{structchess__timer__t_a7f7510da4fac73ade5242b40627e62c5} 
+uint32\+\_\+t chess\+\_\+timer\+\_\+t\+::move\+\_\+start\+\_\+time}
+
+
+
+Cas zacatku tahu (esp\+\_\+timer\+\_\+get\+\_\+time()). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00078}{78}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_a7389bbc57384b8534999549a9f36b9f2}\index{chess\_timer\_t@{chess\_timer\_t}!time\_expired@{time\_expired}}
+\index{time\_expired@{time\_expired}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{time\_expired}{time\_expired}}
+{\footnotesize\ttfamily \label{structchess__timer__t_a7389bbc57384b8534999549a9f36b9f2} 
+bool chess\+\_\+timer\+\_\+t\+::time\+\_\+expired}
+
+
+
+Vyprsel-\/li cas. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00085}{85}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_a31819afd556ed4a6266abee25bef7f70}\index{chess\_timer\_t@{chess\_timer\_t}!timer\_running@{timer\_running}}
+\index{timer\_running@{timer\_running}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{timer\_running}{timer\_running}}
+{\footnotesize\ttfamily \label{structchess__timer__t_a31819afd556ed4a6266abee25bef7f70} 
+bool chess\+\_\+timer\+\_\+t\+::timer\+\_\+running}
+
+
+
+Je-\/li timer aktivni. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00082}{82}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_a2821d53bca4e86476b744bc2fb372461}\index{chess\_timer\_t@{chess\_timer\_t}!total\_moves@{total\_moves}}
+\index{total\_moves@{total\_moves}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{total\_moves}{total\_moves}}
+{\footnotesize\ttfamily \label{structchess__timer__t_a2821d53bca4e86476b744bc2fb372461} 
+uint32\+\_\+t chess\+\_\+timer\+\_\+t\+::total\+\_\+moves}
+
+
+
+Celkovy pocet tahu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00091}{91}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_a3509cb6dc20f8a0fd54d869fb90e69f8}\index{chess\_timer\_t@{chess\_timer\_t}!warning\_10s\_shown@{warning\_10s\_shown}}
+\index{warning\_10s\_shown@{warning\_10s\_shown}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{warning\_10s\_shown}{warning\_10s\_shown}}
+{\footnotesize\ttfamily \label{structchess__timer__t_a3509cb6dc20f8a0fd54d869fb90e69f8} 
+bool chess\+\_\+timer\+\_\+t\+::warning\+\_\+10s\+\_\+shown}
+
+
+
+Upozorneni na 10s bylo zobrazeno. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00096}{96}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_ad20283280bacabc85f2662834c6e659b}\index{chess\_timer\_t@{chess\_timer\_t}!warning\_30s\_shown@{warning\_30s\_shown}}
+\index{warning\_30s\_shown@{warning\_30s\_shown}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{warning\_30s\_shown}{warning\_30s\_shown}}
+{\footnotesize\ttfamily \label{structchess__timer__t_ad20283280bacabc85f2662834c6e659b} 
+bool chess\+\_\+timer\+\_\+t\+::warning\+\_\+30s\+\_\+shown}
+
+
+
+Upozorneni na 30s bylo zobrazeno. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00095}{95}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_ac73b4959948d7f77c5cff4d9dcd671ca}\index{chess\_timer\_t@{chess\_timer\_t}!warning\_5s\_shown@{warning\_5s\_shown}}
+\index{warning\_5s\_shown@{warning\_5s\_shown}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{warning\_5s\_shown}{warning\_5s\_shown}}
+{\footnotesize\ttfamily \label{structchess__timer__t_ac73b4959948d7f77c5cff4d9dcd671ca} 
+bool chess\+\_\+timer\+\_\+t\+::warning\+\_\+5s\+\_\+shown}
+
+
+
+Upozorneni na 5s bylo zobrazeno. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00097}{97}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+\Hypertarget{structchess__timer__t_a7d0e2964acf12e9046f18f07e99486c4}\index{chess\_timer\_t@{chess\_timer\_t}!white\_time\_ms@{white\_time\_ms}}
+\index{white\_time\_ms@{white\_time\_ms}!chess\_timer\_t@{chess\_timer\_t}}
+\doxysubsubsection{\texorpdfstring{white\_time\_ms}{white\_time\_ms}}
+{\footnotesize\ttfamily \label{structchess__timer__t_a7d0e2964acf12e9046f18f07e99486c4} 
+uint32\+\_\+t chess\+\_\+timer\+\_\+t\+::white\+\_\+time\+\_\+ms}
+
+
+
+Zbyvajici cas bileho. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00076}{76}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{timer__system_8h}{timer\+\_\+system.\+h}}\end{DoxyCompactItemize}

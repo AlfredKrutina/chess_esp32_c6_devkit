@@ -1,0 +1,70 @@
+\doxysection{uart\+\_\+commands\+\_\+extended.\+h}
+\hypertarget{uart__commands__extended_8h_source}{}\label{uart__commands__extended_8h_source}\index{uart\_commands\_extended.h@{uart\_commands\_extended.h}}
+\mbox{\hyperlink{uart__commands__extended_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ UART\_COMMANDS\_EXTENDED\_H}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ UART\_COMMANDS\_EXTENDED\_H}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{game__led__animations_8h}{game\_led\_animations.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00019}00019\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00020}00020\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00021}00021\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00023}00023\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00024}00024\ \textcolor{comment}{//\ HLAVNÍ\ API\ PRO\ UART\ PŘÍKAZY}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00025}00025\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00031}00031\ esp\_err\_t\ \mbox{\hyperlink{uart__commands__extended_8h_a91f740ce224db3050d1f85890fdbbdce}{register\_extended\_uart\_commands}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00033}00033\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00034}00034\ \textcolor{comment}{//\ IMPLEMENTACE\ JEDNOTLIVÝCH\ PŘÍKAZŮ}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00035}00035\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00047}00047\ esp\_err\_t\ \mbox{\hyperlink{uart__commands__extended_8h_ace118ff57c1728a13e4660df6234a4a8}{cmd\_endgame\_animations}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv,\ \textcolor{keywordtype}{char}\ *response,\ \textcolor{keywordtype}{size\_t}\ response\_size);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00059}00059\ esp\_err\_t\ \mbox{\hyperlink{uart__commands__extended_8h_aa1c75de10ba908b20b3384fc09d857e4}{cmd\_endgame\_animation}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv,\ \textcolor{keywordtype}{char}\ *response,\ \textcolor{keywordtype}{size\_t}\ response\_size);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00060}00060\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00071}00071\ esp\_err\_t\ \mbox{\hyperlink{uart__commands__extended_8h_a77618cd8f49e406c505e2c0f8110efd2}{cmd\_stop\_animations}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv,\ \textcolor{keywordtype}{char}\ *response,\ \textcolor{keywordtype}{size\_t}\ response\_size);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00072}00072\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00083}00083\ esp\_err\_t\ \mbox{\hyperlink{uart__commands__extended_8h_a7aea8ea2734d3e76a9cb31e39f8ecaa7}{cmd\_animation\_status}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv,\ \textcolor{keywordtype}{char}\ *response,\ \textcolor{keywordtype}{size\_t}\ response\_size);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00084}00084\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00085}00085\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00086}00086\ \textcolor{comment}{//\ DISPATCHER\ FUNKCE\ PRO\ ESP\ CONSOLE}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00087}00087\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00088}00088\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00093}00093\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{uart__commands__extended_8h_a2c1f034f2745aa000fda3e70da59ccea}{uart\_endgame\_command\_dispatcher}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00094}00094\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00099}00099\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{uart__commands__extended_8h_ae57225727889bb7bd8541d02660e33a6}{uart\_stop\_command\_dispatcher}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00105}00105\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{uart__commands__extended_8h_a6bd963956e3a304abd305b05f126b5fc}{uart\_animation\_command\_dispatcher}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ **argv);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00106}00106\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00107}00107\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00108}00108\ \textcolor{comment}{//\ SIMPLE\ WRAPPER\ FUNCTIONS\ FOR\ UART\_TASK.C}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00109}00109\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00110}00110\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00114}00114\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8h_a25a982b28768b290cb56ecde22bf1560}{handle\_led\_test\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00115}00115\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00119}00119\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8h_a294aca3ab988c08ae29b5f13fe09d05a}{handle\_led\_pattern\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00120}00120\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00124}00124\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8h_a0d0a671bd59866a24abecd0cd1ee9374}{handle\_led\_animation\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00125}00125\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00129}00129\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8h_a70c667d91da8b9165f7fbb815c32939b}{handle\_led\_clear\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00130}00130\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00134}00134\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8h_a1eea20a3683af2f5c1a9782a8c12668c}{handle\_led\_brightness\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00135}00135\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00139}00139\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8h_aa86478fbc78b81c0beb5703735519706}{handle\_chess\_pos\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00140}00140\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00144}00144\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8h_ad8bb38053b28adcf807b63675070988c}{handle\_led\_mapping\_test\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00145}00145\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00146}00146\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00147}00147\ \}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00148}00148\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00149}00149\ }
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8h_source_l00150}00150\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ UART\_COMMANDS\_EXTENDED\_H}}
+
+\end{DoxyCode}

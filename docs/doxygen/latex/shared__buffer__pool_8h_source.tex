@@ -1,0 +1,92 @@
+\doxysection{shared\+\_\+buffer\+\_\+pool.\+h}
+\hypertarget{shared__buffer__pool_8h_source}{}\label{shared__buffer__pool_8h_source}\index{shared\_buffer\_pool.h@{shared\_buffer\_pool.h}}
+\mbox{\hyperlink{shared__buffer__pool_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00034}00034\ \textcolor{preprocessor}{\#ifndef\ SHARED\_BUFFER\_POOL\_H}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00035}00035\ \textcolor{preprocessor}{\#define\ SHARED\_BUFFER\_POOL\_H}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00037}00037\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00038}00038\ \textcolor{preprocessor}{\#include\ <stddef.h>}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00039}00039\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00040}00040\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00042}00042\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00043}00043\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00044}00044\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00046}00046\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00047}00047\ \textcolor{comment}{//\ MAKRA\ PRO\ SNADNE\ POUZITI}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00048}00048\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00049}00049\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00058}\mbox{\hyperlink{shared__buffer__pool_8h_a70318c0bb964a91191f81e8b06a264eb}{00058}}\ \textcolor{preprocessor}{\#define\ get\_shared\_buffer(size)\ get\_shared\_buffer\_debug(size,\ \_\_FILE\_\_,\ \_\_LINE\_\_)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00060}00060\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00061}00061\ \textcolor{comment}{//\ STRUKTURY}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00062}00062\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00063}00063\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00069}\mbox{\hyperlink{structbuffer__pool__stats__t}{00069}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00070}\mbox{\hyperlink{structbuffer__pool__stats__t_ab36127065062a985fffa4951c5b033b3}{00070}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structbuffer__pool__stats__t_ab36127065062a985fffa4951c5b033b3}{pool\_size}};\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00071}\mbox{\hyperlink{structbuffer__pool__stats__t_a8273dd396e87398156b713e2770687cc}{00071}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structbuffer__pool__stats__t_a8273dd396e87398156b713e2770687cc}{buffer\_size}};\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00072}\mbox{\hyperlink{structbuffer__pool__stats__t_a42990bc34dd3c40cfb396f6aa3723bbc}{00072}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structbuffer__pool__stats__t_a42990bc34dd3c40cfb396f6aa3723bbc}{current\_usage}};\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00073}\mbox{\hyperlink{structbuffer__pool__stats__t_ae2d19a60f60e93b6b4144919fa1ef156}{00073}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structbuffer__pool__stats__t_ae2d19a60f60e93b6b4144919fa1ef156}{peak\_usage}};\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00074}\mbox{\hyperlink{structbuffer__pool__stats__t_add17a4e17bdbbc10a693d74443db4325}{00074}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structbuffer__pool__stats__t_add17a4e17bdbbc10a693d74443db4325}{total\_allocations}};\ \ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00075}\mbox{\hyperlink{structbuffer__pool__stats__t_a0bc82e1e4f4f20bc8f3cf31fc0d0148c}{00075}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structbuffer__pool__stats__t_a0bc82e1e4f4f20bc8f3cf31fc0d0148c}{total\_releases}};\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00076}\mbox{\hyperlink{structbuffer__pool__stats__t_a36dc96032c4fe870bc181bbbb9fdb2dd}{00076}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structbuffer__pool__stats__t_a36dc96032c4fe870bc181bbbb9fdb2dd}{allocation\_failures}};}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00077}00077\ \}\ \mbox{\hyperlink{structbuffer__pool__stats__t}{buffer\_pool\_stats\_t}};}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00078}00078\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00079}00079\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00080}00080\ \textcolor{comment}{//\ INICIALIZACNI\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00081}00081\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00082}00082\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00091}00091\ esp\_err\_t\ \mbox{\hyperlink{shared__buffer__pool_8h_a57e203054eac9c4b6834783c64844d9b}{buffer\_pool\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00092}00092\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00099}00099\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{shared__buffer__pool_8h_ab7941cd3b2567eec4538fb234680a9bf}{buffer\_pool\_deinit}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00101}00101\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00102}00102\ \textcolor{comment}{//\ FUNKCE\ PRO\ ALOKACI/UVOLNENI\ BUFFERU}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00103}00103\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00104}00104\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00118}00118\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{shared__buffer__pool_8h_a985626f60ba733d611f238158cd15aac}{get\_shared\_buffer\_debug}}(\textcolor{keywordtype}{size\_t}\ min\_size,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ file,\ \textcolor{keywordtype}{int}\ line);}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00119}00119\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00128}00128\ esp\_err\_t\ \mbox{\hyperlink{shared__buffer__pool_8h_a2dcea7230ff8c3509b7b7adaeba9874e}{release\_shared\_buffer}}(\textcolor{keywordtype}{char}*\ buffer);}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00129}00129\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00130}00130\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00131}00131\ \textcolor{comment}{//\ UTILITY\ A\ STATUS\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00132}00132\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00133}00133\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00140}00140\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{shared__buffer__pool_8h_a78258eeac6ef7d0f8d2cf999f0605b0c}{buffer\_pool\_print\_status}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00141}00141\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00147}00147\ \mbox{\hyperlink{structbuffer__pool__stats__t}{buffer\_pool\_stats\_t}}\ \mbox{\hyperlink{shared__buffer__pool_8h_a8d1141e7eeb3bedad5c0d1ad575a953d}{buffer\_pool\_get\_stats}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00148}00148\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00156}00156\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{shared__buffer__pool_8h_acd58d78b420eb7bbeb83dd9b2d249be4}{buffer\_pool\_is\_healthy}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00157}00157\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00164}00164\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{shared__buffer__pool_8h_a212c8f17c9792d37e2c884ef14ed8e69}{buffer\_pool\_detect\_leaks}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00165}00165\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00166}00166\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00167}00167\ \textcolor{comment}{//\ POMOCNA\ MAKRA}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00168}00168\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00169}00169\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00184}\mbox{\hyperlink{shared__buffer__pool_8h_a4fd36e7fb9f9dff5eaa936115b4a5e48}{00184}}\ \textcolor{preprocessor}{\#define\ SAFE\_GET\_BUFFER(ptr,\ size,\ cleanup\_label)\ do\ \{\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00185}00185\ \textcolor{preprocessor}{\ \ \ \ ptr\ =\ get\_shared\_buffer(size);\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00186}00186\ \textcolor{preprocessor}{\ \ \ \ if\ (ptr\ ==\ NULL)\ \{\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00187}00187\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ ESP\_LOGE("{}BUFFER"{},\ "{}Failed\ to\ allocate\ buffer\ of\ size\ \%zu"{},\ size);\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00188}00188\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ goto\ cleanup\_label;\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00189}00189\ \textcolor{preprocessor}{\ \ \ \ \}\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00190}00190\ \textcolor{preprocessor}{\}\ while(0)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00191}00191\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00197}\mbox{\hyperlink{shared__buffer__pool_8h_ab1e2b3bd6e04fde2a413dd3dae10c415}{00197}}\ \textcolor{preprocessor}{\#define\ SAFE\_RELEASE\_BUFFER(ptr)\ do\ \{\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00198}00198\ \textcolor{preprocessor}{\ \ \ \ if\ (ptr\ !=\ NULL)\ \{\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00199}00199\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ release\_shared\_buffer(ptr);\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00200}00200\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ ptr\ =\ NULL;\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00201}00201\ \textcolor{preprocessor}{\ \ \ \ \}\ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00202}00202\ \textcolor{preprocessor}{\}\ while(0)}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00203}00203\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00204}00204\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00205}00205\ \}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00206}00206\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00207}00207\ }
+\DoxyCodeLine{\Hypertarget{shared__buffer__pool_8h_source_l00208}00208\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ SHARED\_BUFFER\_POOL\_H}}
+
+\end{DoxyCode}

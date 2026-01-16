@@ -1,0 +1,890 @@
+\doxysection{Dokumentace souboru visual\+\_\+error\+\_\+system.\+h}
+\hypertarget{visual__error__system_8h}{}\label{visual__error__system_8h}\index{visual\_error\_system.h@{visual\_error\_system.h}}
+
+
+Visual Error System -\/ Vizualni indikace chyb a navod pro uzivatele.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro visual\+\_\+error\+\_\+system.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{visual__error__system_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové struktury}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structerror__guidance__t}{error\+\_\+guidance\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura pro navod k chybe. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structerror__system__config__t}{error\+\_\+system\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Konfigurace error systemu. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structactive__error__t}{active\+\_\+error\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura aktivniho erroru. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Výčty}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaf8203fd08d0fbab4c43496ac51ca7ff6}{ERROR\+\_\+\+VISUAL\+\_\+\+INVALID\+\_\+\+MOVE}} = 0
+, \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa65797988f25b00cbddea2cbce6b38e46}{ERROR\+\_\+\+VISUAL\+\_\+\+WRONG\+\_\+\+TURN}}
+, \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa08d581ce669e4bc1cbd55c29e43032a5}{ERROR\+\_\+\+VISUAL\+\_\+\+NO\+\_\+\+PIECE}}
+, \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaed9dfe2a8f8f05f26129f9da5350ceb0}{ERROR\+\_\+\+VISUAL\+\_\+\+PIECE\+\_\+\+BLOCKING}}
+, \newline
+\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa50b4433db1a1a2fddea20bb8b7493f16}{ERROR\+\_\+\+VISUAL\+\_\+\+CHECK\+\_\+\+VIOLATION}}
+, \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa39a6b8b12fd8e563fa0456178fddda19}{ERROR\+\_\+\+VISUAL\+\_\+\+SYSTEM\+\_\+\+ERROR}}
+, \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa8296825b7936ac8bbe6081a3d050a8c7}{ERROR\+\_\+\+VISUAL\+\_\+\+INVALID\+\_\+\+SYNTAX}}
+, \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaa4b2a9220810b2bab7cfee40145ece36}{ERROR\+\_\+\+VISUAL\+\_\+\+COUNT}}
+ \}
+\begin{DoxyCompactList}\small\item\em Typy vizualnich chyb. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_acf7327bbf341147566353b938cb8c3b1}{visual\+\_\+error\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuj visual error system. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_ac995527f0c28a1e3c3e6182139d06430}{error\+\_\+system\+\_\+init}} (const \mbox{\hyperlink{structerror__system__config__t}{error\+\_\+system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Inicializuj error system s konfiguraci. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_ad70233d9512da8d6108776c773e942e3}{error\+\_\+system\+\_\+deinit}} (void)
+\begin{DoxyCompactList}\small\item\em Deinicializuj error system. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a97a9c02412523701a0f1d5a37e845629}{visual\+\_\+error\+\_\+show}} (\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}} error\+\_\+type, uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Zobraz vizualni chybu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a314097cc7e5312622bbd6ad0981a7ece}{visual\+\_\+error\+\_\+clear}} (uint32\+\_\+t error\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Vymaz vizualni chybu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a2a68c37b08f7acbbefa6b31d6a79c9d3}{visual\+\_\+error\+\_\+clear\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Vymaz vsechny vizualni chyby. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_ac94fcd47b6a08516a34bd10162b320bd}{error\+\_\+clear\+\_\+all\+\_\+indicators}} (void)
+\begin{DoxyCompactList}\small\item\em Vymaz vsechny error indikatory. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_abdbfe23e7e752a51b021ff354fd6efe0}{visual\+\_\+error\+\_\+confirm}} (uint32\+\_\+t error\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Potvrd chybu (pro chyby vyzadujici potvrzeni). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{visual__error__system_8h_ab0e65f1cb6bc34b175f7e86e8a2b05fa}{visual\+\_\+error\+\_\+show\+\_\+guidance}} (\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}} error\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Zobraz uzivatelsky navod k chybe. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{visual__error__system_8h_abdd724f673b0a1e0a44c562e25861fcf}{visual\+\_\+error\+\_\+print\+\_\+details}} (\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}} error\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Vypis detailni chybovy text. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{visual__error__system_8h_a30f70b7cd5f45b60beccf0fe96481615}{visual\+\_\+error\+\_\+highlight\+\_\+positions}} (\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}} error\+\_\+type, const uint8\+\_\+t \texorpdfstring{$\ast$}{*}positions, uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Zvyrazni problematicke pozice na sachovnici. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a7773aff356d74233bfd8e6cc108934be}{visual\+\_\+error\+\_\+illegal\+\_\+move}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobraz chybu neplatneho tahu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a6060ef6aeb2a280f76fceabc6d78f68a}{visual\+\_\+error\+\_\+wrong\+\_\+turn}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Zobraz chybu spatneho hrace na tahu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{visual__error__system_8h_ac3a31019dad37c8b06f3cf349a409048}{visual\+\_\+error\+\_\+piece\+\_\+blocked}} (uint8\+\_\+t row, uint8\+\_\+t col, const uint8\+\_\+t \texorpdfstring{$\ast$}{*}blocked\+\_\+positions, uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Zobraz chybu blokovane figurky. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a0f02317b17f5b0281f661f19deae1499}{visual\+\_\+error\+\_\+check\+\_\+not\+\_\+resolved}} (uint8\+\_\+t king\+\_\+row, uint8\+\_\+t king\+\_\+col, const uint8\+\_\+t \texorpdfstring{$\ast$}{*}threat\+\_\+positions, uint8\+\_\+t threat\+\_\+count)
+\begin{DoxyCompactList}\small\item\em Zobraz chybu nereseného sachu. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{visual__error__system_8h_a635ac5cf9d0bb5b24584fea8efe16bad}{visual\+\_\+error\+\_\+is\+\_\+active}} (uint32\+\_\+t error\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Overi zda je error aktivni. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a0f75ba7a0d65c983dfb87b2ed2ba0c68}{visual\+\_\+error\+\_\+get\+\_\+active\+\_\+count}} (void)
+\begin{DoxyCompactList}\small\item\em Pocet aktivnich erroru. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{visual__error__system_8h_a5dbb39b564ea07ad3489bba1f515b375}{visual\+\_\+error\+\_\+print\+\_\+status}} (void)
+\begin{DoxyCompactList}\small\item\em Vypis status erroru. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_affeb147a450f8cb876aa449cd2810459}{error\+\_\+set\+\_\+config}} (const \mbox{\hyperlink{structerror__system__config__t}{error\+\_\+system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Nastav konfiguraci error systemu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_ae69d7d8836ef3c8815256f5522ca5dff}{error\+\_\+set\+\_\+flash\+\_\+count}} (uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Nastav pocet bliknuti. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a0031642405bf7dfbf920a89dba3c10a4}{error\+\_\+set\+\_\+flash\+\_\+duration}} (uint32\+\_\+t duration\+\_\+ms)
+\begin{DoxyCompactList}\small\item\em Nastav delku bliknuti. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a05cea41b9d878ee84c04cfa3c4b8d987}{error\+\_\+get\+\_\+led\+\_\+positions\+\_\+for\+\_\+move}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move, uint8\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+positions, uint8\+\_\+t \texorpdfstring{$\ast$}{*}count)
+\begin{DoxyCompactList}\small\item\em Ziskej LED pozice pro tah. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a272ee1742d41b587ae4d72681377bb19}{error\+\_\+get\+\_\+led\+\_\+positions\+\_\+for\+\_\+square}} (uint8\+\_\+t row, uint8\+\_\+t col, uint8\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+positions, uint8\+\_\+t \texorpdfstring{$\ast$}{*}count)
+\begin{DoxyCompactList}\small\item\em Ziskej LED pozice pro pole. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a463e7fa72dbf8c609d0e2740791d969f}{error\+\_\+get\+\_\+status}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t buffer\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Ziskej status error systemu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_aeb7e8d4b5498f2ea0e6fe7e48bf5cad5}{error\+\_\+show\+\_\+visual}} (\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}} error\+\_\+type, const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}failed\+\_\+move)
+\begin{DoxyCompactList}\small\item\em Zobraz vizualni chybu (interni). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a46114d68c2b1fcc68370988272a94445}{error\+\_\+show\+\_\+blocking\+\_\+path}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobraz blokovani cesty. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a3cecc0d8e7cadda0a383b72eae511e69}{error\+\_\+show\+\_\+check\+\_\+escape\+\_\+options}} (uint8\+\_\+t king\+\_\+row, uint8\+\_\+t king\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobraz moznosti unikuti ze sachu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a4c6190405f3084c622bcf74002ffabf4}{error\+\_\+guide\+\_\+correct\+\_\+move}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}correct\+\_\+move)
+\begin{DoxyCompactList}\small\item\em Navod na spravny tah. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_ad9afe9c1a8c014529460b0fea1f05fa9}{error\+\_\+guide\+\_\+piece\+\_\+selection}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}movable\+\_\+pieces, uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Navod na vyber figurky. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a36edba382e6f3074f4305522f4b6df05}{error\+\_\+guide\+\_\+valid\+\_\+destinations}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Navod na platne cile. \end{DoxyCompactList}\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{visual__error__system_8h_a69eece35bee75f5f08536a8de6b06bdc}{error\+\_\+get\+\_\+last\+\_\+message}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej posledni chybovou zpravu. \end{DoxyCompactList}\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{visual__error__system_8h_a4791aa096cc4979c684bea5221dc8f4f}{error\+\_\+get\+\_\+recovery\+\_\+hint}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej napovedu k oprave. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_a4dda5bf9ea83f0ad9fc924e59f3b39f2}{error\+\_\+convert\+\_\+move\+\_\+error\+\_\+to\+\_\+visual}} (\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} move\+\_\+error, \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}} \texorpdfstring{$\ast$}{*}visual\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Preved tah error na vizualni error. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{visual__error__system_8h_aaef03c095e26b53373ea8d44a3fe3af1}{visual\+\_\+error\+\_\+update}} (void)
+\begin{DoxyCompactList}\small\item\em Aktualizuj errory (volat periodicky). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Visual Error System -\/ Vizualni indikace chyb a navod pro uzivatele. 
+
+Tento modul poskytuje vizualni system pro zpracovani chyb\+:
+\begin{DoxyItemize}
+\item Indikace chyb pomoci LED
+\item Textovy popis chyb
+\item Uzivatelsky navod pro napravu
+\item Prioritni system pro vice chyb soucasne
+\item Integrace s ostatnimi vizualnimi systemy
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/24
+\end{DoxyDate}
+Vizualni system pro zpracovani chyb poskytuje komplexni system pro zobrazovani chyb uzivateli. Kombinuje LED indikace s textovym popisem a poskytuje jasny navod jak chybu opravit.
+
+Vyhody\+:
+\begin{DoxyItemize}
+\item Jasne LED indikace chyb
+\item Preklady chyb do cestiny
+\item Krok-\/po-\/kroku navod pro opravu
+\item Automaticke zmizeni po oprave
+\item Podpora pro vice chyb soucasne 
+\end{DoxyItemize}
+
+Definice v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{visual__error__system_8h_doc-enum-members}
+\doxysubsection{Dokumentace výčtových typů}
+\Hypertarget{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_type\_t@{visual\_error\_type\_t}}
+\index{visual\_error\_type\_t@{visual\_error\_type\_t}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_type\_t}{visual\_error\_type\_t}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da} 
+enum \mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}}}
+
+
+
+Typy vizualnich chyb. 
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ERROR\_VISUAL\_INVALID\_MOVE@{ERROR\_VISUAL\_INVALID\_MOVE}!visual\_error\_system.h@{visual\_error\_system.h}}\index{visual\_error\_system.h@{visual\_error\_system.h}!ERROR\_VISUAL\_INVALID\_MOVE@{ERROR\_VISUAL\_INVALID\_MOVE}}}\Hypertarget{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaf8203fd08d0fbab4c43496ac51ca7ff6}\label{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaf8203fd08d0fbab4c43496ac51ca7ff6} 
+ERROR\+\_\+\+VISUAL\+\_\+\+INVALID\+\_\+\+MOVE&Neplatny tah. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ERROR\_VISUAL\_WRONG\_TURN@{ERROR\_VISUAL\_WRONG\_TURN}!visual\_error\_system.h@{visual\_error\_system.h}}\index{visual\_error\_system.h@{visual\_error\_system.h}!ERROR\_VISUAL\_WRONG\_TURN@{ERROR\_VISUAL\_WRONG\_TURN}}}\Hypertarget{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa65797988f25b00cbddea2cbce6b38e46}\label{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa65797988f25b00cbddea2cbce6b38e46} 
+ERROR\+\_\+\+VISUAL\+\_\+\+WRONG\+\_\+\+TURN&Spatny hrac na tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ERROR\_VISUAL\_NO\_PIECE@{ERROR\_VISUAL\_NO\_PIECE}!visual\_error\_system.h@{visual\_error\_system.h}}\index{visual\_error\_system.h@{visual\_error\_system.h}!ERROR\_VISUAL\_NO\_PIECE@{ERROR\_VISUAL\_NO\_PIECE}}}\Hypertarget{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa08d581ce669e4bc1cbd55c29e43032a5}\label{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa08d581ce669e4bc1cbd55c29e43032a5} 
+ERROR\+\_\+\+VISUAL\+\_\+\+NO\+\_\+\+PIECE&Figurka nenalezena. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ERROR\_VISUAL\_PIECE\_BLOCKING@{ERROR\_VISUAL\_PIECE\_BLOCKING}!visual\_error\_system.h@{visual\_error\_system.h}}\index{visual\_error\_system.h@{visual\_error\_system.h}!ERROR\_VISUAL\_PIECE\_BLOCKING@{ERROR\_VISUAL\_PIECE\_BLOCKING}}}\Hypertarget{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaed9dfe2a8f8f05f26129f9da5350ceb0}\label{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaed9dfe2a8f8f05f26129f9da5350ceb0} 
+ERROR\+\_\+\+VISUAL\+\_\+\+PIECE\+\_\+\+BLOCKING&Figurka blokovana. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ERROR\_VISUAL\_CHECK\_VIOLATION@{ERROR\_VISUAL\_CHECK\_VIOLATION}!visual\_error\_system.h@{visual\_error\_system.h}}\index{visual\_error\_system.h@{visual\_error\_system.h}!ERROR\_VISUAL\_CHECK\_VIOLATION@{ERROR\_VISUAL\_CHECK\_VIOLATION}}}\Hypertarget{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa50b4433db1a1a2fddea20bb8b7493f16}\label{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa50b4433db1a1a2fddea20bb8b7493f16} 
+ERROR\+\_\+\+VISUAL\+\_\+\+CHECK\+\_\+\+VIOLATION&Sach nereseny. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ERROR\_VISUAL\_SYSTEM\_ERROR@{ERROR\_VISUAL\_SYSTEM\_ERROR}!visual\_error\_system.h@{visual\_error\_system.h}}\index{visual\_error\_system.h@{visual\_error\_system.h}!ERROR\_VISUAL\_SYSTEM\_ERROR@{ERROR\_VISUAL\_SYSTEM\_ERROR}}}\Hypertarget{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa39a6b8b12fd8e563fa0456178fddda19}\label{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa39a6b8b12fd8e563fa0456178fddda19} 
+ERROR\+\_\+\+VISUAL\+\_\+\+SYSTEM\+\_\+\+ERROR&Systemova chyba. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ERROR\_VISUAL\_INVALID\_SYNTAX@{ERROR\_VISUAL\_INVALID\_SYNTAX}!visual\_error\_system.h@{visual\_error\_system.h}}\index{visual\_error\_system.h@{visual\_error\_system.h}!ERROR\_VISUAL\_INVALID\_SYNTAX@{ERROR\_VISUAL\_INVALID\_SYNTAX}}}\Hypertarget{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa8296825b7936ac8bbe6081a3d050a8c7}\label{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daa8296825b7936ac8bbe6081a3d050a8c7} 
+ERROR\+\_\+\+VISUAL\+\_\+\+INVALID\+\_\+\+SYNTAX&Neplatna syntaxe. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ERROR\_VISUAL\_COUNT@{ERROR\_VISUAL\_COUNT}!visual\_error\_system.h@{visual\_error\_system.h}}\index{visual\_error\_system.h@{visual\_error\_system.h}!ERROR\_VISUAL\_COUNT@{ERROR\_VISUAL\_COUNT}}}\Hypertarget{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaa4b2a9220810b2bab7cfee40145ece36}\label{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380daaa4b2a9220810b2bab7cfee40145ece36} 
+ERROR\+\_\+\+VISUAL\+\_\+\+COUNT&Pocet typu chyb. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00048}{48}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{visual__error__system_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{visual__error__system_8h_ac94fcd47b6a08516a34bd10162b320bd}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_clear\_all\_indicators@{error\_clear\_all\_indicators}}
+\index{error\_clear\_all\_indicators@{error\_clear\_all\_indicators}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_clear\_all\_indicators()}{error\_clear\_all\_indicators()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_ac94fcd47b6a08516a34bd10162b320bd} 
+esp\+\_\+err\+\_\+t error\+\_\+clear\+\_\+all\+\_\+indicators (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vymaz vsechny error indikatory. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00233}{233}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a4dda5bf9ea83f0ad9fc924e59f3b39f2}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_convert\_move\_error\_to\_visual@{error\_convert\_move\_error\_to\_visual}}
+\index{error\_convert\_move\_error\_to\_visual@{error\_convert\_move\_error\_to\_visual}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_convert\_move\_error\_to\_visual()}{error\_convert\_move\_error\_to\_visual()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a4dda5bf9ea83f0ad9fc924e59f3b39f2} 
+esp\+\_\+err\+\_\+t error\+\_\+convert\+\_\+move\+\_\+error\+\_\+to\+\_\+visual (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}}}]{move\+\_\+error}{, }\item[{\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{visual\+\_\+type}{}\end{DoxyParamCaption})}
+
+
+
+Preved tah error na vizualni error. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move\+\_\+error} & Tah error \\
+\hline
+{\em visual\+\_\+type} & Vystup vizualni typ \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00422}{422}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a69eece35bee75f5f08536a8de6b06bdc}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_get\_last\_message@{error\_get\_last\_message}}
+\index{error\_get\_last\_message@{error\_get\_last\_message}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_get\_last\_message()}{error\_get\_last\_message()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a69eece35bee75f5f08536a8de6b06bdc} 
+const char \texorpdfstring{$\ast$}{*} error\+\_\+get\+\_\+last\+\_\+message (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej posledni chybovou zpravu. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Zprava 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00332}{332}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a05cea41b9d878ee84c04cfa3c4b8d987}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_get\_led\_positions\_for\_move@{error\_get\_led\_positions\_for\_move}}
+\index{error\_get\_led\_positions\_for\_move@{error\_get\_led\_positions\_for\_move}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_get\_led\_positions\_for\_move()}{error\_get\_led\_positions\_for\_move()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a05cea41b9d878ee84c04cfa3c4b8d987} 
+esp\+\_\+err\+\_\+t error\+\_\+get\+\_\+led\+\_\+positions\+\_\+for\+\_\+move (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{led\+\_\+positions}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej LED pozice pro tah. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah (chess\+\_\+move\+\_\+t\texorpdfstring{$\ast$}{*}) \\
+\hline
+{\em led\+\_\+positions} & Vystup LED pozic \\
+\hline
+{\em count} & Vystup pocet LED \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00454}{454}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a272ee1742d41b587ae4d72681377bb19}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_get\_led\_positions\_for\_square@{error\_get\_led\_positions\_for\_square}}
+\index{error\_get\_led\_positions\_for\_square@{error\_get\_led\_positions\_for\_square}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_get\_led\_positions\_for\_square()}{error\_get\_led\_positions\_for\_square()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a272ee1742d41b587ae4d72681377bb19} 
+esp\+\_\+err\+\_\+t error\+\_\+get\+\_\+led\+\_\+positions\+\_\+for\+\_\+square (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{led\+\_\+positions}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej LED pozice pro pole. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek \\
+\hline
+{\em col} & Sloupec \\
+\hline
+{\em led\+\_\+positions} & Vystup LED pozic \\
+\hline
+{\em count} & Vystup pocet LED \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00478}{478}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a4791aa096cc4979c684bea5221dc8f4f}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_get\_recovery\_hint@{error\_get\_recovery\_hint}}
+\index{error\_get\_recovery\_hint@{error\_get\_recovery\_hint}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_get\_recovery\_hint()}{error\_get\_recovery\_hint()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a4791aa096cc4979c684bea5221dc8f4f} 
+const char \texorpdfstring{$\ast$}{*} error\+\_\+get\+\_\+recovery\+\_\+hint (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej napovedu k oprave. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Napoveda 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00340}{340}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a463e7fa72dbf8c609d0e2740791d969f}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_get\_status@{error\_get\_status}}
+\index{error\_get\_status@{error\_get\_status}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_get\_status()}{error\_get\_status()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a463e7fa72dbf8c609d0e2740791d969f} 
+esp\+\_\+err\+\_\+t error\+\_\+get\+\_\+status (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{buffer\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej status error systemu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em buffer} & Buffer pro status \\
+\hline
+{\em buffer\+\_\+size} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00361}{361}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a4c6190405f3084c622bcf74002ffabf4}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_guide\_correct\_move@{error\_guide\_correct\_move}}
+\index{error\_guide\_correct\_move@{error\_guide\_correct\_move}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_guide\_correct\_move()}{error\_guide\_correct\_move()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a4c6190405f3084c622bcf74002ffabf4} 
+esp\+\_\+err\+\_\+t error\+\_\+guide\+\_\+correct\+\_\+move (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{correct\+\_\+move}{}\end{DoxyParamCaption})}
+
+
+
+Navod na spravny tah. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em correct\+\_\+move} & Spravny tah (chess\+\_\+move\+\_\+t\texorpdfstring{$\ast$}{*}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00252}{252}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_ad9afe9c1a8c014529460b0fea1f05fa9}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_guide\_piece\_selection@{error\_guide\_piece\_selection}}
+\index{error\_guide\_piece\_selection@{error\_guide\_piece\_selection}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_guide\_piece\_selection()}{error\_guide\_piece\_selection()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_ad9afe9c1a8c014529460b0fea1f05fa9} 
+esp\+\_\+err\+\_\+t error\+\_\+guide\+\_\+piece\+\_\+selection (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{movable\+\_\+pieces}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Navod na vyber figurky. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em movable\+\_\+pieces} & Tahnouci figurky \\
+\hline
+{\em count} & Pocet \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00284}{284}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a36edba382e6f3074f4305522f4b6df05}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_guide\_valid\_destinations@{error\_guide\_valid\_destinations}}
+\index{error\_guide\_valid\_destinations@{error\_guide\_valid\_destinations}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_guide\_valid\_destinations()}{error\_guide\_valid\_destinations()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a36edba382e6f3074f4305522f4b6df05} 
+esp\+\_\+err\+\_\+t error\+\_\+guide\+\_\+valid\+\_\+destinations (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Navod na platne cile. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Od radek \\
+\hline
+{\em from\+\_\+col} & Od sloupec \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00307}{307}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_affeb147a450f8cb876aa449cd2810459}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_set\_config@{error\_set\_config}}
+\index{error\_set\_config@{error\_set\_config}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_set\_config()}{error\_set\_config()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_affeb147a450f8cb876aa449cd2810459} 
+esp\+\_\+err\+\_\+t error\+\_\+set\+\_\+config (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structerror__system__config__t}{error\+\_\+system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Nastav konfiguraci error systemu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em config} & Nova konfigurace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00397}{397}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_ae69d7d8836ef3c8815256f5522ca5dff}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_set\_flash\_count@{error\_set\_flash\_count}}
+\index{error\_set\_flash\_count@{error\_set\_flash\_count}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_set\_flash\_count()}{error\_set\_flash\_count()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_ae69d7d8836ef3c8815256f5522ca5dff} 
+esp\+\_\+err\+\_\+t error\+\_\+set\+\_\+flash\+\_\+count (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Nastav pocet bliknuti. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em count} & Pocet bliknuti \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00408}{408}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a0031642405bf7dfbf920a89dba3c10a4}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_set\_flash\_duration@{error\_set\_flash\_duration}}
+\index{error\_set\_flash\_duration@{error\_set\_flash\_duration}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_set\_flash\_duration()}{error\_set\_flash\_duration()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a0031642405bf7dfbf920a89dba3c10a4} 
+esp\+\_\+err\+\_\+t error\+\_\+set\+\_\+flash\+\_\+duration (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{duration\+\_\+ms}{}\end{DoxyParamCaption})}
+
+
+
+Nastav delku bliknuti. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em duration\+\_\+ms} & Delka v ms \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00415}{415}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a46114d68c2b1fcc68370988272a94445}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_show\_blocking\_path@{error\_show\_blocking\_path}}
+\index{error\_show\_blocking\_path@{error\_show\_blocking\_path}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_show\_blocking\_path()}{error\_show\_blocking\_path()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a46114d68c2b1fcc68370988272a94445} 
+esp\+\_\+err\+\_\+t error\+\_\+show\+\_\+blocking\+\_\+path (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz blokovani cesty. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Od radek \\
+\hline
+{\em from\+\_\+col} & Od sloupec \\
+\hline
+{\em to\+\_\+row} & Do radek \\
+\hline
+{\em to\+\_\+col} & Do sloupec \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00162}{162}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a3cecc0d8e7cadda0a383b72eae511e69}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_show\_check\_escape\_options@{error\_show\_check\_escape\_options}}
+\index{error\_show\_check\_escape\_options@{error\_show\_check\_escape\_options}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_show\_check\_escape\_options()}{error\_show\_check\_escape\_options()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a3cecc0d8e7cadda0a383b72eae511e69} 
+esp\+\_\+err\+\_\+t error\+\_\+show\+\_\+check\+\_\+escape\+\_\+options (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{king\+\_\+row}{, }\item[{uint8\+\_\+t}]{king\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz moznosti unikuti ze sachu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em king\+\_\+row} & Radek krale \\
+\hline
+{\em king\+\_\+col} & Sloupec krale \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00200}{200}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_aeb7e8d4b5498f2ea0e6fe7e48bf5cad5}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_show\_visual@{error\_show\_visual}}
+\index{error\_show\_visual@{error\_show\_visual}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_show\_visual()}{error\_show\_visual()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_aeb7e8d4b5498f2ea0e6fe7e48bf5cad5} 
+esp\+\_\+err\+\_\+t error\+\_\+show\+\_\+visual (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}}}]{error\+\_\+type}{, }\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{failed\+\_\+move}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz vizualni chybu (interni). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+type} & Typ chyby \\
+\hline
+{\em failed\+\_\+move} & Chybny tah (chess\+\_\+move\+\_\+t\texorpdfstring{$\ast$}{*}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00086}{86}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_ad70233d9512da8d6108776c773e942e3}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_system\_deinit@{error\_system\_deinit}}
+\index{error\_system\_deinit@{error\_system\_deinit}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_system\_deinit()}{error\_system\_deinit()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_ad70233d9512da8d6108776c773e942e3} 
+esp\+\_\+err\+\_\+t error\+\_\+system\+\_\+deinit (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Deinicializuj error system. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00072}{72}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_ac995527f0c28a1e3c3e6182139d06430}\index{visual\_error\_system.h@{visual\_error\_system.h}!error\_system\_init@{error\_system\_init}}
+\index{error\_system\_init@{error\_system\_init}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{error\_system\_init()}{error\_system\_init()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_ac995527f0c28a1e3c3e6182139d06430} 
+esp\+\_\+err\+\_\+t error\+\_\+system\+\_\+init (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structerror__system__config__t}{error\+\_\+system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuj error system s konfiguraci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em config} & Konfigurace error systemu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8c_source_l00041}{41}} v souboru \mbox{\hyperlink{visual__error__system_8c_source}{visual\+\_\+error\+\_\+system.\+c}}.
+
+\Hypertarget{visual__error__system_8h_a0f02317b17f5b0281f661f19deae1499}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_check\_not\_resolved@{visual\_error\_check\_not\_resolved}}
+\index{visual\_error\_check\_not\_resolved@{visual\_error\_check\_not\_resolved}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_check\_not\_resolved()}{visual\_error\_check\_not\_resolved()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a0f02317b17f5b0281f661f19deae1499} 
+uint32\+\_\+t visual\+\_\+error\+\_\+check\+\_\+not\+\_\+resolved (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{king\+\_\+row}{, }\item[{uint8\+\_\+t}]{king\+\_\+col}{, }\item[{const uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{threat\+\_\+positions}{, }\item[{uint8\+\_\+t}]{threat\+\_\+count}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz chybu nereseného sachu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em king\+\_\+row} & Radek krale \\
+\hline
+{\em king\+\_\+col} & Sloupec krale \\
+\hline
+{\em threat\+\_\+positions} & Pozice ohrozeni \\
+\hline
+{\em threat\+\_\+count} & Pocet pozic ohrozeni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ID chyby 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_a314097cc7e5312622bbd6ad0981a7ece}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_clear@{visual\_error\_clear}}
+\index{visual\_error\_clear@{visual\_error\_clear}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_clear()}{visual\_error\_clear()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a314097cc7e5312622bbd6ad0981a7ece} 
+esp\+\_\+err\+\_\+t visual\+\_\+error\+\_\+clear (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{error\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Vymaz vizualni chybu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+id} & ID chyby k vymazani \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_a2a68c37b08f7acbbefa6b31d6a79c9d3}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_clear\_all@{visual\_error\_clear\_all}}
+\index{visual\_error\_clear\_all@{visual\_error\_clear\_all}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_clear\_all()}{visual\_error\_clear\_all()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a2a68c37b08f7acbbefa6b31d6a79c9d3} 
+esp\+\_\+err\+\_\+t visual\+\_\+error\+\_\+clear\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vymaz vsechny vizualni chyby. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_abdbfe23e7e752a51b021ff354fd6efe0}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_confirm@{visual\_error\_confirm}}
+\index{visual\_error\_confirm@{visual\_error\_confirm}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_confirm()}{visual\_error\_confirm()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_abdbfe23e7e752a51b021ff354fd6efe0} 
+esp\+\_\+err\+\_\+t visual\+\_\+error\+\_\+confirm (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{error\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Potvrd chybu (pro chyby vyzadujici potvrzeni). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+id} & ID chyby \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_a0f75ba7a0d65c983dfb87b2ed2ba0c68}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_get\_active\_count@{visual\_error\_get\_active\_count}}
+\index{visual\_error\_get\_active\_count@{visual\_error\_get\_active\_count}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_get\_active\_count()}{visual\_error\_get\_active\_count()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a0f75ba7a0d65c983dfb87b2ed2ba0c68} 
+uint8\+\_\+t visual\+\_\+error\+\_\+get\+\_\+active\+\_\+count (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Pocet aktivnich erroru. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Pocet aktivnich chyb 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_a30f70b7cd5f45b60beccf0fe96481615}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_highlight\_positions@{visual\_error\_highlight\_positions}}
+\index{visual\_error\_highlight\_positions@{visual\_error\_highlight\_positions}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_highlight\_positions()}{visual\_error\_highlight\_positions()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a30f70b7cd5f45b60beccf0fe96481615} 
+void visual\+\_\+error\+\_\+highlight\+\_\+positions (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}}}]{error\+\_\+type}{, }\item[{const uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{positions}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Zvyrazni problematicke pozice na sachovnici. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+type} & Typ chyby \\
+\hline
+{\em positions} & Pole pozic k zvyrazneni \\
+\hline
+{\em count} & Pocet pozic \\
+\hline
+\end{DoxyParams}
+\Hypertarget{visual__error__system_8h_a7773aff356d74233bfd8e6cc108934be}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_illegal\_move@{visual\_error\_illegal\_move}}
+\index{visual\_error\_illegal\_move@{visual\_error\_illegal\_move}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_illegal\_move()}{visual\_error\_illegal\_move()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a7773aff356d74233bfd8e6cc108934be} 
+uint32\+\_\+t visual\+\_\+error\+\_\+illegal\+\_\+move (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz chybu neplatneho tahu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Zdrojovy radek \\
+\hline
+{\em from\+\_\+col} & Zdrojovy sloupec \\
+\hline
+{\em to\+\_\+row} & Cilovy radek \\
+\hline
+{\em to\+\_\+col} & Cilovy sloupec \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ID chyby 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_acf7327bbf341147566353b938cb8c3b1}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_init@{visual\_error\_init}}
+\index{visual\_error\_init@{visual\_error\_init}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_init()}{visual\_error\_init()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_acf7327bbf341147566353b938cb8c3b1} 
+esp\+\_\+err\+\_\+t visual\+\_\+error\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuj visual error system. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_a635ac5cf9d0bb5b24584fea8efe16bad}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_is\_active@{visual\_error\_is\_active}}
+\index{visual\_error\_is\_active@{visual\_error\_is\_active}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_is\_active()}{visual\_error\_is\_active()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a635ac5cf9d0bb5b24584fea8efe16bad} 
+bool visual\+\_\+error\+\_\+is\+\_\+active (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{error\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je error aktivni. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+id} & ID chyby \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je error aktivni 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_ac3a31019dad37c8b06f3cf349a409048}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_piece\_blocked@{visual\_error\_piece\_blocked}}
+\index{visual\_error\_piece\_blocked@{visual\_error\_piece\_blocked}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_piece\_blocked()}{visual\_error\_piece\_blocked()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_ac3a31019dad37c8b06f3cf349a409048} 
+uint32\+\_\+t visual\+\_\+error\+\_\+piece\+\_\+blocked (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{, }\item[{const uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{blocked\+\_\+positions}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz chybu blokovane figurky. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek \\
+\hline
+{\em col} & Sloupec \\
+\hline
+{\em blocked\+\_\+positions} & Blokovane pozice \\
+\hline
+{\em count} & Pocet blokovanych pozic \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ID chyby 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_abdd724f673b0a1e0a44c562e25861fcf}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_print\_details@{visual\_error\_print\_details}}
+\index{visual\_error\_print\_details@{visual\_error\_print\_details}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_print\_details()}{visual\_error\_print\_details()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_abdd724f673b0a1e0a44c562e25861fcf} 
+void visual\+\_\+error\+\_\+print\+\_\+details (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}}}]{error\+\_\+type}{}\end{DoxyParamCaption})}
+
+
+
+Vypis detailni chybovy text. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+type} & Typ chyby \\
+\hline
+\end{DoxyParams}
+\Hypertarget{visual__error__system_8h_a5dbb39b564ea07ad3489bba1f515b375}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_print\_status@{visual\_error\_print\_status}}
+\index{visual\_error\_print\_status@{visual\_error\_print\_status}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_print\_status()}{visual\_error\_print\_status()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a5dbb39b564ea07ad3489bba1f515b375} 
+void visual\+\_\+error\+\_\+print\+\_\+status (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vypis status erroru. 
+
+\Hypertarget{visual__error__system_8h_a97a9c02412523701a0f1d5a37e845629}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_show@{visual\_error\_show}}
+\index{visual\_error\_show@{visual\_error\_show}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_show()}{visual\_error\_show()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a97a9c02412523701a0f1d5a37e845629} 
+uint32\+\_\+t visual\+\_\+error\+\_\+show (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}}}]{error\+\_\+type}{, }\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz vizualni chybu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+type} & Typ chyby \\
+\hline
+{\em row} & Radek chyby (pokud relevantni, jinak 0x\+FF) \\
+\hline
+{\em col} & Sloupec chyby (pokud relevantni, jinak 0x\+FF) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ID chyby nebo 0 pri selhani 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_ab0e65f1cb6bc34b175f7e86e8a2b05fa}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_show\_guidance@{visual\_error\_show\_guidance}}
+\index{visual\_error\_show\_guidance@{visual\_error\_show\_guidance}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_show\_guidance()}{visual\_error\_show\_guidance()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_ab0e65f1cb6bc34b175f7e86e8a2b05fa} 
+void visual\+\_\+error\+\_\+show\+\_\+guidance (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}}}]{error\+\_\+type}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz uzivatelsky navod k chybe. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+type} & Typ chyby \\
+\hline
+\end{DoxyParams}
+\Hypertarget{visual__error__system_8h_aaef03c095e26b53373ea8d44a3fe3af1}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_update@{visual\_error\_update}}
+\index{visual\_error\_update@{visual\_error\_update}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_update()}{visual\_error\_update()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_aaef03c095e26b53373ea8d44a3fe3af1} 
+esp\+\_\+err\+\_\+t visual\+\_\+error\+\_\+update (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Aktualizuj errory (volat periodicky). 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{visual__error__system_8h_a6060ef6aeb2a280f76fceabc6d78f68a}\index{visual\_error\_system.h@{visual\_error\_system.h}!visual\_error\_wrong\_turn@{visual\_error\_wrong\_turn}}
+\index{visual\_error\_wrong\_turn@{visual\_error\_wrong\_turn}!visual\_error\_system.h@{visual\_error\_system.h}}
+\doxysubsubsection{\texorpdfstring{visual\_error\_wrong\_turn()}{visual\_error\_wrong\_turn()}}
+{\footnotesize\ttfamily \label{visual__error__system_8h_a6060ef6aeb2a280f76fceabc6d78f68a} 
+uint32\+\_\+t visual\+\_\+error\+\_\+wrong\+\_\+turn (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz chybu spatneho hrace na tahu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek \\
+\hline
+{\em col} & Sloupec \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ID chyby 
+\end{DoxyReturn}

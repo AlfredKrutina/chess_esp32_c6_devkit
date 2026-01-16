@@ -1,0 +1,1001 @@
+\doxysection{animation\+\_\+task.\+c}
+\hypertarget{animation__task_8c_source}{}\label{animation__task_8c_source}\index{animation\_task.c@{animation\_task.c}}
+\mbox{\hyperlink{animation__task_8c}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00030}00030\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{animation__task_8h}{animation\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00031}00031\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00032}00032\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__task__simple_8h}{led\_task\_simple.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00033}00033\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__mapping_8h}{led\_mapping.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00034}00034\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00035}00035\ \textcolor{preprocessor}{\#include\ "{}freertos/task.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00036}00036\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00037}00037\ \textcolor{preprocessor}{\#include\ "{}freertos/semphr.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00038}00038\ \textcolor{preprocessor}{\#include\ "{}freertos/timers.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00039}00039\ \textcolor{preprocessor}{\#include\ "{}esp\_log.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00040}00040\ \textcolor{preprocessor}{\#include\ "{}esp\_system.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00041}00041\ \textcolor{preprocessor}{\#include\ "{}esp\_timer.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00042}00042\ \textcolor{preprocessor}{\#include\ "{}esp\_task\_wdt.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00043}00043\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00044}00044\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00045}00045\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00046}00046\ \textcolor{preprocessor}{\#include\ <stdio.h>}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00047}00047\ \textcolor{preprocessor}{\#include\ <stdlib.h>}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00048}00048\ \textcolor{preprocessor}{\#include\ <math.h>}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00049}00049\ \textcolor{preprocessor}{\#include\ <inttypes.h>}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00050}00050\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00051}00051\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00052}\mbox{\hyperlink{animation__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00052}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}}\ =\ \textcolor{stringliteral}{"{}ANIMATION\_TASK"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00054}00054\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00055}00055\ \textcolor{comment}{//\ WDT\ WRAPPER\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00056}00056\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00062}\mbox{\hyperlink{animation__task_8c_a08e644be7a7cc71b0a4fcdde5ea8d1f5}{00062}}\ \textcolor{keyword}{static}\ esp\_err\_t\ \mbox{\hyperlink{animation__task_8c_a08e644be7a7cc71b0a4fcdde5ea8d1f5}{animation\_task\_wdt\_reset\_safe}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00063}00063\ \ \ \ \ esp\_err\_t\ ret\ =\ esp\_task\_wdt\_reset();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00064}00064\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00065}00065\ \ \ \ \ \textcolor{keywordflow}{if}\ (ret\ ==\ ESP\_ERR\_NOT\_FOUND)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00066}00066\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Log\ as\ WARNING\ instead\ of\ ERROR\ -\/\ task\ not\ registered\ yet}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00067}00067\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}WDT\ reset:\ task\ not\ registered\ yet\ (this\ is\ normal\ during\ startup)"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00068}00068\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;\ \textcolor{comment}{//\ Treat\ as\ success\ for\ our\ purposes}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00069}00069\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00070}00070\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}WDT\ reset\ failed:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00071}00071\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00072}00072\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00073}00073\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00074}00074\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00075}00075\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00076}00076\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00077}00077\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00078}00078\ \textcolor{comment}{//\ LOCAL\ VARIABLES\ AND\ CONSTANTS}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00079}00079\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00080}00080\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00081}00081\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00082}00082\ \textcolor{comment}{//\ Animation\ configuration}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00083}\mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{00083}}\ \textcolor{preprocessor}{\#define\ MAX\_ANIMATIONS\ \ \ \ \ \ \ \ \ \ 20\ \ \ \ \ \ }\textcolor{comment}{//\ Maximum\ concurrent\ animations}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00084}\mbox{\hyperlink{animation__task_8c_a5b4055201d2d8170e179b1ceaa438b9c}{00084}}\ \textcolor{preprocessor}{\#define\ MAX\_FRAMES\ \ \ \ \ \ \ \ \ \ \ \ \ 100\ \ \ \ \ }\textcolor{comment}{//\ Maximum\ frames\ per\ animation}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00085}\mbox{\hyperlink{animation__task_8c_aaaafe1fcaf34b610aa12a2b28705e111}{00085}}\ \textcolor{preprocessor}{\#define\ ANIMATION\_TASK\_INTERVAL\ 50\ \ \ \ \ }\textcolor{comment}{//\ Animation\ task\ interval\ (50ms)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00086}\mbox{\hyperlink{animation__task_8c_a1d1bdfd77e8bb3d8df370e30f70dd329}{00086}}\ \textcolor{preprocessor}{\#define\ FRAME\_DURATION\_MS\ \ \ \ \ \ 100\ \ \ \ \ }\textcolor{comment}{//\ Default\ frame\ duration}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00087}00087\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00088}00088\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00089}00089\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00090}00090\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00091}00091\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00092}00092\ \textcolor{comment}{//\ Animation\ storage}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00093}\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{00093}}\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[\mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}}];}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00094}\mbox{\hyperlink{animation__task_8c_a2c59480d31f1d62c0da421b1b3826642}{00094}}\ \textcolor{keyword}{static}\ uint8\_t\ \mbox{\hyperlink{animation__task_8c_a2c59480d31f1d62c0da421b1b3826642}{next\_animation\_id}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00095}\mbox{\hyperlink{animation__task_8c_a35141cb45623cb3b7b4d96da35ed1831}{00095}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{animation__task_8c_a35141cb45623cb3b7b4d96da35ed1831}{task\_running}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00096}00096\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00097}00097\ \textcolor{comment}{//\ Current\ active\ animations}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00098}\mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{00098}}\ \textcolor{keyword}{static}\ uint8\_t\ \mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00099}\mbox{\hyperlink{animation__task_8c_a261a1c96f2134fa07a122bcbaf14167b}{00099}}\ \textcolor{keyword}{static}\ uint8\_t\ \mbox{\hyperlink{animation__task_8c_a261a1c96f2134fa07a122bcbaf14167b}{current\_animation\_index}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00101}00101\ \textcolor{comment}{//\ Global\ flag\ for\ animation\ interruption}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00102}\mbox{\hyperlink{animation__task_8c_af2889f0cc8ff05da5e068e7574ed5b3b}{00102}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{volatile}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{animation__task_8c_af2889f0cc8ff05da5e068e7574ed5b3b}{animation\_interrupted}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00103}\mbox{\hyperlink{animation__task_8c_a5579f35967ee72c55398c089594c9f69}{00103}}\ \textcolor{keyword}{static}\ SemaphoreHandle\_t\ \mbox{\hyperlink{animation__task_8c_a5579f35967ee72c55398c089594c9f69}{animation\_interrupt\_mutex}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00104}00104\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00105}00105\ \textcolor{comment}{//\ Animation\ patterns}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00106}\mbox{\hyperlink{animation__task_8c_a58427d18cd3eb18ee8c7802c2a5a7814}{00106}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ uint32\_t\ \mbox{\hyperlink{animation__task_8c_a58427d18cd3eb18ee8c7802c2a5a7814}{rainbow\_colors}}[]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00107}00107\ \ \ \ \ 0xFF0000,\ 0xFF8000,\ 0xFFFF00,\ 0x80FF00,\ 0x00FF00,\ 0x00FF80,}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00108}00108\ \ \ \ \ 0x00FFFF,\ 0x0080FF,\ 0x0000FF,\ 0x8000FF,\ 0xFF00FF,\ 0xFF0080}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00109}00109\ \};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00110}00110\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00111}00111\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00112}00112\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00113}00113\ \textcolor{comment}{//\ Frame\ buffers\ for\ common\ animations}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00114}\mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{00114}}\ \textcolor{keyword}{static}\ uint8\_t\ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[\mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}}][3];\ \ \ \ \ \ \textcolor{comment}{//\ RGB\ values\ for\ wave}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00115}\mbox{\hyperlink{animation__task_8c_a63913cf3472539c76d9f3b05a1a49361}{00115}}\ \textcolor{keyword}{static}\ uint8\_t\ \mbox{\hyperlink{animation__task_8c_a63913cf3472539c76d9f3b05a1a49361}{pulse\_frame}}[\mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}}][3];\ \ \ \ \ \textcolor{comment}{//\ RGB\ values\ for\ pulse}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00116}\mbox{\hyperlink{animation__task_8c_afc4dd0f46762995c1147511282c4cb2d}{00116}}\ \textcolor{keyword}{static}\ uint8\_t\ \mbox{\hyperlink{animation__task_8c_afc4dd0f46762995c1147511282c4cb2d}{fade\_frame}}[\mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}}][3];\ \ \ \ \ \ \textcolor{comment}{//\ RGB\ values\ for\ fade}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00117}00117\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00118}00118\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00119}00119\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00120}00120\ \textcolor{comment}{//\ ANIMATION\ INITIALIZATION\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00121}00121\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00122}00122\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00123}00123\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00124}\mbox{\hyperlink{animation__task_8c_a09488753d3a3be4415fb5e1bc44d1fb0}{00124}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a09488753d3a3be4415fb5e1bc44d1fb0}{animation\_initialize\_system}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00125}00125\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00126}00126\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Initializing\ animation\ system..."{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00127}00127\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00128}00128\ \ \ \ \ \textcolor{comment}{//\ Clear\ animation\ array}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00129}00129\ \ \ \ \ memset(\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00130}00130\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00131}00131\ \ \ \ \ \textcolor{comment}{//\ Initialize\ frame\ buffers}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00132}00132\ \ \ \ \ memset(\mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00133}00133\ \ \ \ \ memset(\mbox{\hyperlink{animation__task_8c_a63913cf3472539c76d9f3b05a1a49361}{pulse\_frame}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{animation__task_8c_a63913cf3472539c76d9f3b05a1a49361}{pulse\_frame}}));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00134}00134\ \ \ \ \ memset(\mbox{\hyperlink{animation__task_8c_afc4dd0f46762995c1147511282c4cb2d}{fade\_frame}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{animation__task_8c_afc4dd0f46762995c1147511282c4cb2d}{fade\_frame}}));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00135}00135\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00136}00136\ \ \ \ \ \textcolor{comment}{//\ Reset\ animation\ ID\ counter}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00137}00137\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a2c59480d31f1d62c0da421b1b3826642}{next\_animation\_id}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00138}00138\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00139}00139\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a261a1c96f2134fa07a122bcbaf14167b}{current\_animation\_index}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00140}00140\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00141}00141\ \ \ \ \ \textcolor{comment}{//\ Vytvořit\ mutex\ pro\ přerušení\ animací}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00142}00142\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a5579f35967ee72c55398c089594c9f69}{animation\_interrupt\_mutex}}\ =\ xSemaphoreCreateMutex();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00143}00143\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a5579f35967ee72c55398c089594c9f69}{animation\_interrupt\_mutex}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00144}00144\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ animation\ interrupt\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00145}00145\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00146}00146\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00147}00147\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ system\ initialized\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00148}00148\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ interruption\ system\ initialized"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00149}00149\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00150}00150\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00151}00151\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00152}\mbox{\hyperlink{animation__task_8c_a8f46cd6a1f375c8d19d1c4315cabdbfd}{00152}}\ uint8\_t\ \mbox{\hyperlink{animation__task_8c_a8f46cd6a1f375c8d19d1c4315cabdbfd}{animation\_create}}(\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\_task\_type\_t}}\ type,\ uint32\_t\ duration\_ms,\ uint8\_t\ priority,\ \textcolor{keywordtype}{bool}\ loop)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00153}00153\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00154}00154\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}}\ >=\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00155}00155\ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Cannot\ create\ animation:\ maximum\ animations\ reached"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00156}00156\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0xFF;\ \textcolor{comment}{//\ Invalid\ ID}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00157}00157\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00158}00158\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00159}00159\ \ \ \ \ \textcolor{comment}{//\ Find\ free\ slot}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00160}00160\ \ \ \ \ uint8\_t\ slot\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00161}00161\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00162}00162\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ ==\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363}{ANIM\_TASK\_STATE\_IDLE}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ slot\ =\ i;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00164}00164\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00165}00165\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00166}00166\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00167}00167\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00168}00168\ \ \ \ \ \textcolor{comment}{//\ Create\ animation}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00169}00169\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].id\ =\ \mbox{\hyperlink{animation__task_8c_a2c59480d31f1d62c0da421b1b3826642}{next\_animation\_id}}++;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00170}00170\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].state\ =\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363}{ANIM\_TASK\_STATE\_IDLE}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00171}00171\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].type\ =\ type;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00172}00172\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].start\_time\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00173}00173\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].duration\_ms\ =\ duration\_ms;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00174}00174\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].frame\_duration\_ms\ =\ \mbox{\hyperlink{animation__task_8c_a1d1bdfd77e8bb3d8df370e30f70dd329}{FRAME\_DURATION\_MS}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00175}00175\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].current\_frame\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00176}00176\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].total\_frames\ =\ duration\_ms\ /\ \mbox{\hyperlink{animation__task_8c_a1d1bdfd77e8bb3d8df370e30f70dd329}{FRAME\_DURATION\_MS}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00177}00177\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].priority\ =\ priority;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00178}00178\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].loop\ =\ loop;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00179}00179\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].data\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00180}00180\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00181}00181\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}}++;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00182}00182\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00183}00183\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ created:\ ID=\%d,\ type=\%d,\ duration=\%lu\ ms,\ priority=\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].\textcolor{keywordtype}{id},\ type,\ duration\_ms,\ priority);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00185}00185\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00186}00186\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[slot].id;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00187}00187\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00188}00188\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00189}00189\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00190}\mbox{\hyperlink{animation__task_8c_abb35a3172d5d24a24902916b1ecfa40f}{00190}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_abb35a3172d5d24a24902916b1ecfa40f}{animation\_start}}(uint8\_t\ animation\_id)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00191}00191\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00192}00192\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00193}00193\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].\textcolor{keywordtype}{id}\ ==\ animation\_id)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ =\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c}{ANIM\_TASK\_STATE\_RUNNING}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00195}00195\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].start\_time\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00196}00196\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].current\_frame\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00197}00197\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00198}00198\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ started:\ ID=\%d,\ type=\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00199}00199\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ animation\_id,\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].type);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00200}00200\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00201}00201\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Send\ UART\ feedback\ for\ animation\ start}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00202}00202\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ anim\_name\ =\ \mbox{\hyperlink{animation__task_8c_ad90823f255171d2792d13345b96d9477}{animation\_get\_name}}(\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].type);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00203}00203\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🎬\ ANIMATION\ STARTED:\ \%s\ (ID:\ \%d,\ Duration:\ \%lu\ ms)"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00204}00204\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ anim\_name,\ animation\_id,\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].duration\_ms);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00205}00205\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00206}00206\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00207}00207\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00208}00208\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00209}00209\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ not\ found:\ ID=\%d"{}},\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00210}00210\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00211}00211\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00212}00212\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00213}\mbox{\hyperlink{animation__task_8c_adc882a0b86428a7333c86eddd1f26b8d}{00213}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_adc882a0b86428a7333c86eddd1f26b8d}{animation\_stop}}(uint8\_t\ animation\_id)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00214}00214\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00215}00215\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00216}00216\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].\textcolor{keywordtype}{id}\ ==\ animation\_id)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00217}00217\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ =\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363}{ANIM\_TASK\_STATE\_IDLE}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00218}00218\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}}-\/-\/;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00219}00219\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00220}00220\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ stopped:\ ID=\%d"{}},\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00221}00221\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00222}00222\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00223}00223\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00224}00224\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00225}00225\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ not\ found:\ ID=\%d"{}},\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00226}00226\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00227}00227\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00228}00228\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00229}\mbox{\hyperlink{animation__task_8c_a41183595937bafd37b4ba07c47b8c62d}{00229}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a41183595937bafd37b4ba07c47b8c62d}{animation\_pause}}(uint8\_t\ animation\_id)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00230}00230\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00231}00231\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00232}00232\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].\textcolor{keywordtype}{id}\ ==\ animation\_id\ \&\&\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ ==\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c}{ANIM\_TASK\_STATE\_RUNNING}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00233}00233\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ =\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c}{ANIM\_TASK\_STATE\_PAUSED}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00234}00234\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ paused:\ ID=\%d"{}},\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00235}00235\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00236}00236\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00237}00237\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00238}00238\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00239}00239\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ not\ found\ or\ not\ running:\ ID=\%d"{}},\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00240}00240\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00241}00241\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00242}00242\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00243}\mbox{\hyperlink{animation__task_8c_a04765d28e82fce17f90d526a7ce60fc2}{00243}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a04765d28e82fce17f90d526a7ce60fc2}{animation\_resume}}(uint8\_t\ animation\_id)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00244}00244\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00245}00245\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00246}00246\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].\textcolor{keywordtype}{id}\ ==\ animation\_id\ \&\&\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ ==\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c}{ANIM\_TASK\_STATE\_PAUSED}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ =\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c}{ANIM\_TASK\_STATE\_RUNNING}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ resumed:\ ID=\%d"{}},\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00250}00250\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00251}00251\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00252}00252\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00253}00253\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ not\ found\ or\ not\ paused:\ ID=\%d"{}},\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00254}00254\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00255}00255\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00256}00256\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00257}00257\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00258}00258\ \textcolor{comment}{//\ ANIMATION\ PATTERN\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00259}00259\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00260}00260\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00261}00261\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00262}\mbox{\hyperlink{animation__task_8c_a03563b1b04565e45d3892b520708bd64}{00262}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a03563b1b04565e45d3892b520708bd64}{animation\_generate\_wave\_frame}}(uint32\_t\ frame,\ uint32\_t\ color,\ uint8\_t\ speed)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00263}00263\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00264}00264\ \ \ \ \ uint32\_t\ current\_time\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00265}00265\ \ \ \ \ \textcolor{keywordtype}{float}\ wave\_position\ =\ (current\_time\ *\ speed\ /\ 1000.0f)\ +\ (frame\ *\ 0.1f);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00266}00266\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00267}00267\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00268}00268\ \ \ \ \ \textcolor{keywordtype}{float}\ distance\ =\ (float)i\ /\ \mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00269}00269\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ wave\ =\ sinf((distance\ *\ 2\ *\ \mbox{\hyperlink{led__task_8c_ae71449b1cc6e6250b91f539153a7a0d3}{M\_PI}})\ +\ wave\_position);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00270}00270\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ intensity\ =\ (wave\ +\ 1.0f)\ /\ 2.0f;\ \textcolor{comment}{//\ Normalize\ to\ 0-\/1}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00271}00271\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00272}00272\ \ \ \ \ \ \ \ \ uint8\_t\ red\ =\ ((color\ >>\ 16)\ \&\ 0xFF)\ *\ intensity;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00273}00273\ \ \ \ \ \ \ \ \ uint8\_t\ green\ =\ ((color\ >>\ 8)\ \&\ 0xFF)\ *\ intensity;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00274}00274\ \ \ \ \ \ \ \ \ uint8\_t\ blue\ =\ (color\ \&\ 0xFF)\ *\ intensity;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00275}00275\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00276}00276\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][0]\ =\ red;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00277}00277\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][1]\ =\ green;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00278}00278\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][2]\ =\ blue;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00279}00279\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00280}00280\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00281}00281\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00282}00282\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00283}\mbox{\hyperlink{animation__task_8c_a348dfefe5bb753b16839d5215505e4f4}{00283}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a348dfefe5bb753b16839d5215505e4f4}{animation\_generate\_pulse\_frame}}(uint32\_t\ frame,\ uint32\_t\ color,\ uint8\_t\ speed)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00284}00284\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00285}00285\ \ \ \ \ \textcolor{keywordtype}{float}\ pulse\ =\ sinf(frame\ *\ speed\ *\ 0.1f);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00286}00286\ \ \ \ \ \textcolor{keywordtype}{float}\ intensity\ =\ (pulse\ +\ 1.0f)\ /\ 2.0f;\ \textcolor{comment}{//\ Normalize\ to\ 0-\/1}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00287}00287\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00288}00288\ \ \ \ \ uint8\_t\ red\ =\ ((color\ >>\ 16)\ \&\ 0xFF)\ *\ intensity;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00289}00289\ \ \ \ \ uint8\_t\ green\ =\ ((color\ >>\ 8)\ \&\ 0xFF)\ *\ intensity;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00290}00290\ \ \ \ \ uint8\_t\ blue\ =\ (color\ \&\ 0xFF)\ *\ intensity;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00291}00291\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00292}00292\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00293}00293\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a63913cf3472539c76d9f3b05a1a49361}{pulse\_frame}}[i][0]\ =\ red;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00294}00294\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a63913cf3472539c76d9f3b05a1a49361}{pulse\_frame}}[i][1]\ =\ green;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00295}00295\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a63913cf3472539c76d9f3b05a1a49361}{pulse\_frame}}[i][2]\ =\ blue;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00296}00296\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00297}00297\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00298}00298\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00299}00299\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00300}\mbox{\hyperlink{animation__task_8c_ad2116436a161de0d3c2aa663ef02d12e}{00300}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_ad2116436a161de0d3c2aa663ef02d12e}{animation\_generate\_fade\_frame}}(uint32\_t\ frame,\ uint32\_t\ from\_color,\ uint32\_t\ to\_color,\ uint32\_t\ total\_frames)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00301}00301\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00302}00302\ \ \ \ \ \textcolor{keywordtype}{float}\ progress\ =\ (float)frame\ /\ total\_frames;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00303}00303\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00304}00304\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00305}00305\ \ \ \ \ \ \ \ \ uint8\_t\ from\_red\ =\ (from\_color\ >>\ 16)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00306}00306\ \ \ \ \ \ \ \ \ uint8\_t\ from\_green\ =\ (from\_color\ >>\ 8)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00307}00307\ \ \ \ \ \ \ \ \ uint8\_t\ from\_blue\ =\ from\_color\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00308}00308\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00309}00309\ \ \ \ \ \ \ \ \ uint8\_t\ to\_red\ =\ (to\_color\ >>\ 16)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00310}00310\ \ \ \ \ \ \ \ \ uint8\_t\ to\_green\ =\ (to\_color\ >>\ 8)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00311}00311\ \ \ \ \ \ \ \ \ uint8\_t\ to\_blue\ =\ to\_color\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00312}00312\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00313}00313\ \ \ \ \ \ \ \ \ uint8\_t\ red\ =\ from\_red\ +\ (to\_red\ -\/\ from\_red)\ *\ progress;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00314}00314\ \ \ \ \ \ \ \ \ uint8\_t\ green\ =\ from\_green\ +\ (to\_green\ -\/\ from\_green)\ *\ progress;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00315}00315\ \ \ \ \ \ \ \ \ uint8\_t\ blue\ =\ from\_blue\ +\ (to\_blue\ -\/\ from\_blue)\ *\ progress;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00316}00316\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00317}00317\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_afc4dd0f46762995c1147511282c4cb2d}{fade\_frame}}[i][0]\ =\ red;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00318}00318\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_afc4dd0f46762995c1147511282c4cb2d}{fade\_frame}}[i][1]\ =\ green;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00319}00319\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_afc4dd0f46762995c1147511282c4cb2d}{fade\_frame}}[i][2]\ =\ blue;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00320}00320\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00321}00321\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00322}00322\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00323}00323\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00324}\mbox{\hyperlink{animation__task_8c_afb64e912fbca18925c8cac41b6006f2c}{00324}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_afb64e912fbca18925c8cac41b6006f2c}{animation\_generate\_chess\_pattern}}(uint32\_t\ frame,\ uint32\_t\ color1,\ uint32\_t\ color2)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00325}00325\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00326}00326\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ row\ =\ 0;\ row\ <\ 8;\ row++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00327}00327\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ col\ =\ 0;\ col\ <\ 8;\ col++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00328}00328\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ led\_index\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(row,\ col);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00329}00329\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ color\ =\ ((row\ +\ col)\ \%\ 2\ ==\ 0)\ ?\ color1\ :\ color2;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00330}00330\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00331}00331\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[led\_index][0]\ =\ (color\ >>\ 16)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00332}00332\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[led\_index][1]\ =\ (color\ >>\ 8)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00333}00333\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[led\_index][2]\ =\ color\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00334}00334\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00335}00335\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00336}00336\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00337}00337\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00338}00338\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00339}\mbox{\hyperlink{animation__task_8c_a63112c5794b76845d9afff7eb6fd3259}{00339}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a63112c5794b76845d9afff7eb6fd3259}{animation\_generate\_rainbow\_frame}}(uint32\_t\ frame)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00340}00340\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00341}00341\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00342}00342\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ color\_index\ =\ (i\ +\ frame)\ \%\ 12;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00343}00343\ \ \ \ \ \ \ \ \ uint32\_t\ color\ =\ \mbox{\hyperlink{animation__task_8c_a58427d18cd3eb18ee8c7802c2a5a7814}{rainbow\_colors}}[color\_index];}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00344}00344\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00345}00345\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][0]\ =\ (color\ >>\ 16)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00346}00346\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][1]\ =\ (color\ >>\ 8)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00347}00347\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][2]\ =\ color\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00348}00348\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00349}00349\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00350}00350\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00351}00351\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00352}00352\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00353}00353\ \textcolor{comment}{//\ NATURAL\ PIECE\ MOVEMENT\ ANIMATIONS}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00354}00354\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00355}00355\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00356}00356\ \textcolor{comment}{//\ Chess\ position\ structure\ for\ path\ calculation}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00357}\mbox{\hyperlink{structchess__position__t}{00357}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00358}\mbox{\hyperlink{structchess__position__t_a3c084704decce0bc27213aff418814dc}{00358}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structchess__position__t_a52fc42938f588120d7427968dd5c6c5b}{row}},\ \mbox{\hyperlink{structchess__position__t_a3c084704decce0bc27213aff418814dc}{col}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00359}00359\ \}\ \mbox{\hyperlink{structchess__position__t}{chess\_position\_t}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00360}00360\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00361}00361\ \textcolor{comment}{//\ Forward\ declarations}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00362}00362\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_ab537cab674b8a582c2ee24dfa0fd10c5}{animate\_path\_with\_interruption}}(\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ path,\ \textcolor{keywordtype}{int}\ path\_length,\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\_t}}\ piece);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00363}00363\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a0123299d5b5afc994cbb803c1f1b9aa2}{check\_for\_move\_interruption}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00364}00364\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{animation__task_8c_ad4a9e6f0e9175a5f2f10c3536fb43308}{new\_move\_detected}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00365}00365\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00375}\mbox{\hyperlink{animation__task_8c_afce4e9bc86ef7e438e2066f5c20e17a6}{00375}}\ \mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ \mbox{\hyperlink{animation__task_8c_afce4e9bc86ef7e438e2066f5c20e17a6}{calculate\_knight\_path}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00376}00376\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col,\ \textcolor{keywordtype}{int}*\ path\_length)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00377}00377\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00378}00378\ \ \ \ \ \mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ path\ =\ malloc(\textcolor{keyword}{sizeof}(\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\ *\ 4);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00379}00379\ \ \ \ \ *path\_length\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00380}00380\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00381}00381\ \ \ \ \ \textcolor{comment}{//\ Začátek}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00382}00382\ \ \ \ \ path[(*path\_length)++]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{from\_row,\ from\_col\};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00383}00383\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00384}00384\ \ \ \ \ \textcolor{comment}{//\ Určit\ směr\ L-\/pohybu}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00385}00385\ \ \ \ \ \textcolor{keywordtype}{int}\ row\_diff\ =\ to\_row\ -\/\ from\_row;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00386}00386\ \ \ \ \ \textcolor{keywordtype}{int}\ col\_diff\ =\ to\_col\ -\/\ from\_col;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00387}00387\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00388}00388\ \ \ \ \ \textcolor{keywordflow}{if}\ (abs(row\_diff)\ ==\ 2)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00389}00389\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 2\ pole\ vertikálně,\ 1\ horizontálně}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00390}00390\ \ \ \ \ \ \ \ \ path[(*path\_length)++]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{from\_row\ +\ row\_diff/2,\ from\_col\};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00391}00391\ \ \ \ \ \ \ \ \ path[(*path\_length)++]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{from\_row\ +\ row\_diff,\ from\_col\};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00392}00392\ \ \ \ \ \ \ \ \ path[(*path\_length)++]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{to\_row,\ to\_col\};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00393}00393\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00394}00394\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 2\ pole\ horizontálně,\ 1\ vertikálně\ \ }}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00395}00395\ \ \ \ \ \ \ \ \ path[(*path\_length)++]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{from\_row,\ from\_col\ +\ col\_diff/2\};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00396}00396\ \ \ \ \ \ \ \ \ path[(*path\_length)++]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{from\_row,\ from\_col\ +\ col\_diff\};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00397}00397\ \ \ \ \ \ \ \ \ path[(*path\_length)++]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{to\_row,\ to\_col\};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00398}00398\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00399}00399\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00400}00400\ \ \ \ \ \textcolor{keywordflow}{return}\ path;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00401}00401\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00402}00402\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00412}\mbox{\hyperlink{animation__task_8c_aef79ecbdeed6b80aac570f45da8c041f}{00412}}\ \mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ \mbox{\hyperlink{animation__task_8c_aef79ecbdeed6b80aac570f45da8c041f}{calculate\_diagonal\_path}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00413}00413\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col,\ \textcolor{keywordtype}{int}*\ path\_length)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00414}00414\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00415}00415\ \ \ \ \ \textcolor{keywordtype}{int}\ row\_diff\ =\ to\_row\ -\/\ from\_row;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00416}00416\ \ \ \ \ \textcolor{keywordtype}{int}\ col\_diff\ =\ to\_col\ -\/\ from\_col;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00417}00417\ \ \ \ \ \textcolor{keywordtype}{int}\ steps\ =\ abs(row\_diff);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00418}00418\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00419}00419\ \ \ \ \ \mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ path\ =\ malloc(\textcolor{keyword}{sizeof}(\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\ *\ (steps\ +\ 1));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00420}00420\ \ \ \ \ *path\_length\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00421}00421\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00422}00422\ \ \ \ \ \textcolor{keywordtype}{int}\ row\_step\ =\ (row\_diff\ >\ 0)\ ?\ 1\ :\ -\/1;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00423}00423\ \ \ \ \ \textcolor{keywordtype}{int}\ col\_step\ =\ (col\_diff\ >\ 0)\ ?\ 1\ :\ -\/1;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00424}00424\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00425}00425\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ steps;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00426}00426\ \ \ \ \ \ \ \ \ path[(*path\_length)++]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00427}00427\ \ \ \ \ \ \ \ \ \ \ \ \ from\_row\ +\ i\ *\ row\_step,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00428}00428\ \ \ \ \ \ \ \ \ \ \ \ \ from\_col\ +\ i\ *\ col\_step}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00429}00429\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00430}00430\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00431}00431\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00432}00432\ \ \ \ \ \textcolor{keywordflow}{return}\ path;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00433}00433\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00434}00434\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00444}\mbox{\hyperlink{animation__task_8c_aca2bc3d94fa18bedc3b83e79151283e1}{00444}}\ \mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ \mbox{\hyperlink{animation__task_8c_aca2bc3d94fa18bedc3b83e79151283e1}{calculate\_straight\_path}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00445}00445\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col,\ \textcolor{keywordtype}{int}*\ path\_length)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00446}00446\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00447}00447\ \ \ \ \ \textcolor{keywordtype}{int}\ row\_diff\ =\ to\_row\ -\/\ from\_row;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00448}00448\ \ \ \ \ \textcolor{keywordtype}{int}\ col\_diff\ =\ to\_col\ -\/\ from\_col;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00449}00449\ \ \ \ \ \textcolor{keywordtype}{int}\ steps\ =\ (row\_diff\ !=\ 0)\ ?\ abs(row\_diff)\ :\ abs(col\_diff);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00450}00450\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00451}00451\ \ \ \ \ \mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ path\ =\ malloc(\textcolor{keyword}{sizeof}(\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\ *\ (steps\ +\ 1));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00452}00452\ \ \ \ \ *path\_length\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00453}00453\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00454}00454\ \ \ \ \ \textcolor{keywordtype}{int}\ row\_step\ =\ (row\_diff\ >\ 0)\ ?\ 1\ :\ (row\_diff\ <\ 0)\ ?\ -\/1\ :\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00455}00455\ \ \ \ \ \textcolor{keywordtype}{int}\ col\_step\ =\ (col\_diff\ >\ 0)\ ?\ 1\ :\ (col\_diff\ <\ 0)\ ?\ -\/1\ :\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00456}00456\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00457}00457\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ steps;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00458}00458\ \ \ \ \ \ \ \ \ path[(*path\_length)++]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00459}00459\ \ \ \ \ \ \ \ \ \ \ \ \ from\_row\ +\ i\ *\ row\_step,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00460}00460\ \ \ \ \ \ \ \ \ \ \ \ \ from\_col\ +\ i\ *\ col\_step}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00461}00461\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00462}00462\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00463}00463\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00464}00464\ \ \ \ \ \textcolor{keywordflow}{return}\ path;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00465}00465\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00466}00466\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00476}\mbox{\hyperlink{animation__task_8c_a5e3bb756394f0aa6b8846678a266bee6}{00476}}\ \mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ \mbox{\hyperlink{animation__task_8c_a5e3bb756394f0aa6b8846678a266bee6}{calculate\_direct\_path}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00477}00477\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col,\ \textcolor{keywordtype}{int}*\ path\_length)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00478}00478\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00479}00479\ \ \ \ \ \mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ path\ =\ malloc(\textcolor{keyword}{sizeof}(\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\ *\ 2);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00480}00480\ \ \ \ \ *path\_length\ =\ 2;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00481}00481\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00482}00482\ \ \ \ \ path[0]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{from\_row,\ from\_col\};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00483}00483\ \ \ \ \ path[1]\ =\ (\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}})\{to\_row,\ to\_col\};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00484}00484\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00485}00485\ \ \ \ \ \textcolor{keywordflow}{return}\ path;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00486}00486\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00487}00487\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00496}\mbox{\hyperlink{animation__task_8c_a5361d673dfa5c9b0568be0e4cac80444}{00496}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a5361d673dfa5c9b0568be0e4cac80444}{animate\_piece\_move\_natural}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00497}00497\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col,\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\_t}}\ piece)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00498}00498\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00499}00499\ \ \ \ \ \mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ path\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00500}00500\ \ \ \ \ \textcolor{keywordtype}{int}\ path\_length\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00501}00501\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00502}00502\ \ \ \ \ \textcolor{comment}{//\ Určit\ typ\ animace\ podle\ figury}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00503}00503\ \ \ \ \ \textcolor{keywordflow}{switch}\ (piece)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00504}00504\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a4c99e4617db8d3f21a4dd23e497d0b0c}{PIECE\_WHITE\_KNIGHT}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00505}00505\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a3888c0ae958fcf54d7b4f77a26bdaa60}{PIECE\_BLACK\_KNIGHT}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00506}00506\ \ \ \ \ \ \ \ \ \ \ \ \ path\ =\ \mbox{\hyperlink{animation__task_8c_afce4e9bc86ef7e438e2066f5c20e17a6}{calculate\_knight\_path}}(from\_row,\ from\_col,\ to\_row,\ to\_col,\ \&path\_length);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00507}00507\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00508}00508\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00509}00509\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ac5624ba607e63e7a6f7ebdab4b322992}{PIECE\_WHITE\_BISHOP}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00510}00510\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ae844e749448cbcaae2fda6a56bb70b86}{PIECE\_BLACK\_BISHOP}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00511}00511\ \ \ \ \ \ \ \ \ \ \ \ \ path\ =\ \mbox{\hyperlink{animation__task_8c_aef79ecbdeed6b80aac570f45da8c041f}{calculate\_diagonal\_path}}(from\_row,\ from\_col,\ to\_row,\ to\_col,\ \&path\_length);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00512}00512\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00513}00513\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00514}00514\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ac403d9dfd1cf2dc0be0217a0a54c0a42}{PIECE\_WHITE\_ROOK}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00515}00515\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a26b69f7adf92c62bfa744b9e77907584}{PIECE\_BLACK\_ROOK}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00516}00516\ \ \ \ \ \ \ \ \ \ \ \ \ path\ =\ \mbox{\hyperlink{animation__task_8c_aca2bc3d94fa18bedc3b83e79151283e1}{calculate\_straight\_path}}(from\_row,\ from\_col,\ to\_row,\ to\_col,\ \&path\_length);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00517}00517\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00518}00518\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00519}00519\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00520}00520\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Ostatní\ figury\ -\/\ přímá\ cesta}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00521}00521\ \ \ \ \ \ \ \ \ \ \ \ \ path\ =\ \mbox{\hyperlink{animation__task_8c_a5e3bb756394f0aa6b8846678a266bee6}{calculate\_direct\_path}}(from\_row,\ from\_col,\ to\_row,\ to\_col,\ \&path\_length);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00522}00522\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00523}00523\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00524}00524\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00525}00525\ \ \ \ \ \textcolor{comment}{//\ Animovat\ cestu}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00526}00526\ \ \ \ \ \textcolor{keywordflow}{if}\ (path\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00527}00527\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_ab537cab674b8a582c2ee24dfa0fd10c5}{animate\_path\_with\_interruption}}(path,\ path\_length,\ piece);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00528}00528\ \ \ \ \ \ \ \ \ free(path);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00529}00529\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00530}00530\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00531}00531\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00538}\mbox{\hyperlink{animation__task_8c_ab537cab674b8a582c2ee24dfa0fd10c5}{00538}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_ab537cab674b8a582c2ee24dfa0fd10c5}{animate\_path\_with\_interruption}}(\mbox{\hyperlink{structchess__position__t}{chess\_position\_t}}*\ path,\ \textcolor{keywordtype}{int}\ path\_length,\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\_t}}\ piece)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00539}00539\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00540}00540\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_af2889f0cc8ff05da5e068e7574ed5b3b}{animation\_interrupted}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00541}00541\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00542}00542\ \ \ \ \ \textcolor{comment}{//\ Získat\ barvy\ figury}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00543}00543\ \ \ \ \ uint8\_t\ r\ =\ (piece\ >=\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d}{PIECE\_WHITE\_PAWN}}\ \&\&\ piece\ <=\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411}{PIECE\_WHITE\_KING}})\ ?\ 0\ :\ 255;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00544}00544\ \ \ \ \ uint8\_t\ g\ =\ 255;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00545}00545\ \ \ \ \ uint8\_t\ b\ =\ (piece\ >=\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d}{PIECE\_WHITE\_PAWN}}\ \&\&\ piece\ <=\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411}{PIECE\_WHITE\_KING}})\ ?\ 255\ :\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00546}00546\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00547}00547\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ path\_length\ \&\&\ !\mbox{\hyperlink{animation__task_8c_af2889f0cc8ff05da5e068e7574ed5b3b}{animation\_interrupted}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00548}00548\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Vymazat\ předchozí}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00549}00549\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ >\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00550}00550\ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ prev\_led\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(path[i-\/1].row,\ path[i-\/1].col);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00551}00551\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(prev\_led,\ 0,\ 0,\ 0);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00552}00552\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00553}00553\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00554}00554\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Rosvítit\ aktuální}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00555}00555\ \ \ \ \ \ \ \ \ uint8\_t\ led\_index\ =\ \mbox{\hyperlink{led__mapping_8h_a6f6c321f16b2494986ebfb82fa9bf5df}{chess\_pos\_to\_led\_index}}(path[i].row,\ path[i].col);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00556}00556\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(led\_index,\ r,\ g,\ b);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00557}00557\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00558}00558\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Krátká\ pauza\ s\ kontrolou\ přerušení}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00559}00559\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ wait\ =\ 0;\ wait\ <\ 20\ \&\&\ !\mbox{\hyperlink{animation__task_8c_af2889f0cc8ff05da5e068e7574ed5b3b}{animation\_interrupted}};\ wait++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00560}00560\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(25));\ \ \textcolor{comment}{//\ 25ms\ x\ 20\ =\ 500ms\ celkem}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00561}00561\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00562}00562\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Kontrola\ nového\ tahu\ během\ animace}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00563}00563\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a0123299d5b5afc994cbb803c1f1b9aa2}{check\_for\_move\_interruption}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00564}00564\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00565}00565\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00566}00566\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00567}00567\ \ \ \ \ \textcolor{comment}{//\ Vyčistit\ na\ konci}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00568}00568\ \ \ \ \ \mbox{\hyperlink{led__task_8h_afff280b4c9b7261d1a086e0cfa356604}{led\_clear\_all\_safe}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00569}00569\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00570}00570\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00574}\mbox{\hyperlink{animation__task_8c_a0123299d5b5afc994cbb803c1f1b9aa2}{00574}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a0123299d5b5afc994cbb803c1f1b9aa2}{check\_for\_move\_interruption}}()}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00575}00575\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00576}00576\ \ \ \ \ \textcolor{comment}{//\ Kontrola,\ jestli\ hráč\ nezačal\ nový\ tah}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00577}00577\ \ \ \ \ \textcolor{comment}{//\ (implementace\ závisí\ na\ způsobu\ detekce\ tahů)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00578}00578\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_ad4a9e6f0e9175a5f2f10c3536fb43308}{new\_move\_detected}}())\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00579}00579\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_af2889f0cc8ff05da5e068e7574ed5b3b}{animation\_interrupted}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00580}00580\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🏃\ Animation\ interrupted\ by\ new\ move"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00581}00581\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00582}00582\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00583}00583\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00587}\mbox{\hyperlink{animation__task_8c_a2b5de7f9e2ba904cd16a02a3add0b6d6}{00587}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a2b5de7f9e2ba904cd16a02a3add0b6d6}{animation\_request\_interrupt}}()}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00588}00588\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00589}00589\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a5579f35967ee72c55398c089594c9f69}{animation\_interrupt\_mutex}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00590}00590\ \ \ \ \ \ \ \ \ xSemaphoreTake(\mbox{\hyperlink{animation__task_8c_a5579f35967ee72c55398c089594c9f69}{animation\_interrupt\_mutex}},\ portMAX\_DELAY);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00591}00591\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_af2889f0cc8ff05da5e068e7574ed5b3b}{animation\_interrupted}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00592}00592\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{animation__task_8c_a5579f35967ee72c55398c089594c9f69}{animation\_interrupt\_mutex}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00593}00593\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🛑\ Animation\ interruption\ requested"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00594}00594\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00595}00595\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00596}00596\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00601}\mbox{\hyperlink{animation__task_8c_ad4a9e6f0e9175a5f2f10c3536fb43308}{00601}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{animation__task_8c_ad4a9e6f0e9175a5f2f10c3536fb43308}{new\_move\_detected}}()}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00602}00602\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00603}00603\ \ \ \ \ \textcolor{comment}{//\ TODO:\ Implement\ actual\ move\ detection\ logic}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00604}00604\ \ \ \ \ \textcolor{comment}{//\ This\ could\ check\ a\ global\ flag\ set\ by\ the\ game\ task}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00605}00605\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00606}00606\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00607}00607\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00608}00608\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00609}00609\ \textcolor{comment}{//\ ANIMATION\ EXECUTION\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00610}00610\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00611}00611\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00612}00612\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00613}\mbox{\hyperlink{animation__task_8c_afecf0d9f3014ec819b9d8d4efecc1ee5}{00613}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_afecf0d9f3014ec819b9d8d4efecc1ee5}{animation\_execute\_frame}}(\mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}*\ anim)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00614}00614\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00615}00615\ \ \ \ \ \textcolor{keywordflow}{if}\ (!anim\ ||\ anim-\/>\mbox{\hyperlink{structanimation__task__t_abffffba2feaf4ae9d6911cc115a91593}{state}}\ !=\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c}{ANIM\_TASK\_STATE\_RUNNING}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00616}00616\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00617}00617\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00618}00618\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00619}00619\ \ \ \ \ \textcolor{comment}{//\ Kontrola\ přerušení\ na\ začátku\ každého\ framu}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00620}00620\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a5579f35967ee72c55398c089594c9f69}{animation\_interrupt\_mutex}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00621}00621\ \ \ \ \ \ \ \ \ xSemaphoreTake(\mbox{\hyperlink{animation__task_8c_a5579f35967ee72c55398c089594c9f69}{animation\_interrupt\_mutex}},\ portMAX\_DELAY);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00622}00622\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ should\_interrupt\ =\ \mbox{\hyperlink{animation__task_8c_af2889f0cc8ff05da5e068e7574ed5b3b}{animation\_interrupted}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00623}00623\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{animation__task_8c_a5579f35967ee72c55398c089594c9f69}{animation\_interrupt\_mutex}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00624}00624\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00625}00625\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (should\_interrupt)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00626}00626\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🛑\ Animation\ interrupted\ mid-\/frame"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00627}00627\ \ \ \ \ \ \ \ \ \ \ \ \ anim-\/>\mbox{\hyperlink{structanimation__task__t_abffffba2feaf4ae9d6911cc115a91593}{state}}\ =\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08}{ANIM\_TASK\_STATE\_FINISHED}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00628}00628\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_af2889f0cc8ff05da5e068e7574ed5b3b}{animation\_interrupted}}\ =\ \textcolor{keyword}{false};\ \ \textcolor{comment}{//\ Reset\ flag}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00629}00629\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00630}00630\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00631}00631\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00632}00632\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00633}00633\ \ \ \ \ uint32\_t\ current\_time\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00634}00634\ \ \ \ \ uint32\_t\ elapsed\ =\ current\_time\ -\/\ anim-\/>\mbox{\hyperlink{structanimation__task__t_a25f85a5720a2bd7add2c2423f84cbee4}{start\_time}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00635}00635\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00636}00636\ \ \ \ \ \textcolor{comment}{//\ Check\ if\ animation\ should\ finish}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00637}00637\ \ \ \ \ \textcolor{keywordflow}{if}\ (elapsed\ >=\ anim-\/>\mbox{\hyperlink{structanimation__task__t_a4c5211bfc199b4bdbc596849387d05ae}{duration\_ms}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00638}00638\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (anim-\/>\mbox{\hyperlink{structanimation__task__t_a567b61ac057e886362023c7363f4aefd}{loop}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00639}00639\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Restart\ animation}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00640}00640\ \ \ \ \ \ \ \ \ \ \ \ \ anim-\/>\mbox{\hyperlink{structanimation__task__t_a25f85a5720a2bd7add2c2423f84cbee4}{start\_time}}\ =\ current\_time;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00641}00641\ \ \ \ \ \ \ \ \ \ \ \ \ anim-\/>\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00642}00642\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00643}00643\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Finish\ animation}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00644}00644\ \ \ \ \ \ \ \ \ \ \ \ \ anim-\/>\mbox{\hyperlink{structanimation__task__t_abffffba2feaf4ae9d6911cc115a91593}{state}}\ =\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08}{ANIM\_TASK\_STATE\_FINISHED}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00645}00645\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}}-\/-\/;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00646}00646\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ finished:\ ID=\%d"{}},\ anim-\/>\mbox{\hyperlink{structanimation__task__t_adb7f1e556a2073bf7ce347ee3f96cfe4}{id}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00647}00647\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00648}00648\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Send\ UART\ feedback\ for\ animation\ completion}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00649}00649\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ anim\_name\ =\ \mbox{\hyperlink{animation__task_8c_ad90823f255171d2792d13345b96d9477}{animation\_get\_name}}(anim-\/>\mbox{\hyperlink{structanimation__task__t_ac98d14c78132155465672c4943857a2a}{type}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00650}00650\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ ANIMATION\ COMPLETED:\ \%s\ (ID:\ \%d,\ Duration:\ \%lu\ ms)"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00651}00651\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ anim\_name,\ anim-\/>\mbox{\hyperlink{structanimation__task__t_adb7f1e556a2073bf7ce347ee3f96cfe4}{id}},\ anim-\/>\mbox{\hyperlink{structanimation__task__t_a4c5211bfc199b4bdbc596849387d05ae}{duration\_ms}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00652}00652\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00653}00653\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00654}00654\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00655}00655\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00656}00656\ \ \ \ \ \textcolor{comment}{//\ Generate\ frame\ based\ on\ animation\ type}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00657}00657\ \ \ \ \ \textcolor{keywordflow}{switch}\ (anim-\/>\mbox{\hyperlink{structanimation__task__t_ac98d14c78132155465672c4943857a2a}{type}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00658}00658\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e}{ANIM\_TASK\_TYPE\_WAVE}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00659}00659\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a03563b1b04565e45d3892b520708bd64}{animation\_generate\_wave\_frame}}(anim-\/>\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}},\ 0xFF0000,\ 5);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00660}00660\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_aec58eeb9ffe892383adeef75473dc160}{animation\_send\_frame\_to\_leds}}(\mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00661}00661\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00662}00662\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00663}00663\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee}{ANIM\_TASK\_TYPE\_PULSE}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00664}00664\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a348dfefe5bb753b16839d5215505e4f4}{animation\_generate\_pulse\_frame}}(anim-\/>\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}},\ 0x00FF00,\ 3);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00665}00665\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_aec58eeb9ffe892383adeef75473dc160}{animation\_send\_frame\_to\_leds}}(\mbox{\hyperlink{animation__task_8c_a63913cf3472539c76d9f3b05a1a49361}{pulse\_frame}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00666}00666\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00667}00667\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00668}00668\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6}{ANIM\_TASK\_TYPE\_FADE}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00669}00669\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_ad2116436a161de0d3c2aa663ef02d12e}{animation\_generate\_fade\_frame}}(anim-\/>\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}},\ 0x0000FF,\ 0xFF0000,\ anim-\/>\mbox{\hyperlink{structanimation__task__t_a273fbd2a2ffa5590a455c97ac1c1f09b}{total\_frames}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00670}00670\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_aec58eeb9ffe892383adeef75473dc160}{animation\_send\_frame\_to\_leds}}(\mbox{\hyperlink{animation__task_8c_afc4dd0f46762995c1147511282c4cb2d}{fade\_frame}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00671}00671\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00672}00672\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00673}00673\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a}{ANIM\_TASK\_TYPE\_CHESS\_PATTERN}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00674}00674\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_afb64e912fbca18925c8cac41b6006f2c}{animation\_generate\_chess\_pattern}}(anim-\/>\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}},\ 0xFFFFFF,\ 0x000000);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00675}00675\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_aec58eeb9ffe892383adeef75473dc160}{animation\_send\_frame\_to\_leds}}(\mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00676}00676\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00677}00677\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00678}00678\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358}{ANIM\_TASK\_TYPE\_RAINBOW}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00679}00679\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a63112c5794b76845d9afff7eb6fd3259}{animation\_generate\_rainbow\_frame}}(anim-\/>\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00680}00680\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_aec58eeb9ffe892383adeef75473dc160}{animation\_send\_frame\_to\_leds}}(\mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00681}00681\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00682}00682\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00683}00683\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0}{ANIM\_TASK\_TYPE\_MOVE\_HIGHLIGHT}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00684}00684\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a06e87351882b4abb2b090c3e3fad2098}{animation\_execute\_move\_highlight}}(anim);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00685}00685\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00686}00686\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00687}00687\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4}{ANIM\_TASK\_TYPE\_CHECK\_HIGHLIGHT}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00688}00688\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_aeeb63457d09fa55c64a67b38e895ab4a}{animation\_execute\_check\_highlight}}(anim);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00689}00689\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00690}00690\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00691}00691\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f}{ANIM\_TASK\_TYPE\_GAME\_OVER}}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00692}00692\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_aa4e0d21daa2bff68ffc49abd0995d812}{animation\_execute\_game\_over}}(anim);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00693}00693\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00694}00694\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00695}00695\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00696}00696\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Unknown\ animation\ type:\ \%d"{}},\ anim-\/>\mbox{\hyperlink{structanimation__task__t_ac98d14c78132155465672c4943857a2a}{type}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00697}00697\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00698}00698\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00699}00699\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00700}00700\ \ \ \ \ anim-\/>\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}}++;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00701}00701\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00702}00702\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00703}00703\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00704}\mbox{\hyperlink{animation__task_8c_aec58eeb9ffe892383adeef75473dc160}{00704}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_aec58eeb9ffe892383adeef75473dc160}{animation\_send\_frame\_to\_leds}}(\textcolor{keyword}{const}\ uint8\_t\ frame[\mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}}][3])}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00705}00705\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00706}00706\ \ \ \ \ \textcolor{comment}{//\ ✅\ DIRECT\ LED\ CALLS\ -\/\ No\ queue\ hell}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00707}00707\ \ \ \ \ \textcolor{comment}{//\ ✅\ CRITICAL\ FIX:\ Only\ animate\ board\ LEDs\ (0-\/63),\ preserve\ button\ LEDs\ (64-\/72)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00708}00708\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{chess__types_8h_a490b67efe5e74def79831ae40041f654}{CHESS\_LED\_COUNT\_BOARD}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00709}00709\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(i,\ frame[i][0],\ frame[i][1],\ frame[i][2]);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00710}00710\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00711}00711\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ frame\ sent\ to\ board\ LEDs\ only\ (0-\/\%d)"{}},\ \mbox{\hyperlink{chess__types_8h_a490b67efe5e74def79831ae40041f654}{CHESS\_LED\_COUNT\_BOARD}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00712}00712\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00713}00713\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00714}00714\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00715}\mbox{\hyperlink{animation__task_8c_a06e87351882b4abb2b090c3e3fad2098}{00715}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a06e87351882b4abb2b090c3e3fad2098}{animation\_execute\_move\_highlight}}(\mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}*\ anim)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00716}00716\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00717}00717\ \ \ \ \ \textcolor{comment}{//\ This\ would\ highlight\ the\ move\ path}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00718}00718\ \ \ \ \ \textcolor{comment}{//\ For\ now,\ just\ show\ a\ simple\ pattern}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00719}00719\ \ \ \ \ \textcolor{keyword}{static}\ uint32\_t\ move\_colors[]\ =\ \{0x00FF00,\ 0xFFFF00,\ 0xFF8000\};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00720}00720\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00721}00721\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00722}00722\ \ \ \ \ \ \ \ \ uint32\_t\ color\ =\ move\_colors[i\ \%\ 3];}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00723}00723\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][0]\ =\ (color\ >>\ 16)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00724}00724\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][1]\ =\ (color\ >>\ 8)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00725}00725\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][2]\ =\ color\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00726}00726\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00727}00727\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00728}00728\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_aec58eeb9ffe892383adeef75473dc160}{animation\_send\_frame\_to\_leds}}(\mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00729}00729\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00730}00730\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00731}00731\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00732}\mbox{\hyperlink{animation__task_8c_aeeb63457d09fa55c64a67b38e895ab4a}{00732}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_aeeb63457d09fa55c64a67b38e895ab4a}{animation\_execute\_check\_highlight}}(\mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}*\ anim)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00733}00733\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00734}00734\ \ \ \ \ \textcolor{comment}{//\ Flash\ red\ for\ check}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00735}00735\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ flash\_state\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00736}00736\ \ \ \ \ flash\_state\ =\ !flash\_state;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00737}00737\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00738}00738\ \ \ \ \ uint32\_t\ color\ =\ flash\_state\ ?\ 0xFF0000\ :\ 0x000000;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00739}00739\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00740}00740\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00741}00741\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][0]\ =\ (color\ >>\ 16)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00742}00742\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][1]\ =\ (color\ >>\ 8)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00743}00743\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][2]\ =\ color\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00744}00744\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00745}00745\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00746}00746\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_aec58eeb9ffe892383adeef75473dc160}{animation\_send\_frame\_to\_leds}}(\mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00747}00747\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00748}00748\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00749}00749\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00750}\mbox{\hyperlink{animation__task_8c_aa4e0d21daa2bff68ffc49abd0995d812}{00750}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_aa4e0d21daa2bff68ffc49abd0995d812}{animation\_execute\_game\_over}}(\mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}*\ anim)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00751}00751\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00752}00752\ \ \ \ \ \textcolor{comment}{//\ Alternating\ red\ and\ black\ pattern}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00753}00753\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00754}00754\ \ \ \ \ \ \ \ \ uint32\_t\ color\ =\ (i\ \%\ 2\ ==\ 0)\ ?\ 0xFF0000\ :\ 0x000000;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00755}00755\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][0]\ =\ (color\ >>\ 16)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00756}00756\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][1]\ =\ (color\ >>\ 8)\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00757}00757\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}}[i][2]\ =\ color\ \&\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00758}00758\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00759}00759\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00760}00760\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_aec58eeb9ffe892383adeef75473dc160}{animation\_send\_frame\_to\_leds}}(\mbox{\hyperlink{animation__task_8c_abcfc9b225da909e47ab361defc782a42}{wave\_frame}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00761}00761\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00762}00762\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00763}00763\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00764}00764\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00765}00765\ \textcolor{comment}{//\ ANIMATION\ CONTROL\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00766}00766\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00767}00767\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00768}00768\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00769}\mbox{\hyperlink{animation__task_8c_a0060e7605dd42ba4e2041e1c4402f60e}{00769}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a0060e7605dd42ba4e2041e1c4402f60e}{animation\_process\_commands}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00770}00770\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00771}00771\ \ \ \ \ uint8\_t\ command;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00772}00772\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00773}00773\ \ \ \ \ \textcolor{comment}{//\ Process\ commands\ from\ queue}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00774}00774\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_a6fa8af7d1c0b048b9f2c363a9fb2b288}{animation\_command\_queue}}\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00775}00775\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (xQueueReceive(\mbox{\hyperlink{freertos__chess_8c_a6fa8af7d1c0b048b9f2c363a9fb2b288}{animation\_command\_queue}},\ \&command,\ 0)\ ==\ pdTRUE)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00776}00776\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (command)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00777}00777\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 0:\ \textcolor{comment}{//\ Stop\ all\ animations}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00778}00778\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a19ff3a915b7dad334a1d306492667916}{animation\_stop\_all}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00779}00779\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00780}00780\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00781}00781\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 1:\ \textcolor{comment}{//\ Pause\ all\ animations}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00782}00782\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a70e168a5ba925ad0d8da01a49d34e75c}{animation\_pause\_all}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00783}00783\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00784}00784\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00785}00785\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 2:\ \textcolor{comment}{//\ Resume\ all\ animations}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00786}00786\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a749cd1a19567e9b741fb320e1d440736}{animation\_resume\_all}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00787}00787\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00788}00788\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00789}00789\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 3:\ \textcolor{comment}{//\ Print\ animation\ status}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00790}00790\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a9731cdb2cdcf0234b35af6ba0b7b1402}{animation\_print\_status}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00791}00791\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00792}00792\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00793}00793\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ 4:\ \textcolor{comment}{//\ Test\ animations}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00794}00794\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_ab87baa702421428476b149e35aa74ab9}{animation\_test\_all}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00795}00795\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00796}00796\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00797}00797\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00798}00798\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Unknown\ animation\ command:\ \%d"{}},\ command);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00799}00799\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00800}00800\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00801}00801\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00802}00802\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00803}00803\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00804}00804\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00805}00805\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00806}\mbox{\hyperlink{animation__task_8c_a19ff3a915b7dad334a1d306492667916}{00806}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a19ff3a915b7dad334a1d306492667916}{animation\_stop\_all}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00807}00807\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00808}00808\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Stopping\ all\ animations"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00809}00809\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00810}00810\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00811}00811\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ !=\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363}{ANIM\_TASK\_STATE\_IDLE}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00812}00812\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_adc882a0b86428a7333c86eddd1f26b8d}{animation\_stop}}(\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].\textcolor{keywordtype}{id});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00813}00813\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00814}00814\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00815}00815\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00816}00816\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00817}00817\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00818}00818\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00819}00819\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00820}\mbox{\hyperlink{animation__task_8c_a70e168a5ba925ad0d8da01a49d34e75c}{00820}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a70e168a5ba925ad0d8da01a49d34e75c}{animation\_pause\_all}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00821}00821\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00822}00822\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Pausing\ all\ animations"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00823}00823\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00824}00824\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00825}00825\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ ==\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c}{ANIM\_TASK\_STATE\_RUNNING}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00826}00826\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a41183595937bafd37b4ba07c47b8c62d}{animation\_pause}}(\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].\textcolor{keywordtype}{id});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00827}00827\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00828}00828\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00829}00829\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00830}00830\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00831}00831\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00832}\mbox{\hyperlink{animation__task_8c_a749cd1a19567e9b741fb320e1d440736}{00832}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a749cd1a19567e9b741fb320e1d440736}{animation\_resume\_all}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00833}00833\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00834}00834\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Resuming\ all\ animations"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00835}00835\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00836}00836\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00837}00837\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ ==\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c}{ANIM\_TASK\_STATE\_PAUSED}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00838}00838\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a04765d28e82fce17f90d526a7ce60fc2}{animation\_resume}}(\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].\textcolor{keywordtype}{id});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00839}00839\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00840}00840\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00841}00841\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00842}00842\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00843}00843\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00844}\mbox{\hyperlink{animation__task_8c_a9731cdb2cdcf0234b35af6ba0b7b1402}{00844}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a9731cdb2cdcf0234b35af6ba0b7b1402}{animation\_print\_status}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00845}00845\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00846}00846\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ Status:"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00847}00847\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ Active\ animations:\ \%d"{}},\ \mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00848}00848\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ Total\ animations:\ \%d"{}},\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00849}00849\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00850}00850\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00851}00851\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ !=\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363}{ANIM\_TASK\_STATE\_IDLE}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00852}00852\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ Animation\ \%d:\ ID=\%d,\ type=\%d,\ state=\%d,\ priority=\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00853}00853\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ i,\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].\textcolor{keywordtype}{id},\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].type,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00854}00854\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state,\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].priority);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00855}00855\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00856}00856\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00857}00857\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00858}00858\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00859}00859\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00860}\mbox{\hyperlink{animation__task_8c_ab87baa702421428476b149e35aa74ab9}{00860}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_ab87baa702421428476b149e35aa74ab9}{animation\_test\_all}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00861}00861\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00862}00862\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Testing\ all\ animation\ types..."{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00863}00863\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00864}00864\ \ \ \ \ \textcolor{comment}{//\ Create\ test\ animations}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00865}00865\ \ \ \ \ uint8\_t\ wave\_id\ =\ \mbox{\hyperlink{animation__task_8c_a8f46cd6a1f375c8d19d1c4315cabdbfd}{animation\_create}}(\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e}{ANIM\_TASK\_TYPE\_WAVE}},\ 5000,\ 1,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00866}00866\ \ \ \ \ uint8\_t\ pulse\_id\ =\ \mbox{\hyperlink{animation__task_8c_a8f46cd6a1f375c8d19d1c4315cabdbfd}{animation\_create}}(\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee}{ANIM\_TASK\_TYPE\_PULSE}},\ 5000,\ 2,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00867}00867\ \ \ \ \ uint8\_t\ fade\_id\ =\ \mbox{\hyperlink{animation__task_8c_a8f46cd6a1f375c8d19d1c4315cabdbfd}{animation\_create}}(\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6}{ANIM\_TASK\_TYPE\_FADE}},\ 5000,\ 3,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00868}00868\ \ \ \ \ uint8\_t\ chess\_id\ =\ \mbox{\hyperlink{animation__task_8c_a8f46cd6a1f375c8d19d1c4315cabdbfd}{animation\_create}}(\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a}{ANIM\_TASK\_TYPE\_CHESS\_PATTERN}},\ 5000,\ 4,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00869}00869\ \ \ \ \ uint8\_t\ rainbow\_id\ =\ \mbox{\hyperlink{animation__task_8c_a8f46cd6a1f375c8d19d1c4315cabdbfd}{animation\_create}}(\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358}{ANIM\_TASK\_TYPE\_RAINBOW}},\ 5000,\ 5,\ \textcolor{keyword}{false});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00870}00870\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00871}00871\ \ \ \ \ \textcolor{comment}{//\ Start\ animations\ with\ delays}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00872}00872\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abb35a3172d5d24a24902916b1ecfa40f}{animation\_start}}(wave\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00873}00873\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00874}00874\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00875}00875\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abb35a3172d5d24a24902916b1ecfa40f}{animation\_start}}(pulse\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00876}00876\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00877}00877\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00878}00878\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abb35a3172d5d24a24902916b1ecfa40f}{animation\_start}}(fade\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00879}00879\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00880}00880\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00881}00881\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abb35a3172d5d24a24902916b1ecfa40f}{animation\_start}}(chess\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00882}00882\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00883}00883\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00884}00884\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_abb35a3172d5d24a24902916b1ecfa40f}{animation\_start}}(rainbow\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00885}00885\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00886}00886\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ test\ started"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00887}00887\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00888}00888\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00889}00889\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00890}00890\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00891}00891\ \textcolor{comment}{//\ ANIMATION\ TEXT\ REPRESENTATION\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00892}00892\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00893}00893\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00899}\mbox{\hyperlink{animation__task_8c_ad90823f255171d2792d13345b96d9477}{00899}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{animation__task_8c_ad90823f255171d2792d13345b96d9477}{animation\_get\_name}}(\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\_task\_type\_t}}\ animation\_type)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00900}00900\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00901}00901\ \ \ \ \ \textcolor{keywordflow}{switch}\ (animation\_type)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00902}00902\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e}{ANIM\_TASK\_TYPE\_WAVE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Wave\ pattern"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00903}00903\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee}{ANIM\_TASK\_TYPE\_PULSE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Pulse\ effect"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00904}00904\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6}{ANIM\_TASK\_TYPE\_FADE}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Fade\ transition"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00905}00905\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a}{ANIM\_TASK\_TYPE\_CHESS\_PATTERN}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Chess\ board\ pattern"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00906}00906\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358}{ANIM\_TASK\_TYPE\_RAINBOW}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Rainbow\ colors"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00907}00907\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0}{ANIM\_TASK\_TYPE\_MOVE\_HIGHLIGHT}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Move\ path\ highlight"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00908}00908\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4}{ANIM\_TASK\_TYPE\_CHECK\_HIGHLIGHT}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Check\ indicator"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00909}00909\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f}{ANIM\_TASK\_TYPE\_GAME\_OVER}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Game\ over\ pattern"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00910}00910\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa6eb688ab2a8237f9f4486e04f62077d3}{ANIM\_TASK\_TYPE\_CUSTOM}}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Custom\ animation"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00911}00911\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:\ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}Unknown"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00912}00912\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00913}00913\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00914}00914\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00919}\mbox{\hyperlink{animation__task_8c_a79382186a6a22377fff18924934c118a}{00919}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a79382186a6a22377fff18924934c118a}{animation\_print\_progress}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}*\ anim)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00920}00920\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00921}00921\ \ \ \ \ \textcolor{keywordflow}{if}\ (anim\ ==\ NULL)\ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00922}00922\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00923}00923\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ anim\_name\ =\ \mbox{\hyperlink{animation__task_8c_ad90823f255171d2792d13345b96d9477}{animation\_get\_name}}(anim-\/>\mbox{\hyperlink{structanimation__task__t_ac98d14c78132155465672c4943857a2a}{type}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00924}00924\ \ \ \ \ uint32\_t\ current\_time\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00925}00925\ \ \ \ \ uint32\_t\ elapsed\ =\ current\_time\ -\/\ anim-\/>\mbox{\hyperlink{structanimation__task__t_a25f85a5720a2bd7add2c2423f84cbee4}{start\_time}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00926}00926\ \ \ \ \ uint32\_t\ remaining\ =\ (anim-\/>\mbox{\hyperlink{structanimation__task__t_a4c5211bfc199b4bdbc596849387d05ae}{duration\_ms}}\ >\ elapsed)\ ?\ (anim-\/>\mbox{\hyperlink{structanimation__task__t_a4c5211bfc199b4bdbc596849387d05ae}{duration\_ms}}\ -\/\ elapsed)\ :\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00927}00927\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00928}00928\ \ \ \ \ \textcolor{comment}{//\ Calculate\ progress\ bar\ (10\ characters)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00929}00929\ \ \ \ \ \textcolor{keywordtype}{int}\ progress\_bars\ =\ (int)((\textcolor{keywordtype}{float})elapsed\ /\ (\textcolor{keywordtype}{float})anim-\/>\mbox{\hyperlink{structanimation__task__t_a4c5211bfc199b4bdbc596849387d05ae}{duration\_ms}}\ *\ 10.0f);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00930}00930\ \ \ \ \ progress\_bars\ =\ (progress\_bars\ >\ 10)\ ?\ 10\ :\ (progress\_bars\ <\ 0)\ ?\ 0\ :\ progress\_bars;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00931}00931\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00932}00932\ \ \ \ \ \textcolor{keywordtype}{char}\ progress\_bar[12]\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00933}00933\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 10;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00934}00934\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ <\ progress\_bars)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00935}00935\ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar[i]\ =\ \textcolor{charliteral}{'\#'};\ \ \textcolor{comment}{//\ Filled\ block}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00936}00936\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (i\ ==\ progress\_bars)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00937}00937\ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar[i]\ =\ \textcolor{charliteral}{'='};\ \ \textcolor{comment}{//\ Half\ block}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00938}00938\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00939}00939\ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar[i]\ =\ \textcolor{charliteral}{'.'};\ \ \textcolor{comment}{//\ Empty}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00940}00940\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00941}00941\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00942}00942\ \ \ \ \ progress\_bar[10]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00943}00943\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00944}00944\ \ \ \ \ \textcolor{comment}{//\ Print\ animation\ status}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00945}00945\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}ANIM:\ \%s\ frame\ \%d/\%d\ [\%s]\ \%"{}}\ PRIu32\ \textcolor{stringliteral}{"{}ms\ remaining"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00946}00946\ \ \ \ \ \ \ \ \ \ \ \ \ \ anim\_name,\ anim-\/>\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}},\ anim-\/>\mbox{\hyperlink{structanimation__task__t_a273fbd2a2ffa5590a455c97ac1c1f09b}{total\_frames}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00947}00947\ \ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar,\ remaining);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00948}00948\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00949}00949\ \ \ \ \ \textcolor{comment}{//\ Send\ UART\ feedback\ for\ animation\ progress\ (every\ 10th\ frame\ to\ avoid\ spam)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00950}00950\ \ \ \ \ \textcolor{keywordflow}{if}\ (anim-\/>\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}}\ \%\ 10\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00951}00951\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🎬\ ANIMATION\ PROGRESS:\ \%s\ -\/\ Frame\ \%d/\%d\ [\%s]\ \%"{}}\ PRIu32\ \textcolor{stringliteral}{"{}ms\ remaining"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00952}00952\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ anim\_name,\ anim-\/>\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}},\ anim-\/>\mbox{\hyperlink{structanimation__task__t_a273fbd2a2ffa5590a455c97ac1c1f09b}{total\_frames}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00953}00953\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar,\ remaining);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00954}00954\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00955}00955\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00956}00956\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00964}\mbox{\hyperlink{animation__task_8c_a1fc234eed1ddbb156d9c1d61d21abd52}{00964}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a1fc234eed1ddbb156d9c1d61d21abd52}{animation\_print\_piece\_move}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ from\_square,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ to\_square,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00965}00965\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ piece\_name,\ \textcolor{keywordtype}{float}\ progress)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00966}00966\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00967}00967\ \ \ \ \ \textcolor{keywordflow}{if}\ (from\_square\ ==\ NULL\ ||\ to\_square\ ==\ NULL\ ||\ piece\_name\ ==\ NULL)\ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00968}00968\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00969}00969\ \ \ \ \ \textcolor{comment}{//\ Calculate\ progress\ bar\ (10\ characters)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00970}00970\ \ \ \ \ \textcolor{keywordtype}{int}\ progress\_bars\ =\ (int)(progress\ *\ 10.0f);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00971}00971\ \ \ \ \ progress\_bars\ =\ (progress\_bars\ >\ 10)\ ?\ 10\ :\ (progress\_bars\ <\ 0)\ ?\ 0\ :\ progress\_bars;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00972}00972\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00973}00973\ \ \ \ \ \textcolor{keywordtype}{char}\ progress\_bar[12]\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00974}00974\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 10;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00975}00975\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ <\ progress\_bars)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00976}00976\ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar[i]\ =\ \textcolor{charliteral}{'\#'};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00977}00977\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (i\ ==\ progress\_bars)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00978}00978\ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar[i]\ =\ \textcolor{charliteral}{'='};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00979}00979\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00980}00980\ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar[i]\ =\ \textcolor{charliteral}{'.'};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00981}00981\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00982}00982\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00983}00983\ \ \ \ \ progress\_bar[10]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00984}00984\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00985}00985\ \ \ \ \ \textcolor{comment}{//\ Print\ piece\ move\ animation}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00986}00986\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}ANIM:\ Piece\ move\ \%s-\/>\%s\ \%s\ [\%s]\ \%.0f\%\%"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00987}00987\ \ \ \ \ \ \ \ \ \ \ \ \ \ from\_square,\ to\_square,\ piece\_name,\ progress\_bar,\ progress\ *\ 100.0f);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00988}00988\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00989}00989\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00995}\mbox{\hyperlink{animation__task_8c_afd9f1291c4f0584d7d02b26744a24475}{00995}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_afd9f1291c4f0584d7d02b26744a24475}{animation\_print\_check\_status}}(\textcolor{keywordtype}{bool}\ is\_checkmate,\ \textcolor{keywordtype}{float}\ progress)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00996}00996\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00997}00997\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ status\ =\ is\_checkmate\ ?\ \textcolor{stringliteral}{"{}CHECKMATE"{}}\ :\ \textcolor{stringliteral}{"{}CHECK"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00998}00998\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l00999}00999\ \ \ \ \ \textcolor{comment}{//\ Calculate\ progress\ bar\ (10\ characters)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01000}01000\ \ \ \ \ \textcolor{keywordtype}{int}\ progress\_bars\ =\ (int)(progress\ *\ 10.0f);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01001}01001\ \ \ \ \ progress\_bars\ =\ (progress\_bars\ >\ 10)\ ?\ 10\ :\ (progress\_bars\ <\ 0)\ ?\ 0\ :\ progress\_bars;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01002}01002\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01003}01003\ \ \ \ \ \textcolor{keywordtype}{char}\ progress\_bar[12]\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01004}01004\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 10;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01005}01005\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ <\ progress\_bars)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01006}01006\ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar[i]\ =\ \textcolor{charliteral}{'\#'};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01007}01007\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (i\ ==\ progress\_bars)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01008}01008\ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar[i]\ =\ \textcolor{charliteral}{'='};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01009}01009\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01010}01010\ \ \ \ \ \ \ \ \ \ \ \ \ progress\_bar[i]\ =\ \textcolor{charliteral}{'.'};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01011}01011\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01012}01012\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01013}01013\ \ \ \ \ progress\_bar[10]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01014}01014\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01015}01015\ \ \ \ \ \textcolor{comment}{//\ Print\ check\ status}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01016}01016\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}ANIM:\ \%s\ blink\ \%s\ [\%s]\ \%.0f\%\%"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01017}01017\ \ \ \ \ \ \ \ \ \ \ \ \ \ status,\ (progress\ >\ 0.5f)\ ?\ \textcolor{stringliteral}{"{}ON"{}}\ :\ \textcolor{stringliteral}{"{}OFF"{}},\ progress\_bar,\ progress\ *\ 100.0f);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01018}01018\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01019}01019\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01023}\mbox{\hyperlink{animation__task_8c_a817be6e29efbd666e7334307f7c5fe5a}{01023}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a817be6e29efbd666e7334307f7c5fe5a}{animation\_print\_summary}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01024}01024\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01025}01025\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}}\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01026}01026\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}ANIM:\ No\ active\ animations"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01027}01027\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01028}01028\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01029}01029\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01030}01030\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}ANIM:\ \%d\ active\ animations:"{}},\ \mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01031}01031\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01032}01032\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01033}01033\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].active)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01034}01034\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ anim\_name\ =\ \mbox{\hyperlink{animation__task_8c_ad90823f255171d2792d13345b96d9477}{animation\_get\_name}}(\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].type);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01035}01035\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ current\_time\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01036}01036\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ elapsed\ =\ current\_time\ -\/\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].start\_time;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01037}01037\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ remaining\ =\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].duration\_ms\ >\ elapsed)\ ?\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01038}01038\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].duration\_ms\ -\/\ elapsed)\ :\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01039}01039\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01040}01040\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ \%d:\ \%s\ -\/\ Frame\ \%d/\%d,\ \%"{}}\ PRIu32\ \textcolor{stringliteral}{"{}ms\ remaining"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01041}01041\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ i,\ anim\_name,\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].current\_frame,\ \mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].total\_frames,\ remaining);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01042}01042\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01043}01043\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01044}01044\ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01045}01045\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01046}01046\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01047}01047\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01048}01048\ \textcolor{comment}{//\ MAIN\ TASK\ FUNCTION}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01049}01049\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01050}01050\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01051}01051\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01052}\mbox{\hyperlink{animation__task_8c_a18ab65be2c5b763305a8d6c1fa886392}{01052}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8c_a18ab65be2c5b763305a8d6c1fa886392}{animation\_task\_start}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01053}01053\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01054}01054\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ task\ started\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01055}01055\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01056}01056\ \ \ \ \ \textcolor{comment}{//\ ✅\ CRITICAL:\ Register\ with\ TWDT\ from\ within\ task}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01057}01057\ \ \ \ \ esp\_err\_t\ wdt\_ret\ =\ esp\_task\_wdt\_add(NULL);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01058}01058\ \ \ \ \ \textcolor{keywordflow}{if}\ (wdt\_ret\ !=\ ESP\_OK\ \&\&\ wdt\_ret\ !=\ ESP\_ERR\_INVALID\_ARG)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01059}01059\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ register\ Animation\ task\ with\ TWDT:\ \%s"{}},\ esp\_err\_to\_name(wdt\_ret));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01060}01060\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01061}01061\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Animation\ task\ registered\ with\ TWDT"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01062}01062\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01063}01063\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01064}01064\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Features:"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01065}01065\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ •\ 20+\ animation\ patterns"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01066}01066\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ •\ Configurable\ timing\ and\ colors"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01067}01067\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ •\ Smooth\ transitions"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01068}01068\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ •\ Memory-\/efficient\ frame\ storage"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01069}01069\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ •\ Real-\/time\ animation\ control"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01070}01070\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ •\ 50ms\ animation\ cycle"{}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01071}01071\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01072}01072\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a35141cb45623cb3b7b4d96da35ed1831}{task\_running}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01073}01073\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01074}01074\ \ \ \ \ \textcolor{comment}{//\ Initialize\ animation\ system}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01075}01075\ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a09488753d3a3be4415fb5e1bc44d1fb0}{animation\_initialize\_system}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01076}01076\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01077}01077\ \ \ \ \ \textcolor{comment}{//\ Main\ task\ loop}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01078}01078\ \ \ \ \ uint32\_t\ loop\_count\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01079}01079\ \ \ \ \ TickType\_t\ last\_wake\_time\ =\ xTaskGetTickCount();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01080}01080\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01081}01081\ \ \ \ \ \textcolor{keywordflow}{for}\ (;;)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01082}01082\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ CRITICAL:\ Reset\ watchdog\ for\ animation\ task\ in\ every\ iteration}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01083}01083\ \ \ \ \ \ \ \ \ esp\_err\_t\ wdt\_ret\ =\ \mbox{\hyperlink{animation__task_8c_a08e644be7a7cc71b0a4fcdde5ea8d1f5}{animation\_task\_wdt\_reset\_safe}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01084}01084\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (wdt\_ret\ !=\ ESP\_OK\ \&\&\ wdt\_ret\ !=\ ESP\_ERR\_NOT\_FOUND)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01085}01085\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Task\ not\ registered\ with\ TWDT\ yet\ -\/\ this\ is\ normal\ during\ startup}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01086}01086\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01087}01087\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01088}01088\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Process\ animation\ commands}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01089}01089\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_a0060e7605dd42ba4e2041e1c4402f60e}{animation\_process\_commands}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01090}01090\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01091}01091\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Execute\ active\ animations}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01092}01092\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{animation__task_8c_a99f9cfd68ef4237b568bda6e3e63312f}{MAX\_ANIMATIONS}};\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01093}01093\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i].state\ ==\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c}{ANIM\_TASK\_STATE\_RUNNING}})\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01094}01094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{animation__task_8c_afecf0d9f3014ec819b9d8d4efecc1ee5}{animation\_execute\_frame}}(\&\mbox{\hyperlink{animation__task_8c_a3506bb72f29fcaebecde5c53bd6139f2}{animations}}[i]);}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01095}01095\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01096}01096\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01097}01097\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01098}01098\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Periodic\ status\ update}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01099}01099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (loop\_count\ \%\ 1000\ ==\ 0)\ \{\ \textcolor{comment}{//\ Every\ 5\ seconds}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01100}01100\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ Task\ Status:\ loop=\%d,\ active=\%d"{}},\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01101}01101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loop\_count,\ \mbox{\hyperlink{animation__task_8c_a87e4e638f9c673b363ba09ebff9fe0c7}{active\_animation\_count}});}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01102}01102\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01103}01103\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01104}01104\ \ \ \ \ \ \ \ \ loop\_count++;}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01105}01105\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01106}01106\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Wait\ for\ next\ cycle\ (50ms)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01107}01107\ \ \ \ \ \ \ \ \ vTaskDelayUntil(\&last\_wake\_time,\ pdMS\_TO\_TICKS(\mbox{\hyperlink{animation__task_8c_aaaafe1fcaf34b610aa12a2b28705e111}{ANIMATION\_TASK\_INTERVAL}}));}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01108}01108\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{animation__task_8c_source_l01109}01109\ \}}
+
+\end{DoxyCode}

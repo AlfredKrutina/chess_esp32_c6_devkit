@@ -1,0 +1,7 @@
+<map id="game_colors.h" name="game_colors.h">
+<area shape="rect" id="Node000001" title="ANSI Color Codes and Formatting Macros for Terminal Output." alt="" coords="37,5,144,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,80,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,30,61,68,57,64,80,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="104,79,173,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="100,29,125,66,119,66,97,34"/>
+</map>

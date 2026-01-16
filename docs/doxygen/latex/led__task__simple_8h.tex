@@ -1,0 +1,329 @@
+\doxysection{Dokumentace souboru led\+\_\+task\+\_\+simple.\+h}
+\hypertarget{led__task__simple_8h}{}\label{led__task__simple_8h}\index{led\_task\_simple.h@{led\_task\_simple.h}}
+
+
+Jednoduchy LED system -\/ Bezpecne rozhrani z vice vlaken.  
+
+
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/task.\+h"{}}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+Graf závislostí na vkládaných souborech pro led\+\_\+task\+\_\+simple.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{led__task__simple_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__task__simple_8h_ac98160bcc73acb81149019839363cd74}{led\+\_\+set\+\_\+pixel\+\_\+safe}} (uint8\+\_\+t index, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b)
+\begin{DoxyCompactList}\small\item\em Bezpecne nastaveni LED pixelu z vice vlaken. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__task__simple_8h_a89dbb2b29ddb1afaeadee1dd99cab308}{led\+\_\+clear\+\_\+all\+\_\+safe}} (void)
+\begin{DoxyCompactList}\small\item\em Bezpecne vymazani vsech LED z vice vlaken. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__task__simple_8h_a21ac075b956f179c2fc7559b12066d4c}{led\+\_\+set\+\_\+all\+\_\+safe}} (uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b)
+\begin{DoxyCompactList}\small\item\em Bezpecne nastaveni vsech LED na stejnou barvu z vice vlaken. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__task__simple_8h_a7bbc66c7f8801283fece40b2e083d7f5}{led\+\_\+system\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuj LED system. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{led__task__simple_8h_a04e4428b02d2b0776670b98802395a84}{led\+\_\+system\+\_\+is\+\_\+initialized}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda je LED system inicializovan. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{led__task__simple_8h_a4ada7a56726ed5c0f46cdb989c4dcb4f}{led\+\_\+get\+\_\+color}} (uint8\+\_\+t index)
+\begin{DoxyCompactList}\small\item\em Ziskej barvu LED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{led__task__simple_8h_a5c2b466a04fcadba97ca90ee811927d8}{led\+\_\+task\+\_\+start}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Spust jednoduchy LED task. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__task__simple_8h_ada9e83fe87bb057aa60e7bf6d3b23215}{led\+\_\+set\+\_\+pixel}} (uint8\+\_\+t index, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b)
+\begin{DoxyCompactList}\small\item\em Kompatibilni funkce pro existujici kod. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__task__simple_8h_a323c87898912a4a4d62383dbe8bd7099}{led\+\_\+clear\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Kompatibilni funkce pro existujici kod. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__task__simple_8h_a914a921ea239786c49543fce7b9fe67a}{led\+\_\+set\+\_\+all}} (uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b)
+\begin{DoxyCompactList}\small\item\em Kompatibilni funkce pro existujici kod. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Jednoduchy LED system -\/ Bezpecne rozhrani z vice vlaken. 
+
+Tato hlavicka definuje jednoduchy LED system pro ESP32-\/\+C6\+:
+\begin{DoxyItemize}
+\item Bezpecne rozhrani z vice vlaken pro ovladani LED
+\item Prime volani WS2812B driveru s mutex ochranou
+\item Optimalizovane pro ESP32-\/\+C6 RMT
+\item Jednoduche rozhrani bez slozitych fronticek
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+5 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/09-\/02
+\end{DoxyDate}
+Jednoduchy LED system poskytuje ciste, bezpecne rozhrani z vice vlaken pro ovladani LED bez slozitych fronticek a dávkového systemu. Pouziva primo WS2812B driver s mutex ochranou pro bezpecnost z vice vlaken.
+
+Vlastnosti\+:
+\begin{DoxyItemize}
+\item Okamzite LED aktualizace bez dávkového zpozdeni
+\item Bezpecne z vice vlaken s mutexem pro prevenci soubezných pristupu
+\item Jednoduche rozhrani se 3 zakladnimi funkcemi
+\item Optimalizovane pro ESP32-\/\+C6 RMT
+\item Minimalni pametove naroky 
+\end{DoxyItemize}
+
+Definice v souboru \mbox{\hyperlink{led__task__simple_8h_source}{led\+\_\+task\+\_\+simple.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{led__task__simple_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{led__task__simple_8h_a323c87898912a4a4d62383dbe8bd7099}\index{led\_task\_simple.h@{led\_task\_simple.h}!led\_clear\_all@{led\_clear\_all}}
+\index{led\_clear\_all@{led\_clear\_all}!led\_task\_simple.h@{led\_task\_simple.h}}
+\doxysubsubsection{\texorpdfstring{led\_clear\_all()}{led\_clear\_all()}}
+{\footnotesize\ttfamily \label{led__task__simple_8h_a323c87898912a4a4d62383dbe8bd7099} 
+esp\+\_\+err\+\_\+t led\+\_\+clear\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Kompatibilni funkce pro existujici kod. 
+
+Alias pro \doxylink{led__task__simple_8h_a89dbb2b29ddb1afaeadee1dd99cab308}{led\+\_\+clear\+\_\+all\+\_\+safe()}.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__task__simple_8h_a89dbb2b29ddb1afaeadee1dd99cab308}\index{led\_task\_simple.h@{led\_task\_simple.h}!led\_clear\_all\_safe@{led\_clear\_all\_safe}}
+\index{led\_clear\_all\_safe@{led\_clear\_all\_safe}!led\_task\_simple.h@{led\_task\_simple.h}}
+\doxysubsubsection{\texorpdfstring{led\_clear\_all\_safe()}{led\_clear\_all\_safe()}}
+{\footnotesize\ttfamily \label{led__task__simple_8h_a89dbb2b29ddb1afaeadee1dd99cab308} 
+esp\+\_\+err\+\_\+t led\+\_\+clear\+\_\+all\+\_\+safe (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Bezpecne vymazani vsech LED z vice vlaken. 
+
+Nastavi vsechny LED na cernou barvu (vypnuto).
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
+\end{DoxyReturn}
+\begin{DoxyNote}{Poznámka}
+Tato funkce je bezpecna z vice vlaken
+\end{DoxyNote}
+Bezpecne vymazani vsech LED z vice vlaken. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02670}{2670}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task__simple_8h_a4ada7a56726ed5c0f46cdb989c4dcb4f}\index{led\_task\_simple.h@{led\_task\_simple.h}!led\_get\_color@{led\_get\_color}}
+\index{led\_get\_color@{led\_get\_color}!led\_task\_simple.h@{led\_task\_simple.h}}
+\doxysubsubsection{\texorpdfstring{led\_get\_color()}{led\_get\_color()}}
+{\footnotesize\ttfamily \label{led__task__simple_8h_a4ada7a56726ed5c0f46cdb989c4dcb4f} 
+uint32\+\_\+t led\+\_\+get\+\_\+color (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{index}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej barvu LED. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em index} & LED index (0-\/72) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+LED barva jako uint32\+\_\+t RGB (0x00\+RRGGBB) 
+\end{DoxyReturn}
+\Hypertarget{led__task__simple_8h_a914a921ea239786c49543fce7b9fe67a}\index{led\_task\_simple.h@{led\_task\_simple.h}!led\_set\_all@{led\_set\_all}}
+\index{led\_set\_all@{led\_set\_all}!led\_task\_simple.h@{led\_task\_simple.h}}
+\doxysubsubsection{\texorpdfstring{led\_set\_all()}{led\_set\_all()}}
+{\footnotesize\ttfamily \label{led__task__simple_8h_a914a921ea239786c49543fce7b9fe67a} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+all (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{r}{, }\item[{uint8\+\_\+t}]{g}{, }\item[{uint8\+\_\+t}]{b}{}\end{DoxyParamCaption})}
+
+
+
+Kompatibilni funkce pro existujici kod. 
+
+Alias pro \doxylink{led__task__simple_8h_a21ac075b956f179c2fc7559b12066d4c}{led\+\_\+set\+\_\+all\+\_\+safe()}.
+
+
+\begin{DoxyParams}{Parametry}
+{\em r} & Cervena (0-\/255) \\
+\hline
+{\em g} & Zelena (0-\/255) \\
+\hline
+{\em b} & Modra (0-\/255) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__task__simple_8h_a21ac075b956f179c2fc7559b12066d4c}\index{led\_task\_simple.h@{led\_task\_simple.h}!led\_set\_all\_safe@{led\_set\_all\_safe}}
+\index{led\_set\_all\_safe@{led\_set\_all\_safe}!led\_task\_simple.h@{led\_task\_simple.h}}
+\doxysubsubsection{\texorpdfstring{led\_set\_all\_safe()}{led\_set\_all\_safe()}}
+{\footnotesize\ttfamily \label{led__task__simple_8h_a21ac075b956f179c2fc7559b12066d4c} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+all\+\_\+safe (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{r}{, }\item[{uint8\+\_\+t}]{g}{, }\item[{uint8\+\_\+t}]{b}{}\end{DoxyParamCaption})}
+
+
+
+Bezpecne nastaveni vsech LED na stejnou barvu z vice vlaken. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em r} & Cervena komponenta (0-\/255) \\
+\hline
+{\em g} & Zelena komponenta (0-\/255) \\
+\hline
+{\em b} & Modra komponenta (0-\/255) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
+\end{DoxyReturn}
+\begin{DoxyNote}{Poznámka}
+Tato funkce je bezpecna z vice vlaken
+\end{DoxyNote}
+Bezpecne nastaveni vsech LED na stejnou barvu z vice vlaken.
+
+
+\begin{DoxyParams}{Parametry}
+{\em red} & Cervena (0-\/255) \\
+\hline
+{\em green} & Zelena (0-\/255) \\
+\hline
+{\em blue} & Modra (0-\/255) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02676}{2676}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task__simple_8h_ada9e83fe87bb057aa60e7bf6d3b23215}\index{led\_task\_simple.h@{led\_task\_simple.h}!led\_set\_pixel@{led\_set\_pixel}}
+\index{led\_set\_pixel@{led\_set\_pixel}!led\_task\_simple.h@{led\_task\_simple.h}}
+\doxysubsubsection{\texorpdfstring{led\_set\_pixel()}{led\_set\_pixel()}}
+{\footnotesize\ttfamily \label{led__task__simple_8h_ada9e83fe87bb057aa60e7bf6d3b23215} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+pixel (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{index}{, }\item[{uint8\+\_\+t}]{r}{, }\item[{uint8\+\_\+t}]{g}{, }\item[{uint8\+\_\+t}]{b}{}\end{DoxyParamCaption})}
+
+
+
+Kompatibilni funkce pro existujici kod. 
+
+Alias pro \doxylink{led__task__simple_8h_ac98160bcc73acb81149019839363cd74}{led\+\_\+set\+\_\+pixel\+\_\+safe()}.
+
+
+\begin{DoxyParams}{Parametry}
+{\em index} & LED index (0-\/72) \\
+\hline
+{\em r} & Cervena (0-\/255) \\
+\hline
+{\em g} & Zelena (0-\/255) \\
+\hline
+{\em b} & Modra (0-\/255) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__task__simple_8h_ac98160bcc73acb81149019839363cd74}\index{led\_task\_simple.h@{led\_task\_simple.h}!led\_set\_pixel\_safe@{led\_set\_pixel\_safe}}
+\index{led\_set\_pixel\_safe@{led\_set\_pixel\_safe}!led\_task\_simple.h@{led\_task\_simple.h}}
+\doxysubsubsection{\texorpdfstring{led\_set\_pixel\_safe()}{led\_set\_pixel\_safe()}}
+{\footnotesize\ttfamily \label{led__task__simple_8h_ac98160bcc73acb81149019839363cd74} 
+esp\+\_\+err\+\_\+t led\+\_\+set\+\_\+pixel\+\_\+safe (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{index}{, }\item[{uint8\+\_\+t}]{r}{, }\item[{uint8\+\_\+t}]{g}{, }\item[{uint8\+\_\+t}]{b}{}\end{DoxyParamCaption})}
+
+
+
+Bezpecne nastaveni LED pixelu z vice vlaken. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em index} & LED index (0-\/72, kde 0-\/63 sachovnice, 64-\/72 tlacitka) \\
+\hline
+{\em r} & Cervena komponenta (0-\/255) \\
+\hline
+{\em g} & Zelena komponenta (0-\/255) \\
+\hline
+{\em b} & Modra komponenta (0-\/255) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
+\end{DoxyReturn}
+Nastavi barvu jednoho LED pixelu. Funkce provadi okamzite aktualizace bez dávkového systemu. Pouziva mutex pro bezpecnost z vice vlaken a je optimalizovana pro ESP32-\/\+C6 RMT.
+
+\begin{DoxyNote}{Poznámka}
+Tato funkce je bezpecna z vice vlaken a muze byt volana z libovolneho tasku
+\end{DoxyNote}
+Bezpecne nastaveni LED pixelu z vice vlaken.
+
+
+\begin{DoxyParams}{Parametry}
+{\em led\+\_\+index} & Index LED (0-\/72) \\
+\hline
+{\em red} & Cervena (0-\/255) \\
+\hline
+{\em green} & Zelena (0-\/255) \\
+\hline
+{\em blue} & Modra (0-\/255) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02662}{2662}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task__simple_8h_a7bbc66c7f8801283fece40b2e083d7f5}\index{led\_task\_simple.h@{led\_task\_simple.h}!led\_system\_init@{led\_system\_init}}
+\index{led\_system\_init@{led\_system\_init}!led\_task\_simple.h@{led\_task\_simple.h}}
+\doxysubsubsection{\texorpdfstring{led\_system\_init()}{led\_system\_init()}}
+{\footnotesize\ttfamily \label{led__task__simple_8h_a7bbc66c7f8801283fece40b2e083d7f5} 
+esp\+\_\+err\+\_\+t led\+\_\+system\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuj LED system. 
+
+Inicializuje WS2812B LED driver, vytvori mutex a nastavi vsechny LED na vypnuto.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+FAIL pri selhani 
+\end{DoxyReturn}
+\Hypertarget{led__task__simple_8h_a04e4428b02d2b0776670b98802395a84}\index{led\_task\_simple.h@{led\_task\_simple.h}!led\_system\_is\_initialized@{led\_system\_is\_initialized}}
+\index{led\_system\_is\_initialized@{led\_system\_is\_initialized}!led\_task\_simple.h@{led\_task\_simple.h}}
+\doxysubsubsection{\texorpdfstring{led\_system\_is\_initialized()}{led\_system\_is\_initialized()}}
+{\footnotesize\ttfamily \label{led__task__simple_8h_a04e4428b02d2b0776670b98802395a84} 
+bool led\+\_\+system\+\_\+is\+\_\+initialized (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je LED system inicializovan. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je system inicializovan a pripraven k pouziti 
+\end{DoxyReturn}
+\Hypertarget{led__task__simple_8h_a5c2b466a04fcadba97ca90ee811927d8}\index{led\_task\_simple.h@{led\_task\_simple.h}!led\_task\_start@{led\_task\_start}}
+\index{led\_task\_start@{led\_task\_start}!led\_task\_simple.h@{led\_task\_simple.h}}
+\doxysubsubsection{\texorpdfstring{led\_task\_start()}{led\_task\_start()}}
+{\footnotesize\ttfamily \label{led__task__simple_8h_a5c2b466a04fcadba97ca90ee811927d8} 
+void led\+\_\+task\+\_\+start (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Spust jednoduchy LED task. 
+
+Toto je hlavni funkce LED tasku. Nepouzivejte primo.
+
+
+\begin{DoxyParams}{Parametry}
+{\em pv\+Parameters} & Parametry tasku\\
+\hline
+\end{DoxyParams}
+Spust jednoduchy LED task.
+
+
+\begin{DoxyParams}{Parametry}
+{\em pv\+Parameters} & Parametry tasku (nepouzivane) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01808}{1808}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+

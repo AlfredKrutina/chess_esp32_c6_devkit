@@ -1,0 +1,529 @@
+\doxysection{Dokumentace struktury animation\+\_\+state\+\_\+struct}
+\hypertarget{structanimation__state__struct}{}\label{structanimation__state__struct}\index{animation\_state\_struct@{animation\_state\_struct}}
+
+
+Struktura animace.  
+
+
+
+
+{\ttfamily \#include $<$unified\+\_\+animation\+\_\+manager.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a732e0dbd6e57d26471ce3f333a133f2c}{id}}
+\begin{DoxyCompactList}\small\item\em Unikatni ID animace. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{unified__animation__manager_8h_a7e703c09ba390bb0306ced9d307690df}{animation\+\_\+type\+\_\+t}} \mbox{\hyperlink{structanimation__state__struct_ac79573e97685e638f9c2b5cd71812866}{type}}
+\begin{DoxyCompactList}\small\item\em Typ animace. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{unified__animation__manager_8h_a1d14f93d2747753699b61ea7f84c97a6}{animation\+\_\+priority\+\_\+t}} \mbox{\hyperlink{structanimation__state__struct_a8e140ccb4b01f66009817c3eabb3cfdb}{priority}}
+\begin{DoxyCompactList}\small\item\em Priorita. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structanimation__state__struct_ab589c6dea9706219b895760e5000b84c}{active}}
+\begin{DoxyCompactList}\small\item\em Je aktivni? \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structanimation__state__struct_a464a2373685a8d9ffd904fe653d93948}{looping}}
+\begin{DoxyCompactList}\small\item\em Opakuje se? \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structanimation__state__struct_ae0a72eacc1d16227ba69fba467a0529e}{start\+\_\+time}}
+\begin{DoxyCompactList}\small\item\em Cas spusteni. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a9570f68952cc32df071946e4fac9882e}{duration\+\_\+ms}}
+\begin{DoxyCompactList}\small\item\em Delka v ms (0 = nekonecna). \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a6cd808b11cdf192b14cb1c6bae1aa2bb}{current\+\_\+frame}}
+\begin{DoxyCompactList}\small\item\em Aktualni snimek. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{structanimation__state__struct_a1442eda3168d67833881a91d25b43e63}{progress}}
+\begin{DoxyCompactList}\small\item\em Pokrok animace (0.\+0-\/1.\+0). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_abb19daa0d3794443fa78e3eb363ed314}{from\+\_\+led}}
+\begin{DoxyCompactList}\small\item\em Zdrojova LED. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a0704478ccab727055e9776a96a8a9af2}{to\+\_\+led}}
+\begin{DoxyCompactList}\small\item\em Cilova LED. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_ae43d0e2f19d7e6218a15ab7ea4b3fa64}{center\+\_\+led}}
+\begin{DoxyCompactList}\small\item\em Stredova LED (pro endgame). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a279664f2466e44e92fb9cb065d13acc3}{trail\+\_\+length}}
+\begin{DoxyCompactList}\small\item\em Delka sledujiciho efektu. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a7cde404deed44276640c337ff89c9a94}{from\+\_\+row}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a7d7b84971c84f2be81d1d16b8ed861a4}{from\+\_\+col}}
+\begin{DoxyCompactList}\small\item\em Zdrojova pozice. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a048f97179d87aaef0f177f47235842fc}{to\+\_\+row}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a5ba94fece824afa2309f549e66e00ea3}{to\+\_\+col}}
+\begin{DoxyCompactList}\small\item\em Cilova pozice. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a33119ff945aa1d9a0e172f5a26fea14f}{affected\+\_\+positions}} \mbox{[}64\mbox{]}
+\begin{DoxyCompactList}\small\item\em Ovlivnene pozice. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a11dd74ed0b510b921d3c87adc0f78aee}{affected\+\_\+count}}
+\begin{DoxyCompactList}\small\item\em Pocet ovlivnenych pozic. \end{DoxyCompactList}\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+struct \{\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a81ba55cfe9c438efcb2f3a01ba0c250d}{r}}\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a44d6d80720ab776fc0e69bcc89af7998}{g}}\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a54ad728f789eaa216561ab83c8281b18}{b}}\\
+\} \mbox{\hyperlink{structanimation__state__struct_a2922ea68742f00aa170aec907413a09a}{color\_start}}\\
+
+\end{tabbing}\begin{DoxyCompactList}\small\item\em Pocatecni barva RGB. \end{DoxyCompactList}\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+struct \{\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a81ba55cfe9c438efcb2f3a01ba0c250d}{r}}\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a44d6d80720ab776fc0e69bcc89af7998}{g}}\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a54ad728f789eaa216561ab83c8281b18}{b}}\\
+\} \mbox{\hyperlink{structanimation__state__struct_a38f0e16a77fd8363c7b777bae1b634f0}{color\_end}}\\
+
+\end{tabbing}\begin{DoxyCompactList}\small\item\em Koncova barva RGB. \end{DoxyCompactList}\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+struct \{\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a81ba55cfe9c438efcb2f3a01ba0c250d}{r}}\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a44d6d80720ab776fc0e69bcc89af7998}{g}}\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a54ad728f789eaa216561ab83c8281b18}{b}}\\
+\} \mbox{\hyperlink{structanimation__state__struct_a3c902fd4518851b7f8a180675924d140}{color\_primary}}\\
+
+\end{tabbing}\begin{DoxyCompactList}\small\item\em Primarni barva RGB (legacy). \end{DoxyCompactList}\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+struct \{\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a81ba55cfe9c438efcb2f3a01ba0c250d}{r}}\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a44d6d80720ab776fc0e69bcc89af7998}{g}}\\
+\>uint8\_t \mbox{\hyperlink{structanimation__state__struct_a54ad728f789eaa216561ab83c8281b18}{b}}\\
+\} \mbox{\hyperlink{structanimation__state__struct_ae4c860baf9947da18d8e8b7f7fb6805e}{color\_secondary}}\\
+
+\end{tabbing}\begin{DoxyCompactList}\small\item\em Sekundarni barva RGB (legacy). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a9a52073808958a49d056dfe7ae67a626}{speed}}
+\begin{DoxyCompactList}\small\item\em Rychlost (0-\/255). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a077ad0cbcd3a0f3419280fa9dd1189c9}{intensity}}
+\begin{DoxyCompactList}\small\item\em Intenzita (0-\/255). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a9979b435eb6e089f4695566d3e3c1a16}{winner\+\_\+color}}
+\begin{DoxyCompactList}\small\item\em Barva viteze (0=white, 1=black). \end{DoxyCompactList}\item 
+bool(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structanimation__state__struct_ab1a5f1afbbdb0e1a7cf3eb90ddc29206}{update\+\_\+func}} )(\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\begin{DoxyCompactList}\small\item\em Update funkce. \end{DoxyCompactList}\item 
+void(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structanimation__state__struct_a1257c5b14f68eec69cc6a480895748d0}{on\+\_\+complete}} )(uint32\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a732e0dbd6e57d26471ce3f333a133f2c}{id}})
+\begin{DoxyCompactList}\small\item\em Callback pri dokonceni. \end{DoxyCompactList}\item 
+void(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structanimation__state__struct_a5596162671dcc10a67f1eeeb102da26a}{on\+\_\+frame}} )(uint32\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a732e0dbd6e57d26471ce3f333a133f2c}{id}}, uint32\+\_\+t frame)
+\begin{DoxyCompactList}\small\item\em Callback pro snimek. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Struktura animace. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00120}{120}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structanimation__state__struct_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structanimation__state__struct_ab589c6dea9706219b895760e5000b84c}\index{animation\_state\_struct@{animation\_state\_struct}!active@{active}}
+\index{active@{active}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{active}{active}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_ab589c6dea9706219b895760e5000b84c} 
+bool animation\+\_\+state\+\_\+struct\+::active}
+
+
+
+Je aktivni? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00124}{124}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a11dd74ed0b510b921d3c87adc0f78aee}\index{animation\_state\_struct@{animation\_state\_struct}!affected\_count@{affected\_count}}
+\index{affected\_count@{affected\_count}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{affected\_count}{affected\_count}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a11dd74ed0b510b921d3c87adc0f78aee} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::affected\+\_\+count}
+
+
+
+Pocet ovlivnenych pozic. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00141}{141}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a33119ff945aa1d9a0e172f5a26fea14f}\index{animation\_state\_struct@{animation\_state\_struct}!affected\_positions@{affected\_positions}}
+\index{affected\_positions@{affected\_positions}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{affected\_positions}{affected\_positions}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a33119ff945aa1d9a0e172f5a26fea14f} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::affected\+\_\+positions\mbox{[}64\mbox{]}}
+
+
+
+Ovlivnene pozice. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00140}{140}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a54ad728f789eaa216561ab83c8281b18}\index{animation\_state\_struct@{animation\_state\_struct}!b@{b}}
+\index{b@{b}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{b}{b}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a54ad728f789eaa216561ab83c8281b18} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::b}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00144}{144}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_ae43d0e2f19d7e6218a15ab7ea4b3fa64}\index{animation\_state\_struct@{animation\_state\_struct}!center\_led@{center\_led}}
+\index{center\_led@{center\_led}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{center\_led}{center\_led}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_ae43d0e2f19d7e6218a15ab7ea4b3fa64} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::center\+\_\+led}
+
+
+
+Stredova LED (pro endgame). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00134}{134}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a38f0e16a77fd8363c7b777bae1b634f0}\index{animation\_state\_struct@{animation\_state\_struct}!color\_end@{color\_end}}
+\index{color\_end@{color\_end}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{[struct]}{[struct]}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a38f0e16a77fd8363c7b777bae1b634f0} 
+struct  \{ ... \}  animation\+\_\+state\+\_\+struct\+::color\+\_\+end}
+
+
+
+Koncova barva RGB. 
+
+\Hypertarget{structanimation__state__struct_a3c902fd4518851b7f8a180675924d140}\index{animation\_state\_struct@{animation\_state\_struct}!color\_primary@{color\_primary}}
+\index{color\_primary@{color\_primary}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{[struct]}{[struct]}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a3c902fd4518851b7f8a180675924d140} 
+struct  \{ ... \}  animation\+\_\+state\+\_\+struct\+::color\+\_\+primary}
+
+
+
+Primarni barva RGB (legacy). 
+
+\Hypertarget{structanimation__state__struct_ae4c860baf9947da18d8e8b7f7fb6805e}\index{animation\_state\_struct@{animation\_state\_struct}!color\_secondary@{color\_secondary}}
+\index{color\_secondary@{color\_secondary}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{[struct]}{[struct]}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_ae4c860baf9947da18d8e8b7f7fb6805e} 
+struct  \{ ... \}  animation\+\_\+state\+\_\+struct\+::color\+\_\+secondary}
+
+
+
+Sekundarni barva RGB (legacy). 
+
+\Hypertarget{structanimation__state__struct_a2922ea68742f00aa170aec907413a09a}\index{animation\_state\_struct@{animation\_state\_struct}!color\_start@{color\_start}}
+\index{color\_start@{color\_start}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{[struct]}{[struct]}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a2922ea68742f00aa170aec907413a09a} 
+struct  \{ ... \}  animation\+\_\+state\+\_\+struct\+::color\+\_\+start}
+
+
+
+Pocatecni barva RGB. 
+
+\Hypertarget{structanimation__state__struct_a6cd808b11cdf192b14cb1c6bae1aa2bb}\index{animation\_state\_struct@{animation\_state\_struct}!current\_frame@{current\_frame}}
+\index{current\_frame@{current\_frame}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{current\_frame}{current\_frame}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a6cd808b11cdf192b14cb1c6bae1aa2bb} 
+uint32\+\_\+t animation\+\_\+state\+\_\+struct\+::current\+\_\+frame}
+
+
+
+Aktualni snimek. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00128}{128}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a9570f68952cc32df071946e4fac9882e}\index{animation\_state\_struct@{animation\_state\_struct}!duration\_ms@{duration\_ms}}
+\index{duration\_ms@{duration\_ms}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{duration\_ms}{duration\_ms}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a9570f68952cc32df071946e4fac9882e} 
+uint32\+\_\+t animation\+\_\+state\+\_\+struct\+::duration\+\_\+ms}
+
+
+
+Delka v ms (0 = nekonecna). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00127}{127}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a7d7b84971c84f2be81d1d16b8ed861a4}\index{animation\_state\_struct@{animation\_state\_struct}!from\_col@{from\_col}}
+\index{from\_col@{from\_col}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{from\_col}{from\_col}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a7d7b84971c84f2be81d1d16b8ed861a4} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::from\+\_\+col}
+
+
+
+Zdrojova pozice. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00138}{138}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_abb19daa0d3794443fa78e3eb363ed314}\index{animation\_state\_struct@{animation\_state\_struct}!from\_led@{from\_led}}
+\index{from\_led@{from\_led}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{from\_led}{from\_led}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_abb19daa0d3794443fa78e3eb363ed314} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::from\+\_\+led}
+
+
+
+Zdrojova LED. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00132}{132}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a7cde404deed44276640c337ff89c9a94}\index{animation\_state\_struct@{animation\_state\_struct}!from\_row@{from\_row}}
+\index{from\_row@{from\_row}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{from\_row}{from\_row}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a7cde404deed44276640c337ff89c9a94} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::from\+\_\+row}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00138}{138}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a44d6d80720ab776fc0e69bcc89af7998}\index{animation\_state\_struct@{animation\_state\_struct}!g@{g}}
+\index{g@{g}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{g}{g}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a44d6d80720ab776fc0e69bcc89af7998} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::g}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00144}{144}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a732e0dbd6e57d26471ce3f333a133f2c}\index{animation\_state\_struct@{animation\_state\_struct}!id@{id}}
+\index{id@{id}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{id}{id}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a732e0dbd6e57d26471ce3f333a133f2c} 
+uint32\+\_\+t animation\+\_\+state\+\_\+struct\+::id}
+
+
+
+Unikatni ID animace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00121}{121}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a077ad0cbcd3a0f3419280fa9dd1189c9}\index{animation\_state\_struct@{animation\_state\_struct}!intensity@{intensity}}
+\index{intensity@{intensity}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{intensity}{intensity}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a077ad0cbcd3a0f3419280fa9dd1189c9} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::intensity}
+
+
+
+Intenzita (0-\/255). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00151}{151}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a464a2373685a8d9ffd904fe653d93948}\index{animation\_state\_struct@{animation\_state\_struct}!looping@{looping}}
+\index{looping@{looping}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{looping}{looping}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a464a2373685a8d9ffd904fe653d93948} 
+bool animation\+\_\+state\+\_\+struct\+::looping}
+
+
+
+Opakuje se? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00125}{125}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a1257c5b14f68eec69cc6a480895748d0}\index{animation\_state\_struct@{animation\_state\_struct}!on\_complete@{on\_complete}}
+\index{on\_complete@{on\_complete}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{on\_complete}{on\_complete}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a1257c5b14f68eec69cc6a480895748d0} 
+void(\texorpdfstring{$\ast$}{*} animation\+\_\+state\+\_\+struct\+::on\+\_\+complete) (uint32\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a732e0dbd6e57d26471ce3f333a133f2c}{id}})}
+
+
+
+Callback pri dokonceni. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00158}{158}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a5596162671dcc10a67f1eeeb102da26a}\index{animation\_state\_struct@{animation\_state\_struct}!on\_frame@{on\_frame}}
+\index{on\_frame@{on\_frame}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{on\_frame}{on\_frame}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a5596162671dcc10a67f1eeeb102da26a} 
+void(\texorpdfstring{$\ast$}{*} animation\+\_\+state\+\_\+struct\+::on\+\_\+frame) (uint32\+\_\+t \mbox{\hyperlink{structanimation__state__struct_a732e0dbd6e57d26471ce3f333a133f2c}{id}}, uint32\+\_\+t frame)}
+
+
+
+Callback pro snimek. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00159}{159}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a8e140ccb4b01f66009817c3eabb3cfdb}\index{animation\_state\_struct@{animation\_state\_struct}!priority@{priority}}
+\index{priority@{priority}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{priority}{priority}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a8e140ccb4b01f66009817c3eabb3cfdb} 
+\mbox{\hyperlink{unified__animation__manager_8h_a1d14f93d2747753699b61ea7f84c97a6}{animation\+\_\+priority\+\_\+t}} animation\+\_\+state\+\_\+struct\+::priority}
+
+
+
+Priorita. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00123}{123}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a1442eda3168d67833881a91d25b43e63}\index{animation\_state\_struct@{animation\_state\_struct}!progress@{progress}}
+\index{progress@{progress}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{progress}{progress}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a1442eda3168d67833881a91d25b43e63} 
+float animation\+\_\+state\+\_\+struct\+::progress}
+
+
+
+Pokrok animace (0.\+0-\/1.\+0). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00129}{129}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a81ba55cfe9c438efcb2f3a01ba0c250d}\index{animation\_state\_struct@{animation\_state\_struct}!r@{r}}
+\index{r@{r}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{r}{r}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a81ba55cfe9c438efcb2f3a01ba0c250d} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::r}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00144}{144}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a9a52073808958a49d056dfe7ae67a626}\index{animation\_state\_struct@{animation\_state\_struct}!speed@{speed}}
+\index{speed@{speed}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{speed}{speed}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a9a52073808958a49d056dfe7ae67a626} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::speed}
+
+
+
+Rychlost (0-\/255). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00150}{150}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_ae0a72eacc1d16227ba69fba467a0529e}\index{animation\_state\_struct@{animation\_state\_struct}!start\_time@{start\_time}}
+\index{start\_time@{start\_time}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{start\_time}{start\_time}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_ae0a72eacc1d16227ba69fba467a0529e} 
+uint32\+\_\+t animation\+\_\+state\+\_\+struct\+::start\+\_\+time}
+
+
+
+Cas spusteni. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00126}{126}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a5ba94fece824afa2309f549e66e00ea3}\index{animation\_state\_struct@{animation\_state\_struct}!to\_col@{to\_col}}
+\index{to\_col@{to\_col}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{to\_col}{to\_col}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a5ba94fece824afa2309f549e66e00ea3} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::to\+\_\+col}
+
+
+
+Cilova pozice. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00139}{139}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a0704478ccab727055e9776a96a8a9af2}\index{animation\_state\_struct@{animation\_state\_struct}!to\_led@{to\_led}}
+\index{to\_led@{to\_led}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{to\_led}{to\_led}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a0704478ccab727055e9776a96a8a9af2} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::to\+\_\+led}
+
+
+
+Cilova LED. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00133}{133}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a048f97179d87aaef0f177f47235842fc}\index{animation\_state\_struct@{animation\_state\_struct}!to\_row@{to\_row}}
+\index{to\_row@{to\_row}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{to\_row}{to\_row}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a048f97179d87aaef0f177f47235842fc} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::to\+\_\+row}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00139}{139}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a279664f2466e44e92fb9cb065d13acc3}\index{animation\_state\_struct@{animation\_state\_struct}!trail\_length@{trail\_length}}
+\index{trail\_length@{trail\_length}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{trail\_length}{trail\_length}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a279664f2466e44e92fb9cb065d13acc3} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::trail\+\_\+length}
+
+
+
+Delka sledujiciho efektu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00135}{135}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_ac79573e97685e638f9c2b5cd71812866}\index{animation\_state\_struct@{animation\_state\_struct}!type@{type}}
+\index{type@{type}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{type}{type}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_ac79573e97685e638f9c2b5cd71812866} 
+\mbox{\hyperlink{unified__animation__manager_8h_a7e703c09ba390bb0306ced9d307690df}{animation\+\_\+type\+\_\+t}} animation\+\_\+state\+\_\+struct\+::type}
+
+
+
+Typ animace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00122}{122}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_ab1a5f1afbbdb0e1a7cf3eb90ddc29206}\index{animation\_state\_struct@{animation\_state\_struct}!update\_func@{update\_func}}
+\index{update\_func@{update\_func}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{update\_func}{update\_func}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_ab1a5f1afbbdb0e1a7cf3eb90ddc29206} 
+bool(\texorpdfstring{$\ast$}{*} animation\+\_\+state\+\_\+struct\+::update\+\_\+func) (\mbox{\hyperlink{unified__animation__manager_8h_ad6143ee8f8a7f6e8a58b51a947a36fa9}{animation\+\_\+state\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)}
+
+
+
+Update funkce. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00155}{155}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+\Hypertarget{structanimation__state__struct_a9979b435eb6e089f4695566d3e3c1a16}\index{animation\_state\_struct@{animation\_state\_struct}!winner\_color@{winner\_color}}
+\index{winner\_color@{winner\_color}!animation\_state\_struct@{animation\_state\_struct}}
+\doxysubsubsection{\texorpdfstring{winner\_color}{winner\_color}}
+{\footnotesize\ttfamily \label{structanimation__state__struct_a9979b435eb6e089f4695566d3e3c1a16} 
+uint8\+\_\+t animation\+\_\+state\+\_\+struct\+::winner\+\_\+color}
+
+
+
+Barva viteze (0=white, 1=black). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{unified__animation__manager_8h_source_l00152}{152}} v souboru \mbox{\hyperlink{unified__animation__manager_8h_source}{unified\+\_\+animation\+\_\+manager.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{unified__animation__manager_8h}{unified\+\_\+animation\+\_\+manager.\+h}}\end{DoxyCompactItemize}

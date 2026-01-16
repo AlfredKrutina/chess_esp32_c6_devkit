@@ -1,0 +1,407 @@
+\doxysection{Dokumentace souboru button\+\_\+task.\+h}
+\hypertarget{button__task_8h}{}\label{button__task_8h}\index{button\_task.h@{button\_task.h}}
+
+
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Button Task Hlavicka.  
+
+
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/task.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/semphr.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/timers.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+Graf závislostí na vkládaných souborech pro button\+\_\+task.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{button__task_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Výčty}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749a}{button\+\_\+command\+\_\+t}} \{ \mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aab087f951763dfe8096343e91583f716c}{BUTTON\+\_\+\+CMD\+\_\+\+RESET}} = 0
+, \mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aa067222378ede91b20155161e53d1f26b}{BUTTON\+\_\+\+CMD\+\_\+\+STATUS}}
+, \mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aac3e1e97088df34ca580325c9a48a6b84}{BUTTON\+\_\+\+CMD\+\_\+\+TEST}}
+ \}
+\begin{DoxyCompactList}\small\item\em Typy button prikazu. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{button__task_8h_af93b7fa55287e83f6caf447e756de6d2}{button\+\_\+task\+\_\+start}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Spusti button task. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_a5fb2a771d8252d20fc0ad4d97667d4df}{button\+\_\+scan\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Oskenuje vsechna tlacitka pro zmenu stavu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_a133a427b3e47eeb0e857d1efd4bbfe57}{button\+\_\+simulate\+\_\+press}} (uint8\+\_\+t button\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Simuluj stisknuti tlacitka (pro testovani). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_a2f22af1e62d703a6cd12cfa7d7058865}{button\+\_\+simulate\+\_\+release}} (uint8\+\_\+t button\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Simuluj uvolneni tlacitka (pro testovani). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_aedc6316fcaee517a7a57905a217d44b8}{button\+\_\+process\+\_\+events}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj button udalosti a zmeny stavu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_aae052fa1d3a64d8c90bb3ec9dc3e4210}{button\+\_\+handle\+\_\+press}} (uint8\+\_\+t button\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Zpracuj udalost stisknuti tlacitka. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_a52544805262bb1776fcdb432960eb7be}{button\+\_\+handle\+\_\+release}} (uint8\+\_\+t button\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Zpracuj udalost uvolneni tlacitka. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_a506457119e2e5819ca95c3e876de7d5e}{button\+\_\+check\+\_\+double\+\_\+press}} (uint8\+\_\+t button\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Overi double press na tlacitku. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_a9c76fbdf52fcd61692a0ace95907507f}{button\+\_\+send\+\_\+event}} (uint8\+\_\+t button\+\_\+id, \mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904b}{button\+\_\+event\+\_\+type\+\_\+t}} event\+\_\+type, uint32\+\_\+t duration)
+\begin{DoxyCompactList}\small\item\em Posli button udalost do fronty. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_a558352d2b9df8e61bfada7d422249e64}{button\+\_\+update\+\_\+led\+\_\+feedback}} (uint8\+\_\+t button\+\_\+id, bool pressed)
+\begin{DoxyCompactList}\small\item\em Aktualizuj LED feedback pro stav tlacitka. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_ad004f184d705cb6e12a079c8105867bc}{button\+\_\+set\+\_\+led\+\_\+color}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t red, uint8\+\_\+t green, uint8\+\_\+t blue)
+\begin{DoxyCompactList}\small\item\em Nastav barvu LED pro tlacitko. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_a0e6a1befa86d6dcea575c1effa25fb6d}{button\+\_\+process\+\_\+commands}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj button prikazy z fronty. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_a97c84f568244fb112e4828e2985529ec}{button\+\_\+reset\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Resetuj vsechny stavy tlacitek. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_a1573d1d2a02b4e2b619b9ef45e09fda5}{button\+\_\+print\+\_\+status}} (void)
+\begin{DoxyCompactList}\small\item\em Vypis stav tlacitek. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{button__task_8h_ae20ae1cc0ee0a2af8cdae453a22296a2}{button\+\_\+test\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Testuj vsechna tlacitka. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Button Task Hlavicka. 
+
+Tato hlavicka definuje rozhrani pro button task\+:
+\begin{DoxyItemize}
+\item Typy a struktury button udalosti
+\item Prototypy funkci button tasku
+\item Funkce pro ovladani a stav tlacitek
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/24
+\end{DoxyDate}
+Button task zpracovava vsechny tlacitka v sachovem systemu\+:
+\begin{DoxyItemize}
+\item 8 promotion tlacitek (4 pro bileho + 4 pro cerneho)
+\item 1 reset tlacitko
+\item Debouncing a detekce udalosti
+\item LED feedback pro stav tlacitek
+\item Long press a double press detekce 
+\end{DoxyItemize}
+
+Definice v souboru \mbox{\hyperlink{button__task_8h_source}{button\+\_\+task.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{button__task_8h_doc-enum-members}
+\doxysubsection{Dokumentace výčtových typů}
+\Hypertarget{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749a}\index{button\_task.h@{button\_task.h}!button\_command\_t@{button\_command\_t}}
+\index{button\_command\_t@{button\_command\_t}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_command\_t}{button\_command\_t}}
+{\footnotesize\ttfamily \label{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749a} 
+enum \mbox{\hyperlink{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749a}{button\+\_\+command\+\_\+t}}}
+
+
+
+Typy button prikazu. 
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{BUTTON\_CMD\_RESET@{BUTTON\_CMD\_RESET}!button\_task.h@{button\_task.h}}\index{button\_task.h@{button\_task.h}!BUTTON\_CMD\_RESET@{BUTTON\_CMD\_RESET}}}\Hypertarget{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aab087f951763dfe8096343e91583f716c}\label{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aab087f951763dfe8096343e91583f716c} 
+BUTTON\+\_\+\+CMD\+\_\+\+RESET&Resetuj vsechna tlacitka. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{BUTTON\_CMD\_STATUS@{BUTTON\_CMD\_STATUS}!button\_task.h@{button\_task.h}}\index{button\_task.h@{button\_task.h}!BUTTON\_CMD\_STATUS@{BUTTON\_CMD\_STATUS}}}\Hypertarget{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aa067222378ede91b20155161e53d1f26b}\label{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aa067222378ede91b20155161e53d1f26b} 
+BUTTON\+\_\+\+CMD\+\_\+\+STATUS&Vypis stav tlacitek. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{BUTTON\_CMD\_TEST@{BUTTON\_CMD\_TEST}!button\_task.h@{button\_task.h}}\index{button\_task.h@{button\_task.h}!BUTTON\_CMD\_TEST@{BUTTON\_CMD\_TEST}}}\Hypertarget{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aac3e1e97088df34ca580325c9a48a6b84}\label{button__task_8h_a8de3d61b9ce7ac3aa54b5c740773749aac3e1e97088df34ca580325c9a48a6b84} 
+BUTTON\+\_\+\+CMD\+\_\+\+TEST&Testuj vsechna tlacitka. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8h_source_l00046}{46}} v souboru \mbox{\hyperlink{button__task_8h_source}{button\+\_\+task.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{button__task_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{button__task_8h_a506457119e2e5819ca95c3e876de7d5e}\index{button\_task.h@{button\_task.h}!button\_check\_double\_press@{button\_check\_double\_press}}
+\index{button\_check\_double\_press@{button\_check\_double\_press}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_check\_double\_press()}{button\_check\_double\_press()}}
+{\footnotesize\ttfamily \label{button__task_8h_a506457119e2e5819ca95c3e876de7d5e} 
+void button\+\_\+check\+\_\+double\+\_\+press (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Overi double press na tlacitku. 
+
+Kontroluje zda bylo tlacitko stisknuto dvakrat po sobe v intervalu 300ms.
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+id} & ID tlacitka k overeni (0-\/8) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00417}{417}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_aae052fa1d3a64d8c90bb3ec9dc3e4210}\index{button\_task.h@{button\_task.h}!button\_handle\_press@{button\_handle\_press}}
+\index{button\_handle\_press@{button\_handle\_press}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_handle\_press()}{button\_handle\_press()}}
+{\footnotesize\ttfamily \label{button__task_8h_aae052fa1d3a64d8c90bb3ec9dc3e4210} 
+void button\+\_\+handle\+\_\+press (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj udalost stisknuti tlacitka. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+id} & ID tlacitka ktere bylo stisknuto (0-\/8) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00371}{371}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_a52544805262bb1776fcdb432960eb7be}\index{button\_task.h@{button\_task.h}!button\_handle\_release@{button\_handle\_release}}
+\index{button\_handle\_release@{button\_handle\_release}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_handle\_release()}{button\_handle\_release()}}
+{\footnotesize\ttfamily \label{button__task_8h_a52544805262bb1776fcdb432960eb7be} 
+void button\+\_\+handle\+\_\+release (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj udalost uvolneni tlacitka. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+id} & ID tlacitka ktere bylo uvolneno (0-\/8) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00388}{388}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_a1573d1d2a02b4e2b619b9ef45e09fda5}\index{button\_task.h@{button\_task.h}!button\_print\_status@{button\_print\_status}}
+\index{button\_print\_status@{button\_print\_status}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_print\_status()}{button\_print\_status()}}
+{\footnotesize\ttfamily \label{button__task_8h_a1573d1d2a02b4e2b619b9ef45e09fda5} 
+void button\+\_\+print\+\_\+status (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vypis stav tlacitek. 
+
+Vypise stav vsech 9 tlacitek a informace o simulacnim rezimu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00543}{543}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_a0e6a1befa86d6dcea575c1effa25fb6d}\index{button\_task.h@{button\_task.h}!button\_process\_commands@{button\_process\_commands}}
+\index{button\_process\_commands@{button\_process\_commands}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_process\_commands()}{button\_process\_commands()}}
+{\footnotesize\ttfamily \label{button__task_8h_a0e6a1befa86d6dcea575c1effa25fb6d} 
+void button\+\_\+process\+\_\+commands (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj button prikazy z fronty. 
+
+Cte prikazy z button\+\_\+command\+\_\+queue a vykonava je (reset, status, test). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00498}{498}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_aedc6316fcaee517a7a57905a217d44b8}\index{button\_task.h@{button\_task.h}!button\_process\_events@{button\_process\_events}}
+\index{button\_process\_events@{button\_process\_events}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_process\_events()}{button\_process\_events()}}
+{\footnotesize\ttfamily \label{button__task_8h_aedc6316fcaee517a7a57905a217d44b8} 
+void button\+\_\+process\+\_\+events (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj button udalosti a zmeny stavu. 
+
+Detekuje zmeny stavu tlacitek a generuje udalosti (press, release, long press, double press). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00343}{343}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_a97c84f568244fb112e4828e2985529ec}\index{button\_task.h@{button\_task.h}!button\_reset\_all@{button\_reset\_all}}
+\index{button\_reset\_all@{button\_reset\_all}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_reset\_all()}{button\_reset\_all()}}
+{\footnotesize\ttfamily \label{button__task_8h_a97c84f568244fb112e4828e2985529ec} 
+void button\+\_\+reset\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Resetuj vsechny stavy tlacitek. 
+
+Vymaze vsechny vnitrni stavy tlacitek a resetuje simulacni rezim. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00525}{525}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_a5fb2a771d8252d20fc0ad4d97667d4df}\index{button\_task.h@{button\_task.h}!button\_scan\_all@{button\_scan\_all}}
+\index{button\_scan\_all@{button\_scan\_all}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_scan\_all()}{button\_scan\_all()}}
+{\footnotesize\ttfamily \label{button__task_8h_a5fb2a771d8252d20fc0ad4d97667d4df} 
+void button\+\_\+scan\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Oskenuje vsechna tlacitka pro zmenu stavu. 
+
+Cteni stavu vsech 9 tlacitek a aktualizace interniho stavu. V simulacnim rezimu simuluje postupne stisknutí tlacitek. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00219}{219}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_a9c76fbdf52fcd61692a0ace95907507f}\index{button\_task.h@{button\_task.h}!button\_send\_event@{button\_send\_event}}
+\index{button\_send\_event@{button\_send\_event}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_send\_event()}{button\_send\_event()}}
+{\footnotesize\ttfamily \label{button__task_8h_a9c76fbdf52fcd61692a0ace95907507f} 
+void button\+\_\+send\+\_\+event (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+id}{, }\item[{\mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904b}{button\+\_\+event\+\_\+type\+\_\+t}}}]{event\+\_\+type}{, }\item[{uint32\+\_\+t}]{duration}{}\end{DoxyParamCaption})}
+
+
+
+Posli button udalost do fronty. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+id} & ID tlacitka (0-\/8) \\
+\hline
+{\em event\+\_\+type} & Typ udalosti \\
+\hline
+{\em duration} & Doba stisknuti v milisekundach \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00444}{444}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_ad004f184d705cb6e12a079c8105867bc}\index{button\_task.h@{button\_task.h}!button\_set\_led\_color@{button\_set\_led\_color}}
+\index{button\_set\_led\_color@{button\_set\_led\_color}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_set\_led\_color()}{button\_set\_led\_color()}}
+{\footnotesize\ttfamily \label{button__task_8h_ad004f184d705cb6e12a079c8105867bc} 
+void button\+\_\+set\+\_\+led\+\_\+color (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{led\+\_\+index}{, }\item[{uint8\+\_\+t}]{red}{, }\item[{uint8\+\_\+t}]{green}{, }\item[{uint8\+\_\+t}]{blue}{}\end{DoxyParamCaption})}
+
+
+
+Nastav barvu LED pro tlacitko. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em led\+\_\+index} & Index LED (64-\/72 pro tlacitka) \\
+\hline
+{\em red} & Cervena komponenta (0-\/255) \\
+\hline
+{\em green} & Zelena komponenta (0-\/255) \\
+\hline
+{\em blue} & Modra komponenta (0-\/255) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00486}{486}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_a133a427b3e47eeb0e857d1efd4bbfe57}\index{button\_task.h@{button\_task.h}!button\_simulate\_press@{button\_simulate\_press}}
+\index{button\_simulate\_press@{button\_simulate\_press}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_simulate\_press()}{button\_simulate\_press()}}
+{\footnotesize\ttfamily \label{button__task_8h_a133a427b3e47eeb0e857d1efd4bbfe57} 
+void button\+\_\+simulate\+\_\+press (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Simuluj stisknuti tlacitka (pro testovani). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+id} & ID tlacitka k simulaci (0-\/8) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00291}{291}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_a2f22af1e62d703a6cd12cfa7d7058865}\index{button\_task.h@{button\_task.h}!button\_simulate\_release@{button\_simulate\_release}}
+\index{button\_simulate\_release@{button\_simulate\_release}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_simulate\_release()}{button\_simulate\_release()}}
+{\footnotesize\ttfamily \label{button__task_8h_a2f22af1e62d703a6cd12cfa7d7058865} 
+void button\+\_\+simulate\+\_\+release (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Simuluj uvolneni tlacitka (pro testovani). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+id} & ID tlacitka k simulaci (0-\/8) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00309}{309}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_af93b7fa55287e83f6caf447e756de6d2}\index{button\_task.h@{button\_task.h}!button\_task\_start@{button\_task\_start}}
+\index{button\_task\_start@{button\_task\_start}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_task\_start()}{button\_task\_start()}}
+{\footnotesize\ttfamily \label{button__task_8h_af93b7fa55287e83f6caf447e756de6d2} 
+void button\+\_\+task\+\_\+start (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Spusti button task. 
+
+Hlavni funkce button tasku. Bezi v nekonecne smycce a zpracovava tlacitka kazdych 5ms. Provadi debouncing a generuje udalosti.
+
+
+\begin{DoxyParams}{Parametry}
+{\em pv\+Parameters} & Parametry tasku (nepouzivane) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00578}{578}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_ae20ae1cc0ee0a2af8cdae453a22296a2}\index{button\_task.h@{button\_task.h}!button\_test\_all@{button\_test\_all}}
+\index{button\_test\_all@{button\_test\_all}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_test\_all()}{button\_test\_all()}}
+{\footnotesize\ttfamily \label{button__task_8h_ae20ae1cc0ee0a2af8cdae453a22296a2} 
+void button\+\_\+test\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Testuj vsechna tlacitka. 
+
+Postupne simuluje stisknuti a uvolneni vsech 9 tlacitek pro otestovani funkcnosti. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00556}{556}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+
+\Hypertarget{button__task_8h_a558352d2b9df8e61bfada7d422249e64}\index{button\_task.h@{button\_task.h}!button\_update\_led\_feedback@{button\_update\_led\_feedback}}
+\index{button\_update\_led\_feedback@{button\_update\_led\_feedback}!button\_task.h@{button\_task.h}}
+\doxysubsubsection{\texorpdfstring{button\_update\_led\_feedback()}{button\_update\_led\_feedback()}}
+{\footnotesize\ttfamily \label{button__task_8h_a558352d2b9df8e61bfada7d422249e64} 
+void button\+\_\+update\+\_\+led\+\_\+feedback (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+id}{, }\item[{bool}]{pressed}{}\end{DoxyParamCaption})}
+
+
+
+Aktualizuj LED feedback pro stav tlacitka. 
+
+Nastavi barvu LED tlacitka podle jeho stavu (stisknuto/uvolneno). Stisknute tlacitko sviti pulzujici cervenou, uvolnene jemnou zelenou.
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+id} & ID tlacitka (0-\/8) \\
+\hline
+{\em pressed} & Je tlacitko stisknuto? \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{button__task_8c_source_l00472}{472}} v souboru \mbox{\hyperlink{button__task_8c_source}{button\+\_\+task.\+c}}.
+

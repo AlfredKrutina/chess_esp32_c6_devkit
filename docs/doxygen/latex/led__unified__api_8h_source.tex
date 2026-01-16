@@ -1,0 +1,74 @@
+\doxysection{led\+\_\+unified\+\_\+api.\+h}
+\hypertarget{led__unified__api_8h_source}{}\label{led__unified__api_8h_source}\index{led\_unified\_api.h@{led\_unified\_api.h}}
+\mbox{\hyperlink{led__unified__api_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00019}00019\ \textcolor{preprocessor}{\#ifndef\ LED\_UNIFIED\_API\_H}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00020}00020\ \textcolor{preprocessor}{\#define\ LED\_UNIFIED\_API\_H}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00022}00022\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00023}00023\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00024}00024\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00025}00025\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00026}00026\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00027}00027\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00028}00028\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00030}00030\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00031}00031\ \textcolor{comment}{//\ JEDNOTNE\ LED\ API\ -\/\ JEDINY\ ZDROJ\ PRAVDY}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00032}00032\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00037}\mbox{\hyperlink{structled__color__t}{00037}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00038}\mbox{\hyperlink{structled__color__t_a2f586742abe86e32f633fbcefaf9db9d}{00038}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structled__color__t_a371fbf1cdc3048a5c69fd727c2945761}{r}},\ \mbox{\hyperlink{structled__color__t_acb23349611560c14c762d951a03a732c}{g}},\ \mbox{\hyperlink{structled__color__t_a2f586742abe86e32f633fbcefaf9db9d}{b}};\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00039}00039\ \}\ \mbox{\hyperlink{structled__color__t}{led\_color\_t}};}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00041}00041\ \textcolor{comment}{//\ Preddefinovane\ barvy\ pro\ konzistenci}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00043}\mbox{\hyperlink{led__unified__api_8h_a2b90b815358f1c78e36a5f4c56308449}{00043}}\ \textcolor{preprocessor}{\#define\ LED\_COLOR\_OFF\ \ \ \ \ \ ((led\_color\_t)\{0,\ 0,\ 0\})}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00045}\mbox{\hyperlink{led__unified__api_8h_aa9bb2e0662b7efddf1e12bfaa241b8a8}{00045}}\ \textcolor{preprocessor}{\#define\ LED\_COLOR\_WHITE\ \ \ \ ((led\_color\_t)\{255,\ 255,\ 255\})}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00047}\mbox{\hyperlink{led__unified__api_8h_a8987a69d33df1353af6077ff67dfea28}{00047}}\ \textcolor{preprocessor}{\#define\ LED\_COLOR\_RED\ \ \ \ \ \ ((led\_color\_t)\{255,\ 0,\ 0\})}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00049}\mbox{\hyperlink{led__unified__api_8h_a913f289eb3203c4e3043b1ecb4047032}{00049}}\ \textcolor{preprocessor}{\#define\ LED\_COLOR\_GREEN\ \ \ \ ((led\_color\_t)\{0,\ 255,\ 0\})}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00051}\mbox{\hyperlink{led__unified__api_8h_a3de6c5690933de9d62c0897ef611cb19}{00051}}\ \textcolor{preprocessor}{\#define\ LED\_COLOR\_BLUE\ \ \ \ \ ((led\_color\_t)\{0,\ 0,\ 255\})}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00053}\mbox{\hyperlink{led__unified__api_8h_a97348e8acf253232595a481314f8a396}{00053}}\ \textcolor{preprocessor}{\#define\ LED\_COLOR\_YELLOW\ \ \ ((led\_color\_t)\{255,\ 255,\ 0\})}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00055}\mbox{\hyperlink{led__unified__api_8h_a8985352a22885bbb847bca6e772e98bc}{00055}}\ \textcolor{preprocessor}{\#define\ LED\_COLOR\_CYAN\ \ \ \ \ ((led\_color\_t)\{0,\ 255,\ 255\})}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00057}\mbox{\hyperlink{led__unified__api_8h_a6518de5003bcf7e4853f4dc29e372988}{00057}}\ \textcolor{preprocessor}{\#define\ LED\_COLOR\_MAGENTA\ \ ((led\_color\_t)\{255,\ 0,\ 255\})}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00059}00059\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00060}00060\ \textcolor{comment}{//\ ZAKLADNI\ LED\ FUNKCE\ -\/\ POUZIVEJTE\ POUZE\ TYTO}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00061}00061\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00062}00062\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00070}\mbox{\hyperlink{led__unified__api_8h_a03f1c23d367a417c885fbf0b77fa8e92}{00070}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_a03f1c23d367a417c885fbf0b77fa8e92}{led\_set}}(uint8\_t\ position,\ \mbox{\hyperlink{structled__color__t}{led\_color\_t}}\ color);}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00071}00071\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00078}\mbox{\hyperlink{led__unified__api_8h_a738fcd34c4727af46498fbee998f5b27}{00078}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_a738fcd34c4727af46498fbee998f5b27}{led\_clear}}(uint8\_t\ position);}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00079}00079\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00085}\mbox{\hyperlink{led__unified__api_8h_a323c87898912a4a4d62383dbe8bd7099}{00085}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_a323c87898912a4a4d62383dbe8bd7099}{led\_clear\_all}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00086}00086\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00092}\mbox{\hyperlink{led__unified__api_8h_a489fc3062159f186eaf3110bb9448900}{00092}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_a489fc3062159f186eaf3110bb9448900}{led\_clear\_board}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00093}00093\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00101}\mbox{\hyperlink{led__unified__api_8h_a746d846a8984178a6d25821b2485ff38}{00101}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_a746d846a8984178a6d25821b2485ff38}{led\_show\_moves}}(\textcolor{keyword}{const}\ uint8\_t*\ positions,\ uint8\_t\ count);}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00102}00102\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00110}\mbox{\hyperlink{led__unified__api_8h_add8f4af4ac4cd55c7f080b6a0e74c715}{00110}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_add8f4af4ac4cd55c7f080b6a0e74c715}{led\_show\_movable\_pieces}}(\textcolor{keyword}{const}\ uint8\_t*\ positions,\ uint8\_t\ count);}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00111}00111\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00120}\mbox{\hyperlink{led__unified__api_8h_a1c171299071c1e2c7d6c0744279ea3e7}{00120}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_a1c171299071c1e2c7d6c0744279ea3e7}{led\_animate}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ type,\ uint8\_t\ from\_pos,\ uint8\_t\ to\_pos);}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00121}00121\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00127}\mbox{\hyperlink{led__unified__api_8h_abb65c57a4635e4911d71902ef3bcbb3c}{00127}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_abb65c57a4635e4911d71902ef3bcbb3c}{led\_stop\_animations}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00128}00128\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00129}00129\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00130}00130\ \textcolor{comment}{//\ SACHOVE\ SPECIFICKE\ LED\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00131}00131\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00132}00132\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00139}\mbox{\hyperlink{led__unified__api_8h_a7dcadeeb97f7284b327666232439764a}{00139}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_a7dcadeeb97f7284b327666232439764a}{led\_show\_error}}(uint8\_t\ position);}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00140}00140\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00147}\mbox{\hyperlink{led__unified__api_8h_a49f0adcc708a2e5b8c5f665fa7e35a0e}{00147}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_a49f0adcc708a2e5b8c5f665fa7e35a0e}{led\_show\_selection}}(uint8\_t\ position);}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00148}00148\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00155}\mbox{\hyperlink{led__unified__api_8h_a323f5cd41bfd6e9ffa8c0e7a22a4f728}{00155}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_a323f5cd41bfd6e9ffa8c0e7a22a4f728}{led\_show\_capture}}(uint8\_t\ position);}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00156}00156\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00162}\mbox{\hyperlink{led__unified__api_8h_a036b1d0a0cf1289a8eec759f01b07233}{00162}}\ esp\_err\_t\ \mbox{\hyperlink{led__unified__api_8h_a036b1d0a0cf1289a8eec759f01b07233}{led\_commit}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00163}00163\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00164}00164\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00165}00165\ \}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00166}00166\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00167}00167\ }
+\DoxyCodeLine{\Hypertarget{led__unified__api_8h_source_l00168}00168\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ LED\_UNIFIED\_API\_H}}
+
+\end{DoxyCode}

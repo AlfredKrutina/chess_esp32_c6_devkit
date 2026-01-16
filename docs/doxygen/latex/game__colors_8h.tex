@@ -1,0 +1,306 @@
+\doxysection{Dokumentace souboru game\+\_\+colors.\+h}
+\hypertarget{game__colors_8h}{}\label{game__colors_8h}\index{game\_colors.h@{game\_colors.h}}
+
+
+ANSI Color Codes and Formatting Macros for Terminal Output.  
+
+
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$stdarg.\+h$>$}\newline
+Graf závislostí na vkládaných souborech pro game\+\_\+colors.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=206pt]{game__colors_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Definice maker}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_a7f026776e12ac1b5e7736c24b756085d}{ANSI\+\_\+\+RED}}~"{}\textbackslash{}033\mbox{[}91m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_ad050fd71ced44460a0c723a1715c40e5}{ANSI\+\_\+\+GREEN}}~"{}\textbackslash{}033\mbox{[}92m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_af6e8b5c7b35e8bff4c581efd8019c798}{ANSI\+\_\+\+YELLOW}}~"{}\textbackslash{}033\mbox{[}93m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_a50a197ede59d7694515c3dad4557cf00}{ANSI\+\_\+\+BLUE}}~"{}\textbackslash{}033\mbox{[}94m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_a8a9c0853e05b02c03acdfaab90f534c8}{ANSI\+\_\+\+MAGENTA}}~"{}\textbackslash{}033\mbox{[}95m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_a8e74e295b54795a32a16ea744f6aed5e}{ANSI\+\_\+\+CYAN}}~"{}\textbackslash{}033\mbox{[}96m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_a81a44be9e5e45edcb6be0d83133c1aa0}{ANSI\+\_\+\+GRAY}}~"{}\textbackslash{}033\mbox{[}90m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_a141dae929732a29e6654ebc4741d6c93}{ANSI\+\_\+\+WHITE}}~"{}\textbackslash{}033\mbox{[}97m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_a46587b83544b8e9be045bb93f644ac82}{ANSI\+\_\+\+BOLD}}~"{}\textbackslash{}033\mbox{[}1m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_a51fea81bd0f75dcc2fc1b341d9cc7958}{ANSI\+\_\+\+DIM}}~"{}\textbackslash{}033\mbox{[}2m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_af77a445894f2f750d43cf2182cd29e55}{ANSI\+\_\+\+RESET}}~"{}\textbackslash{}033\mbox{[}0m"{}
+\item 
+\#define \mbox{\hyperlink{game__colors_8h_a60d4e1d55cc7102123ffe5c3539ec165}{FMT\+\_\+\+ERROR}}(msg)
+\begin{DoxyCompactList}\small\item\em Format error messages (red + bold) Usage\+: printf(FMT\+\_\+\+ERROR("{}\+Invalid move!"{}) "{}\textbackslash{}n"{});. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{game__colors_8h_abd9912e75415821ab3192e7cf4542b6d}{FMT\+\_\+\+INFO}}(msg)
+\begin{DoxyCompactList}\small\item\em Format informational messages (yellow + bold) Usage\+: printf(FMT\+\_\+\+INFO("{}\+Move\+: e2e4"{}) "{}\textbackslash{}n"{});. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{game__colors_8h_a3bfaa4ef17d08f922b975ab28af9b499}{FMT\+\_\+\+HINT}}(msg)
+\begin{DoxyCompactList}\small\item\em Format hint/solution messages (gray) Usage\+: printf(FMT\+\_\+\+HINT("{}\+Try moving to a valid square"{}) "{}\textbackslash{}n"{});. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{game__colors_8h_a4c5526bcd50bcf745bcbebcd4bc1b1e4}{FMT\+\_\+\+DATA}}(msg)
+\begin{DoxyCompactList}\small\item\em Format data values (cyan + bold) Usage\+: printf(FMT\+\_\+\+DATA("{}\+Target\+: e4"{}) "{}\textbackslash{}n"{});. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{game__colors_8h_ad8228dde623643def2b9c5f77bfe178f}{disable\+\_\+all\+\_\+colors}} (void)
+\begin{DoxyCompactList}\small\item\em Disable all ANSI color output. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{game__colors_8h_a922aae80bb2a95e80fc13e4badd82b2a}{g\+\_\+colors\+\_\+enabled}}
+\begin{DoxyCompactList}\small\item\em Global flag to enable/disable ANSI colors Set to false for platforms without ANSI support. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ANSI Color Codes and Formatting Macros for Terminal Output. 
+
+This header provides macros to simplify ANSI terminal formatting. Eliminates repetitive escape sequences throughout the codebase.
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+1.\+0 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/12-\/22 
+\end{DoxyDate}
+
+
+Definice v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{game__colors_8h_doc-define-members}
+\doxysubsection{Dokumentace definic maker}
+\Hypertarget{game__colors_8h_a50a197ede59d7694515c3dad4557cf00}\index{game\_colors.h@{game\_colors.h}!ANSI\_BLUE@{ANSI\_BLUE}}
+\index{ANSI\_BLUE@{ANSI\_BLUE}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_BLUE}{ANSI\_BLUE}}
+{\footnotesize\ttfamily \label{game__colors_8h_a50a197ede59d7694515c3dad4557cf00} 
+\#define ANSI\+\_\+\+BLUE~"{}\textbackslash{}033\mbox{[}94m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00027}{27}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_a46587b83544b8e9be045bb93f644ac82}\index{game\_colors.h@{game\_colors.h}!ANSI\_BOLD@{ANSI\_BOLD}}
+\index{ANSI\_BOLD@{ANSI\_BOLD}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_BOLD}{ANSI\_BOLD}}
+{\footnotesize\ttfamily \label{game__colors_8h_a46587b83544b8e9be045bb93f644ac82} 
+\#define ANSI\+\_\+\+BOLD~"{}\textbackslash{}033\mbox{[}1m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00034}{34}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_a8e74e295b54795a32a16ea744f6aed5e}\index{game\_colors.h@{game\_colors.h}!ANSI\_CYAN@{ANSI\_CYAN}}
+\index{ANSI\_CYAN@{ANSI\_CYAN}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_CYAN}{ANSI\_CYAN}}
+{\footnotesize\ttfamily \label{game__colors_8h_a8e74e295b54795a32a16ea744f6aed5e} 
+\#define ANSI\+\_\+\+CYAN~"{}\textbackslash{}033\mbox{[}96m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00029}{29}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_a51fea81bd0f75dcc2fc1b341d9cc7958}\index{game\_colors.h@{game\_colors.h}!ANSI\_DIM@{ANSI\_DIM}}
+\index{ANSI\_DIM@{ANSI\_DIM}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_DIM}{ANSI\_DIM}}
+{\footnotesize\ttfamily \label{game__colors_8h_a51fea81bd0f75dcc2fc1b341d9cc7958} 
+\#define ANSI\+\_\+\+DIM~"{}\textbackslash{}033\mbox{[}2m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00035}{35}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_a81a44be9e5e45edcb6be0d83133c1aa0}\index{game\_colors.h@{game\_colors.h}!ANSI\_GRAY@{ANSI\_GRAY}}
+\index{ANSI\_GRAY@{ANSI\_GRAY}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_GRAY}{ANSI\_GRAY}}
+{\footnotesize\ttfamily \label{game__colors_8h_a81a44be9e5e45edcb6be0d83133c1aa0} 
+\#define ANSI\+\_\+\+GRAY~"{}\textbackslash{}033\mbox{[}90m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00030}{30}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_ad050fd71ced44460a0c723a1715c40e5}\index{game\_colors.h@{game\_colors.h}!ANSI\_GREEN@{ANSI\_GREEN}}
+\index{ANSI\_GREEN@{ANSI\_GREEN}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_GREEN}{ANSI\_GREEN}}
+{\footnotesize\ttfamily \label{game__colors_8h_ad050fd71ced44460a0c723a1715c40e5} 
+\#define ANSI\+\_\+\+GREEN~"{}\textbackslash{}033\mbox{[}92m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00025}{25}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_a8a9c0853e05b02c03acdfaab90f534c8}\index{game\_colors.h@{game\_colors.h}!ANSI\_MAGENTA@{ANSI\_MAGENTA}}
+\index{ANSI\_MAGENTA@{ANSI\_MAGENTA}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_MAGENTA}{ANSI\_MAGENTA}}
+{\footnotesize\ttfamily \label{game__colors_8h_a8a9c0853e05b02c03acdfaab90f534c8} 
+\#define ANSI\+\_\+\+MAGENTA~"{}\textbackslash{}033\mbox{[}95m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00028}{28}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_a7f026776e12ac1b5e7736c24b756085d}\index{game\_colors.h@{game\_colors.h}!ANSI\_RED@{ANSI\_RED}}
+\index{ANSI\_RED@{ANSI\_RED}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_RED}{ANSI\_RED}}
+{\footnotesize\ttfamily \label{game__colors_8h_a7f026776e12ac1b5e7736c24b756085d} 
+\#define ANSI\+\_\+\+RED~"{}\textbackslash{}033\mbox{[}91m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00024}{24}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_af77a445894f2f750d43cf2182cd29e55}\index{game\_colors.h@{game\_colors.h}!ANSI\_RESET@{ANSI\_RESET}}
+\index{ANSI\_RESET@{ANSI\_RESET}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_RESET}{ANSI\_RESET}}
+{\footnotesize\ttfamily \label{game__colors_8h_af77a445894f2f750d43cf2182cd29e55} 
+\#define ANSI\+\_\+\+RESET~"{}\textbackslash{}033\mbox{[}0m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00036}{36}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_a141dae929732a29e6654ebc4741d6c93}\index{game\_colors.h@{game\_colors.h}!ANSI\_WHITE@{ANSI\_WHITE}}
+\index{ANSI\_WHITE@{ANSI\_WHITE}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_WHITE}{ANSI\_WHITE}}
+{\footnotesize\ttfamily \label{game__colors_8h_a141dae929732a29e6654ebc4741d6c93} 
+\#define ANSI\+\_\+\+WHITE~"{}\textbackslash{}033\mbox{[}97m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00031}{31}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_af6e8b5c7b35e8bff4c581efd8019c798}\index{game\_colors.h@{game\_colors.h}!ANSI\_YELLOW@{ANSI\_YELLOW}}
+\index{ANSI\_YELLOW@{ANSI\_YELLOW}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{ANSI\_YELLOW}{ANSI\_YELLOW}}
+{\footnotesize\ttfamily \label{game__colors_8h_af6e8b5c7b35e8bff4c581efd8019c798} 
+\#define ANSI\+\_\+\+YELLOW~"{}\textbackslash{}033\mbox{[}93m"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00026}{26}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_a4c5526bcd50bcf745bcbebcd4bc1b1e4}\index{game\_colors.h@{game\_colors.h}!FMT\_DATA@{FMT\_DATA}}
+\index{FMT\_DATA@{FMT\_DATA}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{FMT\_DATA}{FMT\_DATA}}
+{\footnotesize\ttfamily \label{game__colors_8h_a4c5526bcd50bcf745bcbebcd4bc1b1e4} 
+\#define FMT\+\_\+\+DATA(\begin{DoxyParamCaption}\item[{}]{msg}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{game__colors_8h_a8e74e295b54795a32a16ea744f6aed5e}{ANSI\_CYAN}}\ \mbox{\hyperlink{game__colors_8h_a46587b83544b8e9be045bb93f644ac82}{ANSI\_BOLD}}\ msg\ \mbox{\hyperlink{game__colors_8h_af77a445894f2f750d43cf2182cd29e55}{ANSI\_RESET}}}
+
+\end{DoxyCode}
+
+
+Format data values (cyan + bold) Usage\+: printf(FMT\+\_\+\+DATA("{}\+Target\+: e4"{}) "{}\textbackslash{}n"{});. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00064}{64}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_a60d4e1d55cc7102123ffe5c3539ec165}\index{game\_colors.h@{game\_colors.h}!FMT\_ERROR@{FMT\_ERROR}}
+\index{FMT\_ERROR@{FMT\_ERROR}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{FMT\_ERROR}{FMT\_ERROR}}
+{\footnotesize\ttfamily \label{game__colors_8h_a60d4e1d55cc7102123ffe5c3539ec165} 
+\#define FMT\+\_\+\+ERROR(\begin{DoxyParamCaption}\item[{}]{msg}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{game__colors_8h_a7f026776e12ac1b5e7736c24b756085d}{ANSI\_RED}}\ \mbox{\hyperlink{game__colors_8h_a46587b83544b8e9be045bb93f644ac82}{ANSI\_BOLD}}\ msg\ \mbox{\hyperlink{game__colors_8h_af77a445894f2f750d43cf2182cd29e55}{ANSI\_RESET}}}
+
+\end{DoxyCode}
+
+
+Format error messages (red + bold) Usage\+: printf(FMT\+\_\+\+ERROR("{}\+Invalid move!"{}) "{}\textbackslash{}n"{});. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00046}{46}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_a3bfaa4ef17d08f922b975ab28af9b499}\index{game\_colors.h@{game\_colors.h}!FMT\_HINT@{FMT\_HINT}}
+\index{FMT\_HINT@{FMT\_HINT}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{FMT\_HINT}{FMT\_HINT}}
+{\footnotesize\ttfamily \label{game__colors_8h_a3bfaa4ef17d08f922b975ab28af9b499} 
+\#define FMT\+\_\+\+HINT(\begin{DoxyParamCaption}\item[{}]{msg}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{game__colors_8h_a81a44be9e5e45edcb6be0d83133c1aa0}{ANSI\_GRAY}}\ msg\ \mbox{\hyperlink{game__colors_8h_af77a445894f2f750d43cf2182cd29e55}{ANSI\_RESET}}}
+
+\end{DoxyCode}
+
+
+Format hint/solution messages (gray) Usage\+: printf(FMT\+\_\+\+HINT("{}\+Try moving to a valid square"{}) "{}\textbackslash{}n"{});. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00058}{58}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+\Hypertarget{game__colors_8h_abd9912e75415821ab3192e7cf4542b6d}\index{game\_colors.h@{game\_colors.h}!FMT\_INFO@{FMT\_INFO}}
+\index{FMT\_INFO@{FMT\_INFO}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{FMT\_INFO}{FMT\_INFO}}
+{\footnotesize\ttfamily \label{game__colors_8h_abd9912e75415821ab3192e7cf4542b6d} 
+\#define FMT\+\_\+\+INFO(\begin{DoxyParamCaption}\item[{}]{msg}{}\end{DoxyParamCaption})}
+
+{\bfseries Hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{game__colors_8h_af6e8b5c7b35e8bff4c581efd8019c798}{ANSI\_YELLOW}}\ \mbox{\hyperlink{game__colors_8h_a46587b83544b8e9be045bb93f644ac82}{ANSI\_BOLD}}\ msg\ \mbox{\hyperlink{game__colors_8h_af77a445894f2f750d43cf2182cd29e55}{ANSI\_RESET}}}
+
+\end{DoxyCode}
+
+
+Format informational messages (yellow + bold) Usage\+: printf(FMT\+\_\+\+INFO("{}\+Move\+: e2e4"{}) "{}\textbackslash{}n"{});. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00052}{52}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{game__colors_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{game__colors_8h_ad8228dde623643def2b9c5f77bfe178f}\index{game\_colors.h@{game\_colors.h}!disable\_all\_colors@{disable\_all\_colors}}
+\index{disable\_all\_colors@{disable\_all\_colors}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{disable\_all\_colors()}{disable\_all\_colors()}}
+{\footnotesize\ttfamily \label{game__colors_8h_ad8228dde623643def2b9c5f77bfe178f} 
+void disable\+\_\+all\+\_\+colors (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Disable all ANSI color output. 
+
+Call this function if the terminal doesn\textquotesingle{}t support ANSI codes. Macros will still work but produce plain text output.
+
+Note\+: Current implementation doesn\textquotesingle{}t support runtime disable. This is a placeholder for future enhancement. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__colors_8h_source_l00085}{85}} v souboru \mbox{\hyperlink{game__colors_8h_source}{game\+\_\+colors.\+h}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{game__colors_8h_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{game__colors_8h_a922aae80bb2a95e80fc13e4badd82b2a}\index{game\_colors.h@{game\_colors.h}!g\_colors\_enabled@{g\_colors\_enabled}}
+\index{g\_colors\_enabled@{g\_colors\_enabled}!game\_colors.h@{game\_colors.h}}
+\doxysubsubsection{\texorpdfstring{g\_colors\_enabled}{g\_colors\_enabled}}
+{\footnotesize\ttfamily \label{game__colors_8h_a922aae80bb2a95e80fc13e4badd82b2a} 
+bool g\+\_\+colors\+\_\+enabled\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Global flag to enable/disable ANSI colors Set to false for platforms without ANSI support. 
+

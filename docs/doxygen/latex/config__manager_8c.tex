@@ -1,0 +1,223 @@
+\doxysection{Dokumentace souboru config\+\_\+manager.\+c}
+\hypertarget{config__manager_8c}{}\label{config__manager_8c}\index{config\_manager.c@{config\_manager.c}}
+
+
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Sprava konfigurace.  
+
+
+{\ttfamily \#include "{}config\+\_\+manager.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+system.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+task\+\_\+wdt.\+h"{}}\newline
+{\ttfamily \#include "{}nvs\+\_\+flash.\+h"{}}\newline
+{\ttfamily \#include "{}nvs.\+h"{}}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+Graf závislostí na vkládaných souborech pro config\+\_\+manager.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{config__manager_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__manager_8c_ad744426452d0ddd581a96e82f2369853}{config\+\_\+manager\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuje config manager. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__manager_8c_a75038f5476c578ca0c192468d004160c}{config\+\_\+load\+\_\+from\+\_\+nvs}} (\mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Nacte konfiguraci z NVS flash. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__manager_8c_a24aceb1224555fd605ab85c9b0842357}{config\+\_\+save\+\_\+to\+\_\+nvs}} (const \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Ulozi konfiguraci do NVS flash. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__manager_8c_ae753d20be4991e260b40fd757087ebab}{config\+\_\+apply\+\_\+settings}} (const \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Aplikuje nastaveni konfigurace na system. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__manager_8c_ae3afd4faf59e0c9b138456675661de9e}{config\+\_\+reset\+\_\+to\+\_\+defaults}} (void)
+\begin{DoxyCompactList}\small\item\em Resetuj konfiguraci na vychozi hodnoty. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__manager_8c_ab4ecf373d6de350322f0debacd3a145d}{config\+\_\+get\+\_\+defaults}} (\mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{config__manager_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}} = "{}CONFIG\+\_\+\+MANAGER"{}
+\item 
+static const \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \mbox{\hyperlink{config__manager_8c_a8afb2db2bb5f0a2920f95df018b0f3ed}{default\+\_\+config}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Sprava konfigurace. 
+
+Tento modul zpracovava persistenci systemove konfigurace v NVS\+:
+\begin{DoxyItemize}
+\item Nacteni/ulozeni konfigurace z/do NVS
+\item Aplikace konfiguracnich nastaveni
+\item Sprava vychozi konfigurace
+\item Validace konfigurace
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/24
+\end{DoxyDate}
+Tento modul umoznuje ulozeni a nacteni konfigurace systemu do/ze NVS flash pameti. Udrzuje vychozi hodnoty a validuje konfiguraci pred aplikaci. 
+
+Definice v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{config__manager_8c_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{config__manager_8c_ae753d20be4991e260b40fd757087ebab}\index{config\_manager.c@{config\_manager.c}!config\_apply\_settings@{config\_apply\_settings}}
+\index{config\_apply\_settings@{config\_apply\_settings}!config\_manager.c@{config\_manager.c}}
+\doxysubsubsection{\texorpdfstring{config\_apply\_settings()}{config\_apply\_settings()}}
+{\footnotesize\ttfamily \label{config__manager_8c_ae753d20be4991e260b40fd757087ebab} 
+esp\+\_\+err\+\_\+t config\+\_\+apply\+\_\+settings (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Aplikuje nastaveni konfigurace na system. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em config} & Konfigurace k aplikaci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00177}{177}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+\Hypertarget{config__manager_8c_ab4ecf373d6de350322f0debacd3a145d}\index{config\_manager.c@{config\_manager.c}!config\_get\_defaults@{config\_get\_defaults}}
+\index{config\_get\_defaults@{config\_get\_defaults}!config\_manager.c@{config\_manager.c}}
+\doxysubsubsection{\texorpdfstring{config\_get\_defaults()}{config\_get\_defaults()}}
+{\footnotesize\ttfamily \label{config__manager_8c_ab4ecf373d6de350322f0debacd3a145d} 
+esp\+\_\+err\+\_\+t config\+\_\+get\+\_\+defaults (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00215}{215}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+\Hypertarget{config__manager_8c_a75038f5476c578ca0c192468d004160c}\index{config\_manager.c@{config\_manager.c}!config\_load\_from\_nvs@{config\_load\_from\_nvs}}
+\index{config\_load\_from\_nvs@{config\_load\_from\_nvs}!config\_manager.c@{config\_manager.c}}
+\doxysubsubsection{\texorpdfstring{config\_load\_from\_nvs()}{config\_load\_from\_nvs()}}
+{\footnotesize\ttfamily \label{config__manager_8c_a75038f5476c578ca0c192468d004160c} 
+esp\+\_\+err\+\_\+t config\+\_\+load\+\_\+from\+\_\+nvs (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Nacte konfiguraci z NVS flash. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+\mbox{\texttt{out}}  & {\em config} & Ukazatel na strukturu pro nacteni konfigurace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00050}{50}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+\Hypertarget{config__manager_8c_ad744426452d0ddd581a96e82f2369853}\index{config\_manager.c@{config\_manager.c}!config\_manager\_init@{config\_manager\_init}}
+\index{config\_manager\_init@{config\_manager\_init}!config\_manager.c@{config\_manager.c}}
+\doxysubsubsection{\texorpdfstring{config\_manager\_init()}{config\_manager\_init()}}
+{\footnotesize\ttfamily \label{config__manager_8c_ad744426452d0ddd581a96e82f2369853} 
+esp\+\_\+err\+\_\+t config\+\_\+manager\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuje config manager. 
+
+Inicializuje NVS flash pro ukladani konfigurace. NVS flash je jiz inicializovan v \doxylink{main_8c}{main.\+c} \doxylink{main_8c_ae52825df5837e0f8f5e814f48cafb722}{init\+\_\+console()}, takze tato funkce pouze overi dostupnost.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00039}{39}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+\Hypertarget{config__manager_8c_ae3afd4faf59e0c9b138456675661de9e}\index{config\_manager.c@{config\_manager.c}!config\_reset\_to\_defaults@{config\_reset\_to\_defaults}}
+\index{config\_reset\_to\_defaults@{config\_reset\_to\_defaults}!config\_manager.c@{config\_manager.c}}
+\doxysubsubsection{\texorpdfstring{config\_reset\_to\_defaults()}{config\_reset\_to\_defaults()}}
+{\footnotesize\ttfamily \label{config__manager_8c_ae3afd4faf59e0c9b138456675661de9e} 
+esp\+\_\+err\+\_\+t config\+\_\+reset\+\_\+to\+\_\+defaults (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Resetuj konfiguraci na vychozi hodnoty. 
+
+Obnovi vychozi nastaveni systemu a ulozi je do NVS flash. Pote aplikuje vychozi nastaveni na system.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00202}{202}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+\Hypertarget{config__manager_8c_a24aceb1224555fd605ab85c9b0842357}\index{config\_manager.c@{config\_manager.c}!config\_save\_to\_nvs@{config\_save\_to\_nvs}}
+\index{config\_save\_to\_nvs@{config\_save\_to\_nvs}!config\_manager.c@{config\_manager.c}}
+\doxysubsubsection{\texorpdfstring{config\_save\_to\_nvs()}{config\_save\_to\_nvs()}}
+{\footnotesize\ttfamily \label{config__manager_8c_a24aceb1224555fd605ab85c9b0842357} 
+esp\+\_\+err\+\_\+t config\+\_\+save\+\_\+to\+\_\+nvs (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Ulozi konfiguraci do NVS flash. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em config} & Konfigurace k ulozeni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00119}{119}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{config__manager_8c_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{config__manager_8c_a8afb2db2bb5f0a2920f95df018b0f3ed}\index{config\_manager.c@{config\_manager.c}!default\_config@{default\_config}}
+\index{default\_config@{default\_config}!config\_manager.c@{config\_manager.c}}
+\doxysubsubsection{\texorpdfstring{default\_config}{default\_config}}
+{\footnotesize\ttfamily \label{config__manager_8c_a8afb2db2bb5f0a2920f95df018b0f3ed} 
+const \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} default\+\_\+config\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Inicializační hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ .verbose\_mode\ =\ \textcolor{keyword}{false},}
+\DoxyCodeLine{\ \ \ \ .quiet\_mode\ =\ \textcolor{keyword}{false},}
+\DoxyCodeLine{\ \ \ \ .log\_level\ =\ ESP\_LOG\_ERROR,}
+\DoxyCodeLine{\ \ \ \ .command\_timeout\_ms\ =\ 5000}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00032}{32}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+\Hypertarget{config__manager_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{config\_manager.c@{config\_manager.c}!TAG@{TAG}}
+\index{TAG@{TAG}!config\_manager.c@{config\_manager.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{config__manager_8c_a5a85b9c772bbeb480b209a3e6ea92b4c} 
+const char\texorpdfstring{$\ast$}{*} TAG = "{}CONFIG\+\_\+\+MANAGER"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00029}{29}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+

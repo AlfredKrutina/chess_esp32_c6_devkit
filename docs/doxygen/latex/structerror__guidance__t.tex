@@ -1,0 +1,207 @@
+\doxysection{Dokumentace struktury error\+\_\+guidance\+\_\+t}
+\hypertarget{structerror__guidance__t}{}\label{structerror__guidance__t}\index{error\_guidance\_t@{error\_guidance\_t}}
+
+
+Struktura pro navod k chybe.  
+
+
+
+
+{\ttfamily \#include $<$visual\+\_\+error\+\_\+system.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}} \mbox{\hyperlink{structerror__guidance__t_ac976af5d4ebbc9c8edd138a093ec47fa}{error\+\_\+type}}
+\begin{DoxyCompactList}\small\item\em Typ chyby. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structerror__guidance__t_a05ef7e185aab6b2b28af271f494c600e}{error\+\_\+led\+\_\+positions}} \mbox{[}16\mbox{]}
+\begin{DoxyCompactList}\small\item\em LED pozice chyby. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structerror__guidance__t_ac608c1b3b734493a96d191545f28588d}{error\+\_\+led\+\_\+count}}
+\begin{DoxyCompactList}\small\item\em Pocet error LED. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structerror__guidance__t_a9b8f41cb28f4f557077f038ee332930c}{guidance\+\_\+led\+\_\+positions}} \mbox{[}16\mbox{]}
+\begin{DoxyCompactList}\small\item\em LED pozice pro navod. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structerror__guidance__t_a939552c50553b9eb9aff6d0a86af9d8b}{guidance\+\_\+led\+\_\+count}}
+\begin{DoxyCompactList}\small\item\em Pocet guidance LED. \end{DoxyCompactList}\item 
+char \mbox{\hyperlink{structerror__guidance__t_a2d4d5d7f00c4613b12fd59a5e48b123c}{user\+\_\+message}} \mbox{[}128\mbox{]}
+\begin{DoxyCompactList}\small\item\em Zprava pro uzivatele. \end{DoxyCompactList}\item 
+char \mbox{\hyperlink{structerror__guidance__t_aadbc3531a0c7adcf1a4878cac4d67b85}{recovery\+\_\+hint}} \mbox{[}128\mbox{]}
+\begin{DoxyCompactList}\small\item\em Napoveda pro opravu. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structerror__guidance__t_a4fa20765026297cd67e7d82b721ebced}{led\+\_\+positions}} \mbox{[}16\mbox{]}
+\begin{DoxyCompactList}\small\item\em LED pozice k zvyrazneni (legacy). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structerror__guidance__t_a82e76fbaa6a870491132d7fe5505d6c4}{led\+\_\+count}}
+\begin{DoxyCompactList}\small\item\em Pocet LED k zvyrazneni (legacy). \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structerror__guidance__t_a092d951b1b44d718a23eb4aa9de2a407}{display\+\_\+duration\+\_\+ms}}
+\begin{DoxyCompactList}\small\item\em Jak dlouho zobrazit (ms). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structerror__guidance__t_a14400cf1fab2b94d126d753a649bf1e2}{require\+\_\+user\+\_\+confirm}}
+\begin{DoxyCompactList}\small\item\em Vyzaduje potvrzeni? \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Struktura pro navod k chybe. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00068}{68}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structerror__guidance__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structerror__guidance__t_a092d951b1b44d718a23eb4aa9de2a407}\index{error\_guidance\_t@{error\_guidance\_t}!display\_duration\_ms@{display\_duration\_ms}}
+\index{display\_duration\_ms@{display\_duration\_ms}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{display\_duration\_ms}{display\_duration\_ms}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_a092d951b1b44d718a23eb4aa9de2a407} 
+uint32\+\_\+t error\+\_\+guidance\+\_\+t\+::display\+\_\+duration\+\_\+ms}
+
+
+
+Jak dlouho zobrazit (ms). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00078}{78}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+\Hypertarget{structerror__guidance__t_ac608c1b3b734493a96d191545f28588d}\index{error\_guidance\_t@{error\_guidance\_t}!error\_led\_count@{error\_led\_count}}
+\index{error\_led\_count@{error\_led\_count}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{error\_led\_count}{error\_led\_count}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_ac608c1b3b734493a96d191545f28588d} 
+uint8\+\_\+t error\+\_\+guidance\+\_\+t\+::error\+\_\+led\+\_\+count}
+
+
+
+Pocet error LED. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00071}{71}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+\Hypertarget{structerror__guidance__t_a05ef7e185aab6b2b28af271f494c600e}\index{error\_guidance\_t@{error\_guidance\_t}!error\_led\_positions@{error\_led\_positions}}
+\index{error\_led\_positions@{error\_led\_positions}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{error\_led\_positions}{error\_led\_positions}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_a05ef7e185aab6b2b28af271f494c600e} 
+uint8\+\_\+t error\+\_\+guidance\+\_\+t\+::error\+\_\+led\+\_\+positions\mbox{[}16\mbox{]}}
+
+
+
+LED pozice chyby. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00070}{70}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+\Hypertarget{structerror__guidance__t_ac976af5d4ebbc9c8edd138a093ec47fa}\index{error\_guidance\_t@{error\_guidance\_t}!error\_type@{error\_type}}
+\index{error\_type@{error\_type}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{error\_type}{error\_type}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_ac976af5d4ebbc9c8edd138a093ec47fa} 
+\mbox{\hyperlink{visual__error__system_8h_a1cf2e6ca0a08364ccdf0656c212380da}{visual\+\_\+error\+\_\+type\+\_\+t}} error\+\_\+guidance\+\_\+t\+::error\+\_\+type}
+
+
+
+Typ chyby. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00069}{69}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+\Hypertarget{structerror__guidance__t_a939552c50553b9eb9aff6d0a86af9d8b}\index{error\_guidance\_t@{error\_guidance\_t}!guidance\_led\_count@{guidance\_led\_count}}
+\index{guidance\_led\_count@{guidance\_led\_count}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{guidance\_led\_count}{guidance\_led\_count}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_a939552c50553b9eb9aff6d0a86af9d8b} 
+uint8\+\_\+t error\+\_\+guidance\+\_\+t\+::guidance\+\_\+led\+\_\+count}
+
+
+
+Pocet guidance LED. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00073}{73}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+\Hypertarget{structerror__guidance__t_a9b8f41cb28f4f557077f038ee332930c}\index{error\_guidance\_t@{error\_guidance\_t}!guidance\_led\_positions@{guidance\_led\_positions}}
+\index{guidance\_led\_positions@{guidance\_led\_positions}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{guidance\_led\_positions}{guidance\_led\_positions}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_a9b8f41cb28f4f557077f038ee332930c} 
+uint8\+\_\+t error\+\_\+guidance\+\_\+t\+::guidance\+\_\+led\+\_\+positions\mbox{[}16\mbox{]}}
+
+
+
+LED pozice pro navod. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00072}{72}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+\Hypertarget{structerror__guidance__t_a82e76fbaa6a870491132d7fe5505d6c4}\index{error\_guidance\_t@{error\_guidance\_t}!led\_count@{led\_count}}
+\index{led\_count@{led\_count}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{led\_count}{led\_count}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_a82e76fbaa6a870491132d7fe5505d6c4} 
+uint8\+\_\+t error\+\_\+guidance\+\_\+t\+::led\+\_\+count}
+
+
+
+Pocet LED k zvyrazneni (legacy). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00077}{77}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+\Hypertarget{structerror__guidance__t_a4fa20765026297cd67e7d82b721ebced}\index{error\_guidance\_t@{error\_guidance\_t}!led\_positions@{led\_positions}}
+\index{led\_positions@{led\_positions}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{led\_positions}{led\_positions}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_a4fa20765026297cd67e7d82b721ebced} 
+uint8\+\_\+t error\+\_\+guidance\+\_\+t\+::led\+\_\+positions\mbox{[}16\mbox{]}}
+
+
+
+LED pozice k zvyrazneni (legacy). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00076}{76}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+\Hypertarget{structerror__guidance__t_aadbc3531a0c7adcf1a4878cac4d67b85}\index{error\_guidance\_t@{error\_guidance\_t}!recovery\_hint@{recovery\_hint}}
+\index{recovery\_hint@{recovery\_hint}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{recovery\_hint}{recovery\_hint}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_aadbc3531a0c7adcf1a4878cac4d67b85} 
+char error\+\_\+guidance\+\_\+t\+::recovery\+\_\+hint\mbox{[}128\mbox{]}}
+
+
+
+Napoveda pro opravu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00075}{75}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+\Hypertarget{structerror__guidance__t_a14400cf1fab2b94d126d753a649bf1e2}\index{error\_guidance\_t@{error\_guidance\_t}!require\_user\_confirm@{require\_user\_confirm}}
+\index{require\_user\_confirm@{require\_user\_confirm}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{require\_user\_confirm}{require\_user\_confirm}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_a14400cf1fab2b94d126d753a649bf1e2} 
+bool error\+\_\+guidance\+\_\+t\+::require\+\_\+user\+\_\+confirm}
+
+
+
+Vyzaduje potvrzeni? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00079}{79}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+\Hypertarget{structerror__guidance__t_a2d4d5d7f00c4613b12fd59a5e48b123c}\index{error\_guidance\_t@{error\_guidance\_t}!user\_message@{user\_message}}
+\index{user\_message@{user\_message}!error\_guidance\_t@{error\_guidance\_t}}
+\doxysubsubsection{\texorpdfstring{user\_message}{user\_message}}
+{\footnotesize\ttfamily \label{structerror__guidance__t_a2d4d5d7f00c4613b12fd59a5e48b123c} 
+char error\+\_\+guidance\+\_\+t\+::user\+\_\+message\mbox{[}128\mbox{]}}
+
+
+
+Zprava pro uzivatele. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{visual__error__system_8h_source_l00074}{74}} v souboru \mbox{\hyperlink{visual__error__system_8h_source}{visual\+\_\+error\+\_\+system.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{visual__error__system_8h}{visual\+\_\+error\+\_\+system.\+h}}\end{DoxyCompactItemize}

@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor demo_mode_helpers.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('demo__mode__helpers_8c_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">demo_mode_helpers.c</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="demo__mode__helpers_8c.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">// DEMO MODE HELPER FUNCTIONS</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span></div>
+<div class="foldopen" id="foldopen00028" data-start="{" data-end="}">
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="demo__mode__helpers_8c.html#ab5480af4a47935696e63f5cb45a754cc">   28</a></span><span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="demo__mode__helpers_8c.html#ab5480af4a47935696e63f5cb45a754cc">demo_is_castling_move</a>(uint8_t from_row, uint8_t from_col,</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>                                  uint8_t to_row, uint8_t to_col,</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>                                  <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> <a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[8][8]) {</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>  <span class="comment">// Must be on same rank</span></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  <span class="keywordflow">if</span> (from_row != to_row) {</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  }</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="comment">// Check if piece is a king</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece = <a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[from_row][from_col];</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordflow">if</span> (piece != <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411">PIECE_WHITE_KING</a> &amp;&amp; piece != <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6">PIECE_BLACK_KING</a>) {</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  }</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="comment">// Check if king moves 2 squares (castling signature)</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">int</span> col_diff = abs((<span class="keywordtype">int</span>)to_col - (<span class="keywordtype">int</span>)from_col);</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordflow">return</span> (col_diff == 2);</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>}</div>
+</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="keyword">static</span> <span class="keywordtype">void</span></div>
+<div class="foldopen" id="foldopen00059" data-start="{" data-end="}">
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="demo__mode__helpers_8c.html#a1e81ab60269dcc2083cbe4acf50b3cbf">   59</a></span><a class="code hl_function" href="demo__mode__helpers_8c.html#a1e81ab60269dcc2083cbe4acf50b3cbf">demo_get_castling_rook_squares</a>(uint8_t king_from_row, uint8_t king_from_col,</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>                               uint8_t king_to_col, uint8_t *<a class="code hl_variable" href="game__task_8c.html#a2e655fa25f4bbdd873eabad03e266985">rook_from_row</a>,</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                               uint8_t *<a class="code hl_variable" href="game__task_8c.html#aaf08ecb764a4aa8e2ce3d75d9bcf58f2">rook_from_col</a>, uint8_t *<a class="code hl_variable" href="game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0">rook_to_row</a>,</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>                               uint8_t *<a class="code hl_variable" href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a>) {</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  *<a class="code hl_variable" href="game__task_8c.html#a2e655fa25f4bbdd873eabad03e266985">rook_from_row</a> = king_from_row;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  *<a class="code hl_variable" href="game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0">rook_to_row</a> = king_from_row;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  <span class="comment">// Kingside castling (king moves to g-file, col 6)</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keywordflow">if</span> (king_to_col == 6) {</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    *<a class="code hl_variable" href="game__task_8c.html#aaf08ecb764a4aa8e2ce3d75d9bcf58f2">rook_from_col</a> = 7; <span class="comment">// h-file</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    *<a class="code hl_variable" href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a> = 5;   <span class="comment">// f-file</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  }</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="comment">// Queenside castling (king moves to c-file, col 2)</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (king_to_col == 2) {</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    *<a class="code hl_variable" href="game__task_8c.html#aaf08ecb764a4aa8e2ce3d75d9bcf58f2">rook_from_col</a> = 0; <span class="comment">// a-file</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    *<a class="code hl_variable" href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a> = 3;   <span class="comment">// d-file</span></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="comment">// Should not happen if is_castling_move returned true</span></div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    ESP_LOGE(<span class="stringliteral">&quot;DEMO&quot;</span>, <span class="stringliteral">&quot;Invalid castling target column: %d&quot;</span>, king_to_col);</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    *<a class="code hl_variable" href="game__task_8c.html#aaf08ecb764a4aa8e2ce3d75d9bcf58f2">rook_from_col</a> = 0;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    *<a class="code hl_variable" href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a> = 0;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>  }</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>}</div>
+</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span></div>
+<div class="foldopen" id="foldopen00092" data-start="{" data-end="}">
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno"><a class="line" href="demo__mode__helpers_8c.html#a765d58ac494ce1812d1a714d714915b4">   92</a></span><span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="demo__mode__helpers_8c.html#a765d58ac494ce1812d1a714d714915b4">demo_is_promotion_move</a>(uint8_t from_row, uint8_t from_col,</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>                                   uint8_t to_row, <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> <a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[8][8]) {</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>  <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece = <a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[from_row][from_col];</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>  <span class="comment">// Check if piece is a pawn</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  <span class="keywordflow">if</span> (piece != <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d">PIECE_WHITE_PAWN</a> &amp;&amp; piece != <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b">PIECE_BLACK_PAWN</a>) {</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  }</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>  <span class="comment">// White pawn reaching rank 8 (row 7)</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>  <span class="keywordflow">if</span> (piece == <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d">PIECE_WHITE_PAWN</a> &amp;&amp; to_row == 7) {</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>  }</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <span class="comment">// Black pawn reaching rank 1 (row 0)</span></div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keywordflow">if</span> (piece == <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b">PIECE_BLACK_PAWN</a> &amp;&amp; to_row == 0) {</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  }</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>}</div>
+</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span></div>
+<div class="foldopen" id="foldopen00123" data-start="{" data-end="}">
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno"><a class="line" href="demo__mode__helpers_8c.html#a610e6026c21231070bf571b79be34430">  123</a></span><span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="game__task_8c.html#a832ce297bfcf0b12c45b2ec754ab3bf5">demo_ensure_safe_timing</a>(uint32_t *last_move_time_ms,</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>                                    uint32_t interval_ms) {</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>  uint32_t now_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>  uint32_t elapsed = now_ms - *last_move_time_ms;</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>  <span class="comment">// Wait if interval not yet elapsed</span></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>  <span class="keywordflow">if</span> (elapsed &lt; interval_ms) {</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    uint32_t wait_ms = interval_ms - elapsed;</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    vTaskDelay(pdMS_TO_TICKS(wait_ms));</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>  }</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>  <span class="comment">// Give web UI time to process highlight clearing (100ms)</span></div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>  vTaskDelay(pdMS_TO_TICKS(100));</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>}</div>
+</div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a></div><div class="ttdeci">piece_t</div><div class="ttdoc">Typy sachovych figurek.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00049">chess_types.h:49</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411">PIECE_WHITE_KING</a></div><div class="ttdeci">@ PIECE_WHITE_KING</div><div class="ttdoc">Bily kral.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00057">chess_types.h:57</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6">PIECE_BLACK_KING</a></div><div class="ttdeci">@ PIECE_BLACK_KING</div><div class="ttdoc">Cerny kral.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00064">chess_types.h:64</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b">PIECE_BLACK_PAWN</a></div><div class="ttdeci">@ PIECE_BLACK_PAWN</div><div class="ttdoc">Cerny pesec.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00059">chess_types.h:59</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d">PIECE_WHITE_PAWN</a></div><div class="ttdeci">@ PIECE_WHITE_PAWN</div><div class="ttdoc">Bily pesec.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00052">chess_types.h:52</a></div></div>
+<div class="ttc" id="ademo__mode__helpers_8c_html_a1e81ab60269dcc2083cbe4acf50b3cbf"><div class="ttname"><a href="demo__mode__helpers_8c.html#a1e81ab60269dcc2083cbe4acf50b3cbf">demo_get_castling_rook_squares</a></div><div class="ttdeci">static void demo_get_castling_rook_squares(uint8_t king_from_row, uint8_t king_from_col, uint8_t king_to_col, uint8_t *rook_from_row, uint8_t *rook_from_col, uint8_t *rook_to_row, uint8_t *rook_to_col)</div><div class="ttdoc">Calculate rook positions for castling move.</div><div class="ttdef"><b>Definition</b> <a href="#l00059">demo_mode_helpers.c:59</a></div></div>
+<div class="ttc" id="ademo__mode__helpers_8c_html_a765d58ac494ce1812d1a714d714915b4"><div class="ttname"><a href="demo__mode__helpers_8c.html#a765d58ac494ce1812d1a714d714915b4">demo_is_promotion_move</a></div><div class="ttdeci">static bool demo_is_promotion_move(uint8_t from_row, uint8_t from_col, uint8_t to_row, piece_t board[8][8])</div><div class="ttdoc">Detect if a move is pawn promotion.</div><div class="ttdef"><b>Definition</b> <a href="#l00092">demo_mode_helpers.c:92</a></div></div>
+<div class="ttc" id="ademo__mode__helpers_8c_html_ab5480af4a47935696e63f5cb45a754cc"><div class="ttname"><a href="demo__mode__helpers_8c.html#ab5480af4a47935696e63f5cb45a754cc">demo_is_castling_move</a></div><div class="ttdeci">static bool demo_is_castling_move(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col, piece_t board[8][8])</div><div class="ttdoc">Detect if a move is castling (king moves 2 squares).</div><div class="ttdef"><b>Definition</b> <a href="#l00028">demo_mode_helpers.c:28</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a2e655fa25f4bbdd873eabad03e266985"><div class="ttname"><a href="game__task_8c.html#a2e655fa25f4bbdd873eabad03e266985">rook_from_row</a></div><div class="ttdeci">static uint8_t rook_from_row</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00266">game_task.c:266</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a802ed5327f737b0304fbc1809d0aac8f"><div class="ttname"><a href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a></div><div class="ttdeci">static uint8_t rook_to_col</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00266">game_task.c:266</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a832ce297bfcf0b12c45b2ec754ab3bf5"><div class="ttname"><a href="game__task_8c.html#a832ce297bfcf0b12c45b2ec754ab3bf5">demo_ensure_safe_timing</a></div><div class="ttdeci">static void demo_ensure_safe_timing(void)</div><div class="ttdoc">Ensure safe timing before demo move.</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00390">game_task.c:390</a></div></div>
+<div class="ttc" id="agame__task_8c_html_aaf08ecb764a4aa8e2ce3d75d9bcf58f2"><div class="ttname"><a href="game__task_8c.html#aaf08ecb764a4aa8e2ce3d75d9bcf58f2">rook_from_col</a></div><div class="ttdeci">static uint8_t rook_from_col</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00266">game_task.c:266</a></div></div>
+<div class="ttc" id="agame__task_8c_html_acd8995588803c845a38aeae9849f7be8"><div class="ttname"><a href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a></div><div class="ttdeci">static piece_t board[8][8]</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00269">game_task.c:269</a></div></div>
+<div class="ttc" id="agame__task_8c_html_ad71601a1741c8dcb2c45992ebfc373b0"><div class="ttname"><a href="game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0">rook_to_row</a></div><div class="ttdeci">static uint8_t rook_to_row</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00266">game_task.c:266</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a href="demo__mode__helpers_8c.html">demo_mode_helpers.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

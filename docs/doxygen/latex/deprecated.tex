@@ -1,0 +1,21 @@
+\chapter{Seznam zastaralých prvků }
+\hypertarget{deprecated}{}\label{deprecated}\index{Seznam zastaralých prvků@{Seznam zastaralých prvků}}
+
+\begin{DoxyRefList}
+\item[{\parbox[t]{\linewidth}{Global \doxylink{game__task_8c_a73c95d04856c50d53520e346abedf4da}{game\+\_\+handle\+\_\+matrix\+\_\+move} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)}}]\hfill \\
+\label{deprecated__deprecated000004}%
+\Hypertarget{deprecated__deprecated000004}%
+Matrix events are now sent as GAME\+\_\+\+CMD\+\_\+\+DROP to game\+\_\+command\+\_\+queue and processed by \doxylink{game__task_8c_a8de7eb2cbccf01d3c7ee792caaf9784e}{game\+\_\+process\+\_\+drop\+\_\+command()}. This function is kept for compatibility.  
+\item[{\parbox[t]{\linewidth}{Global \doxylink{game__task_8c_a33f0d04999a0cc77d79d2e529a227be1}{game\+\_\+handle\+\_\+piece\+\_\+lifted} (uint8\+\_\+t row, uint8\+\_\+t col)}}]\hfill \\
+\label{deprecated__deprecated000002}%
+\Hypertarget{deprecated__deprecated000002}%
+Matrix events are now sent as GAME\+\_\+\+CMD\+\_\+\+PICKUP to game\+\_\+command\+\_\+queue and processed by \doxylink{game__task_8c_a0216d9328bf82ee185835194077f1e33}{game\+\_\+process\+\_\+pickup\+\_\+command()}. This function is kept for compatibility.  
+\item[{\parbox[t]{\linewidth}{Global \doxylink{game__task_8c_a696a56f72aa0226d23952ccbdfd20cd7}{game\+\_\+handle\+\_\+piece\+\_\+placed} (uint8\+\_\+t row, uint8\+\_\+t col)}}]\hfill \\
+\label{deprecated__deprecated000003}%
+\Hypertarget{deprecated__deprecated000003}%
+Matrix events are now sent as GAME\+\_\+\+CMD\+\_\+\+DROP to game\+\_\+command\+\_\+queue and processed by \doxylink{game__task_8c_a8de7eb2cbccf01d3c7ee792caaf9784e}{game\+\_\+process\+\_\+drop\+\_\+command()}. This function is kept for compatibility.  
+\item[{\parbox[t]{\linewidth}{Global \doxylink{game__task_8h_a502098cd25ad56400beb2339a1bfb84c}{game\+\_\+process\+\_\+matrix\+\_\+events} (void)}}]\hfill \\
+\label{deprecated__deprecated000001}%
+\Hypertarget{deprecated__deprecated000001}%
+Matrix events are now sent as \doxylink{structchess__move__command__t}{chess\+\_\+move\+\_\+command\+\_\+t} to game\+\_\+command\+\_\+queue and processed by \doxylink{game__task_8c_a0216d9328bf82ee185835194077f1e33}{game\+\_\+process\+\_\+pickup\+\_\+command()} / \doxylink{game__task_8c_a8de7eb2cbccf01d3c7ee792caaf9784e}{game\+\_\+process\+\_\+drop\+\_\+command()}. This function is kept for compatibility but does nothing. 
+\end{DoxyRefList}

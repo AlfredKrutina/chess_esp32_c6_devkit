@@ -1,0 +1,145 @@
+\doxysection{Dokumentace struktury buffer\+\_\+pool\+\_\+stats\+\_\+t}
+\hypertarget{structbuffer__pool__stats__t}{}\label{structbuffer__pool__stats__t}\index{buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}}
+
+
+Struktura statistik buffer poolu.  
+
+
+
+
+{\ttfamily \#include $<$shared\+\_\+buffer\+\_\+pool.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structbuffer__pool__stats__t_ab36127065062a985fffa4951c5b033b3}{pool\+\_\+size}}
+\begin{DoxyCompactList}\small\item\em Celkovy pocet bufferu v poolu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structbuffer__pool__stats__t_a8273dd396e87398156b713e2770687cc}{buffer\+\_\+size}}
+\begin{DoxyCompactList}\small\item\em Velikost jednoho bufferu v bajtech. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structbuffer__pool__stats__t_a42990bc34dd3c40cfb396f6aa3723bbc}{current\+\_\+usage}}
+\begin{DoxyCompactList}\small\item\em Aktualne alokovane buffery. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structbuffer__pool__stats__t_ae2d19a60f60e93b6b4144919fa1ef156}{peak\+\_\+usage}}
+\begin{DoxyCompactList}\small\item\em Maximalni dosazen e pouziti. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structbuffer__pool__stats__t_add17a4e17bdbbc10a693d74443db4325}{total\+\_\+allocations}}
+\begin{DoxyCompactList}\small\item\em Celkovy pocet alokaci. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structbuffer__pool__stats__t_a0bc82e1e4f4f20bc8f3cf31fc0d0148c}{total\+\_\+releases}}
+\begin{DoxyCompactList}\small\item\em Celkovy pocet uvolneni. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structbuffer__pool__stats__t_a36dc96032c4fe870bc181bbbb9fdb2dd}{allocation\+\_\+failures}}
+\begin{DoxyCompactList}\small\item\em Pocet selhanych alokaci. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Struktura statistik buffer poolu. 
+
+Obsahuje informace o pouziti buffer poolu (velikost, pouziti, selhani). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00069}{69}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structbuffer__pool__stats__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structbuffer__pool__stats__t_a36dc96032c4fe870bc181bbbb9fdb2dd}\index{buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}!allocation\_failures@{allocation\_failures}}
+\index{allocation\_failures@{allocation\_failures}!buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{allocation\_failures}{allocation\_failures}}
+{\footnotesize\ttfamily \label{structbuffer__pool__stats__t_a36dc96032c4fe870bc181bbbb9fdb2dd} 
+uint32\+\_\+t buffer\+\_\+pool\+\_\+stats\+\_\+t\+::allocation\+\_\+failures}
+
+
+
+Pocet selhanych alokaci. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00076}{76}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+\Hypertarget{structbuffer__pool__stats__t_a8273dd396e87398156b713e2770687cc}\index{buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}!buffer\_size@{buffer\_size}}
+\index{buffer\_size@{buffer\_size}!buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{buffer\_size}{buffer\_size}}
+{\footnotesize\ttfamily \label{structbuffer__pool__stats__t_a8273dd396e87398156b713e2770687cc} 
+uint32\+\_\+t buffer\+\_\+pool\+\_\+stats\+\_\+t\+::buffer\+\_\+size}
+
+
+
+Velikost jednoho bufferu v bajtech. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00071}{71}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+\Hypertarget{structbuffer__pool__stats__t_a42990bc34dd3c40cfb396f6aa3723bbc}\index{buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}!current\_usage@{current\_usage}}
+\index{current\_usage@{current\_usage}!buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{current\_usage}{current\_usage}}
+{\footnotesize\ttfamily \label{structbuffer__pool__stats__t_a42990bc34dd3c40cfb396f6aa3723bbc} 
+uint32\+\_\+t buffer\+\_\+pool\+\_\+stats\+\_\+t\+::current\+\_\+usage}
+
+
+
+Aktualne alokovane buffery. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00072}{72}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+\Hypertarget{structbuffer__pool__stats__t_ae2d19a60f60e93b6b4144919fa1ef156}\index{buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}!peak\_usage@{peak\_usage}}
+\index{peak\_usage@{peak\_usage}!buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{peak\_usage}{peak\_usage}}
+{\footnotesize\ttfamily \label{structbuffer__pool__stats__t_ae2d19a60f60e93b6b4144919fa1ef156} 
+uint32\+\_\+t buffer\+\_\+pool\+\_\+stats\+\_\+t\+::peak\+\_\+usage}
+
+
+
+Maximalni dosazen e pouziti. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00073}{73}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+\Hypertarget{structbuffer__pool__stats__t_ab36127065062a985fffa4951c5b033b3}\index{buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}!pool\_size@{pool\_size}}
+\index{pool\_size@{pool\_size}!buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{pool\_size}{pool\_size}}
+{\footnotesize\ttfamily \label{structbuffer__pool__stats__t_ab36127065062a985fffa4951c5b033b3} 
+uint32\+\_\+t buffer\+\_\+pool\+\_\+stats\+\_\+t\+::pool\+\_\+size}
+
+
+
+Celkovy pocet bufferu v poolu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00070}{70}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+\Hypertarget{structbuffer__pool__stats__t_add17a4e17bdbbc10a693d74443db4325}\index{buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}!total\_allocations@{total\_allocations}}
+\index{total\_allocations@{total\_allocations}!buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{total\_allocations}{total\_allocations}}
+{\footnotesize\ttfamily \label{structbuffer__pool__stats__t_add17a4e17bdbbc10a693d74443db4325} 
+uint32\+\_\+t buffer\+\_\+pool\+\_\+stats\+\_\+t\+::total\+\_\+allocations}
+
+
+
+Celkovy pocet alokaci. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00074}{74}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+\Hypertarget{structbuffer__pool__stats__t_a0bc82e1e4f4f20bc8f3cf31fc0d0148c}\index{buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}!total\_releases@{total\_releases}}
+\index{total\_releases@{total\_releases}!buffer\_pool\_stats\_t@{buffer\_pool\_stats\_t}}
+\doxysubsubsection{\texorpdfstring{total\_releases}{total\_releases}}
+{\footnotesize\ttfamily \label{structbuffer__pool__stats__t_a0bc82e1e4f4f20bc8f3cf31fc0d0148c} 
+uint32\+\_\+t buffer\+\_\+pool\+\_\+stats\+\_\+t\+::total\+\_\+releases}
+
+
+
+Celkovy pocet uvolneni. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{shared__buffer__pool_8h_source_l00075}{75}} v souboru \mbox{\hyperlink{shared__buffer__pool_8h_source}{shared\+\_\+buffer\+\_\+pool.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{shared__buffer__pool_8h}{shared\+\_\+buffer\+\_\+pool.\+h}}\end{DoxyCompactItemize}

@@ -1,0 +1,152 @@
+\doxysection{Dokumentace souboru demo\+\_\+mode\+\_\+helpers.\+c}
+\hypertarget{demo__mode__helpers_8c}{}\label{demo__mode__helpers_8c}\index{demo\_mode\_helpers.c@{demo\_mode\_helpers.c}}
+
+
+Demo Mode Helper Functions for ESP32-\/\+C6 Chess System.  
+
+
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+static bool \mbox{\hyperlink{demo__mode__helpers_8c_ab5480af4a47935696e63f5cb45a754cc}{demo\+\_\+is\+\_\+castling\+\_\+move}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \mbox{\hyperlink{game__task_8c_acd8995588803c845a38aeae9849f7be8}{board}}\mbox{[}8\mbox{]}\mbox{[}8\mbox{]})
+\begin{DoxyCompactList}\small\item\em Detect if a move is castling (king moves 2 squares). \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{demo__mode__helpers_8c_a1e81ab60269dcc2083cbe4acf50b3cbf}{demo\+\_\+get\+\_\+castling\+\_\+rook\+\_\+squares}} (uint8\+\_\+t king\+\_\+from\+\_\+row, uint8\+\_\+t king\+\_\+from\+\_\+col, uint8\+\_\+t king\+\_\+to\+\_\+col, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{game__task_8c_a2e655fa25f4bbdd873eabad03e266985}{rook\+\_\+from\+\_\+row}}, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{game__task_8c_aaf08ecb764a4aa8e2ce3d75d9bcf58f2}{rook\+\_\+from\+\_\+col}}, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{game__task_8c_ad71601a1741c8dcb2c45992ebfc373b0}{rook\+\_\+to\+\_\+row}}, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{game__task_8c_a802ed5327f737b0304fbc1809d0aac8f}{rook\+\_\+to\+\_\+col}})
+\begin{DoxyCompactList}\small\item\em Calculate rook positions for castling move. \end{DoxyCompactList}\item 
+static bool \mbox{\hyperlink{demo__mode__helpers_8c_a765d58ac494ce1812d1a714d714915b4}{demo\+\_\+is\+\_\+promotion\+\_\+move}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \mbox{\hyperlink{game__task_8c_acd8995588803c845a38aeae9849f7be8}{board}}\mbox{[}8\mbox{]}\mbox{[}8\mbox{]})
+\begin{DoxyCompactList}\small\item\em Detect if a move is pawn promotion. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{demo__mode__helpers_8c_a610e6026c21231070bf571b79be34430}{demo\+\_\+ensure\+\_\+safe\+\_\+timing}} (uint32\+\_\+t \texorpdfstring{$\ast$}{*}last\+\_\+move\+\_\+time\+\_\+ms, uint32\+\_\+t interval\+\_\+ms)
+\begin{DoxyCompactList}\small\item\em Ensure safe timing before executing demo move. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Demo Mode Helper Functions for ESP32-\/\+C6 Chess System. 
+
+This file contains helper functions for demo mode operation including\+:
+\begin{DoxyItemize}
+\item Castling detection and execution
+\item Promotion detection
+\item Timing protection
+\item Highlight clearing
+\end{DoxyItemize}
+
+These functions will be integrated into \doxylink{game__task_8c}{game\+\_\+task.\+c} 
+
+Definice v souboru \mbox{\hyperlink{demo__mode__helpers_8c_source}{demo\+\_\+mode\+\_\+helpers.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{demo__mode__helpers_8c_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{demo__mode__helpers_8c_a610e6026c21231070bf571b79be34430}\index{demo\_mode\_helpers.c@{demo\_mode\_helpers.c}!demo\_ensure\_safe\_timing@{demo\_ensure\_safe\_timing}}
+\index{demo\_ensure\_safe\_timing@{demo\_ensure\_safe\_timing}!demo\_mode\_helpers.c@{demo\_mode\_helpers.c}}
+\doxysubsubsection{\texorpdfstring{demo\_ensure\_safe\_timing()}{demo\_ensure\_safe\_timing()}}
+{\footnotesize\ttfamily \label{demo__mode__helpers_8c_a610e6026c21231070bf571b79be34430} 
+void demo\+\_\+ensure\+\_\+safe\+\_\+timing (\begin{DoxyParamCaption}\item[{uint32\+\_\+t \texorpdfstring{$\ast$}{*}}]{last\+\_\+move\+\_\+time\+\_\+ms}{, }\item[{uint32\+\_\+t}]{interval\+\_\+ms}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Ensure safe timing before executing demo move. 
+
+Waits if necessary to maintain minimum interval between moves. Also clears highlights to prevent visual glitches.
+
+
+\begin{DoxyParams}{Parametry}
+{\em last\+\_\+move\+\_\+time\+\_\+ms} & Timestamp of last move \\
+\hline
+{\em interval\+\_\+ms} & Required interval between moves \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{demo__mode__helpers_8c_source_l00123}{123}} v souboru \mbox{\hyperlink{demo__mode__helpers_8c_source}{demo\+\_\+mode\+\_\+helpers.\+c}}.
+
+\Hypertarget{demo__mode__helpers_8c_a1e81ab60269dcc2083cbe4acf50b3cbf}\index{demo\_mode\_helpers.c@{demo\_mode\_helpers.c}!demo\_get\_castling\_rook\_squares@{demo\_get\_castling\_rook\_squares}}
+\index{demo\_get\_castling\_rook\_squares@{demo\_get\_castling\_rook\_squares}!demo\_mode\_helpers.c@{demo\_mode\_helpers.c}}
+\doxysubsubsection{\texorpdfstring{demo\_get\_castling\_rook\_squares()}{demo\_get\_castling\_rook\_squares()}}
+{\footnotesize\ttfamily \label{demo__mode__helpers_8c_a1e81ab60269dcc2083cbe4acf50b3cbf} 
+void demo\+\_\+get\+\_\+castling\+\_\+rook\+\_\+squares (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{king\+\_\+from\+\_\+row}{, }\item[{uint8\+\_\+t}]{king\+\_\+from\+\_\+col}{, }\item[{uint8\+\_\+t}]{king\+\_\+to\+\_\+col}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{rook\+\_\+from\+\_\+row}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{rook\+\_\+from\+\_\+col}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{rook\+\_\+to\+\_\+row}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{rook\+\_\+to\+\_\+col}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Calculate rook positions for castling move. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+ & {\em king\+\_\+from\+\_\+row} & King source row \\
+\hline
+ & {\em king\+\_\+from\+\_\+col} & King source column \\
+\hline
+ & {\em king\+\_\+to\+\_\+col} & King destination column \\
+\hline
+\mbox{\texttt{out}}  & {\em rook\+\_\+from\+\_\+row} & Rook source row \\
+\hline
+\mbox{\texttt{out}}  & {\em rook\+\_\+from\+\_\+col} & Rook source column \\
+\hline
+\mbox{\texttt{out}}  & {\em rook\+\_\+to\+\_\+row} & Rook destination row \\
+\hline
+\mbox{\texttt{out}}  & {\em rook\+\_\+to\+\_\+col} & Rook destination column \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{demo__mode__helpers_8c_source_l00059}{59}} v souboru \mbox{\hyperlink{demo__mode__helpers_8c_source}{demo\+\_\+mode\+\_\+helpers.\+c}}.
+
+\Hypertarget{demo__mode__helpers_8c_ab5480af4a47935696e63f5cb45a754cc}\index{demo\_mode\_helpers.c@{demo\_mode\_helpers.c}!demo\_is\_castling\_move@{demo\_is\_castling\_move}}
+\index{demo\_is\_castling\_move@{demo\_is\_castling\_move}!demo\_mode\_helpers.c@{demo\_mode\_helpers.c}}
+\doxysubsubsection{\texorpdfstring{demo\_is\_castling\_move()}{demo\_is\_castling\_move()}}
+{\footnotesize\ttfamily \label{demo__mode__helpers_8c_ab5480af4a47935696e63f5cb45a754cc} 
+bool demo\+\_\+is\+\_\+castling\+\_\+move (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{, }\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{board}{\mbox{[}8\mbox{]}\mbox{[}8\mbox{]}}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Detect if a move is castling (king moves 2 squares). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Source row (0-\/7) \\
+\hline
+{\em from\+\_\+col} & Source column (0-\/7) \\
+\hline
+{\em to\+\_\+row} & Destination row (0-\/7) \\
+\hline
+{\em to\+\_\+col} & Destination column (0-\/7) \\
+\hline
+{\em board} & Pointer to board array \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true if move is castling, false otherwise 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{demo__mode__helpers_8c_source_l00028}{28}} v souboru \mbox{\hyperlink{demo__mode__helpers_8c_source}{demo\+\_\+mode\+\_\+helpers.\+c}}.
+
+\Hypertarget{demo__mode__helpers_8c_a765d58ac494ce1812d1a714d714915b4}\index{demo\_mode\_helpers.c@{demo\_mode\_helpers.c}!demo\_is\_promotion\_move@{demo\_is\_promotion\_move}}
+\index{demo\_is\_promotion\_move@{demo\_is\_promotion\_move}!demo\_mode\_helpers.c@{demo\_mode\_helpers.c}}
+\doxysubsubsection{\texorpdfstring{demo\_is\_promotion\_move()}{demo\_is\_promotion\_move()}}
+{\footnotesize\ttfamily \label{demo__mode__helpers_8c_a765d58ac494ce1812d1a714d714915b4} 
+bool demo\+\_\+is\+\_\+promotion\+\_\+move (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{board}{\mbox{[}8\mbox{]}\mbox{[}8\mbox{]}}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Detect if a move is pawn promotion. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Source row (0-\/7) \\
+\hline
+{\em from\+\_\+col} & Source column (0-\/7) \\
+\hline
+{\em to\+\_\+row} & Destination row (0-\/7) \\
+\hline
+{\em board} & Pointer to board array \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true if move is promotion, false otherwise 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{demo__mode__helpers_8c_source_l00092}{92}} v souboru \mbox{\hyperlink{demo__mode__helpers_8c_source}{demo\+\_\+mode\+\_\+helpers.\+c}}.
+

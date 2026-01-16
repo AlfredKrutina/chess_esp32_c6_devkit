@@ -1,0 +1,48 @@
+\doxysection{reset\+\_\+button\+\_\+task.\+h}
+\hypertarget{reset__button__task_8h_source}{}\label{reset__button__task_8h_source}\index{reset\_button\_task.h@{reset\_button\_task.h}}
+\mbox{\hyperlink{reset__button__task_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00021}00021\ \textcolor{preprocessor}{\#ifndef\ RESET\_BUTTON\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00022}00022\ \textcolor{preprocessor}{\#define\ RESET\_BUTTON\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00023}00023\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00024}00024\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00025}00025\ \textcolor{comment}{//\ KONSTANTY\ A\ TYPY}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00026}00026\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00030}00030\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00031}00031\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00032}00032\ \textcolor{preprocessor}{\#include\ "{}freertos/task.h"{}}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00033}00033\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00034}00034\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00035}00035\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00037}00037\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00038}00038\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00039}00039\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00041}00041\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00042}00042\ \textcolor{comment}{//\ PROTOTYPY\ FUNKCI}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00043}00043\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00052}00052\ esp\_err\_t\ \mbox{\hyperlink{reset__button__task_8h_adf092b27f7d985c1b6e1f5980a1ec99e}{reset\_button\_task\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00062}00062\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{reset__button__task_8h_a2b2018c335a91336642118cc74af7b4a}{reset\_button\_task}}(\textcolor{keywordtype}{void}\ *pvParameters);}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00063}00063\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00072}00072\ esp\_err\_t\ \mbox{\hyperlink{reset__button__task_8h_a828ddd0ce9a37f1fbe484e6663d96a57}{process\_reset\_request}}(\textcolor{keywordtype}{bool}\ reset\_request);}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00082}00082\ esp\_err\_t\ \mbox{\hyperlink{reset__button__task_8h_a9d96f74aeb8c8ab64a9ea78a857747dc}{simulate\_reset\_button\_press}}(\textcolor{keywordtype}{bool}\ pressed);}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00083}00083\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00089}00089\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{reset__button__task_8h_a9c119f00a30675bdd20fd69a03775b71}{reset\_button\_is\_initialized}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00090}00090\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00096}00096\ uint32\_t\ \mbox{\hyperlink{reset__button__task_8h_a06d02f46f762a840863c8353f7e7f506}{reset\_button\_get\_event\_count}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00097}00097\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00098}00098\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00099}00099\ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00100}00100\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00101}00101\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8h_source_l00102}00102\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ RESET\_BUTTON\_TASK\_H\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

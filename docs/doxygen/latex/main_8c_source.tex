@@ -1,0 +1,1064 @@
+\doxysection{main.\+c}
+\hypertarget{main_8c_source}{}\label{main_8c_source}\index{main.c@{main.c}}
+\mbox{\hyperlink{main_8c}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00151}00151\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00152}00152\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{animation__task_8h}{animation\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00153}00153\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{button__task_8h}{button\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00154}00154\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{chess__types_8h}{chess\_types.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00155}00155\ \textcolor{preprocessor}{\#include\ "{}driver/uart.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00156}00156\ \textcolor{preprocessor}{\#include\ "{}driver/uart\_vfs.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00157}00157\ \textcolor{preprocessor}{\#include\ "{}esp\_console.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00158}00158\ \textcolor{preprocessor}{\#include\ "{}esp\_log.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00159}00159\ \textcolor{preprocessor}{\#include\ "{}esp\_random.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00160}00160\ \textcolor{preprocessor}{\#include\ "{}esp\_sleep.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00161}00161\ \textcolor{preprocessor}{\#include\ "{}esp\_system.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00162}00162\ \textcolor{preprocessor}{\#include\ "{}esp\_task\_wdt.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00163}00163\ \textcolor{preprocessor}{\#include\ "{}esp\_timer.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00164}00164\ \textcolor{preprocessor}{\#include\ "{}esp\_vfs\_dev.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00165}00165\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00166}00166\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00167}00167\ \textcolor{preprocessor}{\#include\ "{}freertos/semphr.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00168}00168\ \textcolor{preprocessor}{\#include\ "{}freertos/task.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00169}00169\ \textcolor{preprocessor}{\#include\ "{}freertos/timers.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00170}00170\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00171}00171\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{game__task_8h}{game\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00172}00172\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__task_8h}{led\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00173}00173\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{matrix__task_8h}{matrix\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00174}00174\ \textcolor{preprocessor}{\#include\ "{}nvs\_flash.h"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00175}00175\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{test__task_8h}{test\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00176}00176\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{uart__task_8h}{uart\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00177}00177\ \textcolor{preprocessor}{\#include\ <inttypes.h>}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00178}00178\ \textcolor{preprocessor}{\#include\ <stdio.h>}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00179}00179\ \textcolor{preprocessor}{\#include\ <stdlib.h>}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00180}00180\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00181}00181\ \textcolor{comment}{//\ \#include\ "{}matter\_task.h"{}\ \ //\ DISABLED\ -\/\ Matter\ neni\ podporovan\ touhle\ verzi\ FW}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00182}00182\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{config__manager_8h}{config\_manager.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00183}00183\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{game__led__animations_8h}{game\_led\_animations.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00184}00184\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{uart__commands__extended_8h}{uart\_commands\_extended.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00185}00185\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{web__server__task_8h}{web\_server\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00186}00186\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00187}00187\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00188}00188\ \textcolor{comment}{//\ FORWARD\ DECLARATIONS}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00189}00189\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00190}00190\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00191}00191\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{main_8c_a4894ad0ac4d99cffa56d58649a1850fb}{show\_boot\_animation\_and\_board}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00192}00192\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00193}\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00193}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}}\ =\ \textcolor{stringliteral}{"{}MAIN"{}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00194}00194\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00195}00195\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00196}00196\ \textcolor{comment}{//\ WDT\ WRAPPER\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00197}00197\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00198}00198\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00209}\mbox{\hyperlink{main_8c_a16454398c460e4d7161a90c808248ec2}{00209}}\ \textcolor{keyword}{static}\ esp\_err\_t\ \mbox{\hyperlink{main_8c_a16454398c460e4d7161a90c808248ec2}{main\_task\_wdt\_reset\_safe}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00210}00210\ \ \ esp\_err\_t\ ret\ =\ esp\_task\_wdt\_reset();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00211}00211\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00212}00212\ \ \ \textcolor{keywordflow}{if}\ (ret\ ==\ ESP\_ERR\_NOT\_FOUND)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00213}00213\ \ \ \ \ \textcolor{comment}{//\ Log\ as\ WARNING\ instead\ of\ ERROR\ -\/\ task\ not\ registered\ yet}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00214}00214\ \ \ \ \ ESP\_LOGW(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00215}00215\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00216}00216\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}WDT\ reset:\ task\ not\ registered\ yet\ (this\ is\ normal\ during\ startup)"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00217}00217\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;\ \textcolor{comment}{//\ Treat\ as\ success\ for\ our\ purposes}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00218}00218\ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00219}00219\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}WDT\ reset\ failed:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00220}00220\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00221}00221\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00222}00222\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00223}00223\ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00224}00224\ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00225}00225\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00227}\mbox{\hyperlink{main_8c_a8eca84d3e2c7c0adf364819e74b1bd9b}{00227}}\ SemaphoreHandle\_t\ \mbox{\hyperlink{main_8c_a8eca84d3e2c7c0adf364819e74b1bd9b}{uart\_mutex}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00228}00228\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00230}\mbox{\hyperlink{main_8c_a6cf81c896b094e20ff5752ee1133a8f2}{00230}}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a6cf81c896b094e20ff5752ee1133a8f2}{led\_task\_handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00232}\mbox{\hyperlink{main_8c_a9de1b87e0b6692c90f1c5cfd9e13d444}{00232}}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a9de1b87e0b6692c90f1c5cfd9e13d444}{matrix\_task\_handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00234}\mbox{\hyperlink{main_8c_aba5c2db71f9fa5cd9f3e506e91ffe6d3}{00234}}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_aba5c2db71f9fa5cd9f3e506e91ffe6d3}{button\_task\_handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00236}\mbox{\hyperlink{main_8c_a4e4967ac70f1e8a89b2fea62027a968c}{00236}}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a4e4967ac70f1e8a89b2fea62027a968c}{uart\_task\_handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00238}\mbox{\hyperlink{main_8c_acb49a688d90460dc48f7e0b976ace62d}{00238}}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_acb49a688d90460dc48f7e0b976ace62d}{game\_task\_handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00240}\mbox{\hyperlink{main_8c_a2a20898222a990efbce3e4239f2d9aee}{00240}}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a2a20898222a990efbce3e4239f2d9aee}{animation\_task\_handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00242}\mbox{\hyperlink{main_8c_abafefd1ba465b609ca39fd6fc502095b}{00242}}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_abafefd1ba465b609ca39fd6fc502095b}{test\_task\_handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00243}00243\ \textcolor{comment}{//\ TaskHandle\_t\ matter\_task\_handle\ =\ NULL;\ \ //\ DISABLED\ -\/\ Matter\ not\ needed}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00245}\mbox{\hyperlink{main_8c_a36e9302901a63037025cd7970fa8adbe}{00245}}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a36e9302901a63037025cd7970fa8adbe}{web\_server\_task\_handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00247}\mbox{\hyperlink{main_8c_aeb8dd1b563b914d04c90f377454ad032}{00247}}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_aeb8dd1b563b914d04c90f377454ad032}{reset\_button\_task\_handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00249}\mbox{\hyperlink{main_8c_a2cf065fd2e74d6ad91b3da384a96c60b}{00249}}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a2cf065fd2e74d6ad91b3da384a96c60b}{promotion\_button\_task\_handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00250}00250\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00253}\mbox{\hyperlink{main_8c_af252e203098e091d068b85d637b1083d}{00253}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{volatile}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{main_8c_af252e203098e091d068b85d637b1083d}{demo\_mode\_enabled}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00255}\mbox{\hyperlink{main_8c_aa999d9fce86efd55be4fb1bce525e69e}{00255}}\ \textcolor{keyword}{static}\ uint32\_t\ \mbox{\hyperlink{main_8c_aa999d9fce86efd55be4fb1bce525e69e}{current\_demo\_delay\_ms}}\ =\ 3000;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00256}00256\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00257}00257\ \textcolor{comment}{//\ Forward\ declaration}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00258}00258\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{main_8c_a768b8bf362b42a4e04ac58639035a938}{demo\_report\_activity}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00259}00259\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00262}\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{00262}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}}[]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00263}00263\ \ \ \ \ \textcolor{stringliteral}{"{}e2e4"{}},\ \textcolor{stringliteral}{"{}e7e5"{}},\ \textcolor{comment}{//\ 1.\ e4\ e5}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00264}00264\ \ \ \ \ \textcolor{stringliteral}{"{}f1c4"{}},\ \textcolor{stringliteral}{"{}b8c6"{}},\ \textcolor{comment}{//\ 2.\ Bc4\ Nc6}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00265}00265\ \ \ \ \ \textcolor{stringliteral}{"{}d1h5"{}},\ \textcolor{stringliteral}{"{}g8f6"{}},\ \textcolor{comment}{//\ 3.\ Qh5\ Nf6}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00266}00266\ \ \ \ \ \textcolor{stringliteral}{"{}h5f7"{}}\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 4.\ Qxf7\#\ -\/\ Checkmate!\ White\ wins}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00267}00267\ \};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00268}00268\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00269}00269\ \textcolor{comment}{//\ Demo\ game\ definitions\ removed\ to\ save\ memory:}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00270}00270\ \textcolor{comment}{//\ -\/\ DEMO\_GAME\_BLACK\_WIN\ (Fool's\ Mate)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00271}00271\ \textcolor{comment}{//\ -\/\ DEMO\_GAME\_DRAW\ (Italian\ Game)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00272}00272\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00275}\mbox{\hyperlink{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}{00275}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}{DEMO\_GAME\_OPERA}}[]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00276}00276\ \ \ \ \ \textcolor{stringliteral}{"{}e2e4"{}},\ \textcolor{stringliteral}{"{}e7e5"{}},\ \textcolor{comment}{//\ 1.\ e4\ e5}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00277}00277\ \ \ \ \ \textcolor{stringliteral}{"{}g1f3"{}},\ \textcolor{stringliteral}{"{}d7d6"{}},\ \textcolor{comment}{//\ 2.\ Nf3\ d6}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00278}00278\ \ \ \ \ \textcolor{stringliteral}{"{}d2d4"{}},\ \textcolor{stringliteral}{"{}c8g4"{}},\ \textcolor{comment}{//\ 3.\ d4\ Bg4}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00279}00279\ \ \ \ \ \textcolor{stringliteral}{"{}d4e5"{}},\ \textcolor{stringliteral}{"{}g4f3"{}},\ \textcolor{comment}{//\ 4.\ dxe5\ Bxf3}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00280}00280\ \ \ \ \ \textcolor{stringliteral}{"{}d1f3"{}},\ \textcolor{stringliteral}{"{}d6e5"{}},\ \textcolor{comment}{//\ 5.\ Qxf3\ dxe5}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00281}00281\ \ \ \ \ \textcolor{stringliteral}{"{}f1c4"{}},\ \textcolor{stringliteral}{"{}g8f6"{}},\ \textcolor{comment}{//\ 6.\ Bc4\ Nf6}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00282}00282\ \ \ \ \ \textcolor{stringliteral}{"{}f3b3"{}},\ \textcolor{stringliteral}{"{}d8e7"{}},\ \textcolor{comment}{//\ 7.\ Qb3\ Qe7}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00283}00283\ \ \ \ \ \textcolor{stringliteral}{"{}b1c3"{}},\ \textcolor{stringliteral}{"{}c7c6"{}},\ \textcolor{comment}{//\ 8.\ Nc3\ c6}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00284}00284\ \ \ \ \ \textcolor{stringliteral}{"{}c1g5"{}},\ \textcolor{stringliteral}{"{}b7b5"{}},\ \textcolor{comment}{//\ 9.\ Bg5\ b5}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00285}00285\ \ \ \ \ \textcolor{stringliteral}{"{}c3b5"{}},\ \textcolor{stringliteral}{"{}c6b5"{}},\ \textcolor{comment}{//\ 10.\ Nxb5\ cxb5}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00286}00286\ \ \ \ \ \textcolor{stringliteral}{"{}c4b5"{}},\ \textcolor{stringliteral}{"{}b8d7"{}},\ \textcolor{comment}{//\ 11.\ Bxb5+\ Nbd7}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00287}00287\ \ \ \ \ \textcolor{stringliteral}{"{}e1c1"{}},\ \textcolor{stringliteral}{"{}a8d8"{}},\ \textcolor{comment}{//\ 12.\ O-\/O-\/O\ Rd8}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00288}00288\ \ \ \ \ \textcolor{stringliteral}{"{}d1d7"{}},\ \textcolor{stringliteral}{"{}d8d7"{}},\ \textcolor{comment}{//\ 13.\ Rxd7\ Rxd7}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00289}00289\ \ \ \ \ \textcolor{stringliteral}{"{}h1d1"{}},\ \textcolor{stringliteral}{"{}e7e6"{}},\ \textcolor{comment}{//\ 14.\ Rd1\ Qe6}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00290}00290\ \ \ \ \ \textcolor{stringliteral}{"{}b5d7"{}},\ \textcolor{stringliteral}{"{}f6d7"{}},\ \textcolor{comment}{//\ 15.\ Bxd7+\ Nxd7}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00291}00291\ \ \ \ \ \textcolor{stringliteral}{"{}b3b8"{}},\ \textcolor{stringliteral}{"{}d7b8"{}},\ \textcolor{comment}{//\ 16.\ Qb8+!\ Nxb8}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00292}00292\ \ \ \ \ \textcolor{stringliteral}{"{}d1d8"{}}\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 17.\ Rd8\#\ -\/\ Checkmate!\ Beautiful\ queen\ sacrifice}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00293}00293\ \};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00294}00294\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00296}\mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{00296}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ **\mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{DEMO\_GAMES}}[]\ =\ \{\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}},\ \mbox{\hyperlink{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}{DEMO\_GAME\_OPERA}}\};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00297}00297\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00299}\mbox{\hyperlink{main_8c_abcaca94aeee21681707035e985a0c843}{00299}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{main_8c_abcaca94aeee21681707035e985a0c843}{DEMO\_GAME\_LENGTHS}}[]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00300}00300\ \ \ \ \ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}})\ /\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}}[0]),}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00301}00301\ \ \ \ \ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}{DEMO\_GAME\_OPERA}})\ /\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}{DEMO\_GAME\_OPERA}}[0])\};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00302}00302\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00304}\mbox{\hyperlink{main_8c_a167e2d80b3314581d6120d1b2e48ee51}{00304}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a167e2d80b3314581d6120d1b2e48ee51}{DEMO\_GAME\_NAMES}}[]\ =\ \{\textcolor{stringliteral}{"{}Scholar's\ Mate\ (White\ Wins)"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00305}00305\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Opera\ Game\ (Morphy\ 1858)"{}}\};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00306}00306\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00308}\mbox{\hyperlink{main_8c_a66025d47b9e143dea05d41ea2a76d46b}{00308}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{main_8c_a66025d47b9e143dea05d41ea2a76d46b}{DEMO\_GAMES\_COUNT}}\ =\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{DEMO\_GAMES}})\ /\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{DEMO\_GAMES}}[0]);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00309}00309\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00311}\mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{00311}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00312}00312\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00314}\mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{00314}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{demo\_move\_index}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00315}00315\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00317}\mbox{\hyperlink{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa}{00317}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ **\mbox{\hyperlink{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa}{current\_demo\_moves}}\ =\ \mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00318}00318\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00320}\mbox{\hyperlink{main_8c_a4973ab5b9a06d7ed486bc100be691f42}{00320}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{main_8c_a4973ab5b9a06d7ed486bc100be691f42}{demo\_moves\_count}}\ =}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00321}00321\ \ \ \ \ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}})\ /\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}}[0]);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00322}00322\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00323}00323\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00324}00324\ \textcolor{comment}{//\ SYSTEM\ INITIALIZATION\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00325}00325\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00326}00326\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00336}\mbox{\hyperlink{main_8c_ae27993c1756124d9fa6e8af4958409ef}{00336}}\ esp\_err\_t\ \mbox{\hyperlink{main_8c_ae27993c1756124d9fa6e8af4958409ef}{main\_system\_init}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00337}00337\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔧\ Initializing\ chess\ system\ components..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00338}00338\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00339}00339\ \ \ \textcolor{comment}{//\ Create\ UART\ mutex\ for\ clean\ output}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00340}00340\ \ \ \mbox{\hyperlink{main_8c_a8eca84d3e2c7c0adf364819e74b1bd9b}{uart\_mutex}}\ =\ xSemaphoreCreateMutex();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00341}00341\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{main_8c_a8eca84d3e2c7c0adf364819e74b1bd9b}{uart\_mutex}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00342}00342\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ UART\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00343}00343\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00344}00344\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00345}00345\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ UART\ mutex\ created"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00346}00346\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00347}00347\ \ \ \textcolor{comment}{//\ Initialize\ FreeRTOS\ chess\ component\ (queues)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00348}00348\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Initializing\ FreeRTOS\ chess\ component..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00349}00349\ \ \ esp\_err\_t\ ret\ =\ \mbox{\hyperlink{freertos__chess_8c_ae3398aa451de52fedd3ac9e5830fca76}{chess\_system\_init}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00350}00350\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00351}00351\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ initialize\ FreeRTOS\ chess\ component:\ \%s"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00352}00352\ \ \ \ \ \ \ \ \ \ \ \ \ \ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00353}00353\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00354}00354\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00355}00355\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ FreeRTOS\ chess\ component\ initialized"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00356}00356\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00357}00357\ \ \ \textcolor{comment}{//\ Start\ FreeRTOS\ timers}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00358}00358\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Starting\ FreeRTOS\ timers..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00359}00359\ \ \ ret\ =\ \mbox{\hyperlink{freertos__chess_8c_a315226a40faf8a392b6328ed7c26340f}{chess\_start\_timers}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00360}00360\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00361}00361\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Timer\ start\ failed:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00362}00362\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00363}00363\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00364}00364\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ FreeRTOS\ timers\ started\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00365}00365\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00366}00366\ \ \ \textcolor{comment}{//\ LED\ system\ will\ be\ initialized\ automatically\ when\ LED\ task\ starts}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00367}00367\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00368}00368\ \ \ \textcolor{comment}{//\ Verify\ all\ queues\ are\ available}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00369}00369\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00370}00370\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Game\ command\ queue\ not\ available"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00371}00371\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00372}00372\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00373}00373\ \ \ \textcolor{comment}{//\ LED\ command\ queue\ removed\ -\/\ using\ direct\ LED\ calls}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00374}00374\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}LED\ system\ using\ direct\ calls\ (no\ queue)"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00375}00375\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_abc01112e6afa1b3e029218e52b7c2196}{matrix\_command\_queue}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00376}00376\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Matrix\ command\ queue\ not\ available"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00377}00377\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00378}00378\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00379}00379\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_a05107bbe85fd87a92dad9efd71dbd653}{button\_event\_queue}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00380}00380\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Button\ event\ queue\ not\ available"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00381}00381\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00382}00382\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00383}00383\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00384}00384\ \ \ \textcolor{comment}{//\ Verify\ UART\ queues}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00385}00385\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_a7e436e9dcca9a044bb9264755b4caa9e}{uart\_command\_queue}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00386}00386\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}UART\ command\ queue\ not\ available"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00387}00387\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00388}00388\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00389}00389\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_a02a776b41d5e50969e5cf68dcbbc2c69}{uart\_response\_queue}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00390}00390\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}UART\ response\ queue\ not\ available"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00391}00391\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00392}00392\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00393}00393\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00394}00394\ \ \ \textcolor{comment}{//\ DISABLED:\ Verify\ Matter\ queues\ -\/\ Matter\ not\ needed}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00395}00395\ \ \ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00396}00396\ \textcolor{comment}{\ \ if\ (matter\_command\_queue\ ==\ NULL\ ||\ matter\_status\_queue\ ==\ NULL)\ \{}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00397}00397\ \textcolor{comment}{\ \ \ \ \ \ ESP\_LOGE(TAG,\ "{}Matter\ queues\ not\ available"{});}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00398}00398\ \textcolor{comment}{\ \ \ \ \ \ return\ ESP\_FAIL;}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00399}00399\ \textcolor{comment}{\ \ \}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00400}00400\ \textcolor{comment}{\ \ */}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00401}00401\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00402}00402\ \ \ \textcolor{comment}{//\ Verify\ Web\ server\ queues}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00403}00403\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_a642abc1652d446215a18d55b0517edba}{web\_command\_queue}}\ ==\ NULL\ ||\ \mbox{\hyperlink{freertos__chess_8c_aa17b405ee779d94d3b6954dd83712591}{web\_server\_status\_queue}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00404}00404\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Web\ server\ queues\ not\ available"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00405}00405\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00406}00406\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00407}00407\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00408}00408\ \ \ \textcolor{comment}{//\ Verify\ Test\ queues}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00409}00409\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_a849df7d33a2eeeb8383dab84223a7813}{test\_command\_queue}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00410}00410\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Test\ command\ queue\ not\ available"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00411}00411\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00412}00412\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00413}00413\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00414}00414\ \ \ \textcolor{comment}{//\ Verify\ Animation\ queues}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00415}00415\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_a6fa8af7d1c0b048b9f2c363a9fb2b288}{animation\_command\_queue}}\ ==\ NULL\ ||\ \mbox{\hyperlink{freertos__chess_8c_ad2c6aca6dc859def2315ed1c26f11aad}{animation\_status\_queue}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00416}00416\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Animation\ queues\ not\ available"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00417}00417\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00418}00418\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00419}00419\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00420}00420\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ All\ system\ queues\ verified"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00421}00421\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00422}00422\ \ \ \textcolor{comment}{//\ Initialize\ endgame\ animation\ system}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00423}00423\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Initializing\ endgame\ animation\ system..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00424}00424\ \ \ ret\ =\ \mbox{\hyperlink{game__led__animations_8h_aff587ca038d004104b274391cb221113}{init\_endgame\_animation\_system}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00425}00425\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00426}00426\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ initialize\ endgame\ animation\ system:\ \%s"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00427}00427\ \ \ \ \ \ \ \ \ \ \ \ \ \ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00428}00428\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00429}00429\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00430}00430\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Endgame\ animation\ system\ initialized"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00431}00431\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00432}00432\ \ \ \textcolor{comment}{//\ Register\ extended\ UART\ commands}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00433}00433\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Registering\ extended\ UART\ commands..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00434}00434\ \ \ ret\ =\ \mbox{\hyperlink{uart__commands__extended_8h_a91f740ce224db3050d1f85890fdbbdce}{register\_extended\_uart\_commands}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00435}00435\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00436}00436\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ register\ extended\ UART\ commands:\ \%s"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00437}00437\ \ \ \ \ \ \ \ \ \ \ \ \ \ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00438}00438\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00439}00439\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00440}00440\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Extended\ UART\ commands\ registered"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00441}00441\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00442}00442\ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00443}00443\ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00444}00444\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00445}00445\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00446}00446\ \textcolor{comment}{//\ STARTUP\ SEQUENCE\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00447}00447\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00448}00448\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00460}\mbox{\hyperlink{main_8c_acf3129796410e265806bde4edacf4d85}{00460}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{main_8c_acf3129796410e265806bde4edacf4d85}{initialize\_chess\_game}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00461}00461\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🎯\ Starting\ new\ chess\ game..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00462}00462\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00463}00463\ \ \ \textcolor{comment}{//\ Send\ new\ game\ command\ to\ game\ task}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00464}00464\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}}\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00465}00465\ \ \ \ \ \mbox{\hyperlink{structchess__move__command__t}{chess\_move\_command\_t}}\ cmd\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00466}00466\ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a87f810beeb0b0322d2b99c87d5a7c91c}{type}}\ =\ \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a9cdd3824f45d61a774ab6868e898e1c0}{GAME\_CMD\_NEW\_GAME}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00467}00467\ \ \ \ \ \textcolor{comment}{//\ from\_notation\ a\ to\_notation\ nechte\ prázdné}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00468}00468\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00469}00469\ \ \ \ \ \textcolor{keywordflow}{if}\ (xQueueSend(\mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}},\ \&cmd,\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00470}00470\ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Failed\ to\ send\ GAME\_CMD\_NEW\_GAME"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00471}00471\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00472}00472\ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ New\ game\ command\ sent"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00473}00473\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00474}00474\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00475}00475\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Game\ command\ queue\ not\ available"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00476}00476\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00477}00477\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00478}00478\ \ \ \textcolor{comment}{//Update\ button\ LED\ availability\ after\ game\ starts}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00479}00479\ \ \ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{led__task_8h_a31b820a4bfe33d0cf54a107c339d6d07}{led\_update\_button\_availability\_from\_game}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00480}00480\ \ \ \mbox{\hyperlink{led__task_8h_a31b820a4bfe33d0cf54a107c339d6d07}{led\_update\_button\_availability\_from\_game}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00481}00481\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00482}00482\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🎯\ Game\ ready!\ White\ to\ move."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00483}00483\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}💡\ Type\ 'HELP'\ for\ available\ commands"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00484}00484\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}💡\ Type\ 'DEMO\ ON'\ to\ enable\ automatic\ play"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00485}00485\ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00486}00486\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00501}\mbox{\hyperlink{main_8c_a6e05201e522856e3cd984bade768be7e}{00501}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{main_8c_a6e05201e522856e3cd984bade768be7e}{toggle\_demo\_mode}}(\textcolor{keywordtype}{bool}\ enabled)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00502}00502\ \ \ \mbox{\hyperlink{main_8c_af252e203098e091d068b85d637b1083d}{demo\_mode\_enabled}}\ =\ enabled;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00503}00503\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00504}00504\ \ \ \textcolor{keywordflow}{if}\ (enabled)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00505}00505\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🤖\ SCREENSAVER\ MODE\ ENABLED"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00506}00506\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Automatic\ play\ will\ start\ with\ variable\ speed\ (0.7s\ -\/\ 4s)"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00507}00507\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Touch\ the\ board\ to\ interrupt!"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00508}00508\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00509}00509\ \ \ \ \ \textcolor{comment}{//\ Reset\ demo\ state}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00510}00510\ \ \ \ \ \mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{demo\_move\_index}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00511}00511\ \ \ \ \ \mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}\ =\ 0;\ \textcolor{comment}{//\ Start\ from\ first\ game}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00512}00512\ \ \ \ \ \mbox{\hyperlink{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa}{current\_demo\_moves}}\ =\ \mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{DEMO\_GAMES}}[\mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}];}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00513}00513\ \ \ \ \ \mbox{\hyperlink{main_8c_a4973ab5b9a06d7ed486bc100be691f42}{demo\_moves\_count}}\ =\ \mbox{\hyperlink{main_8c_abcaca94aeee21681707035e985a0c843}{DEMO\_GAME\_LENGTHS}}[\mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}];}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00514}00514\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00515}00515\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔍\ DEMO\ INIT\ DEBUG:\ Game=\%d,\ MovesCount=\%d,\ FirstMove=\%s"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00516}00516\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}},\ \mbox{\hyperlink{main_8c_a4973ab5b9a06d7ed486bc100be691f42}{demo\_moves\_count}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00517}00517\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa}{current\_demo\_moves}}\ ?\ \mbox{\hyperlink{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa}{current\_demo\_moves}}[0]\ :\ \textcolor{stringliteral}{"{}NULL"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00518}00518\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00519}00519\ \ \ \ \ \textcolor{comment}{//\ Ensure\ logs\ are\ flushed}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00520}00520\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(10));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00521}00521\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00522}00522\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00523}00523\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🤖\ SCREENSAVER\ MODE\ DISABLED"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00524}00524\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ returned\ to\ manual\ control"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00525}00525\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00526}00526\ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00527}00527\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00532}\mbox{\hyperlink{main_8c_a768b8bf362b42a4e04ac58639035a938}{00532}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{main_8c_a768b8bf362b42a4e04ac58639035a938}{demo\_report\_activity}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00533}00533\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{main_8c_af252e203098e091d068b85d637b1083d}{demo\_mode\_enabled}})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00534}00534\ \ \ \ \ \mbox{\hyperlink{main_8c_af252e203098e091d068b85d637b1083d}{demo\_mode\_enabled}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00535}00535\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✋\ DEMO\ INTERRUPTED\ by\ user\ activity!"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00536}00536\ \ \ \ \ \textcolor{comment}{//\ Optional:\ Send\ feedback\ to\ Web/UART\ if\ needed}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00537}00537\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00538}00538\ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00539}00539\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00544}\mbox{\hyperlink{main_8c_ad190bb08e29e63b6f04a3715dae88706}{00544}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{main_8c_ad190bb08e29e63b6f04a3715dae88706}{is\_demo\_mode\_enabled}}(\textcolor{keywordtype}{void})\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{main_8c_af252e203098e091d068b85d637b1083d}{demo\_mode\_enabled}};\ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00545}00545\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00558}\mbox{\hyperlink{main_8c_a47be0f08c5acbba3a901be7d65e4cb8a}{00558}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{main_8c_a47be0f08c5acbba3a901be7d65e4cb8a}{execute\_demo\_move}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00559}00559\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{main_8c_af252e203098e091d068b85d637b1083d}{demo\_mode\_enabled}}\ ||\ \mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{demo\_move\_index}}\ >=\ \mbox{\hyperlink{main_8c_a4973ab5b9a06d7ed486bc100be691f42}{demo\_moves\_count}})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00560}00560\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00561}00561\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00562}00562\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00563}00563\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *move\ =\ \mbox{\hyperlink{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa}{current\_demo\_moves}}[\mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{demo\_move\_index}}];}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00564}00564\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00565}00565\ \ \ \textcolor{comment}{//\ DEBUG\ LOG\ -\/\ Critical\ to\ verify\ function\ entry}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00566}00566\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🤖\ EXECUTE\ DEMO\ MOVE:\ Game='\%s',\ Ind=\%d/\%d,\ Move=\%s"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00567}00567\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a167e2d80b3314581d6120d1b2e48ee51}{DEMO\_GAME\_NAMES}}[\mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}],\ \mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{demo\_move\_index}}\ +\ 1,}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00568}00568\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a4973ab5b9a06d7ed486bc100be691f42}{demo\_moves\_count}},\ move);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00569}00569\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00570}00570\ \ \ \textcolor{comment}{//\ Use\ PICKUP/DROP\ commands\ for\ realistic\ demo\ (like\ up/dn)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00571}00571\ \ \ \textcolor{keywordflow}{if}\ (strlen(move)\ ==\ 4\ \&\&\ \mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}}\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00572}00572\ \ \ \ \ \mbox{\hyperlink{structchess__move__command__t}{chess\_move\_command\_t}}\ cmd\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00573}00573\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00574}00574\ \ \ \ \ \textcolor{comment}{//\ Step\ 1:\ PICKUP\ command\ (lift\ piece\ from\ source\ square)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00575}00575\ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a87f810beeb0b0322d2b99c87d5a7c91c}{type}}\ =\ \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a745816733d012d70b4bda9d2fdac7892}{GAME\_CMD\_PICKUP}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00576}00576\ \ \ \ \ strncpy(cmd.\mbox{\hyperlink{structchess__move__command__t_a51b8eb6617ef0642c722008827f2d3d1}{from\_notation}},\ move,\ 2);\ \textcolor{comment}{//\ e.g.\ "{}e2"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00577}00577\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00578}00578\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ ⬆️\ \ Lifting\ piece\ from\ \%c\%c..."{}},\ move[0],\ move[1]);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00579}00579\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00580}00580\ \ \ \ \ \textcolor{comment}{//\ Set\ response\ queue\ for\ feedback}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00581}00581\ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a750e92bc6c9a40c005e3e48947dd10b5}{response\_queue}}\ =\ \mbox{\hyperlink{freertos__chess_8c_a02a776b41d5e50969e5cf68dcbbc2c69}{uart\_response\_queue}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00582}00582\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00583}00583\ \ \ \ \ \textcolor{keywordflow}{if}\ (xQueueSend(\mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}},\ \&cmd,\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00584}00584\ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Failed\ to\ send\ GAME\_CMD\_PICKUP"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00585}00585\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00586}00586\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00587}00587\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00588}00588\ \ \ \ \ \textcolor{comment}{//\ Longer\ delay\ for\ Pickup\ animation}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00589}00589\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1500));\ \textcolor{comment}{//\ 1.5\ seconds}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00590}00590\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00591}00591\ \ \ \ \ \textcolor{comment}{//\ Step\ 2:\ DROP\ command\ (place\ piece\ on\ destination\ square)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00592}00592\ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a87f810beeb0b0322d2b99c87d5a7c91c}{type}}\ =\ \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4aecfd44979b16dd3a0a3054c1eeda3102}{GAME\_CMD\_DROP}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00593}00593\ \ \ \ \ strncpy(cmd.\mbox{\hyperlink{structchess__move__command__t_a3396c5f2d92b68852cb9fcf6e79500fc}{to\_notation}},\ move\ +\ 2,\ 2);\ \textcolor{comment}{//\ e.g.\ "{}e4"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00594}00594\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00595}00595\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ ⬇️\ \ Placing\ piece\ on\ \%c\%c..."{}},\ move[2],\ move[3]);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00596}00596\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00597}00597\ \ \ \ \ \textcolor{comment}{//\ Set\ response\ queue\ for\ feedback}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00598}00598\ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a750e92bc6c9a40c005e3e48947dd10b5}{response\_queue}}\ =\ \mbox{\hyperlink{freertos__chess_8c_a02a776b41d5e50969e5cf68dcbbc2c69}{uart\_response\_queue}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00599}00599\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00600}00600\ \ \ \ \ \textcolor{keywordflow}{if}\ (xQueueSend(\mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}},\ \&cmd,\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00601}00601\ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Failed\ to\ send\ GAME\_CMD\_DROP"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00602}00602\ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00603}00603\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00604}00604\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00605}00605\ \ \ \ \ \textcolor{comment}{//\ \ Wait\ for\ DROP\ animation}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00606}00606\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(800));\ \textcolor{comment}{//\ 0.8\ seconds}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00607}00607\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00608}00608\ \ \ \ \ \textcolor{comment}{//\ Step\ 3:\ CASTLING\ Handling}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00609}00609\ \ \ \ \ \textcolor{comment}{//\ If\ move\ is\ castling,\ we\ must\ also\ move\ the\ rook!}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00610}00610\ \ \ \ \ \textcolor{keywordtype}{char}\ rook\_from[3]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00611}00611\ \ \ \ \ \textcolor{keywordtype}{char}\ rook\_to[3]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00612}00612\ \ \ \ \ \textcolor{keywordtype}{bool}\ is\_castling\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00613}00613\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00614}00614\ \ \ \ \ \textcolor{keywordflow}{if}\ (strcmp(move,\ \textcolor{stringliteral}{"{}e1g1"{}})\ ==\ 0)\ \{\ \textcolor{comment}{//\ White\ King-\/side}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00615}00615\ \ \ \ \ \ \ strcpy(rook\_from,\ \textcolor{stringliteral}{"{}h1"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00616}00616\ \ \ \ \ \ \ strcpy(rook\_to,\ \textcolor{stringliteral}{"{}f1"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00617}00617\ \ \ \ \ \ \ is\_castling\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00618}00618\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcmp(move,\ \textcolor{stringliteral}{"{}e1c1"{}})\ ==\ 0)\ \{\ \textcolor{comment}{//\ White\ Queen-\/side}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00619}00619\ \ \ \ \ \ \ strcpy(rook\_from,\ \textcolor{stringliteral}{"{}a1"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00620}00620\ \ \ \ \ \ \ strcpy(rook\_to,\ \textcolor{stringliteral}{"{}d1"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00621}00621\ \ \ \ \ \ \ is\_castling\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00622}00622\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcmp(move,\ \textcolor{stringliteral}{"{}e8g8"{}})\ ==\ 0)\ \{\ \textcolor{comment}{//\ Black\ King-\/side}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00623}00623\ \ \ \ \ \ \ strcpy(rook\_from,\ \textcolor{stringliteral}{"{}h8"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00624}00624\ \ \ \ \ \ \ strcpy(rook\_to,\ \textcolor{stringliteral}{"{}f8"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00625}00625\ \ \ \ \ \ \ is\_castling\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00626}00626\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcmp(move,\ \textcolor{stringliteral}{"{}e8c8"{}})\ ==\ 0)\ \{\ \textcolor{comment}{//\ Black\ Queen-\/side}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00627}00627\ \ \ \ \ \ \ strcpy(rook\_from,\ \textcolor{stringliteral}{"{}a8"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00628}00628\ \ \ \ \ \ \ strcpy(rook\_to,\ \textcolor{stringliteral}{"{}d8"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00629}00629\ \ \ \ \ \ \ is\_castling\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00630}00630\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00631}00631\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00632}00632\ \ \ \ \ \textcolor{keywordflow}{if}\ (is\_castling)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00633}00633\ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}\ \ ♜\ Castling\ detected!\ Moving\ rook\ \%s\ -\/>\ \%s"{}},\ rook\_from,}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00634}00634\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ rook\_to);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00635}00635\ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));\ \textcolor{comment}{//\ Pause\ before\ moving\ rook}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00636}00636\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00637}00637\ \ \ \ \ \ \ \textcolor{comment}{//\ Rook\ Pickup}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00638}00638\ \ \ \ \ \ \ memset(\&cmd,\ 0,\ \textcolor{keyword}{sizeof}(cmd));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00639}00639\ \ \ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a87f810beeb0b0322d2b99c87d5a7c91c}{type}}\ =\ \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a745816733d012d70b4bda9d2fdac7892}{GAME\_CMD\_PICKUP}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00640}00640\ \ \ \ \ \ \ strncpy(cmd.\mbox{\hyperlink{structchess__move__command__t_a51b8eb6617ef0642c722008827f2d3d1}{from\_notation}},\ rook\_from,\ 2);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00641}00641\ \ \ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a750e92bc6c9a40c005e3e48947dd10b5}{response\_queue}}\ =\ \mbox{\hyperlink{freertos__chess_8c_a02a776b41d5e50969e5cf68dcbbc2c69}{uart\_response\_queue}};\ \textcolor{comment}{//\ ✅\ Add\ feedback}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00642}00642\ \ \ \ \ \ \ xQueueSend(\mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}},\ \&cmd,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00643}00643\ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00644}00644\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00645}00645\ \ \ \ \ \ \ \textcolor{comment}{//\ Rook\ Drop}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00646}00646\ \ \ \ \ \ \ memset(\&cmd,\ 0,\ \textcolor{keyword}{sizeof}(cmd));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00647}00647\ \ \ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a87f810beeb0b0322d2b99c87d5a7c91c}{type}}\ =\ \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4aecfd44979b16dd3a0a3054c1eeda3102}{GAME\_CMD\_DROP}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00648}00648\ \ \ \ \ \ \ strncpy(cmd.\mbox{\hyperlink{structchess__move__command__t_a3396c5f2d92b68852cb9fcf6e79500fc}{to\_notation}},\ rook\_to,\ 2);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00649}00649\ \ \ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a750e92bc6c9a40c005e3e48947dd10b5}{response\_queue}}\ =\ \mbox{\hyperlink{freertos__chess_8c_a02a776b41d5e50969e5cf68dcbbc2c69}{uart\_response\_queue}};\ \textcolor{comment}{//\ ✅\ Add\ feedback}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00650}00650\ \ \ \ \ \ \ xQueueSend(\mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}},\ \&cmd,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00651}00651\ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(800));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00652}00652\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00653}00653\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00654}00654\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00655}00655\ \ \ \mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{demo\_move\_index}}++;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00656}00656\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00657}00657\ \ \ \textcolor{comment}{//\ ✅\ Check\ if\ we've\ played\ all\ moves\ (endgame\ reached)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00658}00658\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{demo\_move\_index}}\ >=\ \mbox{\hyperlink{main_8c_a4973ab5b9a06d7ed486bc100be691f42}{demo\_moves\_count}})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00659}00659\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🏁\ Demo\ game\ '\%s'\ complete!\ Endgame\ animations\ playing..."{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00660}00660\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a167e2d80b3314581d6120d1b2e48ee51}{DEMO\_GAME\_NAMES}}[\mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}]);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00661}00661\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}⏱️\ \ Waiting\ 5\ seconds\ for\ endgame\ animation\ to\ complete..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00662}00662\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00663}00663\ \ \ \ \ \textcolor{comment}{//\ Wait\ 5\ seconds\ for\ endgame\ animation\ to\ play}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00664}00664\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(5000));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00665}00665\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00666}00666\ \ \ \ \ \textcolor{comment}{//\ ✅\ Rotate\ to\ next\ demo\ game}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00667}00667\ \ \ \ \ \mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}\ =\ (\mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}\ +\ 1)\ \%\ \mbox{\hyperlink{main_8c_a66025d47b9e143dea05d41ea2a76d46b}{DEMO\_GAMES\_COUNT}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00668}00668\ \ \ \ \ \mbox{\hyperlink{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa}{current\_demo\_moves}}\ =\ \mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{DEMO\_GAMES}}[\mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}];}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00669}00669\ \ \ \ \ \mbox{\hyperlink{main_8c_a4973ab5b9a06d7ed486bc100be691f42}{demo\_moves\_count}}\ =\ \mbox{\hyperlink{main_8c_abcaca94aeee21681707035e985a0c843}{DEMO\_GAME\_LENGTHS}}[\mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}];}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00670}00670\ \ \ \ \ \mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{demo\_move\_index}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00671}00671\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00672}00672\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Starting\ new\ demo\ game:\ \%s\ (\%d\ moves)"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00673}00673\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a167e2d80b3314581d6120d1b2e48ee51}{DEMO\_GAME\_NAMES}}[\mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\_demo\_game}}],\ \mbox{\hyperlink{main_8c_a4973ab5b9a06d7ed486bc100be691f42}{demo\_moves\_count}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00674}00674\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00675}00675\ \ \ \ \ \textcolor{comment}{//\ Send\ reset\ command\ to\ start\ fresh\ game}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00676}00676\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}}\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00677}00677\ \ \ \ \ \ \ \mbox{\hyperlink{structchess__move__command__t}{chess\_move\_command\_t}}\ cmd\ =\ \{.type\ =\ \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a9cdd3824f45d61a774ab6868e898e1c0}{GAME\_CMD\_NEW\_GAME}}\};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00678}00678\ \ \ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a431384d6ef7f4db67d9a0946a7211ef1}{player}}\ =\ (\mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{demo\_move\_index}}\ \%\ 2\ ==\ 0)\ ?\ \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f}{PLAYER\_WHITE}}\ :\ \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e}{PLAYER\_BLACK}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00679}00679\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00680}00680\ \ \ \ \ \ \ \textcolor{comment}{//\ ✅\ Set\ response\ queue\ so\ game\_task\ sends\ confirmation\ (like\ UART}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00681}00681\ \ \ \ \ \ \ \textcolor{comment}{//\ commands)\ This\ ensures\ consistent\ behavior\ and\ logging}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00682}00682\ \ \ \ \ \ \ cmd.\mbox{\hyperlink{structchess__move__command__t_a750e92bc6c9a40c005e3e48947dd10b5}{response\_queue}}\ =\ \mbox{\hyperlink{freertos__chess_8c_a02a776b41d5e50969e5cf68dcbbc2c69}{uart\_response\_queue}};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00683}00683\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00684}00684\ \ \ \ \ \ \ xQueueSend(\mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}},\ \&cmd,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00685}00685\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00686}00686\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00687}00687\ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00688}00688\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00689}00689\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00690}00690\ \textcolor{comment}{//\ SYSTEM\ INITIALIZATION\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00691}00691\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00692}00692\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00704}\mbox{\hyperlink{main_8c_ae52825df5837e0f8f5e814f48cafb722}{00704}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{main_8c_ae52825df5837e0f8f5e814f48cafb722}{init\_console}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00705}00705\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Initializing\ console..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00706}00706\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00707}00707\ \ \ \textcolor{comment}{//\ Initialize\ NVS}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00708}00708\ \ \ esp\_err\_t\ ret\ =\ nvs\_flash\_init();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00709}00709\ \ \ \textcolor{keywordflow}{if}\ (ret\ ==\ ESP\_ERR\_NVS\_NO\_FREE\_PAGES\ ||}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00710}00710\ \ \ \ \ \ \ ret\ ==\ ESP\_ERR\_NVS\_NEW\_VERSION\_FOUND)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00711}00711\ \ \ \ \ ESP\_ERROR\_CHECK(nvs\_flash\_erase());}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00712}00712\ \ \ \ \ ret\ =\ nvs\_flash\_init();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00713}00713\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00714}00714\ \ \ ESP\_ERROR\_CHECK(ret);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00715}00715\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00716}00716\ \ \ \textcolor{comment}{//\ Initialize\ console\ (USB\ Serial\ JTAG\ only\ -\/\ no\ UART\ needed)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00717}00717\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00718}00718\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Using\ USB\ Serial\ JTAG\ console\ -\/\ no\ UART\ initialization\ needed"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00719}00719\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00720}00720\ \ \ \textcolor{comment}{//\ Initialize\ console}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00721}00721\ \ \ esp\_console\_config\_t\ console\_config\ =\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00722}00722\ \ \ \ \ \ \ .max\_cmdline\_args\ =\ 8,}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00723}00723\ \ \ \ \ \ \ .max\_cmdline\_length\ =\ 256,}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00724}00724\ \ \ \};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00725}00725\ \ \ ESP\_ERROR\_CHECK(esp\_console\_init(\&console\_config));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00726}00726\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00727}00727\ \ \ \textcolor{comment}{//\ Register\ help\ command}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00728}00728\ \ \ esp\_console\_register\_help\_command();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00729}00729\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00730}00730\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Console\ initialized\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00731}00731\ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00732}00732\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00755}\mbox{\hyperlink{main_8c_a2dbcd7c01e5197da615bb4fe6c5b29b0}{00755}}\ esp\_err\_t\ \mbox{\hyperlink{main_8c_a2dbcd7c01e5197da615bb4fe6c5b29b0}{create\_system\_tasks}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00756}00756\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Creating\ system\ tasks..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00757}00757\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00758}00758\ \ \ \textcolor{comment}{//\ Create\ LED\ task}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00759}00759\ \ \ BaseType\_t\ result\ =\ xTaskCreate((TaskFunction\_t)\mbox{\hyperlink{led__task_8h_a5c2b466a04fcadba97ca90ee811927d8}{led\_task\_start}},\ \textcolor{stringliteral}{"{}led\_task"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00760}00760\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a7b127f4562618fb23c61f79d2a6a2201}{LED\_TASK\_STACK\_SIZE}},\ NULL,\ \mbox{\hyperlink{freertos__chess_8h_a929063c46e63eb78271df5b5fd5819e9}{LED\_TASK\_PRIORITY}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00761}00761\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\mbox{\hyperlink{main_8c_a6cf81c896b094e20ff5752ee1133a8f2}{led\_task\_handle}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00762}00762\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00763}00763\ \ \ \textcolor{keywordflow}{if}\ (result\ !=\ pdPASS)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00764}00764\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ LED\ task"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00765}00765\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00766}00766\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00767}00767\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00768}00768\ \ \ \textcolor{comment}{//\ Task\ will\ register\ itself\ with\ TWDT\ internally}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00769}00769\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00770}00770\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✓\ LED\ task\ created\ successfully\ (\%dKB\ stack)\ -\/\ will\ self-\/register\ "{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00771}00771\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}with\ TWDT"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00772}00772\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a7b127f4562618fb23c61f79d2a6a2201}{LED\_TASK\_STACK\_SIZE}}\ /\ 1024);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00773}00773\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00774}00774\ \ \ \textcolor{comment}{//\ Create\ Matrix\ task}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00775}00775\ \ \ result\ =\ xTaskCreate((TaskFunction\_t)\mbox{\hyperlink{matrix__task_8h_a61e7f4685d87d40d712b5de9b8d22222}{matrix\_task\_start}},\ \textcolor{stringliteral}{"{}matrix\_task"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00776}00776\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a71a39cddac7f169064d88214a759deb8}{MATRIX\_TASK\_STACK\_SIZE}},\ NULL,\ \mbox{\hyperlink{freertos__chess_8h_ab8ed4eae602e4b2be89befb487b83d26}{MATRIX\_TASK\_PRIORITY}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00777}00777\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\mbox{\hyperlink{main_8c_a9de1b87e0b6692c90f1c5cfd9e13d444}{matrix\_task\_handle}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00778}00778\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00779}00779\ \ \ \textcolor{keywordflow}{if}\ (result\ !=\ pdPASS)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00780}00780\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ Matrix\ task"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00781}00781\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00782}00782\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00783}00783\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00784}00784\ \ \ \textcolor{comment}{//\ Task\ will\ register\ itself\ with\ TWDT\ internally}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00785}00785\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00786}00786\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✓\ Matrix\ task\ created\ successfully\ (\%dKB\ stack)\ -\/\ will\ "{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00787}00787\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}self-\/register\ with\ TWDT"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00788}00788\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a71a39cddac7f169064d88214a759deb8}{MATRIX\_TASK\_STACK\_SIZE}}\ /\ 1024);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00789}00789\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00790}00790\ \ \ \textcolor{comment}{//\ Create\ Button\ task}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00791}00791\ \ \ result\ =\ xTaskCreate((TaskFunction\_t)\mbox{\hyperlink{button__task_8c_af93b7fa55287e83f6caf447e756de6d2}{button\_task\_start}},\ \textcolor{stringliteral}{"{}button\_task"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00792}00792\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_adbb9d0dfbf98763aa25c6a52814f0bf8}{BUTTON\_TASK\_STACK\_SIZE}},\ NULL,\ \mbox{\hyperlink{freertos__chess_8h_a94dea431a1c059625b45f816ab129043}{BUTTON\_TASK\_PRIORITY}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00793}00793\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\mbox{\hyperlink{main_8c_aba5c2db71f9fa5cd9f3e506e91ffe6d3}{button\_task\_handle}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00794}00794\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00795}00795\ \ \ \textcolor{keywordflow}{if}\ (result\ !=\ pdPASS)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00796}00796\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ Button\ task"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00797}00797\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00798}00798\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00799}00799\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00800}00800\ \ \ \textcolor{comment}{//\ Task\ will\ register\ itself\ with\ TWDT\ internally}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00801}00801\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00802}00802\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✓\ Button\ task\ created\ successfully\ (\%dKB\ stack)\ -\/\ will\ "{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00803}00803\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}self-\/register\ with\ TWDT"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00804}00804\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_adbb9d0dfbf98763aa25c6a52814f0bf8}{BUTTON\_TASK\_STACK\_SIZE}}\ /\ 1024);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00805}00805\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00806}00806\ \ \ \textcolor{comment}{//\ Create\ UART\ task\ (but\ suspend\ it\ until\ after\ boot\ animation)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00807}00807\ \ \ result\ =\ xTaskCreate((TaskFunction\_t)\mbox{\hyperlink{uart__task_8h_a6e26b6d6ae554bd6bc478ccba6b1b763}{uart\_task\_start}},\ \textcolor{stringliteral}{"{}uart\_task"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00808}00808\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a1a9da456d063076e469758050a0a472f}{UART\_TASK\_STACK\_SIZE}},\ NULL,\ \mbox{\hyperlink{freertos__chess_8h_a57dcc29bb266003c63803b06ea25b26d}{UART\_TASK\_PRIORITY}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00809}00809\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\mbox{\hyperlink{main_8c_a4e4967ac70f1e8a89b2fea62027a968c}{uart\_task\_handle}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00810}00810\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00811}00811\ \ \ \textcolor{keywordflow}{if}\ (result\ !=\ pdPASS)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00812}00812\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ UART\ task"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00813}00813\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00814}00814\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00815}00815\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00816}00816\ \ \ \textcolor{comment}{//\ Suspend\ UART\ task\ until\ after\ boot\ animation}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00817}00817\ \ \ vTaskSuspend(\mbox{\hyperlink{main_8c_a4e4967ac70f1e8a89b2fea62027a968c}{uart\_task\_handle}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00818}00818\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00819}00819\ \ \ \textcolor{comment}{//\ Task\ will\ register\ itself\ with\ TWDT\ internally}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00820}00820\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00821}00821\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✓\ UART\ task\ created\ successfully\ (\%dKB\ stack)\ -\/\ suspended\ until\ "{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00822}00822\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}after\ boot\ animation,\ will\ self-\/register\ with\ TWDT"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00823}00823\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a1a9da456d063076e469758050a0a472f}{UART\_TASK\_STACK\_SIZE}}\ /\ 1024);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00824}00824\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00825}00825\ \ \ \textcolor{comment}{//\ Create\ Game\ task}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00826}00826\ \ \ result\ =\ xTaskCreate((TaskFunction\_t)\mbox{\hyperlink{game__task_8c_ab26d022ec766e04addd46d9b6da9768a}{game\_task\_start}},\ \textcolor{stringliteral}{"{}game\_task"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00827}00827\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a3742ac4e005f9654c81dac1b035e8a14}{GAME\_TASK\_STACK\_SIZE}},\ NULL,\ \mbox{\hyperlink{freertos__chess_8h_a006aed1ec383676054e95d995acd427b}{GAME\_TASK\_PRIORITY}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00828}00828\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\mbox{\hyperlink{main_8c_acb49a688d90460dc48f7e0b976ace62d}{game\_task\_handle}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00829}00829\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00830}00830\ \ \ \textcolor{keywordflow}{if}\ (result\ !=\ pdPASS)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00831}00831\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ Game\ task"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00832}00832\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00833}00833\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00834}00834\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00835}00835\ \ \ \textcolor{comment}{//\ Task\ will\ register\ itself\ with\ TWDT\ internally}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00836}00836\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00837}00837\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✓\ Game\ task\ created\ successfully\ (\%dKB\ stack)\ -\/\ will\ self-\/register\ "{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00838}00838\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}with\ TWDT"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00839}00839\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a3742ac4e005f9654c81dac1b035e8a14}{GAME\_TASK\_STACK\_SIZE}}\ /\ 1024);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00840}00840\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00841}00841\ \ \ \textcolor{comment}{//\ Create\ Animation\ task}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00842}00842\ \ \ result\ =\ xTaskCreate((TaskFunction\_t)\mbox{\hyperlink{animation__task_8c_a18ab65be2c5b763305a8d6c1fa886392}{animation\_task\_start}},\ \textcolor{stringliteral}{"{}animation\_task"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00843}00843\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a6e9d80d372a5d67bfe61ef2373242891}{ANIMATION\_TASK\_STACK\_SIZE}},\ NULL,\ \mbox{\hyperlink{freertos__chess_8h_aa535c253da7bfeb4f3fcba9b47fcfe4f}{ANIMATION\_TASK\_PRIORITY}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00844}00844\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\mbox{\hyperlink{main_8c_a2a20898222a990efbce3e4239f2d9aee}{animation\_task\_handle}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00845}00845\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00846}00846\ \ \ \textcolor{keywordflow}{if}\ (result\ !=\ pdPASS)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00847}00847\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ Animation\ task"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00848}00848\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00849}00849\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00850}00850\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00851}00851\ \ \ \textcolor{comment}{//\ Task\ will\ register\ itself\ with\ TWDT\ internally}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00852}00852\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00853}00853\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✓\ Animation\ task\ created\ successfully\ (\%dKB\ stack)\ -\/\ will\ "{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00854}00854\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}self-\/register\ with\ TWDT"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00855}00855\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a6e9d80d372a5d67bfe61ef2373242891}{ANIMATION\_TASK\_STACK\_SIZE}}\ /\ 1024);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00856}00856\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00857}00857\ \ \ \textcolor{comment}{//\ Create\ Test\ task}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00858}00858\ \ \ result\ =\ xTaskCreate((TaskFunction\_t)\mbox{\hyperlink{test__task_8h_af82dfdecbc2c7932876c821753490930}{test\_task\_start}},\ \textcolor{stringliteral}{"{}test\_task"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00859}00859\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a5a50c304bdd9e66032df79cfea02fb35}{TEST\_TASK\_STACK\_SIZE}},\ NULL,\ \mbox{\hyperlink{freertos__chess_8h_a93921d3292005836714afe15fad7d078}{TEST\_TASK\_PRIORITY}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00860}00860\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\mbox{\hyperlink{main_8c_abafefd1ba465b609ca39fd6fc502095b}{test\_task\_handle}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00861}00861\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00862}00862\ \ \ \textcolor{keywordflow}{if}\ (result\ !=\ pdPASS)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00863}00863\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ Test\ task"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00864}00864\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00865}00865\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00866}00866\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00867}00867\ \ \ \textcolor{comment}{//\ Task\ will\ register\ itself\ with\ TWDT\ internally}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00868}00868\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00869}00869\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✓\ Test\ task\ created\ successfully\ (\%dKB\ stack)\ -\/\ will\ self-\/register\ "{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00870}00870\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}with\ TWDT"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00871}00871\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a5a50c304bdd9e66032df79cfea02fb35}{TEST\_TASK\_STACK\_SIZE}}\ /\ 1024);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00872}00872\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00873}00873\ \ \ \textcolor{comment}{//\ DISABLED:\ Create\ Matter\ task\ -\/\ Matter\ not\ needed}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00874}00874\ \ \ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00875}00875\ \textcolor{comment}{\ \ result\ =\ xTaskCreate(}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00876}00876\ \textcolor{comment}{\ \ \ \ \ \ (TaskFunction\_t)matter\_task\_start,\ "{}matter\_task"{},\ MATTER\_TASK\_STACK\_SIZE,}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00877}00877\ \textcolor{comment}{\ \ NULL,\ MATTER\_TASK\_PRIORITY,\ \&matter\_task\_handle}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00878}00878\ \textcolor{comment}{\ \ );}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00879}00879\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00880}00880\ \textcolor{comment}{\ \ if\ (result\ !=\ pdPASS)\ \{}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00881}00881\ \textcolor{comment}{\ \ \ \ \ \ ESP\_LOGE(TAG,\ "{}Failed\ to\ create\ Matter\ task"{});}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00882}00882\ \textcolor{comment}{\ \ \ \ \ \ return\ ESP\_FAIL;}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00883}00883\ \textcolor{comment}{\ \ \}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00884}00884\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00885}00885\ \textcolor{comment}{\ \ ret\ =\ esp\_task\_wdt\_add(matter\_task\_handle);}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00886}00886\ \textcolor{comment}{\ \ if\ (ret\ !=\ ESP\_OK\ \&\&\ ret\ !=\ ESP\_ERR\_INVALID\_ARG)\ \{}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00887}00887\ \textcolor{comment}{\ \ \ \ \ \ ESP\_LOGW(TAG,\ "{}Warning:\ Matter\ task\ WDT\ registration\ failed:\ \%s"{},}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00888}00888\ \textcolor{comment}{\ \ esp\_err\_to\_name(ret));}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00889}00889\ \textcolor{comment}{\ \ \}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00890}00890\ \textcolor{comment}{\ \ ESP\_LOGI(TAG,\ "{}✓\ Matter\ task\ created\ successfully\ (\%dKB\ stack)\ and\ registered}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00891}00891\ \textcolor{comment}{\ \ with\ TWDT"{},\ MATTER\_TASK\_STACK\_SIZE\ /\ 1024);}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00892}00892\ \textcolor{comment}{\ \ */}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00893}00893\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00894}00894\ \ \ \textcolor{comment}{//\ Create\ Web\ Server\ task}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00895}00895\ \ \ result\ =\ xTaskCreate((TaskFunction\_t)\mbox{\hyperlink{web__server__task_8h_a706a239d45aec91411ba21ec2fe1b6f9}{web\_server\_task\_start}},\ \textcolor{stringliteral}{"{}web\_server\_task"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00896}00896\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_ad02ca6747c039790bae842a9574ce45b}{WEB\_SERVER\_TASK\_STACK\_SIZE}},\ NULL,}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00897}00897\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a21c1cebc5db393a9f06dfb6266a65241}{WEB\_SERVER\_TASK\_PRIORITY}},\ \&\mbox{\hyperlink{main_8c_a36e9302901a63037025cd7970fa8adbe}{web\_server\_task\_handle}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00898}00898\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00899}00899\ \ \ \textcolor{keywordflow}{if}\ (result\ !=\ pdPASS)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00900}00900\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ Web\ Server\ task"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00901}00901\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00902}00902\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00903}00903\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00904}00904\ \ \ \textcolor{comment}{//\ Task\ will\ register\ itself\ with\ TWDT\ internally}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00905}00905\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00906}00906\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}✓\ Web\ Server\ task\ created\ successfully\ (\%dKB\ stack)\ -\/\ will\ "{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00907}00907\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}self-\/register\ with\ TWDT"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00908}00908\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_ad02ca6747c039790bae842a9574ce45b}{WEB\_SERVER\_TASK\_STACK\_SIZE}}\ /\ 1024);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00909}00909\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00910}00910\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}All\ system\ tasks\ created\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00911}00911\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00912}00912\ \ \ \textcolor{comment}{//\ Wait\ for\ all\ tasks\ to\ initialize\ before\ showing\ boot\ animation}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00913}00913\ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00914}00914\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00915}00915\ \ \ \textcolor{comment}{//\ Show\ centralized\ boot\ animation\ and\ chess\ board}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00916}00916\ \ \ \mbox{\hyperlink{main_8c_a4894ad0ac4d99cffa56d58649a1850fb}{show\_boot\_animation\_and\_board}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00917}00917\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00918}00918\ \ \ \textcolor{comment}{//\ Initialize\ chess\ game\ after\ boot\ animation}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00919}00919\ \ \ \mbox{\hyperlink{main_8c_acf3129796410e265806bde4edacf4d85}{initialize\_chess\_game}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00920}00920\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00921}00921\ \ \ \textcolor{comment}{//\ Resume\ UART\ task\ now\ that\ boot\ animation\ is\ complete}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00922}00922\ \ \ vTaskResume(\mbox{\hyperlink{main_8c_a4e4967ac70f1e8a89b2fea62027a968c}{uart\_task\_handle}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00923}00923\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ UART\ task\ resumed\ after\ boot\ animation"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00924}00924\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00925}00925\ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00926}00926\ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00927}00927\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00928}00928\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00929}00929\ \textcolor{comment}{//\ CENTRALIZED\ BOOT\ ANIMATION\ AND\ BOARD\ DISPLAY}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00930}00930\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00931}00931\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00944}\mbox{\hyperlink{main_8c_a4894ad0ac4d99cffa56d58649a1850fb}{00944}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{main_8c_a4894ad0ac4d99cffa56d58649a1850fb}{show\_boot\_animation\_and\_board}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00945}00945\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🎬\ Starting\ centralized\ boot\ animation..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00946}00946\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00947}00947\ \ \ \textcolor{comment}{//\ Clear\ screen\ and\ show\ welcome\ logo}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00948}00948\ \ \ printf(\textcolor{stringliteral}{"{}\(\backslash\)033[2J\(\backslash\)033[H"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00949}00949\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00950}00950\ \ \ \textcolor{comment}{//\ Greek-\/inspired\ CZECHMAT\ banner\ with\ ANSI\ colors}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00951}00951\ \ \ \textcolor{comment}{//\ New\ ASCII\ art\ logo\ -\/\ using\ fputs\ to\ avoid\ printf\ formatting\ issues}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00952}00952\ \ \ fputs(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00953}00953\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[0m................................................................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00954}00954\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}............................................................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00955}00955\ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00956}00956\ \ \ fputs(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00957}00957\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[0m................................................................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00958}00958\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}............................................................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00959}00959\ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00960}00960\ \ \ fputs(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00961}00961\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[0m................................................................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00962}00962\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}............................................................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00963}00963\ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00964}00964\ \ \ fputs(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00965}00965\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[0m................................................................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00966}00966\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}............................................................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00967}00967\ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00968}00968\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m............................................................"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00969}00969\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[34m:=*+-\/\(\backslash\)x1b[0m.................................................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00970}00970\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}.............\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00971}00971\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00972}00972\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................................................\(\backslash\)x1b[34m:="{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00973}00973\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\#\%@@\%*=-\/=+\#@@@\%*=:\(\backslash\)x1b[0m............................................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00974}00974\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00975}00975\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00976}00976\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m..............................................\(\backslash\)x1b[34m-\/=*\%@@\%*="{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00977}00977\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}-\/=*\%@\%@=*@\%@\%*=-\/+\#\%@@\%*=-\/\(\backslash\)x1b[0m......................................"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00978}00978\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00979}00979\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00980}00980\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m......................................\(\backslash\)x1b[34m:-\/+\#@@@\%+-\/-\/+\#\%@\%+"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00981}00981\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}@+\#@@\%@\%\%@\%@@-\/*@=@@\%\#=-\/=*\%@@@\#+-\/:\(\backslash\)x1b[0m.............................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00982}00982\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00983}00983\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00984}00984\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m...............................\(\backslash\)x1b[34m:-\/+\%@@@\#+-\/-\/*\%@@*@=*@*@@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00985}00985\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\#=\(\backslash\)x1b[0m...........\(\backslash\)x1b[34m:+\%@@\%+@:\#@*@@\%+-\/-\/+\%@@@\%+-\/:\(\backslash\)x1b[0m........"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00986}00986\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}.......................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00987}00987\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00988}00988\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m........................\(\backslash\)x1b[34m:-\/*@@@@\#-\/:=\#@@*@*+@+@@@\%+:\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00989}00989\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m.........................\(\backslash\)x1b[34m-\/*@@@\%+@:@@\#@@\#-\/:=\#@@@@\#-\/:\(\backslash\)x1b[0m.."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00990}00990\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}......................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00991}00991\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00992}00992\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m....................\(\backslash\)x1b[34m\%@@@@**\#@@@@@@@@@@@@@@@@@@@@@@@@@@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00993}00993\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\%\%\%@@@@\#\(\backslash\)x1b[0m........"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00994}00994\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}............\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00995}00995\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00996}00996\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m....................\(\backslash\)x1b[34m\%@\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00997}00997\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\%@\#\(\backslash\)x1b[0m............"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00998}00998\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l00999}00999\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01000}01000\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................\(\backslash\)x1b[34m:\%@=@+\#@+@\#\#@=@\#\%@+@*\#@+@\#\%@=@*\#@+"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01001}01001\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}@\#*@+@\#*@+@\%*@+@\%=@=\%@+@**@=@\%+@+\#@=@\%=@+\#@+\%\%=@+:\(\backslash\)x1b[0m............."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01002}01002\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01003}01003\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01004}01004\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m......................\(\backslash\)x1b[34m\#@==============================="{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01005}01005\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}===============================================@+\(\backslash\)x1b[0m.............."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01006}01006\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01007}01007\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01008}01008\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.......................\(\backslash\)x1b[34m\#\#==========@\(\backslash\)x1b[0m::::::::::::"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01009}01009\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}:::::::::::::::::::::::::::::::::::::::::\(\backslash\)x1b[34m*@==========@+\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01010}01010\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01011}01011\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01012}01012\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m........................\(\backslash\)x1b[34m:@*******\%@:\(\backslash\)x1b[0m.\(\backslash\)x1b[34m:\%\%"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01013}01013\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%-\/-\/\#@@\#.+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%*\(\backslash\)x1b[0m..\(\backslash\)x1b[34m-\/@\#**"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01014}01014\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}****\%\%\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01015}01015\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01016}01016\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m-\/@\#+\%:\%.@\(\backslash\)x1b[0m...\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01017}01017\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%=:+@@=\(\backslash\)x1b[0m..:::::::::::::::::::\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01018}01018\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m....\(\backslash\)x1b[34m@+\#+*\%*@:\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01019}01019\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01020}01020\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m=@\#=\%:\%.@\(\backslash\)x1b[0m...\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01021}01021\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\#-\/-\/:*@@@@+-\/*-\/\(\backslash\)x1b[0m.................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01022}01022\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m....\(\backslash\)x1b[34m@+\#+*\%*@-\/\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01023}01023\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01024}01024\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m=\%\#=\%:\%.@\(\backslash\)x1b[0m...\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01025}01025\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\#.\%@@@@@@@@\%:\(\backslash\)x1b[0m.................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01026}01026\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m...\(\backslash\)x1b[34m:\%**+*\%+@-\/\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01027}01027\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01028}01028\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m=\%\#-\/\%:\%.@\(\backslash\)x1b[0m...\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01029}01029\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\#-\/@@@@@@@@:\(\backslash\)x1b[0m..................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01030}01030\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m...\(\backslash\)x1b[34m-\/\%**+*\#+@-\/\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01031}01031\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01032}01032\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m+\#\%-\/\%:\%:@\(\backslash\)x1b[0m...\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01033}01033\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\#-\/\#\#\#\#\#\#\#\#-\/\(\backslash\)x1b[0m..................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01034}01034\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m...\(\backslash\)x1b[34m=\%**+*\#+@=\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01035}01035\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01036}01036\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m**\%-\/\%:\%:@\(\backslash\)x1b[0m...\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01037}01037\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%:\#\%\%\%\#\#\%\%\%*\(\backslash\)x1b[0m..................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01038}01038\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m...\(\backslash\)x1b[34m+\#**+*\#*\%=\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01039}01039\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01040}01040\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m\#+\%:\%:\%-\/\%:\(\backslash\)x1b[0m..\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01041}01041\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%*::@@@@@\%\(\backslash\)x1b[0m....................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01042}01042\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m...\(\backslash\)x1b[34m*\#\#*+***\%+\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01043}01043\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01044}01044\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m\#=\%:\%:\#-\/\%:\(\backslash\)x1b[0m..\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01045}01045\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%.\%@@@@*\(\backslash\)x1b[0m....................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01046}01046\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m...\(\backslash\)x1b[34m\#*\#++***\#+\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01047}01047\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01048}01048\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m\%:\%:\%:\#=\%=\(\backslash\)x1b[0m..\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01049}01049\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\#:@@@@@\%\(\backslash\)x1b[0m....................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01050}01050\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m...\(\backslash\)x1b[34m\%*\#++*+***\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01051}01051\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01052}01052\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m\%:\%:\%:\#=\#+\(\backslash\)x1b[0m..\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01053}01053\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%-\/*@@@@@@-\/\(\backslash\)x1b[0m...................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01054}01054\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m...\(\backslash\)x1b[34m\%+\%++*+\#+\#\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01055}01055\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01056}01056\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m@:\%:\%:\#+\#*\(\backslash\)x1b[0m..\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01057}01057\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\#:=\%\%\%\%\%\%\%\%:\(\backslash\)x1b[0m..................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01058}01058\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m...\(\backslash\)x1b[34m@+\%++*+\#=\#\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01059}01059\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01060}01060\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.........................\(\backslash\)x1b[34m@:\%:\%:\#+*\#\(\backslash\)x1b[0m..\(\backslash\)x1b[34m-\/@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01061}01061\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%-\/=\%@\%\%\%\%\%\%\%\%-\/\(\backslash\)x1b[0m.................\(\backslash\)x1b[37m@\%\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01062}01062\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m...\(\backslash\)x1b[34m@=\%=+*=\#-\/\%\(\backslash\)x1b[0m.........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01063}01063\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01064}01064\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.......................\(\backslash\)x1b[34m:@*++++++++\%\#.-\/@@\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01065}01065\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}.\%@@@@@@@@@@@@\#\(\backslash\)x1b[0m................\(\backslash\)x1b[37m@\%\(\backslash\)x1b[0m..\(\backslash\)x1b[34m@*+++"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01066}01066\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}+++++\%\%\(\backslash\)x1b[0m........................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01067}01067\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01068}01068\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m......................\(\backslash\)x1b[34m=@=-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*@-\/@@@@@@@@@@@@@@@@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01069}01069\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}:*\#\#\#\#\#\#\#\#\#\#\#\#=:@@@@@@@@@@@@@@@@\%-\/@=-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/=@:\(\backslash\)x1b[0m.............."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01070}01070\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}.........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01071}01071\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01072}01072\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m....................\(\backslash\)x1b[34m*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01073}01073\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=\(\backslash\)x1b[0m............"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01074}01074\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}.........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01075}01075\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01076}01076\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................\(\backslash\)x1b[37m\#*\(\backslash\)x1b[0m........................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01077}01077\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}.......................................................\(\backslash\)x1b[37m@+\(\backslash\)x1b["{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01078}01078\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}0m.....................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01079}01079\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01080}01080\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................\(\backslash\)x1b[37m\#*\(\backslash\)x1b[0m...\(\backslash\)x1b[34m=@@@@@:+@@@@@@"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01081}01081\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}..@@@@@+..\%@@@@@.-\/@\%...+@\%..@@\#...=@@:...=@@-\/.=@@@@@@\%-\/@@@@@-\/\(\backslash\)x1b[0m.."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01082}01082\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[37m@+\(\backslash\)x1b[0m.....................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01083}01083\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01084}01084\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................\(\backslash\)x1b[37m\#*\(\backslash\)x1b[0m..\(\backslash\)x1b[34m\%@+....:...:@@:"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01085}01085\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}..@@....-\/@@:...:::@\#...=@\#..@@@\#.*@@@:..:\%@@@:...@@:..:@@\(\backslash\)x1b[0m......"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01086}01086\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[37m@+\(\backslash\)x1b[0m.....................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01087}01087\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01088}01088\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................\(\backslash\)x1b[37m\#*\(\backslash\)x1b[0m..\(\backslash\)x1b[34m@@:.......=@\%.."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01089}01089\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}..@@\%\%\%.+@\#......:@@\%\%\%\%@\#.:@*+@@@:\%@-\/..+@.*@\#...@@:..:@@\#@*\(\backslash\)x1b[0m..."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01090}01090\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[37m@+\(\backslash\)x1b[0m.....................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01091}01091\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01092}01092\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................\(\backslash\)x1b[37m\#*\(\backslash\)x1b[0m..\(\backslash\)x1b[34m+@\%:..-\/*.=@\%..:"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01093}01093\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}=.@@...*:@@=...+-\/:@\#...=@\#.=@=.+@:.\#@=.=@\#**\%@+..@@:..:@@...=\(\backslash\)x1b[0m.."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01094}01094\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[37m@+\(\backslash\)x1b[0m.....................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01095}01095\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01096}01096\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................\(\backslash\)x1b[37m\#*\(\backslash\)x1b[0m...\(\backslash\)x1b[34m:*\%@@\#.=\%\%\%\%\%\%"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01097}01097\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}:-\/\%\%\%\%\%*..-\/\#@@\%+.\#\%\%:..\#\%\#:\#\%=.....\#\%*:\%\%-\/..*\%\%=-\/\%\%+..=\%\%\%\%\%=\(\backslash\)x1b[0m.."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01098}01098\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[37m@+\(\backslash\)x1b[0m.....................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01099}01099\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01100}01100\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................\(\backslash\)x1b[37m\#\#-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01101}01101\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/@+\(\backslash\)x1b[0m............."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01102}01102\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01103}01103\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01104}01104\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................\(\backslash\)x1b[37m\#\%================================"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01105}01105\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}================================================@+\(\backslash\)x1b[0m............."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01106}01106\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01107}01107\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01108}01108\ \ \ fputs(\textcolor{stringliteral}{"{}\(\backslash\)x1b[0m.....................\(\backslash\)x1b[37m+\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#"{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01109}01109\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#-\/\(\backslash\)x1b[0m............."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01110}01110\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}........\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01111}01111\ \ \ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01112}01112\ \ \ fputs(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01113}01113\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[0m................................................................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01114}01114\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}............................................................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01115}01115\ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01116}01116\ \ \ fputs(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01117}01117\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[0m................................................................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01118}01118\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}............................................................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01119}01119\ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01120}01120\ \ \ fputs(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01121}01121\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[0m................................................................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01122}01122\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}............................................................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01123}01123\ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01124}01124\ \ \ fputs(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01125}01125\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[0m................................................................."{}}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01126}01126\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}............................................................\(\backslash\)x1b[0m\(\backslash\)n"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01127}01127\ \ \ \ \ \ \ stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01128}01128\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01129}01129\ \ \ \textcolor{comment}{//\ Show\ boot\ progress\ with\ smooth\ animation\ and\ status\ messages}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01130}01130\ \ \ printf(\textcolor{stringliteral}{"{}\(\backslash\)033[1;32m"{}});\ \textcolor{comment}{//\ bold\ green}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01131}01131\ \ \ printf(\textcolor{stringliteral}{"{}Initializing\ Chess\ Engine...\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01132}01132\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01133}01133\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ bar\_width\ =\ 50;\ \ \ \ \textcolor{comment}{//\ Longer\ bar\ for\ better\ visibility}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01134}01134\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ total\_steps\ =\ 200;\ \textcolor{comment}{//\ More\ steps\ for\ smoother\ animation}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01135}01135\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ step\_delay\ =\ 25;\ \ \ \textcolor{comment}{//\ 25ms\ per\ step\ for\ ultra-\/smooth\ animation}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01136}01136\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01137}01137\ \ \ \textcolor{comment}{//\ Status\ messages\ with\ progress\ thresholds}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01138}01138\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *status\_messages[]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01139}01139\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Starting\ system..."{}},\ \ \ \textcolor{stringliteral}{"{}Creating\ tasks..."{}},\ \ \ \textcolor{stringliteral}{"{}Initializing\ GPIO..."{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01140}01140\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Setting\ up\ matrix..."{}},\ \textcolor{stringliteral}{"{}Configuring\ LEDs..."{}},\ \textcolor{stringliteral}{"{}Loading\ chess\ engine..."{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01141}01141\ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Preparing\ board..."{}},\ \ \ \textcolor{stringliteral}{"{}System\ ready!"{}}\};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01142}01142\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ num\_messages\ =\ \textcolor{keyword}{sizeof}(status\_messages)\ /\ \textcolor{keyword}{sizeof}(status\_messages[0]);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01143}01143\ \ \ \textcolor{comment}{//\ int\ current\_message\ =\ 0;\ //\ Unused\ variable\ removed}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01144}01144\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01145}01145\ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <=\ total\_steps;\ i++)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01146}01146\ \ \ \ \ \textcolor{keywordtype}{int}\ progress\ =\ (i\ *\ 100)\ /\ total\_steps;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01147}01147\ \ \ \ \ \textcolor{keywordtype}{int}\ filled\ =\ (i\ *\ bar\_width)\ /\ total\_steps;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01148}01148\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01149}01149\ \ \ \ \ \textcolor{comment}{//\ Update\ status\ message\ based\ on\ progress}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01150}01150\ \ \ \ \ \textcolor{keywordtype}{int}\ message\_index\ =\ (progress\ *\ num\_messages)\ /\ 100;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01151}01151\ \ \ \ \ \textcolor{keywordflow}{if}\ (message\_index\ >=\ num\_messages)}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01152}01152\ \ \ \ \ \ \ message\_index\ =\ num\_messages\ -\/\ 1;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01153}01153\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01154}01154\ \ \ \ \ \textcolor{comment}{//\ Clear\ current\ line\ and\ redraw}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01155}01155\ \ \ \ \ printf(\textcolor{stringliteral}{"{}\(\backslash\)rBooting:\ ["{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01156}01156\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ j\ =\ 0;\ j\ <\ bar\_width;\ j++)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01157}01157\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (j\ <\ filled)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01158}01158\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}\(\backslash\)033[1;32m█\(\backslash\)033[0m"{}});\ \textcolor{comment}{//\ Bright\ green}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01159}01159\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01160}01160\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}\(\backslash\)033[2;37m░\(\backslash\)033[0m"{}});\ \textcolor{comment}{//\ Dim\ gray}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01161}01161\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01162}01162\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01163}01163\ \ \ \ \ printf(\textcolor{stringliteral}{"{}]\ \%3d\%\%\ -\/\ \%s"{}},\ progress,\ status\_messages[message\_index]);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01164}01164\ \ \ \ \ fflush(stdout);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01165}01165\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01166}01166\ \ \ \ \ \textcolor{comment}{//\ Spustit\ LED\ boot\ animaci\ podle\ progress}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01167}01167\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad9333c97e3a0d22851f18f91e890e3dc}{led\_boot\_animation\_step}}((uint8\_t)progress);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01168}01168\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01169}01169\ \ \ \ \ \textcolor{comment}{//\ CRITICAL:\ Reset\ watchdog\ timer\ during\ loading\ (only\ if\ registered)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01170}01170\ \ \ \ \ esp\_err\_t\ wdt\_ret\ =\ \mbox{\hyperlink{main_8c_a16454398c460e4d7161a90c808248ec2}{main\_task\_wdt\_reset\_safe}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01171}01171\ \ \ \ \ \textcolor{keywordflow}{if}\ (wdt\_ret\ !=\ ESP\_OK\ \&\&\ wdt\_ret\ !=\ ESP\_ERR\_NOT\_FOUND)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01172}01172\ \ \ \ \ \ \ \textcolor{comment}{//\ Task\ not\ registered\ with\ TWDT\ yet\ -\/\ this\ is\ normal\ during\ startup}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01173}01173\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01174}01174\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01175}01175\ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ <\ total\_steps)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01176}01176\ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(step\_delay));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01177}01177\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01178}01178\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01179}01179\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01180}01180\ \ \ \textcolor{comment}{//\ ✅\ Po\ dokončení\ boot\ animace\ -\/\ fade\ out}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01181}01181\ \ \ \mbox{\hyperlink{led__task_8h_a51cc23ac460421224cfaf847669ab1d9}{led\_boot\_animation\_fade\_out}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01182}01182\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01183}01183\ \ \ printf(\textcolor{stringliteral}{"{}\(\backslash\)n\(\backslash\)033[1;32m✓\ Chess\ Engine\ Ready!\(\backslash\)033[0m\(\backslash\)n\(\backslash\)n"{}});\ \textcolor{comment}{//\ Success\ message}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01184}01184\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01185}01185\ \ \ \textcolor{comment}{//\ Chess\ board\ will\ be\ displayed\ by\ game\ task\ after\ initialization}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01186}01186\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🎯\ Chess\ board\ will\ be\ displayed\ by\ game\ task..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01187}01187\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01188}01188\ \ \ \textcolor{comment}{//\ Show\ game\ guide\ after\ board}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01189}01189\ \ \ printf(\textcolor{stringliteral}{"{}\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01190}01190\ \ \ printf(\textcolor{stringliteral}{"{}═══════════════════════════════════════════════════════════════\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01191}01191\ \ \ printf(\textcolor{stringliteral}{"{}📋\ CHESS\ GAME\ GUIDE\ -\/\ Type\ commands\ to\ play:\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01192}01192\ \ \ printf(\textcolor{stringliteral}{"{}═══════════════════════════════════════════════════════════════\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01193}01193\ \ \ printf(\textcolor{stringliteral}{"{}📋\ Basic\ Commands:\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01194}01194\ \ \ printf(\textcolor{stringliteral}{"{}\ \ •\ move\ e2e4\ \ \ \ -\/\ Move\ piece\ from\ e2\ to\ e4\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01195}01195\ \ \ printf(\textcolor{stringliteral}{"{}\ \ •\ help\ \ \ \ \ \ \ \ \ -\/\ Show\ all\ available\ commands\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01196}01196\ \ \ printf(\textcolor{stringliteral}{"{}\ \ •\ board\ \ \ \ \ \ \ \ -\/\ Display\ current\ board\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01197}01197\ \ \ printf(\textcolor{stringliteral}{"{}\ \ •\ status\ \ \ \ \ \ \ -\/\ Show\ game\ status\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01198}01198\ \ \ printf(\textcolor{stringliteral}{"{}\ \ •\ reset\ \ \ \ \ \ \ \ -\/\ Start\ new\ game\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01199}01199\ \ \ printf(\textcolor{stringliteral}{"{}\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01200}01200\ \ \ printf(\textcolor{stringliteral}{"{}🎯\ Quick\ Start:\ Type\ 'move\ e2e4'\ to\ make\ your\ first\ move!\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01201}01201\ \ \ printf(\textcolor{stringliteral}{"{}═══════════════════════════════════════════════════════════\(\backslash\)n"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01202}01202\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01203}01203\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Boot\ animation\ and\ board\ display\ completed"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01204}01204\ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01205}01205\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01206}01206\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01207}01207\ \textcolor{comment}{//\ MAIN\ APPLICATION\ FUNCTION}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01208}01208\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01209}01209\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01228}\mbox{\hyperlink{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}{01228}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}{app\_main}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01229}01229\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🎯\ ESP32-\/C6\ Chess\ System\ v2.4\ starting..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01230}01230\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}📅\ Build\ Timestamp:\ \%s\ \%s"{}},\ \_\_DATE\_\_,\ \_\_TIME\_\_);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01231}01231\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01232}01232\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}==============================================================="{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01233}01233\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01234}01234\ \ \ \textcolor{comment}{//\ Zvýšení\ WDT\ timeout\ pro\ inicializaci}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01235}01235\ \ \ esp\_task\_wdt\_config\_t\ twdt\_config\ =\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01236}01236\ \ \ \ \ \ \ .timeout\_ms\ =\ 10000,\ \textcolor{comment}{//\ 10\ sekund\ pro\ init\ -\/\ OPTIMALIZOVÁNO\ pro\ web\ server}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01237}01237\ \ \ \ \ \ \ .idle\_core\_mask\ =\ 0,}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01238}01238\ \ \ \ \ \ \ .trigger\_panic\ =\ \textcolor{keyword}{true}\};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01239}01239\ \ \ \textcolor{comment}{//\ Use\ reconfigure\ instead\ of\ init\ to\ avoid\ "{}TWDT\ already}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01240}01240\ \ \ \textcolor{comment}{//\ initialized"{}\ error}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01241}01241\ \ \ esp\_err\_t\ ret\ =\ esp\_task\_wdt\_reconfigure(\&twdt\_config);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01242}01242\ \ \ \textcolor{keywordflow}{if}\ (ret\ ==\ ESP\_ERR\_INVALID\_STATE)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01243}01243\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}TWDT\ already\ initialized,\ skipping\ reconfiguration"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01244}01244\ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01245}01245\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ configure\ TWDT:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01246}01246\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01247}01247\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}TWDT\ configured\ with\ 15s\ timeout"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01248}01248\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01249}01249\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01250}01250\ \ \ \textcolor{comment}{//\ Add\ main\ task\ to\ Task\ Watchdog\ Timer\ BEFORE\ any\ initialization}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01251}01251\ \ \ ret\ =\ esp\_task\_wdt\_add(NULL);}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01252}01252\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK\ \&\&\ ret\ !=\ ESP\_ERR\_INVALID\_ARG)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01253}01253\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ add\ main\ task\ to\ TWDT:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01254}01254\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01255}01255\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01256}01256\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Main\ task\ registered\ with\ Task\ Watchdog\ Timer"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01257}01257\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01258}01258\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01259}01259\ \ \ \textcolor{comment}{//\ Initialize\ console\ and\ UART\ FIRST\ -\/\ before\ any\ system\ initialization}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01260}01260\ \ \ \textcolor{comment}{//\ This\ ensures\ that\ safe\ mode\ can\ output\ error\ messages}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01261}01261\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Initializing\ console\ and\ UART..."{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01262}01262\ \ \ \mbox{\hyperlink{main_8c_ae52825df5837e0f8f5e814f48cafb722}{init\_console}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01263}01263\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✅\ Console\ and\ UART\ initialized\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01264}01264\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01265}01265\ \ \ \textcolor{comment}{//\ System\ initialization\ with\ error\ recovery}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01266}01266\ \ \ ret\ =\ \mbox{\hyperlink{main_8c_ae27993c1756124d9fa6e8af4958409ef}{main\_system\_init}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01267}01267\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01268}01268\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ System\ init\ failed:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01269}01269\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Entering\ safe\ mode\ -\/\ basic\ UART\ only"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01270}01270\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01271}01271\ \ \ \ \ \textcolor{comment}{//\ Safe\ mode\ -\/\ jen\ UART\ pro\ debugging}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01272}01272\ \ \ \ \ \textcolor{keywordflow}{while}\ (1)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01273}01273\ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}💔\ Safe\ mode:\ Init\ failed,\ system\ halted"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01274}01274\ \ \ \ \ \ \ \textcolor{comment}{//\ Note:\ No\ watchdog\ reset\ in\ safe\ mode\ -\/\ task\ not\ registered}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01275}01275\ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(5000));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01276}01276\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01277}01277\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01278}01278\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01279}01279\ \ \ \textcolor{comment}{//\ Task\ Watchdog\ Timer\ is\ automatically\ initialized\ by\ ESP-\/IDF}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01280}01280\ \ \ \textcolor{comment}{//\ (CONFIG\_ESP\_TASK\_WDT\_INIT=y\ in\ sdkconfig)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01281}01281\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Task\ Watchdog\ Timer\ initialized\ automatically\ by\ ESP-\/IDF"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01282}01282\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01283}01283\ \ \ \textcolor{comment}{//\ Create\ system\ tasks}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01284}01284\ \ \ ret\ =\ \mbox{\hyperlink{main_8c_a2dbcd7c01e5197da615bb4fe6c5b29b0}{create\_system\_tasks}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01285}01285\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01286}01286\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}❌\ Task\ creation\ failed:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01287}01287\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ Entering\ safe\ mode\ -\/\ basic\ UART\ only"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01288}01288\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01289}01289\ \ \ \ \ \textcolor{comment}{//\ Safe\ mode\ -\/\ jen\ UART\ pro\ debugging}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01290}01290\ \ \ \ \ \textcolor{keywordflow}{while}\ (1)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01291}01291\ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}💔\ Safe\ mode:\ Task\ creation\ failed,\ system\ halted"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01292}01292\ \ \ \ \ \ \ \textcolor{comment}{//\ Note:\ No\ watchdog\ reset\ in\ safe\ mode\ -\/\ task\ not\ registered}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01293}01293\ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(5000));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01294}01294\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01295}01295\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01296}01296\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01297}01297\ \ \ \textcolor{comment}{//\ CRITICAL:\ Reset\ watchdog\ AFTER\ task\ creation}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01298}01298\ \ \ \mbox{\hyperlink{main_8c_a16454398c460e4d7161a90c808248ec2}{main\_task\_wdt\_reset\_safe}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01299}01299\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01300}01300\ \ \ \textcolor{comment}{//\ PŘIDAT:\ Vrátit\ normální\ WDT\ timeout\ po\ inicializaci\ -\/\ OPTIMALIZOVÁNO\ pro}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01301}01301\ \ \ \textcolor{comment}{//\ web\ server}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01302}01302\ \ \ twdt\_config.timeout\_ms\ =\ 8000;\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Zvýšeno\ na\ 8\ sekund\ pro\ web\ server}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01303}01303\ \ \ esp\_task\_wdt\_reconfigure(\&twdt\_config);\ \textcolor{comment}{//\ Použít\ reconfigure\ místo\ init}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01304}01304\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01305}01305\ \ \ \textcolor{comment}{//\ Main\ task\ is\ already\ registered\ with\ TWDT\ at\ the\ beginning\ of\ app\_main()}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01306}01306\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}✓\ Main\ task\ already\ registered\ with\ Task\ Watchdog\ Timer"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01307}01307\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01308}01308\ \ \ \textcolor{comment}{//\ Wait\ for\ tasks\ to\ initialize\ (startup\ banner\ now\ handled\ by\ UART\ task)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01309}01309\ \ \ vTaskDelay(pdMS\_TO\_TICKS(200));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01310}01310\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01311}01311\ \ \ \textcolor{comment}{//\ Main\ application\ loop}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01312}01312\ \ \ \textcolor{comment}{//\ uint32\_t\ loop\_count\ =\ 0;\ //\ Unused\ variable\ removed}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01313}01313\ \ \ uint32\_t\ last\_status\_time\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01314}01314\ \ \ uint32\_t\ last\_demo\_move\_time\ =}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01315}01315\ \ \ \ \ \ \ 0;\ \textcolor{comment}{//\ Track\ time\ in\ ms\ instead\ of\ seconds\ for\ finer\ granularity}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01316}01316\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01317}01317\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🎯\ Main\ application\ loop\ started"{}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01318}01318\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01319}01319\ \ \ \textcolor{keywordflow}{for}\ (;;)\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01320}01320\ \ \ \ \ \textcolor{comment}{//\ CRITICAL:\ Reset\ watchdog\ for\ main\ task\ in\ every\ iteration}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01321}01321\ \ \ \ \ \mbox{\hyperlink{main_8c_a16454398c460e4d7161a90c808248ec2}{main\_task\_wdt\_reset\_safe}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01322}01322\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01323}01323\ \ \ \ \ \textcolor{comment}{//\ Get\ current\ time\ in\ ms}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01324}01324\ \ \ \ \ uint32\_t\ current\_time\_ms\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01325}01325\ \ \ \ \ uint32\_t\ current\_time\_sec\ =\ current\_time\_ms\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01326}01326\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01327}01327\ \ \ \ \ \textcolor{comment}{//\ Periodic\ system\ status\ logging\ (respects\ quiet\_mode\ and\ verbose\_mode)}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01328}01328\ \ \ \ \ \textcolor{keywordflow}{if}\ (current\_time\_sec\ -\/\ last\_status\_time\ >=\ 60)\ \{\ \textcolor{comment}{//\ Every\ 60\ seconds}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01329}01329\ \ \ \ \ \ \ ESP\_LOGI(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01330}01330\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}🔄\ System\ Status:\ Uptime=\%lu\ s,\ FreeHeap=\%zu\ bytes,\ Tasks=\%d"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01331}01331\ \ \ \ \ \ \ \ \ \ \ current\_time\_sec,\ esp\_get\_free\_heap\_size(),\ uxTaskGetNumberOfTasks());}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01332}01332\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01333}01333\ \ \ \ \ \ \ \textcolor{comment}{//\ LOGS\ REMOVED\ FOR\ BREVITY}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01334}01334\ \ \ \ \ \ \ last\_status\_time\ =\ current\_time\_sec;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01335}01335\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01336}01336\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01337}01337\ \ \ \ \ \textcolor{comment}{//\ Demo\ mode\ processing}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01338}01338\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{main_8c_af252e203098e091d068b85d637b1083d}{demo\_mode\_enabled}})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01339}01339\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (current\_time\_ms\ -\/\ last\_demo\_move\_time\ >=\ \mbox{\hyperlink{main_8c_aa999d9fce86efd55be4fb1bce525e69e}{current\_demo\_delay\_ms}})\ \{}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01340}01340\ \ \ \ \ \ \ \ \ ESP\_LOGI(}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01341}01341\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01342}01342\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}⏱️\ DEMO\ TICK:\ Time=\%lu,\ Last=\%lu,\ Delay=\%lu\ -\/>\ EXECUTING\ PROBE"{}},}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01343}01343\ \ \ \ \ \ \ \ \ \ \ \ \ current\_time\_ms,\ last\_demo\_move\_time,\ \mbox{\hyperlink{main_8c_aa999d9fce86efd55be4fb1bce525e69e}{current\_demo\_delay\_ms}});}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01344}01344\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01345}01345\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a47be0f08c5acbba3a901be7d65e4cb8a}{execute\_demo\_move}}();}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01346}01346\ \ \ \ \ \ \ \ \ last\_demo\_move\_time\ =\ current\_time\_ms;}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01347}01347\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01348}01348\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ⏳\ Fixed\ delay\ between\ moves\ (accounting\ for\ animation\ time\ already}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01349}01349\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ in\ execute\_demo\_move)\ execute\_demo\_move\ already\ waits:\ 1500ms}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01350}01350\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ (pickup)\ +\ 800ms\ (drop)\ =\ 2300ms\ So\ we\ only\ need\ small\ extra\ delay}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01351}01351\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ for\ board\ refresh}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01352}01352\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_aa999d9fce86efd55be4fb1bce525e69e}{current\_demo\_delay\_ms}}\ =\ 500;\ \textcolor{comment}{//\ Just\ 0.5s\ extra\ =\ total\ \string~2.8s\ per\ move}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01353}01353\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01354}01354\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01355}01355\ }
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01356}01356\ \ \ \ \ \textcolor{comment}{//\ Short\ delay\ to\ allow\ frequent\ checks\ (interruption,\ etc.)\ but\ not\ starve}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01357}01357\ \ \ \ \ \textcolor{comment}{//\ WDT}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01358}01358\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01359}01359\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{main_8c_source_l01360}01360\ \}}
+
+\end{DoxyCode}

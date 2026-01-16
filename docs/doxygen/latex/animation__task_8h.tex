@@ -1,0 +1,847 @@
+\doxysection{Dokumentace souboru animation\+\_\+task.\+h}
+\hypertarget{animation__task_8h}{}\label{animation__task_8h}\index{animation\_task.h@{animation\_task.h}}
+
+
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Hlavicka Animation Tasku.  
+
+
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/task.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/semphr.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/timers.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+Graf závislostí na vkládaných souborech pro animation\+\_\+task.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{animation__task_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové struktury}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Výčty}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\+\_\+task\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e}{ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+WAVE}} = 0
+, \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee}{ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+PULSE}}
+, \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6}{ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+FADE}}
+, \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a}{ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+CHESS\+\_\+\+PATTERN}}
+, \newline
+\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358}{ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+RAINBOW}}
+, \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0}{ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+MOVE\+\_\+\+HIGHLIGHT}}
+, \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4}{ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+CHECK\+\_\+\+HIGHLIGHT}}
+, \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f}{ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+GAME\+\_\+\+OVER}}
+, \newline
+\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa6eb688ab2a8237f9f4486e04f62077d3}{ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+CUSTOM}}
+ \}
+\item 
+enum \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8fee}{animation\+\_\+task\+\_\+state\+\_\+t}} \{ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363}{ANIM\+\_\+\+TASK\+\_\+\+STATE\+\_\+\+IDLE}} = 0
+, \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c}{ANIM\+\_\+\+TASK\+\_\+\+STATE\+\_\+\+RUNNING}}
+, \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c}{ANIM\+\_\+\+TASK\+\_\+\+STATE\+\_\+\+PAUSED}}
+, \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08}{ANIM\+\_\+\+TASK\+\_\+\+STATE\+\_\+\+FINISHED}}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{animation__task_8h_a18ab65be2c5b763305a8d6c1fa886392}{animation\+\_\+task\+\_\+start}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Spusti animation task. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a09488753d3a3be4415fb5e1bc44d1fb0}{animation\+\_\+initialize\+\_\+system}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuje system animaci. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{animation__task_8h_a8f46cd6a1f375c8d19d1c4315cabdbfd}{animation\+\_\+create}} (\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\+\_\+task\+\_\+type\+\_\+t}} type, uint32\+\_\+t duration\+\_\+ms, uint8\+\_\+t priority, bool loop)
+\begin{DoxyCompactList}\small\item\em Vytvori novou animaci. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_abb35a3172d5d24a24902916b1ecfa40f}{animation\+\_\+start}} (uint8\+\_\+t animation\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Spusti animaci. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_adc882a0b86428a7333c86eddd1f26b8d}{animation\+\_\+stop}} (uint8\+\_\+t animation\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Zastavi animaci. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a41183595937bafd37b4ba07c47b8c62d}{animation\+\_\+pause}} (uint8\+\_\+t animation\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Pozastavi animaci. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a04765d28e82fce17f90d526a7ce60fc2}{animation\+\_\+resume}} (uint8\+\_\+t animation\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Obnovi animaci. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a03563b1b04565e45d3892b520708bd64}{animation\+\_\+generate\+\_\+wave\+\_\+frame}} (uint32\+\_\+t frame, uint32\+\_\+t color, uint8\+\_\+t speed)
+\begin{DoxyCompactList}\small\item\em Generuje snimek vlnove animace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a348dfefe5bb753b16839d5215505e4f4}{animation\+\_\+generate\+\_\+pulse\+\_\+frame}} (uint32\+\_\+t frame, uint32\+\_\+t color, uint8\+\_\+t speed)
+\begin{DoxyCompactList}\small\item\em Generuje snimek pulzni animace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_ad2116436a161de0d3c2aa663ef02d12e}{animation\+\_\+generate\+\_\+fade\+\_\+frame}} (uint32\+\_\+t frame, uint32\+\_\+t from\+\_\+color, uint32\+\_\+t to\+\_\+color, uint32\+\_\+t total\+\_\+frames)
+\begin{DoxyCompactList}\small\item\em Generuje snimek fade animace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_afb64e912fbca18925c8cac41b6006f2c}{animation\+\_\+generate\+\_\+chess\+\_\+pattern}} (uint32\+\_\+t frame, uint32\+\_\+t color1, uint32\+\_\+t color2)
+\begin{DoxyCompactList}\small\item\em Generuje snimek sachovnicoveho vzoru. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a63112c5794b76845d9afff7eb6fd3259}{animation\+\_\+generate\+\_\+rainbow\+\_\+frame}} (uint32\+\_\+t frame)
+\begin{DoxyCompactList}\small\item\em Generuje snimek duhove animace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_afecf0d9f3014ec819b9d8d4efecc1ee5}{animation\+\_\+execute\+\_\+frame}} (\mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\begin{DoxyCompactList}\small\item\em Vykona snimek animace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_aec58eeb9ffe892383adeef75473dc160}{animation\+\_\+send\+\_\+frame\+\_\+to\+\_\+leds}} (const uint8\+\_\+t frame\mbox{[}\mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+TOTAL}}\mbox{]}\mbox{[}3\mbox{]})
+\begin{DoxyCompactList}\small\item\em Posle data snimku do LED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a06e87351882b4abb2b090c3e3fad2098}{animation\+\_\+execute\+\_\+move\+\_\+highlight}} (\mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\begin{DoxyCompactList}\small\item\em Vykona animaci zvyrazneni tahu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_aeeb63457d09fa55c64a67b38e895ab4a}{animation\+\_\+execute\+\_\+check\+\_\+highlight}} (\mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\begin{DoxyCompactList}\small\item\em Vykona animaci zvyrazneni sachu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_aa4e0d21daa2bff68ffc49abd0995d812}{animation\+\_\+execute\+\_\+game\+\_\+over}} (\mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\begin{DoxyCompactList}\small\item\em Vykona animaci konce hry. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a0060e7605dd42ba4e2041e1c4402f60e}{animation\+\_\+process\+\_\+commands}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuje prikazy animaci z fronty. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a19ff3a915b7dad334a1d306492667916}{animation\+\_\+stop\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Zastavi vsechny animace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a70e168a5ba925ad0d8da01a49d34e75c}{animation\+\_\+pause\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Pozastavi vsechny animace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a749cd1a19567e9b741fb320e1d440736}{animation\+\_\+resume\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Obnovi vsechny animace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a9731cdb2cdcf0234b35af6ba0b7b1402}{animation\+\_\+print\+\_\+status}} (void)
+\begin{DoxyCompactList}\small\item\em Vypise stav animaci. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_ab87baa702421428476b149e35aa74ab9}{animation\+\_\+test\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Otestuje vsechny typy animaci. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a213dccff1d89e8b9afa89882fe6b5df9}{animation\+\_\+test\+\_\+system}} (void)
+\begin{DoxyCompactList}\small\item\em Otestuje system animaci. \end{DoxyCompactList}\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{animation__task_8h_ad90823f255171d2792d13345b96d9477}{animation\+\_\+get\+\_\+name}} (\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\+\_\+task\+\_\+type\+\_\+t}} animation\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Get animation name as string. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a79382186a6a22377fff18924934c118a}{animation\+\_\+print\+\_\+progress}} (const \mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}} \texorpdfstring{$\ast$}{*}anim)
+\begin{DoxyCompactList}\small\item\em Print animation progress with text representation. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a1fc234eed1ddbb156d9c1d61d21abd52}{animation\+\_\+print\+\_\+piece\+\_\+move}} (const char \texorpdfstring{$\ast$}{*}from\+\_\+square, const char \texorpdfstring{$\ast$}{*}to\+\_\+square, const char \texorpdfstring{$\ast$}{*}piece\+\_\+name, float progress)
+\begin{DoxyCompactList}\small\item\em Print piece move animation with chess notation. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_afd9f1291c4f0584d7d02b26744a24475}{animation\+\_\+print\+\_\+check\+\_\+status}} (bool is\+\_\+checkmate, float progress)
+\begin{DoxyCompactList}\small\item\em Print check/checkmate animation status. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a817be6e29efbd666e7334307f7c5fe5a}{animation\+\_\+print\+\_\+summary}} (void)
+\begin{DoxyCompactList}\small\item\em Print animation summary for all active animations. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a5361d673dfa5c9b0568be0e4cac80444}{animate\+\_\+piece\+\_\+move\+\_\+natural}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece)
+\begin{DoxyCompactList}\small\item\em Animuje pohyb figurky s prirozenymi pohybovymi vzory. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{animation__task_8h_a2b5de7f9e2ba904cd16a02a3add0b6d6}{animation\+\_\+request\+\_\+interrupt}} ()
+\begin{DoxyCompactList}\small\item\em Pozada o preruseni animace. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{animation__task_8h_ad4a9e6f0e9175a5f2f10c3536fb43308}{new\+\_\+move\+\_\+detected}} ()
+\begin{DoxyCompactList}\small\item\em Overi zda byla detekovana nova animace (placeholder). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Hlavicka Animation Tasku. 
+
+Tato hlavicka definuje rozhrani pro animation task\+:
+\begin{DoxyItemize}
+\item Typy animaci a struktury
+\item Prototypy funkci animation tasku
+\item Funkce pro ovladani animaci a stav
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/24 
+\end{DoxyDate}
+
+
+Definice v souboru \mbox{\hyperlink{animation__task_8h_source}{animation\+\_\+task.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{animation__task_8h_doc-enum-members}
+\doxysubsection{Dokumentace výčtových typů}
+\Hypertarget{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8fee}\index{animation\_task.h@{animation\_task.h}!animation\_task\_state\_t@{animation\_task\_state\_t}}
+\index{animation\_task\_state\_t@{animation\_task\_state\_t}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_task\_state\_t}{animation\_task\_state\_t}}
+{\footnotesize\ttfamily \label{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8fee} 
+enum \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8fee}{animation\+\_\+task\+\_\+state\+\_\+t}}}
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_STATE\_IDLE@{ANIM\_TASK\_STATE\_IDLE}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_STATE\_IDLE@{ANIM\_TASK\_STATE\_IDLE}}}\Hypertarget{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363}\label{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363} 
+ANIM\+\_\+\+TASK\+\_\+\+STATE\+\_\+\+IDLE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_STATE\_RUNNING@{ANIM\_TASK\_STATE\_RUNNING}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_STATE\_RUNNING@{ANIM\_TASK\_STATE\_RUNNING}}}\Hypertarget{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c}\label{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c} 
+ANIM\+\_\+\+TASK\+\_\+\+STATE\+\_\+\+RUNNING&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_STATE\_PAUSED@{ANIM\_TASK\_STATE\_PAUSED}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_STATE\_PAUSED@{ANIM\_TASK\_STATE\_PAUSED}}}\Hypertarget{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c}\label{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c} 
+ANIM\+\_\+\+TASK\+\_\+\+STATE\+\_\+\+PAUSED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_STATE\_FINISHED@{ANIM\_TASK\_STATE\_FINISHED}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_STATE\_FINISHED@{ANIM\_TASK\_STATE\_FINISHED}}}\Hypertarget{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08}\label{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08} 
+ANIM\+\_\+\+TASK\+\_\+\+STATE\+\_\+\+FINISHED&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8h_source_l00050}{50}} v souboru \mbox{\hyperlink{animation__task_8h_source}{animation\+\_\+task.\+h}}.
+
+\Hypertarget{animation__task_8h_a3da732fa10b2f45510643d0280be899f}\index{animation\_task.h@{animation\_task.h}!animation\_task\_type\_t@{animation\_task\_type\_t}}
+\index{animation\_task\_type\_t@{animation\_task\_type\_t}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_task\_type\_t}{animation\_task\_type\_t}}
+{\footnotesize\ttfamily \label{animation__task_8h_a3da732fa10b2f45510643d0280be899f} 
+enum \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\+\_\+task\+\_\+type\+\_\+t}}}
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_TYPE\_WAVE@{ANIM\_TASK\_TYPE\_WAVE}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_TYPE\_WAVE@{ANIM\_TASK\_TYPE\_WAVE}}}\Hypertarget{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e}\label{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e} 
+ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+WAVE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_TYPE\_PULSE@{ANIM\_TASK\_TYPE\_PULSE}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_TYPE\_PULSE@{ANIM\_TASK\_TYPE\_PULSE}}}\Hypertarget{animation__task_8h_a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee}\label{animation__task_8h_a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee} 
+ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+PULSE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_TYPE\_FADE@{ANIM\_TASK\_TYPE\_FADE}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_TYPE\_FADE@{ANIM\_TASK\_TYPE\_FADE}}}\Hypertarget{animation__task_8h_a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6}\label{animation__task_8h_a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6} 
+ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+FADE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_TYPE\_CHESS\_PATTERN@{ANIM\_TASK\_TYPE\_CHESS\_PATTERN}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_TYPE\_CHESS\_PATTERN@{ANIM\_TASK\_TYPE\_CHESS\_PATTERN}}}\Hypertarget{animation__task_8h_a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a}\label{animation__task_8h_a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a} 
+ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+CHESS\+\_\+\+PATTERN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_TYPE\_RAINBOW@{ANIM\_TASK\_TYPE\_RAINBOW}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_TYPE\_RAINBOW@{ANIM\_TASK\_TYPE\_RAINBOW}}}\Hypertarget{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358}\label{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358} 
+ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+RAINBOW&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_TYPE\_MOVE\_HIGHLIGHT@{ANIM\_TASK\_TYPE\_MOVE\_HIGHLIGHT}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_TYPE\_MOVE\_HIGHLIGHT@{ANIM\_TASK\_TYPE\_MOVE\_HIGHLIGHT}}}\Hypertarget{animation__task_8h_a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0}\label{animation__task_8h_a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0} 
+ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+MOVE\+\_\+\+HIGHLIGHT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_TYPE\_CHECK\_HIGHLIGHT@{ANIM\_TASK\_TYPE\_CHECK\_HIGHLIGHT}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_TYPE\_CHECK\_HIGHLIGHT@{ANIM\_TASK\_TYPE\_CHECK\_HIGHLIGHT}}}\Hypertarget{animation__task_8h_a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4}\label{animation__task_8h_a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4} 
+ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+CHECK\+\_\+\+HIGHLIGHT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_TYPE\_GAME\_OVER@{ANIM\_TASK\_TYPE\_GAME\_OVER}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_TYPE\_GAME\_OVER@{ANIM\_TASK\_TYPE\_GAME\_OVER}}}\Hypertarget{animation__task_8h_a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f}\label{animation__task_8h_a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f} 
+ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+GAME\+\_\+\+OVER&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ANIM\_TASK\_TYPE\_CUSTOM@{ANIM\_TASK\_TYPE\_CUSTOM}!animation\_task.h@{animation\_task.h}}\index{animation\_task.h@{animation\_task.h}!ANIM\_TASK\_TYPE\_CUSTOM@{ANIM\_TASK\_TYPE\_CUSTOM}}}\Hypertarget{animation__task_8h_a3da732fa10b2f45510643d0280be899fa6eb688ab2a8237f9f4486e04f62077d3}\label{animation__task_8h_a3da732fa10b2f45510643d0280be899fa6eb688ab2a8237f9f4486e04f62077d3} 
+ANIM\+\_\+\+TASK\+\_\+\+TYPE\+\_\+\+CUSTOM&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8h_source_l00037}{37}} v souboru \mbox{\hyperlink{animation__task_8h_source}{animation\+\_\+task.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{animation__task_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{animation__task_8h_a5361d673dfa5c9b0568be0e4cac80444}\index{animation\_task.h@{animation\_task.h}!animate\_piece\_move\_natural@{animate\_piece\_move\_natural}}
+\index{animate\_piece\_move\_natural@{animate\_piece\_move\_natural}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animate\_piece\_move\_natural()}{animate\_piece\_move\_natural()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a5361d673dfa5c9b0568be0e4cac80444} 
+void animate\+\_\+piece\+\_\+move\+\_\+natural (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{, }\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{piece}{}\end{DoxyParamCaption})}
+
+
+
+Animuje pohyb figurky s prirozenymi pohybovymi vzory. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Zdrojovy radek \\
+\hline
+{\em from\+\_\+col} & Zdrojovy sloupec \\
+\hline
+{\em to\+\_\+row} & Cilovy radek \\
+\hline
+{\em to\+\_\+col} & Cilovy sloupec \\
+\hline
+{\em piece} & Figurka ktera se pohybuje\\
+\hline
+\end{DoxyParams}
+Animuje pohyb figurky s prirozenymi pohybovymi vzory.
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Source row \\
+\hline
+{\em from\+\_\+col} & Source column \\
+\hline
+{\em to\+\_\+row} & Destination row \\
+\hline
+{\em to\+\_\+col} & Destination column \\
+\hline
+{\em piece} & Piece being moved \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00496}{496}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a8f46cd6a1f375c8d19d1c4315cabdbfd}\index{animation\_task.h@{animation\_task.h}!animation\_create@{animation\_create}}
+\index{animation\_create@{animation\_create}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_create()}{animation\_create()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a8f46cd6a1f375c8d19d1c4315cabdbfd} 
+uint8\+\_\+t animation\+\_\+create (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\+\_\+task\+\_\+type\+\_\+t}}}]{type}{, }\item[{uint32\+\_\+t}]{duration\+\_\+ms}{, }\item[{uint8\+\_\+t}]{priority}{, }\item[{bool}]{loop}{}\end{DoxyParamCaption})}
+
+
+
+Vytvori novou animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em type} & Typ animace \\
+\hline
+{\em duration\+\_\+ms} & Delka v milisekundach \\
+\hline
+{\em priority} & Priorita animace (0-\/255) \\
+\hline
+{\em loop} & Zda animaci opakovat \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ID animace nebo 0x\+FF pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00152}{152}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_aeeb63457d09fa55c64a67b38e895ab4a}\index{animation\_task.h@{animation\_task.h}!animation\_execute\_check\_highlight@{animation\_execute\_check\_highlight}}
+\index{animation\_execute\_check\_highlight@{animation\_execute\_check\_highlight}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_execute\_check\_highlight()}{animation\_execute\_check\_highlight()}}
+{\footnotesize\ttfamily \label{animation__task_8h_aeeb63457d09fa55c64a67b38e895ab4a} 
+void animation\+\_\+execute\+\_\+check\+\_\+highlight (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})}
+
+
+
+Vykona animaci zvyrazneni sachu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim} & Data animace \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00732}{732}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_afecf0d9f3014ec819b9d8d4efecc1ee5}\index{animation\_task.h@{animation\_task.h}!animation\_execute\_frame@{animation\_execute\_frame}}
+\index{animation\_execute\_frame@{animation\_execute\_frame}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_execute\_frame()}{animation\_execute\_frame()}}
+{\footnotesize\ttfamily \label{animation__task_8h_afecf0d9f3014ec819b9d8d4efecc1ee5} 
+void animation\+\_\+execute\+\_\+frame (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})}
+
+
+
+Vykona snimek animace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim} & Animace k vykonani \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00613}{613}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_aa4e0d21daa2bff68ffc49abd0995d812}\index{animation\_task.h@{animation\_task.h}!animation\_execute\_game\_over@{animation\_execute\_game\_over}}
+\index{animation\_execute\_game\_over@{animation\_execute\_game\_over}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_execute\_game\_over()}{animation\_execute\_game\_over()}}
+{\footnotesize\ttfamily \label{animation__task_8h_aa4e0d21daa2bff68ffc49abd0995d812} 
+void animation\+\_\+execute\+\_\+game\+\_\+over (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})}
+
+
+
+Vykona animaci konce hry. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim} & Data animace \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00750}{750}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a06e87351882b4abb2b090c3e3fad2098}\index{animation\_task.h@{animation\_task.h}!animation\_execute\_move\_highlight@{animation\_execute\_move\_highlight}}
+\index{animation\_execute\_move\_highlight@{animation\_execute\_move\_highlight}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_execute\_move\_highlight()}{animation\_execute\_move\_highlight()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a06e87351882b4abb2b090c3e3fad2098} 
+void animation\+\_\+execute\+\_\+move\+\_\+highlight (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})}
+
+
+
+Vykona animaci zvyrazneni tahu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim} & Data animace \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00715}{715}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_afb64e912fbca18925c8cac41b6006f2c}\index{animation\_task.h@{animation\_task.h}!animation\_generate\_chess\_pattern@{animation\_generate\_chess\_pattern}}
+\index{animation\_generate\_chess\_pattern@{animation\_generate\_chess\_pattern}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_generate\_chess\_pattern()}{animation\_generate\_chess\_pattern()}}
+{\footnotesize\ttfamily \label{animation__task_8h_afb64e912fbca18925c8cac41b6006f2c} 
+void animation\+\_\+generate\+\_\+chess\+\_\+pattern (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{frame}{, }\item[{uint32\+\_\+t}]{color1}{, }\item[{uint32\+\_\+t}]{color2}{}\end{DoxyParamCaption})}
+
+
+
+Generuje snimek sachovnicoveho vzoru. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em frame} & Cislo snimku \\
+\hline
+{\em color1} & Prvni barva \\
+\hline
+{\em color2} & Druha barva \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00324}{324}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_ad2116436a161de0d3c2aa663ef02d12e}\index{animation\_task.h@{animation\_task.h}!animation\_generate\_fade\_frame@{animation\_generate\_fade\_frame}}
+\index{animation\_generate\_fade\_frame@{animation\_generate\_fade\_frame}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_generate\_fade\_frame()}{animation\_generate\_fade\_frame()}}
+{\footnotesize\ttfamily \label{animation__task_8h_ad2116436a161de0d3c2aa663ef02d12e} 
+void animation\+\_\+generate\+\_\+fade\+\_\+frame (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{frame}{, }\item[{uint32\+\_\+t}]{from\+\_\+color}{, }\item[{uint32\+\_\+t}]{to\+\_\+color}{, }\item[{uint32\+\_\+t}]{total\+\_\+frames}{}\end{DoxyParamCaption})}
+
+
+
+Generuje snimek fade animace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em frame} & Cislo snimku \\
+\hline
+{\em from\+\_\+color} & Zacatecni barva \\
+\hline
+{\em to\+\_\+color} & Koncova barva \\
+\hline
+{\em total\+\_\+frames} & Celkovy pocet snimku \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00300}{300}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a348dfefe5bb753b16839d5215505e4f4}\index{animation\_task.h@{animation\_task.h}!animation\_generate\_pulse\_frame@{animation\_generate\_pulse\_frame}}
+\index{animation\_generate\_pulse\_frame@{animation\_generate\_pulse\_frame}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_generate\_pulse\_frame()}{animation\_generate\_pulse\_frame()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a348dfefe5bb753b16839d5215505e4f4} 
+void animation\+\_\+generate\+\_\+pulse\+\_\+frame (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{frame}{, }\item[{uint32\+\_\+t}]{color}{, }\item[{uint8\+\_\+t}]{speed}{}\end{DoxyParamCaption})}
+
+
+
+Generuje snimek pulzni animace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em frame} & Cislo snimku \\
+\hline
+{\em color} & Zakladni barva \\
+\hline
+{\em speed} & Rychlost pulzu \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00283}{283}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a63112c5794b76845d9afff7eb6fd3259}\index{animation\_task.h@{animation\_task.h}!animation\_generate\_rainbow\_frame@{animation\_generate\_rainbow\_frame}}
+\index{animation\_generate\_rainbow\_frame@{animation\_generate\_rainbow\_frame}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_generate\_rainbow\_frame()}{animation\_generate\_rainbow\_frame()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a63112c5794b76845d9afff7eb6fd3259} 
+void animation\+\_\+generate\+\_\+rainbow\+\_\+frame (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{frame}{}\end{DoxyParamCaption})}
+
+
+
+Generuje snimek duhove animace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em frame} & Cislo snimku \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00339}{339}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a03563b1b04565e45d3892b520708bd64}\index{animation\_task.h@{animation\_task.h}!animation\_generate\_wave\_frame@{animation\_generate\_wave\_frame}}
+\index{animation\_generate\_wave\_frame@{animation\_generate\_wave\_frame}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_generate\_wave\_frame()}{animation\_generate\_wave\_frame()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a03563b1b04565e45d3892b520708bd64} 
+void animation\+\_\+generate\+\_\+wave\+\_\+frame (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{frame}{, }\item[{uint32\+\_\+t}]{color}{, }\item[{uint8\+\_\+t}]{speed}{}\end{DoxyParamCaption})}
+
+
+
+Generuje snimek vlnove animace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em frame} & Cislo snimku \\
+\hline
+{\em color} & Zakladni barva \\
+\hline
+{\em speed} & Rychlost vlny \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00262}{262}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_ad90823f255171d2792d13345b96d9477}\index{animation\_task.h@{animation\_task.h}!animation\_get\_name@{animation\_get\_name}}
+\index{animation\_get\_name@{animation\_get\_name}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_get\_name()}{animation\_get\_name()}}
+{\footnotesize\ttfamily \label{animation__task_8h_ad90823f255171d2792d13345b96d9477} 
+const char \texorpdfstring{$\ast$}{*} animation\+\_\+get\+\_\+name (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\+\_\+task\+\_\+type\+\_\+t}}}]{animation\+\_\+type}{}\end{DoxyParamCaption})}
+
+
+
+Get animation name as string. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em animation\+\_\+type} & Animation type \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Animation name string 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00899}{899}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a09488753d3a3be4415fb5e1bc44d1fb0}\index{animation\_task.h@{animation\_task.h}!animation\_initialize\_system@{animation\_initialize\_system}}
+\index{animation\_initialize\_system@{animation\_initialize\_system}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_initialize\_system()}{animation\_initialize\_system()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a09488753d3a3be4415fb5e1bc44d1fb0} 
+void animation\+\_\+initialize\+\_\+system (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuje system animaci. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00124}{124}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a41183595937bafd37b4ba07c47b8c62d}\index{animation\_task.h@{animation\_task.h}!animation\_pause@{animation\_pause}}
+\index{animation\_pause@{animation\_pause}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_pause()}{animation\_pause()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a41183595937bafd37b4ba07c47b8c62d} 
+void animation\+\_\+pause (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{animation\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Pozastavi animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em animation\+\_\+id} & ID animace k pozastaveni \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00229}{229}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a70e168a5ba925ad0d8da01a49d34e75c}\index{animation\_task.h@{animation\_task.h}!animation\_pause\_all@{animation\_pause\_all}}
+\index{animation\_pause\_all@{animation\_pause\_all}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_pause\_all()}{animation\_pause\_all()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a70e168a5ba925ad0d8da01a49d34e75c} 
+void animation\+\_\+pause\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Pozastavi vsechny animace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00820}{820}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_afd9f1291c4f0584d7d02b26744a24475}\index{animation\_task.h@{animation\_task.h}!animation\_print\_check\_status@{animation\_print\_check\_status}}
+\index{animation\_print\_check\_status@{animation\_print\_check\_status}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_print\_check\_status()}{animation\_print\_check\_status()}}
+{\footnotesize\ttfamily \label{animation__task_8h_afd9f1291c4f0584d7d02b26744a24475} 
+void animation\+\_\+print\+\_\+check\+\_\+status (\begin{DoxyParamCaption}\item[{bool}]{is\+\_\+checkmate}{, }\item[{float}]{progress}{}\end{DoxyParamCaption})}
+
+
+
+Print check/checkmate animation status. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em is\+\_\+checkmate} & True if checkmate, false if just check \\
+\hline
+{\em progress} & Animation progress (0.\+0-\/1.\+0) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00995}{995}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a1fc234eed1ddbb156d9c1d61d21abd52}\index{animation\_task.h@{animation\_task.h}!animation\_print\_piece\_move@{animation\_print\_piece\_move}}
+\index{animation\_print\_piece\_move@{animation\_print\_piece\_move}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_print\_piece\_move()}{animation\_print\_piece\_move()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a1fc234eed1ddbb156d9c1d61d21abd52} 
+void animation\+\_\+print\+\_\+piece\+\_\+move (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{from\+\_\+square}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{to\+\_\+square}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{piece\+\_\+name}{, }\item[{float}]{progress}{}\end{DoxyParamCaption})}
+
+
+
+Print piece move animation with chess notation. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+square} & Source square (e.\+g., "{}e2"{}) \\
+\hline
+{\em to\+\_\+square} & Destination square (e.\+g., "{}e4"{}) \\
+\hline
+{\em piece\+\_\+name} & Piece name (e.\+g., "{}\+White Pawn"{}) \\
+\hline
+{\em progress} & Animation progress (0.\+0-\/1.\+0) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00964}{964}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a79382186a6a22377fff18924934c118a}\index{animation\_task.h@{animation\_task.h}!animation\_print\_progress@{animation\_print\_progress}}
+\index{animation\_print\_progress@{animation\_print\_progress}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_print\_progress()}{animation\_print\_progress()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a79382186a6a22377fff18924934c118a} 
+void animation\+\_\+print\+\_\+progress (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structanimation__task__t}{animation\+\_\+task\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{anim}{}\end{DoxyParamCaption})}
+
+
+
+Print animation progress with text representation. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em anim} & Animation to display \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00919}{919}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a9731cdb2cdcf0234b35af6ba0b7b1402}\index{animation\_task.h@{animation\_task.h}!animation\_print\_status@{animation\_print\_status}}
+\index{animation\_print\_status@{animation\_print\_status}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_print\_status()}{animation\_print\_status()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a9731cdb2cdcf0234b35af6ba0b7b1402} 
+void animation\+\_\+print\+\_\+status (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vypise stav animaci. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00844}{844}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a817be6e29efbd666e7334307f7c5fe5a}\index{animation\_task.h@{animation\_task.h}!animation\_print\_summary@{animation\_print\_summary}}
+\index{animation\_print\_summary@{animation\_print\_summary}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_print\_summary()}{animation\_print\_summary()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a817be6e29efbd666e7334307f7c5fe5a} 
+void animation\+\_\+print\+\_\+summary (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Print animation summary for all active animations. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l01023}{1023}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a0060e7605dd42ba4e2041e1c4402f60e}\index{animation\_task.h@{animation\_task.h}!animation\_process\_commands@{animation\_process\_commands}}
+\index{animation\_process\_commands@{animation\_process\_commands}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_process\_commands()}{animation\_process\_commands()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a0060e7605dd42ba4e2041e1c4402f60e} 
+void animation\+\_\+process\+\_\+commands (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuje prikazy animaci z fronty. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00769}{769}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a2b5de7f9e2ba904cd16a02a3add0b6d6}\index{animation\_task.h@{animation\_task.h}!animation\_request\_interrupt@{animation\_request\_interrupt}}
+\index{animation\_request\_interrupt@{animation\_request\_interrupt}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_request\_interrupt()}{animation\_request\_interrupt()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a2b5de7f9e2ba904cd16a02a3add0b6d6} 
+void animation\+\_\+request\+\_\+interrupt (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Pozada o preruseni animace. 
+
+Pozada o preruseni animace. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00587}{587}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a04765d28e82fce17f90d526a7ce60fc2}\index{animation\_task.h@{animation\_task.h}!animation\_resume@{animation\_resume}}
+\index{animation\_resume@{animation\_resume}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_resume()}{animation\_resume()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a04765d28e82fce17f90d526a7ce60fc2} 
+void animation\+\_\+resume (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{animation\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Obnovi animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em animation\+\_\+id} & ID animace k obnoveni \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00243}{243}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a749cd1a19567e9b741fb320e1d440736}\index{animation\_task.h@{animation\_task.h}!animation\_resume\_all@{animation\_resume\_all}}
+\index{animation\_resume\_all@{animation\_resume\_all}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_resume\_all()}{animation\_resume\_all()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a749cd1a19567e9b741fb320e1d440736} 
+void animation\+\_\+resume\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Obnovi vsechny animace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00832}{832}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_aec58eeb9ffe892383adeef75473dc160}\index{animation\_task.h@{animation\_task.h}!animation\_send\_frame\_to\_leds@{animation\_send\_frame\_to\_leds}}
+\index{animation\_send\_frame\_to\_leds@{animation\_send\_frame\_to\_leds}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_send\_frame\_to\_leds()}{animation\_send\_frame\_to\_leds()}}
+{\footnotesize\ttfamily \label{animation__task_8h_aec58eeb9ffe892383adeef75473dc160} 
+void animation\+\_\+send\+\_\+frame\+\_\+to\+\_\+leds (\begin{DoxyParamCaption}\item[{const uint8\+\_\+t}]{frame}{\mbox{[}\+CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+TOTAL\mbox{]}\mbox{[}3\mbox{]}}\end{DoxyParamCaption})}
+
+
+
+Posle data snimku do LED. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em frame} & Pole dat snimku \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00704}{704}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_abb35a3172d5d24a24902916b1ecfa40f}\index{animation\_task.h@{animation\_task.h}!animation\_start@{animation\_start}}
+\index{animation\_start@{animation\_start}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_start()}{animation\_start()}}
+{\footnotesize\ttfamily \label{animation__task_8h_abb35a3172d5d24a24902916b1ecfa40f} 
+void animation\+\_\+start (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{animation\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Spusti animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em animation\+\_\+id} & ID animace ke spusteni \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00190}{190}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_adc882a0b86428a7333c86eddd1f26b8d}\index{animation\_task.h@{animation\_task.h}!animation\_stop@{animation\_stop}}
+\index{animation\_stop@{animation\_stop}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_stop()}{animation\_stop()}}
+{\footnotesize\ttfamily \label{animation__task_8h_adc882a0b86428a7333c86eddd1f26b8d} 
+void animation\+\_\+stop (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{animation\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Zastavi animaci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em animation\+\_\+id} & ID animace k zastaveni \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00213}{213}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a19ff3a915b7dad334a1d306492667916}\index{animation\_task.h@{animation\_task.h}!animation\_stop\_all@{animation\_stop\_all}}
+\index{animation\_stop\_all@{animation\_stop\_all}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_stop\_all()}{animation\_stop\_all()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a19ff3a915b7dad334a1d306492667916} 
+void animation\+\_\+stop\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zastavi vsechny animace. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00806}{806}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a18ab65be2c5b763305a8d6c1fa886392}\index{animation\_task.h@{animation\_task.h}!animation\_task\_start@{animation\_task\_start}}
+\index{animation\_task\_start@{animation\_task\_start}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_task\_start()}{animation\_task\_start()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a18ab65be2c5b763305a8d6c1fa886392} 
+void animation\+\_\+task\+\_\+start (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Spusti animation task. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em pv\+Parameters} & Parametry tasku (nepouzivane) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l01052}{1052}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_ab87baa702421428476b149e35aa74ab9}\index{animation\_task.h@{animation\_task.h}!animation\_test\_all@{animation\_test\_all}}
+\index{animation\_test\_all@{animation\_test\_all}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_test\_all()}{animation\_test\_all()}}
+{\footnotesize\ttfamily \label{animation__task_8h_ab87baa702421428476b149e35aa74ab9} 
+void animation\+\_\+test\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Otestuje vsechny typy animaci. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00860}{860}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+
+\Hypertarget{animation__task_8h_a213dccff1d89e8b9afa89882fe6b5df9}\index{animation\_task.h@{animation\_task.h}!animation\_test\_system@{animation\_test\_system}}
+\index{animation\_test\_system@{animation\_test\_system}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{animation\_test\_system()}{animation\_test\_system()}}
+{\footnotesize\ttfamily \label{animation__task_8h_a213dccff1d89e8b9afa89882fe6b5df9} 
+void animation\+\_\+test\+\_\+system (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Otestuje system animaci. 
+
+\Hypertarget{animation__task_8h_ad4a9e6f0e9175a5f2f10c3536fb43308}\index{animation\_task.h@{animation\_task.h}!new\_move\_detected@{new\_move\_detected}}
+\index{new\_move\_detected@{new\_move\_detected}!animation\_task.h@{animation\_task.h}}
+\doxysubsubsection{\texorpdfstring{new\_move\_detected()}{new\_move\_detected()}}
+{\footnotesize\ttfamily \label{animation__task_8h_ad4a9e6f0e9175a5f2f10c3536fb43308} 
+bool new\+\_\+move\+\_\+detected (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda byla detekovana nova animace (placeholder). 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud byla detekovana nova animace
+\end{DoxyReturn}
+Overi zda byla detekovana nova animace (placeholder).
+
+\begin{DoxyReturn}{Návratová hodnota}
+true if new move detected 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{animation__task_8c_source_l00601}{601}} v souboru \mbox{\hyperlink{animation__task_8c_source}{animation\+\_\+task.\+c}}.
+

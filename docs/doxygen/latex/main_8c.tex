@@ -1,0 +1,898 @@
+\doxysection{Dokumentace souboru main.\+c}
+\hypertarget{main_8c}{}\label{main_8c}\index{main.c@{main.c}}
+
+
+ESP32-\/\+C6 Chess System -\/ Hlavni inicializace a startup.  
+
+
+{\ttfamily \#include "{}animation\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}button\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}chess\+\_\+types.\+h"{}}\newline
+{\ttfamily \#include "{}driver/uart.\+h"{}}\newline
+{\ttfamily \#include "{}driver/uart\+\_\+vfs.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+console.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+random.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+sleep.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+system.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+task\+\_\+wdt.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+timer.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+vfs\+\_\+dev.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/semphr.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/task.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/timers.\+h"{}}\newline
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+{\ttfamily \#include "{}game\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}led\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}matrix\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}nvs\+\_\+flash.\+h"{}}\newline
+{\ttfamily \#include "{}test\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}uart\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include $<$inttypes.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include "{}config\+\_\+manager.\+h"{}}\newline
+{\ttfamily \#include "{}game\+\_\+led\+\_\+animations.\+h"{}}\newline
+{\ttfamily \#include "{}uart\+\_\+commands\+\_\+extended.\+h"{}}\newline
+{\ttfamily \#include "{}web\+\_\+server\+\_\+task.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro main.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{main_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{main_8c_a4894ad0ac4d99cffa56d58649a1850fb}{show\+\_\+boot\+\_\+animation\+\_\+and\+\_\+board}} (void)
+\begin{DoxyCompactList}\small\item\em Zobrazi centralizovanou boot animaci a sachovnici. \end{DoxyCompactList}\item 
+static esp\+\_\+err\+\_\+t \mbox{\hyperlink{main_8c_a16454398c460e4d7161a90c808248ec2}{main\+\_\+task\+\_\+wdt\+\_\+reset\+\_\+safe}} (void)
+\begin{DoxyCompactList}\small\item\em Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP\+\_\+\+ERR\+\_\+\+NOT\+\_\+\+FOUND. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_a768b8bf362b42a4e04ac58639035a938}{demo\+\_\+report\+\_\+activity}} (void)
+\begin{DoxyCompactList}\small\item\em Report activity on the board (interrupt demo mode) Called from matrix\+\_\+task when any change is detected. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{main_8c_ae27993c1756124d9fa6e8af4958409ef}{main\+\_\+system\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuje hlavni systemove komponenty aplikace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_acf3129796410e265806bde4edacf4d85}{initialize\+\_\+chess\+\_\+game}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuje sachovou hru a posle prikaz pro novou hru. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_a6e05201e522856e3cd984bade768be7e}{toggle\+\_\+demo\+\_\+mode}} (bool enabled)
+\begin{DoxyCompactList}\small\item\em Prepina demo mod zapnuto/vypnuto. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{main_8c_ad190bb08e29e63b6f04a3715dae88706}{is\+\_\+demo\+\_\+mode\+\_\+enabled}} (void)
+\begin{DoxyCompactList}\small\item\em Get demo mode status. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_a47be0f08c5acbba3a901be7d65e4cb8a}{execute\+\_\+demo\+\_\+move}} (void)
+\begin{DoxyCompactList}\small\item\em Vykona jeden demo tah. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{main_8c_ae52825df5837e0f8f5e814f48cafb722}{init\+\_\+console}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuje konzoli a UART. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{main_8c_a2dbcd7c01e5197da615bb4fe6c5b29b0}{create\+\_\+system\+\_\+tasks}} (void)
+\begin{DoxyCompactList}\small\item\em Vytvori vsechny systemove tasky. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}{app\+\_\+main}} (void)
+\begin{DoxyCompactList}\small\item\em Hlavni funkce aplikace. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}} = "{}MAIN"{}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{main_8c_a8eca84d3e2c7c0adf364819e74b1bd9b}{uart\+\_\+mutex}} = NULL
+\begin{DoxyCompactList}\small\item\em Globalni UART mutex pro cisty vystup. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_a6cf81c896b094e20ff5752ee1133a8f2}{led\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro LED task. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_a9de1b87e0b6692c90f1c5cfd9e13d444}{matrix\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro Matrix task. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_aba5c2db71f9fa5cd9f3e506e91ffe6d3}{button\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro Button task. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_a4e4967ac70f1e8a89b2fea62027a968c}{uart\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro UART task. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_acb49a688d90460dc48f7e0b976ace62d}{game\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro Game task. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_a2a20898222a990efbce3e4239f2d9aee}{animation\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro Animation task. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_abafefd1ba465b609ca39fd6fc502095b}{test\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro Test task. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_a36e9302901a63037025cd7970fa8adbe}{web\+\_\+server\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro Web Server task. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_aeb8dd1b563b914d04c90f377454ad032}{reset\+\_\+button\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro Reset Button task. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_a2cf065fd2e74d6ad91b3da384a96c60b}{promotion\+\_\+button\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro Promotion Button task. \end{DoxyCompactList}\item 
+static volatile bool \mbox{\hyperlink{main_8c_af252e203098e091d068b85d637b1083d}{demo\+\_\+mode\+\_\+enabled}} = false
+\begin{DoxyCompactList}\small\item\em Konfigurace demo modu -\/ je demo mod zapnuty. \end{DoxyCompactList}\item 
+static uint32\+\_\+t \mbox{\hyperlink{main_8c_aa999d9fce86efd55be4fb1bce525e69e}{current\+\_\+demo\+\_\+delay\+\_\+ms}} = 3000
+\begin{DoxyCompactList}\small\item\em Zpozdeni mezi demo tahy v milisekundach -\/ dynamicky meneno. \end{DoxyCompactList}\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\+\_\+\+GAME\+\_\+\+WHITE\+\_\+\+WIN}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Demo game 1\+: Scholar\textquotesingle{}s Mate -\/ White wins in 4 moves (fast checkmate). \end{DoxyCompactList}\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}{DEMO\+\_\+\+GAME\+\_\+\+OPERA}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Demo game 4\+: Opera Game -\/ Morphy\textquotesingle{}s Masterpiece (Paris 1858, White wins). \end{DoxyCompactList}\item 
+static const char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{DEMO\+\_\+\+GAMES}} \mbox{[}$\,$\mbox{]} = \{\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\+\_\+\+GAME\+\_\+\+WHITE\+\_\+\+WIN}}, \mbox{\hyperlink{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}{DEMO\+\_\+\+GAME\+\_\+\+OPERA}}\}
+\begin{DoxyCompactList}\small\item\em Array of all demo games. \end{DoxyCompactList}\item 
+static const int \mbox{\hyperlink{main_8c_abcaca94aeee21681707035e985a0c843}{DEMO\+\_\+\+GAME\+\_\+\+LENGTHS}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Number of moves in each demo game. \end{DoxyCompactList}\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{main_8c_a167e2d80b3314581d6120d1b2e48ee51}{DEMO\+\_\+\+GAME\+\_\+\+NAMES}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em Game type names for logging. \end{DoxyCompactList}\item 
+static const int \mbox{\hyperlink{main_8c_a66025d47b9e143dea05d41ea2a76d46b}{DEMO\+\_\+\+GAMES\+\_\+\+COUNT}} = sizeof(\mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{DEMO\+\_\+\+GAMES}}) / sizeof(\mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{DEMO\+\_\+\+GAMES}}\mbox{[}0\mbox{]})
+\begin{DoxyCompactList}\small\item\em Total number of demo games. \end{DoxyCompactList}\item 
+static int \mbox{\hyperlink{main_8c_a19159754c1693faa54833d370834e343}{current\+\_\+demo\+\_\+game}} = 0
+\begin{DoxyCompactList}\small\item\em Current demo game being played (0-\/2). \end{DoxyCompactList}\item 
+static int \mbox{\hyperlink{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}{demo\+\_\+move\+\_\+index}} = 0
+\begin{DoxyCompactList}\small\item\em Current move index within the current game. \end{DoxyCompactList}\item 
+static const char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa}{current\+\_\+demo\+\_\+moves}} = \mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\+\_\+\+GAME\+\_\+\+WHITE\+\_\+\+WIN}}
+\begin{DoxyCompactList}\small\item\em Current game\textquotesingle{}s move array (pointer to active game). \end{DoxyCompactList}\item 
+static int \mbox{\hyperlink{main_8c_a4973ab5b9a06d7ed486bc100be691f42}{demo\+\_\+moves\+\_\+count}}
+\begin{DoxyCompactList}\small\item\em Current game\textquotesingle{}s move count. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System -\/ Hlavni inicializace a startup. 
+
+\hypertarget{main_8c_autotoc_md0}{}\doxysubsection{\texorpdfstring{autotoc\+\_\+md0}{autotoc\+\_\+md0}}\label{main_8c_autotoc_md0}
+\hypertarget{main_8c_autotoc_md1}{}\doxysubsection{\texorpdfstring{CO TENTO SOUBOR DELA?}{CO TENTO SOUBOR DELA?}}\label{main_8c_autotoc_md1}
+Tento soubor je VSTUPNI BOD cele aplikace. Spousti se jako prvni\+:
+\begin{DoxyEnumerate}
+\item Inicializace Free\+RTOS
+\item Vytvoreni fronty (queues) pro komunikaci mezi tasky
+\item Vytvoreni mutexu (synchronizace)
+\item Spusteni vsech tasku (game, uart, led, matrix...)
+\item WDT (watchdog) konfigurace
+\item Prechod do scheduler (Free\+RTOS prevezme rizeni)
+\end{DoxyEnumerate}
+
+\DoxyHorRuler{0}
+ \hypertarget{main_8c_autotoc_md3}{}\doxysubsection{\texorpdfstring{STARTUP SEKVENCE}{STARTUP SEKVENCE}}\label{main_8c_autotoc_md3}
+
+\begin{DoxyEnumerate}
+\item ESP32 BOOT (hardware)
+\begin{DoxyItemize}
+\item Bootloader ESP-\/\+IDF
+\item Nacteni firmware z flash
+\item Skok na \doxylink{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}{app\+\_\+main()}
+\end{DoxyItemize}
+\item \doxylink{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}{app\+\_\+main()} -\/ HLAVNI FUNKCE\+: a) NVS init (Non-\/\+Volatile Storage pro Wi\+Fi config) b) Vytvoreni front\+:
+\begin{DoxyItemize}
+\item game\+\_\+command\+\_\+queue (20 zprav)
+\item button\+\_\+event\+\_\+queue (5 zprav)
+\item LED se ovladaji primymi volanimi (fronta byla odstranena)
+\end{DoxyItemize}
+
+c) Vytvor mutexy\+:
+\begin{DoxyItemize}
+\item uart\+\_\+mutex (ochrana UART vystupu)
+\item led\+\_\+state\+\_\+mutex (ochrana LED bufferu)
+\end{DoxyItemize}
+
+d) Spust tasky (v poradi priority)\+:
+\begin{DoxyItemize}
+\item led\+\_\+task (priorita 7 -\/ nejvyssi, kriticky timing)
+\item matrix\+\_\+task (priorita 6 -\/ realtime)
+\item button\+\_\+task (priorita 5 -\/ uzivatelsky vstup)
+\item game\+\_\+task (priorita 4)
+\item uart\+\_\+task (priorita 3)
+\item animation\+\_\+task (priorita 3)
+\item web\+\_\+server\+\_\+task (priorita 3)
+\item test\+\_\+task (priorita 1 -\/ nejnizsi)
+\end{DoxyItemize}
+
+e) WDT init (5s timeout) f) Zobraz welcome message
+\item SCHEDULER START\+:
+\begin{DoxyItemize}
+\item Free\+RTOS scheduler prevezme rizeni
+\item \doxylink{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}{app\+\_\+main()} uz NIKDY NEKONCI
+\item Tasky bezi paralelne (pseudo-\/paralelne)
+\end{DoxyItemize}
+\end{DoxyEnumerate}
+
+\DoxyHorRuler{0}
+ \hypertarget{main_8c_autotoc_md5}{}\doxysubsection{\texorpdfstring{FRONTY (QUEUES) -\/ KOMUNIKACE MEZI TASKY}{FRONTY (QUEUES) -\/ KOMUNIKACE MEZI TASKY}}\label{main_8c_autotoc_md5}
+game\+\_\+command\+\_\+queue\+:
+\begin{DoxyItemize}
+\item Velikost\+: 20 zprav
+\item Odesilatel\+: uart\+\_\+task, matrix\+\_\+task, web\+\_\+server
+\item Prijemce\+: game\+\_\+task
+\item Obsah\+: Prikazy typu GAME\+\_\+\+CMD\+\_\+\+MOVE, GAME\+\_\+\+CMD\+\_\+\+RESET...
+\end{DoxyItemize}
+
+button\+\_\+event\+\_\+queue\+:
+\begin{DoxyItemize}
+\item Velikost\+: 5 zprav
+\item Odesilatel\+: ISR (interrupt handler)
+\item Prijemce\+: button\+\_\+task
+\item Obsah\+: BUTTON\+\_\+\+PRESSED, BUTTON\+\_\+\+RELEASED
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+ \hypertarget{main_8c_autotoc_md7}{}\doxysubsection{\texorpdfstring{TASK PRIORITY}{TASK PRIORITY}}\label{main_8c_autotoc_md7}
+ESP32 ma 25 priorit (0 = nejnizsi, 24 = nejvyssi)\+:
+
+Priorita 7\+: led\+\_\+task
+\begin{DoxyItemize}
+\item NEJVYSSI priorita -\/ kriticky timing pro WS2812B LED
+\item LED vyzaduji presny timing a nesmi byt preruseny
+\item Animace nesmi trhat
+\end{DoxyItemize}
+
+Priorita 6\+: matrix\+\_\+task
+\begin{DoxyItemize}
+\item Vysoka priorita -\/ realtime detekce pohybu
+\item Nelze zmeskovat detekci pohybu figurek
+\end{DoxyItemize}
+
+Priorita 5\+: button\+\_\+task
+\begin{DoxyItemize}
+\item Uzivatelsky vstup -\/ musi byt rychla odezva
+\end{DoxyItemize}
+
+Priorita 4\+: game\+\_\+task
+\begin{DoxyItemize}
+\item Logika hry je kriticka
+\item Musi byt rychla odezva na tahy
+\end{DoxyItemize}
+
+Priorita 3\+: uart\+\_\+task, animation\+\_\+task, web\+\_\+server\+\_\+task
+\begin{DoxyItemize}
+\item Terminal muze cekat par ms
+\item Neni realtime
+\end{DoxyItemize}
+
+Priorita 1\+: test\+\_\+task
+\begin{DoxyItemize}
+\item Nejnizsi priorita -\/ pouze pro debug
+\item Muze cekat
+\end{DoxyItemize}
+
+Priorita 0\+: IDLE task (Free\+RTOS internal)
+
+\DoxyHorRuler{0}
+ \hypertarget{main_8c_autotoc_md9}{}\doxysubsection{\texorpdfstring{KRITICKA PRAVIDLA}{KRITICKA PRAVIDLA}}\label{main_8c_autotoc_md9}
+\begin{DoxyWarning}{Pozor}
+CO SE NESMI DELAT\+:
+\end{DoxyWarning}
+
+\begin{DoxyEnumerate}
+\item NIKDY nezmen poradi vytvareni front! Fronty MUSI existovat PRED spustenim tasku
+\item NIKDY nespust task bez queue! x\+Task\+Create(game\+\_\+task, ...) PRED game\+\_\+command\+\_\+queue = x\+Queue\+Create(...) Task by mel NULL pointer -\/\texorpdfstring{$>$}{>} crash
+\item NIKDY nemen priority nahodne! led\+\_\+task ma nejvyssi prioritu (7) pro kriticky LED timing
+\item VZDY kontroluj navratove hodnoty. x\+Task\+Create vraci pd\+PASS pokud uspesne x\+Queue\+Create vraci handle nebo NULL
+\end{DoxyEnumerate}
+
+\DoxyHorRuler{0}
+
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/24
+\end{DoxyDate}
+Funkce\+:
+\begin{DoxyItemize}
+\item 8 Free\+RTOS tasku pro systemove komponenty
+\item Task Watchdog Timer pro stabilitu systemu
+\item ASCII sachove umeni welcome banner
+\item Automaticka inicializace sachove hry
+\item Demo mod s automatickymi tahy
+\item Production-\/ready error handling
+\end{DoxyItemize}
+
+Tento soubor je hlavnim vstupnim bodem pro ESP32-\/\+C6 sachovy system. Spousti se jako prvni a inicializuje vsechny potrebne komponenty. System pouziva Free\+RTOS pro multitasking a ma 8 hlavnich tasku\+:
+\begin{DoxyItemize}
+\item LED task\+: ovladani LED pasku
+\item Matrix task\+: skenovani 8x8 matice
+\item Button task\+: ovladani tlacitek
+\item UART task\+: komunikace pres UART
+\item Game task\+: logika sachove hry
+\item Animation task\+: LED animace
+\item Test task\+: testovani systemu
+\item Web server task\+: web rozhrani 
+\end{DoxyItemize}
+
+Definice v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{main_8c_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}\index{main.c@{main.c}!app\_main@{app\_main}}
+\index{app\_main@{app\_main}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{app\_main()}{app\_main()}}
+{\footnotesize\ttfamily \label{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70} 
+void app\+\_\+main (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Hlavni funkce aplikace. 
+
+Tato funkce je hlavnim vstupnim bodem aplikace. Inicializuje system, vytvori tasky a spusti hlavni smycku aplikace. Obsahuje error handling a safe mode pro pripady chyb.
+
+Funkce je volana jako prvni po spusteni ESP32. Inicializuje Task Watchdog Timer, vytvori vsechny systemove tasky a spusti hlavni smycku aplikace. Obsahuje error handling a safe mode pro pripady chyb pri inicializaci.
+
+Hlavni smycka\+:
+\begin{DoxyItemize}
+\item Resetuje watchdog timer
+\item Loguje system status kazdych 60 sekund
+\item Zpracovava demo mod pokud je zapnuty
+\item Ceka 1 sekundu mezi iteracemi 
+\end{DoxyItemize}
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l01228}{1228}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a2dbcd7c01e5197da615bb4fe6c5b29b0}\index{main.c@{main.c}!create\_system\_tasks@{create\_system\_tasks}}
+\index{create\_system\_tasks@{create\_system\_tasks}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{create\_system\_tasks()}{create\_system\_tasks()}}
+{\footnotesize\ttfamily \label{main_8c_a2dbcd7c01e5197da615bb4fe6c5b29b0} 
+esp\+\_\+err\+\_\+t create\+\_\+system\+\_\+tasks (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vytvori vsechny systemove tasky. 
+
+Tato funkce vytvori vsechny Free\+RTOS tasky potrebne pro chod systemu. Kazdy task ma svoji prioritu a velikost stacku. Po vytvoreni tasku se zobrazi boot animace a inicializuje se sachova hra.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe
+\end{DoxyReturn}
+Funkce vytvori 8 hlavnich tasku\+:
+\begin{DoxyItemize}
+\item LED task\+: ovladani LED pasku
+\item Matrix task\+: skenovani 8x8 matice
+\item Button task\+: ovladani tlacitek
+\item UART task\+: komunikace pres UART
+\item Game task\+: logika sachove hry
+\item Animation task\+: LED animace
+\item Test task\+: testovani systemu
+\item Web server task\+: web rozhrani
+\end{DoxyItemize}
+
+Po vytvoreni vsech tasku se zobrazi boot animace a inicializuje hra. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00755}{755}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a768b8bf362b42a4e04ac58639035a938}\index{main.c@{main.c}!demo\_report\_activity@{demo\_report\_activity}}
+\index{demo\_report\_activity@{demo\_report\_activity}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{demo\_report\_activity()}{demo\_report\_activity()}}
+{\footnotesize\ttfamily \label{main_8c_a768b8bf362b42a4e04ac58639035a938} 
+void demo\+\_\+report\+\_\+activity (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Report activity on the board (interrupt demo mode) Called from matrix\+\_\+task when any change is detected. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00532}{532}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a47be0f08c5acbba3a901be7d65e4cb8a}\index{main.c@{main.c}!execute\_demo\_move@{execute\_demo\_move}}
+\index{execute\_demo\_move@{execute\_demo\_move}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{execute\_demo\_move()}{execute\_demo\_move()}}
+{\footnotesize\ttfamily \label{main_8c_a47be0f08c5acbba3a901be7d65e4cb8a} 
+void execute\+\_\+demo\+\_\+move (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vykona jeden demo tah. 
+
+Tato funkce vykona jeden tah z preddefinovane sekvence demo tahu. Tahy jsou ulozeny v poli DEMO\+\_\+\+MOVES a jsou hrany postupne. Po dokonceni vsech tahu se sekvence resetuje.
+
+Funkce vezme aktualni tah z pole DEMO\+\_\+\+MOVES a posle ho do game tasku. Tahy jsou ve formatu "{}e2e4"{} (z pozice e2 na pozici e4). Po dokonceni vsech tahu se index resetuje na 0. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00558}{558}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_ae52825df5837e0f8f5e814f48cafb722}\index{main.c@{main.c}!init\_console@{init\_console}}
+\index{init\_console@{init\_console}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{init\_console()}{init\_console()}}
+{\footnotesize\ttfamily \label{main_8c_ae52825df5837e0f8f5e814f48cafb722} 
+void init\+\_\+console (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Inicializuje konzoli a UART. 
+
+Tato funkce inicializuje NVS flash, konzoli a UART pro komunikaci. Pouziva USB Serial JTAG konzoli, takze neni potreba externi UART.
+
+Funkce inicializuje NVS flash pamet pro ulozeni konfigurace, nastavi konzoli pro prijimani prikazu a registruje help prikaz. Vsechna komunikace probiha pres USB Serial JTAG. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00704}{704}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_acf3129796410e265806bde4edacf4d85}\index{main.c@{main.c}!initialize\_chess\_game@{initialize\_chess\_game}}
+\index{initialize\_chess\_game@{initialize\_chess\_game}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{initialize\_chess\_game()}{initialize\_chess\_game()}}
+{\footnotesize\ttfamily \label{main_8c_acf3129796410e265806bde4edacf4d85} 
+void initialize\+\_\+chess\+\_\+game (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuje sachovou hru a posle prikaz pro novou hru. 
+
+Tato funkce spusti novou sachovou hru odeslanim prikazu GAME\+\_\+\+CMD\+\_\+\+NEW\+\_\+\+GAME do game tasku. Po spusteni hry aktualizuje dostupnost tlacitek LED.
+
+Funkce vytvori novou sachovou hru odeslanim prikazu do game tasku. Po uspesnem spusteni hry aktualizuje LED feedback pro tlacitka, aby uzivatel vedel ktera tlacitka jsou dostupna. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00460}{460}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_ad190bb08e29e63b6f04a3715dae88706}\index{main.c@{main.c}!is\_demo\_mode\_enabled@{is\_demo\_mode\_enabled}}
+\index{is\_demo\_mode\_enabled@{is\_demo\_mode\_enabled}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{is\_demo\_mode\_enabled()}{is\_demo\_mode\_enabled()}}
+{\footnotesize\ttfamily \label{main_8c_ad190bb08e29e63b6f04a3715dae88706} 
+bool is\+\_\+demo\+\_\+mode\+\_\+enabled (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Get demo mode status. 
+
+Checks if demo mode is currently active.
+
+\begin{DoxyReturn}{Návratová hodnota}
+true if enabled, false otherwise 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00544}{544}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_ae27993c1756124d9fa6e8af4958409ef}\index{main.c@{main.c}!main\_system\_init@{main\_system\_init}}
+\index{main\_system\_init@{main\_system\_init}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{main\_system\_init()}{main\_system\_init()}}
+{\footnotesize\ttfamily \label{main_8c_ae27993c1756124d9fa6e8af4958409ef} 
+esp\+\_\+err\+\_\+t main\+\_\+system\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuje hlavni systemove komponenty aplikace. 
+
+Tato funkce inicializuje vsechny systemove komponenty potrebne pro chod sachoveho systemu. Vytvari mutexy, inicializuje Free\+RTOS chess komponentu, spousti timery a overuje dostupnost vsech front.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+FAIL pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00336}{336}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a16454398c460e4d7161a90c808248ec2}\index{main.c@{main.c}!main\_task\_wdt\_reset\_safe@{main\_task\_wdt\_reset\_safe}}
+\index{main\_task\_wdt\_reset\_safe@{main\_task\_wdt\_reset\_safe}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{main\_task\_wdt\_reset\_safe()}{main\_task\_wdt\_reset\_safe()}}
+{\footnotesize\ttfamily \label{main_8c_a16454398c460e4d7161a90c808248ec2} 
+esp\+\_\+err\+\_\+t main\+\_\+task\+\_\+wdt\+\_\+reset\+\_\+safe (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP\+\_\+\+ERR\+\_\+\+NOT\+\_\+\+FOUND. 
+
+Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pokud uspesne, ESP\+\_\+\+ERR\+\_\+\+NOT\+\_\+\+FOUND pokud task neni registrovany (WARNING pouze) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00209}{209}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a4894ad0ac4d99cffa56d58649a1850fb}\index{main.c@{main.c}!show\_boot\_animation\_and\_board@{show\_boot\_animation\_and\_board}}
+\index{show\_boot\_animation\_and\_board@{show\_boot\_animation\_and\_board}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{show\_boot\_animation\_and\_board()}{show\_boot\_animation\_and\_board()}}
+{\footnotesize\ttfamily \label{main_8c_a4894ad0ac4d99cffa56d58649a1850fb} 
+void show\+\_\+boot\+\_\+animation\+\_\+and\+\_\+board (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazi centralizovanou boot animaci a sachovnici. 
+
+Tato funkce je volana po inicializaci vsech tasku, aby se zabranilo duplicitnimu renderovani a zajistil se plynuly timing animace. Zobrazi ASCII sachove umeni, progress bar a navod k pouziti.
+
+Funkce zobrazi pekny ASCII banner s nazvem systemu, progress bar s animaci nacitani a navod k pouziti systemu. Vsechno je barevne a plynule animovane pro lepsi uzivatelsky zazitek. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00944}{944}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a6e05201e522856e3cd984bade768be7e}\index{main.c@{main.c}!toggle\_demo\_mode@{toggle\_demo\_mode}}
+\index{toggle\_demo\_mode@{toggle\_demo\_mode}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{toggle\_demo\_mode()}{toggle\_demo\_mode()}}
+{\footnotesize\ttfamily \label{main_8c_a6e05201e522856e3cd984bade768be7e} 
+void toggle\+\_\+demo\+\_\+mode (\begin{DoxyParamCaption}\item[{bool}]{enabled}{}\end{DoxyParamCaption})}
+
+
+
+Prepina demo mod zapnuto/vypnuto. 
+
+Tato funkce umoznuje zapnout nebo vypnout demo mod, ktery automaticky hraje preddefinovane tahy. Uzivatel muze zapnout demo mod prikazem "{}\+DEMO ON"{} a vypnout prikazem "{}\+DEMO OFF"{}.
+
+
+\begin{DoxyParams}{Parametry}
+{\em enabled} & true pro zapnuti, false pro vypnuti\\
+\hline
+\end{DoxyParams}
+Demo mod umoznuje automaticke hrani preddefinovanych tahu. Kdyz je zapnuty, system automaticky hraje tahy z pole DEMO\+\_\+\+MOVES. Kdyz je vypnuty, uzivatel muze hrat manualne. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00501}{501}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{main_8c_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{main_8c_a2a20898222a990efbce3e4239f2d9aee}\index{main.c@{main.c}!animation\_task\_handle@{animation\_task\_handle}}
+\index{animation\_task\_handle@{animation\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{animation\_task\_handle}{animation\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_a2a20898222a990efbce3e4239f2d9aee} 
+Task\+Handle\+\_\+t animation\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro Animation task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00240}{240}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_aba5c2db71f9fa5cd9f3e506e91ffe6d3}\index{main.c@{main.c}!button\_task\_handle@{button\_task\_handle}}
+\index{button\_task\_handle@{button\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{button\_task\_handle}{button\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_aba5c2db71f9fa5cd9f3e506e91ffe6d3} 
+Task\+Handle\+\_\+t button\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro Button task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00234}{234}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_aa999d9fce86efd55be4fb1bce525e69e}\index{main.c@{main.c}!current\_demo\_delay\_ms@{current\_demo\_delay\_ms}}
+\index{current\_demo\_delay\_ms@{current\_demo\_delay\_ms}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{current\_demo\_delay\_ms}{current\_demo\_delay\_ms}}
+{\footnotesize\ttfamily \label{main_8c_aa999d9fce86efd55be4fb1bce525e69e} 
+uint32\+\_\+t current\+\_\+demo\+\_\+delay\+\_\+ms = 3000\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Zpozdeni mezi demo tahy v milisekundach -\/ dynamicky meneno. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00255}{255}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a19159754c1693faa54833d370834e343}\index{main.c@{main.c}!current\_demo\_game@{current\_demo\_game}}
+\index{current\_demo\_game@{current\_demo\_game}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{current\_demo\_game}{current\_demo\_game}}
+{\footnotesize\ttfamily \label{main_8c_a19159754c1693faa54833d370834e343} 
+int current\+\_\+demo\+\_\+game = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Current demo game being played (0-\/2). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00311}{311}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa}\index{main.c@{main.c}!current\_demo\_moves@{current\_demo\_moves}}
+\index{current\_demo\_moves@{current\_demo\_moves}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{current\_demo\_moves}{current\_demo\_moves}}
+{\footnotesize\ttfamily \label{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa} 
+const char\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} current\+\_\+demo\+\_\+moves = \mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\+\_\+\+GAME\+\_\+\+WHITE\+\_\+\+WIN}}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Current game\textquotesingle{}s move array (pointer to active game). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00317}{317}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_abcaca94aeee21681707035e985a0c843}\index{main.c@{main.c}!DEMO\_GAME\_LENGTHS@{DEMO\_GAME\_LENGTHS}}
+\index{DEMO\_GAME\_LENGTHS@{DEMO\_GAME\_LENGTHS}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{DEMO\_GAME\_LENGTHS}{DEMO\_GAME\_LENGTHS}}
+{\footnotesize\ttfamily \label{main_8c_abcaca94aeee21681707035e985a0c843} 
+const int DEMO\+\_\+\+GAME\+\_\+\+LENGTHS\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Inicializační hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}})\ /\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}}[0]),}
+\DoxyCodeLine{\ \ \ \ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}{DEMO\_GAME\_OPERA}})\ /\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}{DEMO\_GAME\_OPERA}}[0])\}}
+
+\end{DoxyCode}
+
+
+Number of moves in each demo game. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00299}{299}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a167e2d80b3314581d6120d1b2e48ee51}\index{main.c@{main.c}!DEMO\_GAME\_NAMES@{DEMO\_GAME\_NAMES}}
+\index{DEMO\_GAME\_NAMES@{DEMO\_GAME\_NAMES}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{DEMO\_GAME\_NAMES}{DEMO\_GAME\_NAMES}}
+{\footnotesize\ttfamily \label{main_8c_a167e2d80b3314581d6120d1b2e48ee51} 
+const char\texorpdfstring{$\ast$}{*} DEMO\+\_\+\+GAME\+\_\+\+NAMES\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Inicializační hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{\textcolor{stringliteral}{"{}Scholar's\ Mate\ (White\ Wins)"{}},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Opera\ Game\ (Morphy\ 1858)"{}}\}}
+
+\end{DoxyCode}
+
+
+Game type names for logging. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00304}{304}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}\index{main.c@{main.c}!DEMO\_GAME\_OPERA@{DEMO\_GAME\_OPERA}}
+\index{DEMO\_GAME\_OPERA@{DEMO\_GAME\_OPERA}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{DEMO\_GAME\_OPERA}{DEMO\_GAME\_OPERA}}
+{\footnotesize\ttfamily \label{main_8c_a22d3cef2fa6060633fc71190b5d6df3b} 
+const char\texorpdfstring{$\ast$}{*} DEMO\+\_\+\+GAME\+\_\+\+OPERA\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Inicializační hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}e2e4"{}},\ \textcolor{stringliteral}{"{}e7e5"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}g1f3"{}},\ \textcolor{stringliteral}{"{}d7d6"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}d2d4"{}},\ \textcolor{stringliteral}{"{}c8g4"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}d4e5"{}},\ \textcolor{stringliteral}{"{}g4f3"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}d1f3"{}},\ \textcolor{stringliteral}{"{}d6e5"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}f1c4"{}},\ \textcolor{stringliteral}{"{}g8f6"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}f3b3"{}},\ \textcolor{stringliteral}{"{}d8e7"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}b1c3"{}},\ \textcolor{stringliteral}{"{}c7c6"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}c1g5"{}},\ \textcolor{stringliteral}{"{}b7b5"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}c3b5"{}},\ \textcolor{stringliteral}{"{}c6b5"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}c4b5"{}},\ \textcolor{stringliteral}{"{}b8d7"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}e1c1"{}},\ \textcolor{stringliteral}{"{}a8d8"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}d1d7"{}},\ \textcolor{stringliteral}{"{}d8d7"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}h1d1"{}},\ \textcolor{stringliteral}{"{}e7e6"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}b5d7"{}},\ \textcolor{stringliteral}{"{}f6d7"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}b3b8"{}},\ \textcolor{stringliteral}{"{}d7b8"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}d1d8"{}}\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Demo game 4\+: Opera Game -\/ Morphy\textquotesingle{}s Masterpiece (Paris 1858, White wins). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00275}{275}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_acc98f8280521aceb9893120eba837382}\index{main.c@{main.c}!DEMO\_GAME\_WHITE\_WIN@{DEMO\_GAME\_WHITE\_WIN}}
+\index{DEMO\_GAME\_WHITE\_WIN@{DEMO\_GAME\_WHITE\_WIN}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{DEMO\_GAME\_WHITE\_WIN}{DEMO\_GAME\_WHITE\_WIN}}
+{\footnotesize\ttfamily \label{main_8c_acc98f8280521aceb9893120eba837382} 
+const char\texorpdfstring{$\ast$}{*} DEMO\+\_\+\+GAME\+\_\+\+WHITE\+\_\+\+WIN\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Inicializační hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}e2e4"{}},\ \textcolor{stringliteral}{"{}e7e5"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}f1c4"{}},\ \textcolor{stringliteral}{"{}b8c6"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}d1h5"{}},\ \textcolor{stringliteral}{"{}g8f6"{}},\ }
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}h5f7"{}}\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Demo game 1\+: Scholar\textquotesingle{}s Mate -\/ White wins in 4 moves (fast checkmate). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00262}{262}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_ac2614434acc93da191dda0a8a445e651}\index{main.c@{main.c}!DEMO\_GAMES@{DEMO\_GAMES}}
+\index{DEMO\_GAMES@{DEMO\_GAMES}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{DEMO\_GAMES}{DEMO\_GAMES}}
+{\footnotesize\ttfamily \label{main_8c_ac2614434acc93da191dda0a8a445e651} 
+const char\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} DEMO\+\_\+\+GAMES\mbox{[}$\,$\mbox{]} = \{\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\+\_\+\+GAME\+\_\+\+WHITE\+\_\+\+WIN}}, \mbox{\hyperlink{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}{DEMO\+\_\+\+GAME\+\_\+\+OPERA}}\}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Array of all demo games. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00296}{296}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a66025d47b9e143dea05d41ea2a76d46b}\index{main.c@{main.c}!DEMO\_GAMES\_COUNT@{DEMO\_GAMES\_COUNT}}
+\index{DEMO\_GAMES\_COUNT@{DEMO\_GAMES\_COUNT}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{DEMO\_GAMES\_COUNT}{DEMO\_GAMES\_COUNT}}
+{\footnotesize\ttfamily \label{main_8c_a66025d47b9e143dea05d41ea2a76d46b} 
+const int DEMO\+\_\+\+GAMES\+\_\+\+COUNT = sizeof(\mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{DEMO\+\_\+\+GAMES}}) / sizeof(\mbox{\hyperlink{main_8c_ac2614434acc93da191dda0a8a445e651}{DEMO\+\_\+\+GAMES}}\mbox{[}0\mbox{]})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Total number of demo games. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00308}{308}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_af252e203098e091d068b85d637b1083d}\index{main.c@{main.c}!demo\_mode\_enabled@{demo\_mode\_enabled}}
+\index{demo\_mode\_enabled@{demo\_mode\_enabled}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{demo\_mode\_enabled}{demo\_mode\_enabled}}
+{\footnotesize\ttfamily \label{main_8c_af252e203098e091d068b85d637b1083d} 
+volatile bool demo\+\_\+mode\+\_\+enabled = false\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Konfigurace demo modu -\/ je demo mod zapnuty. 
+
+Konfigurace demo modu -\/ je demo mod zapnuty 
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00253}{253}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}\index{main.c@{main.c}!demo\_move\_index@{demo\_move\_index}}
+\index{demo\_move\_index@{demo\_move\_index}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{demo\_move\_index}{demo\_move\_index}}
+{\footnotesize\ttfamily \label{main_8c_aebfac3059b619dc182e9ad6011fe1c7b} 
+int demo\+\_\+move\+\_\+index = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Current move index within the current game. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00314}{314}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a4973ab5b9a06d7ed486bc100be691f42}\index{main.c@{main.c}!demo\_moves\_count@{demo\_moves\_count}}
+\index{demo\_moves\_count@{demo\_moves\_count}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{demo\_moves\_count}{demo\_moves\_count}}
+{\footnotesize\ttfamily \label{main_8c_a4973ab5b9a06d7ed486bc100be691f42} 
+int demo\+\_\+moves\+\_\+count\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Inicializační hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=}
+\DoxyCodeLine{\ \ \ \ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}})\ /\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{main_8c_acc98f8280521aceb9893120eba837382}{DEMO\_GAME\_WHITE\_WIN}}[0])}
+
+\end{DoxyCode}
+
+
+Current game\textquotesingle{}s move count. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00320}{320}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_acb49a688d90460dc48f7e0b976ace62d}\index{main.c@{main.c}!game\_task\_handle@{game\_task\_handle}}
+\index{game\_task\_handle@{game\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{game\_task\_handle}{game\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_acb49a688d90460dc48f7e0b976ace62d} 
+Task\+Handle\+\_\+t game\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro Game task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00238}{238}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a6cf81c896b094e20ff5752ee1133a8f2}\index{main.c@{main.c}!led\_task\_handle@{led\_task\_handle}}
+\index{led\_task\_handle@{led\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{led\_task\_handle}{led\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_a6cf81c896b094e20ff5752ee1133a8f2} 
+Task\+Handle\+\_\+t led\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro LED task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00230}{230}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a9de1b87e0b6692c90f1c5cfd9e13d444}\index{main.c@{main.c}!matrix\_task\_handle@{matrix\_task\_handle}}
+\index{matrix\_task\_handle@{matrix\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{matrix\_task\_handle}{matrix\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_a9de1b87e0b6692c90f1c5cfd9e13d444} 
+Task\+Handle\+\_\+t matrix\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro Matrix task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00232}{232}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a2cf065fd2e74d6ad91b3da384a96c60b}\index{main.c@{main.c}!promotion\_button\_task\_handle@{promotion\_button\_task\_handle}}
+\index{promotion\_button\_task\_handle@{promotion\_button\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{promotion\_button\_task\_handle}{promotion\_button\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_a2cf065fd2e74d6ad91b3da384a96c60b} 
+Task\+Handle\+\_\+t promotion\+\_\+button\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro Promotion Button task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00249}{249}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_aeb8dd1b563b914d04c90f377454ad032}\index{main.c@{main.c}!reset\_button\_task\_handle@{reset\_button\_task\_handle}}
+\index{reset\_button\_task\_handle@{reset\_button\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{reset\_button\_task\_handle}{reset\_button\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_aeb8dd1b563b914d04c90f377454ad032} 
+Task\+Handle\+\_\+t reset\+\_\+button\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro Reset Button task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00247}{247}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{main.c@{main.c}!TAG@{TAG}}
+\index{TAG@{TAG}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c} 
+const char\texorpdfstring{$\ast$}{*} TAG = "{}MAIN"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00193}{193}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_abafefd1ba465b609ca39fd6fc502095b}\index{main.c@{main.c}!test\_task\_handle@{test\_task\_handle}}
+\index{test\_task\_handle@{test\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{test\_task\_handle}{test\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_abafefd1ba465b609ca39fd6fc502095b} 
+Task\+Handle\+\_\+t test\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro Test task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00242}{242}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a8eca84d3e2c7c0adf364819e74b1bd9b}\index{main.c@{main.c}!uart\_mutex@{uart\_mutex}}
+\index{uart\_mutex@{uart\_mutex}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{uart\_mutex}{uart\_mutex}}
+{\footnotesize\ttfamily \label{main_8c_a8eca84d3e2c7c0adf364819e74b1bd9b} 
+Semaphore\+Handle\+\_\+t uart\+\_\+mutex = NULL}
+
+
+
+Globalni UART mutex pro cisty vystup. 
+
+Mutex pro UART operace (ochrana UART vystupu). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00227}{227}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a4e4967ac70f1e8a89b2fea62027a968c}\index{main.c@{main.c}!uart\_task\_handle@{uart\_task\_handle}}
+\index{uart\_task\_handle@{uart\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{uart\_task\_handle}{uart\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_a4e4967ac70f1e8a89b2fea62027a968c} 
+Task\+Handle\+\_\+t uart\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro UART task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00236}{236}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a36e9302901a63037025cd7970fa8adbe}\index{main.c@{main.c}!web\_server\_task\_handle@{web\_server\_task\_handle}}
+\index{web\_server\_task\_handle@{web\_server\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{web\_server\_task\_handle}{web\_server\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_a36e9302901a63037025cd7970fa8adbe} 
+Task\+Handle\+\_\+t web\+\_\+server\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro Web Server task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00245}{245}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+

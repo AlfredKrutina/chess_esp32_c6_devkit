@@ -1,0 +1,137 @@
+\doxysection{web\+\_\+server\+\_\+task.\+h}
+\hypertarget{web__server__task_8h_source}{}\label{web__server__task_8h_source}\index{web\_server\_task.h@{web\_server\_task.h}}
+\mbox{\hyperlink{web__server__task_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00041}00041\ \textcolor{preprocessor}{\#ifndef\ WEB\_SERVER\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00042}00042\ \textcolor{preprocessor}{\#define\ WEB\_SERVER\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00044}00044\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00045}00045\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00046}00046\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00047}00047\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00049}00049\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00050}00050\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00051}00051\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00053}00053\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00054}00054\ \textcolor{comment}{//\ TYPY\ WEB\ SERVER\ PRIKAZU}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00055}00055\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00060}\mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684}{00060}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00061}\mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684aad9719bd0826f4a39d8295eff4581e7f}{00061}}\ \ \ \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684aad9719bd0826f4a39d8295eff4581e7f}{WEB\_CMD\_START\_SERVER}},\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00062}\mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684a7538e0d87ed15a4ba791f6b29c76ac0e}{00062}}\ \ \ \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684a7538e0d87ed15a4ba791f6b29c76ac0e}{WEB\_CMD\_STOP\_SERVER}},\ \ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00063}\mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0}{00063}}\ \ \ \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0}{WEB\_CMD\_GET\_STATUS}},\ \ \ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00064}\mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92}{00064}}\ \ \ \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92}{WEB\_CMD\_SET\_CONFIG}}\ \ \ \ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00065}00065\ \}\ \mbox{\hyperlink{web__server__task_8h_a2c7befe5d1c5ab38fe478aae4ae86684}{web\_command\_type\_t}};}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00066}00066\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00067}00067\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00068}00068\ \textcolor{comment}{//\ PROTOTYPY\ FUNKCI}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00069}00069\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00078}00078\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a706a239d45aec91411ba21ec2fe1b6f9}{web\_server\_task\_start}}(\textcolor{keywordtype}{void}\ *pvParameters);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00079}00079\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00080}00080\ \textcolor{comment}{//\ Zpracovani\ prikazu}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00081}00081\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00085}00085\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_aee13c30e5ba3aacbdb4adf76ac429f08}{web\_server\_process\_commands}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00086}00086\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00092}00092\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_ae84a23138d1c5c146c9cadf884edaa85}{web\_server\_execute\_command}}(uint8\_t\ command);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00093}00093\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00094}00094\ \textcolor{comment}{//\ Funkce\ pro\ ovladani\ web\ serveru}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00095}00095\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00101}00101\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a1449ade4d0e7558ec4fdb355d19b2d05}{web\_server\_start}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00102}00102\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00108}00108\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a0d3daaa268fa6003470a334af7dbd2c1}{web\_server\_stop}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00109}00109\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00115}00115\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a46cb4e2e81f7578c9f230f5a3bcd11e9}{web\_server\_get\_status}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00116}00116\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00122}00122\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a46d1719629fd536b25bd288a334d338c}{web\_server\_set\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00123}00123\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00124}00124\ \textcolor{comment}{//\ Sprava\ stavu}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00125}00125\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00131}00131\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a64790e5afc3435f96af702391bf6a24d}{web\_server\_update\_state}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00132}00132\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00133}00133\ \textcolor{comment}{//\ HTTP\ request\ handlery}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00134}00134\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00138}00138\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a483e27ca5d114ebfc2d8e6ea723bb804}{web\_server\_handle\_root}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00139}00139\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00143}00143\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_acd8c0cf4c727a56b30cf72b6b48edcb4}{web\_server\_handle\_api\_status}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00144}00144\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00148}00148\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a3bba3e089bedf1e0e30e5e4cd1db5091}{web\_server\_handle\_api\_board}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00149}00149\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00153}00153\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a4680b3adbb255bf863bcf5f81925b618}{web\_server\_handle\_api\_move}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00154}00154\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00155}00155\ \textcolor{comment}{//\ WebSocket\ funkce}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00156}00156\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00160}00160\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a362473905ca28dd32196ec327d9ccaee}{web\_server\_websocket\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00161}00161\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00167}00167\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a2cb5b9ee72f8acc55f6cb8f8b45f8bec}{web\_server\_websocket\_send\_update}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *data);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00168}00168\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00169}00169\ \textcolor{comment}{//\ Utility\ funkce}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00170}00170\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00176}00176\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{web__server__task_8h_a29aa411112dd288259022706b7ff59ca}{web\_server\_is\_active}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00177}00177\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00183}00183\ uint32\_t\ \mbox{\hyperlink{web__server__task_8h_ab47f0c904798d9ffc4f8e75f7ce8b5f3}{web\_server\_get\_client\_count}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00184}00184\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00190}00190\ uint32\_t\ \mbox{\hyperlink{web__server__task_8h_aed7d37015ce007d6f84d759c94ad5f26}{web\_server\_get\_uptime}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00191}00191\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00198}00198\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_af8feae54c5bb7a79bc36e947985c7e9f}{web\_server\_log\_request}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *method,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *path);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00199}00199\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00205}00205\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a81f3502fd237eb59ce2ebfc3999b9d36}{web\_server\_log\_error}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *error\_message);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00206}00206\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00207}00207\ \textcolor{comment}{//\ Konfiguracni\ funkce}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00208}00208\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00214}00214\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_ab18a2857822cb150c96fa252d484246a}{web\_server\_set\_port}}(uint16\_t\ port);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00215}00215\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00221}00221\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_ad915360105d028b5ebd3ca1b38e391d4}{web\_server\_set\_max\_clients}}(uint32\_t\ max\_clients);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00222}00222\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00228}00228\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a74937acaf240abcaaac7d9260e412beb}{web\_server\_enable\_ssl}}(\textcolor{keywordtype}{bool}\ enable);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00229}00229\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00230}00230\ \textcolor{comment}{//\ Funkce\ pro\ status\ a\ ovladani}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00231}00231\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00237}00237\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{web__server__task_8h_aa8fab275f60059ceb3bc58df7650bf0b}{web\_server\_is\_task\_running}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00238}00238\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00244}00244\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_a76a1b24d8a4f73007def0e2675cb2b1c}{web\_server\_stop\_task}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00245}00245\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00251}00251\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{web__server__task_8h_ae0743c305f029ddda532f3823d8bd602}{web\_server\_reset}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00252}00252\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00253}00253\ \textcolor{comment}{//\ WiFi\ funkce\ pro\ externi\ pouziti\ (UART\ prikazy)}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00261}00261\ esp\_err\_t\ \mbox{\hyperlink{web__server__task_8h_acc62bf6d95aba71aede977266f96e962}{wifi\_save\_config\_to\_nvs}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *ssid,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *password);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00262}00262\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00268}00268\ esp\_err\_t\ \mbox{\hyperlink{web__server__task_8h_ad3bda523e632b9d3152cdd73fe9d8d4c}{wifi\_connect\_sta}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00269}00269\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00275}00275\ esp\_err\_t\ \mbox{\hyperlink{web__server__task_8h_a4a4813aac1f99fb986c17f6a4f5e40e2}{wifi\_disconnect\_sta}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00276}00276\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00282}00282\ esp\_err\_t\ \mbox{\hyperlink{web__server__task_8h_a1b7f75613a5cab50704428a000610531}{wifi\_clear\_config\_from\_nvs}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00283}00283\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00289}00289\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{web__server__task_8h_a96cbfc09f923b4548a4bb4c63f70237f}{wifi\_is\_sta\_connected}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00290}00290\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00296}00296\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{web__server__task_8h_add53c7f34376bb856c868cab6321070b}{web\_is\_locked}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00297}00297\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00304}00304\ esp\_err\_t\ \mbox{\hyperlink{web__server__task_8h_a325753fb6460ffaa94c0c32237c8e7e1}{web\_lock\_set}}(\textcolor{keywordtype}{bool}\ locked);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00305}00305\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00311}00311\ esp\_err\_t\ \mbox{\hyperlink{web__server__task_8h_afd6d2236bd4fcbbe7ccbbb0e7b4a71de}{web\_lock\_load\_from\_nvs}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00312}00312\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00322}00322\ esp\_err\_t\ \mbox{\hyperlink{web__server__task_8h_a0915923195ef83ed0a4a8ab10cfe3d24}{wifi\_load\_config\_from\_nvs}}(\textcolor{keywordtype}{char}\ *ssid,\ \textcolor{keywordtype}{size\_t}\ ssid\_len,\ \textcolor{keywordtype}{char}\ *password,}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00323}00323\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ password\_len);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00324}00324\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00332}00332\ esp\_err\_t\ \mbox{\hyperlink{web__server__task_8h_a2fb41e5bc5236e57873eb55f1eadb51c}{wifi\_get\_sta\_ip}}(\textcolor{keywordtype}{char}\ *buffer,\ \textcolor{keywordtype}{size\_t}\ max\_len);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00333}00333\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00341}00341\ esp\_err\_t\ \mbox{\hyperlink{web__server__task_8h_a0dd2f78dc29e5c5cd031dcdf59d587e6}{wifi\_get\_sta\_ssid}}(\textcolor{keywordtype}{char}\ *buffer,\ \textcolor{keywordtype}{size\_t}\ max\_len);}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00342}00342\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00343}00343\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00344}00344\ \textcolor{comment}{//\ EXTERNI\ PROMENNE}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00345}00345\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00346}00346\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00348}00348\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_aa17b405ee779d94d3b6954dd83712591}{web\_server\_status\_queue}};}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00350}00350\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_aaed4d7c5bc3e8140853498b965ec94e2}{web\_server\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00351}00351\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00352}00352\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00353}00353\ \}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00354}00354\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00355}00355\ }
+\DoxyCodeLine{\Hypertarget{web__server__task_8h_source_l00356}00356\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ WEB\_SERVER\_TASK\_H}}
+
+\end{DoxyCode}

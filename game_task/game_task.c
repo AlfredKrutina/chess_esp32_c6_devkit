@@ -1,3 +1,4 @@
+
 /**
  * @file game_task.c
  * @brief Game Task - Sachova logika a sprava stavu hry
@@ -14,9 +15,9 @@
  * 4. Detekce konce hry (mat, pat, remiza)
  * 5. Sprava casovace (timer system integration)
  * 6. Historie tahu a analyza pozice
- * 7
-
-. Komunikace s fyzickou deskou (matrix_task)
+ * 7. Error recovery (cervene/modre LED)
+ * 8. Komunikace s fyzickou deskou (matrix_task)
+ *
  *
  * =============================================================================
  * JAK TO FUNGUJE?
@@ -162,7 +163,6 @@ xSemaphoreGive(...);
 #include "../freertos_chess/include/streaming_output.h"
 #include "../led_task/include/led_task.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
-#include "../animation_task/include/animation_task.h"  // ✅ NOVÉ: Animation task pro herní animace
 #include "freertos_chess.h"
 #include "game_led_animations.h"
 #include "led_mapping.h"
@@ -172,6 +172,8 @@ xSemaphoreGive(...);
 #include "../../timer_system/include/timer_system.h"
 // ANSI color formatting macros
 #include "game_colors.h"
+// Note: animation_task.h is not included to avoid type conflicts with
+// unified_animation_manager
 #include "esp_log.h"
 #include "esp_task_wdt.h"
 #include "esp_timer.h"
@@ -224,7 +226,6 @@ static esp_err_t game_task_wdt_reset_safe(void) {
   return ESP_OK;
 }
 
-// External queue declarations - LED queues removed, using direct LED calls now
 
 // ============================================================================
 // LOCAL VARIABLES AND CONSTANTS
@@ -236,7 +237,7 @@ static const int8_t knight_moves[8][2] = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},
 
 // Game configuration
 #define MAX_MOVES_HISTORY 200  // Maximum moves to remember
-#define GAME_TIMEOUT_MS 300000 // 5 minutes per move timeout
+//#define GAME_TIMEOUT_MS 300000 // 5 minutes per move timeout   not used in this version
 #define MOVE_VALIDATION_MS 100 // Move validation timeout
 
 // Game state
@@ -250,7 +251,7 @@ typedef struct {
   uint8_t rook_from_row, rook_from_col; // Pozice věže
   uint8_t rook_to_row, rook_to_col;     // Cíl věže
   player_t player;                      // Hráč, který provádí rošádu
-  bool is_kingside;                     // ✅ Je to kingside rošáda?
+  bool is_kingside;                     // Je to kingside rošáda?
 } castling_state_t;
 
 static castling_state_t castling_state = {0};
@@ -313,7 +314,7 @@ static bool auto_new_game_triggered = false; // Flag aby se neopakoval reset
 /**
  * @brief Demo mode state variables
  *
- * Demo mode automatically plays random legal moves for AI vs AI demonstration.
+ * Demo mode automatically plays random legal moves.
  * Includes special handling for castling (2-phase moves) and promotion.
  */
 static bool demo_mode_enabled = false; // Is demo mode configured?
@@ -421,19 +422,19 @@ static uint32_t history_index = 0;
 static bool task_running = false;
 static bool game_active = false;
 
-// ✅ OPRAVA: Error handling - pamatování posledního validního pole
+//  Error handling - pamatování posledního validního pole
 // Enhanced error recovery state for smart error handling
 static struct {
   bool has_invalid_piece;           // Je figurka na neplatném poli?
   uint8_t invalid_row, invalid_col; // Aktuální neplatná pozice (červené pole)
   uint8_t original_valid_row,
-      original_valid_col; // ✅ PŮVODNÍ validní pozice (nikdy se nezmění)
+      original_valid_col; // PŮVODNÍ validní pozice (nikdy se nezmění)
   piece_t piece_type;     // Typ figurky
   bool waiting_for_move_correction; // Čekáme na opravu tahu
-  uint8_t error_count;              // ✅ Počítadlo chyb za sebou
+  uint8_t error_count;              // Počítadlo chyb za sebou
 } error_recovery_state = {false, 0, 0, 0, 0, PIECE_EMPTY, false, 0};
 
-// ✅ NON-BLOCKING BLINK SYSTEM
+// NON-BLOCKING BLINK SYSTEM
 typedef struct {
   bool active;
   uint8_t led_index;
@@ -562,7 +563,7 @@ static uint32_t black_captured_count = 0;
 static uint32_t white_captured_index = 0;
 static uint32_t black_captured_index = 0;
 
-// ✅ Material advantage tracking (pro graf výhody v průběhu hry)
+// Material advantage tracking (pro graf výhody v průběhu hry)
 #define MAX_ADVANTAGE_HISTORY 200
 static int8_t material_advantage_history
     [MAX_ADVANTAGE_HISTORY]; // -127 až +127 (White positive, Black negative)
@@ -1500,7 +1501,7 @@ void game_initialize_board(void) {
 void game_reset_game(void) {
   ESP_LOGI(TAG, "Resetting game...");
 
-  // ✅ OPRAVA: Zastavit resignation timer pokud běží
+  // Zastavit resignation timer pokud běží
   if (resignation_state.active) {
     resignation_stop(false);
   }
@@ -1544,14 +1545,14 @@ void game_reset_game(void) {
   white_captured_index = 0;
   black_captured_index = 0;
 
-  // ✅ Clear material advantage history
+  // Clear material advantage history
   advantage_history_count = 0;
   memset(material_advantage_history, 0, sizeof(material_advantage_history));
 
   // Clear last move tracking
   has_last_move = false;
 
-  // ✅ OPRAVA: Kompletní reset error recovery state
+  // Kompletní reset error recovery state
   error_recovery_state.has_invalid_piece = false;
   error_recovery_state.invalid_row = 0;
   error_recovery_state.invalid_col = 0;
@@ -1561,7 +1562,7 @@ void game_reset_game(void) {
   error_recovery_state.waiting_for_move_correction = false;
   error_recovery_state.error_count = 0;
 
-  // ✅ OPRAVA: Reset opponent piece recovery state
+  // Reset opponent piece recovery state
   opponent_piece_moved = false;
   opponent_piece_type = PIECE_EMPTY;
   opponent_original_row = 0;
@@ -1569,13 +1570,13 @@ void game_reset_game(void) {
   opponent_current_row = 0;
   opponent_current_col = 0;
 
-  // ✅ OPRAVA: Reset capture state
+  // Reset capture state
   capture_in_progress = false;
   capture_target_row = 0;
   capture_target_col = 0;
   capture_removed_piece = PIECE_EMPTY;
 
-  // ✅ OPRAVA: Zastavit endgame animaci při resetu hry
+  // Zastavit endgame animaci při resetu hry
   led_stop_endgame_animation();
 
   // Reinitialize board
@@ -1602,18 +1603,10 @@ void game_reset_game(void) {
 void game_start_new_game(void) {
   ESP_LOGI(TAG, "Starting new game...");
 
-  // ✅ OPRAVA: Zastavit všechny animace před novou hrou
-  animation_stop_all();  // Zastavit všechny animation_task animace
-  unified_animation_stop_all();  // Zastavit unified_animation_manager
-  led_stop_endgame_animation();  // Zastavit legacy endgame
-  
-  // ✅ KRITICKÉ: Zastavit endgame animaci pokud běží
-  animation_stop_by_type(ANIM_TASK_TYPE_ENDGAME);
-
   // Reset game
   game_reset_game();
 
-  // ✅ OPRAVA: Reset timer před novou hrou
+  // Reset timer před novou hrou
   game_reset_timer();
   ESP_LOGI(TAG, "Timer reset for new game");
 
@@ -1655,17 +1648,17 @@ void game_start_new_game(void) {
   ESP_LOGI(TAG, "New game started - White to move");
   ESP_LOGI(TAG, "Total games: %" PRIu32, total_games);
 
-  // ✅ OPRAVA: Zastavit všechny animace před novou hrou
+  // Zastavit všechny animace před novou hrou
   unified_animation_stop_all();
   led_stop_endgame_animation(); // Legacy endgame animations
-  stop_endgame_animation();     // ✅ FIX: Stop NEW endgame animations system
+  stop_endgame_animation();     // Stop NEW endgame animations system
   ESP_LOGI(TAG, "✅ All animations stopped for new game");
 
-  // ✅ OPRAVA: Update promotion LED indications
+  // Update promotion LED indications
   game_check_promotion_needed();
   ESP_LOGI(TAG, "✅ Updated promotion button LED indications");
 
-  // ✅ OPRAVA: Zvýraznit pohyblivé figurky na začátku hry
+  // Zvýraznit pohyblivé figurky na začátku hry
   vTaskDelay(pdMS_TO_TICKS(100)); // Krátká pauza pro stabilizaci
   game_highlight_movable_pieces();
   ESP_LOGI(TAG, "✅ Highlighted movable pieces for starting player");
@@ -1683,22 +1676,7 @@ piece_t game_get_piece(int row, int col) {
   if (!game_is_valid_position(row, col)) {
     return PIECE_EMPTY;
   }
-  
-  // ✅ NOVÉ: Mutex ochrana pro board přístup
-  piece_t piece = PIECE_EMPTY;
-  if (game_mutex != NULL) {
-    if (xSemaphoreTake(game_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
-      piece = board[row][col];
-      xSemaphoreGive(game_mutex);
-    } else {
-      ESP_LOGW(TAG, "Failed to acquire game_mutex in game_get_piece()");
-      return PIECE_EMPTY;
-    }
-  } else {
-    piece = board[row][col];
-  }
-  
-  return piece;
+  return board[row][col];
 }
 
 void game_set_piece(int row, int col, piece_t piece) {
@@ -1784,7 +1762,7 @@ move_error_t game_is_valid_move(const chess_move_t *move) {
     return piece_error;
   }
 
-  // ✅ KONTROLA ROŠÁDY V PROGRESS
+  // KONTROLA ROŠÁDY V PROGRESS
   if (castling_state.in_progress) {
     // Očekáváme tah věže
     if (move->from_row != castling_state.rook_from_row ||
@@ -1895,7 +1873,7 @@ move_error_t game_validate_pawn_move_enhanced(const chess_move_t *move,
   int direction = is_white ? 1 : -1;
   int start_row = is_white ? 1 : 6;
 
-  // ✅ DIAGNOSTIKA: Logovani validace pesce
+  //  Logovani validace pesce
   char from_sq[3], to_sq[3];
   game_coords_to_square(move->from_row, move->from_col, from_sq);
   game_coords_to_square(move->to_row, move->to_col, to_sq);
@@ -1903,7 +1881,7 @@ move_error_t game_validate_pawn_move_enhanced(const chess_move_t *move,
 
   // Forward move
   if (col_diff == 0) {
-    // ✅ OPRAVA BUG #8: Check if moving backwards (invalid for pawns)
+    // Check if moving backwards (invalid for pawns)
     if (row_diff * direction < 0) {
       ESP_LOGD(TAG, "❌ Pawn %s→%s: cannot move backwards", from_sq, to_sq);
       return MOVE_ERROR_INVALID_PATTERN;
@@ -1921,7 +1899,7 @@ move_error_t game_validate_pawn_move_enhanced(const chess_move_t *move,
       return MOVE_ERROR_NONE;
     }
 
-    // ✅ OPRAVA BUG #1: Check if path is blocked (pro oba bílé i černé pěšce)
+    // Check if path is blocked (pro oba bílé i černé pěšce)
     // Původně: if (row_diff > 0 ...) - fungovalo jen pro bílé
     if (abs(row_diff) > 0 &&
         !game_is_empty(move->from_row + direction, move->from_col)) {
@@ -2020,7 +1998,7 @@ move_error_t game_validate_bishop_move_enhanced(const chess_move_t *move) {
     return MOVE_ERROR_INVALID_PATTERN;
   }
 
-  // ✅ OPRAVA BUG #2: Check if path is blocked
+  // Check if path is blocked
   // Původně: while (...&& ...) - končilo předčasně
   // Nově: while (...|| ...) - kontroluje až do cíle
   int row_step = (row_diff > 0) ? 1 : -1;
@@ -2029,7 +2007,7 @@ move_error_t game_validate_bishop_move_enhanced(const chess_move_t *move) {
   int current_row = move->from_row + row_step;
   int current_col = move->from_col + col_step;
 
-  // ✅ SAFETY: Prevent infinite loop (max 8 squares on diagonal)
+  // SAFETY: Prevent infinite loop (max 8 squares on diagonal)
   int steps = 0;
   while ((current_row != move->to_row || current_col != move->to_col) &&
          steps < 8) {
@@ -2138,9 +2116,6 @@ bool game_validate_queen_move(const chess_move_t *move) {
  *
  * Pro rosadu deleguje validaci na game_validate_castling().
  *
- * @note Opraveno v2.4.1:
- * - BUG #3: Pridan check ze kral se musi pohnout alespon o 1 pole
- * - Tah krale na stejne pole (e4->e4) je nyni spravne oznacen jako INVALID
  */
 move_error_t game_validate_king_move_enhanced(const chess_move_t *move) {
   int row_diff = move->to_row - move->from_row;
@@ -2148,7 +2123,7 @@ move_error_t game_validate_king_move_enhanced(const chess_move_t *move) {
   int abs_row_diff = abs(row_diff);
   int abs_col_diff = abs(col_diff);
 
-  // ✅ OPRAVA BUG #3: King moves one square in any direction
+  // King moves one square in any direction
   // Musi se pohnout alespon o 1 pole (ne 0,0)
   // Puvodni: povoloval tah na stejne pole
   if (abs_row_diff <= 1 && abs_col_diff <= 1 &&
@@ -2185,10 +2160,6 @@ bool game_validate_king_move(const chess_move_t *move) {
  * 3. Kontroluje zda je kral v sachu
  * 4. Obnovi puvodni stav desky
  *
- * @note Opraveno v2.4.1:
- * - BUG #4: Pridana podpora pro en passant tahy
- * - Pri en passant se nyni spravne odstranuje pesec z en_passant_victim_row/col
- * - Check validation nyni funguje 100% spravne pro vsechny typy tahu
  */
 bool game_would_move_leave_king_in_check(const chess_move_t *move) {
   if (!move)
@@ -2198,7 +2169,7 @@ bool game_would_move_leave_king_in_check(const chess_move_t *move) {
   piece_t original_from_piece = board[move->from_row][move->from_col];
   piece_t original_to_piece = board[move->to_row][move->to_col];
 
-  // ✅ OPRAVA BUG #4: Check if this is an en passant move
+  // Check if this is an en passant move
   bool is_en_passant = game_is_en_passant_possible(move);
   piece_t original_en_passant_piece = PIECE_EMPTY;
   uint8_t en_passant_victim_row_local = 0;
@@ -2251,13 +2222,6 @@ bool game_would_move_leave_king_in_check(const chess_move_t *move) {
  * 3. Utocici pesec je primo vedle prave pohnuteho pesce
  * 4. Cilove pole je uprostred mezi start a cil pozici protivnikova pesce
  *
- * @note Opraveno v2.4.1:
- * - BUG #9: KRITICKA OPRAVA - en_passant_target_row vypocet byl OBRACENY!
- * - Puvodni: is_white ? last_to_row - 1 : last_to_row + 1 (SPATNE!)
- * - Novy: (last_from_row + last_to_row) / 2 (SPRAVNE!)
- * - Pridany kontroly: pesec na stejnem radku, pesec vedle
- * - Pridany diagnosticke logy pro debugging
- * - En passant nyni funguje 100% spravne pro bile i cerne pesce
  */
 bool game_is_en_passant_possible(const chess_move_t *move) {
   if (!has_last_move) {
@@ -2283,7 +2247,7 @@ bool game_is_en_passant_possible(const chess_move_t *move) {
     return false;
   }
 
-  // ✅ OPRAVA: Zkontrolovat, zda útočící pěšec je na stejném řádku jako právě
+  // Zkontrolovat, zda útočící pěšec je na stejném řádku jako právě
   // pohnutý pěšec
   if (move->from_row != last_move_to_row) {
     ESP_LOGD(TAG,
@@ -2293,7 +2257,7 @@ bool game_is_en_passant_possible(const chess_move_t *move) {
     return false;
   }
 
-  // ✅ OPRAVA: Zkontrolovat, zda útočící pěšec je přesně vedle právě pohnutého
+  // Zkontrolovat, zda útočící pěšec je přesně vedle právě pohnutého
   // pěšce
   int col_diff = abs((int)move->from_col - (int)last_move_to_col);
   if (col_diff != 1) {
@@ -2301,14 +2265,6 @@ bool game_is_en_passant_possible(const chess_move_t *move) {
     return false;
   }
 
-  // ✅ KRITICKÁ OPRAVA BUG #9: En passant target row výpočet byl OBRÁCENÝ!
-  // Když útočící pěšec je WHITE: protivník se pohybuje DOLŮ, en passant pole je
-  // "za" ním = NAHORU = +1 Když útočící pěšec je BLACK: protivník se pohybuje
-  // NAHORU, en passant pole je "za" ním = DOLŮ = -1 PŮVODNÍ KÓD:
-  //   bool is_white_pawn = game_is_white_piece(move->piece);
-  //   int en_passant_row = is_white_pawn ? last_move_to_row - 1 :
-  //   last_move_to_row + 1;
-  // BYL OBRÁCENÝ!
 
   // En passant pole je vždy uprostřed mezi from a to (prostý průměr)
   int en_passant_target_row = (last_move_from_row + last_move_to_row) / 2;
@@ -2354,10 +2310,6 @@ bool game_is_en_passant_possible(const chess_move_t *move) {
  * - Kingside (O-O): kral e1->g1, vez h1->f1
  * - Queenside (O-O-O): kral e1->c1, vez a1->d1
  *
- * @note Opraveno v2.4.1:
- * - BUG #11: Pridana kontrola existence veze na ocekavane pozici
- * - Pridany diagnosticke logy pro vsechny kontroly
- * - Lepsí error reporting pro debugging
  */
 move_error_t game_validate_castling(const chess_move_t *move) {
   if (!move) {
@@ -2396,7 +2348,7 @@ move_error_t game_validate_castling(const chess_move_t *move) {
   // Determine rook position
   int rook_col = is_kingside ? 7 : 0;
 
-  // ✅ OPRAVA BUG #11: Check if rook exists at expected position
+  // Check if rook exists at expected position
   piece_t expected_rook = is_white ? PIECE_WHITE_ROOK : PIECE_BLACK_ROOK;
   piece_t rook_piece = board[king_row][rook_col];
   if (rook_piece != expected_rook) {
@@ -2466,31 +2418,7 @@ move_error_t game_validate_castling(const chess_move_t *move) {
   return MOVE_ERROR_NONE;
 }
 
-/**
- * @brief Zobrazi detailni chybovou zpravu s reasoning pro neplatny tah
- *
- * @param error Typ chyby tahu (MOVE_ERROR_*)
- * @param move Ukazatel na tah ktery zpusobil chybu
- *
- * @details
- * Funkce zobrazi barevne formatovanou chybovou zpravu vcetne:
- * - Duvodu proc je tah neplatny
- * - Napovedy proc tah selhal
- * - Navrhu reseni
- * - Stavu ciloveho pole
- *
- * Specialni reasoning pro pesce:
- * - Rozlisuje mezi prazdnym polem a vlastni figurkou
- * - Vysvetluje proc pesec nemuze jit diagonalne na prazdne pole
- * - Vysvetluje proc pesec nemuze brat vpred
- *
- * @note Vylepseno v2.4.1:
- * - Pridano zobrazeni typu figurky
- * - Specialni reasoning pro pesce
- * - Zobrazeni stavu ciloveho pole
- * - Zobrazeni pozice krale pri check
- * - Lepsi error messages pro vsechny typy chyb
- */
+
 
 // ============================================================================
 // ERROR FORMATTING HELPER
@@ -2526,6 +2454,25 @@ static void print_error_detail(const char *label, const char *fmt, ...) {
   }
 }
 
+/**
+ * @brief Zobrazi detailni chybovou zpravu s reasoning pro neplatny tah
+ *
+ * @param error Typ chyby tahu (MOVE_ERROR_*)
+ * @param move Ukazatel na tah ktery zpusobil chybu
+ *
+ * @details
+ * Funkce zobrazi barevne formatovanou chybovou zpravu vcetne:
+ * - Duvodu proc je tah neplatny
+ * - Napovedy proc tah selhal
+ * - Navrhu reseni
+ * - Stavu ciloveho pole
+ *
+ * Specialni reasoning pro pesce:
+ * - Rozlisuje mezi prazdnym polem a vlastni figurkou
+ * - Vysvetluje proc pesec nemuze jit diagonalne na prazdne pole
+ * - Vysvetluje proc pesec nemuze brat vpred
+ *
+ */
 void game_display_move_error(move_error_t error, const chess_move_t *move) {
   char from_square[3], to_square[3];
   game_coords_to_square(move->from_row, move->from_col, from_square);
@@ -2564,7 +2511,7 @@ void game_display_move_error(move_error_t error, const chess_move_t *move) {
     break;
 
   case MOVE_ERROR_INVALID_PATTERN:
-    // ✅ VYLEPŠENÉ REASONING pro pěšce
+    // VYLEPŠENÉ REASONING pro pěšce
     if (source_piece == PIECE_WHITE_PAWN || source_piece == PIECE_BLACK_PAWN) {
       int col_diff = abs((int)move->to_col - (int)move->from_col);
       bool is_diagonal = (col_diff == 1);
@@ -2670,7 +2617,7 @@ void game_display_move_error(move_error_t error, const chess_move_t *move) {
     break;
   }
 
-  // ✅ PŘIDÁNO: Zobrazit stav pole
+  // Zobrazit stav pole
   if (dest_piece != PIECE_EMPTY) {
     printf(FMT_DATA("   • Target: %s at %s") "\r\n",
            game_get_piece_name(dest_piece), to_square);
@@ -3071,7 +3018,7 @@ bool game_execute_move(const chess_move_t *move) {
 
   // Detect special move types
 
-  // ✅ FIX ISSUES 2 & 5: Disable special move detection during error recovery
+  //Disable special move detection during error recovery
   // During error recovery, ALL moves are treated as NORMAL moves to prevent
   // state conflicts
   if (!error_recovery_state.waiting_for_move_correction) {
@@ -3152,10 +3099,10 @@ bool game_execute_move(const chess_move_t *move) {
     move_count++;
     last_move_time = esp_timer_get_time() / 1000;
 
-    // ✅ Record material advantage pro graf
+    // Record material advantage pro graf
     game_record_material_advantage();
 
-    // ✅ ENHANCED CASTLING DETECTION
+    // ENHANCED CASTLING DETECTION
     if (extended_move.move_type == MOVE_TYPE_CASTLE_KING ||
         extended_move.move_type == MOVE_TYPE_CASTLE_QUEEN) {
       ESP_LOGI(TAG, "🏰 CASTLING DETECTED! King moved 2 squares");
@@ -3179,10 +3126,8 @@ bool game_execute_move(const chess_move_t *move) {
         castling_state.rook_to_col = 3; // d-file
       }
 
-      // ✅ NOVÉ: Zastavit animace před zobrazením castling LED feedback
-      animation_stop_all();  // Zastavit všechny animace
-      vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
-      led_clear_board_only();  // Clear board pro nový feedback
+      // Ukázat LED indikaci pro věž
+      led_clear_board_only();
       led_set_pixel_safe(chess_pos_to_led_index(castling_state.rook_from_row,
                                                 castling_state.rook_from_col),
                          192, 192, 192); // Stříbrná pro věž
@@ -3190,7 +3135,7 @@ bool game_execute_move(const chess_move_t *move) {
                                                 castling_state.rook_to_col),
                          0, 255, 0); // Zelená pro cíl věže
 
-      // ✅ KRITICKÉ: NEMĚNIT HRÁČE pro castling!
+      // NEMĚNIT HRÁČE pro castling!
       ESP_LOGI(
           TAG, "⏳ Waiting for rook move from %c%d to %c%d",
           'a' + castling_state.rook_from_col, castling_state.rook_from_row + 1,
@@ -3217,7 +3162,7 @@ bool game_execute_move(const chess_move_t *move) {
       led_execute_command_new(&promote_cmd);
     }
 
-    // ✅ KONTROLA DOKONČENÍ ROŠÁDY
+    // KONTROLA DOKONČENÍ ROŠÁDY
     if (castling_state.in_progress) {
       // Je to tah věže pro dokončení rošády?
       if (move->from_row == castling_state.rook_from_row &&
@@ -3250,7 +3195,7 @@ bool game_execute_move(const chess_move_t *move) {
         // Zlatá animace dokončení rošády
         show_castling_completion_animation();
 
-        // ✅ TEPRVE NYÍ změnit hráče po dokončení rošády
+        // TEPRVE NYÍ změnit hráče po dokončení rošády
         player_t previous_player = current_player;
         current_player =
             (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
@@ -3267,7 +3212,7 @@ bool game_execute_move(const chess_move_t *move) {
         game_end_timer_move();
         game_start_timer_move(current_player == PLAYER_WHITE);
 
-        // ✅ KRITICKÉ: Endgame kontrola PŘED player change animací!
+        // Endgame kontrola PŘED player change animací!
         // Pokud je endgame, player change se NESPOUŠTÍ
         game_state_t end_game_result = game_check_end_game_conditions();
         if (end_game_result == GAME_STATE_FINISHED) {
@@ -3292,59 +3237,61 @@ bool game_execute_move(const chess_move_t *move) {
                    "animation at position %d",
                    king_pos);
 
-          // ✅ NOVÉ: Použít animation_task místo led_task
-          piece_t winner_piece = (winner == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
-          uint8_t anim_id = animation_create_endgame(
-              king_pos,
-              winner_piece,
-              0,      // duration_ms = 0 pro nekonečnou
-              20,     // priority - nejvyšší
-              true    // loop = true
-          );
-          if (anim_id != 0xFF) {
-              animation_start(anim_id);
-          }
+          // Spustit endgame animaci (wave z krále vítěze)
+          led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
+                                       .led_index = king_pos,
+                                       .red = 255,
+                                       .green = 255,
+                                       .blue = 0,        // Yellow
+                                       .duration_ms = 0, // Endless
+                                       .data = NULL};
+          led_execute_command_new(&endgame_cmd);
 
           ESP_LOGI(
               TAG,
               "✅ Endgame animation started - player change animation SKIPPED");
         } else {
-          // ✅ NOVÉ: Použít animation_task místo led_task
-          uint8_t anim_id = animation_create_player_change(
-              current_player,
-              600,  // duration_ms - stejný jako původně (~50 framů × 12ms)
-              5     // priority - nízká (pozadí)
-          );
-          if (anim_id != 0xFF) {
-              animation_start(anim_id);
-          }
+          // Není endgame - spustit player change animaci
+          uint8_t player_color =
+              (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
+          led_command_t player_change_cmd = {
+              .type = LED_CMD_ANIM_PLAYER_CHANGE, // Použít
+                                                  // ANIM_PLAYER_CHANGE místo
+                                                  // PLAYER_CHANGE
+              .led_index = 0,
+              .red = 0,
+              .green = 0,
+              .blue = 0,
+              .duration_ms = 0,
+              .data = &player_color // Předat barvu hráče
+          };
+          led_execute_command_new(&player_change_cmd);
 
           // Resetovat castling state
           castling_state.in_progress = false;
 
-          // ✅ NOVÉ: Zastavit animace před zobrazením movable pieces
-          animation_stop_all();  // Zastavit všechny animace
-          vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
-          led_clear_board_only();  // Clear board pro nový feedback
+          // Zobrazit pohyblivé figury pro nového hráče
+          led_clear_board_only();
           game_highlight_movable_pieces();
 
           // Zkontrolovat, zda je nový hráč v šachu
           bool in_check = game_is_king_in_check(current_player);
           if (in_check) {
-            // ✅ NOVÉ: Použít animation_task místo led_task
-            uint8_t anim_id = animation_create_check(
-                2000,  // duration_ms - 6 flashů × 200ms × 2
-                12     // priority - vysoká
-            );
-            if (anim_id != 0xFF) {
-                animation_start(anim_id);
-            }
+            // Spustit check animaci
+            led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                       .led_index = 0,
+                                       .red = 255,
+                                       .green = 0,
+                                       .blue = 0, // Red
+                                       .duration_ms = 2000,
+                                       .data = NULL};
+            led_execute_command_new(&check_cmd);
             ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
                      current_player == PLAYER_WHITE ? "White" : "Black");
           }
         }
 
-        // ✅ RETURN po dokončení rošády - hráč se už změnil
+        // RETURN po dokončení rošády - hráč se už změnil
         return success;
       } else {
         ESP_LOGE(
@@ -3358,8 +3305,8 @@ bool game_execute_move(const chess_move_t *move) {
       }
     }
 
-    // ✅ NORMÁLNÍ TAHY - změnit hráče (move animace se spouští v
-    // game_process_drop_command) CRITICAL: Switch player BEFORE checking
+    // NORMÁLNÍ TAHY - změnit hráče (move animace se spouští v
+    // game_process_drop_command) Switch player BEFORE checking
     // endgame conditions (podle starého projektu)
     player_t previous_player = current_player;
     ESP_LOGI(TAG, "🔄 Changing player from %s to %s",
@@ -3373,7 +3320,7 @@ bool game_execute_move(const chess_move_t *move) {
              (current_player == PLAYER_WHITE) ? "White" : "Black",
              current_player == PLAYER_WHITE ? "White" : "Black");
 
-    // CRITICAL: Check for endgame conditions after move execution (podle
+    // Check for endgame conditions after move execution (podle
     // starého projektu)
     game_state_t end_game_result = game_check_end_game_conditions();
     if (end_game_result == GAME_STATE_FINISHED) {
@@ -3383,7 +3330,7 @@ bool game_execute_move(const chess_move_t *move) {
     }
   }
 
-  // ✅ Update promotion LED indications after move
+  // Update promotion LED indications after move
   if (success) {
     game_check_promotion_needed();
   }
@@ -3768,7 +3715,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
   if (!cmd)
     return;
 
-  // ✅ PROMOTION PROTECTION: Ignore matrix events during promotion
+  // Ignore matrix events during promotion
   if (promotion_state.pending) {
     ESP_LOGI(TAG,
              "⏸️  PICKUP ignored - promotion pending at %c%d. Please press "
@@ -3776,7 +3723,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
              'a' + promotion_state.square_col, promotion_state.square_row + 1);
 
     // Send informative message to UART
-    char info_msg[512]; // ✅ Increased from 256 to 512 (message is ~320 bytes)
+    char info_msg[512]; // Increased from 256 to 512 (message is ~320 bytes)
     snprintf(info_msg, sizeof(info_msg),
              "⏸️  Physical piece movement ignored\n"
              "👑 Promotion pending at %c%d\n"
@@ -3793,10 +3740,10 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  // ✅ PŘERUŠIT BLIKÁNÍ při zvednutí figurky
+  // PŘERUŠIT BLIKÁNÍ při zvednutí figurky
   game_stop_error_blink();
 
-  // ✅ OPRAVA: Bezpečnostní kontrola notation stringu (array je vždy != NULL)
+  // Bezpečnostní kontrola notation stringu (array je vždy != NULL)
   if (strlen(cmd->from_notation) == 0 || strlen(cmd->from_notation) > 7) {
     ESP_LOGE(TAG, "❌ Invalid or corrupted notation string");
     game_send_response_to_uart("❌ Invalid notation format", true,
@@ -3815,9 +3762,9 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  // ✅ KONTROLA ERROR RECOVERY STAVU
+  // KONTROLA ERROR RECOVERY STAVU
   if (error_recovery_state.waiting_for_move_correction) {
-    // ✅ KONTROLA: Je to správná neplatná pozice?
+    // KONTROLA: Je to správná neplatná pozice?
     if (from_row == error_recovery_state.invalid_row &&
         from_col == error_recovery_state.invalid_col) {
 
@@ -3833,7 +3780,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
       lifted_piece_col = from_col;
       lifted_piece = error_recovery_state.piece_type;
 
-      // ✅ KLÍČOVÉ: Ukázat validní tahy z PŮVODNÍ pozice, ne z posledního
+      // KLÍČOVÉ: Ukázat validní tahy z PŮVODNÍ pozice, ne z posledního
       // pokusu
       move_suggestion_t suggestions[64];
       uint32_t valid_moves = game_get_available_moves(
@@ -3843,22 +3790,20 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
       ESP_LOGI(TAG, "💡 Found %lu valid moves from original position",
                valid_moves);
 
-      // ✅ NOVÉ: Zastavit animace před zobrazením error recovery LED
-      animation_stop_all();  // Zastavit všechny animace
-      vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
-      led_clear_board_only();  // Clear board pro nový feedback
+      // VYČISTIT A NASTAVIT LED
+      led_clear_board_only();
 
       // Žlutá na aktuální pozici (kde je figurka nyní)
       led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 255,
                          0);
 
-      // ✅ MODRÁ na původní validní pozici
+      // MODRÁ na původní validní pozici
       led_set_pixel_safe(
           chess_pos_to_led_index(error_recovery_state.original_valid_row,
                                  error_recovery_state.original_valid_col),
           0, 0, 255);
 
-      // ✅ ZELENÉ LED pro validní cílová pole (z původní pozice)
+      // ZELENÉ LED pro validní cílová pole (z původní pozice)
       for (uint32_t i = 0; i < valid_moves; i++) {
         uint8_t dest_led = chess_pos_to_led_index(suggestions[i].to_row,
                                                   suggestions[i].to_col);
@@ -3887,7 +3832,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
                                  (QueueHandle_t)cmd->response_queue);
       return;
     } else {
-      // ✅ UP z jiné pozice během error recovery - ignorovat nebo resetovat?
+      // UP z jiné pozice během error recovery - ignorovat nebo resetovat?
       ESP_LOGW(TAG,
                "⚠️ UP from different position during error recovery: %s "
                "(expected %c%d)",
@@ -3909,7 +3854,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
   piece_t piece = board[from_row][from_col];
   if (piece == PIECE_EMPTY) {
     char error_msg[128];
-    // ✅ OPRAVA: Bezpečný snprintf s kontrolou návratové hodnoty
+    // Bezpečný snprintf s kontrolou návratové hodnoty
     int written = snprintf(error_msg, sizeof(error_msg), "❌ No piece at %s",
                            cmd->from_notation);
     if (written >= sizeof(error_msg)) {
@@ -3930,10 +3875,10 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
   if ((current_player == PLAYER_WHITE && !is_white_piece) ||
       (current_player == PLAYER_BLACK && !is_black_piece)) {
 
-    // ✅ 3-STEP CAPTURE FLOW: UP own → UP opponent (remove) → DN own (execute)
+    // 3-STEP CAPTURE FLOW: UP own → UP opponent (remove) → DN own (execute)
     // Rozlišit capture vs error
 
-    // ✅ FIX ISSUE 1: NESMÍ se povolit capture během error recovery!
+    // FIX ISSUE 1: NESMÍ se povolit capture během error recovery!
     if (piece_lifted && lifted_piece != PIECE_EMPTY &&
         !error_recovery_state.waiting_for_move_correction &&
         ((current_player == PLAYER_WHITE && lifted_piece >= PIECE_WHITE_PAWN &&
@@ -3941,7 +3886,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
          (current_player == PLAYER_BLACK && lifted_piece >= PIECE_BLACK_PAWN &&
           lifted_piece <= PIECE_BLACK_KING))) {
 
-      // ✅ STEP 2 of CAPTURE: Zkontrolovat zda lifted piece MŮŽE sebrat
+      // STEP 2 of CAPTURE: Zkontrolovat zda lifted piece MŮŽE sebrat
       // opponent piece
       chess_move_t capture_attempt = {.from_row = lifted_piece_row,
                                       .from_col = lifted_piece_col,
@@ -3954,7 +3899,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
       move_error_t capture_valid = game_is_valid_move(&capture_attempt);
 
       if (capture_valid == MOVE_ERROR_NONE) {
-        // ✅ VALIDNÍ CAPTURE: Remove opponent piece, wait for DN
+        // VALIDNÍ CAPTURE: Remove opponent piece, wait for DN
         ESP_LOGI(TAG, "♟️  Step 2/3 Capture: Removing opponent piece at %s",
                  cmd->from_notation);
 
@@ -3967,12 +3912,9 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
         capture_target_col = from_col;
         capture_removed_piece = piece;
 
-        // ✅ NOVÉ: Zastavit animace před zobrazením capture LED feedback
-        animation_stop_all();  // Zastavit všechny animace
-        vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
-        led_clear_board_only();  // Clear board pro nový feedback
         // Decentní LED feedback: Žlutá na lifted piece, FIALOVÁ na target (kde
         // má polož it)
+        led_clear_board_only();
         led_set_pixel_safe(
             chess_pos_to_led_index(lifted_piece_row, lifted_piece_col), 255,
             255, 0); // Yellow
@@ -3989,7 +3931,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
                                    (QueueHandle_t)cmd->response_queue);
         return;
       } else {
-        // ❌ INVALID CAPTURE: Proceed to error flow
+        // INVALID CAPTURE: Proceed to error flow
         ESP_LOGW(TAG,
                  "⚠️ Invalid capture attempt: %s from %c%d CANNOT capture %s",
                  game_get_piece_name(lifted_piece), 'a' + lifted_piece_col,
@@ -3997,7 +3939,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
       }
     }
 
-    // ✅ ERROR FLOW: Wrong color piece lifted inappropriately
+    // ERROR FLOW: Wrong color piece lifted inappropriately
     const char *safe_notation =
         (strlen(cmd->from_notation) > 0) ? cmd->from_notation : "??";
 
@@ -4017,7 +3959,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
           safe_notation);
     }
 
-    // ✅ KRITICKÉ: Nastavit error_recovery_state pro proper recovery flow
+    // KRITICKÉ: Nastavit error_recovery_state pro proper recovery flow
     error_recovery_state.has_invalid_piece = true;
     error_recovery_state.waiting_for_move_correction = true;
     error_recovery_state.piece_type = piece;
@@ -4036,16 +3978,13 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
     opponent_current_col = from_col;
     opponent_piece_moved = true;
 
-    // ✅ KRITICKÉ: Odstranit figurku z boardu (byla zvednuta)
+    // Odstranit figurku z boardu (byla zvednuta)
     board[from_row][from_col] = PIECE_EMPTY;
 
     // Nastavit recovery stav
     current_game_state = GAME_STATE_WAITING_FOR_RETURN;
 
-    // ✅ NOVÉ: Zastavit animace před zobrazením error LED
-    animation_stop_all();  // Zastavit všechny animace
-    vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
-    // ✅ LED: Spustit červené blikání na původní pozici
+    // LED: Spustit červené blikání na původní pozici
     led_clear_board_only();
     game_show_invalid_move_error_with_blink(from_row, from_col);
 
@@ -4071,7 +4010,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  // ✅ KING RESIGNATION: Detekce zvednutí vlastního krále
+  // KING RESIGNATION: Detekce zvednutí vlastního krále
   if ((piece == PIECE_WHITE_KING && current_player == PLAYER_WHITE) ||
       (piece == PIECE_BLACK_KING && current_player == PLAYER_BLACK)) {
     // Hráč zvedl svého krále - spustit resignation timer
@@ -4111,9 +4050,6 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
   ESP_LOGI(TAG, "🔄 Piece lifted from %s - showing possible moves",
            cmd->from_notation);
 
-  // ✅ NOVÉ: Zastavit animace před zobrazením pickup LED feedback
-  animation_stop_all();  // Zastavit všechny animace
-  vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
   // Clear previous highlights before showing new ones
   led_clear_board_only();
 
@@ -4169,7 +4105,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
   // Give FreeRTOS scheduler time to process LED commands
   vTaskDelay(pdMS_TO_TICKS(50));
 
-  // ✅ MATRIX COMPATIBILITY: Show opponent pieces after pickup (same as matrix
+  // MATRIX COMPATIBILITY: Show opponent pieces after pickup (same as matrix
   // flow)
   if (!game_is_castle_animation_active() && !game_is_castling_expected()) {
     game_highlight_movable_pieces();
@@ -4177,7 +4113,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
 
   // Send success response
   char success_msg[128];
-  // ✅ OPRAVA: Bezpečný snprintf pro success message
+  // Bezpečný snprintf pro success message
   int written = snprintf(success_msg, sizeof(success_msg),
                          "✅ Piece lifted from %s - %" PRIu32 " possible moves",
                          cmd->from_notation, valid_moves);
@@ -4211,7 +4147,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
 
   ESP_LOGI(TAG, "🎯 Processing DROP command: %s (START)", cmd->to_notation);
 
-  // ✅ PROMOTION PROTECTION: Ignore matrix events during promotion
+  // PROMOTION PROTECTION: Ignore matrix events during promotion
   if (promotion_state.pending) {
     ESP_LOGI(TAG,
              "⏸️  DROP ignored - promotion pending at %c%d. Please press "
@@ -4219,7 +4155,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
              'a' + promotion_state.square_col, promotion_state.square_row + 1);
 
     // Send informative message to UART
-    char info_msg[512]; // ✅ Increased from 256 to 512 (message is ~320 bytes)
+    char info_msg[512]; // Increased from 256 to 512 (message is ~320 bytes)
     snprintf(info_msg, sizeof(info_msg),
              "⏸️  Physical piece movement ignored\n"
              "👑 Promotion pending at %c%d\n"
@@ -4236,13 +4172,13 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  // ✅ KING RESIGNATION: Zrušit resignation pokud běží
+  // KING RESIGNATION: Zrušit resignation pokud běží
   if (resignation_state.active) {
     resignation_stop(false);
     // Pokračovat s normálním drop processingem
   }
 
-  // ❌ MOVED: New game detection moved to end of function to avoid false
+  // MOVED: New game detection moved to end of function to avoid false
   // positives during move sequence
 
   // Convert notation to coordinates
@@ -4254,7 +4190,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  // ✅ 3-STEP CAPTURE: Check if completing capture
+  // 3-STEP CAPTURE: Check if completing capture
   if (capture_in_progress) {
     if (to_row == capture_target_row && to_col == capture_target_col) {
       ESP_LOGI(TAG, "♟️  Capture complete at %c%d", 'a' + to_col, to_row + 1);
@@ -4267,7 +4203,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
                                    .captured_piece = capture_removed_piece,
                                    .timestamp = esp_timer_get_time() / 1000};
 
-      // ✅ FIX: Temporarily restore captured piece for validation
+      // FIX: Temporarily restore captured piece for validation
       // game_is_valid_move needs to see the opponent piece to validate capture
       board[to_row][to_col] = capture_removed_piece;
 
@@ -4277,15 +4213,12 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         capture_target_col = 0;
         capture_removed_piece = PIECE_EMPTY;
 
-        // ✅ NO manual player switch - game_execute_move() already does it!
+        // NO manual player switch - game_execute_move() already does it!
         // Player is already switched by game_execute_move()
 
         // Timer already handled by game_execute_move() too
         // Just do post-move cleanup
 
-        // ✅ NOVÉ: Zastavit animace před zobrazením movable pieces
-        animation_stop_all();  // Zastavit všechny animace
-        vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
         led_clear_board_only();
         game_highlight_movable_pieces();
 
@@ -4308,7 +4241,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     }
   }
 
-  // ✅ OPRAVA: Kontrola opponent piece recovery
+  // OPRAVA: Kontrola opponent piece recovery
   if (current_game_state == GAME_STATE_WAITING_FOR_RETURN &&
       opponent_piece_moved) {
     ESP_LOGI(TAG, "🔄 Processing opponent piece return");
@@ -4320,7 +4253,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       // Vrátit figurku na board
       board[to_row][to_col] = opponent_piece_type;
 
-      // ✅ FIX: Resetovat error_recovery_state (byl nastaven při PICKUP)
+      // FIX: Resetovat error_recovery_state (byl nastaven při PICKUP)
       if (error_recovery_state.waiting_for_move_correction) {
         ESP_LOGI(
             TAG,
@@ -4343,9 +4276,6 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       lifted_piece_col = 0;
       lifted_piece = PIECE_EMPTY;
 
-      // ✅ NOVÉ: Zastavit animace před zobrazením movable pieces
-      animation_stop_all();  // Zastavit všechny animace
-      vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
       // Vyčistit LED a ukázat normální stav
       led_clear_board_only();
       game_highlight_movable_pieces();
@@ -4355,7 +4285,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       return;
     }
 
-    // ✅ NESPRÁVNÉ POLOŽENÍ: Figurka se pokládá na jinou pozici
+    // NESPRÁVNÉ POLOŽENÍ: Figurka se pokládá na jinou pozici
     ESP_LOGW(TAG,
              "⚠️ Opponent piece placed at wrong position %c%d (should be %c%d)",
              'a' + to_col, to_row + 1, 'a' + opponent_original_col,
@@ -4372,10 +4302,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     lifted_piece_row = to_row;
     lifted_piece_col = to_col;
 
-    // ✅ NOVÉ: Zastavit animace před zobrazením error LED
-    animation_stop_all();  // Zastavit všechny animace
-    vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
-    // ✅ LED: Zobrazit červenou LED na původní pozici (kde má být figurka
+    // LED: Zobrazit červenou LED na původní pozici (kde má být figurka
     // vrácena)
     led_clear_board_only();
     led_set_pixel_safe(
@@ -4398,18 +4325,18 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  // ✅ KONTROLA: Je figurka v error recovery stavu?
+  // KONTROLA: Je figurka v error recovery stavu?
   if (error_recovery_state.waiting_for_move_correction) {
     ESP_LOGI(TAG, "🔄 Processing move correction from error state");
 
-    // ✅ KONTROLA NÁVRATU NA PŮVODNÍ POZICI
+    // KONTROLA NÁVRATU NA PŮVODNÍ POZICI
     if (to_row == error_recovery_state.original_valid_row &&
         to_col == error_recovery_state.original_valid_col) {
 
       ESP_LOGI(TAG, "↩️ Piece returned to ORIGINAL valid position %c%d",
                'a' + to_col, to_row + 1);
 
-      // ✅ KRITICKÉ: Opravit board stav
+      // KRITICKÉ: Opravit board stav
       // Odstranit figurku z neplatné pozice
       board[error_recovery_state.invalid_row]
            [error_recovery_state.invalid_col] = PIECE_EMPTY;
@@ -4417,17 +4344,14 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       // Vrátit figurku na původní validní pozici
       board[to_row][to_col] = error_recovery_state.piece_type;
 
-      // ✅ RESETOVAT error stav
+      // RESETOVAT error stav
       game_reset_error_recovery_state();
 
-      // ✅ NOVÉ: Zastavit animace před zobrazením movable pieces
-      animation_stop_all();  // Zastavit všechny animace
-      vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
       // Vyčistit LED a ukázat normální stav
       led_clear_board_only();
       game_highlight_movable_pieces();
 
-      // ✅ RESETOVAT lifted piece state
+      // RESETOVAT lifted piece state
       piece_lifted = false;
       lifted_piece_row = 0;
       lifted_piece_col = 0;
@@ -4477,7 +4401,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         game_end_timer_move();
         game_start_timer_move(current_player == PLAYER_WHITE);
 
-        // ✅ KRITICKÁ OPRAVA: Kontrola checkmate/stalemate po correction tahu!
+        // KRITICKÁ OPRAVA: Kontrola checkmate/stalemate po correction tahu!
         game_state_t end_game_result = game_check_end_game_conditions();
         if (end_game_result == GAME_STATE_FINISHED) {
           current_game_state = GAME_STATE_FINISHED;
@@ -4485,9 +4409,6 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
           ESP_LOGI(TAG, "🎉 Game finished detected in correction move!");
         }
 
-        // ✅ NOVÉ: Zastavit animace před zobrazením movable pieces
-        animation_stop_all();  // Zastavit všechny animace
-        vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
         // Vyčistit LED a ukázat nový stav
         led_clear_board_only();
         game_highlight_movable_pieces();
@@ -4510,7 +4431,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     // Stále neplatný tah - pokračovat v error stavu
     ESP_LOGE(TAG, "❌ Correction move still invalid: error %d", error);
 
-    // ✅ FIX KRITICKÝ: Aktualizovat board stav a invalid pozici!
+    // FIX KRITICKÝ: Aktualizovat board stav a invalid pozici!
     // Figurka se FYZICKY přesunula z A5 na H5, musíme to reflektovat
 
     // 1. Přesunout figurku na boardu z old invalid na new invalid
@@ -4550,7 +4471,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  // ✅ NORMÁLNÍ PROCESSING - kontrola jestli máme lifted piece
+  // NORMÁLNÍ PROCESSING - kontrola jestli máme lifted piece
   if (!piece_lifted) {
     ESP_LOGE(TAG, "❌ No piece was lifted - use UP command first");
     game_send_response_to_uart("❌ No piece was lifted - use UP command first",
@@ -4558,7 +4479,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  // ✅ KONTROLA ZRUŠENÍ TAHU (drop na stejné pole)
+  // KONTROLA ZRUŠENÍ TAHU (drop na stejné pole)
   if (to_row == lifted_piece_row && to_col == lifted_piece_col) {
     ESP_LOGI(TAG, "🔄 Move cancelled: piece placed on source square %c%d",
              'a' + to_col, to_row + 1);
@@ -4569,9 +4490,6 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     lifted_piece_col = 0;
     lifted_piece = PIECE_EMPTY;
 
-    // ✅ NOVÉ: Zastavit animace před zobrazením movable pieces
-    animation_stop_all();  // Zastavit všechny animace
-    vTaskDelay(pdMS_TO_TICKS(10));  // Krátká pauza pro stabilizaci
     // Zobrazit pohyblivé figurky
     led_clear_board_only();
     game_highlight_movable_pieces();
@@ -4581,7 +4499,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  // ✅ VALIDACE TAHU
+  // VALIDACE TAHU
   chess_move_t move = {.from_row = lifted_piece_row,
                        .from_col = lifted_piece_col,
                        .to_row = to_row,
@@ -4592,7 +4510,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
 
   move_error_t error = game_is_valid_move(&move);
   if (error == MOVE_ERROR_NONE) {
-    // ✅ VALIDNÍ TAH - normální processing
+    // VALIDNÍ TAH - normální processing
     ESP_LOGI(TAG, "✅ Valid move detected");
 
     // Detect castling
@@ -4611,29 +4529,33 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
              move_success);
 
     if (move_success) {
-      // ✅ KRITICKÁ OPRAVA: Reset error state při jakémkoliv validním tahu!
+      // KRITICKÁ OPRAVA: Reset error state při jakémkoliv validním tahu!
       if (error_recovery_state.waiting_for_move_correction) {
         ESP_LOGI(TAG, "✅ Valid move - clearing error recovery state");
         game_reset_error_recovery_state();
       }
 
       if (!is_castling) {
-        // ✅ NOVÉ: Použít animation_task místo led_task
-        uint8_t anim_id = animation_create_move_path(
-            move.from_row, move.from_col,
-            move.to_row, move.to_col,
-            1000,  // duration_ms
-            10     // priority - střední (vyšší než player_change)
-        );
-        if (anim_id != 0xFF) {
-            animation_start(anim_id);
-        }
+        // Spustit move path animaci PŘED změnou hráče (podle starého
+        // projektu)
+        uint8_t from_led = chess_pos_to_led_index(move.from_row, move.from_col);
+        uint8_t to_led = chess_pos_to_led_index(move.to_row, move.to_col);
+        led_command_t move_path_cmd = {
+            .type = LED_CMD_ANIM_MOVE_PATH,
+            .led_index = from_led,
+            .red = 255,
+            .green = 255,
+            .blue = 0, // Yellow
+            .duration_ms = 1000,
+            .data = &to_led // Cílová pozice v data
+        };
+        led_execute_command_new(&move_path_cmd);
 
-        // ✅ STABILITY FIX: Animace běží asynchronně, neblokujeme zpracování
+        // STABILITY FIX: Animace běží asynchronně, neblokujeme zpracování
         // Animace jsou spuštěny v led_task a běží nezávisle
         // (vTaskDelay odstraněn pro lepší throughput)
 
-        // ✅ HRÁČ SE UŽ ZMĚNIL V game_execute_move() - použít aktuálního hráče
+        // HRÁČ SE UŽ ZMĚNIL V game_execute_move() - použít aktuálního hráče
         // Timer integration: End timer for previous player and start for new
         // player
         player_t previous_player =
@@ -4644,7 +4566,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         game_end_timer_move();
         game_start_timer_move(current_player == PLAYER_WHITE);
 
-        // ✅ KRITICKÉ: Endgame kontrola PŘED player change animací!
+        // KRITICKÉ: Endgame kontrola PŘED player change animací!
         // Pokud je endgame, player change se NESPOUŠTÍ
         game_state_t end_game_result = game_check_end_game_conditions();
         if (end_game_result == GAME_STATE_FINISHED) {
@@ -4669,18 +4591,17 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
                    "animation at position %d",
                    king_pos);
 
-          // ✅ NOVÉ: Použít animation_task místo led_task
-          piece_t winner_piece = (winner == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
-          uint8_t anim_id = animation_create_endgame(
-              king_pos,
-              winner_piece,
-              0,      // duration_ms = 0 pro nekonečnou
-              20,     // priority - nejvyšší
-              true    // loop = true
-          );
-          if (anim_id != 0xFF) {
-              animation_start(anim_id);
-          }
+          // Spustit endgame animaci (wave z krále vítěze)
+          led_command_t endgame_cmd = {
+              .type = LED_CMD_ANIM_ENDGAME,
+              .led_index = king_pos,
+              .red = 255,
+              .green = 255,
+              .blue = 0,        // Yellow
+              .duration_ms = 0, // Endless
+              .data = &winner   // Pass winner color to animation
+          };
+          led_execute_command_new(&endgame_cmd);
 
           ESP_LOGI(
               TAG,
@@ -4691,7 +4612,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
           uint8_t player_color =
               (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
           led_command_t player_change_cmd = {
-              .type = LED_CMD_ANIM_PLAYER_CHANGE, // ✅ OPRAVA: Použít
+              .type = LED_CMD_ANIM_PLAYER_CHANGE, // OPRAVA: Použít
                                                   // ANIM_PLAYER_CHANGE místo
                                                   // PLAYER_CHANGE
               .led_index = 0,
@@ -4706,14 +4627,15 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
           // Zkontrolovat, zda je nový hráč v šachu
           bool in_check = game_is_king_in_check(current_player);
           if (in_check) {
-            // ✅ NOVÉ: Použít animation_task místo led_task
-            uint8_t anim_id = animation_create_check(
-                2000,  // duration_ms - 6 flashů × 200ms × 2
-                12     // priority - vysoká
-            );
-            if (anim_id != 0xFF) {
-                animation_start(anim_id);
-            }
+            // Spustit check animaci
+            led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                       .led_index = 0,
+                                       .red = 255,
+                                       .green = 0,
+                                       .blue = 0, // Red
+                                       .duration_ms = 2000,
+                                       .data = NULL};
+            led_execute_command_new(&check_cmd);
             ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
                      current_player == PLAYER_WHITE ? "White" : "Black");
           }
@@ -4724,7 +4646,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         game_highlight_movable_pieces();
       }
 
-      // ✅ MATRIX COMPATIBILITY: Show opponent pieces after successful move
+      // MATRIX COMPATIBILITY: Show opponent pieces after successful move
       // (same as matrix flow)
       if (!game_is_castle_animation_active() && !game_is_castling_expected()) {
         game_highlight_movable_pieces();
@@ -4747,13 +4669,13 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       ESP_LOGI(TAG, "📤 Success response sent");
     }
   } else {
-    // ✅ NEVALIDNÍ TAH - ENHANCED ERROR HANDLING
+    // NEVALIDNÍ TAH - ENHANCED ERROR HANDLING
     ESP_LOGW(TAG, "❌ Invalid move attempt: %s", cmd->to_notation);
 
-    // ✅ FIX KRITICKÝ: Rozlišit první error vs další errory
+    // FIX KRITICKÝ: Rozlišit první error vs další errory
     bool already_in_error = error_recovery_state.waiting_for_move_correction;
 
-    // ✅ SPOLEČNÉ NASTAVENÍ pro všechny chyby
+    // SPOLEČNÉ NASTAVENÍ pro všechny chyby
     error_recovery_state.waiting_for_move_correction = true;
     error_recovery_state.has_invalid_piece = true;
     error_recovery_state.piece_type = lifted_piece;
@@ -4761,7 +4683,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         to_row; // Aktualizovat na novou neplatnou pozici
     error_recovery_state.invalid_col = to_col;
 
-    // ✅ FIX KRITICKÝ: Nastavit original_valid POUZE při PRVNÍM erroru!
+    // FIX KRITICKÝ: Nastavit original_valid POUZE při PRVNÍM erroru!
     // Při dalších errorech NEPŘEPISOVAT - original zůstává stejné (A2)
     if (!already_in_error) {
       error_recovery_state.original_valid_row =
@@ -4778,19 +4700,19 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
                to_row + 1);
     }
 
-    // ✅ AKTUALIZOVAT board stav - figurka je nyní na neplatném poli (fyzická
+    // AKTUALIZOVAT board stav - figurka je nyní na neplatném poli (fyzická
     // realita) Board musí odpovídat fyzickému stavu, aby PICKUP fungoval
     // správně!
     board[lifted_piece_row][lifted_piece_col] =
         PIECE_EMPTY;                      // původní pole prázdné
     board[to_row][to_col] = lifted_piece; // neplatné pole má figurku
 
-    // ✅ AKTUALIZOVAT lifted_piece tracking na novou neplatnou pozici
+    // AKTUALIZOVAT lifted_piece tracking na novou neplatnou pozici
     lifted_piece_row = to_row;
     lifted_piece_col = to_col;
     // piece_lifted = true; // Zůstává true!
 
-    // ✅ LED INDIKACE - červené blikání na neplatném poli
+    // LED INDIKACE - červené blikání na neplatném poli
     game_show_invalid_move_error_with_blink(to_row, to_col);
 
     char error_msg[256];
@@ -4811,7 +4733,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
  */
 void game_show_invalid_move_error_with_blink(uint8_t error_row,
                                              uint8_t error_col) {
-  // ❌ Přerušit předchozí blikání
+    // Přerušit předchozí blikání
   game_stop_error_blink();
 
   ESP_LOGI(TAG, "🚨 Starting non-blocking blink at %c%d", 'a' + error_col,
@@ -5152,18 +5074,15 @@ static void game_process_promotion_button(uint8_t button_id) {
                "at position %d",
                king_pos);
 
-      // ✅ NOVÉ: Použít animation_task místo led_task
-      piece_t winner_piece = (winner == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
-      uint8_t anim_id = animation_create_endgame(
-          king_pos,
-          winner_piece,
-          0,      // duration_ms = 0 pro nekonečnou
-          20,     // priority - nejvyšší
-          true    // loop = true
-      );
-      if (anim_id != 0xFF) {
-          animation_start(anim_id);
-      }
+      // Spustit endgame animaci (wave z krále vítěze)
+      led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
+                                   .led_index = king_pos,
+                                   .red = 255,
+                                   .green = 255,
+                                   .blue = 0,        // Yellow
+                                   .duration_ms = 0, // Endless
+                                   .data = NULL};
+      led_execute_command_new(&endgame_cmd);
 
       ESP_LOGI(
           TAG,
@@ -5193,14 +5112,15 @@ static void game_process_promotion_button(uint8_t button_id) {
     // Zkontrolovat, zda je nový hráč v šachu
     bool in_check = game_is_king_in_check(current_player);
     if (in_check) {
-      // ✅ NOVÉ: Použít animation_task místo led_task
-      uint8_t anim_id = animation_create_check(
-          2000,  // duration_ms - 6 flashů × 200ms × 2
-          12     // priority - vysoká
-      );
-      if (anim_id != 0xFF) {
-          animation_start(anim_id);
-      }
+      // Spustit check animaci
+      led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                 .led_index = 0,
+                                 .red = 255,
+                                 .green = 0,
+                                 .blue = 0, // Red
+                                 .duration_ms = 2000,
+                                 .data = NULL};
+      led_execute_command_new(&check_cmd);
       ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
                current_player == PLAYER_WHITE ? "White" : "Black");
     }
@@ -6009,16 +5929,15 @@ void game_process_castle_command(const chess_move_command_t *cmd) {
     led_set_pixel_safe(rook_from_led, 255, 215, 0); // Gold
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    // ✅ NOVÉ: Použít animation_task místo led_task
-    uint8_t anim_id = animation_create_castle(
-        king_from_led, king_to_led,
-        rook_from_led, rook_to_led,
-        1500,  // duration_ms
-        12     // priority - vysoká
-    );
-    if (anim_id != 0xFF) {
-        animation_start(anim_id);
-    }
+    // 2. Show castling animation
+    led_command_t castle_cmd = {.type = LED_CMD_ANIM_CASTLE,
+                                .led_index = king_from_led,
+                                .red = 255,
+                                .green = 215,
+                                .blue = 0, // Gold
+                                .duration_ms = 1500,
+                                .data = &king_to_led};
+    led_execute_command_new(&castle_cmd);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
     // 3. Actually perform the castling move
@@ -7151,16 +7070,20 @@ void game_process_chess_move(const chess_move_command_t *cmd) {
         // game_process_drop_command LED se zhasínají v
         // game_process_drop_command po úspěšném tahu
 
-        // ✅ NOVÉ: Použít animation_task místo led_task
-        uint8_t anim_id = animation_create_move_path(
-            move.from_row, move.from_col,
-            move.to_row, move.to_col,
-            1000,  // duration_ms
-            10     // priority - střední (vyšší než player_change)
-        );
-        if (anim_id != 0xFF) {
-            animation_start(anim_id);
-        }
+        // ✅ Spustit move path animaci PŘED změnou hráče (podle starého
+        // projektu)
+        uint8_t from_led = chess_pos_to_led_index(move.from_row, move.from_col);
+        uint8_t to_led = chess_pos_to_led_index(move.to_row, move.to_col);
+        led_command_t move_path_cmd = {
+            .type = LED_CMD_ANIM_MOVE_PATH,
+            .led_index = from_led,
+            .red = 255,
+            .green = 255,
+            .blue = 0, // Yellow
+            .duration_ms = 1000,
+            .data = &to_led // Cílová pozice v data
+        };
+        led_execute_command_new(&move_path_cmd);
 
         // ✅ STABILITY FIX: Animace běží asynchronně, neblokujeme zpracování
         // Animace jsou spuštěny v led_task a běží nezávisle
@@ -7195,44 +7118,48 @@ void game_process_chess_move(const chess_move_command_t *cmd) {
                    "at position %d",
                    king_pos);
 
-          // ✅ NOVÉ: Použít animation_task místo led_task
-          piece_t winner_piece = (winner == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
-          uint8_t anim_id = animation_create_endgame(
-              king_pos,
-              winner_piece,
-              0,      // duration_ms = 0 pro nekonečnou
-              20,     // priority - nejvyšší
-              true    // loop = true
-          );
-          if (anim_id != 0xFF) {
-              animation_start(anim_id);
-          }
+          // Spustit endgame animaci (wave z krále vítěze)
+          led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
+                                       .led_index = king_pos,
+                                       .red = 255,
+                                       .green = 255,
+                                       .blue = 0,        // Yellow
+                                       .duration_ms = 0, // Endless
+                                       .data = NULL};
+          led_execute_command_new(&endgame_cmd);
 
           ESP_LOGI(
               TAG,
               "✅ Endgame animation started - player change animation SKIPPED");
         } else {
-          // ✅ NOVÉ: Použít animation_task místo led_task
-          uint8_t anim_id = animation_create_player_change(
-              current_player,
-              600,  // duration_ms - stejný jako původně (~50 framů × 12ms)
-              5     // priority - nízká (pozadí)
-          );
-          if (anim_id != 0xFF) {
-              animation_start(anim_id);
-          }
+          // Není endgame - spustit player change animaci
+          uint8_t player_color =
+              (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
+          led_command_t player_change_cmd = {
+              .type = LED_CMD_ANIM_PLAYER_CHANGE, // ✅ OPRAVA: Použít
+                                                  // ANIM_PLAYER_CHANGE místo
+                                                  // PLAYER_CHANGE
+              .led_index = 0,
+              .red = 0,
+              .green = 0,
+              .blue = 0,
+              .duration_ms = 0,
+              .data = &player_color // Předat barvu hráče
+          };
+          led_execute_command_new(&player_change_cmd);
 
           // Zkontrolovat, zda je nový hráč v šachu
           bool in_check = game_is_king_in_check(current_player);
           if (in_check) {
-            // ✅ NOVÉ: Použít animation_task místo led_task
-            uint8_t anim_id = animation_create_check(
-                2000,  // duration_ms - 6 flashů × 200ms × 2
-                12     // priority - vysoká
-            );
-            if (anim_id != 0xFF) {
-                animation_start(anim_id);
-            }
+            // Spustit check animaci
+            led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                       .led_index = 0,
+                                       .red = 255,
+                                       .green = 0,
+                                       .blue = 0, // Red
+                                       .duration_ms = 2000,
+                                       .data = NULL};
+            led_execute_command_new(&check_cmd);
             ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
                      current_player == PLAYER_WHITE ? "White" : "Black");
           }
@@ -7841,16 +7768,20 @@ void game_process_move_command(const void *move_cmd_ptr) {
   player_t previous_player =
       (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
 
-  // ✅ NOVÉ: Použít animation_task místo led_task
-  uint8_t anim_id = animation_create_move_path(
-      move_cmd->from_row, move_cmd->from_col,
-      move_cmd->to_row, move_cmd->to_col,
-      1000,  // duration_ms
-      10     // priority - střední (vyšší než player_change)
-  );
-  if (anim_id != 0xFF) {
-      animation_start(anim_id);
-  }
+  // ✅ Spustit move path animaci PŘED změnou hráče (podle starého projektu)
+  uint8_t from_led =
+      chess_pos_to_led_index(move_cmd->from_row, move_cmd->from_col);
+  uint8_t to_led = chess_pos_to_led_index(move_cmd->to_row, move_cmd->to_col);
+  led_command_t move_path_cmd = {
+      .type = LED_CMD_ANIM_MOVE_PATH,
+      .led_index = from_led,
+      .red = 255,
+      .green = 255,
+      .blue = 0, // Yellow
+      .duration_ms = 1000,
+      .data = &to_led // Cílová pozice v data
+  };
+  led_execute_command_new(&move_path_cmd);
 
   // ✅ STABILITY FIX: Animace běží asynchronně, neblokujeme zpracování
   // Animace jsou spuštěny v led_task a běží nezávisle
@@ -7881,18 +7812,15 @@ void game_process_move_command(const void *move_cmd_ptr) {
              "position %d",
              king_pos);
 
-    // ✅ NOVÉ: Použít animation_task místo led_task
-    piece_t winner_piece = (winner == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
-    uint8_t anim_id = animation_create_endgame(
-        king_pos,
-        winner_piece,
-        0,      // duration_ms = 0 pro nekonečnou
-        20,     // priority - nejvyšší
-        true    // loop = true
-    );
-    if (anim_id != 0xFF) {
-        animation_start(anim_id);
-    }
+    // Spustit endgame animaci (wave z krále vítěze)
+    led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
+                                 .led_index = king_pos,
+                                 .red = 255,
+                                 .green = 255,
+                                 .blue = 0,        // Yellow
+                                 .duration_ms = 0, // Endless
+                                 .data = NULL};
+    led_execute_command_new(&endgame_cmd);
 
     ESP_LOGI(TAG,
              "✅ Endgame animation started - player change animation SKIPPED");
@@ -7917,14 +7845,15 @@ void game_process_move_command(const void *move_cmd_ptr) {
     // Zkontrolovat, zda je nový hráč v šachu
     bool in_check = game_is_king_in_check(current_player);
     if (in_check) {
-      // ✅ NOVÉ: Použít animation_task místo led_task
-      uint8_t anim_id = animation_create_check(
-          2000,  // duration_ms - 6 flashů × 200ms × 2
-          12     // priority - vysoká
-      );
-      if (anim_id != 0xFF) {
-          animation_start(anim_id);
-      }
+      // Spustit check animaci
+      led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                 .led_index = 0,
+                                 .red = 255,
+                                 .green = 0,
+                                 .blue = 0, // Red
+                                 .duration_ms = 2000,
+                                 .data = NULL};
+      led_execute_command_new(&check_cmd);
       ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
                current_player == PLAYER_WHITE ? "White" : "Black");
     }
@@ -8322,20 +8251,17 @@ void game_test_promote_animation(void) {
 void game_test_endgame_animation(void) {
   ESP_LOGI(TAG, "🎬 Testing endgame animation...");
 
-  // ✅ NOVÉ: Použít animation_task místo led_task
+  // Test endgame animation using direct LED command
   uint8_t king_pos = 27; // d4 square
-  piece_t winner_piece = PIECE_WHITE_KING; // Test with white king
-  
-  uint8_t anim_id = animation_create_endgame(
-      king_pos,
-      winner_piece,
-      3000,   // duration_ms - test animace (ne nekonečná)
-      20,     // priority - nejvyšší
-      false   // loop = false (test animace)
-  );
-  if (anim_id != 0xFF) {
-      animation_start(anim_id);
-  }
+
+  led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
+                               .led_index = king_pos,
+                               .red = 255,
+                               .green = 215,
+                               .blue = 0, // Gold
+                               .duration_ms = 3000,
+                               .data = NULL};
+  led_execute_command_new(&endgame_cmd);
   vTaskDelay(pdMS_TO_TICKS(1500)); // Faster animation
 
   // Clear board
@@ -10277,18 +10203,15 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
                "animation at position %d",
                king_pos);
 
-      // ✅ NOVÉ: Použít animation_task místo led_task
-      piece_t winner_piece = (winner == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
-      uint8_t anim_id = animation_create_endgame(
-          king_pos,
-          winner_piece,
-          0,      // duration_ms = 0 pro nekonečnou
-          20,     // priority - nejvyšší
-          true    // loop = true
-      );
-      if (anim_id != 0xFF) {
-          animation_start(anim_id);
-      }
+      // Spustit endgame animaci (wave z krále vítěze)
+      led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
+                                   .led_index = king_pos,
+                                   .red = 255,
+                                   .green = 255,
+                                   .blue = 0,        // Yellow
+                                   .duration_ms = 0, // Endless
+                                   .data = NULL};
+      led_execute_command_new(&endgame_cmd);
 
       ESP_LOGI(
           TAG,
@@ -10664,18 +10587,15 @@ bool game_check_castling_completion(const chess_move_t *move) {
                "animation at position %d",
                king_pos);
 
-      // ✅ NOVÉ: Použít animation_task místo led_task
-      piece_t winner_piece = (winner == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
-      uint8_t anim_id = animation_create_endgame(
-          king_pos,
-          winner_piece,
-          0,      // duration_ms = 0 pro nekonečnou
-          20,     // priority - nejvyšší
-          true    // loop = true
-      );
-      if (anim_id != 0xFF) {
-          animation_start(anim_id);
-      }
+      // Spustit endgame animaci (wave z krále vítěze)
+      led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
+                                   .led_index = king_pos,
+                                   .red = 255,
+                                   .green = 255,
+                                   .blue = 0,        // Yellow
+                                   .duration_ms = 0, // Endless
+                                   .data = NULL};
+      led_execute_command_new(&endgame_cmd);
 
       ESP_LOGI(
           TAG,

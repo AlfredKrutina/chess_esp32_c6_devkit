@@ -1,0 +1,158 @@
+\doxysection{uart\+\_\+task.\+h}
+\hypertarget{uart__task_8h_source}{}\label{uart__task_8h_source}\index{uart\_task.h@{uart\_task.h}}
+\mbox{\hyperlink{uart__task_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00025}00025\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00026}00026\ \textcolor{preprocessor}{\#ifndef\ UART\_TASK\_LINENOISE\_H}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00027}00027\ \textcolor{preprocessor}{\#define\ UART\_TASK\_LINENOISE\_H}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00029}00029\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00030}00030\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00031}00031\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00032}00032\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00033}00033\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00034}00034\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{chess__types_8h}{chess\_types.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00036}00036\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00037}00037\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00038}00038\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00040}00040\ \textcolor{comment}{//\ Predni\ deklarace}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00041}00041\ \textcolor{comment}{//\ Poznamka:\ chess\_move\_command\_t\ je\ definovan\ v\ chess\_types.h}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00043}00043\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00044}00044\ \textcolor{comment}{//\ TYPY\ VYSLEDKU\ PRIKAZU}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00045}00045\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00046}00046\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00050}\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{00050}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00051}\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a0a22fcf0d061f9b1473876e43d12c33c}{00051}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a0a22fcf0d061f9b1473876e43d12c33c}{CMD\_SUCCESS}}\ =\ 0,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00052}\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a9d8f4f8dab26ea6218e16579507f1a2c}{00052}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a9d8f4f8dab26ea6218e16579507f1a2c}{CMD\_ERROR\_INVALID\_SYNTAX}}\ =\ -\/1,\ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00053}\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a8e7eb0cf30a91dbf67498fef8dcba774}{00053}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a8e7eb0cf30a91dbf67498fef8dcba774}{CMD\_ERROR\_INVALID\_PARAMETER}}\ =\ -\/2,\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00054}\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63aedd36bebd00d835aedb3b165d95687b1}{00054}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63aedd36bebd00d835aedb3b165d95687b1}{CMD\_ERROR\_SYSTEM\_ERROR}}\ =\ -\/3,\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00055}\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a8d68e7510dde3829311ed679636f0fd2}{00055}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a8d68e7510dde3829311ed679636f0fd2}{CMD\_ERROR\_NOT\_FOUND}}\ =\ -\/4\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00056}00056\ \}\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}};}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00061}\mbox{\hyperlink{uart__task_8h_a15db42d803f30c566b5f5fdf88d33b8c}{00061}}\ \textcolor{keyword}{typedef}\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ (*\mbox{\hyperlink{uart__task_8h_a15db42d803f30c566b5f5fdf88d33b8c}{command\_handler\_t}})(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00062}00062\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00063}00063\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00064}00064\ \textcolor{comment}{//\ TYPY\ UART\ ZPRAV}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00065}00065\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00066}00066\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00070}\mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036}{00070}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00071}\mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a70bc53ed1d6c2d1ea1f5b8f570ab166d}{00071}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a70bc53ed1d6c2d1ea1f5b8f570ab166d}{UART\_MSG\_NORMAL}}\ =\ 0,\ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00072}\mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036abd403affd26add443eedf7089afadde4}{00072}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036abd403affd26add443eedf7089afadde4}{UART\_MSG\_ERROR}}\ =\ 1,\ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00073}\mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a85457d793a3de63c4eaa97f57bd36e18}{00073}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a85457d793a3de63c4eaa97f57bd36e18}{UART\_MSG\_WARNING}}\ =\ 2,\ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00074}\mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a2483d473c9c1d73a35b38e1b35018158}{00074}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a2483d473c9c1d73a35b38e1b35018158}{UART\_MSG\_SUCCESS}}\ =\ 3,\ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00075}\mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036aeec4d640e5e10aa6c24208f817789452}{00075}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036aeec4d640e5e10aa6c24208f817789452}{UART\_MSG\_INFO}}\ =\ 4,\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00076}\mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a877a61fdb522d990e286ad329d955f04}{00076}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a877a61fdb522d990e286ad329d955f04}{UART\_MSG\_DEBUG}}\ =\ 5\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00077}00077\ \}\ \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036}{uart\_msg\_type\_t}};}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00078}00078\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00082}\mbox{\hyperlink{structuart__message__t}{00082}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00083}\mbox{\hyperlink{structuart__message__t_ade439b530f80cdb4d4617bc50a0bf5a7}{00083}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036}{uart\_msg\_type\_t}}\ \mbox{\hyperlink{structuart__message__t_ade439b530f80cdb4d4617bc50a0bf5a7}{type}};\ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00084}\mbox{\hyperlink{structuart__message__t_a2e34ba0e8d54f4f6fc585b961b3a9422}{00084}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structuart__message__t_a2e34ba0e8d54f4f6fc585b961b3a9422}{add\_newline}};\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00085}\mbox{\hyperlink{structuart__message__t_a3385b2208c79250b05ce2699db11ff5d}{00085}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structuart__message__t_a3385b2208c79250b05ce2699db11ff5d}{message}}[256];\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00086}00086\ \}\ \mbox{\hyperlink{structuart__message__t}{uart\_message\_t}};}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00087}00087\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00091}\mbox{\hyperlink{structuart__command__t}{00091}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00092}\mbox{\hyperlink{structuart__command__t_af0ce3b293bd17508b348c57501626039}{00092}}\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{structuart__command__t_af0ce3b293bd17508b348c57501626039}{name}};\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00093}\mbox{\hyperlink{structuart__command__t_a6fa82e290fa673960dfbda11d905bfd3}{00093}}\ \ \ \ \ \mbox{\hyperlink{uart__task_8h_a15db42d803f30c566b5f5fdf88d33b8c}{command\_handler\_t}}\ \mbox{\hyperlink{structuart__command__t_a6fa82e290fa673960dfbda11d905bfd3}{handler}};\ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00094}\mbox{\hyperlink{structuart__command__t_a0a77602f1e7d507c3ea44321ae4baf2b}{00094}}\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{structuart__command__t_a0a77602f1e7d507c3ea44321ae4baf2b}{description}};\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00095}\mbox{\hyperlink{structuart__command__t_af54b176c77095097bdde582f4d1cbc26}{00095}}\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{structuart__command__t_af54b176c77095097bdde582f4d1cbc26}{usage}};\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00096}\mbox{\hyperlink{structuart__command__t_ad2edd88434fbd2fb4eda438c08e8a953}{00096}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structuart__command__t_ad2edd88434fbd2fb4eda438c08e8a953}{requires\_args}};\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00097}\mbox{\hyperlink{structuart__command__t_a2415139fb44e34d90c07df89e45e9e50}{00097}}\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{structuart__command__t_a2415139fb44e34d90c07df89e45e9e50}{aliases}}[5];\ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00098}00098\ \}\ \mbox{\hyperlink{structuart__command__t}{uart\_command\_t}};}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00099}00099\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00100}00100\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00101}00101\ \textcolor{comment}{//\ EXTERNI\ PROMENNE}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00102}00102\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00103}00103\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00105}00105\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{uart__task_8h_a6e06eb5d048532e903f597094c601c4c}{uart\_output\_queue}};}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00106}00106\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00107}00107\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00108}00108\ \textcolor{comment}{//\ PROTOTYPY\ HLAVNICH\ FUNKCI}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00109}00109\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00110}00110\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00116}00116\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_a6e26b6d6ae554bd6bc478ccba6b1b763}{uart\_task\_start}}(\textcolor{keywordtype}{void}\ *pvParameters);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00117}00117\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00118}00118\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00119}00119\ \textcolor{comment}{//\ FUNKCE\ PRO\ LINE-\/BASED\ VSTUP}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00120}00120\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00121}00121\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00127}00127\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_a417def5a37edadff4f93cf9e8824f082}{uart\_write\_string\_immediate}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ str);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00128}00128\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00134}00134\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_a5d7ec4b42454dcce2b73a82b7e928484}{uart\_write\_char\_immediate}}(\textcolor{keywordtype}{char}\ c);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00135}00135\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00136}00136\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00137}00137\ \textcolor{comment}{//\ FUNKCE\ PRO\ PRIKAZY}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00138}00138\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00139}00139\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00141}00141\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a25d0a7a7a3f253ef4ba5f55e6764f879}{uart\_cmd\_help}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00143}00143\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a771457bbb5dea20a3c8848f56ff30fb5}{uart\_cmd\_verbose}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00145}00145\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a8bfc523766c1984380217c78bd865d93}{uart\_cmd\_quiet}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00147}00147\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a21313e7215e44d82c987a6e19ec0dbf3}{uart\_cmd\_status}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00149}00149\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a3d57139f7c4ab4244218b1c6151f48fc}{uart\_cmd\_version}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00151}00151\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_adeb40a444cec7562b4c9eae46fb5f905}{uart\_cmd\_memory}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00153}00153\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_ac75af37c48ea155d265417cfc6db8c95}{uart\_cmd\_history}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00155}00155\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_adbe2f7e4f05f1b0c256c81eefb34e95a}{uart\_cmd\_clear}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00157}00157\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_af305f126d46460f209547def7ade998f}{uart\_cmd\_reset}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00159}00159\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a1fcb0efaeb8e64908c667d9a68a497e7}{uart\_cmd\_move}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00161}00161\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_afa32b7335ecf868e1ad3f62ea110f1a7}{uart\_cmd\_up}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00163}00163\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_aa9bf90400c3b2ccf18c98442645b8b14}{uart\_cmd\_dn}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00165}00165\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a31e18c5d57fbf73693ba15d6041bd080}{uart\_cmd\_led\_board}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00167}00167\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_ae06c8535f9c7efcb9bf76c0949b0b4cc}{uart\_cmd\_board}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00169}00169\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_aec33730164148a5ef9df45f1e1ae706b}{uart\_cmd\_game\_new}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00171}00171\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a820002ffc256bb584099e401f1b07e9c}{uart\_cmd\_game\_reset}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00173}00173\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a221e0e7d3b8aaa2836b099cb13e57168}{uart\_cmd\_show\_moves}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00175}00175\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_ad5f1031b571a80d5b86af97d1f95c57c}{uart\_cmd\_undo}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00177}00177\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a45e7ff8cb362715634eba2642afae063}{uart\_cmd\_game\_history}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00179}00179\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a5208e133190e19aad814c5a69dbb93e5}{uart\_cmd\_benchmark}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00181}00181\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_ad71e3397b99aa15ed45f6b5fe3f070d1}{uart\_cmd\_show\_tasks}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00183}00183\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_af34a40710b1a30f20f8be55971986884}{uart\_cmd\_self\_test}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00185}00185\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_ab237e12799096414a354e1023a69b98d}{uart\_cmd\_test\_game}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00187}00187\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a925e6e86c81a91f4d6af38c6106833bc}{uart\_cmd\_debug\_status}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00189}00189\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_afed806feda00e8b2e6122fbba6a0800d}{uart\_cmd\_debug\_game}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00191}00191\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a8def6eb3ad5e05f605577170ea53085f}{uart\_cmd\_debug\_board}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00193}00193\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a8b0cefcf29f3dea4338fdd3475476f1a}{uart\_cmd\_memcheck}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00195}00195\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a2e7e839a6c40f74905836d7d5d4fd69b}{uart\_cmd\_show\_mutexes}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00197}00197\ \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\_result\_t}}\ \mbox{\hyperlink{uart__task_8h_a260841cc4caf0ecd44bc45719f3a6e6a}{uart\_cmd\_show\_fifos}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ args);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00198}00198\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00199}00199\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00200}00200\ \textcolor{comment}{//\ POMOCNE\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00201}00201\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00202}00202\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00206}00206\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_a751f514352196d75fcb5afef4a54bc76}{uart\_display\_main\_help}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00207}00207\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00211}00211\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_a8173679d73f567977d5b63259363383c}{uart\_cmd\_help\_game}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00212}00212\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00216}00216\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_a966ff272c2023dd69fee0aec745c949e}{uart\_cmd\_help\_system}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00217}00217\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00221}00221\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_ae225cfb5aecbfa679ca067a2e4dc6833}{uart\_cmd\_help\_beginner}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00222}00222\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00226}00226\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_aada1de37a1e46c05acb740016334d649}{uart\_cmd\_help\_debug}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00227}00227\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00228}00228\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00229}00229\ \textcolor{comment}{//\ FUNKCE\ PRO\ ZOBRAZENI}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00230}00230\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00231}00231\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00238}00238\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_a0ef783ccf8a8c6f104f5ad95dc7c0faf}{uart\_display\_move\_animation}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ from,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ to);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00239}00239\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00243}00243\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_ab33165e3f027da22b5695d323a262466}{uart\_display\_enhanced\_board}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00244}00244\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00248}00248\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__task_8h_abc55b8a694daa72d150b869d5e4e0a7d}{uart\_display\_led\_board}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00249}00249\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00250}00250\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00251}00251\ \textcolor{comment}{//\ UTILITY\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00252}00252\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00253}00253\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00260}00260\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{uart__task_8h_a19705a349c243f2fcaca1d209b11aa26}{is\_valid\_move\_notation}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ move);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00261}00261\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00268}00268\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{uart__task_8h_a27eda0257802e0a1d44cbe8b91e3feba}{is\_valid\_square\_notation}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ square);}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00269}00269\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00270}00270\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00271}00271\ \}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00272}00272\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00273}00273\ }
+\DoxyCodeLine{\Hypertarget{uart__task_8h_source_l00274}00274\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ UART\_TASK\_LINENOISE\_H}}
+
+\end{DoxyCode}

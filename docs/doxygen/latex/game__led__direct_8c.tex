@@ -1,0 +1,442 @@
+\doxysection{Dokumentace souboru game\+\_\+led\+\_\+direct.\+c}
+\hypertarget{game__led__direct_8c}{}\label{game__led__direct_8c}\index{game\_led\_direct.c@{game\_led\_direct.c}}
+
+
+Přímé LED funkce pro game task.  
+
+
+{\ttfamily \#include "{}game\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}led\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+{\ttfamily \#include "{}chess\+\_\+types.\+h"{}}\newline
+{\ttfamily \#include "{}game\+\_\+led\+\_\+animations.\+h"{}}\newline
+{\ttfamily \#include "{}led\+\_\+mapping.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro game\+\_\+led\+\_\+direct.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{game__led__direct_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{game__led__direct_8c_a65d45d8068e75012a3bf91d813a86993}{game\+\_\+show\+\_\+move\+\_\+direct}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobrazení tahu pomocí přímých LED volání \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_aad4c6f489504e1aace2045420bcec3d1}{game\+\_\+show\+\_\+piece\+\_\+lift\+\_\+direct}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Zobrazení zvednutí figurky pomocí přímých LED volání \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_af337fa678e02039015341d7fa45e3ccc}{game\+\_\+show\+\_\+valid\+\_\+moves\+\_\+direct}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}valid\+\_\+positions, uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Zobrazení platných tahů pomocí přímých LED volání \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_a11c32da99485731ac1e0cae4f2174fcd}{game\+\_\+show\+\_\+error\+\_\+direct}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Zobrazení chyby pomocí přímých LED volání \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_a8b43b89b88ce59ea25698ac5a8280bf2}{game\+\_\+clear\+\_\+highlights\+\_\+direct}} (void)
+\begin{DoxyCompactList}\small\item\em Vymazání zvýraznění pomocí přímých LED volání \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_a002b9dd58ec7cfbcac57367df453f258}{game\+\_\+show\+\_\+state\+\_\+direct}} (\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{game__task_8c_acd8995588803c845a38aeae9849f7be8}{board}})
+\begin{DoxyCompactList}\small\item\em Zobrazení stavu hry pomocí přímých LED volání \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_a0ace822d82e2da6de18559787be957d0}{game\+\_\+show\+\_\+check\+\_\+direct}} (uint8\+\_\+t king\+\_\+row, uint8\+\_\+t king\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobrazení šachu pomocí přímých LED volání \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_abc7c8755788427711faa337e69d53e19}{game\+\_\+show\+\_\+player\+\_\+change\+\_\+direct}} (\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_a39560fbeaa9a251526561b4f2a86eac1}{current\+\_\+player}})
+\begin{DoxyCompactList}\small\item\em Zobrazení změny hráče s vlnovou animací \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_a5f2645fc55410cfe671fe6e8f2a99f2f}{game\+\_\+show\+\_\+invalid\+\_\+move\+\_\+error}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobrazení chyby neplatného tahu s LED feedbackem. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_a94723cd4e9d7f319e96c1d7aaa67fcf8}{game\+\_\+show\+\_\+button\+\_\+error}} (uint8\+\_\+t button\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Zobrazení chyby tlačítka s LED feedbackem. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_a528221cd8d3c2dd6de0732883230033a}{game\+\_\+show\+\_\+castling\+\_\+guidance}} (uint8\+\_\+t king\+\_\+row, uint8\+\_\+t king\+\_\+col, uint8\+\_\+t rook\+\_\+row, uint8\+\_\+t rook\+\_\+col, bool is\+\_\+kingside)
+\begin{DoxyCompactList}\small\item\em Zobrazení návodu na rošádu s krok-\/za-\/krokem LED feedbackem. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_aea44edb838b9522e00dfd55da1856986}{game\+\_\+show\+\_\+checkmate\+\_\+direct}} (uint8\+\_\+t king\+\_\+row, uint8\+\_\+t king\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobrazení matu pomocí přímých LED volání \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_a47ce5497c44b6af58ed04cc1c3d806b8}{game\+\_\+show\+\_\+promotion\+\_\+direct}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Zobrazení promoce pomocí přímých LED volání \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__led__direct_8c_aa112414da6cba72225e1b2958c958fa3}{game\+\_\+show\+\_\+castling\+\_\+direct}} (uint8\+\_\+t king\+\_\+from\+\_\+row, uint8\+\_\+t king\+\_\+from\+\_\+col, uint8\+\_\+t king\+\_\+to\+\_\+row, uint8\+\_\+t king\+\_\+to\+\_\+col, uint8\+\_\+t \mbox{\hyperlink{game__task_8c_a2e655fa25f4bbdd873eabad03e266985}{rook\+\_\+from\+\_\+row}}, uint8\+\_\+t \mbox{\hyperlink{game__task_8c_aaf08ecb764a4aa8e2ce3d75d9bcf58f2}{rook\+\_\+from\+\_\+col}}, uint8\+\_\+t \mbox{\hyperlink{game__task_8c_ad71601a1741c8dcb2c45992ebfc373b0}{rook\+\_\+to\+\_\+row}}, uint8\+\_\+t \mbox{\hyperlink{game__task_8c_a802ed5327f737b0304fbc1809d0aac8f}{rook\+\_\+to\+\_\+col}})
+\begin{DoxyCompactList}\small\item\em Zobrazení rošády pomocí přímých LED volání \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{game__led__direct_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}} = "{}GAME\+\_\+\+LED\+\_\+\+DIRECT"{}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Přímé LED funkce pro game task. 
+
+Tento soubor obsahuje funkce pro přímé ovládání LED z game tasku. Používá přímé volání LED funkcí místo front pro okamžité aktualizace.
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+5 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/09-\/02
+\end{DoxyDate}
+Funkce v tomto souboru poskytují přímé ovládání LED pro zobrazení herních stavů, animací a feedbacku. Všechny funkce používají thread-\/safe LED API pro bezpečné volání z libovolného tasku. 
+
+Definice v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{game__led__direct_8c_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{game__led__direct_8c_a8b43b89b88ce59ea25698ac5a8280bf2}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_clear\_highlights\_direct@{game\_clear\_highlights\_direct}}
+\index{game\_clear\_highlights\_direct@{game\_clear\_highlights\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_clear\_highlights\_direct()}{game\_clear\_highlights\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_a8b43b89b88ce59ea25698ac5a8280bf2} 
+void game\+\_\+clear\+\_\+highlights\+\_\+direct (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vymazání zvýraznění pomocí přímých LED volání 
+
+Vymaz zvyrazneni primo pres LED.
+
+Vymaz zvyrazneni s primymi LED volanimi.
+
+Vymaže všechna zvýraznění na šachovnici, zachová LED na tlačítkách. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00147}{147}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_a94723cd4e9d7f319e96c1d7aaa67fcf8}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_button\_error@{game\_show\_button\_error}}
+\index{game\_show\_button\_error@{game\_show\_button\_error}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_button\_error()}{game\_show\_button\_error()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_a94723cd4e9d7f319e96c1d7aaa67fcf8} 
+void game\+\_\+show\+\_\+button\+\_\+error (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení chyby tlačítka s LED feedbackem. 
+
+Zobraz chybu tlacitka.
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+id} & ID tlačítka\\
+\hline
+\end{DoxyParams}
+Zobrazí oranžové blikání na tlačítku s chybou. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00288}{288}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_aa112414da6cba72225e1b2958c958fa3}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_castling\_direct@{game\_show\_castling\_direct}}
+\index{game\_show\_castling\_direct@{game\_show\_castling\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_castling\_direct()}{game\_show\_castling\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_aa112414da6cba72225e1b2958c958fa3} 
+void game\+\_\+show\+\_\+castling\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{king\+\_\+from\+\_\+row}{, }\item[{uint8\+\_\+t}]{king\+\_\+from\+\_\+col}{, }\item[{uint8\+\_\+t}]{king\+\_\+to\+\_\+row}{, }\item[{uint8\+\_\+t}]{king\+\_\+to\+\_\+col}{, }\item[{uint8\+\_\+t}]{rook\+\_\+from\+\_\+row}{, }\item[{uint8\+\_\+t}]{rook\+\_\+from\+\_\+col}{, }\item[{uint8\+\_\+t}]{rook\+\_\+to\+\_\+row}{, }\item[{uint8\+\_\+t}]{rook\+\_\+to\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení rošády pomocí přímých LED volání 
+
+Zobraz rosadu s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em king\+\_\+from\+\_\+row} & Řádek zdrojového pole krále \\
+\hline
+{\em king\+\_\+from\+\_\+col} & Sloupec zdrojového pole krále \\
+\hline
+{\em king\+\_\+to\+\_\+row} & Řádek cílového pole krále \\
+\hline
+{\em king\+\_\+to\+\_\+col} & Sloupec cílového pole krále \\
+\hline
+{\em rook\+\_\+from\+\_\+row} & Řádek zdrojového pole věže \\
+\hline
+{\em rook\+\_\+from\+\_\+col} & Sloupec zdrojového pole věže \\
+\hline
+{\em rook\+\_\+to\+\_\+row} & Řádek cílového pole věže \\
+\hline
+{\em rook\+\_\+to\+\_\+col} & Sloupec cílového pole věže\\
+\hline
+\end{DoxyParams}
+Zobrazí oranžovou barvu na zdrojových polích a zelenou na cílových polích. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00414}{414}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_a528221cd8d3c2dd6de0732883230033a}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_castling\_guidance@{game\_show\_castling\_guidance}}
+\index{game\_show\_castling\_guidance@{game\_show\_castling\_guidance}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_castling\_guidance()}{game\_show\_castling\_guidance()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_a528221cd8d3c2dd6de0732883230033a} 
+void game\+\_\+show\+\_\+castling\+\_\+guidance (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{king\+\_\+row}{, }\item[{uint8\+\_\+t}]{king\+\_\+col}{, }\item[{uint8\+\_\+t}]{rook\+\_\+row}{, }\item[{uint8\+\_\+t}]{rook\+\_\+col}{, }\item[{bool}]{is\+\_\+kingside}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení návodu na rošádu s krok-\/za-\/krokem LED feedbackem. 
+
+Zobraz navod pro rosadu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em king\+\_\+row} & Řádek krále \\
+\hline
+{\em king\+\_\+col} & Sloupec krále \\
+\hline
+{\em rook\+\_\+row} & Řádek věže \\
+\hline
+{\em rook\+\_\+col} & Sloupec věže \\
+\hline
+{\em is\+\_\+kingside} & True pro královskou stranu, false pro dámskou\\
+\hline
+\end{DoxyParams}
+Zobrazí postupný návod na provedení rošády s animací pohybu krále a věže. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00318}{318}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_a0ace822d82e2da6de18559787be957d0}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_check\_direct@{game\_show\_check\_direct}}
+\index{game\_show\_check\_direct@{game\_show\_check\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_check\_direct()}{game\_show\_check\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_a0ace822d82e2da6de18559787be957d0} 
+void game\+\_\+show\+\_\+check\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{king\+\_\+row}{, }\item[{uint8\+\_\+t}]{king\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení šachu pomocí přímých LED volání 
+
+Zobraz sach primo pres LED.
+
+Zobraz sach s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em king\+\_\+row} & Řádek krále v šachu \\
+\hline
+{\em king\+\_\+col} & Sloupec krále v šachu\\
+\hline
+\end{DoxyParams}
+Zobrazí fialovou barvu na králi v šachu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00193}{193}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_aea44edb838b9522e00dfd55da1856986}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_checkmate\_direct@{game\_show\_checkmate\_direct}}
+\index{game\_show\_checkmate\_direct@{game\_show\_checkmate\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_checkmate\_direct()}{game\_show\_checkmate\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_aea44edb838b9522e00dfd55da1856986} 
+void game\+\_\+show\+\_\+checkmate\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{king\+\_\+row}{, }\item[{uint8\+\_\+t}]{king\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení matu pomocí přímých LED volání 
+
+Zobraz mat s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em king\+\_\+row} & Řádek krále v matu \\
+\hline
+{\em king\+\_\+col} & Sloupec krále v matu\\
+\hline
+\end{DoxyParams}
+Spustí vítěznou animaci na pozici krále v matu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00365}{365}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_a11c32da99485731ac1e0cae4f2174fcd}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_error\_direct@{game\_show\_error\_direct}}
+\index{game\_show\_error\_direct@{game\_show\_error\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_error\_direct()}{game\_show\_error\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_a11c32da99485731ac1e0cae4f2174fcd} 
+void game\+\_\+show\+\_\+error\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení chyby pomocí přímých LED volání 
+
+Zobraz chybu s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Řádek pole s chybou \\
+\hline
+{\em col} & Sloupec pole s chybou\\
+\hline
+\end{DoxyParams}
+Zobrazí červenou barvu na poli s chybou. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00132}{132}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_a5f2645fc55410cfe671fe6e8f2a99f2f}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_invalid\_move\_error@{game\_show\_invalid\_move\_error}}
+\index{game\_show\_invalid\_move\_error@{game\_show\_invalid\_move\_error}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_invalid\_move\_error()}{game\_show\_invalid\_move\_error()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_a5f2645fc55410cfe671fe6e8f2a99f2f} 
+void game\+\_\+show\+\_\+invalid\+\_\+move\+\_\+error (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení chyby neplatného tahu s LED feedbackem. 
+
+Zobraz chybu neplatneho tahu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Řádek zdrojového pole \\
+\hline
+{\em from\+\_\+col} & Sloupec zdrojového pole \\
+\hline
+{\em to\+\_\+row} & Řádek cílového pole \\
+\hline
+{\em to\+\_\+col} & Sloupec cílového pole\\
+\hline
+\end{DoxyParams}
+Zobrazí červené blikání na neplatném tahu a pak návod k vrácení figurky. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00254}{254}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_a65d45d8068e75012a3bf91d813a86993}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_move\_direct@{game\_show\_move\_direct}}
+\index{game\_show\_move\_direct@{game\_show\_move\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_move\_direct()}{game\_show\_move\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_a65d45d8068e75012a3bf91d813a86993} 
+void game\+\_\+show\+\_\+move\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení tahu pomocí přímých LED volání 
+
+Zobraz tah primo pres LED.
+
+Zobraz tah s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Řádek zdrojového pole \\
+\hline
+{\em from\+\_\+col} & Sloupec zdrojového pole \\
+\hline
+{\em to\+\_\+row} & Řádek cílového pole \\
+\hline
+{\em to\+\_\+col} & Sloupec cílového pole\\
+\hline
+\end{DoxyParams}
+Zobrazí animaci tahu s progresivním osvětlením zdrojového a cílového pole. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00043}{43}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_aad4c6f489504e1aace2045420bcec3d1}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_piece\_lift\_direct@{game\_show\_piece\_lift\_direct}}
+\index{game\_show\_piece\_lift\_direct@{game\_show\_piece\_lift\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_piece\_lift\_direct()}{game\_show\_piece\_lift\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_aad4c6f489504e1aace2045420bcec3d1} 
+void game\+\_\+show\+\_\+piece\+\_\+lift\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení zvednutí figurky pomocí přímých LED volání 
+
+Zobraz zvednutí figurky primo pres LED.
+
+Zobraz zvednutí figurky s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Řádek pole \\
+\hline
+{\em col} & Sloupec pole\\
+\hline
+\end{DoxyParams}
+Zobrazí jemný pulzující efekt na poli se zvednutou figurkou. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00084}{84}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_abc7c8755788427711faa337e69d53e19}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_player\_change\_direct@{game\_show\_player\_change\_direct}}
+\index{game\_show\_player\_change\_direct@{game\_show\_player\_change\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_player\_change\_direct()}{game\_show\_player\_change\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_abc7c8755788427711faa337e69d53e19} 
+void game\+\_\+show\+\_\+player\+\_\+change\+\_\+direct (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{current\+\_\+player}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení změny hráče s vlnovou animací 
+
+Zobraz zmenu hrace primo pres LED.
+
+
+\begin{DoxyParams}{Parametry}
+{\em current\+\_\+player} & Aktuální hráč\\
+\hline
+\end{DoxyParams}
+Zobrazí vlnovou animaci od středu při změně hráče. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00213}{213}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_a47ce5497c44b6af58ed04cc1c3d806b8}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_promotion\_direct@{game\_show\_promotion\_direct}}
+\index{game\_show\_promotion\_direct@{game\_show\_promotion\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_promotion\_direct()}{game\_show\_promotion\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_a47ce5497c44b6af58ed04cc1c3d806b8} 
+void game\+\_\+show\+\_\+promotion\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení promoce pomocí přímých LED volání 
+
+Zobraz promoci s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Řádek pole s promocí \\
+\hline
+{\em col} & Sloupec pole s promocí\\
+\hline
+\end{DoxyParams}
+Zobrazí žlutou barvu na poli s promocí. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00390}{390}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_a002b9dd58ec7cfbcac57367df453f258}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_state\_direct@{game\_show\_state\_direct}}
+\index{game\_show\_state\_direct@{game\_show\_state\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_state\_direct()}{game\_show\_state\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_a002b9dd58ec7cfbcac57367df453f258} 
+void game\+\_\+show\+\_\+state\+\_\+direct (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{board}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení stavu hry pomocí přímých LED volání 
+
+Zobraz stav hry s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em board} & Pole s figurkami (8x8)\\
+\hline
+\end{DoxyParams}
+Zobrazí všechny figurky na šachovnici pomocí LED. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00162}{162}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__led__direct_8c_af337fa678e02039015341d7fa45e3ccc}\index{game\_led\_direct.c@{game\_led\_direct.c}!game\_show\_valid\_moves\_direct@{game\_show\_valid\_moves\_direct}}
+\index{game\_show\_valid\_moves\_direct@{game\_show\_valid\_moves\_direct}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{game\_show\_valid\_moves\_direct()}{game\_show\_valid\_moves\_direct()}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_af337fa678e02039015341d7fa45e3ccc} 
+void game\+\_\+show\+\_\+valid\+\_\+moves\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{valid\+\_\+positions}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazení platných tahů pomocí přímých LED volání 
+
+Zobraz platne tahy primo pres LED.
+
+Zobraz platne tahy s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em valid\+\_\+positions} & Pole LED indexů platných tahů \\
+\hline
+{\em count} & Počet platných tahů\\
+\hline
+\end{DoxyParams}
+Zobrazí zelenou vlnu na všech polích s platnými tahy. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00108}{108}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{game__led__direct_8c_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{game__led__direct_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{game\_led\_direct.c@{game\_led\_direct.c}!TAG@{TAG}}
+\index{TAG@{TAG}!game\_led\_direct.c@{game\_led\_direct.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{game__led__direct_8c_a5a85b9c772bbeb480b209a3e6ea92b4c} 
+const char\texorpdfstring{$\ast$}{*} TAG = "{}GAME\+\_\+\+LED\+\_\+\+DIRECT"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00026}{26}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+

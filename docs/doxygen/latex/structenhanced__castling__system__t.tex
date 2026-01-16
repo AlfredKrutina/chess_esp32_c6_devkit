@@ -1,0 +1,216 @@
+\doxysection{Dokumentace struktury enhanced\+\_\+castling\+\_\+system\+\_\+t}
+\hypertarget{structenhanced__castling__system__t}{}\label{structenhanced__castling__system__t}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+
+
+Hlavni struktura enhanced castling systemu.  
+
+
+
+
+{\ttfamily \#include $<$enhanced\+\_\+castling\+\_\+system.\+h$>$}
+
+
+
+Diagram pro enhanced\+\_\+castling\+\_\+system\+\_\+t\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=304pt]{structenhanced__castling__system__t__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\+\_\+phase\+\_\+t}} \mbox{\hyperlink{structenhanced__castling__system__t_a9ad143ea4c1df172843b282169a4dfde}{phase}}
+\begin{DoxyCompactList}\small\item\em Aktualni faze rosady. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structenhanced__castling__system__t_a193693f084c9983b7d3631df4ca11cf0}{active}}
+\begin{DoxyCompactList}\small\item\em Je rosada aktivni? \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{structenhanced__castling__system__t_abe1e8b371d2cd4a14f44bc619ba239c9}{player}}
+\begin{DoxyCompactList}\small\item\em Hrac provadejici rosadu. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{structenhanced__castling__system__t_aed1696fbc7c2f7f72e5b8488abc901fd}{is\+\_\+kingside}}
+\begin{DoxyCompactList}\small\item\em Je to mala rosada (kingside)? \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structcastling__positions__t}{castling\+\_\+positions\+\_\+t}} \mbox{\hyperlink{structenhanced__castling__system__t_ad8d7f5951f47c93f5e4af53e4c6374a2}{positions}}
+\begin{DoxyCompactList}\small\item\em Pozice krale a veze. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structenhanced__castling__system__t_a578c27a1cbedf763948800fd7331b635}{phase\+\_\+start\+\_\+time}}
+\begin{DoxyCompactList}\small\item\em Cas startu faze. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structenhanced__castling__system__t_acdf875b3cc914c109c760c56f7fff55d}{phase\+\_\+timeout\+\_\+ms}}
+\begin{DoxyCompactList}\small\item\em Timeout faze v ms. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structenhanced__castling__system__t_af58209be6b886146ebd983684f6e339e}{error\+\_\+count}}
+\begin{DoxyCompactList}\small\item\em Pocet chyb. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structenhanced__castling__system__t_a0907be6b43008863a3914d90dea75b3b}{max\+\_\+errors}}
+\begin{DoxyCompactList}\small\item\em Maximalni pocet chyb. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structcastling__led__state__t}{castling\+\_\+led\+\_\+state\+\_\+t}} \mbox{\hyperlink{structenhanced__castling__system__t_a2a0f299e6a721d6a6f7c9e6d80dc7a35}{led\+\_\+state}}
+\begin{DoxyCompactList}\small\item\em Stav LED animaci. \end{DoxyCompactList}\item 
+void(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structenhanced__castling__system__t_ab9d558418c635e3e56021273d508f6a1}{completion\+\_\+callback}} )(bool success)
+\begin{DoxyCompactList}\small\item\em Callback po dokonceni. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Hlavni struktura enhanced castling systemu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00138}{138}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structenhanced__castling__system__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structenhanced__castling__system__t_a193693f084c9983b7d3631df4ca11cf0}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!active@{active}}
+\index{active@{active}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{active}{active}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_a193693f084c9983b7d3631df4ca11cf0} 
+bool enhanced\+\_\+castling\+\_\+system\+\_\+t\+::active}
+
+
+
+Je rosada aktivni? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00141}{141}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structenhanced__castling__system__t_ab9d558418c635e3e56021273d508f6a1}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!completion\_callback@{completion\_callback}}
+\index{completion\_callback@{completion\_callback}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{completion\_callback}{completion\_callback}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_ab9d558418c635e3e56021273d508f6a1} 
+void(\texorpdfstring{$\ast$}{*} enhanced\+\_\+castling\+\_\+system\+\_\+t\+::completion\+\_\+callback) (bool success)}
+
+
+
+Callback po dokonceni. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00160}{160}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structenhanced__castling__system__t_af58209be6b886146ebd983684f6e339e}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!error\_count@{error\_count}}
+\index{error\_count@{error\_count}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{error\_count}{error\_count}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_af58209be6b886146ebd983684f6e339e} 
+uint8\+\_\+t enhanced\+\_\+castling\+\_\+system\+\_\+t\+::error\+\_\+count}
+
+
+
+Pocet chyb. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00153}{153}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structenhanced__castling__system__t_aed1696fbc7c2f7f72e5b8488abc901fd}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!is\_kingside@{is\_kingside}}
+\index{is\_kingside@{is\_kingside}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{is\_kingside}{is\_kingside}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_aed1696fbc7c2f7f72e5b8488abc901fd} 
+bool enhanced\+\_\+castling\+\_\+system\+\_\+t\+::is\+\_\+kingside}
+
+
+
+Je to mala rosada (kingside)? 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00145}{145}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structenhanced__castling__system__t_a2a0f299e6a721d6a6f7c9e6d80dc7a35}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!led\_state@{led\_state}}
+\index{led\_state@{led\_state}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{led\_state}{led\_state}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_a2a0f299e6a721d6a6f7c9e6d80dc7a35} 
+\mbox{\hyperlink{structcastling__led__state__t}{castling\+\_\+led\+\_\+state\+\_\+t}} enhanced\+\_\+castling\+\_\+system\+\_\+t\+::led\+\_\+state}
+
+
+
+Stav LED animaci. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00157}{157}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structenhanced__castling__system__t_a0907be6b43008863a3914d90dea75b3b}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!max\_errors@{max\_errors}}
+\index{max\_errors@{max\_errors}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{max\_errors}{max\_errors}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_a0907be6b43008863a3914d90dea75b3b} 
+uint8\+\_\+t enhanced\+\_\+castling\+\_\+system\+\_\+t\+::max\+\_\+errors}
+
+
+
+Maximalni pocet chyb. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00154}{154}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structenhanced__castling__system__t_a9ad143ea4c1df172843b282169a4dfde}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!phase@{phase}}
+\index{phase@{phase}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{phase}{phase}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_a9ad143ea4c1df172843b282169a4dfde} 
+\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\+\_\+phase\+\_\+t}} enhanced\+\_\+castling\+\_\+system\+\_\+t\+::phase}
+
+
+
+Aktualni faze rosady. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00140}{140}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structenhanced__castling__system__t_a578c27a1cbedf763948800fd7331b635}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!phase\_start\_time@{phase\_start\_time}}
+\index{phase\_start\_time@{phase\_start\_time}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{phase\_start\_time}{phase\_start\_time}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_a578c27a1cbedf763948800fd7331b635} 
+uint32\+\_\+t enhanced\+\_\+castling\+\_\+system\+\_\+t\+::phase\+\_\+start\+\_\+time}
+
+
+
+Cas startu faze. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00151}{151}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structenhanced__castling__system__t_acdf875b3cc914c109c760c56f7fff55d}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!phase\_timeout\_ms@{phase\_timeout\_ms}}
+\index{phase\_timeout\_ms@{phase\_timeout\_ms}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{phase\_timeout\_ms}{phase\_timeout\_ms}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_acdf875b3cc914c109c760c56f7fff55d} 
+uint32\+\_\+t enhanced\+\_\+castling\+\_\+system\+\_\+t\+::phase\+\_\+timeout\+\_\+ms}
+
+
+
+Timeout faze v ms. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00152}{152}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structenhanced__castling__system__t_abe1e8b371d2cd4a14f44bc619ba239c9}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!player@{player}}
+\index{player@{player}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{player}{player}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_abe1e8b371d2cd4a14f44bc619ba239c9} 
+\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} enhanced\+\_\+castling\+\_\+system\+\_\+t\+::player}
+
+
+
+Hrac provadejici rosadu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00144}{144}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structenhanced__castling__system__t_ad8d7f5951f47c93f5e4af53e4c6374a2}\index{enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}!positions@{positions}}
+\index{positions@{positions}!enhanced\_castling\_system\_t@{enhanced\_castling\_system\_t}}
+\doxysubsubsection{\texorpdfstring{positions}{positions}}
+{\footnotesize\ttfamily \label{structenhanced__castling__system__t_ad8d7f5951f47c93f5e4af53e4c6374a2} 
+\mbox{\hyperlink{structcastling__positions__t}{castling\+\_\+positions\+\_\+t}} enhanced\+\_\+castling\+\_\+system\+\_\+t\+::positions}
+
+
+
+Pozice krale a veze. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00148}{148}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{enhanced__castling__system_8h}{enhanced\+\_\+castling\+\_\+system.\+h}}\end{DoxyCompactItemize}

@@ -1,0 +1,661 @@
+\doxysection{Dokumentace souboru timer\+\_\+system.\+h}
+\hypertarget{timer__system_8h}{}\label{timer__system_8h}\index{timer\_system.h@{timer\_system.h}}
+
+
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Timer System komponenta.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro timer\+\_\+system.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=276pt]{timer__system_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové struktury}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Konfigurace casove kontroly. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structchess__timer__t}{chess\+\_\+timer\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Stav casoveho systemu. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Výčty}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97}{time\+\_\+control\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97acf683a55dbe135350a71b0ae0fbf10c0}{TIME\+\_\+\+CONTROL\+\_\+\+NONE}} = 0
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a4590561dd3adc65b92f81fe3f8053621}{TIME\+\_\+\+CONTROL\+\_\+\+BULLET\+\_\+1\+\_\+0}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97abfd7351a76a07e65ec86ca5c746979fb}{TIME\+\_\+\+CONTROL\+\_\+\+BULLET\+\_\+1\+\_\+1}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ac79917867e8f53ebc64e9ad0803e2d10}{TIME\+\_\+\+CONTROL\+\_\+\+BULLET\+\_\+2\+\_\+1}}
+, \newline
+\mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a1c86f38b02477a4ffae67385557b7a0c}{TIME\+\_\+\+CONTROL\+\_\+\+BLITZ\+\_\+3\+\_\+0}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ac39517d993f861ef116e27a65230e36e}{TIME\+\_\+\+CONTROL\+\_\+\+BLITZ\+\_\+3\+\_\+2}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97afeb4080afc1298ba5ce62539db577930}{TIME\+\_\+\+CONTROL\+\_\+\+BLITZ\+\_\+5\+\_\+0}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a2d310c7eb7f901c4a224147c25246b55}{TIME\+\_\+\+CONTROL\+\_\+\+BLITZ\+\_\+5\+\_\+3}}
+, \newline
+\mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a47f79cf56da828e18a83f0706683ec64}{TIME\+\_\+\+CONTROL\+\_\+\+RAPID\+\_\+10\+\_\+0}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ac9c5b404dfc4d1201a9079fd5311c550}{TIME\+\_\+\+CONTROL\+\_\+\+RAPID\+\_\+10\+\_\+5}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a612f0dba840f6eaabbeea7c8dcda66e1}{TIME\+\_\+\+CONTROL\+\_\+\+RAPID\+\_\+15\+\_\+10}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a6518ce7c17b27cb83fd62f9c87b5d8b0}{TIME\+\_\+\+CONTROL\+\_\+\+RAPID\+\_\+30\+\_\+0}}
+, \newline
+\mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a964a727e4de3eda49c2a016f08abc9bf}{TIME\+\_\+\+CONTROL\+\_\+\+CLASSICAL\+\_\+60\+\_\+0}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a3a174259dec49ebf339cd25e5bcd68f0}{TIME\+\_\+\+CONTROL\+\_\+\+CLASSICAL\+\_\+90\+\_\+30}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ad913e6fe488ef15d0d74676c2f09cef0}{TIME\+\_\+\+CONTROL\+\_\+\+CUSTOM}}
+, \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97aa9340059a5efb33278af20922b715b55}{TIME\+\_\+\+CONTROL\+\_\+\+MAX}}
+ \}
+\begin{DoxyCompactList}\small\item\em Typy casovych kontrol. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a8ad517573ace8a78289a8305b9acb3ea}{timer\+\_\+system\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuje timer system. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a158cdf2baa4bc74c696f82e8c610737d}{timer\+\_\+set\+\_\+time\+\_\+control}} (const \mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Nastavi casovou kontrolu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a23265b63c17ea7990a7362a4d497d6d9}{timer\+\_\+start\+\_\+move}} (bool is\+\_\+white\+\_\+turn)
+\begin{DoxyCompactList}\small\item\em Spusti timer pro tah. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a89c7235662a4eeb08b1d5e8b77c58492}{timer\+\_\+end\+\_\+move}} (void)
+\begin{DoxyCompactList}\small\item\em Ukonci tah a prida increment. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a66030ee8356a62eed7bbe0717cbd5f22}{timer\+\_\+pause}} (void)
+\begin{DoxyCompactList}\small\item\em Pozastavi timer. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a48d538badd51ca6eca88b2f54ae3f7fe}{timer\+\_\+resume}} (void)
+\begin{DoxyCompactList}\small\item\em Obnovi timer. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_ac52afa2de7a6af69f2f67d86af351a05}{timer\+\_\+reset}} (void)
+\begin{DoxyCompactList}\small\item\em Resetuje timer na pocatecni hodnoty. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{timer__system_8h_aaa24fcf316f295f7a17bf2ff5ed8dd5e}{timer\+\_\+check\+\_\+timeout}} (void)
+\begin{DoxyCompactList}\small\item\em Kontroluje vyprseni casu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a10198b60b509490f91eee1685ba0d980}{timer\+\_\+get\+\_\+state}} (\mbox{\hyperlink{structchess__timer__t}{chess\+\_\+timer\+\_\+t}} \texorpdfstring{$\ast$}{*}timer\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Ziska aktualni stav timeru. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{timer__system_8h_a3129dee6f4627aead1732185abca4395}{timer\+\_\+get\+\_\+remaining\+\_\+time}} (bool is\+\_\+white\+\_\+turn)
+\begin{DoxyCompactList}\small\item\em Ziska zbývající cas pro hrace. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_acc36d1000e481c6d6062135a9f115d40}{timer\+\_\+get\+\_\+config\+\_\+by\+\_\+type}} (\mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97}{time\+\_\+control\+\_\+type\+\_\+t}} type, \mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Ziska konfiguraci casove kontroly podle typu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a902602a46b245d091fd3d474ecde0e82}{timer\+\_\+get\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t buffer\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Vytvori JSON reprezentaci stavu casoveho systemu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{timer__system_8h_a701d8be89867444c5062b138fda7eaf9}{timer\+\_\+get\+\_\+available\+\_\+controls\+\_\+count}} (void)
+\begin{DoxyCompactList}\small\item\em Ziska pocet dostupnych casovych kontrol. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{timer__system_8h_a737397401ab70e21a2979653e14837e6}{timer\+\_\+get\+\_\+available\+\_\+controls}} (\mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}controls, uint32\+\_\+t max\+\_\+count)
+\begin{DoxyCompactList}\small\item\em Ziska seznam dostupnych casovych kontrol. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a3eb1bcce9e90aea183f509abe543f624}{timer\+\_\+save\+\_\+settings}} (void)
+\begin{DoxyCompactList}\small\item\em Ulozi nastaveni timeru do NVS. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a8f43d4d19e19f59397bdb2e824e89edc}{timer\+\_\+load\+\_\+settings}} (void)
+\begin{DoxyCompactList}\small\item\em Nacte nastaveni timeru z NVS. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{timer__system_8h_a918dfb50c8da934336dc81cf36c28a08}{timer\+\_\+get\+\_\+average\+\_\+move\+\_\+time}} (void)
+\begin{DoxyCompactList}\small\item\em Ziska prumerny cas na tah. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{timer__system_8h_a1e23fdb509bdce625a0de3e5ce093fba}{timer\+\_\+get\+\_\+total\+\_\+moves}} (void)
+\begin{DoxyCompactList}\small\item\em Ziska celkovy pocet tahu. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{timer__system_8h_a0812f137aa77d3f66c950c1b98505e20}{timer\+\_\+is\+\_\+active}} (void)
+\begin{DoxyCompactList}\small\item\em Kontroluje zda je casova kontrola aktivni. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97}{time\+\_\+control\+\_\+type\+\_\+t}} \mbox{\hyperlink{timer__system_8h_af9ad41921ea1477b929f7dd703b71adc}{timer\+\_\+get\+\_\+current\+\_\+type}} (void)
+\begin{DoxyCompactList}\small\item\em Ziska typ aktualni casove kontroly. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_a11ab1bc968801095ba83fad279c4d282}{timer\+\_\+set\+\_\+custom\+\_\+time\+\_\+control}} (uint32\+\_\+t minutes, uint32\+\_\+t increment\+\_\+seconds)
+\begin{DoxyCompactList}\small\item\em Nastavi vlastni casovou kontrolu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_ab0399771af7d827987018c7153cd381b}{timer\+\_\+get\+\_\+config\+\_\+by\+\_\+index}} (uint32\+\_\+t index, \mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Ziska casovou kontrolu podle indexu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{timer__system_8h_aeaa8c85da85c6cdb61cf09dc46dd1c64}{timer\+\_\+system\+\_\+deinit}} (void)
+\begin{DoxyCompactList}\small\item\em Deinicializuje timer system. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Timer System komponenta. 
+
+Tato komponenta spravuje časový systém pro sachovou hru\+:
+\begin{DoxyItemize}
+\item Ruzne typy casovych kontrol (bullet, blitz, rapid, classical)
+\item Presne mereni casu s ESP32 timer API
+\item Thread-\/safe operace s casem
+\item Integrace s game taskem
+\item Web API pro ovladani casu
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/01-\/XX
+\end{DoxyDate}
+Timer system poskytuje kompletni casovou kontrolu pro sachovou hru. Podporuje standardni casove kontroly a vlastni nastaveni. Vsechny operace jsou thread-\/safe a optimalizovane pro ESP32. 
+
+Definice v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{timer__system_8h_doc-enum-members}
+\doxysubsection{Dokumentace výčtových typů}
+\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97}\index{timer\_system.h@{timer\_system.h}!time\_control\_type\_t@{time\_control\_type\_t}}
+\index{time\_control\_type\_t@{time\_control\_type\_t}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{time\_control\_type\_t}{time\_control\_type\_t}}
+{\footnotesize\ttfamily \label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97} 
+enum \mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97}{time\+\_\+control\+\_\+type\+\_\+t}}}
+
+
+
+Typy casovych kontrol. 
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_NONE@{TIME\_CONTROL\_NONE}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_NONE@{TIME\_CONTROL\_NONE}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97acf683a55dbe135350a71b0ae0fbf10c0}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97acf683a55dbe135350a71b0ae0fbf10c0} 
+TIME\+\_\+\+CONTROL\+\_\+\+NONE&Bez casove kontroly. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_BULLET\_1\_0@{TIME\_CONTROL\_BULLET\_1\_0}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_BULLET\_1\_0@{TIME\_CONTROL\_BULLET\_1\_0}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a4590561dd3adc65b92f81fe3f8053621}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a4590561dd3adc65b92f81fe3f8053621} 
+TIME\+\_\+\+CONTROL\+\_\+\+BULLET\+\_\+1\+\_\+0&Bullet 1+0 (1 minuta). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_BULLET\_1\_1@{TIME\_CONTROL\_BULLET\_1\_1}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_BULLET\_1\_1@{TIME\_CONTROL\_BULLET\_1\_1}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97abfd7351a76a07e65ec86ca5c746979fb}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97abfd7351a76a07e65ec86ca5c746979fb} 
+TIME\+\_\+\+CONTROL\+\_\+\+BULLET\+\_\+1\+\_\+1&Bullet 1+1 (1 min + 1s increment). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_BULLET\_2\_1@{TIME\_CONTROL\_BULLET\_2\_1}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_BULLET\_2\_1@{TIME\_CONTROL\_BULLET\_2\_1}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ac79917867e8f53ebc64e9ad0803e2d10}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ac79917867e8f53ebc64e9ad0803e2d10} 
+TIME\+\_\+\+CONTROL\+\_\+\+BULLET\+\_\+2\+\_\+1&Bullet 2+1 (2 min + 1s increment). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_BLITZ\_3\_0@{TIME\_CONTROL\_BLITZ\_3\_0}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_BLITZ\_3\_0@{TIME\_CONTROL\_BLITZ\_3\_0}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a1c86f38b02477a4ffae67385557b7a0c}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a1c86f38b02477a4ffae67385557b7a0c} 
+TIME\+\_\+\+CONTROL\+\_\+\+BLITZ\+\_\+3\+\_\+0&Blitz 3+0 (3 minuty). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_BLITZ\_3\_2@{TIME\_CONTROL\_BLITZ\_3\_2}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_BLITZ\_3\_2@{TIME\_CONTROL\_BLITZ\_3\_2}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ac39517d993f861ef116e27a65230e36e}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ac39517d993f861ef116e27a65230e36e} 
+TIME\+\_\+\+CONTROL\+\_\+\+BLITZ\+\_\+3\+\_\+2&Blitz 3+2 (3 min + 2s increment). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_BLITZ\_5\_0@{TIME\_CONTROL\_BLITZ\_5\_0}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_BLITZ\_5\_0@{TIME\_CONTROL\_BLITZ\_5\_0}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97afeb4080afc1298ba5ce62539db577930}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97afeb4080afc1298ba5ce62539db577930} 
+TIME\+\_\+\+CONTROL\+\_\+\+BLITZ\+\_\+5\+\_\+0&Blitz 5+0 (5 minut). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_BLITZ\_5\_3@{TIME\_CONTROL\_BLITZ\_5\_3}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_BLITZ\_5\_3@{TIME\_CONTROL\_BLITZ\_5\_3}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a2d310c7eb7f901c4a224147c25246b55}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a2d310c7eb7f901c4a224147c25246b55} 
+TIME\+\_\+\+CONTROL\+\_\+\+BLITZ\+\_\+5\+\_\+3&Blitz 5+3 (5 min + 3s increment). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_RAPID\_10\_0@{TIME\_CONTROL\_RAPID\_10\_0}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_RAPID\_10\_0@{TIME\_CONTROL\_RAPID\_10\_0}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a47f79cf56da828e18a83f0706683ec64}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a47f79cf56da828e18a83f0706683ec64} 
+TIME\+\_\+\+CONTROL\+\_\+\+RAPID\+\_\+10\+\_\+0&Rapid 10+0 (10 minut). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_RAPID\_10\_5@{TIME\_CONTROL\_RAPID\_10\_5}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_RAPID\_10\_5@{TIME\_CONTROL\_RAPID\_10\_5}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ac9c5b404dfc4d1201a9079fd5311c550}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ac9c5b404dfc4d1201a9079fd5311c550} 
+TIME\+\_\+\+CONTROL\+\_\+\+RAPID\+\_\+10\+\_\+5&Rapid 10+5 (10 min + 5s increment). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_RAPID\_15\_10@{TIME\_CONTROL\_RAPID\_15\_10}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_RAPID\_15\_10@{TIME\_CONTROL\_RAPID\_15\_10}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a612f0dba840f6eaabbeea7c8dcda66e1}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a612f0dba840f6eaabbeea7c8dcda66e1} 
+TIME\+\_\+\+CONTROL\+\_\+\+RAPID\+\_\+15\+\_\+10&Rapid 15+10 (15 min + 10s increment). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_RAPID\_30\_0@{TIME\_CONTROL\_RAPID\_30\_0}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_RAPID\_30\_0@{TIME\_CONTROL\_RAPID\_30\_0}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a6518ce7c17b27cb83fd62f9c87b5d8b0}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a6518ce7c17b27cb83fd62f9c87b5d8b0} 
+TIME\+\_\+\+CONTROL\+\_\+\+RAPID\+\_\+30\+\_\+0&Rapid 30+0 (30 minut). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_CLASSICAL\_60\_0@{TIME\_CONTROL\_CLASSICAL\_60\_0}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_CLASSICAL\_60\_0@{TIME\_CONTROL\_CLASSICAL\_60\_0}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a964a727e4de3eda49c2a016f08abc9bf}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a964a727e4de3eda49c2a016f08abc9bf} 
+TIME\+\_\+\+CONTROL\+\_\+\+CLASSICAL\+\_\+60\+\_\+0&Classical 60+0 (1 hodina). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_CLASSICAL\_90\_30@{TIME\_CONTROL\_CLASSICAL\_90\_30}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_CLASSICAL\_90\_30@{TIME\_CONTROL\_CLASSICAL\_90\_30}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a3a174259dec49ebf339cd25e5bcd68f0}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97a3a174259dec49ebf339cd25e5bcd68f0} 
+TIME\+\_\+\+CONTROL\+\_\+\+CLASSICAL\+\_\+90\+\_\+30&Classical 90+30 (90 min + 30s increment). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_CUSTOM@{TIME\_CONTROL\_CUSTOM}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_CUSTOM@{TIME\_CONTROL\_CUSTOM}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ad913e6fe488ef15d0d74676c2f09cef0}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97ad913e6fe488ef15d0d74676c2f09cef0} 
+TIME\+\_\+\+CONTROL\+\_\+\+CUSTOM&Vlastni nastaveni. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{TIME\_CONTROL\_MAX@{TIME\_CONTROL\_MAX}!timer\_system.h@{timer\_system.h}}\index{timer\_system.h@{timer\_system.h}!TIME\_CONTROL\_MAX@{TIME\_CONTROL\_MAX}}}\Hypertarget{timer__system_8h_a5f46eb643558022bf40c897c5d752f97aa9340059a5efb33278af20922b715b55}\label{timer__system_8h_a5f46eb643558022bf40c897c5d752f97aa9340059a5efb33278af20922b715b55} 
+TIME\+\_\+\+CONTROL\+\_\+\+MAX&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8h_source_l00040}{40}} v souboru \mbox{\hyperlink{timer__system_8h_source}{timer\+\_\+system.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{timer__system_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{timer__system_8h_aaa24fcf316f295f7a17bf2ff5ed8dd5e}\index{timer\_system.h@{timer\_system.h}!timer\_check\_timeout@{timer\_check\_timeout}}
+\index{timer\_check\_timeout@{timer\_check\_timeout}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_check\_timeout()}{timer\_check\_timeout()}}
+{\footnotesize\ttfamily \label{timer__system_8h_aaa24fcf316f295f7a17bf2ff5ed8dd5e} 
+bool timer\+\_\+check\+\_\+timeout (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Kontroluje vyprseni casu. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud cas vyprsel, false jinak 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00444}{444}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a89c7235662a4eeb08b1d5e8b77c58492}\index{timer\_system.h@{timer\_system.h}!timer\_end\_move@{timer\_end\_move}}
+\index{timer\_end\_move@{timer\_end\_move}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_end\_move()}{timer\_end\_move()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a89c7235662a4eeb08b1d5e8b77c58492} 
+esp\+\_\+err\+\_\+t timer\+\_\+end\+\_\+move (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ukonci tah a prida increment. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00278}{278}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a737397401ab70e21a2979653e14837e6}\index{timer\_system.h@{timer\_system.h}!timer\_get\_available\_controls@{timer\_get\_available\_controls}}
+\index{timer\_get\_available\_controls@{timer\_get\_available\_controls}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_get\_available\_controls()}{timer\_get\_available\_controls()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a737397401ab70e21a2979653e14837e6} 
+uint32\+\_\+t timer\+\_\+get\+\_\+available\+\_\+controls (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{controls}{, }\item[{uint32\+\_\+t}]{max\+\_\+count}{}\end{DoxyParamCaption})}
+
+
+
+Ziska seznam dostupnych casovych kontrol. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em controls} & Ukazatel na pole konfiguraci \\
+\hline
+{\em max\+\_\+count} & Maximalni pocet konfiguraci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Pocet ziskanych konfiguraci 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00690}{690}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a701d8be89867444c5062b138fda7eaf9}\index{timer\_system.h@{timer\_system.h}!timer\_get\_available\_controls\_count@{timer\_get\_available\_controls\_count}}
+\index{timer\_get\_available\_controls\_count@{timer\_get\_available\_controls\_count}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_get\_available\_controls\_count()}{timer\_get\_available\_controls\_count()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a701d8be89867444c5062b138fda7eaf9} 
+uint32\+\_\+t timer\+\_\+get\+\_\+available\+\_\+controls\+\_\+count (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziska pocet dostupnych casovych kontrol. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Pocet dostupnych casovych kontrol 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00685}{685}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a918dfb50c8da934336dc81cf36c28a08}\index{timer\_system.h@{timer\_system.h}!timer\_get\_average\_move\_time@{timer\_get\_average\_move\_time}}
+\index{timer\_get\_average\_move\_time@{timer\_get\_average\_move\_time}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_get\_average\_move\_time()}{timer\_get\_average\_move\_time()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a918dfb50c8da934336dc81cf36c28a08} 
+uint32\+\_\+t timer\+\_\+get\+\_\+average\+\_\+move\+\_\+time (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziska prumerny cas na tah. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Prumerny cas na tah v milisekundach 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00808}{808}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_ab0399771af7d827987018c7153cd381b}\index{timer\_system.h@{timer\_system.h}!timer\_get\_config\_by\_index@{timer\_get\_config\_by\_index}}
+\index{timer\_get\_config\_by\_index@{timer\_get\_config\_by\_index}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_get\_config\_by\_index()}{timer\_get\_config\_by\_index()}}
+{\footnotesize\ttfamily \label{timer__system_8h_ab0399771af7d827987018c7153cd381b} 
+esp\+\_\+err\+\_\+t timer\+\_\+get\+\_\+config\+\_\+by\+\_\+index (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{index}{, }\item[{\mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Ziska casovou kontrolu podle indexu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em index} & Index casove kontroly \\
+\hline
+{\em config} & Ukazatel na strukturu pro konfiguraci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00892}{892}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_acc36d1000e481c6d6062135a9f115d40}\index{timer\_system.h@{timer\_system.h}!timer\_get\_config\_by\_type@{timer\_get\_config\_by\_type}}
+\index{timer\_get\_config\_by\_type@{timer\_get\_config\_by\_type}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_get\_config\_by\_type()}{timer\_get\_config\_by\_type()}}
+{\footnotesize\ttfamily \label{timer__system_8h_acc36d1000e481c6d6062135a9f115d40} 
+esp\+\_\+err\+\_\+t timer\+\_\+get\+\_\+config\+\_\+by\+\_\+type (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97}{time\+\_\+control\+\_\+type\+\_\+t}}}]{type}{, }\item[{\mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Ziska konfiguraci casove kontroly podle typu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em type} & Typ casove kontroly \\
+\hline
+{\em config} & Ukazatel na strukturu pro konfiguraci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00604}{604}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_af9ad41921ea1477b929f7dd703b71adc}\index{timer\_system.h@{timer\_system.h}!timer\_get\_current\_type@{timer\_get\_current\_type}}
+\index{timer\_get\_current\_type@{timer\_get\_current\_type}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_get\_current\_type()}{timer\_get\_current\_type()}}
+{\footnotesize\ttfamily \label{timer__system_8h_af9ad41921ea1477b929f7dd703b71adc} 
+\mbox{\hyperlink{timer__system_8h_a5f46eb643558022bf40c897c5d752f97}{time\+\_\+control\+\_\+type\+\_\+t}} timer\+\_\+get\+\_\+current\+\_\+type (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziska typ aktualni casove kontroly. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Typ aktualni casove kontroly 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00850}{850}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a902602a46b245d091fd3d474ecde0e82}\index{timer\_system.h@{timer\_system.h}!timer\_get\_json@{timer\_get\_json}}
+\index{timer\_get\_json@{timer\_get\_json}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_get\_json()}{timer\_get\_json()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a902602a46b245d091fd3d474ecde0e82} 
+esp\+\_\+err\+\_\+t timer\+\_\+get\+\_\+json (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{buffer\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Vytvori JSON reprezentaci stavu casoveho systemu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em buffer} & Buffer pro JSON data \\
+\hline
+{\em buffer\+\_\+size} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00622}{622}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a3129dee6f4627aead1732185abca4395}\index{timer\_system.h@{timer\_system.h}!timer\_get\_remaining\_time@{timer\_get\_remaining\_time}}
+\index{timer\_get\_remaining\_time@{timer\_get\_remaining\_time}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_get\_remaining\_time()}{timer\_get\_remaining\_time()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a3129dee6f4627aead1732185abca4395} 
+uint32\+\_\+t timer\+\_\+get\+\_\+remaining\+\_\+time (\begin{DoxyParamCaption}\item[{bool}]{is\+\_\+white\+\_\+turn}{}\end{DoxyParamCaption})}
+
+
+
+Ziska zbývající cas pro hrace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em is\+\_\+white\+\_\+turn} & Je-\/li na tahu bily \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Zbyvajici cas v milisekundach 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00574}{574}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a10198b60b509490f91eee1685ba0d980}\index{timer\_system.h@{timer\_system.h}!timer\_get\_state@{timer\_get\_state}}
+\index{timer\_get\_state@{timer\_get\_state}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_get\_state()}{timer\_get\_state()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a10198b60b509490f91eee1685ba0d980} 
+esp\+\_\+err\+\_\+t timer\+\_\+get\+\_\+state (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structchess__timer__t}{chess\+\_\+timer\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{timer\+\_\+data}{}\end{DoxyParamCaption})}
+
+
+
+Ziska aktualni stav timeru. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em timer\+\_\+data} & Ukazatel na strukturu pro data timeru \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00519}{519}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a1e23fdb509bdce625a0de3e5ce093fba}\index{timer\_system.h@{timer\_system.h}!timer\_get\_total\_moves@{timer\_get\_total\_moves}}
+\index{timer\_get\_total\_moves@{timer\_get\_total\_moves}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_get\_total\_moves()}{timer\_get\_total\_moves()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a1e23fdb509bdce625a0de3e5ce093fba} 
+uint32\+\_\+t timer\+\_\+get\+\_\+total\+\_\+moves (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziska celkovy pocet tahu. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Celkovy pocet tahu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00822}{822}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a0812f137aa77d3f66c950c1b98505e20}\index{timer\_system.h@{timer\_system.h}!timer\_is\_active@{timer\_is\_active}}
+\index{timer\_is\_active@{timer\_is\_active}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_is\_active()}{timer\_is\_active()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a0812f137aa77d3f66c950c1b98505e20} 
+bool timer\+\_\+is\+\_\+active (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Kontroluje zda je casova kontrola aktivni. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je casova kontrola aktivni, false jinak 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00836}{836}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a8f43d4d19e19f59397bdb2e824e89edc}\index{timer\_system.h@{timer\_system.h}!timer\_load\_settings@{timer\_load\_settings}}
+\index{timer\_load\_settings@{timer\_load\_settings}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_load\_settings()}{timer\_load\_settings()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a8f43d4d19e19f59397bdb2e824e89edc} 
+esp\+\_\+err\+\_\+t timer\+\_\+load\+\_\+settings (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Nacte nastaveni timeru z NVS. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00755}{755}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a66030ee8356a62eed7bbe0717cbd5f22}\index{timer\_system.h@{timer\_system.h}!timer\_pause@{timer\_pause}}
+\index{timer\_pause@{timer\_pause}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_pause()}{timer\_pause()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a66030ee8356a62eed7bbe0717cbd5f22} 
+esp\+\_\+err\+\_\+t timer\+\_\+pause (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Pozastavi timer. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00352}{352}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_ac52afa2de7a6af69f2f67d86af351a05}\index{timer\_system.h@{timer\_system.h}!timer\_reset@{timer\_reset}}
+\index{timer\_reset@{timer\_reset}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_reset()}{timer\_reset()}}
+{\footnotesize\ttfamily \label{timer__system_8h_ac52afa2de7a6af69f2f67d86af351a05} 
+esp\+\_\+err\+\_\+t timer\+\_\+reset (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Resetuje timer na pocatecni hodnoty. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00415}{415}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a48d538badd51ca6eca88b2f54ae3f7fe}\index{timer\_system.h@{timer\_system.h}!timer\_resume@{timer\_resume}}
+\index{timer\_resume@{timer\_resume}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_resume()}{timer\_resume()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a48d538badd51ca6eca88b2f54ae3f7fe} 
+esp\+\_\+err\+\_\+t timer\+\_\+resume (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Obnovi timer. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00381}{381}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a3eb1bcce9e90aea183f509abe543f624}\index{timer\_system.h@{timer\_system.h}!timer\_save\_settings@{timer\_save\_settings}}
+\index{timer\_save\_settings@{timer\_save\_settings}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_save\_settings()}{timer\_save\_settings()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a3eb1bcce9e90aea183f509abe543f624} 
+esp\+\_\+err\+\_\+t timer\+\_\+save\+\_\+settings (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ulozi nastaveni timeru do NVS. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00705}{705}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a11ab1bc968801095ba83fad279c4d282}\index{timer\_system.h@{timer\_system.h}!timer\_set\_custom\_time\_control@{timer\_set\_custom\_time\_control}}
+\index{timer\_set\_custom\_time\_control@{timer\_set\_custom\_time\_control}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_set\_custom\_time\_control()}{timer\_set\_custom\_time\_control()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a11ab1bc968801095ba83fad279c4d282} 
+esp\+\_\+err\+\_\+t timer\+\_\+set\+\_\+custom\+\_\+time\+\_\+control (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{minutes}{, }\item[{uint32\+\_\+t}]{increment\+\_\+seconds}{}\end{DoxyParamCaption})}
+
+
+
+Nastavi vlastni casovou kontrolu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em minutes} & Pocet minut \\
+\hline
+{\em increment\+\_\+seconds} & Increment v sekundach \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00864}{864}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a158cdf2baa4bc74c696f82e8c610737d}\index{timer\_system.h@{timer\_system.h}!timer\_set\_time\_control@{timer\_set\_time\_control}}
+\index{timer\_set\_time\_control@{timer\_set\_time\_control}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_set\_time\_control()}{timer\_set\_time\_control()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a158cdf2baa4bc74c696f82e8c610737d} 
+esp\+\_\+err\+\_\+t timer\+\_\+set\+\_\+time\+\_\+control (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structtime__control__config__t}{time\+\_\+control\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Nastavi casovou kontrolu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em config} & Konfigurace casove kontroly \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00193}{193}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a23265b63c17ea7990a7362a4d497d6d9}\index{timer\_system.h@{timer\_system.h}!timer\_start\_move@{timer\_start\_move}}
+\index{timer\_start\_move@{timer\_start\_move}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_start\_move()}{timer\_start\_move()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a23265b63c17ea7990a7362a4d497d6d9} 
+esp\+\_\+err\+\_\+t timer\+\_\+start\+\_\+move (\begin{DoxyParamCaption}\item[{bool}]{is\+\_\+white\+\_\+turn}{}\end{DoxyParamCaption})}
+
+
+
+Spusti timer pro tah. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em is\+\_\+white\+\_\+turn} & Je-\/li na tahu bily \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00237}{237}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_aeaa8c85da85c6cdb61cf09dc46dd1c64}\index{timer\_system.h@{timer\_system.h}!timer\_system\_deinit@{timer\_system\_deinit}}
+\index{timer\_system\_deinit@{timer\_system\_deinit}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_system\_deinit()}{timer\_system\_deinit()}}
+{\footnotesize\ttfamily \label{timer__system_8h_aeaa8c85da85c6cdb61cf09dc46dd1c64} 
+esp\+\_\+err\+\_\+t timer\+\_\+system\+\_\+deinit (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Deinicializuje timer system. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00910}{910}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+
+\Hypertarget{timer__system_8h_a8ad517573ace8a78289a8305b9acb3ea}\index{timer\_system.h@{timer\_system.h}!timer\_system\_init@{timer\_system\_init}}
+\index{timer\_system\_init@{timer\_system\_init}!timer\_system.h@{timer\_system.h}}
+\doxysubsubsection{\texorpdfstring{timer\_system\_init()}{timer\_system\_init()}}
+{\footnotesize\ttfamily \label{timer__system_8h_a8ad517573ace8a78289a8305b9acb3ea} 
+esp\+\_\+err\+\_\+t timer\+\_\+system\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuje timer system. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{timer__system_8c_source_l00164}{164}} v souboru \mbox{\hyperlink{timer__system_8c_source}{timer\+\_\+system.\+c}}.
+

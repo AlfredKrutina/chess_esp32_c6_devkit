@@ -144,9 +144,12 @@ const gpio_num_t matrix_col_pins[8] = {MATRIX_COL_0, MATRIX_COL_1, MATRIX_COL_2,
 const gpio_num_t promotion_button_pins_a[4] = {BUTTON_QUEEN, BUTTON_ROOK,
                                                BUTTON_BISHOP, BUTTON_KNIGHT};
 
-const gpio_num_t promotion_button_pins_b[4] = {
-    BUTTON_PROMOTION_QUEEN, BUTTON_PROMOTION_ROOK, BUTTON_PROMOTION_BISHOP,
-    BUTTON_PROMOTION_KNIGHT};
+// ⚠️ NEPOUZIVANO: Toto pole se nikde v kódu nepoužívá!
+// Původně bylo navrženo pro druhou sadu promotion tlačítek, ale systém
+// používá pouze promotion_button_pins_a (4 sdílená tlačítka pro oba hráče).
+// const gpio_num_t promotion_button_pins_b[4] = {
+//     BUTTON_PROMOTION_QUEEN, BUTTON_PROMOTION_ROOK, BUTTON_PROMOTION_BISHOP,
+//     BUTTON_PROMOTION_KNIGHT};
 
 // ============================================================================
 // GPIO VALIDATION FUNCTIONS

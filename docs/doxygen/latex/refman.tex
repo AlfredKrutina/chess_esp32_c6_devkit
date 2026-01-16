@@ -1,0 +1,458 @@
+  % Handle batch mode
+  % to overcome problems with too many open files
+  \let\mypdfximage\pdfximage\def\pdfximage{\immediate\mypdfximage}
+  \RequirePackage{iftex}
+  \ifLuaTeX
+    \directlua{pdf.setminorversion(7)}
+  \fi
+  \ifXeTeX
+    \special{pdf:minorversion 7}
+  \fi
+  \ifPDFTeX
+    \pdfminorversion=7
+  \fi
+  % Set document class depending on configuration
+  \documentclass[twoside]{book}
+  % Packages required by doxygen
+  \makeatletter
+  \providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}
+  % suppress package identification of infwarerr as it contains the word "warning"
+  \let\@@protected@wlog\protected@wlog
+  \def\protected@wlog#1{\wlog{package info suppressed}}
+  \RequirePackage{infwarerr}
+  \let\protected@wlog\@@protected@wlog
+  \makeatother
+  \IfFormatAtLeastTF{2016/01/01}{}{\usepackage{fixltx2e}} % for \textsubscript
+  \ifPDFTeX
+    \IfFormatAtLeastTF{2015/01/01}{\pdfsuppresswarningpagegroup=1}{}
+  \fi
+  \usepackage{doxygen}
+  \usepackage{graphicx}
+  \iftutex
+    \usepackage{fontspec}
+    \defaultfontfeatures{Ligatures={TeX}}
+    \usepackage{unicode-math}
+  \else
+    \usepackage[utf8]{inputenc}
+  \fi
+  \usepackage{makeidx}
+  \PassOptionsToPackage{warn}{textcomp}
+  \usepackage{textcomp}
+  \usepackage[nointegrals]{wasysym}
+  \usepackage{ifxetex}
+  % NLS support packages
+  \usepackage[T2A]{fontenc}
+\usepackage[czech]{babel}
+\usepackage{regexpatch}
+\makeatletter
+% Change the `-` delimiter to an active character
+\xpatchparametertext\@@@cmidrule{-}{\cA-}{}{}
+\xpatchparametertext\@cline{-}{\cA-}{}{}
+\makeatother
+  % Define default fonts
+  % Font selection
+  \iftutex
+  \else
+    \usepackage[T1]{fontenc}
+  \fi
+  % set main and monospaced font
+  \usepackage[scaled=.90]{helvet}
+\usepackage{courier}
+\renewcommand{\familydefault}{\sfdefault}
+  \doxyallsectionsfont{%
+    \fontseries{bc}\selectfont%
+    \color{darkgray}%
+  }
+  \renewcommand{\DoxyLabelFont}{%
+    \fontseries{bc}\selectfont%
+    \color{darkgray}%
+  }
+  \newcommand{\+}{\discretionary{\mbox{\scriptsize$\hookleftarrow$}}{}{}}
+   % Arguments of doxygenemoji:
+   % 1) ':<text>:' form of the emoji, already LaTeX-escaped
+   % 2) file with the name of the emoji without the .png extension
+   % in case image exist use this otherwise use the ':<text>:' form
+   \newcommand{\doxygenemoji}[2]{%
+     \IfFileExists{./#2.png}{\raisebox{-0.1em}{\includegraphics[height=0.9em]{./#2.png}}}{#1}%
+   }
+  % Page & text layout
+  \usepackage{geometry}
+  \geometry{%
+    a4paper,%
+    top=2.5cm,%
+    bottom=2.5cm,%
+    left=2.5cm,%
+    right=2.5cm%
+  }
+  \usepackage{changepage}
+  % Allow a bit of overflow to go unnoticed by other means
+  \tolerance=750
+  \hfuzz=15pt
+  \hbadness=750
+  \setlength{\emergencystretch}{15pt}
+  \setlength{\parindent}{0cm}
+  \newcommand{\doxynormalparskip}{\setlength{\parskip}{3ex plus 2ex minus 2ex}}
+  \newcommand{\doxytocparskip}{\setlength{\parskip}{1ex plus 0ex minus 0ex}}
+  \doxynormalparskip
+  % Redefine paragraph/subparagraph environments, using sectsty fonts
+  \makeatletter
+  \renewcommand{\paragraph}{%
+    \@startsection{paragraph}{4}{0ex}{-1.0ex}{1.0ex}{%
+      \normalfont\normalsize\bfseries\SS@parafont%
+    }%
+  }
+  \renewcommand{\subparagraph}{%
+    \@startsection{subparagraph}{5}{0ex}{-1.0ex}{1.0ex}{%
+      \normalfont\normalsize\bfseries\SS@subparafont%
+    }%
+  }
+  \makeatother
+  \makeatletter
+  \newcommand\hrulefilll{\leavevmode\leaders\hrule\hskip 0pt plus 1filll\kern\z@}
+  \makeatother
+  % Headers & footers
+  \usepackage{fancyhdr}
+  \pagestyle{fancyplain}
+  \renewcommand{\footrulewidth}{0.4pt}
+  \fancypagestyle{fancyplain}{
+    \fancyhf{}
+    \fancyhead[LE, RO]{\bfseries\thepage}
+    \fancyhead[LO]{\bfseries\rightmark}
+    \fancyhead[RE]{\bfseries\leftmark}
+    \fancyfoot[LO, RE]{\bfseries\scriptsize Vygenerováno programem Doxygen }
+  }
+  \fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[LO, RE]{\bfseries\scriptsize Vygenerováno programem Doxygen }
+    \renewcommand{\headrulewidth}{0pt}
+  }
+  \pagestyle{fancyplain}
+  \renewcommand{\chaptermark}[1]{%
+    \markboth{#1}{}%
+  }
+  \renewcommand{\sectionmark}[1]{%
+    \markright{\thesection\ #1}%
+  }
+  % ToC, LoF, LoT, bibliography, and index
+  % Indices & bibliography
+  \usepackage[numbers]{natbib}
+  \usepackage[titles]{tocloft}
+  \setcounter{tocdepth}{3}
+  \setcounter{secnumdepth}{5}
+  % creating indexes
+  \makeindex
+  \ifPDFTeX
+\usepackage{newunicodechar}
+  \makeatletter
+    \def\doxynewunicodechar#1#2{%
+    \@tempswafalse
+    \edef\nuc@tempa{\detokenize{#1}}%
+    \if\relax\nuc@tempa\relax
+      \nuc@emptyargerr
+    \else
+      \edef\@tempb{\expandafter\@car\nuc@tempa\@nil}%
+      \nuc@check
+      \if@tempswa
+        \@namedef{u8:\nuc@tempa}{#2}%
+      \fi
+    \fi
+  }
+  \makeatother
+  \doxynewunicodechar{⁻}{${}^{-}$}% Superscript minus
+  \doxynewunicodechar{²}{${}^{2}$}% Superscript two
+  \doxynewunicodechar{³}{${}^{3}$}% Superscript three
+\fi
+  % Hyperlinks
+    % Hyperlinks (required, but should be loaded last)
+    \ifPDFTeX
+      \usepackage[pdftex,pagebackref=true]{hyperref}
+    \else
+      \ifXeTeX
+        \usepackage[xetex,pagebackref=true]{hyperref}
+      \else
+        \ifLuaTeX
+          \usepackage[luatex,pagebackref=true]{hyperref}
+        \else
+          \usepackage[ps2pdf,pagebackref=true]{hyperref}
+        \fi
+      \fi
+    \fi
+    \hypersetup{%
+      colorlinks=true,%
+      linkcolor=blue,%
+      citecolor=blue,%
+      unicode,%
+      pdftitle={CZECHMATE},%
+      pdfsubject={Kompletní šachový systém s WS2812\+B LED, 8x8 Matrix a Button LED Feedback -\/ Šachmat, udělaný v Česku}%
+    }
+  % Custom commands used by the header
+  % Custom commands
+  \newcommand{\clearemptydoublepage}{%
+    \newpage{\pagestyle{empty}\cleardoublepage}%
+  }
+  % caption style definition
+  \usepackage{caption}
+  \captionsetup{labelsep=space,justification=centering,font={bf},singlelinecheck=off,skip=4pt,position=top}
+  % in page table of contents
+  \IfFormatAtLeastTF{2023/05/01}{\usepackage[deeplevels]{etoc}}{\usepackage[deeplevels]{etoc_doxygen}}
+  \etocsettocstyle{\doxytocparskip}{\doxynormalparskip}
+  \etocsetlevel{subsubsubsection}{4}
+  \etocsetlevel{subsubsubsubsection}{5}
+  \etocsetlevel{subsubsubsubsubsection}{6}
+  \etocsetlevel{subsubsubsubsubsubsection}{7}
+  \etocsetlevel{paragraph}{8}
+  \etocsetlevel{subparagraph}{9}
+  % prevent numbers overlap the titles in toc
+  \renewcommand{\numberline}[1]{#1~}
+% End of preamble, now comes the document contents
+%===== C O N T E N T S =====
+\begin{document}
+  \raggedbottom
+  % Titlepage & ToC
+    % To avoid duplicate page anchors due to reuse of same numbers for
+    % the index (be it as roman numbers)
+    \hypersetup{pageanchor=false,
+                bookmarksnumbered=true,
+                pdfencoding=unicode
+               }
+  \pagenumbering{alph}
+  \begin{titlepage}
+  \vspace*{7cm}
+  \begin{center}%
+  {\Large CZECHMATE}\\
+  [1ex]\large 2.\+4.\+0 \\
+  \vspace*{1cm}
+  {\large Vygenerováno programem Doxygen 1.15.0}\\
+  \end{center}
+  \end{titlepage}
+  \clearemptydoublepage
+  \pagenumbering{roman}
+  \tableofcontents
+  \clearemptydoublepage
+  \pagenumbering{arabic}
+  % re-enable anchors again
+  \hypersetup{pageanchor=true}
+%--- Begin generated contents ---
+\input{index}
+\input{deprecated}
+\chapter{Hierarchie adresářů}
+\input{dirs}
+\chapter{Rejstřík datových struktur}
+\input{annotated}
+\chapter{Rejstřík souborů}
+\input{files}
+\chapter{Dokumentace adresářů}
+\input{dir_41295a85b1295fc0ebd5beaf3e0347d1}
+\input{dir_862d50d9bf3f5ceb46867d0cb4c38d54}
+\input{dir_409f97388efe006bc3438b95e9edef48}
+\input{dir_8da852bb64bdd94ab698cdb4daee3f25}
+\input{dir_47913373ed45407138817b1e7d644a5d}
+\input{dir_5c6c08d104c204cc3ac851f4559ad479}
+\input{dir_1181698f7cc37b6be6aee502a0a15bc1}
+\input{dir_7acbcb872a2ebcf5753943ec89f39513}
+\input{dir_d0954016f3b51aa8e12d79ad9b090aaa}
+\input{dir_aa1f7e58bbb569f30127133cb6b3945d}
+\input{dir_0d86bd69b7bd52e460c6d68e5d6c8d5e}
+\input{dir_9cf54d1694e6898b089d09e535c8cac6}
+\input{dir_f37fe88dea145212e3c3ec30fa23d01d}
+\input{dir_8469098ac891347999a5a46e0fb7673a}
+\input{dir_33cc7e91f7e0627bade559bf776868f5}
+\input{dir_5a8f9e0d645bd06dc81b0251036488ca}
+\input{dir_32a2a3e5d7c14df46caeb99f197cead9}
+\input{dir_f3f2d4124eab7bbfc28315d5ee96ecb5}
+\input{dir_a5c61a8ab78e4dbc07599a87e6ffeb5d}
+\input{dir_fe28bc060c133bc9d041b343b99bee79}
+\input{dir_653091839c39176b18308733fb321b48}
+\input{dir_f4061742f0d55e22ad8d9337e92bcefc}
+\input{dir_bbecea7143f63eaa9d0d1615abb0cf73}
+\input{dir_2a9a7da5e1c6c543d4d8212cf79b68b1}
+\input{dir_83b182f0943a51efd30406f771957c42}
+\input{dir_152d5a1b526a9a9c7cf9ba0ff95f77c6}
+\input{dir_dd43ffc1cdd951e881f480cb706d2add}
+\input{dir_a3cb721c9c1de213cf23ce20ac312914}
+\input{dir_2c8c9ab3b152afb528f35b2c32a919e8}
+\input{dir_5c982d53a68cdbcd421152b4020263a9}
+\input{dir_e77e2685ff47a55cd9b2c8ffde70c90d}
+\input{dir_ab6b3e4c64325f478abea97ff504e20e}
+\input{dir_d81a3c6208ed0beed325ac804e7f20d3}
+\input{dir_1991cc6dea0a63cfb4490c20aac875c0}
+\input{dir_37ff961cb22580004e48f495a430ad7c}
+\input{dir_01cfb48b9a719d4c3c7a5fd96745a96a}
+\input{dir_d0ae06983db71f379ba075ec013a456f}
+\input{dir_823818b8139416439cc2663b18364e63}
+\input{dir_27a0c766b97c45b6deeaa7a8c2e2ed8a}
+\input{dir_17f9138bad1f9d2ff44cddc9da54d444}
+\chapter{Dokumentace datových struktur}
+\input{structactive__error__t}
+\input{structanimation__config__t}
+\input{structanimation__state__struct}
+\input{structanimation__task__t}
+\input{structbuffer__pool__stats__t}
+\input{structbutton__event__t}
+\input{structcastling__error__info__t}
+\input{structcastling__led__config__t}
+\input{structcastling__led__state__t}
+\input{structcastling__positions__t}
+\input{structcastling__state__t}
+\input{structchess__move__command__t}
+\input{structchess__move__extended__t}
+\input{structchess__move__t}
+\input{structchess__position__t}
+\input{structchess__timer__t}
+\input{structcommand__history__t}
+\input{structendgame__wave__state__t}
+\input{structenhanced__castling__system__t}
+\input{structerror__guidance__t}
+\input{structerror__system__config__t}
+\input{structfirework__t}
+\input{structgame__response__t}
+\input{structinput__buffer__t}
+\input{structking__resignation__state__t}
+\input{structled__animation__state__t}
+\input{structled__color__t}
+\input{structled__command__t}
+\input{structled__duration__state__t}
+\input{structled__frame__buffer__t}
+\input{structled__health__stats__t}
+\input{structled__layer__state__t}
+\input{structled__manager__config__t}
+\input{structled__pixel__t}
+\input{structled__state__t}
+\input{structmatrix__command__t}
+\input{structmatrix__event__t}
+\input{structmove__suggestion__t}
+\input{structnon__blocking__blink__state__t}
+\input{structrgb__color__t}
+\input{structshared__buffer__t}
+\input{structstreaming__output__t}
+\input{structstreaming__stats__t}
+\input{structsubtle__animation__state__t}
+\input{structsystem__config__t}
+\input{structtest__suite__t}
+\input{structtest__t}
+\input{structtime__control__config__t}
+\input{structuart__command__t}
+\input{structuart__message__t}
+\input{structwave__animation__state__t}
+\input{structwave__t}
+\chapter{Dokumentace souborů}
+\input{CMakeLists_8txt}
+\input{animation__task_8c}
+\input{animation__task_8c_source}
+\input{animation__task_8h}
+\input{animation__task_8h_source}
+\input{button__task_8c}
+\input{button__task_8c_source}
+\input{button__task_8h}
+\input{button__task_8h_source}
+\input{config__manager_8c}
+\input{config__manager_8c_source}
+\input{config__manager_8h}
+\input{config__manager_8h_source}
+\input{enhanced__castling__system_8c}
+\input{enhanced__castling__system_8c_source}
+\input{enhanced__castling__system_8h}
+\input{enhanced__castling__system_8h_source}
+\input{freertos__chess_8c}
+\input{freertos__chess_8c_source}
+\input{chess__types_8h}
+\input{chess__types_8h_source}
+\input{freertos__chess_8h}
+\input{freertos__chess_8h_source}
+\input{led__mapping_8h}
+\input{led__mapping_8h_source}
+\input{shared__buffer__pool_8h}
+\input{shared__buffer__pool_8h_source}
+\input{streaming__output_8h}
+\input{streaming__output_8h_source}
+\input{led__mapping_8c}
+\input{led__mapping_8c_source}
+\input{shared__buffer__pool_8c}
+\input{shared__buffer__pool_8c_source}
+\input{streaming__output_8c}
+\input{streaming__output_8c_source}
+\input{game__led__animations_8c}
+\input{game__led__animations_8c_source}
+\input{game__led__animations_8h}
+\input{game__led__animations_8h_source}
+\input{demo__mode__helpers_8c}
+\input{demo__mode__helpers_8c_source}
+\input{game__led__direct_8c}
+\input{game__led__direct_8c_source}
+\input{game__task_8c}
+\input{game__task_8c_source}
+\input{game__colors_8h}
+\input{game__colors_8h_source}
+\input{game__led__direct_8h}
+\input{game__led__direct_8h_source}
+\input{game__task_8h}
+\input{game__task_8h_source}
+\input{led__state__manager_8h}
+\input{led__state__manager_8h_source}
+\input{led__state__manager_8c}
+\input{led__state__manager_8c_source}
+\input{led__task_8h}
+\input{led__task_8h_source}
+\input{led__task__simple_8h}
+\input{led__task__simple_8h_source}
+\input{led__unified__api_8h}
+\input{led__unified__api_8h_source}
+\input{led__task_8c}
+\input{led__task_8c_source}
+\input{matrix__task_8h}
+\input{matrix__task_8h_source}
+\input{matrix__task_8c}
+\input{matrix__task_8c_source}
+\input{promotion__button__task_8h}
+\input{promotion__button__task_8h_source}
+\input{promotion__button__task_8c}
+\input{promotion__button__task_8c_source}
+\input{reset__button__task_8h}
+\input{reset__button__task_8h_source}
+\input{reset__button__task_8c}
+\input{reset__button__task_8c_source}
+\input{test__task_8h}
+\input{test__task_8h_source}
+\input{test__task_8c}
+\input{test__task_8c_source}
+\input{timer__system_8h}
+\input{timer__system_8h_source}
+\input{timer__system_8c}
+\input{timer__system_8c_source}
+\input{uart__commands__extended_8h}
+\input{uart__commands__extended_8h_source}
+\input{uart__commands__extended_8c}
+\input{uart__commands__extended_8c_source}
+\input{uart__task_8h}
+\input{uart__task_8h_source}
+\input{uart__task_8c}
+\input{uart__task_8c_source}
+\input{unified__animation__manager_8h}
+\input{unified__animation__manager_8h_source}
+\input{unified__animation__manager_8c}
+\input{unified__animation__manager_8c_source}
+\input{visual__error__system_8h}
+\input{visual__error__system_8h_source}
+\input{visual__error__system_8c}
+\input{visual__error__system_8c_source}
+\input{chess__app__js__fixed_8c}
+\input{chess__app__js__fixed_8c_source}
+\input{chess__app__js__new_8c}
+\input{chess__app__js__new_8c_source}
+\input{web__server__task_8h}
+\input{web__server__task_8h_source}
+\input{web__server__task_8c}
+\input{web__server__task_8c_source}
+\input{main_8c}
+\input{main_8c_source}
+\input{README_8md}
+%--- End generated contents ---
+% Index
+  \backmatter
+  \newpage
+  \phantomsection
+  \clearemptydoublepage
+  \addcontentsline{toc}{chapter}{\indexname}
+  \printindex
+% Required for some languages (in combination with latexdocumentpre from the header)
+\end{document}

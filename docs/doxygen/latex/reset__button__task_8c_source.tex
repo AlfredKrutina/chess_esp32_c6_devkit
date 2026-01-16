@@ -1,0 +1,107 @@
+\doxysection{reset\+\_\+button\+\_\+task.\+c}
+\hypertarget{reset__button__task_8c_source}{}\label{reset__button__task_8c_source}\index{reset\_button\_task.c@{reset\_button\_task.c}}
+\mbox{\hyperlink{reset__button__task_8c}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00022}00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{reset__button__task_8h}{reset\_button\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00023}00023\ \textcolor{preprocessor}{\#include\ "{}esp\_log.h"{}}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00024}00024\ \textcolor{preprocessor}{\#include\ "{}esp\_task\_wdt.h"{}}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}freertos/task.h"{}}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00028}00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}\ \ \textcolor{comment}{//\ OPRAVENO:\ Přidán\ include\ pro\ konstanty}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00030}\mbox{\hyperlink{reset__button__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00030}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}}\ =\ \textcolor{stringliteral}{"{}RESET\_BUTTON\_TASK"{}};}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00032}00032\ \textcolor{comment}{//\ Reset\ button\ task\ status}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00033}\mbox{\hyperlink{reset__button__task_8c_a2a86e8e816b985c84e78ba6b842e52bf}{00033}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{reset__button__task_8c_a2a86e8e816b985c84e78ba6b842e52bf}{reset\_button\_initialized}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00034}\mbox{\hyperlink{reset__button__task_8c_ab36b66e9f95206af3b83dfa622d5cc7d}{00034}}\ \textcolor{keyword}{static}\ uint32\_t\ \mbox{\hyperlink{promotion__button__task_8c_ab36b66e9f95206af3b83dfa622d5cc7d}{button\_event\_count}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00041}\mbox{\hyperlink{reset__button__task_8h_adf092b27f7d985c1b6e1f5980a1ec99e}{00041}}\ esp\_err\_t\ \mbox{\hyperlink{reset__button__task_8c_adf092b27f7d985c1b6e1f5980a1ec99e}{reset\_button\_task\_init}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00042}00042\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00043}00043\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{reset__button__task_8c_a2a86e8e816b985c84e78ba6b842e52bf}{reset\_button\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00044}00044\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00045}00045\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00046}00046\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00047}00047\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Initializing\ reset\ button\ task\ (SIMULATION\ MODE)..."{}});}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00048}00048\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00049}00049\ \ \ \ \ \textcolor{comment}{//\ Create\ reset\ button\ task}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00050}00050\ \ \ \ \ BaseType\_t\ task\_created\ =\ xTaskCreate(}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00051}00051\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{reset__button__task_8h_a2b2018c335a91336642118cc74af7b4a}{reset\_button\_task}},}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00052}00052\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}reset\_button\_task"{}},}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_aa89cf203c391fae0636372b71659d297}{RESET\_BUTTON\_TASK\_STACK\_SIZE}},\ \ \textcolor{comment}{//\ OPRAVENO:\ Místo\ hardcodované\ 2048}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00054}00054\ \ \ \ \ \ \ \ \ NULL,}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00055}00055\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{freertos__chess_8h_a9317390fd5035b22532eaaa19884d747}{RESET\_BUTTON\_TASK\_PRIORITY}},\ \ \ \ \textcolor{comment}{//\ OPRAVENO:\ Místo\ hardcodované\ 3}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00056}00056\ \ \ \ \ \ \ \ \ NULL}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00057}00057\ \ \ \ \ );}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00058}00058\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00059}00059\ \ \ \ \ \textcolor{keywordflow}{if}\ (task\_created\ !=\ pdPASS)\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00060}00060\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ reset\ button\ task"{}});}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00061}00061\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00062}00062\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00063}00063\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00064}00064\ \ \ \ \ \mbox{\hyperlink{reset__button__task_8c_a2a86e8e816b985c84e78ba6b842e52bf}{reset\_button\_initialized}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00065}00065\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Reset\ button\ task\ initialized\ successfully\ (SIMULATION\ MODE)"{}});}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00066}00066\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00067}00067\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00068}00068\ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00069}00069\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00075}\mbox{\hyperlink{reset__button__task_8h_a2b2018c335a91336642118cc74af7b4a}{00075}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{reset__button__task_8c_a2b2018c335a91336642118cc74af7b4a}{reset\_button\_task}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00076}00076\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00077}00077\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Reset\ button\ task\ started\ (SIMULATION\ MODE)"{}});}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00078}00078\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00079}00079\ \ \ \ \ TickType\_t\ last\_wake\_time\ =\ xTaskGetTickCount();}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00080}00080\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00081}00081\ \ \ \ \ \textcolor{keywordflow}{while}\ (1)\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00082}00082\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ CRITICAL:\ Reset\ watchdog\ for\ reset\ button\ task\ in\ every\ iteration}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00083}00083\ \ \ \ \ \ \ \ \ esp\_task\_wdt\_reset();}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00084}00084\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00085}00085\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Process\ reset\ button\ events\ (simulation\ mode\ -\/\ no\ real\ queue)}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00086}00086\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ Implement\ queue\ communication\ in\ the\ future}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00087}00087\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ vTaskDelayUntil(\&last\_wake\_time,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00089}00089\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00090}00090\ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00091}00091\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00098}\mbox{\hyperlink{reset__button__task_8h_a828ddd0ce9a37f1fbe484e6663d96a57}{00098}}\ esp\_err\_t\ \mbox{\hyperlink{reset__button__task_8c_a828ddd0ce9a37f1fbe484e6663d96a57}{process\_reset\_request}}(\textcolor{keywordtype}{bool}\ reset\_request)}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00099}00099\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00100}00100\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{reset__button__task_8c_a2a86e8e816b985c84e78ba6b842e52bf}{reset\_button\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00101}00101\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00102}00102\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00103}00103\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00104}00104\ \ \ \ \ \textcolor{keywordflow}{if}\ (reset\_request)\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00105}00105\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Reset\ button\ pressed\ -\/\ requesting\ game\ reset"{}});}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00106}00106\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TODO:\ Send\ reset\ command\ to\ game\ task}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00107}00107\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ For\ now,\ just\ log\ the\ request}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00108}00108\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00109}00109\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Reset\ button\ released"{}});}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00110}00110\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00111}00111\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00112}00112\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00113}00113\ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00114}00114\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00121}\mbox{\hyperlink{reset__button__task_8h_a9d96f74aeb8c8ab64a9ea78a857747dc}{00121}}\ esp\_err\_t\ \mbox{\hyperlink{reset__button__task_8c_a9d96f74aeb8c8ab64a9ea78a857747dc}{simulate\_reset\_button\_press}}(\textcolor{keywordtype}{bool}\ pressed)}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00122}00122\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00123}00123\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{reset__button__task_8c_a2a86e8e816b985c84e78ba6b842e52bf}{reset\_button\_initialized}})\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00124}00124\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00125}00125\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00126}00126\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00127}00127\ \ \ \ \ \textcolor{comment}{//\ Simulation\ mode\ -\/\ just\ log\ the\ event}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00128}00128\ \ \ \ \ \mbox{\hyperlink{promotion__button__task_8c_ab36b66e9f95206af3b83dfa622d5cc7d}{button\_event\_count}}++;}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00129}00129\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Simulated\ reset\ button\ \%s"{}},\ pressed\ ?\ \textcolor{stringliteral}{"{}press"{}}\ :\ \textcolor{stringliteral}{"{}release"{}});}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00130}00130\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00131}00131\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00132}00132\ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00133}00133\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00139}\mbox{\hyperlink{reset__button__task_8h_a9c119f00a30675bdd20fd69a03775b71}{00139}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{reset__button__task_8c_a9c119f00a30675bdd20fd69a03775b71}{reset\_button\_is\_initialized}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00140}00140\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00141}00141\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{reset__button__task_8c_a2a86e8e816b985c84e78ba6b842e52bf}{reset\_button\_initialized}};}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00142}00142\ \}}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00143}00143\ }
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00149}\mbox{\hyperlink{reset__button__task_8h_a06d02f46f762a840863c8353f7e7f506}{00149}}\ uint32\_t\ \mbox{\hyperlink{reset__button__task_8c_a06d02f46f762a840863c8353f7e7f506}{reset\_button\_get\_event\_count}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00150}00150\ \{}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00151}00151\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{promotion__button__task_8c_ab36b66e9f95206af3b83dfa622d5cc7d}{button\_event\_count}};}
+\DoxyCodeLine{\Hypertarget{reset__button__task_8c_source_l00152}00152\ \}}
+
+\end{DoxyCode}

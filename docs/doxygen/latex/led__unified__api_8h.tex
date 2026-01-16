@@ -1,0 +1,411 @@
+\doxysection{Dokumentace souboru led\+\_\+unified\+\_\+api.\+h}
+\hypertarget{led__unified__api_8h}{}\label{led__unified__api_8h}\index{led\_unified\_api.h@{led\_unified\_api.h}}
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro led\+\_\+unified\+\_\+api.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=276pt]{led__unified__api_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové struktury}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em RGB barevna struktura. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Definice maker}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{led__unified__api_8h_a2b90b815358f1c78e36a5f4c56308449}{LED\+\_\+\+COLOR\+\_\+\+OFF}}~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{0, 0, 0\})
+\begin{DoxyCompactList}\small\item\em Barva -\/ vypnuto (cerna). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{led__unified__api_8h_aa9bb2e0662b7efddf1e12bfaa241b8a8}{LED\+\_\+\+COLOR\+\_\+\+WHITE}}~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{255, 255, 255\})
+\begin{DoxyCompactList}\small\item\em Barva -\/ bila. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{led__unified__api_8h_a8987a69d33df1353af6077ff67dfea28}{LED\+\_\+\+COLOR\+\_\+\+RED}}~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{255, 0, 0\})
+\begin{DoxyCompactList}\small\item\em Barva -\/ cervena. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{led__unified__api_8h_a913f289eb3203c4e3043b1ecb4047032}{LED\+\_\+\+COLOR\+\_\+\+GREEN}}~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{0, 255, 0\})
+\begin{DoxyCompactList}\small\item\em Barva -\/ zelena. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{led__unified__api_8h_a3de6c5690933de9d62c0897ef611cb19}{LED\+\_\+\+COLOR\+\_\+\+BLUE}}~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{0, 0, 255\})
+\begin{DoxyCompactList}\small\item\em Barva -\/ modra. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{led__unified__api_8h_a97348e8acf253232595a481314f8a396}{LED\+\_\+\+COLOR\+\_\+\+YELLOW}}~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{255, 255, 0\})
+\begin{DoxyCompactList}\small\item\em Barva -\/ zluta. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{led__unified__api_8h_a8985352a22885bbb847bca6e772e98bc}{LED\+\_\+\+COLOR\+\_\+\+CYAN}}~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{0, 255, 255\})
+\begin{DoxyCompactList}\small\item\em Barva -\/ azurova (cyan). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{led__unified__api_8h_a6518de5003bcf7e4853f4dc29e372988}{LED\+\_\+\+COLOR\+\_\+\+MAGENTA}}~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{255, 0, 255\})
+\begin{DoxyCompactList}\small\item\em Barva -\/ fialova (magenta). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_a03f1c23d367a417c885fbf0b77fa8e92}{led\+\_\+set}} (uint8\+\_\+t position, \mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}} color)
+\begin{DoxyCompactList}\small\item\em Nastav LED barvu (nahradi vsechny led\+\_\+set\+\_\+pixel\+\_\+\texorpdfstring{$\ast$}{*} varianty). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_a738fcd34c4727af46498fbee998f5b27}{led\+\_\+clear}} (uint8\+\_\+t position)
+\begin{DoxyCompactList}\small\item\em Vymaz jednu LED pozici. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_a323c87898912a4a4d62383dbe8bd7099}{led\+\_\+clear\+\_\+all}} (void)
+\begin{DoxyCompactList}\small\item\em Vymaz vsechny LED (sachovnice + tlacitka). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_a489fc3062159f186eaf3110bb9448900}{led\+\_\+clear\+\_\+board}} (void)
+\begin{DoxyCompactList}\small\item\em Vymaz pouze sachovnicove LED (0-\/63), zachovej tlacitka. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_a746d846a8984178a6d25821b2485ff38}{led\+\_\+show\+\_\+moves}} (const uint8\+\_\+t \texorpdfstring{$\ast$}{*}positions, uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Zobraz legalni tahy pro figurku (zelena zvyrazneni). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_add8f4af4ac4cd55c7f080b6a0e74c715}{led\+\_\+show\+\_\+movable\+\_\+pieces}} (const uint8\+\_\+t \texorpdfstring{$\ast$}{*}positions, uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Zobraz figurky ktere se mohou hybat (zlute zvyrazneni). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_a1c171299071c1e2c7d6c0744279ea3e7}{led\+\_\+animate}} (const char \texorpdfstring{$\ast$}{*}type, uint8\+\_\+t from\+\_\+pos, uint8\+\_\+t to\+\_\+pos)
+\begin{DoxyCompactList}\small\item\em Spust animaci (nahradi led\+\_\+execute\+\_\+command\+\_\+new). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_abb65c57a4635e4911d71902ef3bcbb3c}{led\+\_\+stop\+\_\+animations}} (void)
+\begin{DoxyCompactList}\small\item\em Zastav vsechny animace. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_a7dcadeeb97f7284b327666232439764a}{led\+\_\+show\+\_\+error}} (uint8\+\_\+t position)
+\begin{DoxyCompactList}\small\item\em Zobraz chybovou indikaci (cervene zvyrazneni). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_a49f0adcc708a2e5b8c5f665fa7e35a0e}{led\+\_\+show\+\_\+selection}} (uint8\+\_\+t position)
+\begin{DoxyCompactList}\small\item\em Zobraz vyber figurky (zlute zvyrazneni). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_a323f5cd41bfd6e9ffa8c0e7a22a4f728}{led\+\_\+show\+\_\+capture}} (uint8\+\_\+t position)
+\begin{DoxyCompactList}\small\item\em Zobraz indikaci sebrani (oranzove zvyrazneni). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__unified__api_8h_a036b1d0a0cf1289a8eec759f01b07233}{led\+\_\+commit}} (void)
+\begin{DoxyCompactList}\small\item\em Commitni vsechny LED zmeny do hardwaru (batch aktualizace). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Unified LED API -\/ Jednotny zdroj pravdy pro LED ovladani
+
+Tato hlavicka poskytuje zjednodusene, jednotne API pro vsechny LED operace. Nahradi chaotickou smes led\+\_\+set\+\_\+pixel\+\_\+internal, led\+\_\+set\+\_\+pixel\+\_\+safe, led\+\_\+execute\+\_\+command\+\_\+new, atd. cistym, konzistentnim rozhranim.
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+5 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/09-\/06
+\end{DoxyDate}
+Unified LED API poskytuje jednoduche, konzistentni rozhrani pro vsechny LED operace v systemu. Eliminuje duplicitni funkce a poskytuje jasne pojmenovane funkce pro kazdy pripad pouziti. 
+
+Definice v souboru \mbox{\hyperlink{led__unified__api_8h_source}{led\+\_\+unified\+\_\+api.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{led__unified__api_8h_doc-define-members}
+\doxysubsection{Dokumentace definic maker}
+\Hypertarget{led__unified__api_8h_a3de6c5690933de9d62c0897ef611cb19}\index{led\_unified\_api.h@{led\_unified\_api.h}!LED\_COLOR\_BLUE@{LED\_COLOR\_BLUE}}
+\index{LED\_COLOR\_BLUE@{LED\_COLOR\_BLUE}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{LED\_COLOR\_BLUE}{LED\_COLOR\_BLUE}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a3de6c5690933de9d62c0897ef611cb19} 
+\#define LED\+\_\+\+COLOR\+\_\+\+BLUE~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{0, 0, 255\})}
+
+
+
+Barva -\/ modra. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__unified__api_8h_source_l00051}{51}} v souboru \mbox{\hyperlink{led__unified__api_8h_source}{led\+\_\+unified\+\_\+api.\+h}}.
+
+\Hypertarget{led__unified__api_8h_a8985352a22885bbb847bca6e772e98bc}\index{led\_unified\_api.h@{led\_unified\_api.h}!LED\_COLOR\_CYAN@{LED\_COLOR\_CYAN}}
+\index{LED\_COLOR\_CYAN@{LED\_COLOR\_CYAN}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{LED\_COLOR\_CYAN}{LED\_COLOR\_CYAN}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a8985352a22885bbb847bca6e772e98bc} 
+\#define LED\+\_\+\+COLOR\+\_\+\+CYAN~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{0, 255, 255\})}
+
+
+
+Barva -\/ azurova (cyan). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__unified__api_8h_source_l00055}{55}} v souboru \mbox{\hyperlink{led__unified__api_8h_source}{led\+\_\+unified\+\_\+api.\+h}}.
+
+\Hypertarget{led__unified__api_8h_a913f289eb3203c4e3043b1ecb4047032}\index{led\_unified\_api.h@{led\_unified\_api.h}!LED\_COLOR\_GREEN@{LED\_COLOR\_GREEN}}
+\index{LED\_COLOR\_GREEN@{LED\_COLOR\_GREEN}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{LED\_COLOR\_GREEN}{LED\_COLOR\_GREEN}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a913f289eb3203c4e3043b1ecb4047032} 
+\#define LED\+\_\+\+COLOR\+\_\+\+GREEN~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{0, 255, 0\})}
+
+
+
+Barva -\/ zelena. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__unified__api_8h_source_l00049}{49}} v souboru \mbox{\hyperlink{led__unified__api_8h_source}{led\+\_\+unified\+\_\+api.\+h}}.
+
+\Hypertarget{led__unified__api_8h_a6518de5003bcf7e4853f4dc29e372988}\index{led\_unified\_api.h@{led\_unified\_api.h}!LED\_COLOR\_MAGENTA@{LED\_COLOR\_MAGENTA}}
+\index{LED\_COLOR\_MAGENTA@{LED\_COLOR\_MAGENTA}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{LED\_COLOR\_MAGENTA}{LED\_COLOR\_MAGENTA}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a6518de5003bcf7e4853f4dc29e372988} 
+\#define LED\+\_\+\+COLOR\+\_\+\+MAGENTA~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{255, 0, 255\})}
+
+
+
+Barva -\/ fialova (magenta). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__unified__api_8h_source_l00057}{57}} v souboru \mbox{\hyperlink{led__unified__api_8h_source}{led\+\_\+unified\+\_\+api.\+h}}.
+
+\Hypertarget{led__unified__api_8h_a2b90b815358f1c78e36a5f4c56308449}\index{led\_unified\_api.h@{led\_unified\_api.h}!LED\_COLOR\_OFF@{LED\_COLOR\_OFF}}
+\index{LED\_COLOR\_OFF@{LED\_COLOR\_OFF}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{LED\_COLOR\_OFF}{LED\_COLOR\_OFF}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a2b90b815358f1c78e36a5f4c56308449} 
+\#define LED\+\_\+\+COLOR\+\_\+\+OFF~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{0, 0, 0\})}
+
+
+
+Barva -\/ vypnuto (cerna). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__unified__api_8h_source_l00043}{43}} v souboru \mbox{\hyperlink{led__unified__api_8h_source}{led\+\_\+unified\+\_\+api.\+h}}.
+
+\Hypertarget{led__unified__api_8h_a8987a69d33df1353af6077ff67dfea28}\index{led\_unified\_api.h@{led\_unified\_api.h}!LED\_COLOR\_RED@{LED\_COLOR\_RED}}
+\index{LED\_COLOR\_RED@{LED\_COLOR\_RED}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{LED\_COLOR\_RED}{LED\_COLOR\_RED}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a8987a69d33df1353af6077ff67dfea28} 
+\#define LED\+\_\+\+COLOR\+\_\+\+RED~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{255, 0, 0\})}
+
+
+
+Barva -\/ cervena. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__unified__api_8h_source_l00047}{47}} v souboru \mbox{\hyperlink{led__unified__api_8h_source}{led\+\_\+unified\+\_\+api.\+h}}.
+
+\Hypertarget{led__unified__api_8h_aa9bb2e0662b7efddf1e12bfaa241b8a8}\index{led\_unified\_api.h@{led\_unified\_api.h}!LED\_COLOR\_WHITE@{LED\_COLOR\_WHITE}}
+\index{LED\_COLOR\_WHITE@{LED\_COLOR\_WHITE}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{LED\_COLOR\_WHITE}{LED\_COLOR\_WHITE}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_aa9bb2e0662b7efddf1e12bfaa241b8a8} 
+\#define LED\+\_\+\+COLOR\+\_\+\+WHITE~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{255, 255, 255\})}
+
+
+
+Barva -\/ bila. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__unified__api_8h_source_l00045}{45}} v souboru \mbox{\hyperlink{led__unified__api_8h_source}{led\+\_\+unified\+\_\+api.\+h}}.
+
+\Hypertarget{led__unified__api_8h_a97348e8acf253232595a481314f8a396}\index{led\_unified\_api.h@{led\_unified\_api.h}!LED\_COLOR\_YELLOW@{LED\_COLOR\_YELLOW}}
+\index{LED\_COLOR\_YELLOW@{LED\_COLOR\_YELLOW}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{LED\_COLOR\_YELLOW}{LED\_COLOR\_YELLOW}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a97348e8acf253232595a481314f8a396} 
+\#define LED\+\_\+\+COLOR\+\_\+\+YELLOW~((\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}})\{255, 255, 0\})}
+
+
+
+Barva -\/ zluta. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__unified__api_8h_source_l00053}{53}} v souboru \mbox{\hyperlink{led__unified__api_8h_source}{led\+\_\+unified\+\_\+api.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{led__unified__api_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{led__unified__api_8h_a1c171299071c1e2c7d6c0744279ea3e7}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_animate@{led\_animate}}
+\index{led\_animate@{led\_animate}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_animate()}{led\_animate()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a1c171299071c1e2c7d6c0744279ea3e7} 
+esp\+\_\+err\+\_\+t led\+\_\+animate (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{type}{, }\item[{uint8\+\_\+t}]{from\+\_\+pos}{, }\item[{uint8\+\_\+t}]{to\+\_\+pos}{}\end{DoxyParamCaption})}
+
+
+
+Spust animaci (nahradi led\+\_\+execute\+\_\+command\+\_\+new). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em type} & Typ animace (retezec jako "{}move"{}, "{}check"{}, "{}endgame"{}) \\
+\hline
+{\em from\+\_\+pos} & Zdrojova pozice (pokud je relevantni) \\
+\hline
+{\em to\+\_\+pos} & Cilova pozice (pokud je relevantni) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_a738fcd34c4727af46498fbee998f5b27}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_clear@{led\_clear}}
+\index{led\_clear@{led\_clear}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_clear()}{led\_clear()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a738fcd34c4727af46498fbee998f5b27} 
+esp\+\_\+err\+\_\+t led\+\_\+clear (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{position}{}\end{DoxyParamCaption})}
+
+
+
+Vymaz jednu LED pozici. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em position} & Pozice LED (0-\/72) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_a323c87898912a4a4d62383dbe8bd7099}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_clear\_all@{led\_clear\_all}}
+\index{led\_clear\_all@{led\_clear\_all}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_clear\_all()}{led\_clear\_all()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a323c87898912a4a4d62383dbe8bd7099} 
+esp\+\_\+err\+\_\+t led\+\_\+clear\+\_\+all (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vymaz vsechny LED (sachovnice + tlacitka). 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_a489fc3062159f186eaf3110bb9448900}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_clear\_board@{led\_clear\_board}}
+\index{led\_clear\_board@{led\_clear\_board}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_clear\_board()}{led\_clear\_board()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a489fc3062159f186eaf3110bb9448900} 
+esp\+\_\+err\+\_\+t led\+\_\+clear\+\_\+board (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vymaz pouze sachovnicove LED (0-\/63), zachovej tlacitka. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_a036b1d0a0cf1289a8eec759f01b07233}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_commit@{led\_commit}}
+\index{led\_commit@{led\_commit}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_commit()}{led\_commit()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a036b1d0a0cf1289a8eec759f01b07233} 
+esp\+\_\+err\+\_\+t led\+\_\+commit (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Commitni vsechny LED zmeny do hardwaru (batch aktualizace). 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_a03f1c23d367a417c885fbf0b77fa8e92}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_set@{led\_set}}
+\index{led\_set@{led\_set}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_set()}{led\_set()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a03f1c23d367a417c885fbf0b77fa8e92} 
+esp\+\_\+err\+\_\+t led\+\_\+set (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{position}{, }\item[{\mbox{\hyperlink{structled__color__t}{led\+\_\+color\+\_\+t}}}]{color}{}\end{DoxyParamCaption})}
+
+
+
+Nastav LED barvu (nahradi vsechny led\+\_\+set\+\_\+pixel\+\_\+\texorpdfstring{$\ast$}{*} varianty). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em position} & Pozice LED (0-\/63 sachovnice, 64-\/72 tlacitka) \\
+\hline
+{\em color} & RGB barva k nastaveni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_a323f5cd41bfd6e9ffa8c0e7a22a4f728}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_show\_capture@{led\_show\_capture}}
+\index{led\_show\_capture@{led\_show\_capture}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_show\_capture()}{led\_show\_capture()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a323f5cd41bfd6e9ffa8c0e7a22a4f728} 
+esp\+\_\+err\+\_\+t led\+\_\+show\+\_\+capture (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{position}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz indikaci sebrani (oranzove zvyrazneni). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em position} & Pozice sebrani \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_a7dcadeeb97f7284b327666232439764a}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_show\_error@{led\_show\_error}}
+\index{led\_show\_error@{led\_show\_error}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_show\_error()}{led\_show\_error()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a7dcadeeb97f7284b327666232439764a} 
+esp\+\_\+err\+\_\+t led\+\_\+show\+\_\+error (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{position}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz chybovou indikaci (cervene zvyrazneni). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em position} & Pozice s chybou \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_add8f4af4ac4cd55c7f080b6a0e74c715}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_show\_movable\_pieces@{led\_show\_movable\_pieces}}
+\index{led\_show\_movable\_pieces@{led\_show\_movable\_pieces}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_show\_movable\_pieces()}{led\_show\_movable\_pieces()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_add8f4af4ac4cd55c7f080b6a0e74c715} 
+esp\+\_\+err\+\_\+t led\+\_\+show\+\_\+movable\+\_\+pieces (\begin{DoxyParamCaption}\item[{const uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{positions}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz figurky ktere se mohou hybat (zlute zvyrazneni). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em positions} & Pole pozic pohyblivych figurek \\
+\hline
+{\em count} & Pocet pohyblivych figurek \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_a746d846a8984178a6d25821b2485ff38}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_show\_moves@{led\_show\_moves}}
+\index{led\_show\_moves@{led\_show\_moves}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_show\_moves()}{led\_show\_moves()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a746d846a8984178a6d25821b2485ff38} 
+esp\+\_\+err\+\_\+t led\+\_\+show\+\_\+moves (\begin{DoxyParamCaption}\item[{const uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{positions}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz legalni tahy pro figurku (zelena zvyrazneni). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em positions} & Pole LED pozic k zvyrazneni \\
+\hline
+{\em count} & Pocet pozic \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_a49f0adcc708a2e5b8c5f665fa7e35a0e}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_show\_selection@{led\_show\_selection}}
+\index{led\_show\_selection@{led\_show\_selection}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_show\_selection()}{led\_show\_selection()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_a49f0adcc708a2e5b8c5f665fa7e35a0e} 
+esp\+\_\+err\+\_\+t led\+\_\+show\+\_\+selection (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{position}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz vyber figurky (zlute zvyrazneni). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em position} & Pozice vybrane figurky \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+\Hypertarget{led__unified__api_8h_abb65c57a4635e4911d71902ef3bcbb3c}\index{led\_unified\_api.h@{led\_unified\_api.h}!led\_stop\_animations@{led\_stop\_animations}}
+\index{led\_stop\_animations@{led\_stop\_animations}!led\_unified\_api.h@{led\_unified\_api.h}}
+\doxysubsubsection{\texorpdfstring{led\_stop\_animations()}{led\_stop\_animations()}}
+{\footnotesize\ttfamily \label{led__unified__api_8h_abb65c57a4635e4911d71902ef3bcbb3c} 
+esp\+\_\+err\+\_\+t led\+\_\+stop\+\_\+animations (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zastav vsechny animace. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}

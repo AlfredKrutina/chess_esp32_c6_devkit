@@ -1,0 +1,166 @@
+\doxysection{animation\+\_\+task.\+h}
+\hypertarget{animation__task_8h_source}{}\label{animation__task_8h_source}\index{animation\_task.h@{animation\_task.h}}
+\mbox{\hyperlink{animation__task_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00015}00015\ \textcolor{preprocessor}{\#ifndef\ ANIMATION\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00016}00016\ \textcolor{preprocessor}{\#define\ ANIMATION\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00017}00017\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ "{}freertos/task.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00021}00021\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00022}00022\ \textcolor{preprocessor}{\#include\ "{}freertos/semphr.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00023}00023\ \textcolor{preprocessor}{\#include\ "{}freertos/timers.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00024}00024\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00026}00026\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00027}00027\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00029}00029\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00030}00030\ \textcolor{comment}{//\ KONSTANTY\ A\ DEFINICE}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00031}00031\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00036}00036\ \textcolor{comment}{//\ Typy\ animaci\ (prejmenovano\ pro\ zabraneni\ konfliktu\ s\ unified\_animation\_manager)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00037}\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{00037}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00038}\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e}{00038}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0c5fd4a4c75f36be7d1b0f975877620e}{ANIM\_TASK\_TYPE\_WAVE}}\ =\ 0,\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Vlnovy\ vzor}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00039}\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee}{00039}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa37b30fa5964a71f2389c25752c95b5ee}{ANIM\_TASK\_TYPE\_PULSE}},\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Pulzni\ efekt}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00040}\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6}{00040}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa89c574e35190cd5d6c0d47e735718bf6}{ANIM\_TASK\_TYPE\_FADE}},\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Prechod\ fade}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00041}\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a}{00041}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa36b068a6cd9ebad07b0b04c9d5528a8a}{ANIM\_TASK\_TYPE\_CHESS\_PATTERN}},\ \ \ \ \textcolor{comment}{//\ Sachovnicovy\ vzor}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00042}\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358}{00042}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa0e3c85323cb56d38a7e5637310a1e358}{ANIM\_TASK\_TYPE\_RAINBOW}},\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Duhove\ barvy}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00043}\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0}{00043}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899faf3ac26dd7d754276ebf33e08f6d2b0f0}{ANIM\_TASK\_TYPE\_MOVE\_HIGHLIGHT}},\ \ \ \textcolor{comment}{//\ Zvyrazneni\ cesty\ tahu}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00044}\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4}{00044}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa99ac41500f34c216717dcfba121dd8f4}{ANIM\_TASK\_TYPE\_CHECK\_HIGHLIGHT}},\ \ \textcolor{comment}{//\ Indikator\ sachu}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00045}\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f}{00045}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa41dc2bcd67a8bfa1fb98d5d3f2f1717f}{ANIM\_TASK\_TYPE\_GAME\_OVER}},\ \ \ \ \ \ \ \ \textcolor{comment}{//\ Vzor\ konce\ hry}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00046}\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa6eb688ab2a8237f9f4486e04f62077d3}{00046}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899fa6eb688ab2a8237f9f4486e04f62077d3}{ANIM\_TASK\_TYPE\_CUSTOM}}\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Vlastni\ animace}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00047}00047\ \}\ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\_task\_type\_t}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00049}00049\ \textcolor{comment}{//\ Typy\ stavu\ animaci\ (prejmenovano\ pro\ zabraneni\ konfliktu\ s\ unified\_animation\_manager)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00050}\mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8fee}{00050}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00051}\mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363}{00051}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaddfd8d22e83f4e1d0577a20a7e4d2363}{ANIM\_TASK\_STATE\_IDLE}}\ =\ 0,\ \ \ \ \ \ \ \textcolor{comment}{//\ Animace\ je\ neaktivni}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00052}\mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c}{00052}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feea888a2d4fdc00f8ebde59baee1853a94c}{ANIM\_TASK\_STATE\_RUNNING}},\ \ \ \ \ \ \ \ \textcolor{comment}{//\ Animace\ bezi}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00053}\mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c}{00053}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeaa8c07db5ba52dc0914c933d3c772ec1c}{ANIM\_TASK\_STATE\_PAUSED}},\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Animace\ je\ pozastavena}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00054}\mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08}{00054}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8feeae94eadc0c8a29a2f169f00ed65656a08}{ANIM\_TASK\_STATE\_FINISHED}}\ \ \ \ \ \ \ \ \textcolor{comment}{//\ Animace\ je\ dokoncena}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00055}00055\ \}\ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8fee}{animation\_task\_state\_t}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00057}00057\ \textcolor{comment}{//\ Animation\ structure}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00058}\mbox{\hyperlink{structanimation__task__t}{00058}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00059}\mbox{\hyperlink{structanimation__task__t_adb7f1e556a2073bf7ce347ee3f96cfe4}{00059}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structanimation__task__t_adb7f1e556a2073bf7ce347ee3f96cfe4}{id}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Animation\ ID}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00060}\mbox{\hyperlink{structanimation__task__t_abffffba2feaf4ae9d6911cc115a91593}{00060}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a2dadc2f6c02f4b392e290071e65a8fee}{animation\_task\_state\_t}}\ \mbox{\hyperlink{structanimation__task__t_abffffba2feaf4ae9d6911cc115a91593}{state}};\ \ \ \ \textcolor{comment}{//\ Current\ state}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00061}\mbox{\hyperlink{structanimation__task__t_abc3e62a06682ed4652bf1ed358c84f0a}{00061}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structanimation__task__t_abc3e62a06682ed4652bf1ed358c84f0a}{active}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Whether\ animation\ is\ active}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00062}\mbox{\hyperlink{structanimation__task__t_a4323d7e401e5a856bcdbef5c57503653}{00062}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structanimation__task__t_a4323d7e401e5a856bcdbef5c57503653}{paused}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Whether\ animation\ is\ paused}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00063}\mbox{\hyperlink{structanimation__task__t_a567b61ac057e886362023c7363f4aefd}{00063}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structanimation__task__t_a567b61ac057e886362023c7363f4aefd}{loop}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Whether\ to\ loop\ animation}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00064}\mbox{\hyperlink{structanimation__task__t_a5ffc03906acb15f1e4528c668bc41778}{00064}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structanimation__task__t_a5ffc03906acb15f1e4528c668bc41778}{priority}};\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Animation\ priority\ (0-\/255)}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00065}\mbox{\hyperlink{structanimation__task__t_ac98d14c78132155465672c4943857a2a}{00065}}\ \ \ \ \ \mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\_task\_type\_t}}\ \mbox{\hyperlink{structanimation__task__t_ac98d14c78132155465672c4943857a2a}{type}};\ \ \ \ \ \ \textcolor{comment}{//\ Animation\ type}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00066}\mbox{\hyperlink{structanimation__task__t_a25f85a5720a2bd7add2c2423f84cbee4}{00066}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structanimation__task__t_a25f85a5720a2bd7add2c2423f84cbee4}{start\_time}};\ \ \ \ \ \ \ \ \textcolor{comment}{//\ Start\ timestamp}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00067}\mbox{\hyperlink{structanimation__task__t_a4c5211bfc199b4bdbc596849387d05ae}{00067}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structanimation__task__t_a4c5211bfc199b4bdbc596849387d05ae}{duration\_ms}};\ \ \ \ \ \ \ \textcolor{comment}{//\ Duration\ in\ milliseconds}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00068}\mbox{\hyperlink{structanimation__task__t_a9302e023c296097ae10d831469dc25f7}{00068}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structanimation__task__t_a9302e023c296097ae10d831469dc25f7}{frame\_duration\_ms}};\ \textcolor{comment}{//\ Frame\ duration\ in\ ms}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00069}\mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{00069}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structanimation__task__t_a49e9a3dd3d14920942a194b2b658ee01}{current\_frame}};\ \ \ \ \ \textcolor{comment}{//\ Current\ frame\ number}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00070}\mbox{\hyperlink{structanimation__task__t_a273fbd2a2ffa5590a455c97ac1c1f09b}{00070}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structanimation__task__t_a273fbd2a2ffa5590a455c97ac1c1f09b}{total\_frames}};\ \ \ \ \ \ \textcolor{comment}{//\ Total\ frame\ count}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00071}\mbox{\hyperlink{structanimation__task__t_ac770e95f6dafd7507d61a359cdc53ce8}{00071}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structanimation__task__t_ac770e95f6dafd7507d61a359cdc53ce8}{frame\_interval}};\ \ \ \ \textcolor{comment}{//\ Frame\ interval\ in\ ms}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00072}\mbox{\hyperlink{structanimation__task__t_a0b2f1d684a7d68b707b1372684d1e9f2}{00072}}\ \ \ \ \ \textcolor{keywordtype}{void}*\ \mbox{\hyperlink{structanimation__task__t_a0b2f1d684a7d68b707b1372684d1e9f2}{data}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Animation-\/specific\ data}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00073}00073\ \}\ \mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}};}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00074}00074\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00075}00075\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00076}00076\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00077}00077\ \textcolor{comment}{//\ PROTOTYPY\ FUNKCI\ TASKU}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00078}00078\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00079}00079\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00080}00080\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00086}00086\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a18ab65be2c5b763305a8d6c1fa886392}{animation\_task\_start}}(\textcolor{keywordtype}{void}\ *pvParameters);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00087}00087\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00088}00088\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00089}00089\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00090}00090\ \textcolor{comment}{//\ INICIALIZACNI\ FUNKCE\ ANIMACI}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00091}00091\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00092}00092\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00093}00093\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00097}00097\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a09488753d3a3be4415fb5e1bc44d1fb0}{animation\_initialize\_system}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00098}00098\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00108}00108\ uint8\_t\ \mbox{\hyperlink{animation__task_8h_a8f46cd6a1f375c8d19d1c4315cabdbfd}{animation\_create}}(\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\_task\_type\_t}}\ type,\ uint32\_t\ duration\_ms,\ uint8\_t\ priority,\ \textcolor{keywordtype}{bool}\ loop);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00109}00109\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00115}00115\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_abb35a3172d5d24a24902916b1ecfa40f}{animation\_start}}(uint8\_t\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00116}00116\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00122}00122\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_adc882a0b86428a7333c86eddd1f26b8d}{animation\_stop}}(uint8\_t\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00123}00123\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00129}00129\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a41183595937bafd37b4ba07c47b8c62d}{animation\_pause}}(uint8\_t\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00130}00130\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00136}00136\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a04765d28e82fce17f90d526a7ce60fc2}{animation\_resume}}(uint8\_t\ animation\_id);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00137}00137\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00138}00138\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00139}00139\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00140}00140\ \textcolor{comment}{//\ FUNKCE\ PRO\ VZORY\ ANIMACI}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00141}00141\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00142}00142\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00143}00143\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00151}00151\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a03563b1b04565e45d3892b520708bd64}{animation\_generate\_wave\_frame}}(uint32\_t\ frame,\ uint32\_t\ color,\ uint8\_t\ speed);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00152}00152\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00160}00160\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a348dfefe5bb753b16839d5215505e4f4}{animation\_generate\_pulse\_frame}}(uint32\_t\ frame,\ uint32\_t\ color,\ uint8\_t\ speed);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00161}00161\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00170}00170\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_ad2116436a161de0d3c2aa663ef02d12e}{animation\_generate\_fade\_frame}}(uint32\_t\ frame,\ uint32\_t\ from\_color,\ uint32\_t\ to\_color,\ uint32\_t\ total\_frames);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00171}00171\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00179}00179\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_afb64e912fbca18925c8cac41b6006f2c}{animation\_generate\_chess\_pattern}}(uint32\_t\ frame,\ uint32\_t\ color1,\ uint32\_t\ color2);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00180}00180\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00186}00186\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a63112c5794b76845d9afff7eb6fd3259}{animation\_generate\_rainbow\_frame}}(uint32\_t\ frame);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00187}00187\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00188}00188\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00189}00189\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00190}00190\ \textcolor{comment}{//\ FUNKCE\ PRO\ VYKONAVANI\ ANIMACI}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00191}00191\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00192}00192\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00193}00193\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00199}00199\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_afecf0d9f3014ec819b9d8d4efecc1ee5}{animation\_execute\_frame}}(\mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}*\ anim);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00200}00200\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00206}00206\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_aec58eeb9ffe892383adeef75473dc160}{animation\_send\_frame\_to\_leds}}(\textcolor{keyword}{const}\ uint8\_t\ frame[\mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\_LED\_COUNT\_TOTAL}}][3]);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00207}00207\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00213}00213\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a06e87351882b4abb2b090c3e3fad2098}{animation\_execute\_move\_highlight}}(\mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}*\ anim);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00214}00214\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00220}00220\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_aeeb63457d09fa55c64a67b38e895ab4a}{animation\_execute\_check\_highlight}}(\mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}*\ anim);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00221}00221\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00227}00227\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_aa4e0d21daa2bff68ffc49abd0995d812}{animation\_execute\_game\_over}}(\mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}*\ anim);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00228}00228\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00229}00229\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00230}00230\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00231}00231\ \textcolor{comment}{//\ FUNKCE\ PRO\ OVLADANI\ ANIMACI}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00232}00232\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00233}00233\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00234}00234\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00238}00238\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a0060e7605dd42ba4e2041e1c4402f60e}{animation\_process\_commands}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00239}00239\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00243}00243\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a19ff3a915b7dad334a1d306492667916}{animation\_stop\_all}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00244}00244\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00248}00248\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a70e168a5ba925ad0d8da01a49d34e75c}{animation\_pause\_all}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00249}00249\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00253}00253\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a749cd1a19567e9b741fb320e1d440736}{animation\_resume\_all}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00254}00254\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00258}00258\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a9731cdb2cdcf0234b35af6ba0b7b1402}{animation\_print\_status}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00259}00259\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00263}00263\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_ab87baa702421428476b149e35aa74ab9}{animation\_test\_all}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00264}00264\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00268}\mbox{\hyperlink{animation__task_8h_a213dccff1d89e8b9afa89882fe6b5df9}{00268}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a213dccff1d89e8b9afa89882fe6b5df9}{animation\_test\_system}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00269}00269\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00270}00270\ \textcolor{comment}{//\ Funkce\ pro\ textove\ zobrazeni\ animaci}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00271}00271\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{animation__task_8h_ad90823f255171d2792d13345b96d9477}{animation\_get\_name}}(\mbox{\hyperlink{animation__task_8h_a3da732fa10b2f45510643d0280be899f}{animation\_task\_type\_t}}\ animation\_type);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00272}00272\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a79382186a6a22377fff18924934c118a}{animation\_print\_progress}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structanimation__task__t}{animation\_task\_t}}*\ anim);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00273}00273\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a1fc234eed1ddbb156d9c1d61d21abd52}{animation\_print\_piece\_move}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ from\_square,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ to\_square,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00274}00274\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ piece\_name,\ \textcolor{keywordtype}{float}\ progress);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00275}00275\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_afd9f1291c4f0584d7d02b26744a24475}{animation\_print\_check\_status}}(\textcolor{keywordtype}{bool}\ is\_checkmate,\ \textcolor{keywordtype}{float}\ progress);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00276}00276\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a817be6e29efbd666e7334307f7c5fe5a}{animation\_print\_summary}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00277}00277\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00278}00278\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00279}00279\ \textcolor{comment}{//\ PRIROZENE\ ANIMACE\ POHYBU\ FIGUREK}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00280}00280\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00281}00281\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00291}00291\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a5361d673dfa5c9b0568be0e4cac80444}{animate\_piece\_move\_natural}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00292}00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col,\ \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\_t}}\ piece);}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00293}00293\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00297}00297\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{animation__task_8h_a2b5de7f9e2ba904cd16a02a3add0b6d6}{animation\_request\_interrupt}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00298}00298\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00304}00304\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{animation__task_8h_ad4a9e6f0e9175a5f2f10c3536fb43308}{new\_move\_detected}}();}
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00305}00305\ }
+\DoxyCodeLine{\Hypertarget{animation__task_8h_source_l00306}00306\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ ANIMATION\_TASK\_H}}
+
+\end{DoxyCode}

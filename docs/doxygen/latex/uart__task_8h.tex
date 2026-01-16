@@ -1,0 +1,961 @@
+\doxysection{Dokumentace souboru uart\+\_\+task.\+h}
+\hypertarget{uart__task_8h}{}\label{uart__task_8h}\index{uart\_task.h@{uart\_task.h}}
+
+
+ESP32-\/\+C6 Chess System v2.\+4 -\/ UART Task Hlavicka.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include "{}chess\+\_\+types.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro uart\+\_\+task.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{uart__task_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové struktury}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structuart__message__t}{uart\+\_\+message\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura UART zpravy. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structuart__command__t}{uart\+\_\+command\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura UART prikazu. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Definice typů}
+\begin{DoxyCompactItemize}
+\item 
+typedef \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}}(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{uart__task_8h_a15db42d803f30c566b5f5fdf88d33b8c}{command\+\_\+handler\+\_\+t}}) (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Typ handleru prikazu (funkce pro zpracovani prikazu). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Výčty}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \{ \newline
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a0a22fcf0d061f9b1473876e43d12c33c}{CMD\+\_\+\+SUCCESS}} = 0
+, \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a9d8f4f8dab26ea6218e16579507f1a2c}{CMD\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+SYNTAX}} = -\/1
+, \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a8e7eb0cf30a91dbf67498fef8dcba774}{CMD\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+PARAMETER}} = -\/2
+, \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63aedd36bebd00d835aedb3b165d95687b1}{CMD\+\_\+\+ERROR\+\_\+\+SYSTEM\+\_\+\+ERROR}} = -\/3
+, \newline
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a8d68e7510dde3829311ed679636f0fd2}{CMD\+\_\+\+ERROR\+\_\+\+NOT\+\_\+\+FOUND}} = -\/4
+ \}
+\begin{DoxyCompactList}\small\item\em Typy vysledku prikazu. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036}{uart\+\_\+msg\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a70bc53ed1d6c2d1ea1f5b8f570ab166d}{UART\+\_\+\+MSG\+\_\+\+NORMAL}} = 0
+, \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036abd403affd26add443eedf7089afadde4}{UART\+\_\+\+MSG\+\_\+\+ERROR}} = 1
+, \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a85457d793a3de63c4eaa97f57bd36e18}{UART\+\_\+\+MSG\+\_\+\+WARNING}} = 2
+, \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a2483d473c9c1d73a35b38e1b35018158}{UART\+\_\+\+MSG\+\_\+\+SUCCESS}} = 3
+, \newline
+\mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036aeec4d640e5e10aa6c24208f817789452}{UART\+\_\+\+MSG\+\_\+\+INFO}} = 4
+, \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a877a61fdb522d990e286ad329d955f04}{UART\+\_\+\+MSG\+\_\+\+DEBUG}} = 5
+ \}
+\begin{DoxyCompactList}\small\item\em Typy UART zprav. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{uart__task_8h_a6e26b6d6ae554bd6bc478ccba6b1b763}{uart\+\_\+task\+\_\+start}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Hlavni funkce UART tasku. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{uart__task_8h_a417def5a37edadff4f93cf9e8824f082}{uart\+\_\+write\+\_\+string\+\_\+immediate}} (const char \texorpdfstring{$\ast$}{*}str)
+\begin{DoxyCompactList}\small\item\em Zapis retezec okamzite do UART. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{uart__task_8h_a5d7ec4b42454dcce2b73a82b7e928484}{uart\+\_\+write\+\_\+char\+\_\+immediate}} (char c)
+\begin{DoxyCompactList}\small\item\em Zapis znak okamzite do UART. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a25d0a7a7a3f253ef4ba5f55e6764f879}{uart\+\_\+cmd\+\_\+help}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz help. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a771457bbb5dea20a3c8848f56ff30fb5}{uart\+\_\+cmd\+\_\+verbose}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz verbose. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a8bfc523766c1984380217c78bd865d93}{uart\+\_\+cmd\+\_\+quiet}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz quiet. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a21313e7215e44d82c987a6e19ec0dbf3}{uart\+\_\+cmd\+\_\+status}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz status. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a3d57139f7c4ab4244218b1c6151f48fc}{uart\+\_\+cmd\+\_\+version}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz version. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_adeb40a444cec7562b4c9eae46fb5f905}{uart\+\_\+cmd\+\_\+memory}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz memory. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_ac75af37c48ea155d265417cfc6db8c95}{uart\+\_\+cmd\+\_\+history}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz history. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_adbe2f7e4f05f1b0c256c81eefb34e95a}{uart\+\_\+cmd\+\_\+clear}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz clear. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_af305f126d46460f209547def7ade998f}{uart\+\_\+cmd\+\_\+reset}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz reset. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a1fcb0efaeb8e64908c667d9a68a497e7}{uart\+\_\+cmd\+\_\+move}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz move. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_afa32b7335ecf868e1ad3f62ea110f1a7}{uart\+\_\+cmd\+\_\+up}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz up (zvedni figurku). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_aa9bf90400c3b2ccf18c98442645b8b14}{uart\+\_\+cmd\+\_\+dn}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz dn (poloz figurku). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a31e18c5d57fbf73693ba15d6041bd080}{uart\+\_\+cmd\+\_\+led\+\_\+board}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz led\+\_\+board. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_ae06c8535f9c7efcb9bf76c0949b0b4cc}{uart\+\_\+cmd\+\_\+board}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz board. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_aec33730164148a5ef9df45f1e1ae706b}{uart\+\_\+cmd\+\_\+game\+\_\+new}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz game\+\_\+new. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a820002ffc256bb584099e401f1b07e9c}{uart\+\_\+cmd\+\_\+game\+\_\+reset}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz game\+\_\+reset. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a221e0e7d3b8aaa2836b099cb13e57168}{uart\+\_\+cmd\+\_\+show\+\_\+moves}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz show\+\_\+moves. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_ad5f1031b571a80d5b86af97d1f95c57c}{uart\+\_\+cmd\+\_\+undo}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz undo. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a45e7ff8cb362715634eba2642afae063}{uart\+\_\+cmd\+\_\+game\+\_\+history}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz game\+\_\+history. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a5208e133190e19aad814c5a69dbb93e5}{uart\+\_\+cmd\+\_\+benchmark}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz benchmark. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_ad71e3397b99aa15ed45f6b5fe3f070d1}{uart\+\_\+cmd\+\_\+show\+\_\+tasks}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz show\+\_\+tasks. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_af34a40710b1a30f20f8be55971986884}{uart\+\_\+cmd\+\_\+self\+\_\+test}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz self\+\_\+test. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_ab237e12799096414a354e1023a69b98d}{uart\+\_\+cmd\+\_\+test\+\_\+game}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz test\+\_\+game. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a925e6e86c81a91f4d6af38c6106833bc}{uart\+\_\+cmd\+\_\+debug\+\_\+status}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz debug\+\_\+status. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_afed806feda00e8b2e6122fbba6a0800d}{uart\+\_\+cmd\+\_\+debug\+\_\+game}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz debug\+\_\+game. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a8def6eb3ad5e05f605577170ea53085f}{uart\+\_\+cmd\+\_\+debug\+\_\+board}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz debug\+\_\+board. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a8b0cefcf29f3dea4338fdd3475476f1a}{uart\+\_\+cmd\+\_\+memcheck}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz memcheck. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a2e7e839a6c40f74905836d7d5d4fd69b}{uart\+\_\+cmd\+\_\+show\+\_\+mutexes}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz show\+\_\+mutexes. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8h_a260841cc4caf0ecd44bc45719f3a6e6a}{uart\+\_\+cmd\+\_\+show\+\_\+fifos}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Prikaz show\+\_\+fifos. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{uart__task_8h_a751f514352196d75fcb5afef4a54bc76}{uart\+\_\+display\+\_\+main\+\_\+help}} (void)
+\begin{DoxyCompactList}\small\item\em Zobraz hlavni help. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{uart__task_8h_a8173679d73f567977d5b63259363383c}{uart\+\_\+cmd\+\_\+help\+\_\+game}} (void)
+\begin{DoxyCompactList}\small\item\em Help pro game prikazy. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{uart__task_8h_a966ff272c2023dd69fee0aec745c949e}{uart\+\_\+cmd\+\_\+help\+\_\+system}} (void)
+\begin{DoxyCompactList}\small\item\em Help pro systemove prikazy. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{uart__task_8h_ae225cfb5aecbfa679ca067a2e4dc6833}{uart\+\_\+cmd\+\_\+help\+\_\+beginner}} (void)
+\begin{DoxyCompactList}\small\item\em Help pro zacatecniky. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{uart__task_8h_aada1de37a1e46c05acb740016334d649}{uart\+\_\+cmd\+\_\+help\+\_\+debug}} (void)
+\begin{DoxyCompactList}\small\item\em Help pro debug prikazy. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{uart__task_8h_a0ef783ccf8a8c6f104f5ad95dc7c0faf}{uart\+\_\+display\+\_\+move\+\_\+animation}} (const char \texorpdfstring{$\ast$}{*}from, const char \texorpdfstring{$\ast$}{*}to)
+\begin{DoxyCompactList}\small\item\em Zobraz animaci tahu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{uart__task_8h_ab33165e3f027da22b5695d323a262466}{uart\+\_\+display\+\_\+enhanced\+\_\+board}} (void)
+\begin{DoxyCompactList}\small\item\em Zobraz rozsirenou sachovnici. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{uart__task_8h_abc55b8a694daa72d150b869d5e4e0a7d}{uart\+\_\+display\+\_\+led\+\_\+board}} (void)
+\begin{DoxyCompactList}\small\item\em Zobraz LED sachovnici. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{uart__task_8h_a19705a349c243f2fcaca1d209b11aa26}{is\+\_\+valid\+\_\+move\+\_\+notation}} (const char \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Overi platnost notace tahu. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{uart__task_8h_a27eda0257802e0a1d44cbe8b91e3feba}{is\+\_\+valid\+\_\+square\+\_\+notation}} (const char \texorpdfstring{$\ast$}{*}square)
+\begin{DoxyCompactList}\small\item\em Overi platnost notace pole. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{uart__task_8h_a6e06eb5d048532e903f597094c601c4c}{uart\+\_\+output\+\_\+queue}}
+\begin{DoxyCompactList}\small\item\em Fronta pro UART vystup. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System v2.\+4 -\/ UART Task Hlavicka. 
+
+Tato hlavicka definuje rozhrani UART tasku\+:
+\begin{DoxyItemize}
+\item USB Serial JTAG konzolove rozhrani
+\item Znakovy vstup bez blokovani
+\item Parsovani a vykonavani prikazu
+\item Systemove testovani a diagnostika
+\item Formatovani a vystup odpovedi
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/01-\/27
+\end{DoxyDate}
+UART Task zpracovava vsechnu komunikaci s uzivatelem pres USB Serial JTAG. Poskytuje radkovy terminal s histori, automatickym dokoncenim a barevnym vystupem.
+
+Klicova vylepseni\+:
+\begin{DoxyItemize}
+\item I/O bez blokovani
+\item Lepsi zpracovani chyb
+\item Zjednodusene zpracovani vstupu 
+\end{DoxyItemize}
+
+Definice v souboru \mbox{\hyperlink{uart__task_8h_source}{uart\+\_\+task.\+h}}.
+
+
+
+\label{doc-typedef-members}
+\Hypertarget{uart__task_8h_doc-typedef-members}
+\doxysubsection{Dokumentace definic typů}
+\Hypertarget{uart__task_8h_a15db42d803f30c566b5f5fdf88d33b8c}\index{uart\_task.h@{uart\_task.h}!command\_handler\_t@{command\_handler\_t}}
+\index{command\_handler\_t@{command\_handler\_t}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{command\_handler\_t}{command\_handler\_t}}
+{\footnotesize\ttfamily \label{uart__task_8h_a15db42d803f30c566b5f5fdf88d33b8c} 
+typedef \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}}(\texorpdfstring{$\ast$}{*} command\+\_\+handler\+\_\+t) (const char \texorpdfstring{$\ast$}{*}args)}
+
+
+
+Typ handleru prikazu (funkce pro zpracovani prikazu). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8h_source_l00061}{61}} v souboru \mbox{\hyperlink{uart__task_8h_source}{uart\+\_\+task.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{uart__task_8h_doc-enum-members}
+\doxysubsection{Dokumentace výčtových typů}
+\Hypertarget{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}\index{uart\_task.h@{uart\_task.h}!command\_result\_t@{command\_result\_t}}
+\index{command\_result\_t@{command\_result\_t}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{command\_result\_t}{command\_result\_t}}
+{\footnotesize\ttfamily \label{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63} 
+enum \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}}}
+
+
+
+Typy vysledku prikazu. 
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{CMD\_SUCCESS@{CMD\_SUCCESS}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!CMD\_SUCCESS@{CMD\_SUCCESS}}}\Hypertarget{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a0a22fcf0d061f9b1473876e43d12c33c}\label{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a0a22fcf0d061f9b1473876e43d12c33c} 
+CMD\+\_\+\+SUCCESS&Uspesne provedeno. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{CMD\_ERROR\_INVALID\_SYNTAX@{CMD\_ERROR\_INVALID\_SYNTAX}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!CMD\_ERROR\_INVALID\_SYNTAX@{CMD\_ERROR\_INVALID\_SYNTAX}}}\Hypertarget{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a9d8f4f8dab26ea6218e16579507f1a2c}\label{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a9d8f4f8dab26ea6218e16579507f1a2c} 
+CMD\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+SYNTAX&Neplatna syntaxe. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{CMD\_ERROR\_INVALID\_PARAMETER@{CMD\_ERROR\_INVALID\_PARAMETER}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!CMD\_ERROR\_INVALID\_PARAMETER@{CMD\_ERROR\_INVALID\_PARAMETER}}}\Hypertarget{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a8e7eb0cf30a91dbf67498fef8dcba774}\label{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a8e7eb0cf30a91dbf67498fef8dcba774} 
+CMD\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+PARAMETER&Neplatny parameter. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{CMD\_ERROR\_SYSTEM\_ERROR@{CMD\_ERROR\_SYSTEM\_ERROR}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!CMD\_ERROR\_SYSTEM\_ERROR@{CMD\_ERROR\_SYSTEM\_ERROR}}}\Hypertarget{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63aedd36bebd00d835aedb3b165d95687b1}\label{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63aedd36bebd00d835aedb3b165d95687b1} 
+CMD\+\_\+\+ERROR\+\_\+\+SYSTEM\+\_\+\+ERROR&Systemova chyba. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{CMD\_ERROR\_NOT\_FOUND@{CMD\_ERROR\_NOT\_FOUND}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!CMD\_ERROR\_NOT\_FOUND@{CMD\_ERROR\_NOT\_FOUND}}}\Hypertarget{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a8d68e7510dde3829311ed679636f0fd2}\label{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63a8d68e7510dde3829311ed679636f0fd2} 
+CMD\+\_\+\+ERROR\+\_\+\+NOT\+\_\+\+FOUND&Prikaz nenalezen. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8h_source_l00050}{50}} v souboru \mbox{\hyperlink{uart__task_8h_source}{uart\+\_\+task.\+h}}.
+
+\Hypertarget{uart__task_8h_a708a8ff292163e24f246572bc7bf1036}\index{uart\_task.h@{uart\_task.h}!uart\_msg\_type\_t@{uart\_msg\_type\_t}}
+\index{uart\_msg\_type\_t@{uart\_msg\_type\_t}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_msg\_type\_t}{uart\_msg\_type\_t}}
+{\footnotesize\ttfamily \label{uart__task_8h_a708a8ff292163e24f246572bc7bf1036} 
+enum \mbox{\hyperlink{uart__task_8h_a708a8ff292163e24f246572bc7bf1036}{uart\+\_\+msg\+\_\+type\+\_\+t}}}
+
+
+
+Typy UART zprav. 
+
+\begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{UART\_MSG\_NORMAL@{UART\_MSG\_NORMAL}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!UART\_MSG\_NORMAL@{UART\_MSG\_NORMAL}}}\Hypertarget{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a70bc53ed1d6c2d1ea1f5b8f570ab166d}\label{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a70bc53ed1d6c2d1ea1f5b8f570ab166d} 
+UART\+\_\+\+MSG\+\_\+\+NORMAL&Normalni zprava. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{UART\_MSG\_ERROR@{UART\_MSG\_ERROR}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!UART\_MSG\_ERROR@{UART\_MSG\_ERROR}}}\Hypertarget{uart__task_8h_a708a8ff292163e24f246572bc7bf1036abd403affd26add443eedf7089afadde4}\label{uart__task_8h_a708a8ff292163e24f246572bc7bf1036abd403affd26add443eedf7089afadde4} 
+UART\+\_\+\+MSG\+\_\+\+ERROR&Chybova zprava (cervena). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{UART\_MSG\_WARNING@{UART\_MSG\_WARNING}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!UART\_MSG\_WARNING@{UART\_MSG\_WARNING}}}\Hypertarget{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a85457d793a3de63c4eaa97f57bd36e18}\label{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a85457d793a3de63c4eaa97f57bd36e18} 
+UART\+\_\+\+MSG\+\_\+\+WARNING&Varovani (zluta). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{UART\_MSG\_SUCCESS@{UART\_MSG\_SUCCESS}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!UART\_MSG\_SUCCESS@{UART\_MSG\_SUCCESS}}}\Hypertarget{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a2483d473c9c1d73a35b38e1b35018158}\label{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a2483d473c9c1d73a35b38e1b35018158} 
+UART\+\_\+\+MSG\+\_\+\+SUCCESS&Uspech (zelena). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{UART\_MSG\_INFO@{UART\_MSG\_INFO}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!UART\_MSG\_INFO@{UART\_MSG\_INFO}}}\Hypertarget{uart__task_8h_a708a8ff292163e24f246572bc7bf1036aeec4d640e5e10aa6c24208f817789452}\label{uart__task_8h_a708a8ff292163e24f246572bc7bf1036aeec4d640e5e10aa6c24208f817789452} 
+UART\+\_\+\+MSG\+\_\+\+INFO&Informace (modra). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{UART\_MSG\_DEBUG@{UART\_MSG\_DEBUG}!uart\_task.h@{uart\_task.h}}\index{uart\_task.h@{uart\_task.h}!UART\_MSG\_DEBUG@{UART\_MSG\_DEBUG}}}\Hypertarget{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a877a61fdb522d990e286ad329d955f04}\label{uart__task_8h_a708a8ff292163e24f246572bc7bf1036a877a61fdb522d990e286ad329d955f04} 
+UART\+\_\+\+MSG\+\_\+\+DEBUG&Debug zprava (seda). \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8h_source_l00070}{70}} v souboru \mbox{\hyperlink{uart__task_8h_source}{uart\+\_\+task.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{uart__task_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{uart__task_8h_a19705a349c243f2fcaca1d209b11aa26}\index{uart\_task.h@{uart\_task.h}!is\_valid\_move\_notation@{is\_valid\_move\_notation}}
+\index{is\_valid\_move\_notation@{is\_valid\_move\_notation}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{is\_valid\_move\_notation()}{is\_valid\_move\_notation()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a19705a349c243f2fcaca1d209b11aa26} 
+bool is\+\_\+valid\+\_\+move\+\_\+notation (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Overi platnost notace tahu. 
+
+Validate chess move notation (e.\+g., "{}e2e4"{}).
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Notace tahu (napr. "{}e2e4"{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je notace platna
+\end{DoxyReturn}
+Overi platnost notace tahu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04574}{4574}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a27eda0257802e0a1d44cbe8b91e3feba}\index{uart\_task.h@{uart\_task.h}!is\_valid\_square\_notation@{is\_valid\_square\_notation}}
+\index{is\_valid\_square\_notation@{is\_valid\_square\_notation}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{is\_valid\_square\_notation()}{is\_valid\_square\_notation()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a27eda0257802e0a1d44cbe8b91e3feba} 
+bool is\+\_\+valid\+\_\+square\+\_\+notation (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{square}{}\end{DoxyParamCaption})}
+
+
+
+Overi platnost notace pole. 
+
+Validate chess square notation (e.\+g., "{}e2"{}).
+
+
+\begin{DoxyParams}{Parametry}
+{\em square} & Notace pole (napr. "{}e2"{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je notace platna
+\end{DoxyReturn}
+Overi platnost notace pole. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04594}{4594}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a5208e133190e19aad814c5a69dbb93e5}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_benchmark@{uart\_cmd\_benchmark}}
+\index{uart\_cmd\_benchmark@{uart\_cmd\_benchmark}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_benchmark()}{uart\_cmd\_benchmark()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a5208e133190e19aad814c5a69dbb93e5} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+benchmark (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz benchmark. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06313}{6313}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_ae06c8535f9c7efcb9bf76c0949b0b4cc}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_board@{uart\_cmd\_board}}
+\index{uart\_cmd\_board@{uart\_cmd\_board}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_board()}{uart\_cmd\_board()}}
+{\footnotesize\ttfamily \label{uart__task_8h_ae06c8535f9c7efcb9bf76c0949b0b4cc} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+board (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz board. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05253}{5253}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_adbe2f7e4f05f1b0c256c81eefb34e95a}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_clear@{uart\_cmd\_clear}}
+\index{uart\_cmd\_clear@{uart\_cmd\_clear}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_clear()}{uart\_cmd\_clear()}}
+{\footnotesize\ttfamily \label{uart__task_8h_adbe2f7e4f05f1b0c256c81eefb34e95a} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+clear (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz clear. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02224}{2224}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a8def6eb3ad5e05f605577170ea53085f}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_debug\_board@{uart\_cmd\_debug\_board}}
+\index{uart\_cmd\_debug\_board@{uart\_cmd\_debug\_board}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_debug\_board()}{uart\_cmd\_debug\_board()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a8def6eb3ad5e05f605577170ea53085f} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+debug\+\_\+board (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz debug\+\_\+board. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06265}{6265}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_afed806feda00e8b2e6122fbba6a0800d}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_debug\_game@{uart\_cmd\_debug\_game}}
+\index{uart\_cmd\_debug\_game@{uart\_cmd\_debug\_game}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_debug\_game()}{uart\_cmd\_debug\_game()}}
+{\footnotesize\ttfamily \label{uart__task_8h_afed806feda00e8b2e6122fbba6a0800d} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+debug\+\_\+game (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz debug\+\_\+game. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06140}{6140}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a925e6e86c81a91f4d6af38c6106833bc}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_debug\_status@{uart\_cmd\_debug\_status}}
+\index{uart\_cmd\_debug\_status@{uart\_cmd\_debug\_status}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_debug\_status()}{uart\_cmd\_debug\_status()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a925e6e86c81a91f4d6af38c6106833bc} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+debug\+\_\+status (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz debug\+\_\+status. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06039}{6039}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_aa9bf90400c3b2ccf18c98442645b8b14}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_dn@{uart\_cmd\_dn}}
+\index{uart\_cmd\_dn@{uart\_cmd\_dn}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_dn()}{uart\_cmd\_dn()}}
+{\footnotesize\ttfamily \label{uart__task_8h_aa9bf90400c3b2ccf18c98442645b8b14} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+dn (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz dn (poloz figurku). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05183}{5183}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a45e7ff8cb362715634eba2642afae063}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_game\_history@{uart\_cmd\_game\_history}}
+\index{uart\_cmd\_game\_history@{uart\_cmd\_game\_history}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_game\_history()}{uart\_cmd\_game\_history()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a45e7ff8cb362715634eba2642afae063} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+game\+\_\+history (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz game\+\_\+history. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05841}{5841}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_aec33730164148a5ef9df45f1e1ae706b}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_game\_new@{uart\_cmd\_game\_new}}
+\index{uart\_cmd\_game\_new@{uart\_cmd\_game\_new}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_game\_new()}{uart\_cmd\_game\_new()}}
+{\footnotesize\ttfamily \label{uart__task_8h_aec33730164148a5ef9df45f1e1ae706b} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+game\+\_\+new (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz game\+\_\+new. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05497}{5497}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a820002ffc256bb584099e401f1b07e9c}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_game\_reset@{uart\_cmd\_game\_reset}}
+\index{uart\_cmd\_game\_reset@{uart\_cmd\_game\_reset}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_game\_reset()}{uart\_cmd\_game\_reset()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a820002ffc256bb584099e401f1b07e9c} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+game\+\_\+reset (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz game\+\_\+reset. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05521}{5521}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a25d0a7a7a3f253ef4ba5f55e6764f879}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_help@{uart\_cmd\_help}}
+\index{uart\_cmd\_help@{uart\_cmd\_help}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_help()}{uart\_cmd\_help()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a25d0a7a7a3f253ef4ba5f55e6764f879} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+help (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz help. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01451}{1451}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_ae225cfb5aecbfa679ca067a2e4dc6833}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_help\_beginner@{uart\_cmd\_help\_beginner}}
+\index{uart\_cmd\_help\_beginner@{uart\_cmd\_help\_beginner}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_help\_beginner()}{uart\_cmd\_help\_beginner()}}
+{\footnotesize\ttfamily \label{uart__task_8h_ae225cfb5aecbfa679ca067a2e4dc6833} 
+void uart\+\_\+cmd\+\_\+help\+\_\+beginner (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Help pro zacatecniky. 
+
+Help pro zacatecniky. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01777}{1777}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_aada1de37a1e46c05acb740016334d649}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_help\_debug@{uart\_cmd\_help\_debug}}
+\index{uart\_cmd\_help\_debug@{uart\_cmd\_help\_debug}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_help\_debug()}{uart\_cmd\_help\_debug()}}
+{\footnotesize\ttfamily \label{uart__task_8h_aada1de37a1e46c05acb740016334d649} 
+void uart\+\_\+cmd\+\_\+help\+\_\+debug (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Help pro debug prikazy. 
+
+Help pro debug prikazy. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01957}{1957}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a8173679d73f567977d5b63259363383c}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_help\_game@{uart\_cmd\_help\_game}}
+\index{uart\_cmd\_help\_game@{uart\_cmd\_help\_game}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_help\_game()}{uart\_cmd\_help\_game()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a8173679d73f567977d5b63259363383c} 
+void uart\+\_\+cmd\+\_\+help\+\_\+game (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Help pro game prikazy. 
+
+Help pro game prikazy. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01555}{1555}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a966ff272c2023dd69fee0aec745c949e}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_help\_system@{uart\_cmd\_help\_system}}
+\index{uart\_cmd\_help\_system@{uart\_cmd\_help\_system}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_help\_system()}{uart\_cmd\_help\_system()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a966ff272c2023dd69fee0aec745c949e} 
+void uart\+\_\+cmd\+\_\+help\+\_\+system (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Help pro systemove prikazy. 
+
+Help pro systemove prikazy. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01671}{1671}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_ac75af37c48ea155d265417cfc6db8c95}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_history@{uart\_cmd\_history}}
+\index{uart\_cmd\_history@{uart\_cmd\_history}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_history()}{uart\_cmd\_history()}}
+{\footnotesize\ttfamily \label{uart__task_8h_ac75af37c48ea155d265417cfc6db8c95} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+history (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz history. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02217}{2217}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a31e18c5d57fbf73693ba15d6041bd080}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_led\_board@{uart\_cmd\_led\_board}}
+\index{uart\_cmd\_led\_board@{uart\_cmd\_led\_board}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_led\_board()}{uart\_cmd\_led\_board()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a31e18c5d57fbf73693ba15d6041bd080} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+led\+\_\+board (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz led\+\_\+board. 
+
+Prikaz led\+\_\+board. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05367}{5367}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a8b0cefcf29f3dea4338fdd3475476f1a}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_memcheck@{uart\_cmd\_memcheck}}
+\index{uart\_cmd\_memcheck@{uart\_cmd\_memcheck}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_memcheck()}{uart\_cmd\_memcheck()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a8b0cefcf29f3dea4338fdd3475476f1a} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+memcheck (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz memcheck. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06394}{6394}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_adeb40a444cec7562b4c9eae46fb5f905}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_memory@{uart\_cmd\_memory}}
+\index{uart\_cmd\_memory@{uart\_cmd\_memory}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_memory()}{uart\_cmd\_memory()}}
+{\footnotesize\ttfamily \label{uart__task_8h_adeb40a444cec7562b4c9eae46fb5f905} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+memory (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz memory. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02190}{2190}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a1fcb0efaeb8e64908c667d9a68a497e7}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_move@{uart\_cmd\_move}}
+\index{uart\_cmd\_move@{uart\_cmd\_move}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_move()}{uart\_cmd\_move()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a1fcb0efaeb8e64908c667d9a68a497e7} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+move (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz move. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05026}{5026}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a8bfc523766c1984380217c78bd865d93}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_quiet@{uart\_cmd\_quiet}}
+\index{uart\_cmd\_quiet@{uart\_cmd\_quiet}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_quiet()}{uart\_cmd\_quiet()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a8bfc523766c1984380217c78bd865d93} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+quiet (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz quiet. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02084}{2084}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_af305f126d46460f209547def7ade998f}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_reset@{uart\_cmd\_reset}}
+\index{uart\_cmd\_reset@{uart\_cmd\_reset}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_reset()}{uart\_cmd\_reset()}}
+{\footnotesize\ttfamily \label{uart__task_8h_af305f126d46460f209547def7ade998f} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+reset (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz reset. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02321}{2321}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_af34a40710b1a30f20f8be55971986884}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_self\_test@{uart\_cmd\_self\_test}}
+\index{uart\_cmd\_self\_test@{uart\_cmd\_self\_test}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_self\_test()}{uart\_cmd\_self\_test()}}
+{\footnotesize\ttfamily \label{uart__task_8h_af34a40710b1a30f20f8be55971986884} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+self\+\_\+test (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz self\+\_\+test. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05867}{5867}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a260841cc4caf0ecd44bc45719f3a6e6a}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_show\_fifos@{uart\_cmd\_show\_fifos}}
+\index{uart\_cmd\_show\_fifos@{uart\_cmd\_show\_fifos}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_show\_fifos()}{uart\_cmd\_show\_fifos()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a260841cc4caf0ecd44bc45719f3a6e6a} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+show\+\_\+fifos (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz show\+\_\+fifos. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06737}{6737}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a221e0e7d3b8aaa2836b099cb13e57168}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_show\_moves@{uart\_cmd\_show\_moves}}
+\index{uart\_cmd\_show\_moves@{uart\_cmd\_show\_moves}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_show\_moves()}{uart\_cmd\_show\_moves()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a221e0e7d3b8aaa2836b099cb13e57168} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+show\+\_\+moves (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz show\+\_\+moves. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05541}{5541}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a2e7e839a6c40f74905836d7d5d4fd69b}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_show\_mutexes@{uart\_cmd\_show\_mutexes}}
+\index{uart\_cmd\_show\_mutexes@{uart\_cmd\_show\_mutexes}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_show\_mutexes()}{uart\_cmd\_show\_mutexes()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a2e7e839a6c40f74905836d7d5d4fd69b} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+show\+\_\+mutexes (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz show\+\_\+mutexes. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06615}{6615}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_ad71e3397b99aa15ed45f6b5fe3f070d1}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_show\_tasks@{uart\_cmd\_show\_tasks}}
+\index{uart\_cmd\_show\_tasks@{uart\_cmd\_show\_tasks}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_show\_tasks()}{uart\_cmd\_show\_tasks()}}
+{\footnotesize\ttfamily \label{uart__task_8h_ad71e3397b99aa15ed45f6b5fe3f070d1} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+show\+\_\+tasks (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz show\+\_\+tasks. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06475}{6475}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a21313e7215e44d82c987a6e19ec0dbf3}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_status@{uart\_cmd\_status}}
+\index{uart\_cmd\_status@{uart\_cmd\_status}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_status()}{uart\_cmd\_status()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a21313e7215e44d82c987a6e19ec0dbf3} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+status (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz status. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02106}{2106}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_ab237e12799096414a354e1023a69b98d}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_test\_game@{uart\_cmd\_test\_game}}
+\index{uart\_cmd\_test\_game@{uart\_cmd\_test\_game}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_test\_game()}{uart\_cmd\_test\_game()}}
+{\footnotesize\ttfamily \label{uart__task_8h_ab237e12799096414a354e1023a69b98d} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+test\+\_\+game (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz test\+\_\+game. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06025}{6025}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_ad5f1031b571a80d5b86af97d1f95c57c}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_undo@{uart\_cmd\_undo}}
+\index{uart\_cmd\_undo@{uart\_cmd\_undo}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_undo()}{uart\_cmd\_undo()}}
+{\footnotesize\ttfamily \label{uart__task_8h_ad5f1031b571a80d5b86af97d1f95c57c} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+undo (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz undo. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05821}{5821}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_afa32b7335ecf868e1ad3f62ea110f1a7}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_up@{uart\_cmd\_up}}
+\index{uart\_cmd\_up@{uart\_cmd\_up}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_up()}{uart\_cmd\_up()}}
+{\footnotesize\ttfamily \label{uart__task_8h_afa32b7335ecf868e1ad3f62ea110f1a7} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+up (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz up (zvedni figurku). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05113}{5113}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a771457bbb5dea20a3c8848f56ff30fb5}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_verbose@{uart\_cmd\_verbose}}
+\index{uart\_cmd\_verbose@{uart\_cmd\_verbose}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_verbose()}{uart\_cmd\_verbose()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a771457bbb5dea20a3c8848f56ff30fb5} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+verbose (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz verbose. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02043}{2043}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a3d57139f7c4ab4244218b1c6151f48fc}\index{uart\_task.h@{uart\_task.h}!uart\_cmd\_version@{uart\_cmd\_version}}
+\index{uart\_cmd\_version@{uart\_cmd\_version}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_version()}{uart\_cmd\_version()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a3d57139f7c4ab4244218b1c6151f48fc} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+version (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Prikaz version. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02172}{2172}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_ab33165e3f027da22b5695d323a262466}\index{uart\_task.h@{uart\_task.h}!uart\_display\_enhanced\_board@{uart\_display\_enhanced\_board}}
+\index{uart\_display\_enhanced\_board@{uart\_display\_enhanced\_board}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_display\_enhanced\_board()}{uart\_display\_enhanced\_board()}}
+{\footnotesize\ttfamily \label{uart__task_8h_ab33165e3f027da22b5695d323a262466} 
+void uart\+\_\+display\+\_\+enhanced\+\_\+board (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz rozsirenou sachovnici. 
+
+Zobraz rozsirenou sachovnici. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05399}{5399}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_abc55b8a694daa72d150b869d5e4e0a7d}\index{uart\_task.h@{uart\_task.h}!uart\_display\_led\_board@{uart\_display\_led\_board}}
+\index{uart\_display\_led\_board@{uart\_display\_led\_board}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_display\_led\_board()}{uart\_display\_led\_board()}}
+{\footnotesize\ttfamily \label{uart__task_8h_abc55b8a694daa72d150b869d5e4e0a7d} 
+void uart\+\_\+display\+\_\+led\+\_\+board (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz LED sachovnici. 
+
+Zobraz LED sachovnici. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07060}{7060}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a751f514352196d75fcb5afef4a54bc76}\index{uart\_task.h@{uart\_task.h}!uart\_display\_main\_help@{uart\_display\_main\_help}}
+\index{uart\_display\_main\_help@{uart\_display\_main\_help}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_display\_main\_help()}{uart\_display\_main\_help()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a751f514352196d75fcb5afef4a54bc76} 
+void uart\+\_\+display\+\_\+main\+\_\+help (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz hlavni help. 
+
+Zobraz hlavni help. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01490}{1490}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a0ef783ccf8a8c6f104f5ad95dc7c0faf}\index{uart\_task.h@{uart\_task.h}!uart\_display\_move\_animation@{uart\_display\_move\_animation}}
+\index{uart\_display\_move\_animation@{uart\_display\_move\_animation}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_display\_move\_animation()}{uart\_display\_move\_animation()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a0ef783ccf8a8c6f104f5ad95dc7c0faf} 
+void uart\+\_\+display\+\_\+move\+\_\+animation (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{from}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{to}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz animaci tahu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em from} & Zdrojova notace \\
+\hline
+{\em to} & Cilova notace\\
+\hline
+\end{DoxyParams}
+Zobraz animaci tahu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em from} & Starting square \\
+\hline
+{\em to} & Destination square \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05108}{5108}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a6e26b6d6ae554bd6bc478ccba6b1b763}\index{uart\_task.h@{uart\_task.h}!uart\_task\_start@{uart\_task\_start}}
+\index{uart\_task\_start@{uart\_task\_start}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_task\_start()}{uart\_task\_start()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a6e26b6d6ae554bd6bc478ccba6b1b763} 
+void uart\+\_\+task\+\_\+start (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Hlavni funkce UART tasku. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em pv\+Parameters} & Parametry tasku (nepouzivane) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06806}{6806}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a5d7ec4b42454dcce2b73a82b7e928484}\index{uart\_task.h@{uart\_task.h}!uart\_write\_char\_immediate@{uart\_write\_char\_immediate}}
+\index{uart\_write\_char\_immediate@{uart\_write\_char\_immediate}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_write\_char\_immediate()}{uart\_write\_char\_immediate()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a5d7ec4b42454dcce2b73a82b7e928484} 
+void uart\+\_\+write\+\_\+char\+\_\+immediate (\begin{DoxyParamCaption}\item[{char}]{ch}{}\end{DoxyParamCaption})}
+
+
+
+Zapis znak okamzite do UART. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em c} & Znak k zapsani\\
+\hline
+\end{DoxyParams}
+Zapis znak okamzite do UART.
+
+Tato funkce zapise jeden znak do UART s okamzitym flush. Pouziva ESP-\/\+IDF UART driver nebo USB Serial JTAG podle konfigurace.
+
+
+\begin{DoxyParams}{Parametry}
+{\em ch} & Znak k zapsani\\
+\hline
+\end{DoxyParams}
+Funkce pouziva mutex pro bezpecne operace z vice vlaken a automaticky detekuje zda je UART povolen. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00323}{323}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8h_a417def5a37edadff4f93cf9e8824f082}\index{uart\_task.h@{uart\_task.h}!uart\_write\_string\_immediate@{uart\_write\_string\_immediate}}
+\index{uart\_write\_string\_immediate@{uart\_write\_string\_immediate}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_write\_string\_immediate()}{uart\_write\_string\_immediate()}}
+{\footnotesize\ttfamily \label{uart__task_8h_a417def5a37edadff4f93cf9e8824f082} 
+void uart\+\_\+write\+\_\+string\+\_\+immediate (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{str}{}\end{DoxyParamCaption})}
+
+
+
+Zapis retezec okamzite do UART. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em str} & Retezec k zapsani\\
+\hline
+\end{DoxyParams}
+Zapis retezec okamzite do UART.
+
+Tato funkce zapise cely string do UART s okamzitym flush. Pouziva ESP-\/\+IDF UART driver nebo USB Serial JTAG podle konfigurace.
+
+
+\begin{DoxyParams}{Parametry}
+{\em str} & String k zapsani\\
+\hline
+\end{DoxyParams}
+Funkce pouziva mutex pro bezpecne operace z vice vlaken a automaticky detekuje zda je UART povolen. Je optimalizovana pro rychle zapisovani. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00352}{352}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{uart__task_8h_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{uart__task_8h_a6e06eb5d048532e903f597094c601c4c}\index{uart\_task.h@{uart\_task.h}!uart\_output\_queue@{uart\_output\_queue}}
+\index{uart\_output\_queue@{uart\_output\_queue}!uart\_task.h@{uart\_task.h}}
+\doxysubsubsection{\texorpdfstring{uart\_output\_queue}{uart\_output\_queue}}
+{\footnotesize\ttfamily \label{uart__task_8h_a6e06eb5d048532e903f597094c601c4c} 
+Queue\+Handle\+\_\+t uart\+\_\+output\+\_\+queue\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Fronta pro UART vystup. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00447}{447}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+

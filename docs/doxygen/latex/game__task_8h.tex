@@ -1,0 +1,2657 @@
+\doxysection{Dokumentace souboru game\+\_\+task.\+h}
+\hypertarget{game__task_8h}{}\label{game__task_8h}\index{game\_task.h@{game\_task.h}}
+
+
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Game Task Hlavicka.  
+
+
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/semphr.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/task.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/timers.\+h"{}}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include "{}../../timer\+\_\+system/include/timer\+\_\+system.\+h"{}}\newline
+{\ttfamily \#include "{}chess\+\_\+types.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro game\+\_\+task.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{game__task_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{game__task_8h_a20b79ef4675f25cd3f39ddcdaf65243c}{convert\+\_\+notation\+\_\+to\+\_\+coords}} (const char \texorpdfstring{$\ast$}{*}notation, uint8\+\_\+t \texorpdfstring{$\ast$}{*}row, uint8\+\_\+t \texorpdfstring{$\ast$}{*}col)
+\begin{DoxyCompactList}\small\item\em Prevede sachovou notaci na souradnice sachovnice. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_ae79fef0478151bf7d3256446807a2bf7}{convert\+\_\+coords\+\_\+to\+\_\+notation}} (uint8\+\_\+t row, uint8\+\_\+t col, char \texorpdfstring{$\ast$}{*}notation)
+\begin{DoxyCompactList}\small\item\em Prevede souradnice sachovnice na sachovou notaci. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a13909ec7cf87ce1999cd9647689e46aa}{game\+\_\+process\+\_\+chess\+\_\+move}} (const \mbox{\hyperlink{structchess__move__command__t}{chess\+\_\+move\+\_\+command\+\_\+t}} \texorpdfstring{$\ast$}{*}cmd)
+\begin{DoxyCompactList}\small\item\em Zpracuj sachovy tah z UART prikazu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a6199d3c51c2ba715c27b7be7428c61b7}{game\+\_\+get\+\_\+board\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Exportuj stav sachovnice do JSON retezce. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_abdf3ba446d87db43c26b6c51275a521e}{game\+\_\+get\+\_\+status\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Exportuj stav hry do JSON retezce. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a5d08ec12c99532e3819abb072385a921}{game\+\_\+get\+\_\+history\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Exportuj historii tahu do JSON retezce. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_aa442a40b76d56106f726f76bc210b84e}{game\+\_\+get\+\_\+captured\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Exportuj sebrane figurky do JSON retezce. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a8aacf784d572f6de13c441c564d8037e}{game\+\_\+get\+\_\+advantage\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Exportuj historii materialni vyhody do JSON (pro graf vyhody). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_ab26d022ec766e04addd46d9b6da9768a}{game\+\_\+task\+\_\+start}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Spusti game task. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a9b4b4ef6ba4260c09a59192fc68be834}{game\+\_\+initialize\+\_\+board}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuj sachovnici do vychozi pozice. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_ac75becc8b5888b8fa31045d7c28c085e}{game\+\_\+reset\+\_\+game}} (void)
+\begin{DoxyCompactList}\small\item\em Resetuj hru do pocatecniho stavu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a57e990b9360540c1ba82ea3d5a32cf44}{game\+\_\+start\+\_\+new\+\_\+game}} (void)
+\begin{DoxyCompactList}\small\item\em Spust novou hru. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a93dee8ccd518ae0092501007a420e4bb}{game\+\_\+is\+\_\+valid\+\_\+position}} (int row, int col)
+\begin{DoxyCompactList}\small\item\em Overi zda je pozice platna na sachovnici. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \mbox{\hyperlink{game__task_8h_ab1f6294f23b24a27514d95c3b0ca0a4d}{game\+\_\+get\+\_\+piece}} (int row, int col)
+\begin{DoxyCompactList}\small\item\em Ziskej figurku na dane pozici. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a2f77ab43a39a2a3ebc640df092f9cdc1}{game\+\_\+is\+\_\+empty}} (int row, int col)
+\begin{DoxyCompactList}\small\item\em Overi zda je pozice prazdna. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a8f69768eebdeba16538566a535f25351}{game\+\_\+is\+\_\+white\+\_\+piece}} (\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece)
+\begin{DoxyCompactList}\small\item\em Overi zda je figurka bila. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a304560a99cb8733e12bdcd9461b66926}{game\+\_\+is\+\_\+black\+\_\+piece}} (\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece)
+\begin{DoxyCompactList}\small\item\em Overi zda je figurka cerna. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_afd3cb102b201b005212505e9fcc86612}{game\+\_\+is\+\_\+same\+\_\+color}} (\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece1, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece2)
+\begin{DoxyCompactList}\small\item\em Overi zda jsou dve figurky stejne barvy. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} \mbox{\hyperlink{game__task_8h_a20c746cc968a038cbdf28e01a9dd8307}{game\+\_\+is\+\_\+valid\+\_\+move}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Validuj tah podle typu figurky. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} \mbox{\hyperlink{game__task_8h_a2c589b4bfa6cd43ea3582050e37c1cc4}{game\+\_\+validate\+\_\+piece\+\_\+move\+\_\+enhanced}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece)
+\begin{DoxyCompactList}\small\item\em Rozsirena validace tahu pro figurku. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} \mbox{\hyperlink{game__task_8h_a9fd338ce879b00b98ddb9d6b6988e5a1}{game\+\_\+validate\+\_\+pawn\+\_\+move\+\_\+enhanced}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece)
+\begin{DoxyCompactList}\small\item\em Validuj tah pescu. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} \mbox{\hyperlink{game__task_8h_a530c17b05f532aeaaa64d8bdb77ca665}{game\+\_\+validate\+\_\+knight\+\_\+move\+\_\+enhanced}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Validuj tah kone. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} \mbox{\hyperlink{game__task_8h_a94bb4afd94650885459c130f6c3a811d}{game\+\_\+validate\+\_\+bishop\+\_\+move\+\_\+enhanced}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Validuj tah strelce. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} \mbox{\hyperlink{game__task_8h_a4b858d85c199815887890cf595969c75}{game\+\_\+validate\+\_\+rook\+\_\+move\+\_\+enhanced}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Validuj tah veze. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} \mbox{\hyperlink{game__task_8h_acb3d6c97b1ab4160a2ed398cfa3b5b52}{game\+\_\+validate\+\_\+queen\+\_\+move\+\_\+enhanced}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Validuj tah damy. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} \mbox{\hyperlink{game__task_8h_a210042709363b26c91b23a04ccac022a}{game\+\_\+validate\+\_\+king\+\_\+move\+\_\+enhanced}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Validuj tah krale. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_af6d73d7ab8a4c7b188d690a5177a0072}{game\+\_\+would\+\_\+move\+\_\+leave\+\_\+king\+\_\+in\+\_\+check}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Overi zda by tah nechal krale v sachu. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a175e65acc9f386834730a86b25d6190a}{game\+\_\+is\+\_\+en\+\_\+passant\+\_\+possible}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Overi zda je en passant mozny. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} \mbox{\hyperlink{game__task_8h_a7169001872522d780e6e67a15d86a47e}{game\+\_\+validate\+\_\+castling}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Validuj rosadu. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a93a1f0d6a82af5e13f78ebecc8a5ed8c}{game\+\_\+is\+\_\+insufficient\+\_\+material}} (void)
+\begin{DoxyCompactList}\small\item\em Overi nedostatecny material pro mat. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a6e5f0e6f61004c63b6da0114e626c68b}{game\+\_\+show\+\_\+move\+\_\+suggestions}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Zobraz navrzene tahy pro figurku. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{game__task_8h_a7feffd0ac688b65213940c59e6414b5a}{game\+\_\+get\+\_\+available\+\_\+moves}} (uint8\+\_\+t row, uint8\+\_\+t col, \mbox{\hyperlink{structmove__suggestion__t}{move\+\_\+suggestion\+\_\+t}} \texorpdfstring{$\ast$}{*}suggestions, uint32\+\_\+t max\+\_\+suggestions)
+\begin{DoxyCompactList}\small\item\em Ziskej dostupne tahy pro figurku. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a4ec624bee837dfc3ef8429dd6edfc961}{game\+\_\+execute\+\_\+move}} (const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Proved sachovy tah. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414d}{game\+\_\+state\+\_\+t}} \mbox{\hyperlink{game__task_8h_ac8bfd19bdb7f1bbe6986c0f007713f73}{game\+\_\+get\+\_\+state}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej aktualni stav hry. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8h_a98c28bfe096e1b2f5dd819da477efbe1}{game\+\_\+get\+\_\+current\+\_\+player}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej aktualniho hrace na tahu. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{game__task_8h_a2e528b3b66fe59544f28ca993c4a6143}{game\+\_\+get\+\_\+move\+\_\+count}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej pocet provedenych tahu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_ad7894f48d6e00cfe140b99026be38b71}{game\+\_\+print\+\_\+board}} (void)
+\begin{DoxyCompactList}\small\item\em Vypis aktualni pozici sachovnice. \end{DoxyCompactList}\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{game__task_8h_ae11065cb566adb8002df27fc8edc2b67}{game\+\_\+get\+\_\+piece\+\_\+name}} (\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece)
+\begin{DoxyCompactList}\small\item\em Ziskej jmeno figurky jako retezec. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_ac4ac5416414272fb1942f0269ea572c7}{game\+\_\+process\+\_\+commands}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj game prikazy z fronty. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_accc9ce251093d9ee6c29aea32234ad53}{game\+\_\+handle\+\_\+invalid\+\_\+move}} (\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} error, const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}move)
+\begin{DoxyCompactList}\small\item\em Zpracuj neplatny tah. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_acecde79c7924b9de393d93d82e662595}{game\+\_\+show\+\_\+player\+\_\+change\+\_\+animation}} (\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} previous\+\_\+player, \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_a39560fbeaa9a251526561b4f2a86eac1}{current\+\_\+player}})
+\begin{DoxyCompactList}\small\item\em Zobraz animaci zmeny hrace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_ad58e853637de174a1bc4f6ad9556bbaa}{game\+\_\+test\+\_\+move\+\_\+animation}} (void)
+\begin{DoxyCompactList}\small\item\em Testuj animaci tahu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a0054718644880d12b2f8ccb352644a2b}{game\+\_\+test\+\_\+player\+\_\+change\+\_\+animation}} (void)
+\begin{DoxyCompactList}\small\item\em Testuj animaci zmeny hrace. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a38bb9a0b5b3cd868021ba1f05be228d6}{game\+\_\+test\+\_\+castle\+\_\+animation}} (void)
+\begin{DoxyCompactList}\small\item\em Testuj animaci rosady. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a54c0942839659e43c97af3b1c7aca7e9}{game\+\_\+test\+\_\+promote\+\_\+animation}} (void)
+\begin{DoxyCompactList}\small\item\em Testuj animaci promoci. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_ac06cb22933b494c00b27ecb35160eeaa}{game\+\_\+test\+\_\+endgame\+\_\+animation}} (void)
+\begin{DoxyCompactList}\small\item\em Testuj animaci konce hry. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a65d45d8068e75012a3bf91d813a86993}{game\+\_\+show\+\_\+move\+\_\+direct}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobraz tah primo pres LED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a0ace822d82e2da6de18559787be957d0}{game\+\_\+show\+\_\+check\+\_\+direct}} (uint8\+\_\+t king\+\_\+row, uint8\+\_\+t king\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobraz sach primo pres LED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_abc7c8755788427711faa337e69d53e19}{game\+\_\+show\+\_\+player\+\_\+change\+\_\+direct}} (\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_a39560fbeaa9a251526561b4f2a86eac1}{current\+\_\+player}})
+\begin{DoxyCompactList}\small\item\em Zobraz zmenu hrace primo pres LED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a8b43b89b88ce59ea25698ac5a8280bf2}{game\+\_\+clear\+\_\+highlights\+\_\+direct}} (void)
+\begin{DoxyCompactList}\small\item\em Vymaz zvyrazneni primo pres LED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_aad4c6f489504e1aace2045420bcec3d1}{game\+\_\+show\+\_\+piece\+\_\+lift\+\_\+direct}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Zobraz zvednutí figurky primo pres LED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_af337fa678e02039015341d7fa45e3ccc}{game\+\_\+show\+\_\+valid\+\_\+moves\+\_\+direct}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}valid\+\_\+positions, uint8\+\_\+t count)
+\begin{DoxyCompactList}\small\item\em Zobraz platne tahy primo pres LED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a5f2645fc55410cfe671fe6e8f2a99f2f}{game\+\_\+show\+\_\+invalid\+\_\+move\+\_\+error}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobraz chybu neplatneho tahu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a94723cd4e9d7f319e96c1d7aaa67fcf8}{game\+\_\+show\+\_\+button\+\_\+error}} (uint8\+\_\+t button\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Zobraz chybu tlacitka. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a528221cd8d3c2dd6de0732883230033a}{game\+\_\+show\+\_\+castling\+\_\+guidance}} (uint8\+\_\+t king\+\_\+row, uint8\+\_\+t king\+\_\+col, uint8\+\_\+t rook\+\_\+row, uint8\+\_\+t rook\+\_\+col, bool is\+\_\+kingside)
+\begin{DoxyCompactList}\small\item\em Zobraz navod pro rosadu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_ad50b0c62b7700e4422eba52d68e2a938}{game\+\_\+check\+\_\+game\+\_\+conditions}} (void)
+\begin{DoxyCompactList}\small\item\em Overi podminky sachu/matu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a36549782eb3387a93e25c7d73325bd9f}{game\+\_\+coords\+\_\+to\+\_\+square}} (uint8\+\_\+t row, uint8\+\_\+t col, char \texorpdfstring{$\ast$}{*}square)
+\begin{DoxyCompactList}\small\item\em Prevede souradnice sachovnice na retezec pole. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a138dd79d240e644870a7d53580720206}{game\+\_\+print\+\_\+status}} (void)
+\begin{DoxyCompactList}\small\item\em Vypis stav hry. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a605e2e1374b4e7090941389e6a581a24}{game\+\_\+print\+\_\+game\+\_\+stats}} (void)
+\begin{DoxyCompactList}\small\item\em Vypis statistiky hry. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{game__task_8h_ac06b42b52fc2abf90b66dcbd73ecd4a0}{game\+\_\+get\+\_\+white\+\_\+wins}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej pocet vyher bileho. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{game__task_8h_a4c5423c283319ea94779b79682ca9b98}{game\+\_\+get\+\_\+black\+\_\+wins}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej pocet vyher cerneho. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{game__task_8h_a49a6874590b30a62f04f7ca6d3efcf05}{game\+\_\+get\+\_\+draws}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej pocet remiz. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{game__task_8h_aed140b5d1ea696aa8fcd53aacc2303a9}{game\+\_\+get\+\_\+total\+\_\+games}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej celkovy pocet her. \end{DoxyCompactList}\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{game__task_8h_a870a53ed0d150a3c293bcbcb76986fb2}{game\+\_\+get\+\_\+game\+\_\+state\+\_\+string}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej textovy retezec stavu hry. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{game__task_8h_a2e80d005401f27a295b3f2b440d4bb88}{game\+\_\+calculate\+\_\+position\+\_\+hash}} (void)
+\begin{DoxyCompactList}\small\item\em Vypocitej hash pozice pro detekci opakovani. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a009d7069912fb2689b7443575d3def38}{game\+\_\+is\+\_\+position\+\_\+repeated}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda byla pozice opakovana. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a7d059ee1bbc8427968feaf95af032112}{game\+\_\+add\+\_\+position\+\_\+to\+\_\+history}} (void)
+\begin{DoxyCompactList}\small\item\em Pridej pozici do historie pro detekci opakovani. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{game__task_8h_a715422f9b34ce3aff72a852b7951ebba}{game\+\_\+calculate\+\_\+material\+\_\+balance}} (int \texorpdfstring{$\ast$}{*}white\+\_\+material, int \texorpdfstring{$\ast$}{*}black\+\_\+material)
+\begin{DoxyCompactList}\small\item\em Vypocitej materialovou rovnovahu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a13f42aca89279614ea9159dec44ae36c}{game\+\_\+get\+\_\+material\+\_\+string}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t buffer\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Ziskej textovy retezec material balance. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a737d8907ff7e0ea86e3c46e70f3c3614}{game\+\_\+is\+\_\+king\+\_\+in\+\_\+check}} (\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}})
+\begin{DoxyCompactList}\small\item\em Overi zda je kral v sachu. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a90e272f6928e9145d30671ce523ff35e}{game\+\_\+has\+\_\+legal\+\_\+moves}} (\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}})
+\begin{DoxyCompactList}\small\item\em Overi zda ma hrac legalni tahy. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414d}{game\+\_\+state\+\_\+t}} \mbox{\hyperlink{game__task_8h_a3cd556600affcd7945ded58e0a05c9c3}{game\+\_\+check\+\_\+end\+\_\+game\+\_\+conditions}} (void)
+\begin{DoxyCompactList}\small\item\em Overi podminky konce hry. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a502098cd25ad56400beb2339a1bfb84c}{game\+\_\+process\+\_\+matrix\+\_\+events}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj matrix udalosti (tahy). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a484415c76302e466ea7b01ecb2edee09}{game\+\_\+highlight\+\_\+movable\+\_\+pieces}} (void)
+\begin{DoxyCompactList}\small\item\em Zvyrazni vsechny pohyblivé figurky aktualniho hrace. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_ad6aef74bc8447dabf92abcb081340931}{game\+\_\+detect\+\_\+new\+\_\+game\+\_\+setup}} (void)
+\begin{DoxyCompactList}\small\item\em Detekuj zda jsou figurky ve vychozi pozici. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a67dfb69eac8af38766e7d92cf3b4b5d0}{game\+\_\+is\+\_\+castle\+\_\+animation\+\_\+active}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda je aktivni animace rosady. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_aa407236aeb356b0929ab54581fe041bb}{game\+\_\+is\+\_\+castling\+\_\+expected}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda se ocekava rosada. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a98af1de0d72580a78b6f87a672710bc7}{game\+\_\+complete\+\_\+castle\+\_\+animation}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Dokonci animaci rosady pri tahu vezeм \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_afbd09cfaddffe4661015d92975561bd2}{game\+\_\+start\+\_\+repeating\+\_\+rook\+\_\+animation}} (void)
+\begin{DoxyCompactList}\small\item\em Spust opakovani animace veze pro rosadu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a400c845a7ea99010ffc662d32fc20147}{game\+\_\+stop\+\_\+repeating\+\_\+rook\+\_\+animation}} (void)
+\begin{DoxyCompactList}\small\item\em Zastav opakovanou animaci veze. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a8de7eb2cbccf01d3c7ee792caaf9784e}{game\+\_\+process\+\_\+drop\+\_\+command}} (const \mbox{\hyperlink{structchess__move__command__t}{chess\+\_\+move\+\_\+command\+\_\+t}} \texorpdfstring{$\ast$}{*}cmd)
+\begin{DoxyCompactList}\small\item\em Zpracuj DROP prikaz (DN). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_af26d73c4a9e269473827e4d4497b21b3}{rook\+\_\+animation\+\_\+timer\+\_\+callback}} (Timer\+Handle\+\_\+t x\+Timer)
+\begin{DoxyCompactList}\small\item\em Timer callback pro opakovanou animaci veze. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_acd21a8521c05d2746643f0a674e9ee5d}{game\+\_\+highlight\+\_\+invalid\+\_\+target\+\_\+area}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Zvyrazni neplatnou cilovou oblast cervenou LED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_ac0310521f54ddea6598d78bf6e009713}{game\+\_\+highlight\+\_\+valid\+\_\+moves\+\_\+for\+\_\+piece}} (uint8\+\_\+t row, uint8\+\_\+t col)
+\begin{DoxyCompactList}\small\item\em Zvyrazni platne tahy pro specifickou figurku. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_afd365d57cb897126d7c7df4547c45d25}{game\+\_\+show\+\_\+castling\+\_\+rook\+\_\+guidance}} ()
+\begin{DoxyCompactList}\small\item\em Zobraz LED navod pro tah veze pri rosade. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_acf17b5ac5ef3ff609422be26351370df}{show\+\_\+castling\+\_\+completion\+\_\+animation}} ()
+\begin{DoxyCompactList}\small\item\em Zobraz animaci dokonceni rosady. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a907213fbd2400f88f96bd2a5bb4ff98d}{game\+\_\+show\+\_\+invalid\+\_\+move\+\_\+error\+\_\+with\+\_\+blink}} (uint8\+\_\+t error\+\_\+row, uint8\+\_\+t error\+\_\+col)
+\begin{DoxyCompactList}\small\item\em Zobraz blikajici cervenou LED pro chybu neplatneho tahu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a4373558ca8d873f8a649ab8436720807}{game\+\_\+get\+\_\+timer\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Exportuj stav timeru do JSON retezce. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a76220c211d4e21aa36ac90a00761f698}{game\+\_\+start\+\_\+timer\+\_\+move}} (bool is\+\_\+white\+\_\+turn)
+\begin{DoxyCompactList}\small\item\em Spust timer pro tah aktualniho hrace. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a95937d38b6f9490371d95bd51ec8460c}{game\+\_\+end\+\_\+timer\+\_\+move}} (void)
+\begin{DoxyCompactList}\small\item\em Ukonci timer pro tah. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a25364833eb80653b4d30414376f3fe35}{game\+\_\+pause\+\_\+timer}} (void)
+\begin{DoxyCompactList}\small\item\em Pozastav herní timer. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_aa1855cbe07e70ad38d0fbd163e7e9746}{game\+\_\+resume\+\_\+timer}} (void)
+\begin{DoxyCompactList}\small\item\em Obnov herní timer. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a0df29c9e5d4723c41477e530799976b0}{game\+\_\+reset\+\_\+timer}} (void)
+\begin{DoxyCompactList}\small\item\em Resetuj herní timer. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{game__task_8h_a58b489e87078e33ccf75b35d892bb4fe}{game\+\_\+get\+\_\+remaining\+\_\+time}} (bool is\+\_\+white\+\_\+turn)
+\begin{DoxyCompactList}\small\item\em Ziskej zbyvajici cas hrace. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a917f1907b236e1476e75bb033e2a3165}{game\+\_\+init\+\_\+timer\+\_\+system}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuj timer system v game tasku. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a7c1b38b6a6342df233fdcafe702b5a0f}{game\+\_\+process\+\_\+timer\+\_\+command}} (const \mbox{\hyperlink{structchess__move__command__t}{chess\+\_\+move\+\_\+command\+\_\+t}} \texorpdfstring{$\ast$}{*}cmd)
+\begin{DoxyCompactList}\small\item\em Zpracuj timer prikazy z fronty. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a3b6831d8d640dff74119ccdb4f9ff9d2}{game\+\_\+handle\+\_\+time\+\_\+expiration}} (void)
+\begin{DoxyCompactList}\small\item\em Zpracuj vyprseni casu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_aab2504466c50dfa9455e1414810bc073}{game\+\_\+update\+\_\+timer\+\_\+display}} (void)
+\begin{DoxyCompactList}\small\item\em Aktualizuj zobrazeni timeru a overi varovani. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a2f01e5a8d282157e3cd8bd5a03b9c8b5}{game\+\_\+is\+\_\+timer\+\_\+active}} (void)
+\begin{DoxyCompactList}\small\item\em Overi zda je timer aktivni. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{game__task_8h_a303099e83402e02cace5235656259b70}{game\+\_\+is\+\_\+promotion\+\_\+available}} (\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}})
+\begin{DoxyCompactList}\small\item\em Zjisti zda je pro hrace dostupna promoce. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Game Task Hlavicka. 
+
+Tato hlavicka definuje rozhrani pro game task\+:
+\begin{DoxyItemize}
+\item Typy a struktury stavu hry
+\item Prototypy funkci game tasku
+\item Funkce pro ovladani a stav hry
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/24
+\end{DoxyDate}
+Game task je stredem sachoveho systemu. Spravuje cely stav hry, provadi validaci tahu, vynucuje sachova pravidla a komunikuje s ostatnimi tasky pres fronty.
+
+Hlavni funkce\+:
+\begin{DoxyItemize}
+\item Standardni sachova pravidla (vsechny figur ky)
+\item Specialni tahy (rosada, en passant, promoce)
+\item Detekce sachu, matu a patu
+\item Historie tahu a undo funkcionalita
+\item Statistiky hry a materialni rovnovaha
+\item Integrace s LED pro vizualni zpetnou vazbu
+\item Integrace s casovym systemem
+\item JSON export pro webove rozhrani 
+\end{DoxyItemize}
+
+Definice v souboru \mbox{\hyperlink{game__task_8h_source}{game\+\_\+task.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{game__task_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{game__task_8h_ae79fef0478151bf7d3256446807a2bf7}\index{game\_task.h@{game\_task.h}!convert\_coords\_to\_notation@{convert\_coords\_to\_notation}}
+\index{convert\_coords\_to\_notation@{convert\_coords\_to\_notation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{convert\_coords\_to\_notation()}{convert\_coords\_to\_notation()}}
+{\footnotesize\ttfamily \label{game__task_8h_ae79fef0478151bf7d3256446807a2bf7} 
+bool convert\+\_\+coords\+\_\+to\+\_\+notation (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{notation}{}\end{DoxyParamCaption})}
+
+
+
+Prevede souradnice sachovnice na sachovou notaci. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+ & {\em row} & Radek (0-\/7) \\
+\hline
+ & {\em col} & Sloupec (0-\/7) \\
+\hline
+\mbox{\texttt{out}}  & {\em notation} & Vystupni buffer pro notaci (min. 3 znaky) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je prevod uspesny, false pri chybe
+\end{DoxyReturn}
+Prevede souradnice sachovnice na sachovou notaci.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Row coordinate (0-\/7) \\
+\hline
+{\em col} & Column coordinate (0-\/7) \\
+\hline
+{\em notation} & Output notation buffer (must be at least 3 chars) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true if conversion successful, false otherwise 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l05584}{5584}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a20b79ef4675f25cd3f39ddcdaf65243c}\index{game\_task.h@{game\_task.h}!convert\_notation\_to\_coords@{convert\_notation\_to\_coords}}
+\index{convert\_notation\_to\_coords@{convert\_notation\_to\_coords}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{convert\_notation\_to\_coords()}{convert\_notation\_to\_coords()}}
+{\footnotesize\ttfamily \label{game__task_8h_a20b79ef4675f25cd3f39ddcdaf65243c} 
+bool convert\+\_\+notation\+\_\+to\+\_\+coords (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{notation}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{row}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Prevede sachovou notaci na souradnice sachovnice. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+ & {\em notation} & Sachova notace (napr. "{}e2"{}) \\
+\hline
+\mbox{\texttt{out}}  & {\em row} & Vystupni radek (0-\/7) \\
+\hline
+\mbox{\texttt{out}}  & {\em col} & Vystupni sloupec (0-\/7) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je prevod uspesny, false pri chybe
+\end{DoxyReturn}
+Prevede sachovou notaci na souradnice sachovnice.
+
+
+\begin{DoxyParams}{Parametry}
+{\em notation} & Chess notation (e.\+g., "{}e2"{}) \\
+\hline
+{\em row} & Output row coordinate (0-\/7) \\
+\hline
+{\em col} & Output column coordinate (0-\/7) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true if conversion successful, false otherwise 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l05556}{5556}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a7d059ee1bbc8427968feaf95af032112}\index{game\_task.h@{game\_task.h}!game\_add\_position\_to\_history@{game\_add\_position\_to\_history}}
+\index{game\_add\_position\_to\_history@{game\_add\_position\_to\_history}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_add\_position\_to\_history()}{game\_add\_position\_to\_history()}}
+{\footnotesize\ttfamily \label{game__task_8h_a7d059ee1bbc8427968feaf95af032112} 
+void game\+\_\+add\+\_\+position\+\_\+to\+\_\+history (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Pridej pozici do historie pro detekci opakovani. 
+
+Pridej pozici do historie pro detekci opakovani. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00828}{828}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a715422f9b34ce3aff72a852b7951ebba}\index{game\_task.h@{game\_task.h}!game\_calculate\_material\_balance@{game\_calculate\_material\_balance}}
+\index{game\_calculate\_material\_balance@{game\_calculate\_material\_balance}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_calculate\_material\_balance()}{game\_calculate\_material\_balance()}}
+{\footnotesize\ttfamily \label{game__task_8h_a715422f9b34ce3aff72a852b7951ebba} 
+int game\+\_\+calculate\+\_\+material\+\_\+balance (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{white\+\_\+material}{, }\item[{int \texorpdfstring{$\ast$}{*}}]{black\+\_\+material}{}\end{DoxyParamCaption})}
+
+
+
+Vypocitej materialovou rovnovahu. 
+
+Vypocitej materialovou rovnovahu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em white\+\_\+material} & Output\+: white material value \\
+\hline
+{\em black\+\_\+material} & Output\+: black material value \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Material difference (positive = white advantage, negative = black advantage) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00870}{870}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a2e80d005401f27a295b3f2b440d4bb88}\index{game\_task.h@{game\_task.h}!game\_calculate\_position\_hash@{game\_calculate\_position\_hash}}
+\index{game\_calculate\_position\_hash@{game\_calculate\_position\_hash}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_calculate\_position\_hash()}{game\_calculate\_position\_hash()}}
+{\footnotesize\ttfamily \label{game__task_8h_a2e80d005401f27a295b3f2b440d4bb88} 
+uint32\+\_\+t game\+\_\+calculate\+\_\+position\+\_\+hash (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vypocitej hash pozice pro detekci opakovani. 
+
+Vypocitej hash pozice pro detekci opakovani.
+
+\begin{DoxyReturn}{Návratová hodnota}
+32-\/bit position hash 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00759}{759}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a3cd556600affcd7945ded58e0a05c9c3}\index{game\_task.h@{game\_task.h}!game\_check\_end\_game\_conditions@{game\_check\_end\_game\_conditions}}
+\index{game\_check\_end\_game\_conditions@{game\_check\_end\_game\_conditions}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_check\_end\_game\_conditions()}{game\_check\_end\_game\_conditions()}}
+{\footnotesize\ttfamily \label{game__task_8h_a3cd556600affcd7945ded58e0a05c9c3} 
+\mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414d}{game\+\_\+state\+\_\+t}} game\+\_\+check\+\_\+end\+\_\+game\+\_\+conditions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi podminky konce hry. 
+
+Overi podminky konce hry.
+
+\begin{DoxyReturn}{Návratová hodnota}
+GAME\+\_\+\+STATE\+\_\+\+FINISHED pokud hra skoncila, GAME\+\_\+\+STATE\+\_\+\+ACTIVE pokud pokracuje
+\end{DoxyReturn}
+Funkce kontroluje vsechny mozne zpusoby konce hry\+:
+
+Vyherne podminky\+:
+\begin{DoxyItemize}
+\item Sachmat\+: kral v sachu \&\& zadne validni tahy
+\end{DoxyItemize}
+
+Remizove podminky\+:
+\begin{DoxyItemize}
+\item Pat (Stalemate)\+: kral NENI v sachu \&\& zadne validni tahy
+\item 50-\/Move Rule\+: 100 pultahu bez brani nebo posunu pesce
+\item Threefold Repetition\+: stejna pozice 3x opakována
+\item Insufficient Material\+: nedostatecny material pro mat
+\end{DoxyItemize}
+
+Funkce take\+:
+\begin{DoxyItemize}
+\item Aktualizuje statistiky
+\item Zastavuje timer
+\item Generuje endgame report
+\item Rozlisuje typy sachmatu (en passant, castling, promotion, discovered)
+\end{DoxyItemize}
+
+\begin{DoxyNote}{Poznámka}
+Opraveno v2.\+4.\+1\+:
+\begin{DoxyItemize}
+\item BUG \#13\+: 50-\/Move Rule nyni kontroluje \texorpdfstring{$>$}{>}= 100 pultahu (50 tahu na stranu)
+\item Puvodni kontrola \texorpdfstring{$>$}{>}= 50 byla spatna (polovicni pocet) 
+\end{DoxyItemize}
+\end{DoxyNote}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08511}{8511}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ad50b0c62b7700e4422eba52d68e2a938}\index{game\_task.h@{game\_task.h}!game\_check\_game\_conditions@{game\_check\_game\_conditions}}
+\index{game\_check\_game\_conditions@{game\_check\_game\_conditions}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_check\_game\_conditions()}{game\_check\_game\_conditions()}}
+{\footnotesize\ttfamily \label{game__task_8h_ad50b0c62b7700e4422eba52d68e2a938} 
+void game\+\_\+check\+\_\+game\+\_\+conditions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi podminky sachu/matu. 
+
+Kontroluje zda je kral v sachu, matu nebo patu.
+
+Overi podminky sachu/matu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08274}{8274}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a8b43b89b88ce59ea25698ac5a8280bf2}\index{game\_task.h@{game\_task.h}!game\_clear\_highlights\_direct@{game\_clear\_highlights\_direct}}
+\index{game\_clear\_highlights\_direct@{game\_clear\_highlights\_direct}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_clear\_highlights\_direct()}{game\_clear\_highlights\_direct()}}
+{\footnotesize\ttfamily \label{game__task_8h_a8b43b89b88ce59ea25698ac5a8280bf2} 
+void game\+\_\+clear\+\_\+highlights\+\_\+direct (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vymaz zvyrazneni primo pres LED. 
+
+Vymaz zvyrazneni primo pres LED.
+
+Vymaz zvyrazneni s primymi LED volanimi.
+
+Vymaže všechna zvýraznění na šachovnici, zachová LED na tlačítkách. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00147}{147}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__task_8h_a98af1de0d72580a78b6f87a672710bc7}\index{game\_task.h@{game\_task.h}!game\_complete\_castle\_animation@{game\_complete\_castle\_animation}}
+\index{game\_complete\_castle\_animation@{game\_complete\_castle\_animation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_complete\_castle\_animation()}{game\_complete\_castle\_animation()}}
+{\footnotesize\ttfamily \label{game__task_8h_a98af1de0d72580a78b6f87a672710bc7} 
+bool game\+\_\+complete\+\_\+castle\+\_\+animation (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Dokonci animaci rosady pri tahu vezeм 
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Zdrojovy radek veze (0-\/7) \\
+\hline
+{\em from\+\_\+col} & Zdrojovy sloupec veze (0-\/7) \\
+\hline
+{\em to\+\_\+row} & Cilovy radek veze (0-\/7) \\
+\hline
+{\em to\+\_\+col} & Cilovy sloupec veze (0-\/7) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud byla rosada uspesne dokoncena
+\end{DoxyReturn}
+Dokonci animaci rosady pri tahu vezeм
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Rook source row \\
+\hline
+{\em from\+\_\+col} & Rook source column \\
+\hline
+{\em to\+\_\+row} & Rook destination row \\
+\hline
+{\em to\+\_\+col} & Rook destination column \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true if castle was completed successfully 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10839}{10839}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a36549782eb3387a93e25c7d73325bd9f}\index{game\_task.h@{game\_task.h}!game\_coords\_to\_square@{game\_coords\_to\_square}}
+\index{game\_coords\_to\_square@{game\_coords\_to\_square}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_coords\_to\_square()}{game\_coords\_to\_square()}}
+{\footnotesize\ttfamily \label{game__task_8h_a36549782eb3387a93e25c7d73325bd9f} 
+void game\+\_\+coords\+\_\+to\+\_\+square (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{square}{}\end{DoxyParamCaption})}
+
+
+
+Prevede souradnice sachovnice na retezec pole. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+ & {\em row} & Radek (0-\/7) \\
+\hline
+ & {\em col} & Sloupec (0-\/7) \\
+\hline
+\mbox{\texttt{out}}  & {\em square} & Vystupni retezec pole (napr. "{}e2"{})\\
+\hline
+\end{DoxyParams}
+Prevede souradnice sachovnice na retezec pole.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Row (0-\/7) \\
+\hline
+{\em col} & Column (0-\/7) \\
+\hline
+{\em square} & Output square string (e.\+g., "{}e2"{}) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08755}{8755}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ad6aef74bc8447dabf92abcb081340931}\index{game\_task.h@{game\_task.h}!game\_detect\_new\_game\_setup@{game\_detect\_new\_game\_setup}}
+\index{game\_detect\_new\_game\_setup@{game\_detect\_new\_game\_setup}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_detect\_new\_game\_setup()}{game\_detect\_new\_game\_setup()}}
+{\footnotesize\ttfamily \label{game__task_8h_ad6aef74bc8447dabf92abcb081340931} 
+bool game\+\_\+detect\+\_\+new\+\_\+game\+\_\+setup (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Detekuj zda jsou figurky ve vychozi pozici. 
+
+Kontroluje zda jsou figurky rozlozeny v radcich 1, 2, 7, 8 (startovni pozice).
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud jsou figurky ve vychozich pozicich
+\end{DoxyReturn}
+Detekuj zda jsou figurky ve vychozi pozici.
+
+\begin{DoxyReturn}{Návratová hodnota}
+true if pieces are in starting positions, false otherwise 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09753}{9753}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a95937d38b6f9490371d95bd51ec8460c}\index{game\_task.h@{game\_task.h}!game\_end\_timer\_move@{game\_end\_timer\_move}}
+\index{game\_end\_timer\_move@{game\_end\_timer\_move}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_end\_timer\_move()}{game\_end\_timer\_move()}}
+{\footnotesize\ttfamily \label{game__task_8h_a95937d38b6f9490371d95bd51ec8460c} 
+esp\+\_\+err\+\_\+t game\+\_\+end\+\_\+timer\+\_\+move (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ukonci timer pro tah. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11329}{11329}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a4ec624bee837dfc3ef8429dd6edfc961}\index{game\_task.h@{game\_task.h}!game\_execute\_move@{game\_execute\_move}}
+\index{game\_execute\_move@{game\_execute\_move}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_execute\_move()}{game\_execute\_move()}}
+{\footnotesize\ttfamily \label{game__task_8h_a4ec624bee837dfc3ef8429dd6edfc961} 
+bool game\+\_\+execute\+\_\+move (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Proved sachovy tah. 
+
+Provede tah pokud je platny. Aktualizuje sachovnici, historii a posle LED feedback.
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k provedeni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud byl tah uspesne proveden 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02990}{2990}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a8aacf784d572f6de13c441c564d8037e}\index{game\_task.h@{game\_task.h}!game\_get\_advantage\_json@{game\_get\_advantage\_json}}
+\index{game\_get\_advantage\_json@{game\_get\_advantage\_json}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_advantage\_json()}{game\_get\_advantage\_json()}}
+{\footnotesize\ttfamily \label{game__task_8h_a8aacf784d572f6de13c441c564d8037e} 
+esp\+\_\+err\+\_\+t game\+\_\+get\+\_\+advantage\+\_\+json (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{size}{}\end{DoxyParamCaption})}
+
+
+
+Exportuj historii materialni vyhody do JSON (pro graf vyhody). 
+
+
+\begin{DoxyParams}[1]{Parametry}
+\mbox{\texttt{out}}  & {\em buffer} & Vystupni buffer pro JSON retezec \\
+\hline
+ & {\em size} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
+\end{DoxyReturn}
+Exportuj historii materialni vyhody do JSON (pro graf vyhody).
+
+
+\begin{DoxyParams}{Parametry}
+{\em buffer} & Output buffer for JSON string \\
+\hline
+{\em size} & Buffer size \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK on success, error code on failure 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11216}{11216}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a7feffd0ac688b65213940c59e6414b5a}\index{game\_task.h@{game\_task.h}!game\_get\_available\_moves@{game\_get\_available\_moves}}
+\index{game\_get\_available\_moves@{game\_get\_available\_moves}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_available\_moves()}{game\_get\_available\_moves()}}
+{\footnotesize\ttfamily \label{game__task_8h_a7feffd0ac688b65213940c59e6414b5a} 
+uint32\+\_\+t game\+\_\+get\+\_\+available\+\_\+moves (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{, }\item[{\mbox{\hyperlink{structmove__suggestion__t}{move\+\_\+suggestion\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{suggestions}{, }\item[{uint32\+\_\+t}]{max\+\_\+suggestions}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej dostupne tahy pro figurku. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+ & {\em row} & Radek figurky (0-\/7) \\
+\hline
+ & {\em col} & Sloupec figurky (0-\/7) \\
+\hline
+\mbox{\texttt{out}}  & {\em suggestions} & Pole pro navrzene tahy \\
+\hline
+ & {\em max\+\_\+suggestions} & Maximalni pocet navrhu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Pocet nalezenych tahu
+\end{DoxyReturn}
+Ziskej dostupne tahy pro figurku.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Row coordinate \\
+\hline
+{\em col} & Column coordinate \\
+\hline
+{\em suggestions} & Array to store move suggestions \\
+\hline
+{\em max\+\_\+suggestions} & Maximum number of suggestions to store \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Number of available moves found 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02781}{2781}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a4c5423c283319ea94779b79682ca9b98}\index{game\_task.h@{game\_task.h}!game\_get\_black\_wins@{game\_get\_black\_wins}}
+\index{game\_get\_black\_wins@{game\_get\_black\_wins}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_black\_wins()}{game\_get\_black\_wins()}}
+{\footnotesize\ttfamily \label{game__task_8h_a4c5423c283319ea94779b79682ca9b98} 
+uint32\+\_\+t game\+\_\+get\+\_\+black\+\_\+wins (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej pocet vyher cerneho. 
+
+Ziskej pocet vyher cerneho. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01211}{1211}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a6199d3c51c2ba715c27b7be7428c61b7}\index{game\_task.h@{game\_task.h}!game\_get\_board\_json@{game\_get\_board\_json}}
+\index{game\_get\_board\_json@{game\_get\_board\_json}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_board\_json()}{game\_get\_board\_json()}}
+{\footnotesize\ttfamily \label{game__task_8h_a6199d3c51c2ba715c27b7be7428c61b7} 
+esp\+\_\+err\+\_\+t game\+\_\+get\+\_\+board\+\_\+json (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{size}{}\end{DoxyParamCaption})}
+
+
+
+Exportuj stav sachovnice do JSON retezce. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+\mbox{\texttt{out}}  & {\em buffer} & Vystupni buffer pro JSON retezec \\
+\hline
+ & {\em size} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10895}{10895}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_aa442a40b76d56106f726f76bc210b84e}\index{game\_task.h@{game\_task.h}!game\_get\_captured\_json@{game\_get\_captured\_json}}
+\index{game\_get\_captured\_json@{game\_get\_captured\_json}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_captured\_json()}{game\_get\_captured\_json()}}
+{\footnotesize\ttfamily \label{game__task_8h_aa442a40b76d56106f726f76bc210b84e} 
+esp\+\_\+err\+\_\+t game\+\_\+get\+\_\+captured\+\_\+json (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{size}{}\end{DoxyParamCaption})}
+
+
+
+Exportuj sebrane figurky do JSON retezce. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+\mbox{\texttt{out}}  & {\em buffer} & Vystupni buffer pro JSON retezec \\
+\hline
+ & {\em size} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11165}{11165}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a98c28bfe096e1b2f5dd819da477efbe1}\index{game\_task.h@{game\_task.h}!game\_get\_current\_player@{game\_get\_current\_player}}
+\index{game\_get\_current\_player@{game\_get\_current\_player}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_current\_player()}{game\_get\_current\_player()}}
+{\footnotesize\ttfamily \label{game__task_8h_a98c28bfe096e1b2f5dd819da477efbe1} 
+\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} game\+\_\+get\+\_\+current\+\_\+player (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej aktualniho hrace na tahu. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Aktualni hrac (PLAYER\+\_\+\+WHITE nebo PLAYER\+\_\+\+BLACK) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03347}{3347}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a49a6874590b30a62f04f7ca6d3efcf05}\index{game\_task.h@{game\_task.h}!game\_get\_draws@{game\_get\_draws}}
+\index{game\_get\_draws@{game\_get\_draws}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_draws()}{game\_get\_draws()}}
+{\footnotesize\ttfamily \label{game__task_8h_a49a6874590b30a62f04f7ca6d3efcf05} 
+uint32\+\_\+t game\+\_\+get\+\_\+draws (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej pocet remiz. 
+
+Ziskej pocet remiz. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01216}{1216}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a870a53ed0d150a3c293bcbcb76986fb2}\index{game\_task.h@{game\_task.h}!game\_get\_game\_state\_string@{game\_get\_game\_state\_string}}
+\index{game\_get\_game\_state\_string@{game\_get\_game\_state\_string}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_game\_state\_string()}{game\_get\_game\_state\_string()}}
+{\footnotesize\ttfamily \label{game__task_8h_a870a53ed0d150a3c293bcbcb76986fb2} 
+const char \texorpdfstring{$\ast$}{*} game\+\_\+get\+\_\+game\+\_\+state\+\_\+string (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej textovy retezec stavu hry. 
+
+Ziskej textovy retezec stavu hry. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01226}{1226}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a5d08ec12c99532e3819abb072385a921}\index{game\_task.h@{game\_task.h}!game\_get\_history\_json@{game\_get\_history\_json}}
+\index{game\_get\_history\_json@{game\_get\_history\_json}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_history\_json()}{game\_get\_history\_json()}}
+{\footnotesize\ttfamily \label{game__task_8h_a5d08ec12c99532e3819abb072385a921} 
+esp\+\_\+err\+\_\+t game\+\_\+get\+\_\+history\+\_\+json (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{size}{}\end{DoxyParamCaption})}
+
+
+
+Exportuj historii tahu do JSON retezce. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+\mbox{\texttt{out}}  & {\em buffer} & Vystupni buffer pro JSON retezec \\
+\hline
+ & {\em size} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11120}{11120}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a13f42aca89279614ea9159dec44ae36c}\index{game\_task.h@{game\_task.h}!game\_get\_material\_string@{game\_get\_material\_string}}
+\index{game\_get\_material\_string@{game\_get\_material\_string}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_material\_string()}{game\_get\_material\_string()}}
+{\footnotesize\ttfamily \label{game__task_8h_a13f42aca89279614ea9159dec44ae36c} 
+void game\+\_\+get\+\_\+material\+\_\+string (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{buffer\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej textovy retezec material balance. 
+
+Ziskej textovy retezec material balance.
+
+
+\begin{DoxyParams}{Parametry}
+{\em buffer} & Output buffer \\
+\hline
+{\em buffer\+\_\+size} & Buffer size \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00901}{901}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a2e528b3b66fe59544f28ca993c4a6143}\index{game\_task.h@{game\_task.h}!game\_get\_move\_count@{game\_get\_move\_count}}
+\index{game\_get\_move\_count@{game\_get\_move\_count}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_move\_count()}{game\_get\_move\_count()}}
+{\footnotesize\ttfamily \label{game__task_8h_a2e528b3b66fe59544f28ca993c4a6143} 
+uint32\+\_\+t game\+\_\+get\+\_\+move\+\_\+count (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej pocet provedenych tahu. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Pocet tahu od zacatku hry 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03349}{3349}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ab1f6294f23b24a27514d95c3b0ca0a4d}\index{game\_task.h@{game\_task.h}!game\_get\_piece@{game\_get\_piece}}
+\index{game\_get\_piece@{game\_get\_piece}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_piece()}{game\_get\_piece()}}
+{\footnotesize\ttfamily \label{game__task_8h_ab1f6294f23b24a27514d95c3b0ca0a4d} 
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} game\+\_\+get\+\_\+piece (\begin{DoxyParamCaption}\item[{int}]{row}{, }\item[{int}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej figurku na dane pozici. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek (0-\/7) \\
+\hline
+{\em col} & Sloupec (0-\/7) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Typ figurky na pozici 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01675}{1675}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ae11065cb566adb8002df27fc8edc2b67}\index{game\_task.h@{game\_task.h}!game\_get\_piece\_name@{game\_get\_piece\_name}}
+\index{game\_get\_piece\_name@{game\_get\_piece\_name}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_piece\_name()}{game\_get\_piece\_name()}}
+{\footnotesize\ttfamily \label{game__task_8h_ae11065cb566adb8002df27fc8edc2b67} 
+const char \texorpdfstring{$\ast$}{*} game\+\_\+get\+\_\+piece\+\_\+name (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{piece}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej jmeno figurky jako retezec. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em piece} & Figurka \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Nazev figurky (napr. "{}\+Bily pesec"{}, "{}\+Cerna dama"{})
+\end{DoxyReturn}
+Ziskej jmeno figurky jako retezec.
+
+
+\begin{DoxyParams}{Parametry}
+{\em piece} & Piece type \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Piece name string 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02641}{2641}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a58b489e87078e33ccf75b35d892bb4fe}\index{game\_task.h@{game\_task.h}!game\_get\_remaining\_time@{game\_get\_remaining\_time}}
+\index{game\_get\_remaining\_time@{game\_get\_remaining\_time}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_remaining\_time()}{game\_get\_remaining\_time()}}
+{\footnotesize\ttfamily \label{game__task_8h_a58b489e87078e33ccf75b35d892bb4fe} 
+uint32\+\_\+t game\+\_\+get\+\_\+remaining\+\_\+time (\begin{DoxyParamCaption}\item[{bool}]{is\+\_\+white\+\_\+turn}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej zbyvajici cas hrace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em is\+\_\+white\+\_\+turn} & Je na tahu bily? \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+Zbyvajici cas v milisekundach 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11367}{11367}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ac8bfd19bdb7f1bbe6986c0f007713f73}\index{game\_task.h@{game\_task.h}!game\_get\_state@{game\_get\_state}}
+\index{game\_get\_state@{game\_get\_state}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_state()}{game\_get\_state()}}
+{\footnotesize\ttfamily \label{game__task_8h_ac8bfd19bdb7f1bbe6986c0f007713f73} 
+\mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414d}{game\+\_\+state\+\_\+t}} game\+\_\+get\+\_\+state (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej aktualni stav hry. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+Aktualni stav hry (GAME\+\_\+\+STATE\+\_\+\+IDLE, GAME\+\_\+\+STATE\+\_\+\+PLAYING, atd.) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03345}{3345}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_abdf3ba446d87db43c26b6c51275a521e}\index{game\_task.h@{game\_task.h}!game\_get\_status\_json@{game\_get\_status\_json}}
+\index{game\_get\_status\_json@{game\_get\_status\_json}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_status\_json()}{game\_get\_status\_json()}}
+{\footnotesize\ttfamily \label{game__task_8h_abdf3ba446d87db43c26b6c51275a521e} 
+esp\+\_\+err\+\_\+t game\+\_\+get\+\_\+status\+\_\+json (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{size}{}\end{DoxyParamCaption})}
+
+
+
+Exportuj stav hry do JSON retezce. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+\mbox{\texttt{out}}  & {\em buffer} & Vystupni buffer pro JSON retezec \\
+\hline
+ & {\em size} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10938}{10938}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a4373558ca8d873f8a649ab8436720807}\index{game\_task.h@{game\_task.h}!game\_get\_timer\_json@{game\_get\_timer\_json}}
+\index{game\_get\_timer\_json@{game\_get\_timer\_json}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_timer\_json()}{game\_get\_timer\_json()}}
+{\footnotesize\ttfamily \label{game__task_8h_a4373558ca8d873f8a649ab8436720807} 
+esp\+\_\+err\+\_\+t game\+\_\+get\+\_\+timer\+\_\+json (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{size}{}\end{DoxyParamCaption})}
+
+
+
+Exportuj stav timeru do JSON retezce. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+\mbox{\texttt{out}}  & {\em buffer} & Vystupni buffer pro JSON \\
+\hline
+ & {\em size} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11278}{11278}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_aed140b5d1ea696aa8fcd53aacc2303a9}\index{game\_task.h@{game\_task.h}!game\_get\_total\_games@{game\_get\_total\_games}}
+\index{game\_get\_total\_games@{game\_get\_total\_games}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_total\_games()}{game\_get\_total\_games()}}
+{\footnotesize\ttfamily \label{game__task_8h_aed140b5d1ea696aa8fcd53aacc2303a9} 
+uint32\+\_\+t game\+\_\+get\+\_\+total\+\_\+games (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej celkovy pocet her. 
+
+Ziskej celkovy pocet her. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01221}{1221}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ac06b42b52fc2abf90b66dcbd73ecd4a0}\index{game\_task.h@{game\_task.h}!game\_get\_white\_wins@{game\_get\_white\_wins}}
+\index{game\_get\_white\_wins@{game\_get\_white\_wins}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_get\_white\_wins()}{game\_get\_white\_wins()}}
+{\footnotesize\ttfamily \label{game__task_8h_ac06b42b52fc2abf90b66dcbd73ecd4a0} 
+uint32\+\_\+t game\+\_\+get\+\_\+white\+\_\+wins (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej pocet vyher bileho. 
+
+Ziskej pocet vyher bileho. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01206}{1206}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_accc9ce251093d9ee6c29aea32234ad53}\index{game\_task.h@{game\_task.h}!game\_handle\_invalid\_move@{game\_handle\_invalid\_move}}
+\index{game\_handle\_invalid\_move@{game\_handle\_invalid\_move}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_handle\_invalid\_move()}{game\_handle\_invalid\_move()}}
+{\footnotesize\ttfamily \label{game__task_8h_accc9ce251093d9ee6c29aea32234ad53} 
+void game\+\_\+handle\+\_\+invalid\+\_\+move (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}}}]{error}{, }\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj neplatny tah. 
+
+Zobrazi chybovou zpravu a LED feedback pro neplatny tah.
+
+
+\begin{DoxyParams}{Parametry}
+{\em error} & Typ chyby \\
+\hline
+{\em move} & Neplatny tah\\
+\hline
+\end{DoxyParams}
+Zpracuj neplatny tah. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07598}{7598}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a3b6831d8d640dff74119ccdb4f9ff9d2}\index{game\_task.h@{game\_task.h}!game\_handle\_time\_expiration@{game\_handle\_time\_expiration}}
+\index{game\_handle\_time\_expiration@{game\_handle\_time\_expiration}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_handle\_time\_expiration()}{game\_handle\_time\_expiration()}}
+{\footnotesize\ttfamily \label{game__task_8h_a3b6831d8d640dff74119ccdb4f9ff9d2} 
+esp\+\_\+err\+\_\+t game\+\_\+handle\+\_\+time\+\_\+expiration (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj vyprseni casu. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11458}{11458}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a90e272f6928e9145d30671ce523ff35e}\index{game\_task.h@{game\_task.h}!game\_has\_legal\_moves@{game\_has\_legal\_moves}}
+\index{game\_has\_legal\_moves@{game\_has\_legal\_moves}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_has\_legal\_moves()}{game\_has\_legal\_moves()}}
+{\footnotesize\ttfamily \label{game__task_8h_a90e272f6928e9145d30671ce523ff35e} 
+bool game\+\_\+has\+\_\+legal\+\_\+moves (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{player}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda ma hrac legalni tahy. 
+
+Overi zda ma hrac legalni tahy.
+
+
+\begin{DoxyParams}{Parametry}
+{\em player} & Player to check \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true if player has legal moves 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08375}{8375}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_acd21a8521c05d2746643f0a674e9ee5d}\index{game\_task.h@{game\_task.h}!game\_highlight\_invalid\_target\_area@{game\_highlight\_invalid\_target\_area}}
+\index{game\_highlight\_invalid\_target\_area@{game\_highlight\_invalid\_target\_area}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_highlight\_invalid\_target\_area()}{game\_highlight\_invalid\_target\_area()}}
+{\footnotesize\ttfamily \label{game__task_8h_acd21a8521c05d2746643f0a674e9ee5d} 
+void game\+\_\+highlight\+\_\+invalid\+\_\+target\+\_\+area (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Zvyrazni neplatnou cilovou oblast cervenou LED. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek neplatneho cile (0-\/7) \\
+\hline
+{\em col} & Sloupec neplatneho cile (0-\/7)\\
+\hline
+\end{DoxyParams}
+Zvyrazni neplatnou cilovou oblast cervenou LED.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Row of invalid target \\
+\hline
+{\em col} & Column of invalid target \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07552}{7552}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a484415c76302e466ea7b01ecb2edee09}\index{game\_task.h@{game\_task.h}!game\_highlight\_movable\_pieces@{game\_highlight\_movable\_pieces}}
+\index{game\_highlight\_movable\_pieces@{game\_highlight\_movable\_pieces}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_highlight\_movable\_pieces()}{game\_highlight\_movable\_pieces()}}
+{\footnotesize\ttfamily \label{game__task_8h_a484415c76302e466ea7b01ecb2edee09} 
+void game\+\_\+highlight\+\_\+movable\+\_\+pieces (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zvyrazni vsechny pohyblivé figurky aktualniho hrace. 
+
+Zobrazi jemnou zlutou animaci na vsech figurkach ktere se mohou hybat.
+
+Zvyrazni vsechny pohyblivé figurky aktualniho hrace. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10400}{10400}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ac0310521f54ddea6598d78bf6e009713}\index{game\_task.h@{game\_task.h}!game\_highlight\_valid\_moves\_for\_piece@{game\_highlight\_valid\_moves\_for\_piece}}
+\index{game\_highlight\_valid\_moves\_for\_piece@{game\_highlight\_valid\_moves\_for\_piece}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_highlight\_valid\_moves\_for\_piece()}{game\_highlight\_valid\_moves\_for\_piece()}}
+{\footnotesize\ttfamily \label{game__task_8h_ac0310521f54ddea6598d78bf6e009713} 
+void game\+\_\+highlight\+\_\+valid\+\_\+moves\+\_\+for\+\_\+piece (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Zvyrazni platne tahy pro specifickou figurku. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek figurky (0-\/7) \\
+\hline
+{\em col} & Sloupec figurky (0-\/7)\\
+\hline
+\end{DoxyParams}
+Zvyrazni platne tahy pro specifickou figurku.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Row of the piece \\
+\hline
+{\em col} & Column of the piece \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07572}{7572}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a917f1907b236e1476e75bb033e2a3165}\index{game\_task.h@{game\_task.h}!game\_init\_timer\_system@{game\_init\_timer\_system}}
+\index{game\_init\_timer\_system@{game\_init\_timer\_system}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_init\_timer\_system()}{game\_init\_timer\_system()}}
+{\footnotesize\ttfamily \label{game__task_8h_a917f1907b236e1476e75bb033e2a3165} 
+esp\+\_\+err\+\_\+t game\+\_\+init\+\_\+timer\+\_\+system (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuj timer system v game tasku. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11380}{11380}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a9b4b4ef6ba4260c09a59192fc68be834}\index{game\_task.h@{game\_task.h}!game\_initialize\_board@{game\_initialize\_board}}
+\index{game\_initialize\_board@{game\_initialize\_board}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_initialize\_board()}{game\_initialize\_board()}}
+{\footnotesize\ttfamily \label{game__task_8h_a9b4b4ef6ba4260c09a59192fc68be834} 
+void game\+\_\+initialize\+\_\+board (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuj sachovnici do vychozi pozice. 
+
+Nastavi vsechny figurky do standardni startovni pozice.
+
+Inicializuj sachovnici do vychozi pozice.
+
+Tato funkce nastavi sachovnici do standardniho vychoziho stavu. Umisti vsechny figurky na jejich vychozi pozice podle sachovych pravidel.
+
+Funkce nastavi\+:
+\begin{DoxyItemize}
+\item Bile figurky na radky 1 a 2
+\item Cerne figurky na radky 7 a 8
+\item Vsechny figurky na jejich standardni pozice
+\item Resetuje vsechny stavy hry 
+\end{DoxyItemize}
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01416}{1416}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a304560a99cb8733e12bdcd9461b66926}\index{game\_task.h@{game\_task.h}!game\_is\_black\_piece@{game\_is\_black\_piece}}
+\index{game\_is\_black\_piece@{game\_is\_black\_piece}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_black\_piece()}{game\_is\_black\_piece()}}
+{\footnotesize\ttfamily \label{game__task_8h_a304560a99cb8733e12bdcd9461b66926} 
+bool game\+\_\+is\+\_\+black\+\_\+piece (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{piece}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je figurka cerna. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em piece} & Figurka k overeni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je figurka cerna 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01697}{1697}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a67dfb69eac8af38766e7d92cf3b4b5d0}\index{game\_task.h@{game\_task.h}!game\_is\_castle\_animation\_active@{game\_is\_castle\_animation\_active}}
+\index{game\_is\_castle\_animation\_active@{game\_is\_castle\_animation\_active}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_castle\_animation\_active()}{game\_is\_castle\_animation\_active()}}
+{\footnotesize\ttfamily \label{game__task_8h_a67dfb69eac8af38766e7d92cf3b4b5d0} 
+bool game\+\_\+is\+\_\+castle\+\_\+animation\+\_\+active (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je aktivni animace rosady. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud ceka na tah vezeanimace rosady
+\end{DoxyReturn}
+Overi zda je aktivni animace rosady.
+
+\begin{DoxyReturn}{Návratová hodnota}
+true if castle animation is waiting for rook move 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10809}{10809}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_aa407236aeb356b0929ab54581fe041bb}\index{game\_task.h@{game\_task.h}!game\_is\_castling\_expected@{game\_is\_castling\_expected}}
+\index{game\_is\_castling\_expected@{game\_is\_castling\_expected}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_castling\_expected()}{game\_is\_castling\_expected()}}
+{\footnotesize\ttfamily \label{game__task_8h_aa407236aeb356b0929ab54581fe041bb} 
+bool game\+\_\+is\+\_\+castling\+\_\+expected (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda se ocekava rosada. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je kral zvednuti a chysta se rosada
+\end{DoxyReturn}
+Overi zda se ocekava rosada.
+
+\begin{DoxyReturn}{Návratová hodnota}
+true if castling is expected 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10816}{10816}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a2f77ab43a39a2a3ebc640df092f9cdc1}\index{game\_task.h@{game\_task.h}!game\_is\_empty@{game\_is\_empty}}
+\index{game\_is\_empty@{game\_is\_empty}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_empty()}{game\_is\_empty()}}
+{\footnotesize\ttfamily \label{game__task_8h_a2f77ab43a39a2a3ebc640df092f9cdc1} 
+bool game\+\_\+is\+\_\+empty (\begin{DoxyParamCaption}\item[{int}]{row}{, }\item[{int}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je pozice prazdna. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek (0-\/7) \\
+\hline
+{\em col} & Sloupec (0-\/7) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je pozice prazdna 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01689}{1689}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a175e65acc9f386834730a86b25d6190a}\index{game\_task.h@{game\_task.h}!game\_is\_en\_passant\_possible@{game\_is\_en\_passant\_possible}}
+\index{game\_is\_en\_passant\_possible@{game\_is\_en\_passant\_possible}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_en\_passant\_possible()}{game\_is\_en\_passant\_possible()}}
+{\footnotesize\ttfamily \label{game__task_8h_a175e65acc9f386834730a86b25d6190a} 
+bool game\+\_\+is\+\_\+en\+\_\+passant\+\_\+possible (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je en passant mozny. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k overeni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je en passant mozny
+\end{DoxyReturn}
+Overi zda je en passant mozny.
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Ukazatel na strukturu tahu k otestovani \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je en passant platny, false pokud neni mozny
+\end{DoxyReturn}
+En passant (brani mimochodem) je mozne pouze pokud\+:
+\begin{DoxyEnumerate}
+\item Posledni tah byl pesec pohybujici se o 2 pole
+\item Utocici pesec je na stejnem radku jako prave pohnuty pesec
+\item Utocici pesec je primo vedle prave pohnuteho pesce
+\item Cilove pole je uprostred mezi start a cil pozici protivnikova pesce 
+\end{DoxyEnumerate}
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02226}{2226}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a93a1f0d6a82af5e13f78ebecc8a5ed8c}\index{game\_task.h@{game\_task.h}!game\_is\_insufficient\_material@{game\_is\_insufficient\_material}}
+\index{game\_is\_insufficient\_material@{game\_is\_insufficient\_material}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_insufficient\_material()}{game\_is\_insufficient\_material()}}
+{\footnotesize\ttfamily \label{game__task_8h_a93a1f0d6a82af5e13f78ebecc8a5ed8c} 
+bool game\+\_\+is\+\_\+insufficient\+\_\+material (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi nedostatecny material pro mat. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je nedostatecny material (automaticka remiza) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08396}{8396}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a737d8907ff7e0ea86e3c46e70f3c3614}\index{game\_task.h@{game\_task.h}!game\_is\_king\_in\_check@{game\_is\_king\_in\_check}}
+\index{game\_is\_king\_in\_check@{game\_is\_king\_in\_check}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_king\_in\_check()}{game\_is\_king\_in\_check()}}
+{\footnotesize\ttfamily \label{game__task_8h_a737d8907ff7e0ea86e3c46e70f3c3614} 
+bool game\+\_\+is\+\_\+king\+\_\+in\+\_\+check (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{player}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je kral v sachu. 
+
+Overi zda je kral v sachu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em player} & Player to check \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true if king is in check 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08318}{8318}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a009d7069912fb2689b7443575d3def38}\index{game\_task.h@{game\_task.h}!game\_is\_position\_repeated@{game\_is\_position\_repeated}}
+\index{game\_is\_position\_repeated@{game\_is\_position\_repeated}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_position\_repeated()}{game\_is\_position\_repeated()}}
+{\footnotesize\ttfamily \label{game__task_8h_a009d7069912fb2689b7443575d3def38} 
+bool game\+\_\+is\+\_\+position\+\_\+repeated (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda byla pozice opakovana. 
+
+Overi zda byla pozice opakovana.
+
+\begin{DoxyReturn}{Návratová hodnota}
+true if position is repeated 3+ times (draw by repetition) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00808}{808}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a303099e83402e02cace5235656259b70}\index{game\_task.h@{game\_task.h}!game\_is\_promotion\_available@{game\_is\_promotion\_available}}
+\index{game\_is\_promotion\_available@{game\_is\_promotion\_available}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_promotion\_available()}{game\_is\_promotion\_available()}}
+{\footnotesize\ttfamily \label{game__task_8h_a303099e83402e02cace5235656259b70} 
+bool game\+\_\+is\+\_\+promotion\+\_\+available (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{player}{}\end{DoxyParamCaption})}
+
+
+
+Zjisti zda je pro hrace dostupna promoce. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em player} & Hrac (PLAYER\+\_\+\+WHITE nebo PLAYER\+\_\+\+BLACK) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud promoce ceka na dokonceni pro daneho hrace 
+\end{DoxyReturn}
+\Hypertarget{game__task_8h_afd3cb102b201b005212505e9fcc86612}\index{game\_task.h@{game\_task.h}!game\_is\_same\_color@{game\_is\_same\_color}}
+\index{game\_is\_same\_color@{game\_is\_same\_color}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_same\_color()}{game\_is\_same\_color()}}
+{\footnotesize\ttfamily \label{game__task_8h_afd3cb102b201b005212505e9fcc86612} 
+bool game\+\_\+is\+\_\+same\+\_\+color (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{piece1}{, }\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{piece2}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda jsou dve figurky stejne barvy. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em piece1} & Prvni figurka \\
+\hline
+{\em piece2} & Druha figurka \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud jsou figurky stejne barvy 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01701}{1701}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a2f01e5a8d282157e3cd8bd5a03b9c8b5}\index{game\_task.h@{game\_task.h}!game\_is\_timer\_active@{game\_is\_timer\_active}}
+\index{game\_is\_timer\_active@{game\_is\_timer\_active}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_timer\_active()}{game\_is\_timer\_active()}}
+{\footnotesize\ttfamily \label{game__task_8h_a2f01e5a8d282157e3cd8bd5a03b9c8b5} 
+bool game\+\_\+is\+\_\+timer\+\_\+active (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je timer aktivni. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je timer aktivni 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11541}{11541}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a20c746cc968a038cbdf28e01a9dd8307}\index{game\_task.h@{game\_task.h}!game\_is\_valid\_move@{game\_is\_valid\_move}}
+\index{game\_is\_valid\_move@{game\_is\_valid\_move}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_valid\_move()}{game\_is\_valid\_move()}}
+{\footnotesize\ttfamily \label{game__task_8h_a20c746cc968a038cbdf28e01a9dd8307} 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} game\+\_\+is\+\_\+valid\+\_\+move (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Validuj tah podle typu figurky. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k validaci \\
+\hline
+{\em piece} & Figurka ktera se pohybuje \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01725}{1725}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a93dee8ccd518ae0092501007a420e4bb}\index{game\_task.h@{game\_task.h}!game\_is\_valid\_position@{game\_is\_valid\_position}}
+\index{game\_is\_valid\_position@{game\_is\_valid\_position}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_valid\_position()}{game\_is\_valid\_position()}}
+{\footnotesize\ttfamily \label{game__task_8h_a93dee8ccd518ae0092501007a420e4bb} 
+bool game\+\_\+is\+\_\+valid\+\_\+position (\begin{DoxyParamCaption}\item[{int}]{row}{, }\item[{int}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je pozice platna na sachovnici. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek (0-\/7) \\
+\hline
+{\em col} & Sloupec (0-\/7) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je pozice platna 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01671}{1671}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a8f69768eebdeba16538566a535f25351}\index{game\_task.h@{game\_task.h}!game\_is\_white\_piece@{game\_is\_white\_piece}}
+\index{game\_is\_white\_piece@{game\_is\_white\_piece}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_white\_piece()}{game\_is\_white\_piece()}}
+{\footnotesize\ttfamily \label{game__task_8h_a8f69768eebdeba16538566a535f25351} 
+bool game\+\_\+is\+\_\+white\+\_\+piece (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{piece}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je figurka bila. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em piece} & Figurka k overeni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je figurka bila 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01693}{1693}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a25364833eb80653b4d30414376f3fe35}\index{game\_task.h@{game\_task.h}!game\_pause\_timer@{game\_pause\_timer}}
+\index{game\_pause\_timer@{game\_pause\_timer}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_pause\_timer()}{game\_pause\_timer()}}
+{\footnotesize\ttfamily \label{game__task_8h_a25364833eb80653b4d30414376f3fe35} 
+esp\+\_\+err\+\_\+t game\+\_\+pause\+\_\+timer (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Pozastav herní timer. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11338}{11338}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ad7894f48d6e00cfe140b99026be38b71}\index{game\_task.h@{game\_task.h}!game\_print\_board@{game\_print\_board}}
+\index{game\_print\_board@{game\_print\_board}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_print\_board()}{game\_print\_board()}}
+{\footnotesize\ttfamily \label{game__task_8h_ad7894f48d6e00cfe140b99026be38b71} 
+void game\+\_\+print\+\_\+board (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vypis aktualni pozici sachovnice. 
+
+Zobrazi sachovnici v ASCII formatu s popisky. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03351}{3351}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a605e2e1374b4e7090941389e6a581a24}\index{game\_task.h@{game\_task.h}!game\_print\_game\_stats@{game\_print\_game\_stats}}
+\index{game\_print\_game\_stats@{game\_print\_game\_stats}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_print\_game\_stats()}{game\_print\_game\_stats()}}
+{\footnotesize\ttfamily \label{game__task_8h_a605e2e1374b4e7090941389e6a581a24} 
+void game\+\_\+print\+\_\+game\+\_\+stats (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vypis statistiky hry. 
+
+Vypis statistiky hry. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01246}{1246}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a138dd79d240e644870a7d53580720206}\index{game\_task.h@{game\_task.h}!game\_print\_status@{game\_print\_status}}
+\index{game\_print\_status@{game\_print\_status}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_print\_status()}{game\_print\_status()}}
+{\footnotesize\ttfamily \label{game__task_8h_a138dd79d240e644870a7d53580720206} 
+void game\+\_\+print\+\_\+status (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vypis stav hry. 
+
+Zobrazi detailni informace o stavu hry (hrac na tahu, pocet tahu, atd.). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08768}{8768}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a13909ec7cf87ce1999cd9647689e46aa}\index{game\_task.h@{game\_task.h}!game\_process\_chess\_move@{game\_process\_chess\_move}}
+\index{game\_process\_chess\_move@{game\_process\_chess\_move}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_process\_chess\_move()}{game\_process\_chess\_move()}}
+{\footnotesize\ttfamily \label{game__task_8h_a13909ec7cf87ce1999cd9647689e46aa} 
+void game\+\_\+process\+\_\+chess\+\_\+move (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__command__t}{chess\+\_\+move\+\_\+command\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{cmd}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj sachovy tah z UART prikazu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em cmd} & Prikaz s tahem\\
+\hline
+\end{DoxyParams}
+Zpracuj sachovy tah z UART prikazu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em cmd} & Chess move command \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l06891}{6891}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ac4ac5416414272fb1942f0269ea572c7}\index{game\_task.h@{game\_task.h}!game\_process\_commands@{game\_process\_commands}}
+\index{game\_process\_commands@{game\_process\_commands}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_process\_commands()}{game\_process\_commands()}}
+{\footnotesize\ttfamily \label{game__task_8h_ac4ac5416414272fb1942f0269ea572c7} 
+void game\+\_\+process\+\_\+commands (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj game prikazy z fronty. 
+
+Cte prikazy z game\+\_\+command\+\_\+queue a vykonava je. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07211}{7211}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a8de7eb2cbccf01d3c7ee792caaf9784e}\index{game\_task.h@{game\_task.h}!game\_process\_drop\_command@{game\_process\_drop\_command}}
+\index{game\_process\_drop\_command@{game\_process\_drop\_command}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_process\_drop\_command()}{game\_process\_drop\_command()}}
+{\footnotesize\ttfamily \label{game__task_8h_a8de7eb2cbccf01d3c7ee792caaf9784e} 
+void game\+\_\+process\+\_\+drop\+\_\+command (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__command__t}{chess\+\_\+move\+\_\+command\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{cmd}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj DROP prikaz (DN). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em cmd} & Drop prikaz s pozici\\
+\hline
+\end{DoxyParams}
+Zpracuj DROP prikaz (DN).
+
+Process drop piece command from UART.
+
+
+\begin{DoxyParams}{Parametry}
+{\em cmd} & Drop command\\
+\hline
+\end{DoxyParams}
+Process drop command (DN)
+
+Final integrated drop command with all fixes 
+\begin{DoxyParams}{Parametry}
+{\em cmd} & Drop command\\
+\hline
+\end{DoxyParams}
+Process drop command (DN) -\/ Legacy function
+
+
+\begin{DoxyParams}{Parametry}
+{\em cmd} & Drop command \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l04144}{4144}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a502098cd25ad56400beb2339a1bfb84c}\index{game\_task.h@{game\_task.h}!game\_process\_matrix\_events@{game\_process\_matrix\_events}}
+\index{game\_process\_matrix\_events@{game\_process\_matrix\_events}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_process\_matrix\_events()}{game\_process\_matrix\_events()}}
+{\footnotesize\ttfamily \label{game__task_8h_a502098cd25ad56400beb2339a1bfb84c} 
+void game\+\_\+process\+\_\+matrix\+\_\+events (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj matrix udalosti (tahy). 
+
+Cte udalosti z matrix\+\_\+event\+\_\+queue a zpracovava detekci tahu.
+
+Zpracuj matrix udalosti (tahy).
+
+\begin{DoxyRefDesc}{Zastaralé}
+\item[\mbox{\hyperlink{deprecated__deprecated000001}{Zastaralé}}]Matrix events are now sent as \doxylink{structchess__move__command__t}{chess\+\_\+move\+\_\+command\+\_\+t} to game\+\_\+command\+\_\+queue and processed by \doxylink{game__task_8c_a0216d9328bf82ee185835194077f1e33}{game\+\_\+process\+\_\+pickup\+\_\+command()} / \doxylink{game__task_8h_a8de7eb2cbccf01d3c7ee792caaf9784e}{game\+\_\+process\+\_\+drop\+\_\+command()}. This function is kept for compatibility but does nothing. \end{DoxyRefDesc}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08892}{8892}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a7c1b38b6a6342df233fdcafe702b5a0f}\index{game\_task.h@{game\_task.h}!game\_process\_timer\_command@{game\_process\_timer\_command}}
+\index{game\_process\_timer\_command@{game\_process\_timer\_command}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_process\_timer\_command()}{game\_process\_timer\_command()}}
+{\footnotesize\ttfamily \label{game__task_8h_a7c1b38b6a6342df233fdcafe702b5a0f} 
+esp\+\_\+err\+\_\+t game\+\_\+process\+\_\+timer\+\_\+command (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__command__t}{chess\+\_\+move\+\_\+command\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{cmd}{}\end{DoxyParamCaption})}
+
+
+
+Zpracuj timer prikazy z fronty. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em cmd} & Game prikaz s timer operaci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11394}{11394}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ac75becc8b5888b8fa31045d7c28c085e}\index{game\_task.h@{game\_task.h}!game\_reset\_game@{game\_reset\_game}}
+\index{game\_reset\_game@{game\_reset\_game}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_reset\_game()}{game\_reset\_game()}}
+{\footnotesize\ttfamily \label{game__task_8h_ac75becc8b5888b8fa31045d7c28c085e} 
+void game\+\_\+reset\+\_\+game (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Resetuj hru do pocatecniho stavu. 
+
+Vymaze historii, resetuje statistiky a znovu inicializuje sachovnici.
+
+Resetuj hru do pocatecniho stavu.
+
+Tato funkce resetuje hru do vychoziho stavu. Vymaze vsechny tahy, resetuje stavy hry a inicializuje novou hru.
+
+Funkce resetuje\+:
+\begin{DoxyItemize}
+\item Stav hry na IDLE
+\item Aktualni hrace na WHITE
+\item Pocet tahu na 0
+\item Vsechny castling flagy
+\item En passant stav
+\item Historie tahu
+\item Error recovery stav 
+\end{DoxyItemize}
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01501}{1501}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a0df29c9e5d4723c41477e530799976b0}\index{game\_task.h@{game\_task.h}!game\_reset\_timer@{game\_reset\_timer}}
+\index{game\_reset\_timer@{game\_reset\_timer}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_reset\_timer()}{game\_reset\_timer()}}
+{\footnotesize\ttfamily \label{game__task_8h_a0df29c9e5d4723c41477e530799976b0} 
+esp\+\_\+err\+\_\+t game\+\_\+reset\+\_\+timer (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Resetuj herní timer. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11356}{11356}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_aa1855cbe07e70ad38d0fbd163e7e9746}\index{game\_task.h@{game\_task.h}!game\_resume\_timer@{game\_resume\_timer}}
+\index{game\_resume\_timer@{game\_resume\_timer}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_resume\_timer()}{game\_resume\_timer()}}
+{\footnotesize\ttfamily \label{game__task_8h_aa1855cbe07e70ad38d0fbd163e7e9746} 
+esp\+\_\+err\+\_\+t game\+\_\+resume\+\_\+timer (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Obnov herní timer. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11347}{11347}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a94723cd4e9d7f319e96c1d7aaa67fcf8}\index{game\_task.h@{game\_task.h}!game\_show\_button\_error@{game\_show\_button\_error}}
+\index{game\_show\_button\_error@{game\_show\_button\_error}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_button\_error()}{game\_show\_button\_error()}}
+{\footnotesize\ttfamily \label{game__task_8h_a94723cd4e9d7f319e96c1d7aaa67fcf8} 
+void game\+\_\+show\+\_\+button\+\_\+error (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{button\+\_\+id}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz chybu tlacitka. 
+
+Zobraz chybu tlacitka.
+
+
+\begin{DoxyParams}{Parametry}
+{\em button\+\_\+id} & ID tlačítka\\
+\hline
+\end{DoxyParams}
+Zobrazí oranžové blikání na tlačítku s chybou. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00288}{288}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__task_8h_a528221cd8d3c2dd6de0732883230033a}\index{game\_task.h@{game\_task.h}!game\_show\_castling\_guidance@{game\_show\_castling\_guidance}}
+\index{game\_show\_castling\_guidance@{game\_show\_castling\_guidance}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_castling\_guidance()}{game\_show\_castling\_guidance()}}
+{\footnotesize\ttfamily \label{game__task_8h_a528221cd8d3c2dd6de0732883230033a} 
+void game\+\_\+show\+\_\+castling\+\_\+guidance (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{king\+\_\+row}{, }\item[{uint8\+\_\+t}]{king\+\_\+col}{, }\item[{uint8\+\_\+t}]{rook\+\_\+row}{, }\item[{uint8\+\_\+t}]{rook\+\_\+col}{, }\item[{bool}]{is\+\_\+kingside}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz navod pro rosadu. 
+
+Zobraz navod pro rosadu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em king\+\_\+row} & Řádek krále \\
+\hline
+{\em king\+\_\+col} & Sloupec krále \\
+\hline
+{\em rook\+\_\+row} & Řádek věže \\
+\hline
+{\em rook\+\_\+col} & Sloupec věže \\
+\hline
+{\em is\+\_\+kingside} & True pro královskou stranu, false pro dámskou\\
+\hline
+\end{DoxyParams}
+Zobrazí postupný návod na provedení rošády s animací pohybu krále a věže. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00318}{318}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__task_8h_afd365d57cb897126d7c7df4547c45d25}\index{game\_task.h@{game\_task.h}!game\_show\_castling\_rook\_guidance@{game\_show\_castling\_rook\_guidance}}
+\index{game\_show\_castling\_rook\_guidance@{game\_show\_castling\_rook\_guidance}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_castling\_rook\_guidance()}{game\_show\_castling\_rook\_guidance()}}
+{\footnotesize\ttfamily \label{game__task_8h_afd365d57cb897126d7c7df4547c45d25} 
+void game\+\_\+show\+\_\+castling\+\_\+rook\+\_\+guidance (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz LED navod pro tah veze pri rosade. 
+
+Zobraz LED navod pro tah veze pri rosade. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10488}{10488}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a0ace822d82e2da6de18559787be957d0}\index{game\_task.h@{game\_task.h}!game\_show\_check\_direct@{game\_show\_check\_direct}}
+\index{game\_show\_check\_direct@{game\_show\_check\_direct}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_check\_direct()}{game\_show\_check\_direct()}}
+{\footnotesize\ttfamily \label{game__task_8h_a0ace822d82e2da6de18559787be957d0} 
+void game\+\_\+show\+\_\+check\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{king\+\_\+row}{, }\item[{uint8\+\_\+t}]{king\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz sach primo pres LED. 
+
+Zobraz sach primo pres LED.
+
+Zobraz sach s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em king\+\_\+row} & Řádek krále v šachu \\
+\hline
+{\em king\+\_\+col} & Sloupec krále v šachu\\
+\hline
+\end{DoxyParams}
+Zobrazí fialovou barvu na králi v šachu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00193}{193}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__task_8h_a5f2645fc55410cfe671fe6e8f2a99f2f}\index{game\_task.h@{game\_task.h}!game\_show\_invalid\_move\_error@{game\_show\_invalid\_move\_error}}
+\index{game\_show\_invalid\_move\_error@{game\_show\_invalid\_move\_error}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_invalid\_move\_error()}{game\_show\_invalid\_move\_error()}}
+{\footnotesize\ttfamily \label{game__task_8h_a5f2645fc55410cfe671fe6e8f2a99f2f} 
+void game\+\_\+show\+\_\+invalid\+\_\+move\+\_\+error (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz chybu neplatneho tahu. 
+
+Zobraz chybu neplatneho tahu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Řádek zdrojového pole \\
+\hline
+{\em from\+\_\+col} & Sloupec zdrojového pole \\
+\hline
+{\em to\+\_\+row} & Řádek cílového pole \\
+\hline
+{\em to\+\_\+col} & Sloupec cílového pole\\
+\hline
+\end{DoxyParams}
+Zobrazí červené blikání na neplatném tahu a pak návod k vrácení figurky. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00254}{254}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__task_8h_a907213fbd2400f88f96bd2a5bb4ff98d}\index{game\_task.h@{game\_task.h}!game\_show\_invalid\_move\_error\_with\_blink@{game\_show\_invalid\_move\_error\_with\_blink}}
+\index{game\_show\_invalid\_move\_error\_with\_blink@{game\_show\_invalid\_move\_error\_with\_blink}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_invalid\_move\_error\_with\_blink()}{game\_show\_invalid\_move\_error\_with\_blink()}}
+{\footnotesize\ttfamily \label{game__task_8h_a907213fbd2400f88f96bd2a5bb4ff98d} 
+void game\+\_\+show\+\_\+invalid\+\_\+move\+\_\+error\+\_\+with\+\_\+blink (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{error\+\_\+row}{, }\item[{uint8\+\_\+t}]{error\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz blikajici cervenou LED pro chybu neplatneho tahu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+row} & Radek neplatne pozice (0-\/7) \\
+\hline
+{\em error\+\_\+col} & Sloupec neplatne pozice (0-\/7)\\
+\hline
+\end{DoxyParams}
+Zobraz blikajici cervenou LED pro chybu neplatneho tahu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em error\+\_\+row} & Row of invalid position \\
+\hline
+{\em error\+\_\+col} & Column of invalid position \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l04734}{4734}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a65d45d8068e75012a3bf91d813a86993}\index{game\_task.h@{game\_task.h}!game\_show\_move\_direct@{game\_show\_move\_direct}}
+\index{game\_show\_move\_direct@{game\_show\_move\_direct}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_move\_direct()}{game\_show\_move\_direct()}}
+{\footnotesize\ttfamily \label{game__task_8h_a65d45d8068e75012a3bf91d813a86993} 
+void game\+\_\+show\+\_\+move\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{from\+\_\+row}{, }\item[{uint8\+\_\+t}]{from\+\_\+col}{, }\item[{uint8\+\_\+t}]{to\+\_\+row}{, }\item[{uint8\+\_\+t}]{to\+\_\+col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz tah primo pres LED. 
+
+Zobraz tah primo pres LED.
+
+Zobraz tah s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em from\+\_\+row} & Řádek zdrojového pole \\
+\hline
+{\em from\+\_\+col} & Sloupec zdrojového pole \\
+\hline
+{\em to\+\_\+row} & Řádek cílového pole \\
+\hline
+{\em to\+\_\+col} & Sloupec cílového pole\\
+\hline
+\end{DoxyParams}
+Zobrazí animaci tahu s progresivním osvětlením zdrojového a cílového pole. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00043}{43}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__task_8h_a6e5f0e6f61004c63b6da0114e626c68b}\index{game\_task.h@{game\_task.h}!game\_show\_move\_suggestions@{game\_show\_move\_suggestions}}
+\index{game\_show\_move\_suggestions@{game\_show\_move\_suggestions}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_move\_suggestions()}{game\_show\_move\_suggestions()}}
+{\footnotesize\ttfamily \label{game__task_8h_a6e5f0e6f61004c63b6da0114e626c68b} 
+void game\+\_\+show\+\_\+move\+\_\+suggestions (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz navrzene tahy pro figurku. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek figurky (0-\/7) \\
+\hline
+{\em col} & Sloupec figurky (0-\/7)\\
+\hline
+\end{DoxyParams}
+Zobraz navrzene tahy pro figurku.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Row coordinate \\
+\hline
+{\em col} & Column coordinate \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02709}{2709}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_aad4c6f489504e1aace2045420bcec3d1}\index{game\_task.h@{game\_task.h}!game\_show\_piece\_lift\_direct@{game\_show\_piece\_lift\_direct}}
+\index{game\_show\_piece\_lift\_direct@{game\_show\_piece\_lift\_direct}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_piece\_lift\_direct()}{game\_show\_piece\_lift\_direct()}}
+{\footnotesize\ttfamily \label{game__task_8h_aad4c6f489504e1aace2045420bcec3d1} 
+void game\+\_\+show\+\_\+piece\+\_\+lift\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{row}{, }\item[{uint8\+\_\+t}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz zvednutí figurky primo pres LED. 
+
+Zobraz zvednutí figurky primo pres LED.
+
+Zobraz zvednutí figurky s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Řádek pole \\
+\hline
+{\em col} & Sloupec pole\\
+\hline
+\end{DoxyParams}
+Zobrazí jemný pulzující efekt na poli se zvednutou figurkou. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00084}{84}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__task_8h_acecde79c7924b9de393d93d82e662595}\index{game\_task.h@{game\_task.h}!game\_show\_player\_change\_animation@{game\_show\_player\_change\_animation}}
+\index{game\_show\_player\_change\_animation@{game\_show\_player\_change\_animation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_player\_change\_animation()}{game\_show\_player\_change\_animation()}}
+{\footnotesize\ttfamily \label{game__task_8h_acecde79c7924b9de393d93d82e662595} 
+void game\+\_\+show\+\_\+player\+\_\+change\+\_\+animation (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{previous\+\_\+player}{, }\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{current\+\_\+player}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz animaci zmeny hrace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em previous\+\_\+player} & Predchozi hrac \\
+\hline
+{\em current\+\_\+player} & Aktualni hrac\\
+\hline
+\end{DoxyParams}
+Zobraz animaci zmeny hrace.
+
+
+\begin{DoxyParams}{Parametry}
+{\em previous\+\_\+player} & Previous player \\
+\hline
+{\em current\+\_\+player} & Current player \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07987}{7987}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_abc7c8755788427711faa337e69d53e19}\index{game\_task.h@{game\_task.h}!game\_show\_player\_change\_direct@{game\_show\_player\_change\_direct}}
+\index{game\_show\_player\_change\_direct@{game\_show\_player\_change\_direct}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_player\_change\_direct()}{game\_show\_player\_change\_direct()}}
+{\footnotesize\ttfamily \label{game__task_8h_abc7c8755788427711faa337e69d53e19} 
+void game\+\_\+show\+\_\+player\+\_\+change\+\_\+direct (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{current\+\_\+player}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz zmenu hrace primo pres LED. 
+
+Zobraz zmenu hrace primo pres LED.
+
+
+\begin{DoxyParams}{Parametry}
+{\em current\+\_\+player} & Aktuální hráč\\
+\hline
+\end{DoxyParams}
+Zobrazí vlnovou animaci od středu při změně hráče. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00213}{213}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__task_8h_af337fa678e02039015341d7fa45e3ccc}\index{game\_task.h@{game\_task.h}!game\_show\_valid\_moves\_direct@{game\_show\_valid\_moves\_direct}}
+\index{game\_show\_valid\_moves\_direct@{game\_show\_valid\_moves\_direct}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_show\_valid\_moves\_direct()}{game\_show\_valid\_moves\_direct()}}
+{\footnotesize\ttfamily \label{game__task_8h_af337fa678e02039015341d7fa45e3ccc} 
+void game\+\_\+show\+\_\+valid\+\_\+moves\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{valid\+\_\+positions}{, }\item[{uint8\+\_\+t}]{count}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz platne tahy primo pres LED. 
+
+Zobraz platne tahy primo pres LED.
+
+Zobraz platne tahy s primymi LED volanimi.
+
+
+\begin{DoxyParams}{Parametry}
+{\em valid\+\_\+positions} & Pole LED indexů platných tahů \\
+\hline
+{\em count} & Počet platných tahů\\
+\hline
+\end{DoxyParams}
+Zobrazí zelenou vlnu na všech polích s platnými tahy. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__led__direct_8c_source_l00108}{108}} v souboru \mbox{\hyperlink{game__led__direct_8c_source}{game\+\_\+led\+\_\+direct.\+c}}.
+
+\Hypertarget{game__task_8h_a57e990b9360540c1ba82ea3d5a32cf44}\index{game\_task.h@{game\_task.h}!game\_start\_new\_game@{game\_start\_new\_game}}
+\index{game\_start\_new\_game@{game\_start\_new\_game}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_start\_new\_game()}{game\_start\_new\_game()}}
+{\footnotesize\ttfamily \label{game__task_8h_a57e990b9360540c1ba82ea3d5a32cf44} 
+void game\+\_\+start\+\_\+new\+\_\+game (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Spust novou hru. 
+
+Kompletni reset hry vcetne timer systemu.
+
+Spust novou hru.
+
+Tato funkce spusti novou sachovou hru. Inicializuje sachovnici, resetuje vsechny stavy a pripravi hru pro hrani.
+
+Funkce\+:
+\begin{DoxyItemize}
+\item Inicializuje sachovnici do vychoziho stavu
+\item Resetuje vsechny stavy hry
+\item Nastavi prvni hrace na WHITE
+\item Zastavi vsechny animace
+\item Aktualizuje LED feedback
+\item Zvysi pocet her 
+\end{DoxyItemize}
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01603}{1603}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_afbd09cfaddffe4661015d92975561bd2}\index{game\_task.h@{game\_task.h}!game\_start\_repeating\_rook\_animation@{game\_start\_repeating\_rook\_animation}}
+\index{game\_start\_repeating\_rook\_animation@{game\_start\_repeating\_rook\_animation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_start\_repeating\_rook\_animation()}{game\_start\_repeating\_rook\_animation()}}
+{\footnotesize\ttfamily \label{game__task_8h_afbd09cfaddffe4661015d92975561bd2} 
+void game\+\_\+start\+\_\+repeating\+\_\+rook\+\_\+animation (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Spust opakovani animace veze pro rosadu. 
+
+Spust opakovani animace veze pro rosadu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10767}{10767}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a76220c211d4e21aa36ac90a00761f698}\index{game\_task.h@{game\_task.h}!game\_start\_timer\_move@{game\_start\_timer\_move}}
+\index{game\_start\_timer\_move@{game\_start\_timer\_move}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_start\_timer\_move()}{game\_start\_timer\_move()}}
+{\footnotesize\ttfamily \label{game__task_8h_a76220c211d4e21aa36ac90a00761f698} 
+esp\+\_\+err\+\_\+t game\+\_\+start\+\_\+timer\+\_\+move (\begin{DoxyParamCaption}\item[{bool}]{is\+\_\+white\+\_\+turn}{}\end{DoxyParamCaption})}
+
+
+
+Spust timer pro tah aktualniho hrace. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em is\+\_\+white\+\_\+turn} & Je na tahu bily? \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11311}{11311}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a400c845a7ea99010ffc662d32fc20147}\index{game\_task.h@{game\_task.h}!game\_stop\_repeating\_rook\_animation@{game\_stop\_repeating\_rook\_animation}}
+\index{game\_stop\_repeating\_rook\_animation@{game\_stop\_repeating\_rook\_animation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_stop\_repeating\_rook\_animation()}{game\_stop\_repeating\_rook\_animation()}}
+{\footnotesize\ttfamily \label{game__task_8h_a400c845a7ea99010ffc662d32fc20147} 
+void game\+\_\+stop\+\_\+repeating\+\_\+rook\+\_\+animation (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zastav opakovanou animaci veze. 
+
+Zastav opakovanou animaci veze. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10797}{10797}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ab26d022ec766e04addd46d9b6da9768a}\index{game\_task.h@{game\_task.h}!game\_task\_start@{game\_task\_start}}
+\index{game\_task\_start@{game\_task\_start}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_task\_start()}{game\_task\_start()}}
+{\footnotesize\ttfamily \label{game__task_8h_ab26d022ec766e04addd46d9b6da9768a} 
+void game\+\_\+task\+\_\+start (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Spusti game task. 
+
+Hlavni funkce game tasku. Inicializuje sachovnici a bezi v nekonecne smycce zpracovani prikazu a udalosti.
+
+
+\begin{DoxyParams}{Parametry}
+{\em pv\+Parameters} & Parametry tasku (nepouzivane) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08785}{8785}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a38bb9a0b5b3cd868021ba1f05be228d6}\index{game\_task.h@{game\_task.h}!game\_test\_castle\_animation@{game\_test\_castle\_animation}}
+\index{game\_test\_castle\_animation@{game\_test\_castle\_animation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_test\_castle\_animation()}{game\_test\_castle\_animation()}}
+{\footnotesize\ttfamily \label{game__task_8h_a38bb9a0b5b3cd868021ba1f05be228d6} 
+void game\+\_\+test\+\_\+castle\+\_\+animation (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Testuj animaci rosady. 
+
+Testuj animaci rosady. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08190}{8190}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ac06cb22933b494c00b27ecb35160eeaa}\index{game\_task.h@{game\_task.h}!game\_test\_endgame\_animation@{game\_test\_endgame\_animation}}
+\index{game\_test\_endgame\_animation@{game\_test\_endgame\_animation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_test\_endgame\_animation()}{game\_test\_endgame\_animation()}}
+{\footnotesize\ttfamily \label{game__task_8h_ac06cb22933b494c00b27ecb35160eeaa} 
+void game\+\_\+test\+\_\+endgame\+\_\+animation (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Testuj animaci konce hry. 
+
+Testuj animaci konce hry. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08251}{8251}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_ad58e853637de174a1bc4f6ad9556bbaa}\index{game\_task.h@{game\_task.h}!game\_test\_move\_animation@{game\_test\_move\_animation}}
+\index{game\_test\_move\_animation@{game\_test\_move\_animation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_test\_move\_animation()}{game\_test\_move\_animation()}}
+{\footnotesize\ttfamily \label{game__task_8h_ad58e853637de174a1bc4f6ad9556bbaa} 
+void game\+\_\+test\+\_\+move\+\_\+animation (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Testuj animaci tahu. 
+
+Testuj animaci tahu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08150}{8150}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a0054718644880d12b2f8ccb352644a2b}\index{game\_task.h@{game\_task.h}!game\_test\_player\_change\_animation@{game\_test\_player\_change\_animation}}
+\index{game\_test\_player\_change\_animation@{game\_test\_player\_change\_animation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_test\_player\_change\_animation()}{game\_test\_player\_change\_animation()}}
+{\footnotesize\ttfamily \label{game__task_8h_a0054718644880d12b2f8ccb352644a2b} 
+void game\+\_\+test\+\_\+player\+\_\+change\+\_\+animation (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Testuj animaci zmeny hrace. 
+
+Testuj animaci zmeny hrace. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08182}{8182}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a54c0942839659e43c97af3b1c7aca7e9}\index{game\_task.h@{game\_task.h}!game\_test\_promote\_animation@{game\_test\_promote\_animation}}
+\index{game\_test\_promote\_animation@{game\_test\_promote\_animation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_test\_promote\_animation()}{game\_test\_promote\_animation()}}
+{\footnotesize\ttfamily \label{game__task_8h_a54c0942839659e43c97af3b1c7aca7e9} 
+void game\+\_\+test\+\_\+promote\+\_\+animation (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Testuj animaci promoci. 
+
+Testuj animaci promoci. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08227}{8227}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_aab2504466c50dfa9455e1414810bc073}\index{game\_task.h@{game\_task.h}!game\_update\_timer\_display@{game\_update\_timer\_display}}
+\index{game\_update\_timer\_display@{game\_update\_timer\_display}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_update\_timer\_display()}{game\_update\_timer\_display()}}
+{\footnotesize\ttfamily \label{game__task_8h_aab2504466c50dfa9455e1414810bc073} 
+esp\+\_\+err\+\_\+t game\+\_\+update\+\_\+timer\+\_\+display (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Aktualizuj zobrazeni timeru a overi varovani. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11506}{11506}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a94bb4afd94650885459c130f6c3a811d}\index{game\_task.h@{game\_task.h}!game\_validate\_bishop\_move\_enhanced@{game\_validate\_bishop\_move\_enhanced}}
+\index{game\_validate\_bishop\_move\_enhanced@{game\_validate\_bishop\_move\_enhanced}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_validate\_bishop\_move\_enhanced()}{game\_validate\_bishop\_move\_enhanced()}}
+{\footnotesize\ttfamily \label{game__task_8h_a94bb4afd94650885459c130f6c3a811d} 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} game\+\_\+validate\+\_\+bishop\+\_\+move\+\_\+enhanced (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Validuj tah strelce. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k validaci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby
+\end{DoxyReturn}
+Validuj tah strelce.
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Ukazatel na strukturu tahu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pokud je tah platny, jinak kod chyby
+\end{DoxyReturn}
+Strelec se pohybuje pouze diagonalne. Funkce kontroluje\+:
+\begin{DoxyItemize}
+\item Validni diagonalni pohyb (abs\+\_\+row\+\_\+diff == abs\+\_\+col\+\_\+diff)
+\item Blokovani cesty mezi start a cil pozici
+\item Vsechna pole na ceste musi byt prazdna
+\end{DoxyItemize}
+
+\begin{DoxyNote}{Poznámka}
+Opraveno v2.\+4.\+1\+:
+\begin{DoxyItemize}
+\item BUG \#2\+: While loop nyni pouziva OR misto AND pro spravnou kontrolu az do cile
+\item Pridana safety kontrola proti nekonecnemu loopu (max 8 kroku)
+\item Pridany diagnosticke logy pro blokovani 
+\end{DoxyItemize}
+\end{DoxyNote}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01990}{1990}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a7169001872522d780e6e67a15d86a47e}\index{game\_task.h@{game\_task.h}!game\_validate\_castling@{game\_validate\_castling}}
+\index{game\_validate\_castling@{game\_validate\_castling}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_validate\_castling()}{game\_validate\_castling()}}
+{\footnotesize\ttfamily \label{game__task_8h_a7169001872522d780e6e67a15d86a47e} 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} game\+\_\+validate\+\_\+castling (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Validuj rosadu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah rosady k validaci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platne rosade, jinak kod chyby
+\end{DoxyReturn}
+Validuj rosadu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Ukazatel na strukturu tahu (kral taha o 2 pole vodorovne) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pokud je rosada platna, jinak kod chyby
+\end{DoxyReturn}
+Rosada musi splnovat vsechny tyto podminky\+:
+\begin{DoxyEnumerate}
+\item Figurka musi byt kral
+\item Kral se jeste nepohyboval
+\item Vez se jeste nepohybovala
+\item Vez existuje na spravne pozici
+\item Cesta mezi kralem a vezi je prazdna
+\item Kral neni v sachu
+\item Kral neprojde sachovanyym polem
+\item Kral neskonci v sachu
+\end{DoxyEnumerate}
+
+Rosada je mozna\+:
+\begin{DoxyItemize}
+\item Kingside (O-\/O)\+: kral e1-\/\texorpdfstring{$>$}{>}g1, vez h1-\/\texorpdfstring{$>$}{>}f1
+\item Queenside (O-\/\+O-\/O)\+: kral e1-\/\texorpdfstring{$>$}{>}c1, vez a1-\/\texorpdfstring{$>$}{>}d1 
+\end{DoxyItemize}
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02314}{2314}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a210042709363b26c91b23a04ccac022a}\index{game\_task.h@{game\_task.h}!game\_validate\_king\_move\_enhanced@{game\_validate\_king\_move\_enhanced}}
+\index{game\_validate\_king\_move\_enhanced@{game\_validate\_king\_move\_enhanced}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_validate\_king\_move\_enhanced()}{game\_validate\_king\_move\_enhanced()}}
+{\footnotesize\ttfamily \label{game__task_8h_a210042709363b26c91b23a04ccac022a} 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} game\+\_\+validate\+\_\+king\+\_\+move\+\_\+enhanced (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Validuj tah krale. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k validaci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby
+\end{DoxyReturn}
+Validuj tah krale.
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Ukazatel na strukturu tahu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pokud je tah platny, jinak kod chyby
+\end{DoxyReturn}
+Kral se muze pohybovat o 1 pole libovolnym smerem nebo delat rosadu. Funkce kontroluje\+:
+\begin{DoxyItemize}
+\item Pohyb o 1 pole (8 smeru)
+\item Pohyb o 2 pole vodorovne (rosada)
+\item Tah musi byt nenulovy (nelze tahnout na stejne pole)
+\end{DoxyItemize}
+
+Pro rosadu deleguje validaci na \doxylink{game__task_8h_a7169001872522d780e6e67a15d86a47e}{game\+\_\+validate\+\_\+castling()}. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02120}{2120}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a530c17b05f532aeaaa64d8bdb77ca665}\index{game\_task.h@{game\_task.h}!game\_validate\_knight\_move\_enhanced@{game\_validate\_knight\_move\_enhanced}}
+\index{game\_validate\_knight\_move\_enhanced@{game\_validate\_knight\_move\_enhanced}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_validate\_knight\_move\_enhanced()}{game\_validate\_knight\_move\_enhanced()}}
+{\footnotesize\ttfamily \label{game__task_8h_a530c17b05f532aeaaa64d8bdb77ca665} 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} game\+\_\+validate\+\_\+knight\+\_\+move\+\_\+enhanced (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Validuj tah kone. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k validaci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01952}{1952}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a9fd338ce879b00b98ddb9d6b6988e5a1}\index{game\_task.h@{game\_task.h}!game\_validate\_pawn\_move\_enhanced@{game\_validate\_pawn\_move\_enhanced}}
+\index{game\_validate\_pawn\_move\_enhanced@{game\_validate\_pawn\_move\_enhanced}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_validate\_pawn\_move\_enhanced()}{game\_validate\_pawn\_move\_enhanced()}}
+{\footnotesize\ttfamily \label{game__task_8h_a9fd338ce879b00b98ddb9d6b6988e5a1} 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} game\+\_\+validate\+\_\+pawn\+\_\+move\+\_\+enhanced (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{, }\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{piece}{}\end{DoxyParamCaption})}
+
+
+
+Validuj tah pescu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k validaci \\
+\hline
+{\em piece} & Pesec \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby
+\end{DoxyReturn}
+Validuj tah pescu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Ukazatel na strukturu tahu \\
+\hline
+{\em piece} & Typ figurky (PIECE\+\_\+\+WHITE\+\_\+\+PAWN nebo PIECE\+\_\+\+BLACK\+\_\+\+PAWN) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pokud je tah platny, jinak kod chyby
+\end{DoxyReturn}
+Tato funkce validuje vsechny typy tahu pesce\+:
+\begin{DoxyItemize}
+\item Pohyb vpred o 1 pole
+\item Pohyb vpred o 2 pole ze startovni pozice
+\item Brani diagonalne (1 pole diagonalne s nepratelem)
+\item En passant (specialni brani mimochodem)
+\end{DoxyItemize}
+
+Funkce take kontroluje\+:
+\begin{DoxyItemize}
+\item Blokovani cesty (bile i cerne pesce)
+\item Zpetne tahy (invalidi)
+\item Diagonalni tahy na prazdna pole (bez en passant)
+\end{DoxyItemize}
+
+\begin{DoxyNote}{Poznámka}
+Opraveno v2.\+4.\+1\+:
+\begin{DoxyItemize}
+\item BUG \#1\+: Blokovani cesty nyni funguje pro bile i cerne pesce (abs(row\+\_\+diff))
+\item BUG \#8\+: Zpetne tahy jsou nyni detekovany jako INVALID\+\_\+\+PATTERN
+\item Pridany diagnosticke logy pro debugging 
+\end{DoxyItemize}
+\end{DoxyNote}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01866}{1866}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a2c589b4bfa6cd43ea3582050e37c1cc4}\index{game\_task.h@{game\_task.h}!game\_validate\_piece\_move\_enhanced@{game\_validate\_piece\_move\_enhanced}}
+\index{game\_validate\_piece\_move\_enhanced@{game\_validate\_piece\_move\_enhanced}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_validate\_piece\_move\_enhanced()}{game\_validate\_piece\_move\_enhanced()}}
+{\footnotesize\ttfamily \label{game__task_8h_a2c589b4bfa6cd43ea3582050e37c1cc4} 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} game\+\_\+validate\+\_\+piece\+\_\+move\+\_\+enhanced (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{, }\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{piece}{}\end{DoxyParamCaption})}
+
+
+
+Rozsirena validace tahu pro figurku. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k validaci \\
+\hline
+{\em piece} & Figurka \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01800}{1800}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_acb3d6c97b1ab4160a2ed398cfa3b5b52}\index{game\_task.h@{game\_task.h}!game\_validate\_queen\_move\_enhanced@{game\_validate\_queen\_move\_enhanced}}
+\index{game\_validate\_queen\_move\_enhanced@{game\_validate\_queen\_move\_enhanced}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_validate\_queen\_move\_enhanced()}{game\_validate\_queen\_move\_enhanced()}}
+{\footnotesize\ttfamily \label{game__task_8h_acb3d6c97b1ab4160a2ed398cfa3b5b52} 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} game\+\_\+validate\+\_\+queen\+\_\+move\+\_\+enhanced (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Validuj tah damy. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k validaci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02081}{2081}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a4b858d85c199815887890cf595969c75}\index{game\_task.h@{game\_task.h}!game\_validate\_rook\_move\_enhanced@{game\_validate\_rook\_move\_enhanced}}
+\index{game\_validate\_rook\_move\_enhanced@{game\_validate\_rook\_move\_enhanced}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_validate\_rook\_move\_enhanced()}{game\_validate\_rook\_move\_enhanced()}}
+{\footnotesize\ttfamily \label{game__task_8h_a4b858d85c199815887890cf595969c75} 
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} game\+\_\+validate\+\_\+rook\+\_\+move\+\_\+enhanced (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Validuj tah veze. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k validaci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+MOVE\+\_\+\+ERROR\+\_\+\+NONE pri uspechu, jinak kod chyby 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02039}{2039}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_af6d73d7ab8a4c7b188d690a5177a0072}\index{game\_task.h@{game\_task.h}!game\_would\_move\_leave\_king\_in\_check@{game\_would\_move\_leave\_king\_in\_check}}
+\index{game\_would\_move\_leave\_king\_in\_check@{game\_would\_move\_leave\_king\_in\_check}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_would\_move\_leave\_king\_in\_check()}{game\_would\_move\_leave\_king\_in\_check()}}
+{\footnotesize\ttfamily \label{game__task_8h_af6d73d7ab8a4c7b188d690a5177a0072} 
+bool game\+\_\+would\+\_\+move\+\_\+leave\+\_\+king\+\_\+in\+\_\+check (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda by tah nechal krale v sachu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k overeni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud by tah nechal krale v sachu
+\end{DoxyReturn}
+Overi zda by tah nechal krale v sachu.
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Ukazatel na strukturu tahu k otestovani \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud by tah ponechal krale v sachu, false pokud je tah bezpecny
+\end{DoxyReturn}
+Funkce simuluje tah na desce a kontroluje zda by vysledna pozice ponechala vlastniho krale v sachu. Pouziva se pro validaci vsech tahu.
+
+Proces\+:
+\begin{DoxyEnumerate}
+\item Ulozi puvodni stav desky
+\item Provede tah docasne
+\item Kontroluje zda je kral v sachu
+\item Obnovi puvodni stav desky 
+\end{DoxyEnumerate}
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02164}{2164}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_af26d73c4a9e269473827e4d4497b21b3}\index{game\_task.h@{game\_task.h}!rook\_animation\_timer\_callback@{rook\_animation\_timer\_callback}}
+\index{rook\_animation\_timer\_callback@{rook\_animation\_timer\_callback}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{rook\_animation\_timer\_callback()}{rook\_animation\_timer\_callback()}}
+{\footnotesize\ttfamily \label{game__task_8h_af26d73c4a9e269473827e4d4497b21b3} 
+void rook\+\_\+animation\+\_\+timer\+\_\+callback (\begin{DoxyParamCaption}\item[{Timer\+Handle\+\_\+t}]{x\+Timer}{}\end{DoxyParamCaption})}
+
+
+
+Timer callback pro opakovanou animaci veze. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em x\+Timer} & Handle timeru\\
+\hline
+\end{DoxyParams}
+Timer callback pro opakovanou animaci veze.
+
+
+\begin{DoxyParams}{Parametry}
+{\em x\+Timer} & Timer handle \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10731}{10731}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_acf17b5ac5ef3ff609422be26351370df}\index{game\_task.h@{game\_task.h}!show\_castling\_completion\_animation@{show\_castling\_completion\_animation}}
+\index{show\_castling\_completion\_animation@{show\_castling\_completion\_animation}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{show\_castling\_completion\_animation()}{show\_castling\_completion\_animation()}}
+{\footnotesize\ttfamily \label{game__task_8h_acf17b5ac5ef3ff609422be26351370df} 
+void show\+\_\+castling\+\_\+completion\+\_\+animation (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Zobraz animaci dokonceni rosady. 
+
+Zobraz animaci dokonceni rosady. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10659}{10659}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+

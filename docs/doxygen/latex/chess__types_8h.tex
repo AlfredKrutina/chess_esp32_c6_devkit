@@ -1,0 +1,1585 @@
+\doxysection{Dokumentace souboru chess\+\_\+types.\+h}
+\hypertarget{chess__types_8h}{}\label{chess__types_8h}\index{chess\_types.h@{chess\_types.h}}
+
+
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Spolecne definice typu.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
+{\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+Graf závislostí na vkládaných souborech pro chess\+\_\+types.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{chess__types_8h__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Datové struktury}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structchess__move__t}{chess\+\_\+move\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Zakladni struktura sachoveho tahu. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structchess__move__extended__t}{chess\+\_\+move\+\_\+extended\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Rozsirena struktura tahu pro kompletni sachovou logiku. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structchess__move__command__t}{chess\+\_\+move\+\_\+command\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura prikazu pro sachovy tah pres UART. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structgame__response__t}{game\+\_\+response\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura game odpovedi pro UART komunikaci. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structled__command__t}{led\+\_\+command\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura LED prikazu. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structbutton__event__t}{button\+\_\+event\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura button udalosti. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structmatrix__event__t}{matrix\+\_\+event\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura matrix udalosti. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structmatrix__command__t}{matrix\+\_\+command\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura matrix prikazu. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structmove__suggestion__t}{move\+\_\+suggestion\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura navrhu tahu pro analyzu. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Struktura systemove konfigurace. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structled__animation__state__t}{led\+\_\+animation\+\_\+state\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Stav animace pro LED efekty. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Definice maker}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{chess__types_8h_a490b67efe5e74def79831ae40041f654}{CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+BOARD}}~64
+\begin{DoxyCompactList}\small\item\em Pocet LED pro sachovnici (8x8 = 64). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{chess__types_8h_ab7815f5333fcf26dd13f9966d6564412}{CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+BUTTONS}}~9
+\begin{DoxyCompactList}\small\item\em Pocet LED pro tlacitka (8 promotion + 1 reset = 9). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}{CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+TOTAL}}~(\mbox{\hyperlink{chess__types_8h_a490b67efe5e74def79831ae40041f654}{CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+BOARD}} + \mbox{\hyperlink{chess__types_8h_ab7815f5333fcf26dd13f9966d6564412}{CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+BUTTONS}})
+\begin{DoxyCompactList}\small\item\em Celkovy pocet LED (64 sachovnice + 9 tlacitek = 73). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{chess__types_8h_a6e67f103d41bb597001bdc4f58650cb3}{CHESS\+\_\+\+LED\+\_\+\+COUNT}}~73
+\begin{DoxyCompactList}\small\item\em Celkovy pocet LED v systemu (alias pro CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+TOTAL). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{chess__types_8h_a6f0f1e32a1bc7c5e590c118b42f59b2c}{CHESS\+\_\+\+BUTTON\+\_\+\+COUNT}}~9
+\begin{DoxyCompactList}\small\item\em Pocet tlacitek v systemu (8 promotion + 1 reset = 9). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{chess__types_8h_a66570ebf9fc22729e105df1e70b02db5}{CHESS\+\_\+\+MATRIX\+\_\+\+SIZE}}~64
+\begin{DoxyCompactList}\small\item\em Velikost matrix (8x8 = 64 poli). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{chess__types_8h_a3b87426d2e6f6d464ec0a2df2f66dd83}{MAX\+\_\+\+MOVE\+\_\+\+HISTORY}}~200
+\begin{DoxyCompactList}\small\item\em Maximalni pocet tahu v historii (200 tahu). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Výčty}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \{ \newline
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a78c1cf9cdf8f00b3f94fcc2f867180f1}{PIECE\+\_\+\+EMPTY}} = 0
+, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d}{PIECE\+\_\+\+WHITE\+\_\+\+PAWN}} = 1
+, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a4c99e4617db8d3f21a4dd23e497d0b0c}{PIECE\+\_\+\+WHITE\+\_\+\+KNIGHT}} = 2
+, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ac5624ba607e63e7a6f7ebdab4b322992}{PIECE\+\_\+\+WHITE\+\_\+\+BISHOP}} = 3
+, \newline
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ac403d9dfd1cf2dc0be0217a0a54c0a42}{PIECE\+\_\+\+WHITE\+\_\+\+ROOK}} = 4
+, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a6d9b099ad26f6f85108b90494697d5dc}{PIECE\+\_\+\+WHITE\+\_\+\+QUEEN}} = 5
+, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411}{PIECE\+\_\+\+WHITE\+\_\+\+KING}} = 6
+, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b}{PIECE\+\_\+\+BLACK\+\_\+\+PAWN}} = 7
+, \newline
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a3888c0ae958fcf54d7b4f77a26bdaa60}{PIECE\+\_\+\+BLACK\+\_\+\+KNIGHT}} = 8
+, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ae844e749448cbcaae2fda6a56bb70b86}{PIECE\+\_\+\+BLACK\+\_\+\+BISHOP}} = 9
+, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a26b69f7adf92c62bfa744b9e77907584}{PIECE\+\_\+\+BLACK\+\_\+\+ROOK}} = 10
+, \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a29e99921b92026f4b6bbeacf08289238}{PIECE\+\_\+\+BLACK\+\_\+\+QUEEN}} = 11
+, \newline
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6}{PIECE\+\_\+\+BLACK\+\_\+\+KING}} = 12
+ \}
+\begin{DoxyCompactList}\small\item\em Typy sachovych figurek. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414d}{game\+\_\+state\+\_\+t}} \{ \newline
+\mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dac440660deb460f2f6ad318818cd0458f}{GAME\+\_\+\+STATE\+\_\+\+IDLE}} = 0
+, \mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da9ad0f6945756ecd872133c8d917cb30c}{GAME\+\_\+\+STATE\+\_\+\+INIT}} = 1
+, \mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c}{GAME\+\_\+\+STATE\+\_\+\+ACTIVE}} = 2
+, \mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dae6a757f0eb2e39168756440ac804ffa7}{GAME\+\_\+\+STATE\+\_\+\+PAUSED}} = 3
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2}{GAME\+\_\+\+STATE\+\_\+\+FINISHED}} = 4
+, \mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414daab30ad97fe24d756e3ed2c9f2420efc2}{GAME\+\_\+\+STATE\+\_\+\+ERROR}} = 5
+, \mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dab8ee64fcce8c3b17312b20c78fc9695a}{GAME\+\_\+\+STATE\+\_\+\+PLAYING}} = 6
+, \mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da755790e6ec07d2f80a27fab71e9c5735}{GAME\+\_\+\+STATE\+\_\+\+PROMOTION}} = 7
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dabf733d9340403aaf6b4fcf2fec57596a}{GAME\+\_\+\+STATE\+\_\+\+ERROR\+\_\+\+RECOVERY}} = 8
+, \mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da8d38d078f83ba6d016773d797e914e80}{GAME\+\_\+\+STATE\+\_\+\+WAITING\+\_\+\+FOR\+\_\+\+RETURN}} = 9
+ \}
+\begin{DoxyCompactList}\small\item\em Stavy sachove hry. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \{ \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f}{PLAYER\+\_\+\+WHITE}} = 0
+, \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e}{PLAYER\+\_\+\+BLACK}} = 1
+ \}
+\begin{DoxyCompactList}\small\item\em Definice hracu. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10}{game\+\_\+result\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602}{RESULT\+\_\+\+WHITE\+\_\+\+WINS}} = 0
+, \mbox{\hyperlink{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990}{RESULT\+\_\+\+BLACK\+\_\+\+WINS}} = 1
+, \mbox{\hyperlink{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a05e8dcf1a732c2020d364fb5d9cea20e}{RESULT\+\_\+\+DRAW\+\_\+\+STALEMATE}} = 2
+, \mbox{\hyperlink{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a6577cffad8cbf7e5ca95dd46e504705b}{RESULT\+\_\+\+DRAW\+\_\+50\+\_\+\+MOVE}} = 3
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208}{RESULT\+\_\+\+DRAW\+\_\+\+REPETITION}} = 4
+, \mbox{\hyperlink{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad}{RESULT\+\_\+\+DRAW\+\_\+\+INSUFFICIENT}} = 5
+ \}
+\begin{DoxyCompactList}\small\item\em Typy vysledku hry pro statistiky. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}} \{ \newline
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a4100d3557901ed1bf26cadf95436db60}{MOVE\+\_\+\+ERROR\+\_\+\+NONE}} = 0
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a7a0d7fa395f1f1826ecf2859d4b1dfbc}{MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+SYNTAX}} = 1
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a811b7944c3ffe2044c660548f291c20b}{MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+PARAMETER}} = 2
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ab4cb258bbbe0300855b48b6f2d1b066f}{MOVE\+\_\+\+ERROR\+\_\+\+PIECE\+\_\+\+NOT\+\_\+\+FOUND}} = 3
+, \newline
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1afdd1c5dd74c3751769aee3f28589cdea}{MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+MOVE}} = 4
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a641b6ce57e59a5c718ca5ee3e51f9444}{MOVE\+\_\+\+ERROR\+\_\+\+BLOCKED\+\_\+\+PATH}} = 5
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a2fb8b41d9e36545a7a9410d4b8528215}{MOVE\+\_\+\+ERROR\+\_\+\+CHECK\+\_\+\+VIOLATION}} = 6
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ab3b3ce37d8c4beef920d33cd4b10fbd1}{MOVE\+\_\+\+ERROR\+\_\+\+SYSTEM\+\_\+\+ERROR}} = 7
+, \newline
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ae25a34f37cd35bcd83411aecc8f439f1}{MOVE\+\_\+\+ERROR\+\_\+\+NO\+\_\+\+PIECE}} = 8
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a5723bd10d7972babaac58c5fa122371e}{MOVE\+\_\+\+ERROR\+\_\+\+WRONG\+\_\+\+COLOR}} = 9
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a6dc786a7e8aea2d1f178c80c73848675}{MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+PATTERN}} = 10
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a1efb8e4fd12884711d5de2950e74f087}{MOVE\+\_\+\+ERROR\+\_\+\+KING\+\_\+\+IN\+\_\+\+CHECK}} = 11
+, \newline
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a062f25db8c860c564d19c9e46c776fe0}{MOVE\+\_\+\+ERROR\+\_\+\+CASTLING\+\_\+\+BLOCKED}} = 12
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ac71919eb046ab42ba1e6a622b914863a}{MOVE\+\_\+\+ERROR\+\_\+\+EN\+\_\+\+PASSANT\+\_\+\+INVALID}} = 13
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a4dab65373947ddaa9d99838441f3fcff}{MOVE\+\_\+\+ERROR\+\_\+\+DESTINATION\+\_\+\+OCCUPIED}} = 14
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a0d51fa502a0284e356d4c196152a9165}{MOVE\+\_\+\+ERROR\+\_\+\+OUT\+\_\+\+OF\+\_\+\+BOUNDS}} = 15
+, \newline
+\mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a98e7980c293506d89bac9ef4fae9e237}{MOVE\+\_\+\+ERROR\+\_\+\+GAME\+\_\+\+NOT\+\_\+\+ACTIVE}} = 16
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ae99b00ccc116996ee3eb7886d97f72e1}{MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+MOVE\+\_\+\+STRUCTURE}} = 17
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ad0f6ecbd8e5bf7852d4298269a812f33}{MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+COORDINATES}} = 18
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1adbc56938feb4f9a70401c3190d77f9de}{MOVE\+\_\+\+ERROR\+\_\+\+ILLEGAL\+\_\+\+MOVE}} = 19
+ \}
+\begin{DoxyCompactList}\small\item\em Typy chyb pri tahu. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}{promotion\+\_\+choice\+\_\+t}} \{ \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237ace7ae3bfdb598aeffb32c01d08805045}{PROMOTION\+\_\+\+QUEEN}} = 0
+, \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237a86adcf7f4dd13fe13c310740b684fd85}{PROMOTION\+\_\+\+ROOK}} = 1
+, \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237af76338fd133ad75d03265525fab6a060}{PROMOTION\+\_\+\+BISHOP}} = 2
+, \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237a38e92903ca7d679f019bbc0895c00910}{PROMOTION\+\_\+\+KNIGHT}} = 3
+ \}
+\begin{DoxyCompactList}\small\item\em Typy volby promoci pescu. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576}{move\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a81d6017982215bfb2df43b04360c21f7}{MOVE\+\_\+\+TYPE\+\_\+\+NORMAL}} = 0
+, \mbox{\hyperlink{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a0c1ae66eb0f22d3d3da0216c3c4a4c43}{MOVE\+\_\+\+TYPE\+\_\+\+CAPTURE}} = 1
+, \mbox{\hyperlink{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a348ebd44da63a3260560e30452bd3d4c}{MOVE\+\_\+\+TYPE\+\_\+\+CASTLE\+\_\+\+KING}} = 2
+, \mbox{\hyperlink{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a9402d70bce003961f9bef482a0f05abc}{MOVE\+\_\+\+TYPE\+\_\+\+CASTLE\+\_\+\+QUEEN}} = 3
+, \newline
+\mbox{\hyperlink{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a23c92ea1d63a461f09485c3762e3656d}{MOVE\+\_\+\+TYPE\+\_\+\+EN\+\_\+\+PASSANT}} = 4
+, \mbox{\hyperlink{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a0616f79303505961b7054938d27c5a0f}{MOVE\+\_\+\+TYPE\+\_\+\+PROMOTION}} = 5
+ \}
+\begin{DoxyCompactList}\small\item\em Typy tahu pro rozsirenou sachovou logiku. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4}{game\+\_\+command\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a9cdd3824f45d61a774ab6868e898e1c0}{GAME\+\_\+\+CMD\+\_\+\+NEW\+\_\+\+GAME}} = 0
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4afa32272119e942c6d9ecf8e41d53e0e0}{GAME\+\_\+\+CMD\+\_\+\+RESET\+\_\+\+GAME}} = 1
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4f5010e7796f733431849acc8175fdbe}{GAME\+\_\+\+CMD\+\_\+\+MAKE\+\_\+\+MOVE}} = 2
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a982ea3a5c5efd162ad30ebb49ca51216}{GAME\+\_\+\+CMD\+\_\+\+UNDO\+\_\+\+MOVE}} = 3
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ad280705c3d4a5140b36a1ed9bf9d0d45}{GAME\+\_\+\+CMD\+\_\+\+GET\+\_\+\+STATUS}} = 4
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ac834cfe65957284eaf2fc08fb85f82c1}{GAME\+\_\+\+CMD\+\_\+\+GET\+\_\+\+BOARD}} = 5
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a605e6b57d3beaf8791ef5fdb55b4eb8c}{GAME\+\_\+\+CMD\+\_\+\+GET\+\_\+\+VALID\+\_\+\+MOVES}} = 6
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ac645ae7fb45f72e070133d0486796614}{GAME\+\_\+\+CMD\+\_\+\+PICKUP\+\_\+\+PIECE}} = 7
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ab7951fcd18e6890d22362a1ab5e2c264}{GAME\+\_\+\+CMD\+\_\+\+DROP\+\_\+\+PIECE}} = 8
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a555e98c01f0511c7d341e43169c820da}{GAME\+\_\+\+CMD\+\_\+\+PROMOTION}} = 9
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4aac9a76d6ee39f51d9053539f833fa9e7}{GAME\+\_\+\+CMD\+\_\+\+MOVE}} = 10
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4beaa7c5ed6b0fe21e26bd42e5b7212f}{GAME\+\_\+\+CMD\+\_\+\+SHOW\+\_\+\+BOARD}} = 11
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a745816733d012d70b4bda9d2fdac7892}{GAME\+\_\+\+CMD\+\_\+\+PICKUP}} = 12
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4aecfd44979b16dd3a0a3054c1eeda3102}{GAME\+\_\+\+CMD\+\_\+\+DROP}} = 13
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a154ca18e7adccc46914b5716a7d720d9}{GAME\+\_\+\+CMD\+\_\+\+GET\+\_\+\+HISTORY}} = 14
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a5bd7b3ab11b01c056e66c73f3f16ccd7}{GAME\+\_\+\+CMD\+\_\+\+DEBUG\+\_\+\+INFO}} = 15
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a52a8afc72ca379bd08e7b0796c35f92c}{GAME\+\_\+\+CMD\+\_\+\+DEBUG\+\_\+\+BOARD}} = 16
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4acb7c84980c90b6f63746d28c96046913}{GAME\+\_\+\+CMD\+\_\+\+EVALUATE}} = 17
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a3161112d062f6a357e99eb9bf11cb44b}{GAME\+\_\+\+CMD\+\_\+\+SAVE}} = 18
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4aee4f4884065227d8f092688459822142}{GAME\+\_\+\+CMD\+\_\+\+LOAD}} = 19
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ab8bc2ab1bed58cfad662329a579bbc03}{GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+20}} = 20
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ad4ee83d72efd15438c23da18cef27702}{GAME\+\_\+\+CMD\+\_\+\+CASTLE}} = 21
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4afc983203f792a050205d8e7c320a57a0}{GAME\+\_\+\+CMD\+\_\+\+PROMOTE}} = 22
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a1049ce6ea8c65578b4a23f3ddb587725}{GAME\+\_\+\+CMD\+\_\+\+COMPONENT\+\_\+\+OFF}} = 23
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ae7a0a5eaed97f55f06722787f7c8e653}{GAME\+\_\+\+CMD\+\_\+\+COMPONENT\+\_\+\+ON}} = 24
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a6fcaa25e964049b2db00af284ec8e02d}{GAME\+\_\+\+CMD\+\_\+\+ENDGAME\+\_\+\+WHITE}} = 25
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4afc04543eb95bbf50a58afcd3fd75e977}{GAME\+\_\+\+CMD\+\_\+\+ENDGAME\+\_\+\+BLACK}} = 26
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a476e5fbe5ef283560d72a139725a2f65}{GAME\+\_\+\+CMD\+\_\+\+LIST\+\_\+\+GAMES}} = 27
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ac25c5694beb04bb57b2167c15813cf6d}{GAME\+\_\+\+CMD\+\_\+\+DELETE\+\_\+\+GAME}} = 28
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a0f27b5a8f5a2258a2ed7f623666d79f8}{GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+29}} = 29
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ad03f8d3baafcac16fa47ad548188c867}{GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+30}} = 30
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a411ad479086cc92829a2781eafc0244e}{GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+31}} = 31
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ab39fccde275812aa7e9f3df3d459d3bc}{GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+32}} = 32
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4df6d159b32b16a21a371bf19c195d56}{GAME\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+MOVE\+\_\+\+ANIM}} = 33
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a6cd41ae730de32de23029864ab1ece8a}{GAME\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+PLAYER\+\_\+\+ANIM}} = 34
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4f003c07c6a984387da799f3be48acac}{GAME\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+CASTLE\+\_\+\+ANIM}} = 35
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a0787063d7206bb845726e1b029bd0fce}{GAME\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+PROMOTE\+\_\+\+ANIM}} = 36
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4af524d161e2c33943da0a59805c227e2a}{GAME\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+ENDGAME\+\_\+\+ANIM}} = 37
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4aa2309d8e560fce089e0d74ef3dbc65b8}{GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+38}} = 38
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a0ba09395c8b55913ce75adb28ac19003}{GAME\+\_\+\+CMD\+\_\+\+SET\+\_\+\+TIME\+\_\+\+CONTROL}} = 39
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a04714aa90de7f3ace2585fe01cf67659}{GAME\+\_\+\+CMD\+\_\+\+PAUSE\+\_\+\+TIMER}} = 40
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a19a04a30f9a17d5a85cd43db2b1e298a}{GAME\+\_\+\+CMD\+\_\+\+RESUME\+\_\+\+TIMER}} = 41
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4aee7fca1d1758d39255d3b023f569313d}{GAME\+\_\+\+CMD\+\_\+\+RESET\+\_\+\+TIMER}} = 42
+, \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2}{GAME\+\_\+\+CMD\+\_\+\+GET\+\_\+\+TIMER\+\_\+\+STATE}} = 43
+, \newline
+\mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534}{GAME\+\_\+\+CMD\+\_\+\+TIMER\+\_\+\+TIMEOUT}} = 44
+ \}
+\begin{DoxyCompactList}\small\item\em Typy game prikazu pro UART komunikaci. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502}{game\+\_\+response\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a422f73724b8ecc76f312621fb868805d}{GAME\+\_\+\+RESPONSE\+\_\+\+SUCCESS}} = 0
+, \mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a39ae193ecb15c805e19efa3c004cda8b}{GAME\+\_\+\+RESPONSE\+\_\+\+ERROR}} = 1
+, \mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a8379a8a9c1014d84b3fa379e9847f380}{GAME\+\_\+\+RESPONSE\+\_\+\+BOARD}} = 2
+, \mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a59aa3569c7b540e83b61a3a1b356598f}{GAME\+\_\+\+RESPONSE\+\_\+\+MOVES}} = 3
+, \newline
+\mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a3bf05d8245c183a13405dfabe11fe238}{GAME\+\_\+\+RESPONSE\+\_\+\+STATUS}} = 4
+, \mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a081aadcf7717c7bdc4e86232c8c8185a}{GAME\+\_\+\+RESPONSE\+\_\+\+HISTORY}} = 5
+, \mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502ae719c242921ba6e51afbe5488a523486}{GAME\+\_\+\+RESPONSE\+\_\+\+MOVE\+\_\+\+RESULT}} = 6
+, \mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502abb993899f97b2c62c6d1ede698a04a81}{GAME\+\_\+\+RESPONSE\+\_\+\+LED\+\_\+\+STATUS}} = 7
+ \}
+\begin{DoxyCompactList}\small\item\em Typy game odpovedi. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66d}{led\+\_\+command\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da8f40e7b12399c8f0cec1d5f78c950577}{LED\+\_\+\+CMD\+\_\+\+SET\+\_\+\+PIXEL}} = 0
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab6091468d24a1e3d1335390f4c74bfcd}{LED\+\_\+\+CMD\+\_\+\+SET\+\_\+\+ALL}} = 1
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da476971a6dcd45da3995eb36854baecb7}{LED\+\_\+\+CMD\+\_\+\+CLEAR}} = 2
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dad724b31a2397df9b3d6814ff1974e724}{LED\+\_\+\+CMD\+\_\+\+SHOW\+\_\+\+BOARD}} = 3
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf3a2d5ed1608b52c41c9ccd1845c4899}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+FEEDBACK}} = 4
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac62e21d53111889c8fe6c35854548985}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+PRESS}} = 5
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da71b61e2de4e8d597a55d95f3ab6f81ed}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+RELEASE}} = 6
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab94ae0805f7899148694194f7b562b74}{LED\+\_\+\+CMD\+\_\+\+ANIMATION}} = 7
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5}{LED\+\_\+\+CMD\+\_\+\+TEST}} = 8
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390}{LED\+\_\+\+CMD\+\_\+\+SET\+\_\+\+BRIGHTNESS}} = 9
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38}{LED\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+ALL}} = 10
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221}{LED\+\_\+\+CMD\+\_\+\+MATRIX\+\_\+\+OFF}} = 11
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70}{LED\+\_\+\+CMD\+\_\+\+MATRIX\+\_\+\+ON}} = 12
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+13}} = 13
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da99cc49c9086cca2b4d67e431f6f8243e}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+14}} = 14
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da01e63f99b685e64e8d0e8c356b59f9e2}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+15}} = 15
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da6f598eb95d085991a9c7210c7d9f4fbe}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+16}} = 16
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da5ba99e2216abb36215c2d19fa7273c7a}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+17}} = 17
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daea821d2bde7f03358eecf371942fb6be}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+18}} = 18
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac0069a9eecc579e3bcc3c14d6865fe28}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+PLAYER\+\_\+\+CHANGE}} = 19
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab4580f84f360910c3c26cd55b1ecdf42}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+MOVE\+\_\+\+PATH}} = 20
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac134d8980d40f9fc8a12f683b967b187}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CASTLE}} = 21
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da08d8d77aeb5693180fb3c7752dccd626}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+PROMOTE}} = 22
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf8bf66ffd150099b9aed3c2e8a54d430}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+ENDGAME}} = 23
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da09320b788323ec0c6c037fbe5405fc94}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CHECK}} = 24
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa88ade2b1617bd7e2dbb98a0fd8f93ea}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CHECKMATE}} = 25
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0a3b3480bea2aedbb8ba9ba174a97afc}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+26}} = 26
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da3245bcef006f573a1e0c42e15e75ac3e}{LED\+\_\+\+CMD\+\_\+\+DISABLE}} = 25
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0d4704d7f14b5966b4d5e1e15c8effbe}{LED\+\_\+\+CMD\+\_\+\+ENABLE}} = 26
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf8124758b9a58effb1393e3482358b1f}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+PROMOTION\+\_\+\+AVAILABLE}} = 27
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da441731e024d2f2a63ff838654017cb6f}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+PROMOTION\+\_\+\+UNAVAILABLE}} = 28
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da1cd4129febc39d32125f7b63cbb1b968}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+SET\+\_\+\+PRESSED}} = 29
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da645e84d2ccec89c75209784f912340d8}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+SET\+\_\+\+RELEASED}} = 30
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae4852702ef287c906e2ca5272c047361}{LED\+\_\+\+CMD\+\_\+\+GAME\+\_\+\+STATE\+\_\+\+UPDATE}} = 31
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf0f30b49574874673f7dedf4e3ef637b}{LED\+\_\+\+CMD\+\_\+\+HIGHLIGHT\+\_\+\+PIECES}} = 32
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dad5d7870e73aceb328b67166210b27182}{LED\+\_\+\+CMD\+\_\+\+HIGHLIGHT\+\_\+\+MOVES}} = 33
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da9188b02c7998356975109115ec629b21}{LED\+\_\+\+CMD\+\_\+\+CLEAR\+\_\+\+HIGHLIGHTS}} = 34
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa5c435ea8239bab77cfab55550b5bee1}{LED\+\_\+\+CMD\+\_\+\+PLAYER\+\_\+\+CHANGE}} = 35
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da61126ce66596b43a74b040d15ae4647c}{LED\+\_\+\+CMD\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+MOVE}} = 36
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab074e02d4c9516005c3bd7d31f8e787b}{LED\+\_\+\+CMD\+\_\+\+ERROR\+\_\+\+RETURN\+\_\+\+PIECE}} = 37
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da6b00fc5d44a9d18c1cb99bb13c0f5815}{LED\+\_\+\+CMD\+\_\+\+ERROR\+\_\+\+RECOVERY}} = 38
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da55cf1cd112d68a2c834a4a8b83f26415}{LED\+\_\+\+CMD\+\_\+\+SHOW\+\_\+\+LEGAL\+\_\+\+MOVES}} = 39
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da58cefa5ccaee7e155c8f0ee780209e39}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+GUIDANCE}} = 40
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da279bafa5fec225b86ef70ef4ecdd2970}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+ERROR}} = 41
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da3e683c2a42a2ca7ed7a715d2492fee85}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+CELEBRATION}} = 42
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0acbe04632886e7fcc679174560cac06}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+TUTORIAL}} = 43
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daff455cc7d17fa43994e64e9c9b5e663f}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+CLEAR}} = 44
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69}{LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+ACTIVE}} = 97
+, \newline
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da79fc9577fe569938b3650e0615820b32}{LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+COMPACT}} = 98
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0}{LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+DETAILED}} = 99
+ \}
+\begin{DoxyCompactList}\small\item\em Typy LED prikazu. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904b}{button\+\_\+event\+\_\+type\+\_\+t}} \{ \mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904bac5a8f24e3beed7990f5495be58d2dc79}{BUTTON\+\_\+\+EVENT\+\_\+\+PRESS}} = 0
+, \mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904baf7f5f99d0588a4d7a637bdc77a0c1172}{BUTTON\+\_\+\+EVENT\+\_\+\+RELEASE}} = 1
+, \mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904ba457eb030194c21ed5a0b670f53a00758}{BUTTON\+\_\+\+EVENT\+\_\+\+LONG\+\_\+\+PRESS}} = 2
+, \mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904ba2629ec0f6865d8edfac4994530fb4555}{BUTTON\+\_\+\+EVENT\+\_\+\+DOUBLE\+\_\+\+PRESS}} = 3
+ \}
+\begin{DoxyCompactList}\small\item\em Typy button udalosti. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_a86af72d7b967d33d0fade767c033320f}{matrix\+\_\+event\+\_\+type\+\_\+t}} \{ \mbox{\hyperlink{chess__types_8h_a86af72d7b967d33d0fade767c033320fa39129c9582541c86108746c63a6be30d}{MATRIX\+\_\+\+EVENT\+\_\+\+PIECE\+\_\+\+LIFTED}} = 0
+, \mbox{\hyperlink{chess__types_8h_a86af72d7b967d33d0fade767c033320fae68c93c0c4fc7f3f100942775984e594}{MATRIX\+\_\+\+EVENT\+\_\+\+PIECE\+\_\+\+PLACED}} = 1
+, \mbox{\hyperlink{chess__types_8h_a86af72d7b967d33d0fade767c033320fa35b920398a95b8a2cb0b48a31df01619}{MATRIX\+\_\+\+EVENT\+\_\+\+MOVE\+\_\+\+DETECTED}} = 2
+, \mbox{\hyperlink{chess__types_8h_a86af72d7b967d33d0fade767c033320fabb7b9f5963909feca6e37f45eda97246}{MATRIX\+\_\+\+EVENT\+\_\+\+ERROR}} = 3
+ \}
+\begin{DoxyCompactList}\small\item\em Typy matrix udalosti. \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447a}{matrix\+\_\+command\+\_\+type\+\_\+t}} \{ \newline
+\mbox{\hyperlink{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa41ace29c9ff45d2dfb21f28e298c7943}{MATRIX\+\_\+\+CMD\+\_\+\+SCAN}} = 0
+, \mbox{\hyperlink{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa7bc413e23a6bc09a2e155096fa603dec}{MATRIX\+\_\+\+CMD\+\_\+\+RESET}} = 1
+, \mbox{\hyperlink{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa2fff98c7f65532e3805fa0aa51874280}{MATRIX\+\_\+\+CMD\+\_\+\+TEST}} = 2
+, \mbox{\hyperlink{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa5942ac097cba4821815b332686b8224d}{MATRIX\+\_\+\+CMD\+\_\+\+CALIBRATE}} = 3
+, \newline
+\mbox{\hyperlink{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa7623c181ba460f2efa8fc0704a809700}{MATRIX\+\_\+\+CMD\+\_\+\+DISABLE}} = 4
+, \mbox{\hyperlink{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aac28eb91d87621eebcfe95be8e6a736ad}{MATRIX\+\_\+\+CMD\+\_\+\+ENABLE}} = 5
+ \}
+\begin{DoxyCompactList}\small\item\em Typy matrix prikazu. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{chess__types_8h_ad58024344b5777da494b4a35f8250c32}{game\+\_\+is\+\_\+valid\+\_\+square}} (int row, int col)
+\begin{DoxyCompactList}\small\item\em Overi zda je pozice platna na sachovnici. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{chess__types_8h_a7f31b3ea42f40399386306ba3d88cb9c}{game\+\_\+is\+\_\+own\+\_\+piece}} (\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece, \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}})
+\begin{DoxyCompactList}\small\item\em Overi zda je figurka vlastni (patri aktualnimu hraci). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{chess__types_8h_a4a1fae8d66a8db2dd28a091a3b11279c}{game\+\_\+is\+\_\+enemy\+\_\+piece}} (\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece, \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}})
+\begin{DoxyCompactList}\small\item\em Overi zda je figurka nepratelska. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{chess__types_8h_a3d771c47f735ab5e75fee68915b073fc}{game\+\_\+simulate\+\_\+move\+\_\+check}} (\mbox{\hyperlink{structchess__move__extended__t}{chess\+\_\+move\+\_\+extended\+\_\+t}} \texorpdfstring{$\ast$}{*}move, \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}})
+\begin{DoxyCompactList}\small\item\em Simuluje tah a overi zda by nechal krale v sachu. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{chess__types_8h_ad744426452d0ddd581a96e82f2369853}{config\+\_\+manager\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuje config manager. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{chess__types_8h_a75038f5476c578ca0c192468d004160c}{config\+\_\+load\+\_\+from\+\_\+nvs}} (\mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Nacte konfiguraci z NVS flash. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{chess__types_8h_a24aceb1224555fd605ab85c9b0842357}{config\+\_\+save\+\_\+to\+\_\+nvs}} (const \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Ulozi konfiguraci do NVS flash. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{chess__types_8h_ae753d20be4991e260b40fd757087ebab}{config\+\_\+apply\+\_\+settings}} (const \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}config)
+\begin{DoxyCompactList}\small\item\em Aplikuje nastaveni konfigurace na system. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+ESP32-\/\+C6 Chess System v2.\+4 -\/ Spolecne definice typu. 
+
+Tato hlavicka obsahuje vsechny spolecne definice typu pouzivane v sachovem systemu. Zabranuje cirkularnim zavislost a poskytuje konzistentni definice typu pres vsechny komponenty.
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+2.\+4 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/08-\/24
+\end{DoxyDate}
+Tento soubor definuje vsechny zakladni datove typy pouzivane v sachovem systemu\+:
+\begin{DoxyItemize}
+\item Typy sachovych figurek (\doxylink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t})
+\item Stavy hry (\doxylink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414d}{game\+\_\+state\+\_\+t})
+\item Hraci (\doxylink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t})
+\item Typy tahu a chyb (\doxylink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t})
+\item Struktury pro tahy (\doxylink{structchess__move__t}{chess\+\_\+move\+\_\+t}, \doxylink{structchess__move__extended__t}{chess\+\_\+move\+\_\+extended\+\_\+t})
+\item Prikazy a odpovedi (\doxylink{chess__types_8h_ade7744437207164be6ca650b128bd9e4}{game\+\_\+command\+\_\+type\+\_\+t}, \doxylink{structgame__response__t}{game\+\_\+response\+\_\+t})
+\item LED prikazy a udalosti
+\item Button a matrix udalosti
+\item Konfigurace systemu 
+\end{DoxyItemize}
+
+Definice v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{chess__types_8h_doc-define-members}
+\doxysubsection{Dokumentace definic maker}
+\Hypertarget{chess__types_8h_a6f0f1e32a1bc7c5e590c118b42f59b2c}\index{chess\_types.h@{chess\_types.h}!CHESS\_BUTTON\_COUNT@{CHESS\_BUTTON\_COUNT}}
+\index{CHESS\_BUTTON\_COUNT@{CHESS\_BUTTON\_COUNT}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{CHESS\_BUTTON\_COUNT}{CHESS\_BUTTON\_COUNT}}
+{\footnotesize\ttfamily \label{chess__types_8h_a6f0f1e32a1bc7c5e590c118b42f59b2c} 
+\#define CHESS\+\_\+\+BUTTON\+\_\+\+COUNT~9}
+
+
+
+Pocet tlacitek v systemu (8 promotion + 1 reset = 9). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00555}{555}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a6e67f103d41bb597001bdc4f58650cb3}\index{chess\_types.h@{chess\_types.h}!CHESS\_LED\_COUNT@{CHESS\_LED\_COUNT}}
+\index{CHESS\_LED\_COUNT@{CHESS\_LED\_COUNT}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{CHESS\_LED\_COUNT}{CHESS\_LED\_COUNT}}
+{\footnotesize\ttfamily \label{chess__types_8h_a6e67f103d41bb597001bdc4f58650cb3} 
+\#define CHESS\+\_\+\+LED\+\_\+\+COUNT~73}
+
+
+
+Celkovy pocet LED v systemu (alias pro CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+TOTAL). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00551}{551}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a490b67efe5e74def79831ae40041f654}\index{chess\_types.h@{chess\_types.h}!CHESS\_LED\_COUNT\_BOARD@{CHESS\_LED\_COUNT\_BOARD}}
+\index{CHESS\_LED\_COUNT\_BOARD@{CHESS\_LED\_COUNT\_BOARD}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{CHESS\_LED\_COUNT\_BOARD}{CHESS\_LED\_COUNT\_BOARD}}
+{\footnotesize\ttfamily \label{chess__types_8h_a490b67efe5e74def79831ae40041f654} 
+\#define CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+BOARD~64}
+
+
+
+Pocet LED pro sachovnici (8x8 = 64). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00545}{545}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_ab7815f5333fcf26dd13f9966d6564412}\index{chess\_types.h@{chess\_types.h}!CHESS\_LED\_COUNT\_BUTTONS@{CHESS\_LED\_COUNT\_BUTTONS}}
+\index{CHESS\_LED\_COUNT\_BUTTONS@{CHESS\_LED\_COUNT\_BUTTONS}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{CHESS\_LED\_COUNT\_BUTTONS}{CHESS\_LED\_COUNT\_BUTTONS}}
+{\footnotesize\ttfamily \label{chess__types_8h_ab7815f5333fcf26dd13f9966d6564412} 
+\#define CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+BUTTONS~9}
+
+
+
+Pocet LED pro tlacitka (8 promotion + 1 reset = 9). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00547}{547}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}\index{chess\_types.h@{chess\_types.h}!CHESS\_LED\_COUNT\_TOTAL@{CHESS\_LED\_COUNT\_TOTAL}}
+\index{CHESS\_LED\_COUNT\_TOTAL@{CHESS\_LED\_COUNT\_TOTAL}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{CHESS\_LED\_COUNT\_TOTAL}{CHESS\_LED\_COUNT\_TOTAL}}
+{\footnotesize\ttfamily \label{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728} 
+\#define CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+TOTAL~(\mbox{\hyperlink{chess__types_8h_a490b67efe5e74def79831ae40041f654}{CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+BOARD}} + \mbox{\hyperlink{chess__types_8h_ab7815f5333fcf26dd13f9966d6564412}{CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+BUTTONS}})}
+
+
+
+Celkovy pocet LED (64 sachovnice + 9 tlacitek = 73). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00549}{549}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a66570ebf9fc22729e105df1e70b02db5}\index{chess\_types.h@{chess\_types.h}!CHESS\_MATRIX\_SIZE@{CHESS\_MATRIX\_SIZE}}
+\index{CHESS\_MATRIX\_SIZE@{CHESS\_MATRIX\_SIZE}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{CHESS\_MATRIX\_SIZE}{CHESS\_MATRIX\_SIZE}}
+{\footnotesize\ttfamily \label{chess__types_8h_a66570ebf9fc22729e105df1e70b02db5} 
+\#define CHESS\+\_\+\+MATRIX\+\_\+\+SIZE~64}
+
+
+
+Velikost matrix (8x8 = 64 poli). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00559}{559}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a3b87426d2e6f6d464ec0a2df2f66dd83}\index{chess\_types.h@{chess\_types.h}!MAX\_MOVE\_HISTORY@{MAX\_MOVE\_HISTORY}}
+\index{MAX\_MOVE\_HISTORY@{MAX\_MOVE\_HISTORY}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_MOVE\_HISTORY}{MAX\_MOVE\_HISTORY}}
+{\footnotesize\ttfamily \label{chess__types_8h_a3b87426d2e6f6d464ec0a2df2f66dd83} 
+\#define MAX\+\_\+\+MOVE\+\_\+\+HISTORY~200}
+
+
+
+Maximalni pocet tahu v historii (200 tahu). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00563}{563}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{chess__types_8h_doc-enum-members}
+\doxysubsection{Dokumentace výčtových typů}
+\Hypertarget{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904b}\index{chess\_types.h@{chess\_types.h}!button\_event\_type\_t@{button\_event\_type\_t}}
+\index{button\_event\_type\_t@{button\_event\_type\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{button\_event\_type\_t}{button\_event\_type\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904b} 
+enum \mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904b}{button\+\_\+event\+\_\+type\+\_\+t}}}
+
+
+
+Typy button udalosti. 
+
+Definuje vsechny typy udalosti ktere mohou nastat pri pouziti tlacitek. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{BUTTON\_EVENT\_PRESS@{BUTTON\_EVENT\_PRESS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!BUTTON\_EVENT\_PRESS@{BUTTON\_EVENT\_PRESS}}}\Hypertarget{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904bac5a8f24e3beed7990f5495be58d2dc79}\label{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904bac5a8f24e3beed7990f5495be58d2dc79} 
+BUTTON\+\_\+\+EVENT\+\_\+\+PRESS&Tlacitko stisknuto. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{BUTTON\_EVENT\_RELEASE@{BUTTON\_EVENT\_RELEASE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!BUTTON\_EVENT\_RELEASE@{BUTTON\_EVENT\_RELEASE}}}\Hypertarget{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904baf7f5f99d0588a4d7a637bdc77a0c1172}\label{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904baf7f5f99d0588a4d7a637bdc77a0c1172} 
+BUTTON\+\_\+\+EVENT\+\_\+\+RELEASE&Tlacitko uvolneno. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{BUTTON\_EVENT\_LONG\_PRESS@{BUTTON\_EVENT\_LONG\_PRESS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!BUTTON\_EVENT\_LONG\_PRESS@{BUTTON\_EVENT\_LONG\_PRESS}}}\Hypertarget{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904ba457eb030194c21ed5a0b670f53a00758}\label{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904ba457eb030194c21ed5a0b670f53a00758} 
+BUTTON\+\_\+\+EVENT\+\_\+\+LONG\+\_\+\+PRESS&Dlouhe stisknuti (vice nez 1 sekunda). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{BUTTON\_EVENT\_DOUBLE\_PRESS@{BUTTON\_EVENT\_DOUBLE\_PRESS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!BUTTON\_EVENT\_DOUBLE\_PRESS@{BUTTON\_EVENT\_DOUBLE\_PRESS}}}\Hypertarget{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904ba2629ec0f6865d8edfac4994530fb4555}\label{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904ba2629ec0f6865d8edfac4994530fb4555} 
+BUTTON\+\_\+\+EVENT\+\_\+\+DOUBLE\+\_\+\+PRESS&Dvojite stisknuti (do 300ms). \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00453}{453}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4}\index{chess\_types.h@{chess\_types.h}!game\_command\_type\_t@{game\_command\_type\_t}}
+\index{game\_command\_type\_t@{game\_command\_type\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{game\_command\_type\_t}{game\_command\_type\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_ade7744437207164be6ca650b128bd9e4} 
+enum \mbox{\hyperlink{chess__types_8h_ade7744437207164be6ca650b128bd9e4}{game\+\_\+command\+\_\+type\+\_\+t}}}
+
+
+
+Typy game prikazu pro UART komunikaci. 
+
+Kompletni seznam vsech prikazu ktere lze poslat game tasku pres frontu. Pouziva se pro ovladani hry, debug, testovani a spravu systemu. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_NEW\_GAME@{GAME\_CMD\_NEW\_GAME}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_NEW\_GAME@{GAME\_CMD\_NEW\_GAME}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a9cdd3824f45d61a774ab6868e898e1c0}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a9cdd3824f45d61a774ab6868e898e1c0} 
+GAME\+\_\+\+CMD\+\_\+\+NEW\+\_\+\+GAME&Nova hra (inicializace sachovnice). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_RESET\_GAME@{GAME\_CMD\_RESET\_GAME}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_RESET\_GAME@{GAME\_CMD\_RESET\_GAME}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4afa32272119e942c6d9ecf8e41d53e0e0}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4afa32272119e942c6d9ecf8e41d53e0e0} 
+GAME\+\_\+\+CMD\+\_\+\+RESET\+\_\+\+GAME&Reset hry (vrati se na zacatek). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_MAKE\_MOVE@{GAME\_CMD\_MAKE\_MOVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_MAKE\_MOVE@{GAME\_CMD\_MAKE\_MOVE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4f5010e7796f733431849acc8175fdbe}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4f5010e7796f733431849acc8175fdbe} 
+GAME\+\_\+\+CMD\+\_\+\+MAKE\+\_\+\+MOVE&Proved tah (move e2e4). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_UNDO\_MOVE@{GAME\_CMD\_UNDO\_MOVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_UNDO\_MOVE@{GAME\_CMD\_UNDO\_MOVE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a982ea3a5c5efd162ad30ebb49ca51216}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a982ea3a5c5efd162ad30ebb49ca51216} 
+GAME\+\_\+\+CMD\+\_\+\+UNDO\+\_\+\+MOVE&Vrat zpet posledni tah (undo). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_GET\_STATUS@{GAME\_CMD\_GET\_STATUS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_GET\_STATUS@{GAME\_CMD\_GET\_STATUS}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ad280705c3d4a5140b36a1ed9bf9d0d45}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ad280705c3d4a5140b36a1ed9bf9d0d45} 
+GAME\+\_\+\+CMD\+\_\+\+GET\+\_\+\+STATUS&Ziskej stav hry (status). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_GET\_BOARD@{GAME\_CMD\_GET\_BOARD}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_GET\_BOARD@{GAME\_CMD\_GET\_BOARD}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ac834cfe65957284eaf2fc08fb85f82c1}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ac834cfe65957284eaf2fc08fb85f82c1} 
+GAME\+\_\+\+CMD\+\_\+\+GET\+\_\+\+BOARD&Ziskej aktualni pozici (board). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_GET\_VALID\_MOVES@{GAME\_CMD\_GET\_VALID\_MOVES}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_GET\_VALID\_MOVES@{GAME\_CMD\_GET\_VALID\_MOVES}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a605e6b57d3beaf8791ef5fdb55b4eb8c}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a605e6b57d3beaf8791ef5fdb55b4eb8c} 
+GAME\+\_\+\+CMD\+\_\+\+GET\+\_\+\+VALID\+\_\+\+MOVES&Ziskej platne tahy pro figurku. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_PICKUP\_PIECE@{GAME\_CMD\_PICKUP\_PIECE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_PICKUP\_PIECE@{GAME\_CMD\_PICKUP\_PIECE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ac645ae7fb45f72e070133d0486796614}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ac645ae7fb45f72e070133d0486796614} 
+GAME\+\_\+\+CMD\+\_\+\+PICKUP\+\_\+\+PIECE&Zved figurku (pickup). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_DROP\_PIECE@{GAME\_CMD\_DROP\_PIECE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_DROP\_PIECE@{GAME\_CMD\_DROP\_PIECE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ab7951fcd18e6890d22362a1ab5e2c264}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ab7951fcd18e6890d22362a1ab5e2c264} 
+GAME\+\_\+\+CMD\+\_\+\+DROP\+\_\+\+PIECE&Poloz figurku (drop). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_PROMOTION@{GAME\_CMD\_PROMOTION}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_PROMOTION@{GAME\_CMD\_PROMOTION}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a555e98c01f0511c7d341e43169c820da}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a555e98c01f0511c7d341e43169c820da} 
+GAME\+\_\+\+CMD\+\_\+\+PROMOTION&Promoc pescu (promotion). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_MOVE@{GAME\_CMD\_MOVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_MOVE@{GAME\_CMD\_MOVE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4aac9a76d6ee39f51d9053539f833fa9e7}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4aac9a76d6ee39f51d9053539f833fa9e7} 
+GAME\+\_\+\+CMD\+\_\+\+MOVE&Tah (move). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_SHOW\_BOARD@{GAME\_CMD\_SHOW\_BOARD}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_SHOW\_BOARD@{GAME\_CMD\_SHOW\_BOARD}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4beaa7c5ed6b0fe21e26bd42e5b7212f}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4beaa7c5ed6b0fe21e26bd42e5b7212f} 
+GAME\+\_\+\+CMD\+\_\+\+SHOW\+\_\+\+BOARD&Zobraz sachovnici (board). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_PICKUP@{GAME\_CMD\_PICKUP}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_PICKUP@{GAME\_CMD\_PICKUP}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a745816733d012d70b4bda9d2fdac7892}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a745816733d012d70b4bda9d2fdac7892} 
+GAME\+\_\+\+CMD\+\_\+\+PICKUP&UP prikaz -\/ figurka zvednuta. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_DROP@{GAME\_CMD\_DROP}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_DROP@{GAME\_CMD\_DROP}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4aecfd44979b16dd3a0a3054c1eeda3102}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4aecfd44979b16dd3a0a3054c1eeda3102} 
+GAME\+\_\+\+CMD\+\_\+\+DROP&DN prikaz -\/ figurka polozena. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_GET\_HISTORY@{GAME\_CMD\_GET\_HISTORY}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_GET\_HISTORY@{GAME\_CMD\_GET\_HISTORY}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a154ca18e7adccc46914b5716a7d720d9}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a154ca18e7adccc46914b5716a7d720d9} 
+GAME\+\_\+\+CMD\+\_\+\+GET\+\_\+\+HISTORY&Ziskej historii tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_DEBUG\_INFO@{GAME\_CMD\_DEBUG\_INFO}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_DEBUG\_INFO@{GAME\_CMD\_DEBUG\_INFO}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a5bd7b3ab11b01c056e66c73f3f16ccd7}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a5bd7b3ab11b01c056e66c73f3f16ccd7} 
+GAME\+\_\+\+CMD\+\_\+\+DEBUG\+\_\+\+INFO&Debug informace o hre. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_DEBUG\_BOARD@{GAME\_CMD\_DEBUG\_BOARD}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_DEBUG\_BOARD@{GAME\_CMD\_DEBUG\_BOARD}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a52a8afc72ca379bd08e7b0796c35f92c}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a52a8afc72ca379bd08e7b0796c35f92c} 
+GAME\+\_\+\+CMD\+\_\+\+DEBUG\+\_\+\+BOARD&Debug informace o sachovnici. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_EVALUATE@{GAME\_CMD\_EVALUATE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_EVALUATE@{GAME\_CMD\_EVALUATE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4acb7c84980c90b6f63746d28c96046913}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4acb7c84980c90b6f63746d28c96046913} 
+GAME\+\_\+\+CMD\+\_\+\+EVALUATE&Evaluace pozice (vyhodnoceni). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_SAVE@{GAME\_CMD\_SAVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_SAVE@{GAME\_CMD\_SAVE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a3161112d062f6a357e99eb9bf11cb44b}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a3161112d062f6a357e99eb9bf11cb44b} 
+GAME\+\_\+\+CMD\+\_\+\+SAVE&Uloz hru do pameti. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_LOAD@{GAME\_CMD\_LOAD}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_LOAD@{GAME\_CMD\_LOAD}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4aee4f4884065227d8f092688459822142}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4aee4f4884065227d8f092688459822142} 
+GAME\+\_\+\+CMD\+\_\+\+LOAD&Nahraj hru z pameti. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_RESERVED\_SLOT\_20@{GAME\_CMD\_RESERVED\_SLOT\_20}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_RESERVED\_SLOT\_20@{GAME\_CMD\_RESERVED\_SLOT\_20}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ab8bc2ab1bed58cfad662329a579bbc03}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ab8bc2ab1bed58cfad662329a579bbc03} 
+GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+20&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_CASTLE@{GAME\_CMD\_CASTLE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_CASTLE@{GAME\_CMD\_CASTLE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ad4ee83d72efd15438c23da18cef27702}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ad4ee83d72efd15438c23da18cef27702} 
+GAME\+\_\+\+CMD\+\_\+\+CASTLE&Rosada (castle). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_PROMOTE@{GAME\_CMD\_PROMOTE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_PROMOTE@{GAME\_CMD\_PROMOTE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4afc983203f792a050205d8e7c320a57a0}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4afc983203f792a050205d8e7c320a57a0} 
+GAME\+\_\+\+CMD\+\_\+\+PROMOTE&Promoce pescu (promote). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_COMPONENT\_OFF@{GAME\_CMD\_COMPONENT\_OFF}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_COMPONENT\_OFF@{GAME\_CMD\_COMPONENT\_OFF}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a1049ce6ea8c65578b4a23f3ddb587725}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a1049ce6ea8c65578b4a23f3ddb587725} 
+GAME\+\_\+\+CMD\+\_\+\+COMPONENT\+\_\+\+OFF&Vypni komponentu (off). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_COMPONENT\_ON@{GAME\_CMD\_COMPONENT\_ON}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_COMPONENT\_ON@{GAME\_CMD\_COMPONENT\_ON}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ae7a0a5eaed97f55f06722787f7c8e653}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ae7a0a5eaed97f55f06722787f7c8e653} 
+GAME\+\_\+\+CMD\+\_\+\+COMPONENT\+\_\+\+ON&Zapni komponentu (on). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_ENDGAME\_WHITE@{GAME\_CMD\_ENDGAME\_WHITE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_ENDGAME\_WHITE@{GAME\_CMD\_ENDGAME\_WHITE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a6fcaa25e964049b2db00af284ec8e02d}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a6fcaa25e964049b2db00af284ec8e02d} 
+GAME\+\_\+\+CMD\+\_\+\+ENDGAME\+\_\+\+WHITE&Konec hry -\/ bily vitezi. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_ENDGAME\_BLACK@{GAME\_CMD\_ENDGAME\_BLACK}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_ENDGAME\_BLACK@{GAME\_CMD\_ENDGAME\_BLACK}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4afc04543eb95bbf50a58afcd3fd75e977}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4afc04543eb95bbf50a58afcd3fd75e977} 
+GAME\+\_\+\+CMD\+\_\+\+ENDGAME\+\_\+\+BLACK&Konec hry -\/ cerny vitezi. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_LIST\_GAMES@{GAME\_CMD\_LIST\_GAMES}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_LIST\_GAMES@{GAME\_CMD\_LIST\_GAMES}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a476e5fbe5ef283560d72a139725a2f65}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a476e5fbe5ef283560d72a139725a2f65} 
+GAME\+\_\+\+CMD\+\_\+\+LIST\+\_\+\+GAMES&Vypis ulozenych her. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_DELETE\_GAME@{GAME\_CMD\_DELETE\_GAME}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_DELETE\_GAME@{GAME\_CMD\_DELETE\_GAME}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ac25c5694beb04bb57b2167c15813cf6d}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ac25c5694beb04bb57b2167c15813cf6d} 
+GAME\+\_\+\+CMD\+\_\+\+DELETE\+\_\+\+GAME&Smaz ulozenou hru. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_RESERVED\_SLOT\_29@{GAME\_CMD\_RESERVED\_SLOT\_29}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_RESERVED\_SLOT\_29@{GAME\_CMD\_RESERVED\_SLOT\_29}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a0f27b5a8f5a2258a2ed7f623666d79f8}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a0f27b5a8f5a2258a2ed7f623666d79f8} 
+GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+29&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_RESERVED\_SLOT\_30@{GAME\_CMD\_RESERVED\_SLOT\_30}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_RESERVED\_SLOT\_30@{GAME\_CMD\_RESERVED\_SLOT\_30}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ad03f8d3baafcac16fa47ad548188c867}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ad03f8d3baafcac16fa47ad548188c867} 
+GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+30&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_RESERVED\_SLOT\_31@{GAME\_CMD\_RESERVED\_SLOT\_31}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_RESERVED\_SLOT\_31@{GAME\_CMD\_RESERVED\_SLOT\_31}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a411ad479086cc92829a2781eafc0244e}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a411ad479086cc92829a2781eafc0244e} 
+GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+31&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_RESERVED\_SLOT\_32@{GAME\_CMD\_RESERVED\_SLOT\_32}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_RESERVED\_SLOT\_32@{GAME\_CMD\_RESERVED\_SLOT\_32}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ab39fccde275812aa7e9f3df3d459d3bc}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ab39fccde275812aa7e9f3df3d459d3bc} 
+GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+32&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_TEST\_MOVE\_ANIM@{GAME\_CMD\_TEST\_MOVE\_ANIM}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_TEST\_MOVE\_ANIM@{GAME\_CMD\_TEST\_MOVE\_ANIM}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4df6d159b32b16a21a371bf19c195d56}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4df6d159b32b16a21a371bf19c195d56} 
+GAME\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+MOVE\+\_\+\+ANIM&Test animace tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_TEST\_PLAYER\_ANIM@{GAME\_CMD\_TEST\_PLAYER\_ANIM}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_TEST\_PLAYER\_ANIM@{GAME\_CMD\_TEST\_PLAYER\_ANIM}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a6cd41ae730de32de23029864ab1ece8a}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a6cd41ae730de32de23029864ab1ece8a} 
+GAME\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+PLAYER\+\_\+\+ANIM&Test animace zmeny hrace. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_TEST\_CASTLE\_ANIM@{GAME\_CMD\_TEST\_CASTLE\_ANIM}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_TEST\_CASTLE\_ANIM@{GAME\_CMD\_TEST\_CASTLE\_ANIM}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4f003c07c6a984387da799f3be48acac}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a4f003c07c6a984387da799f3be48acac} 
+GAME\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+CASTLE\+\_\+\+ANIM&Test animace rosady. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_TEST\_PROMOTE\_ANIM@{GAME\_CMD\_TEST\_PROMOTE\_ANIM}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_TEST\_PROMOTE\_ANIM@{GAME\_CMD\_TEST\_PROMOTE\_ANIM}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a0787063d7206bb845726e1b029bd0fce}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a0787063d7206bb845726e1b029bd0fce} 
+GAME\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+PROMOTE\+\_\+\+ANIM&Test animace promoci. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_TEST\_ENDGAME\_ANIM@{GAME\_CMD\_TEST\_ENDGAME\_ANIM}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_TEST\_ENDGAME\_ANIM@{GAME\_CMD\_TEST\_ENDGAME\_ANIM}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4af524d161e2c33943da0a59805c227e2a}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4af524d161e2c33943da0a59805c227e2a} 
+GAME\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+ENDGAME\+\_\+\+ANIM&Test animace konce hry. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_RESERVED\_SLOT\_38@{GAME\_CMD\_RESERVED\_SLOT\_38}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_RESERVED\_SLOT\_38@{GAME\_CMD\_RESERVED\_SLOT\_38}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4aa2309d8e560fce089e0d74ef3dbc65b8}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4aa2309d8e560fce089e0d74ef3dbc65b8} 
+GAME\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+38&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_SET\_TIME\_CONTROL@{GAME\_CMD\_SET\_TIME\_CONTROL}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_SET\_TIME\_CONTROL@{GAME\_CMD\_SET\_TIME\_CONTROL}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a0ba09395c8b55913ce75adb28ac19003}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a0ba09395c8b55913ce75adb28ac19003} 
+GAME\+\_\+\+CMD\+\_\+\+SET\+\_\+\+TIME\+\_\+\+CONTROL&Nastav casovou kontrolu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_PAUSE\_TIMER@{GAME\_CMD\_PAUSE\_TIMER}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_PAUSE\_TIMER@{GAME\_CMD\_PAUSE\_TIMER}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a04714aa90de7f3ace2585fe01cf67659}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a04714aa90de7f3ace2585fe01cf67659} 
+GAME\+\_\+\+CMD\+\_\+\+PAUSE\+\_\+\+TIMER&Pozastav timer. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_RESUME\_TIMER@{GAME\_CMD\_RESUME\_TIMER}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_RESUME\_TIMER@{GAME\_CMD\_RESUME\_TIMER}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a19a04a30f9a17d5a85cd43db2b1e298a}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a19a04a30f9a17d5a85cd43db2b1e298a} 
+GAME\+\_\+\+CMD\+\_\+\+RESUME\+\_\+\+TIMER&Obnov timer. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_RESET\_TIMER@{GAME\_CMD\_RESET\_TIMER}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_RESET\_TIMER@{GAME\_CMD\_RESET\_TIMER}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4aee7fca1d1758d39255d3b023f569313d}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4aee7fca1d1758d39255d3b023f569313d} 
+GAME\+\_\+\+CMD\+\_\+\+RESET\+\_\+\+TIMER&Resetuj timer. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_GET\_TIMER\_STATE@{GAME\_CMD\_GET\_TIMER\_STATE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_GET\_TIMER\_STATE@{GAME\_CMD\_GET\_TIMER\_STATE}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2} 
+GAME\+\_\+\+CMD\+\_\+\+GET\+\_\+\+TIMER\+\_\+\+STATE&Ziskej stav timeru. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_CMD\_TIMER\_TIMEOUT@{GAME\_CMD\_TIMER\_TIMEOUT}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_CMD\_TIMER\_TIMEOUT@{GAME\_CMD\_TIMER\_TIMEOUT}}}\Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534}\label{chess__types_8h_ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534} 
+GAME\+\_\+\+CMD\+\_\+\+TIMER\+\_\+\+TIMEOUT&Vyprseni casoveho limitu. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00226}{226}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502}\index{chess\_types.h@{chess\_types.h}!game\_response\_type\_t@{game\_response\_type\_t}}
+\index{game\_response\_type\_t@{game\_response\_type\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{game\_response\_type\_t}{game\_response\_type\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502} 
+enum \mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502}{game\+\_\+response\+\_\+type\+\_\+t}}}
+
+
+
+Typy game odpovedi. 
+
+Definuje typy odpovedi ktere game task posilana zpet pres UART. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_RESPONSE\_SUCCESS@{GAME\_RESPONSE\_SUCCESS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_RESPONSE\_SUCCESS@{GAME\_RESPONSE\_SUCCESS}}}\Hypertarget{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a422f73724b8ecc76f312621fb868805d}\label{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a422f73724b8ecc76f312621fb868805d} 
+GAME\+\_\+\+RESPONSE\+\_\+\+SUCCESS&Uspesne provedeno. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_RESPONSE\_ERROR@{GAME\_RESPONSE\_ERROR}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_RESPONSE\_ERROR@{GAME\_RESPONSE\_ERROR}}}\Hypertarget{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a39ae193ecb15c805e19efa3c004cda8b}\label{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a39ae193ecb15c805e19efa3c004cda8b} 
+GAME\+\_\+\+RESPONSE\+\_\+\+ERROR&Chyba pri provadeni. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_RESPONSE\_BOARD@{GAME\_RESPONSE\_BOARD}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_RESPONSE\_BOARD@{GAME\_RESPONSE\_BOARD}}}\Hypertarget{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a8379a8a9c1014d84b3fa379e9847f380}\label{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a8379a8a9c1014d84b3fa379e9847f380} 
+GAME\+\_\+\+RESPONSE\+\_\+\+BOARD&Odpoved obsahuje sachovnici. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_RESPONSE\_MOVES@{GAME\_RESPONSE\_MOVES}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_RESPONSE\_MOVES@{GAME\_RESPONSE\_MOVES}}}\Hypertarget{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a59aa3569c7b540e83b61a3a1b356598f}\label{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a59aa3569c7b540e83b61a3a1b356598f} 
+GAME\+\_\+\+RESPONSE\+\_\+\+MOVES&Odpoved obsahuje seznam tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_RESPONSE\_STATUS@{GAME\_RESPONSE\_STATUS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_RESPONSE\_STATUS@{GAME\_RESPONSE\_STATUS}}}\Hypertarget{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a3bf05d8245c183a13405dfabe11fe238}\label{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a3bf05d8245c183a13405dfabe11fe238} 
+GAME\+\_\+\+RESPONSE\+\_\+\+STATUS&Odpoved obsahuje stav hry. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_RESPONSE\_HISTORY@{GAME\_RESPONSE\_HISTORY}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_RESPONSE\_HISTORY@{GAME\_RESPONSE\_HISTORY}}}\Hypertarget{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a081aadcf7717c7bdc4e86232c8c8185a}\label{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a081aadcf7717c7bdc4e86232c8c8185a} 
+GAME\+\_\+\+RESPONSE\+\_\+\+HISTORY&Odpoved obsahuje historii tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_RESPONSE\_MOVE\_RESULT@{GAME\_RESPONSE\_MOVE\_RESULT}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_RESPONSE\_MOVE\_RESULT@{GAME\_RESPONSE\_MOVE\_RESULT}}}\Hypertarget{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502ae719c242921ba6e51afbe5488a523486}\label{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502ae719c242921ba6e51afbe5488a523486} 
+GAME\+\_\+\+RESPONSE\+\_\+\+MOVE\+\_\+\+RESULT&Odpoved obsahuje vysledek tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_RESPONSE\_LED\_STATUS@{GAME\_RESPONSE\_LED\_STATUS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_RESPONSE\_LED\_STATUS@{GAME\_RESPONSE\_LED\_STATUS}}}\Hypertarget{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502abb993899f97b2c62c6d1ede698a04a81}\label{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502abb993899f97b2c62c6d1ede698a04a81} 
+GAME\+\_\+\+RESPONSE\+\_\+\+LED\+\_\+\+STATUS&Odpoved obsahuje LED status. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00322}{322}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10}\index{chess\_types.h@{chess\_types.h}!game\_result\_type\_t@{game\_result\_type\_t}}
+\index{game\_result\_type\_t@{game\_result\_type\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{game\_result\_type\_t}{game\_result\_type\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10} 
+enum \mbox{\hyperlink{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10}{game\+\_\+result\+\_\+type\+\_\+t}}}
+
+
+
+Typy vysledku hry pro statistiky. 
+
+Enumerace definujici vsechny mozne vysledky hry vcetne remizy. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESULT\_WHITE\_WINS@{RESULT\_WHITE\_WINS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!RESULT\_WHITE\_WINS@{RESULT\_WHITE\_WINS}}}\Hypertarget{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602}\label{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602} 
+RESULT\+\_\+\+WHITE\+\_\+\+WINS&Bily vitezi. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESULT\_BLACK\_WINS@{RESULT\_BLACK\_WINS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!RESULT\_BLACK\_WINS@{RESULT\_BLACK\_WINS}}}\Hypertarget{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990}\label{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990} 
+RESULT\+\_\+\+BLACK\+\_\+\+WINS&Cerny vitezi. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESULT\_DRAW\_STALEMATE@{RESULT\_DRAW\_STALEMATE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!RESULT\_DRAW\_STALEMATE@{RESULT\_DRAW\_STALEMATE}}}\Hypertarget{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a05e8dcf1a732c2020d364fb5d9cea20e}\label{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a05e8dcf1a732c2020d364fb5d9cea20e} 
+RESULT\+\_\+\+DRAW\+\_\+\+STALEMATE&Remiza -\/ pat (stalemate). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESULT\_DRAW\_50\_MOVE@{RESULT\_DRAW\_50\_MOVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!RESULT\_DRAW\_50\_MOVE@{RESULT\_DRAW\_50\_MOVE}}}\Hypertarget{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a6577cffad8cbf7e5ca95dd46e504705b}\label{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a6577cffad8cbf7e5ca95dd46e504705b} 
+RESULT\+\_\+\+DRAW\+\_\+50\+\_\+\+MOVE&Remiza -\/ pravidlo 50 tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESULT\_DRAW\_REPETITION@{RESULT\_DRAW\_REPETITION}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!RESULT\_DRAW\_REPETITION@{RESULT\_DRAW\_REPETITION}}}\Hypertarget{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208}\label{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208} 
+RESULT\+\_\+\+DRAW\+\_\+\+REPETITION&Remiza -\/ opakovani pozice. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESULT\_DRAW\_INSUFFICIENT@{RESULT\_DRAW\_INSUFFICIENT}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!RESULT\_DRAW\_INSUFFICIENT@{RESULT\_DRAW\_INSUFFICIENT}}}\Hypertarget{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad}\label{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad} 
+RESULT\+\_\+\+DRAW\+\_\+\+INSUFFICIENT&Remiza -\/ nedostatecny material. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00105}{105}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414d}\index{chess\_types.h@{chess\_types.h}!game\_state\_t@{game\_state\_t}}
+\index{game\_state\_t@{game\_state\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{game\_state\_t}{game\_state\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414d} 
+enum \mbox{\hyperlink{chess__types_8h_a4edce1ca040716922b6e4a79be4e414d}{game\+\_\+state\+\_\+t}}}
+
+
+
+Stavy sachove hry. 
+
+Enumerace definujici vsechny mozne stavy sachove hry od inicializace az po konec hry a error handling. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_STATE\_IDLE@{GAME\_STATE\_IDLE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_STATE\_IDLE@{GAME\_STATE\_IDLE}}}\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dac440660deb460f2f6ad318818cd0458f}\label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dac440660deb460f2f6ad318818cd0458f} 
+GAME\+\_\+\+STATE\+\_\+\+IDLE&Necinny stav (pred inicializaci). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_STATE\_INIT@{GAME\_STATE\_INIT}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_STATE\_INIT@{GAME\_STATE\_INIT}}}\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da9ad0f6945756ecd872133c8d917cb30c}\label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da9ad0f6945756ecd872133c8d917cb30c} 
+GAME\+\_\+\+STATE\+\_\+\+INIT&Inicializace hry. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_STATE\_ACTIVE@{GAME\_STATE\_ACTIVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_STATE\_ACTIVE@{GAME\_STATE\_ACTIVE}}}\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c}\label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c} 
+GAME\+\_\+\+STATE\+\_\+\+ACTIVE&Aktivni hra. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_STATE\_PAUSED@{GAME\_STATE\_PAUSED}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_STATE\_PAUSED@{GAME\_STATE\_PAUSED}}}\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dae6a757f0eb2e39168756440ac804ffa7}\label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dae6a757f0eb2e39168756440ac804ffa7} 
+GAME\+\_\+\+STATE\+\_\+\+PAUSED&Pozastavena hra. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_STATE\_FINISHED@{GAME\_STATE\_FINISHED}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_STATE\_FINISHED@{GAME\_STATE\_FINISHED}}}\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2}\label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2} 
+GAME\+\_\+\+STATE\+\_\+\+FINISHED&Ukoncena hra. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_STATE\_ERROR@{GAME\_STATE\_ERROR}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_STATE\_ERROR@{GAME\_STATE\_ERROR}}}\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414daab30ad97fe24d756e3ed2c9f2420efc2}\label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414daab30ad97fe24d756e3ed2c9f2420efc2} 
+GAME\+\_\+\+STATE\+\_\+\+ERROR&Chybovy stav. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_STATE\_PLAYING@{GAME\_STATE\_PLAYING}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_STATE\_PLAYING@{GAME\_STATE\_PLAYING}}}\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dab8ee64fcce8c3b17312b20c78fc9695a}\label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dab8ee64fcce8c3b17312b20c78fc9695a} 
+GAME\+\_\+\+STATE\+\_\+\+PLAYING&Probihajici hra. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_STATE\_PROMOTION@{GAME\_STATE\_PROMOTION}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_STATE\_PROMOTION@{GAME\_STATE\_PROMOTION}}}\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da755790e6ec07d2f80a27fab71e9c5735}\label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da755790e6ec07d2f80a27fab71e9c5735} 
+GAME\+\_\+\+STATE\+\_\+\+PROMOTION&Ceka se na vyber promoci pescu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_STATE\_ERROR\_RECOVERY@{GAME\_STATE\_ERROR\_RECOVERY}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_STATE\_ERROR\_RECOVERY@{GAME\_STATE\_ERROR\_RECOVERY}}}\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dabf733d9340403aaf6b4fcf2fec57596a}\label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414dabf733d9340403aaf6b4fcf2fec57596a} 
+GAME\+\_\+\+STATE\+\_\+\+ERROR\+\_\+\+RECOVERY&Obnova po chybe (novy stav). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{GAME\_STATE\_WAITING\_FOR\_RETURN@{GAME\_STATE\_WAITING\_FOR\_RETURN}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!GAME\_STATE\_WAITING\_FOR\_RETURN@{GAME\_STATE\_WAITING\_FOR\_RETURN}}}\Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da8d38d078f83ba6d016773d797e914e80}\label{chess__types_8h_a4edce1ca040716922b6e4a79be4e414da8d38d078f83ba6d016773d797e914e80} 
+GAME\+\_\+\+STATE\+\_\+\+WAITING\+\_\+\+FOR\+\_\+\+RETURN&Ceka se na vraceni figurky na misto. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00077}{77}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66d}\index{chess\_types.h@{chess\_types.h}!led\_command\_type\_t@{led\_command\_type\_t}}
+\index{led\_command\_type\_t@{led\_command\_type\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{led\_command\_type\_t}{led\_command\_type\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66d} 
+enum \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66d}{led\+\_\+command\+\_\+type\+\_\+t}}}
+
+
+
+Typy LED prikazu. 
+
+Kompletni seznam vsech prikazu pro ovladani LED systemu. Obsahuje zakladni prikazy, animace, error handling a pokrocile sachove animace. Nektere legacy hodnoty jsou rezervovane. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_SET\_PIXEL@{LED\_CMD\_SET\_PIXEL}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_SET\_PIXEL@{LED\_CMD\_SET\_PIXEL}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da8f40e7b12399c8f0cec1d5f78c950577}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da8f40e7b12399c8f0cec1d5f78c950577} 
+LED\+\_\+\+CMD\+\_\+\+SET\+\_\+\+PIXEL&Nastav barvu jedne LED. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_SET\_ALL@{LED\_CMD\_SET\_ALL}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_SET\_ALL@{LED\_CMD\_SET\_ALL}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab6091468d24a1e3d1335390f4c74bfcd}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab6091468d24a1e3d1335390f4c74bfcd} 
+LED\+\_\+\+CMD\+\_\+\+SET\+\_\+\+ALL&Nastav vsechny LED na stejnou barvu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_CLEAR@{LED\_CMD\_CLEAR}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_CLEAR@{LED\_CMD\_CLEAR}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da476971a6dcd45da3995eb36854baecb7}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da476971a6dcd45da3995eb36854baecb7} 
+LED\+\_\+\+CMD\+\_\+\+CLEAR&Vymas vsechny LED. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_SHOW\_BOARD@{LED\_CMD\_SHOW\_BOARD}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_SHOW\_BOARD@{LED\_CMD\_SHOW\_BOARD}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dad724b31a2397df9b3d6814ff1974e724}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dad724b31a2397df9b3d6814ff1974e724} 
+LED\+\_\+\+CMD\+\_\+\+SHOW\+\_\+\+BOARD&Zobraz sachovnici. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_BUTTON\_FEEDBACK@{LED\_CMD\_BUTTON\_FEEDBACK}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_BUTTON\_FEEDBACK@{LED\_CMD\_BUTTON\_FEEDBACK}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf3a2d5ed1608b52c41c9ccd1845c4899}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf3a2d5ed1608b52c41c9ccd1845c4899} 
+LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+FEEDBACK&Button feedback (dostupnost tlacitka). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_BUTTON\_PRESS@{LED\_CMD\_BUTTON\_PRESS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_BUTTON\_PRESS@{LED\_CMD\_BUTTON\_PRESS}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac62e21d53111889c8fe6c35854548985}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac62e21d53111889c8fe6c35854548985} 
+LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+PRESS&Tlacitko stisknuto. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_BUTTON\_RELEASE@{LED\_CMD\_BUTTON\_RELEASE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_BUTTON\_RELEASE@{LED\_CMD\_BUTTON\_RELEASE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da71b61e2de4e8d597a55d95f3ab6f81ed}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da71b61e2de4e8d597a55d95f3ab6f81ed} 
+LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+RELEASE&Tlacitko uvolneno. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ANIMATION@{LED\_CMD\_ANIMATION}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ANIMATION@{LED\_CMD\_ANIMATION}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab94ae0805f7899148694194f7b562b74}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab94ae0805f7899148694194f7b562b74} 
+LED\+\_\+\+CMD\+\_\+\+ANIMATION&Spust animaci. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_TEST@{LED\_CMD\_TEST}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_TEST@{LED\_CMD\_TEST}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5} 
+LED\+\_\+\+CMD\+\_\+\+TEST&Testovaci vzor. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_SET\_BRIGHTNESS@{LED\_CMD\_SET\_BRIGHTNESS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_SET\_BRIGHTNESS@{LED\_CMD\_SET\_BRIGHTNESS}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390} 
+LED\+\_\+\+CMD\+\_\+\+SET\+\_\+\+BRIGHTNESS&Nastav jas LED. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_TEST\_ALL@{LED\_CMD\_TEST\_ALL}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_TEST\_ALL@{LED\_CMD\_TEST\_ALL}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38} 
+LED\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+ALL&Testuj vsechny LED (postupne sviceni). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_MATRIX\_OFF@{LED\_CMD\_MATRIX\_OFF}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_MATRIX\_OFF@{LED\_CMD\_MATRIX\_OFF}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221} 
+LED\+\_\+\+CMD\+\_\+\+MATRIX\+\_\+\+OFF&Vypni LED efekty pri skenovani matice. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_MATRIX\_ON@{LED\_CMD\_MATRIX\_ON}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_MATRIX\_ON@{LED\_CMD\_MATRIX\_ON}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70} 
+LED\+\_\+\+CMD\+\_\+\+MATRIX\+\_\+\+ON&Zapni LED efekty pri skenovani matice. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_RESERVED\_SLOT\_13@{LED\_CMD\_RESERVED\_SLOT\_13}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_RESERVED\_SLOT\_13@{LED\_CMD\_RESERVED\_SLOT\_13}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f} 
+LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+13&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_RESERVED\_SLOT\_14@{LED\_CMD\_RESERVED\_SLOT\_14}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_RESERVED\_SLOT\_14@{LED\_CMD\_RESERVED\_SLOT\_14}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da99cc49c9086cca2b4d67e431f6f8243e}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da99cc49c9086cca2b4d67e431f6f8243e} 
+LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+14&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_RESERVED\_SLOT\_15@{LED\_CMD\_RESERVED\_SLOT\_15}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_RESERVED\_SLOT\_15@{LED\_CMD\_RESERVED\_SLOT\_15}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da01e63f99b685e64e8d0e8c356b59f9e2}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da01e63f99b685e64e8d0e8c356b59f9e2} 
+LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+15&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_RESERVED\_SLOT\_16@{LED\_CMD\_RESERVED\_SLOT\_16}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_RESERVED\_SLOT\_16@{LED\_CMD\_RESERVED\_SLOT\_16}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da6f598eb95d085991a9c7210c7d9f4fbe}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da6f598eb95d085991a9c7210c7d9f4fbe} 
+LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+16&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_RESERVED\_SLOT\_17@{LED\_CMD\_RESERVED\_SLOT\_17}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_RESERVED\_SLOT\_17@{LED\_CMD\_RESERVED\_SLOT\_17}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da5ba99e2216abb36215c2d19fa7273c7a}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da5ba99e2216abb36215c2d19fa7273c7a} 
+LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+17&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_RESERVED\_SLOT\_18@{LED\_CMD\_RESERVED\_SLOT\_18}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_RESERVED\_SLOT\_18@{LED\_CMD\_RESERVED\_SLOT\_18}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daea821d2bde7f03358eecf371942fb6be}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daea821d2bde7f03358eecf371942fb6be} 
+LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+18&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ANIM\_PLAYER\_CHANGE@{LED\_CMD\_ANIM\_PLAYER\_CHANGE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ANIM\_PLAYER\_CHANGE@{LED\_CMD\_ANIM\_PLAYER\_CHANGE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac0069a9eecc579e3bcc3c14d6865fe28}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac0069a9eecc579e3bcc3c14d6865fe28} 
+LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+PLAYER\+\_\+\+CHANGE&Animace zmeny hrace (paprsky). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ANIM\_MOVE\_PATH@{LED\_CMD\_ANIM\_MOVE\_PATH}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ANIM\_MOVE\_PATH@{LED\_CMD\_ANIM\_MOVE\_PATH}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab4580f84f360910c3c26cd55b1ecdf42}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab4580f84f360910c3c26cd55b1ecdf42} 
+LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+MOVE\+\_\+\+PATH&Animace cesty tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ANIM\_CASTLE@{LED\_CMD\_ANIM\_CASTLE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ANIM\_CASTLE@{LED\_CMD\_ANIM\_CASTLE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac134d8980d40f9fc8a12f683b967b187}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac134d8980d40f9fc8a12f683b967b187} 
+LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CASTLE&Animace rosady. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ANIM\_PROMOTE@{LED\_CMD\_ANIM\_PROMOTE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ANIM\_PROMOTE@{LED\_CMD\_ANIM\_PROMOTE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da08d8d77aeb5693180fb3c7752dccd626}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da08d8d77aeb5693180fb3c7752dccd626} 
+LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+PROMOTE&Animace promoci. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ANIM\_ENDGAME@{LED\_CMD\_ANIM\_ENDGAME}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ANIM\_ENDGAME@{LED\_CMD\_ANIM\_ENDGAME}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf8bf66ffd150099b9aed3c2e8a54d430}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf8bf66ffd150099b9aed3c2e8a54d430} 
+LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+ENDGAME&Animace konce hry (vlny). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ANIM\_CHECK@{LED\_CMD\_ANIM\_CHECK}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ANIM\_CHECK@{LED\_CMD\_ANIM\_CHECK}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da09320b788323ec0c6c037fbe5405fc94}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da09320b788323ec0c6c037fbe5405fc94} 
+LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CHECK&Animace sachu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ANIM\_CHECKMATE@{LED\_CMD\_ANIM\_CHECKMATE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ANIM\_CHECKMATE@{LED\_CMD\_ANIM\_CHECKMATE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa88ade2b1617bd7e2dbb98a0fd8f93ea}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa88ade2b1617bd7e2dbb98a0fd8f93ea} 
+LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CHECKMATE&Animace matu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_RESERVED\_SLOT\_26@{LED\_CMD\_RESERVED\_SLOT\_26}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_RESERVED\_SLOT\_26@{LED\_CMD\_RESERVED\_SLOT\_26}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0a3b3480bea2aedbb8ba9ba174a97afc}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0a3b3480bea2aedbb8ba9ba174a97afc} 
+LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+26&Rezervovano (legacy slot). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_DISABLE@{LED\_CMD\_DISABLE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_DISABLE@{LED\_CMD\_DISABLE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da3245bcef006f573a1e0c42e15e75ac3e}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da3245bcef006f573a1e0c42e15e75ac3e} 
+LED\+\_\+\+CMD\+\_\+\+DISABLE&Vypni LED komponentu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ENABLE@{LED\_CMD\_ENABLE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ENABLE@{LED\_CMD\_ENABLE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0d4704d7f14b5966b4d5e1e15c8effbe}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0d4704d7f14b5966b4d5e1e15c8effbe} 
+LED\+\_\+\+CMD\+\_\+\+ENABLE&Zapni LED komponentu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_BUTTON\_PROMOTION\_AVAILABLE@{LED\_CMD\_BUTTON\_PROMOTION\_AVAILABLE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_BUTTON\_PROMOTION\_AVAILABLE@{LED\_CMD\_BUTTON\_PROMOTION\_AVAILABLE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf8124758b9a58effb1393e3482358b1f}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf8124758b9a58effb1393e3482358b1f} 
+LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+PROMOTION\+\_\+\+AVAILABLE&Nastav promocni tlacitko jako dostupne. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_BUTTON\_PROMOTION\_UNAVAILABLE@{LED\_CMD\_BUTTON\_PROMOTION\_UNAVAILABLE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_BUTTON\_PROMOTION\_UNAVAILABLE@{LED\_CMD\_BUTTON\_PROMOTION\_UNAVAILABLE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da441731e024d2f2a63ff838654017cb6f}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da441731e024d2f2a63ff838654017cb6f} 
+LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+PROMOTION\+\_\+\+UNAVAILABLE&Nastav promocni tlacitko jako nedostupne. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_BUTTON\_SET\_PRESSED@{LED\_CMD\_BUTTON\_SET\_PRESSED}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_BUTTON\_SET\_PRESSED@{LED\_CMD\_BUTTON\_SET\_PRESSED}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da1cd4129febc39d32125f7b63cbb1b968}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da1cd4129febc39d32125f7b63cbb1b968} 
+LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+SET\+\_\+\+PRESSED&Nastav tlacitko jako stisknute. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_BUTTON\_SET\_RELEASED@{LED\_CMD\_BUTTON\_SET\_RELEASED}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_BUTTON\_SET\_RELEASED@{LED\_CMD\_BUTTON\_SET\_RELEASED}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da645e84d2ccec89c75209784f912340d8}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da645e84d2ccec89c75209784f912340d8} 
+LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+SET\+\_\+\+RELEASED&Nastav tlacitko jako uvolnene. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_GAME\_STATE\_UPDATE@{LED\_CMD\_GAME\_STATE\_UPDATE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_GAME\_STATE\_UPDATE@{LED\_CMD\_GAME\_STATE\_UPDATE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae4852702ef287c906e2ca5272c047361}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae4852702ef287c906e2ca5272c047361} 
+LED\+\_\+\+CMD\+\_\+\+GAME\+\_\+\+STATE\+\_\+\+UPDATE&Aktualizuj LED podle aktualniho stavu hry. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_HIGHLIGHT\_PIECES@{LED\_CMD\_HIGHLIGHT\_PIECES}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_HIGHLIGHT\_PIECES@{LED\_CMD\_HIGHLIGHT\_PIECES}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf0f30b49574874673f7dedf4e3ef637b}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf0f30b49574874673f7dedf4e3ef637b} 
+LED\+\_\+\+CMD\+\_\+\+HIGHLIGHT\+\_\+\+PIECES&Zvyrazni figurky ktere se mohou hybat. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_HIGHLIGHT\_MOVES@{LED\_CMD\_HIGHLIGHT\_MOVES}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_HIGHLIGHT\_MOVES@{LED\_CMD\_HIGHLIGHT\_MOVES}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dad5d7870e73aceb328b67166210b27182}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dad5d7870e73aceb328b67166210b27182} 
+LED\+\_\+\+CMD\+\_\+\+HIGHLIGHT\+\_\+\+MOVES&Zvyrazni mozne tahy pro vybranou figurku. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_CLEAR\_HIGHLIGHTS@{LED\_CMD\_CLEAR\_HIGHLIGHTS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_CLEAR\_HIGHLIGHTS@{LED\_CMD\_CLEAR\_HIGHLIGHTS}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da9188b02c7998356975109115ec629b21}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da9188b02c7998356975109115ec629b21} 
+LED\+\_\+\+CMD\+\_\+\+CLEAR\+\_\+\+HIGHLIGHTS&Vymazej vsechna zvyrazneni. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_PLAYER\_CHANGE@{LED\_CMD\_PLAYER\_CHANGE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_PLAYER\_CHANGE@{LED\_CMD\_PLAYER\_CHANGE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa5c435ea8239bab77cfab55550b5bee1}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa5c435ea8239bab77cfab55550b5bee1} 
+LED\+\_\+\+CMD\+\_\+\+PLAYER\+\_\+\+CHANGE&Animace zmeny hrace. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ERROR\_INVALID\_MOVE@{LED\_CMD\_ERROR\_INVALID\_MOVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ERROR\_INVALID\_MOVE@{LED\_CMD\_ERROR\_INVALID\_MOVE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da61126ce66596b43a74b040d15ae4647c}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da61126ce66596b43a74b040d15ae4647c} 
+LED\+\_\+\+CMD\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+MOVE&Zobraz chybu neplatneho tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ERROR\_RETURN\_PIECE@{LED\_CMD\_ERROR\_RETURN\_PIECE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ERROR\_RETURN\_PIECE@{LED\_CMD\_ERROR\_RETURN\_PIECE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab074e02d4c9516005c3bd7d31f8e787b}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab074e02d4c9516005c3bd7d31f8e787b} 
+LED\+\_\+\+CMD\+\_\+\+ERROR\+\_\+\+RETURN\+\_\+\+PIECE&Vyzvi uzivatele k vraceni figurky. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_ERROR\_RECOVERY@{LED\_CMD\_ERROR\_RECOVERY}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_ERROR\_RECOVERY@{LED\_CMD\_ERROR\_RECOVERY}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da6b00fc5d44a9d18c1cb99bb13c0f5815}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da6b00fc5d44a9d18c1cb99bb13c0f5815} 
+LED\+\_\+\+CMD\+\_\+\+ERROR\+\_\+\+RECOVERY&Obnova z chyboveho stavu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_SHOW\_LEGAL\_MOVES@{LED\_CMD\_SHOW\_LEGAL\_MOVES}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_SHOW\_LEGAL\_MOVES@{LED\_CMD\_SHOW\_LEGAL\_MOVES}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da55cf1cd112d68a2c834a4a8b83f26415}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da55cf1cd112d68a2c834a4a8b83f26415} 
+LED\+\_\+\+CMD\+\_\+\+SHOW\+\_\+\+LEGAL\+\_\+\+MOVES&Zobraz vsechny legalni tahy pro typ figurky. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_CASTLING\_GUIDANCE@{LED\_CMD\_CASTLING\_GUIDANCE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_CASTLING\_GUIDANCE@{LED\_CMD\_CASTLING\_GUIDANCE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da58cefa5ccaee7e155c8f0ee780209e39}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da58cefa5ccaee7e155c8f0ee780209e39} 
+LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+GUIDANCE&Zobraz navod pro rosadu (pozice krale/veze). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_CASTLING\_ERROR@{LED\_CMD\_CASTLING\_ERROR}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_CASTLING\_ERROR@{LED\_CMD\_CASTLING\_ERROR}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da279bafa5fec225b86ef70ef4ecdd2970}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da279bafa5fec225b86ef70ef4ecdd2970} 
+LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+ERROR&Zobraz chybovou indikaci rosady. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_CASTLING\_CELEBRATION@{LED\_CMD\_CASTLING\_CELEBRATION}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_CASTLING\_CELEBRATION@{LED\_CMD\_CASTLING\_CELEBRATION}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da3e683c2a42a2ca7ed7a715d2492fee85}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da3e683c2a42a2ca7ed7a715d2492fee85} 
+LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+CELEBRATION&Zobraz oslavu dokonceni rosady. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_CASTLING\_TUTORIAL@{LED\_CMD\_CASTLING\_TUTORIAL}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_CASTLING\_TUTORIAL@{LED\_CMD\_CASTLING\_TUTORIAL}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0acbe04632886e7fcc679174560cac06}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0acbe04632886e7fcc679174560cac06} 
+LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+TUTORIAL&Zobraz tutorial rosady. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_CASTLING\_CLEAR@{LED\_CMD\_CASTLING\_CLEAR}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_CASTLING\_CLEAR@{LED\_CMD\_CASTLING\_CLEAR}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daff455cc7d17fa43994e64e9c9b5e663f}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daff455cc7d17fa43994e64e9c9b5e663f} 
+LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+CLEAR&Vymaz vsechny indikace rosady. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_STATUS\_ACTIVE@{LED\_CMD\_STATUS\_ACTIVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_STATUS\_ACTIVE@{LED\_CMD\_STATUS\_ACTIVE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69} 
+LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+ACTIVE&Status prikaz -\/ aktivni LED. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_STATUS\_COMPACT@{LED\_CMD\_STATUS\_COMPACT}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_STATUS\_COMPACT@{LED\_CMD\_STATUS\_COMPACT}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da79fc9577fe569938b3650e0615820b32}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da79fc9577fe569938b3650e0615820b32} 
+LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+COMPACT&Status prikaz -\/ kompaktni vystup. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_STATUS\_DETAILED@{LED\_CMD\_STATUS\_DETAILED}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_STATUS\_DETAILED@{LED\_CMD\_STATUS\_DETAILED}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0} 
+LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+DETAILED&Status prikaz -\/ detailni vystup. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00359}{359}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447a}\index{chess\_types.h@{chess\_types.h}!matrix\_command\_type\_t@{matrix\_command\_type\_t}}
+\index{matrix\_command\_type\_t@{matrix\_command\_type\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_command\_type\_t}{matrix\_command\_type\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447a} 
+enum \mbox{\hyperlink{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447a}{matrix\+\_\+command\+\_\+type\+\_\+t}}}
+
+
+
+Typy matrix prikazu. 
+
+Definuje prikazy ktere lze poslat matrix tasku. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATRIX\_CMD\_SCAN@{MATRIX\_CMD\_SCAN}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MATRIX\_CMD\_SCAN@{MATRIX\_CMD\_SCAN}}}\Hypertarget{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa41ace29c9ff45d2dfb21f28e298c7943}\label{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa41ace29c9ff45d2dfb21f28e298c7943} 
+MATRIX\+\_\+\+CMD\+\_\+\+SCAN&Proved skenovani matice. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATRIX\_CMD\_RESET@{MATRIX\_CMD\_RESET}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MATRIX\_CMD\_RESET@{MATRIX\_CMD\_RESET}}}\Hypertarget{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa7bc413e23a6bc09a2e155096fa603dec}\label{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa7bc413e23a6bc09a2e155096fa603dec} 
+MATRIX\+\_\+\+CMD\+\_\+\+RESET&Resetuj stav matice. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATRIX\_CMD\_TEST@{MATRIX\_CMD\_TEST}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MATRIX\_CMD\_TEST@{MATRIX\_CMD\_TEST}}}\Hypertarget{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa2fff98c7f65532e3805fa0aa51874280}\label{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa2fff98c7f65532e3805fa0aa51874280} 
+MATRIX\+\_\+\+CMD\+\_\+\+TEST&Testuj matrix funkci. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATRIX\_CMD\_CALIBRATE@{MATRIX\_CMD\_CALIBRATE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MATRIX\_CMD\_CALIBRATE@{MATRIX\_CMD\_CALIBRATE}}}\Hypertarget{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa5942ac097cba4821815b332686b8224d}\label{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa5942ac097cba4821815b332686b8224d} 
+MATRIX\+\_\+\+CMD\+\_\+\+CALIBRATE&Kalibruj matrix (nastaveni citlivosti). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATRIX\_CMD\_DISABLE@{MATRIX\_CMD\_DISABLE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MATRIX\_CMD\_DISABLE@{MATRIX\_CMD\_DISABLE}}}\Hypertarget{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa7623c181ba460f2efa8fc0704a809700}\label{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aa7623c181ba460f2efa8fc0704a809700} 
+MATRIX\+\_\+\+CMD\+\_\+\+DISABLE&Vypni skenovani matice. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATRIX\_CMD\_ENABLE@{MATRIX\_CMD\_ENABLE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MATRIX\_CMD\_ENABLE@{MATRIX\_CMD\_ENABLE}}}\Hypertarget{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aac28eb91d87621eebcfe95be8e6a736ad}\label{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447aac28eb91d87621eebcfe95be8e6a736ad} 
+MATRIX\+\_\+\+CMD\+\_\+\+ENABLE&Zapni skenovani matice. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00511}{511}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a86af72d7b967d33d0fade767c033320f}\index{chess\_types.h@{chess\_types.h}!matrix\_event\_type\_t@{matrix\_event\_type\_t}}
+\index{matrix\_event\_type\_t@{matrix\_event\_type\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{matrix\_event\_type\_t}{matrix\_event\_type\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_a86af72d7b967d33d0fade767c033320f} 
+enum \mbox{\hyperlink{chess__types_8h_a86af72d7b967d33d0fade767c033320f}{matrix\+\_\+event\+\_\+type\+\_\+t}}}
+
+
+
+Typy matrix udalosti. 
+
+Definuje vsechny typy udalosti ktere muze generovat matrix task pri detekovani pohybu figurek. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATRIX\_EVENT\_PIECE\_LIFTED@{MATRIX\_EVENT\_PIECE\_LIFTED}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MATRIX\_EVENT\_PIECE\_LIFTED@{MATRIX\_EVENT\_PIECE\_LIFTED}}}\Hypertarget{chess__types_8h_a86af72d7b967d33d0fade767c033320fa39129c9582541c86108746c63a6be30d}\label{chess__types_8h_a86af72d7b967d33d0fade767c033320fa39129c9582541c86108746c63a6be30d} 
+MATRIX\+\_\+\+EVENT\+\_\+\+PIECE\+\_\+\+LIFTED&Figurka zvednuta (reed switch rozepnut). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATRIX\_EVENT\_PIECE\_PLACED@{MATRIX\_EVENT\_PIECE\_PLACED}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MATRIX\_EVENT\_PIECE\_PLACED@{MATRIX\_EVENT\_PIECE\_PLACED}}}\Hypertarget{chess__types_8h_a86af72d7b967d33d0fade767c033320fae68c93c0c4fc7f3f100942775984e594}\label{chess__types_8h_a86af72d7b967d33d0fade767c033320fae68c93c0c4fc7f3f100942775984e594} 
+MATRIX\+\_\+\+EVENT\+\_\+\+PIECE\+\_\+\+PLACED&Figurka polozena (reed switch sepnut). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATRIX\_EVENT\_MOVE\_DETECTED@{MATRIX\_EVENT\_MOVE\_DETECTED}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MATRIX\_EVENT\_MOVE\_DETECTED@{MATRIX\_EVENT\_MOVE\_DETECTED}}}\Hypertarget{chess__types_8h_a86af72d7b967d33d0fade767c033320fa35b920398a95b8a2cb0b48a31df01619}\label{chess__types_8h_a86af72d7b967d33d0fade767c033320fa35b920398a95b8a2cb0b48a31df01619} 
+MATRIX\+\_\+\+EVENT\+\_\+\+MOVE\+\_\+\+DETECTED&Kompletni tah detekovan (lift + place). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MATRIX\_EVENT\_ERROR@{MATRIX\_EVENT\_ERROR}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MATRIX\_EVENT\_ERROR@{MATRIX\_EVENT\_ERROR}}}\Hypertarget{chess__types_8h_a86af72d7b967d33d0fade767c033320fabb7b9f5963909feca6e37f45eda97246}\label{chess__types_8h_a86af72d7b967d33d0fade767c033320fabb7b9f5963909feca6e37f45eda97246} 
+MATRIX\+\_\+\+EVENT\+\_\+\+ERROR&Chyba pri detekovani. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00482}{482}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}\index{chess\_types.h@{chess\_types.h}!move\_error\_t@{move\_error\_t}}
+\index{move\_error\_t@{move\_error\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{move\_error\_t}{move\_error\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1} 
+enum \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\_\+error\+\_\+t}}}
+
+
+
+Typy chyb pri tahu. 
+
+Enumerace definujici vsechny mozne typy chyb pri provadeni tahu. Pouziva se pro detailni error handling a zobrazeni napovedy hraci. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_NONE@{MOVE\_ERROR\_NONE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_NONE@{MOVE\_ERROR\_NONE}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a4100d3557901ed1bf26cadf95436db60}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a4100d3557901ed1bf26cadf95436db60} 
+MOVE\+\_\+\+ERROR\+\_\+\+NONE&Zadna chyba. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_INVALID\_SYNTAX@{MOVE\_ERROR\_INVALID\_SYNTAX}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_INVALID\_SYNTAX@{MOVE\_ERROR\_INVALID\_SYNTAX}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a7a0d7fa395f1f1826ecf2859d4b1dfbc}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a7a0d7fa395f1f1826ecf2859d4b1dfbc} 
+MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+SYNTAX&Neplatna syntaxe tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_INVALID\_PARAMETER@{MOVE\_ERROR\_INVALID\_PARAMETER}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_INVALID\_PARAMETER@{MOVE\_ERROR\_INVALID\_PARAMETER}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a811b7944c3ffe2044c660548f291c20b}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a811b7944c3ffe2044c660548f291c20b} 
+MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+PARAMETER&Neplatny parameter. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_PIECE\_NOT\_FOUND@{MOVE\_ERROR\_PIECE\_NOT\_FOUND}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_PIECE\_NOT\_FOUND@{MOVE\_ERROR\_PIECE\_NOT\_FOUND}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ab4cb258bbbe0300855b48b6f2d1b066f}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ab4cb258bbbe0300855b48b6f2d1b066f} 
+MOVE\+\_\+\+ERROR\+\_\+\+PIECE\+\_\+\+NOT\+\_\+\+FOUND&Figurka nenalezena. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_INVALID\_MOVE@{MOVE\_ERROR\_INVALID\_MOVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_INVALID\_MOVE@{MOVE\_ERROR\_INVALID\_MOVE}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1afdd1c5dd74c3751769aee3f28589cdea}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1afdd1c5dd74c3751769aee3f28589cdea} 
+MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+MOVE&Neplatny tah. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_BLOCKED\_PATH@{MOVE\_ERROR\_BLOCKED\_PATH}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_BLOCKED\_PATH@{MOVE\_ERROR\_BLOCKED\_PATH}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a641b6ce57e59a5c718ca5ee3e51f9444}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a641b6ce57e59a5c718ca5ee3e51f9444} 
+MOVE\+\_\+\+ERROR\+\_\+\+BLOCKED\+\_\+\+PATH&Blokovana cesta. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_CHECK\_VIOLATION@{MOVE\_ERROR\_CHECK\_VIOLATION}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_CHECK\_VIOLATION@{MOVE\_ERROR\_CHECK\_VIOLATION}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a2fb8b41d9e36545a7a9410d4b8528215}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a2fb8b41d9e36545a7a9410d4b8528215} 
+MOVE\+\_\+\+ERROR\+\_\+\+CHECK\+\_\+\+VIOLATION&Tah by nechal krale v sachu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_SYSTEM\_ERROR@{MOVE\_ERROR\_SYSTEM\_ERROR}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_SYSTEM\_ERROR@{MOVE\_ERROR\_SYSTEM\_ERROR}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ab3b3ce37d8c4beef920d33cd4b10fbd1}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ab3b3ce37d8c4beef920d33cd4b10fbd1} 
+MOVE\+\_\+\+ERROR\+\_\+\+SYSTEM\+\_\+\+ERROR&Systemova chyba. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_NO\_PIECE@{MOVE\_ERROR\_NO\_PIECE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_NO\_PIECE@{MOVE\_ERROR\_NO\_PIECE}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ae25a34f37cd35bcd83411aecc8f439f1}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ae25a34f37cd35bcd83411aecc8f439f1} 
+MOVE\+\_\+\+ERROR\+\_\+\+NO\+\_\+\+PIECE&Na zdrojovem poli neni figurka. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_WRONG\_COLOR@{MOVE\_ERROR\_WRONG\_COLOR}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_WRONG\_COLOR@{MOVE\_ERROR\_WRONG\_COLOR}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a5723bd10d7972babaac58c5fa122371e}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a5723bd10d7972babaac58c5fa122371e} 
+MOVE\+\_\+\+ERROR\+\_\+\+WRONG\+\_\+\+COLOR&Spatna barva figurky (neni na tahu). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_INVALID\_PATTERN@{MOVE\_ERROR\_INVALID\_PATTERN}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_INVALID\_PATTERN@{MOVE\_ERROR\_INVALID\_PATTERN}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a6dc786a7e8aea2d1f178c80c73848675}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a6dc786a7e8aea2d1f178c80c73848675} 
+MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+PATTERN&Neplatny vzor pohybu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_KING\_IN\_CHECK@{MOVE\_ERROR\_KING\_IN\_CHECK}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_KING\_IN\_CHECK@{MOVE\_ERROR\_KING\_IN\_CHECK}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a1efb8e4fd12884711d5de2950e74f087}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a1efb8e4fd12884711d5de2950e74f087} 
+MOVE\+\_\+\+ERROR\+\_\+\+KING\+\_\+\+IN\+\_\+\+CHECK&Kral je v sachu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_CASTLING\_BLOCKED@{MOVE\_ERROR\_CASTLING\_BLOCKED}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_CASTLING\_BLOCKED@{MOVE\_ERROR\_CASTLING\_BLOCKED}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a062f25db8c860c564d19c9e46c776fe0}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a062f25db8c860c564d19c9e46c776fe0} 
+MOVE\+\_\+\+ERROR\+\_\+\+CASTLING\+\_\+\+BLOCKED&Rosada je blokovana. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_EN\_PASSANT\_INVALID@{MOVE\_ERROR\_EN\_PASSANT\_INVALID}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_EN\_PASSANT\_INVALID@{MOVE\_ERROR\_EN\_PASSANT\_INVALID}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ac71919eb046ab42ba1e6a622b914863a}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ac71919eb046ab42ba1e6a622b914863a} 
+MOVE\+\_\+\+ERROR\+\_\+\+EN\+\_\+\+PASSANT\+\_\+\+INVALID&Neplatny en passant. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_DESTINATION\_OCCUPIED@{MOVE\_ERROR\_DESTINATION\_OCCUPIED}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_DESTINATION\_OCCUPIED@{MOVE\_ERROR\_DESTINATION\_OCCUPIED}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a4dab65373947ddaa9d99838441f3fcff}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a4dab65373947ddaa9d99838441f3fcff} 
+MOVE\+\_\+\+ERROR\+\_\+\+DESTINATION\+\_\+\+OCCUPIED&Cilove pole je obsazeno vlastni figurkou. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_OUT\_OF\_BOUNDS@{MOVE\_ERROR\_OUT\_OF\_BOUNDS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_OUT\_OF\_BOUNDS@{MOVE\_ERROR\_OUT\_OF\_BOUNDS}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a0d51fa502a0284e356d4c196152a9165}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a0d51fa502a0284e356d4c196152a9165} 
+MOVE\+\_\+\+ERROR\+\_\+\+OUT\+\_\+\+OF\+\_\+\+BOUNDS&Souradnice mimo sachovnici. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_GAME\_NOT\_ACTIVE@{MOVE\_ERROR\_GAME\_NOT\_ACTIVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_GAME\_NOT\_ACTIVE@{MOVE\_ERROR\_GAME\_NOT\_ACTIVE}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a98e7980c293506d89bac9ef4fae9e237}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a98e7980c293506d89bac9ef4fae9e237} 
+MOVE\+\_\+\+ERROR\+\_\+\+GAME\+\_\+\+NOT\+\_\+\+ACTIVE&Hra neni aktivni. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_INVALID\_MOVE\_STRUCTURE@{MOVE\_ERROR\_INVALID\_MOVE\_STRUCTURE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_INVALID\_MOVE\_STRUCTURE@{MOVE\_ERROR\_INVALID\_MOVE\_STRUCTURE}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ae99b00ccc116996ee3eb7886d97f72e1}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ae99b00ccc116996ee3eb7886d97f72e1} 
+MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+MOVE\+\_\+\+STRUCTURE&Neplatna struktura tahu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_INVALID\_COORDINATES@{MOVE\_ERROR\_INVALID\_COORDINATES}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_INVALID\_COORDINATES@{MOVE\_ERROR\_INVALID\_COORDINATES}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ad0f6ecbd8e5bf7852d4298269a812f33}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ad0f6ecbd8e5bf7852d4298269a812f33} 
+MOVE\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+COORDINATES&Neplatne souradnice. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_ERROR\_ILLEGAL\_MOVE@{MOVE\_ERROR\_ILLEGAL\_MOVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_ERROR\_ILLEGAL\_MOVE@{MOVE\_ERROR\_ILLEGAL\_MOVE}}}\Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1adbc56938feb4f9a70401c3190d77f9de}\label{chess__types_8h_ad29cfdba222dc553f977a701312d18c1adbc56938feb4f9a70401c3190d77f9de} 
+MOVE\+\_\+\+ERROR\+\_\+\+ILLEGAL\+\_\+\+MOVE&Nelegalni tah. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00120}{120}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576}\index{chess\_types.h@{chess\_types.h}!move\_type\_t@{move\_type\_t}}
+\index{move\_type\_t@{move\_type\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{move\_type\_t}{move\_type\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576} 
+enum \mbox{\hyperlink{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576}{move\+\_\+type\+\_\+t}}}
+
+
+
+Typy tahu pro rozsirenou sachovou logiku. 
+
+Definuje specialni typy tahu v sach (rosada, en passant, promoce). \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_TYPE\_NORMAL@{MOVE\_TYPE\_NORMAL}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_TYPE\_NORMAL@{MOVE\_TYPE\_NORMAL}}}\Hypertarget{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a81d6017982215bfb2df43b04360c21f7}\label{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a81d6017982215bfb2df43b04360c21f7} 
+MOVE\+\_\+\+TYPE\+\_\+\+NORMAL&Normalni tah. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_TYPE\_CAPTURE@{MOVE\_TYPE\_CAPTURE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_TYPE\_CAPTURE@{MOVE\_TYPE\_CAPTURE}}}\Hypertarget{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a0c1ae66eb0f22d3d3da0216c3c4a4c43}\label{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a0c1ae66eb0f22d3d3da0216c3c4a4c43} 
+MOVE\+\_\+\+TYPE\+\_\+\+CAPTURE&Sebrani figurky. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_TYPE\_CASTLE\_KING@{MOVE\_TYPE\_CASTLE\_KING}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_TYPE\_CASTLE\_KING@{MOVE\_TYPE\_CASTLE\_KING}}}\Hypertarget{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a348ebd44da63a3260560e30452bd3d4c}\label{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a348ebd44da63a3260560e30452bd3d4c} 
+MOVE\+\_\+\+TYPE\+\_\+\+CASTLE\+\_\+\+KING&Mala rosada (kingside). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_TYPE\_CASTLE\_QUEEN@{MOVE\_TYPE\_CASTLE\_QUEEN}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_TYPE\_CASTLE\_QUEEN@{MOVE\_TYPE\_CASTLE\_QUEEN}}}\Hypertarget{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a9402d70bce003961f9bef482a0f05abc}\label{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a9402d70bce003961f9bef482a0f05abc} 
+MOVE\+\_\+\+TYPE\+\_\+\+CASTLE\+\_\+\+QUEEN&Velka rosada (queenside). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_TYPE\_EN\_PASSANT@{MOVE\_TYPE\_EN\_PASSANT}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_TYPE\_EN\_PASSANT@{MOVE\_TYPE\_EN\_PASSANT}}}\Hypertarget{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a23c92ea1d63a461f09485c3762e3656d}\label{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a23c92ea1d63a461f09485c3762e3656d} 
+MOVE\+\_\+\+TYPE\+\_\+\+EN\+\_\+\+PASSANT&En passant (sebrani pescu mimochodem). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{MOVE\_TYPE\_PROMOTION@{MOVE\_TYPE\_PROMOTION}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!MOVE\_TYPE\_PROMOTION@{MOVE\_TYPE\_PROMOTION}}}\Hypertarget{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a0616f79303505961b7054938d27c5a0f}\label{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576a0616f79303505961b7054938d27c5a0f} 
+MOVE\+\_\+\+TYPE\+\_\+\+PROMOTION&Promoce pescu. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00186}{186}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}\index{chess\_types.h@{chess\_types.h}!piece\_t@{piece\_t}}
+\index{piece\_t@{piece\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{piece\_t}{piece\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2} 
+enum \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}
+
+
+
+Typy sachovych figurek. 
+
+Enumerace definujici vsechny typy sachovych figurek pro obe barvy. Hodnota 0 znamena prazdne pole. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_EMPTY@{PIECE\_EMPTY}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_EMPTY@{PIECE\_EMPTY}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a78c1cf9cdf8f00b3f94fcc2f867180f1}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a78c1cf9cdf8f00b3f94fcc2f867180f1} 
+PIECE\+\_\+\+EMPTY&Prazdne pole (zadna figurka). \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_WHITE\_PAWN@{PIECE\_WHITE\_PAWN}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_WHITE\_PAWN@{PIECE\_WHITE\_PAWN}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d} 
+PIECE\+\_\+\+WHITE\+\_\+\+PAWN&Bily pesec. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_WHITE\_KNIGHT@{PIECE\_WHITE\_KNIGHT}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_WHITE\_KNIGHT@{PIECE\_WHITE\_KNIGHT}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a4c99e4617db8d3f21a4dd23e497d0b0c}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a4c99e4617db8d3f21a4dd23e497d0b0c} 
+PIECE\+\_\+\+WHITE\+\_\+\+KNIGHT&Bily kun. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_WHITE\_BISHOP@{PIECE\_WHITE\_BISHOP}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_WHITE\_BISHOP@{PIECE\_WHITE\_BISHOP}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ac5624ba607e63e7a6f7ebdab4b322992}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ac5624ba607e63e7a6f7ebdab4b322992} 
+PIECE\+\_\+\+WHITE\+\_\+\+BISHOP&Bily strelec. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_WHITE\_ROOK@{PIECE\_WHITE\_ROOK}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_WHITE\_ROOK@{PIECE\_WHITE\_ROOK}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ac403d9dfd1cf2dc0be0217a0a54c0a42}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ac403d9dfd1cf2dc0be0217a0a54c0a42} 
+PIECE\+\_\+\+WHITE\+\_\+\+ROOK&Bila vez. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_WHITE\_QUEEN@{PIECE\_WHITE\_QUEEN}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_WHITE\_QUEEN@{PIECE\_WHITE\_QUEEN}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a6d9b099ad26f6f85108b90494697d5dc}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a6d9b099ad26f6f85108b90494697d5dc} 
+PIECE\+\_\+\+WHITE\+\_\+\+QUEEN&Bila dama. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_WHITE\_KING@{PIECE\_WHITE\_KING}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_WHITE\_KING@{PIECE\_WHITE\_KING}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411} 
+PIECE\+\_\+\+WHITE\+\_\+\+KING&Bily kral. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_BLACK\_PAWN@{PIECE\_BLACK\_PAWN}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_BLACK\_PAWN@{PIECE\_BLACK\_PAWN}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b} 
+PIECE\+\_\+\+BLACK\+\_\+\+PAWN&Cerny pesec. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_BLACK\_KNIGHT@{PIECE\_BLACK\_KNIGHT}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_BLACK\_KNIGHT@{PIECE\_BLACK\_KNIGHT}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a3888c0ae958fcf54d7b4f77a26bdaa60}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a3888c0ae958fcf54d7b4f77a26bdaa60} 
+PIECE\+\_\+\+BLACK\+\_\+\+KNIGHT&Cerny kun. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_BLACK\_BISHOP@{PIECE\_BLACK\_BISHOP}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_BLACK\_BISHOP@{PIECE\_BLACK\_BISHOP}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ae844e749448cbcaae2fda6a56bb70b86}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2ae844e749448cbcaae2fda6a56bb70b86} 
+PIECE\+\_\+\+BLACK\+\_\+\+BISHOP&Cerny strelec. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_BLACK\_ROOK@{PIECE\_BLACK\_ROOK}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_BLACK\_ROOK@{PIECE\_BLACK\_ROOK}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a26b69f7adf92c62bfa744b9e77907584}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a26b69f7adf92c62bfa744b9e77907584} 
+PIECE\+\_\+\+BLACK\+\_\+\+ROOK&Cerna vez. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_BLACK\_QUEEN@{PIECE\_BLACK\_QUEEN}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_BLACK\_QUEEN@{PIECE\_BLACK\_QUEEN}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a29e99921b92026f4b6bbeacf08289238}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a29e99921b92026f4b6bbeacf08289238} 
+PIECE\+\_\+\+BLACK\+\_\+\+QUEEN&Cerna dama. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PIECE\_BLACK\_KING@{PIECE\_BLACK\_KING}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PIECE\_BLACK\_KING@{PIECE\_BLACK\_KING}}}\Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6}\label{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6} 
+PIECE\+\_\+\+BLACK\+\_\+\+KING&Cerny kral. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00049}{49}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}\index{chess\_types.h@{chess\_types.h}!player\_t@{player\_t}}
+\index{player\_t@{player\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{player\_t}{player\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1} 
+enum \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}
+
+
+
+Definice hracu. 
+
+Enumerace definujici obe barvy hracu v sach. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PLAYER\_WHITE@{PLAYER\_WHITE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PLAYER\_WHITE@{PLAYER\_WHITE}}}\Hypertarget{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f}\label{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f} 
+PLAYER\+\_\+\+WHITE&Bily hrac. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PLAYER\_BLACK@{PLAYER\_BLACK}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PLAYER\_BLACK@{PLAYER\_BLACK}}}\Hypertarget{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e}\label{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e} 
+PLAYER\+\_\+\+BLACK&Cerny hrac. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00095}{95}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}\index{chess\_types.h@{chess\_types.h}!promotion\_choice\_t@{promotion\_choice\_t}}
+\index{promotion\_choice\_t@{promotion\_choice\_t}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{promotion\_choice\_t}{promotion\_choice\_t}}
+{\footnotesize\ttfamily \label{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237} 
+enum \mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}{promotion\+\_\+choice\+\_\+t}}}
+
+
+
+Typy volby promoci pescu. 
+
+Kdyz pesec dosahne konec sachovnice, hrac si muze vybrat na kterou figurku chce pesc promovat. \begin{DoxyEnumFields}[2]{Hodnoty výčtu}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PROMOTION\_QUEEN@{PROMOTION\_QUEEN}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PROMOTION\_QUEEN@{PROMOTION\_QUEEN}}}\Hypertarget{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237ace7ae3bfdb598aeffb32c01d08805045}\label{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237ace7ae3bfdb598aeffb32c01d08805045} 
+PROMOTION\+\_\+\+QUEEN&Promovat na damu. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PROMOTION\_ROOK@{PROMOTION\_ROOK}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PROMOTION\_ROOK@{PROMOTION\_ROOK}}}\Hypertarget{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237a86adcf7f4dd13fe13c310740b684fd85}\label{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237a86adcf7f4dd13fe13c310740b684fd85} 
+PROMOTION\+\_\+\+ROOK&Promovat na vez. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PROMOTION\_BISHOP@{PROMOTION\_BISHOP}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PROMOTION\_BISHOP@{PROMOTION\_BISHOP}}}\Hypertarget{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237af76338fd133ad75d03265525fab6a060}\label{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237af76338fd133ad75d03265525fab6a060} 
+PROMOTION\+\_\+\+BISHOP&Promovat na strelce. \\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PROMOTION\_KNIGHT@{PROMOTION\_KNIGHT}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!PROMOTION\_KNIGHT@{PROMOTION\_KNIGHT}}}\Hypertarget{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237a38e92903ca7d679f019bbc0895c00910}\label{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237a38e92903ca7d679f019bbc0895c00910} 
+PROMOTION\+\_\+\+KNIGHT&Promovat na kone. \\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00154}{154}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{chess__types_8h_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{chess__types_8h_ae753d20be4991e260b40fd757087ebab}\index{chess\_types.h@{chess\_types.h}!config\_apply\_settings@{config\_apply\_settings}}
+\index{config\_apply\_settings@{config\_apply\_settings}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{config\_apply\_settings()}{config\_apply\_settings()}}
+{\footnotesize\ttfamily \label{chess__types_8h_ae753d20be4991e260b40fd757087ebab} 
+esp\+\_\+err\+\_\+t config\+\_\+apply\+\_\+settings (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Aplikuje nastaveni konfigurace na system. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em config} & Konfigurace k aplikaci \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00177}{177}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+\Hypertarget{chess__types_8h_a75038f5476c578ca0c192468d004160c}\index{chess\_types.h@{chess\_types.h}!config\_load\_from\_nvs@{config\_load\_from\_nvs}}
+\index{config\_load\_from\_nvs@{config\_load\_from\_nvs}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{config\_load\_from\_nvs()}{config\_load\_from\_nvs()}}
+{\footnotesize\ttfamily \label{chess__types_8h_a75038f5476c578ca0c192468d004160c} 
+esp\+\_\+err\+\_\+t config\+\_\+load\+\_\+from\+\_\+nvs (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Nacte konfiguraci z NVS flash. 
+
+
+\begin{DoxyParams}[1]{Parametry}
+\mbox{\texttt{out}}  & {\em config} & Ukazatel na strukturu pro nacteni konfigurace \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00050}{50}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+\Hypertarget{chess__types_8h_ad744426452d0ddd581a96e82f2369853}\index{chess\_types.h@{chess\_types.h}!config\_manager\_init@{config\_manager\_init}}
+\index{config\_manager\_init@{config\_manager\_init}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{config\_manager\_init()}{config\_manager\_init()}}
+{\footnotesize\ttfamily \label{chess__types_8h_ad744426452d0ddd581a96e82f2369853} 
+esp\+\_\+err\+\_\+t config\+\_\+manager\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Inicializuje config manager. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu
+\end{DoxyReturn}
+Inicializuje NVS flash pro ukladani konfigurace. NVS flash je jiz inicializovan v \doxylink{main_8c}{main.\+c} \doxylink{main_8c_ae52825df5837e0f8f5e814f48cafb722}{init\+\_\+console()}, takze tato funkce pouze overi dostupnost.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00039}{39}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+\Hypertarget{chess__types_8h_a24aceb1224555fd605ab85c9b0842357}\index{chess\_types.h@{chess\_types.h}!config\_save\_to\_nvs@{config\_save\_to\_nvs}}
+\index{config\_save\_to\_nvs@{config\_save\_to\_nvs}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{config\_save\_to\_nvs()}{config\_save\_to\_nvs()}}
+{\footnotesize\ttfamily \label{chess__types_8h_a24aceb1224555fd605ab85c9b0842357} 
+esp\+\_\+err\+\_\+t config\+\_\+save\+\_\+to\+\_\+nvs (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structsystem__config__t}{system\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{config}{}\end{DoxyParamCaption})}
+
+
+
+Ulozi konfiguraci do NVS flash. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em config} & Konfigurace k ulozeni \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00119}{119}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+
+\Hypertarget{chess__types_8h_a4a1fae8d66a8db2dd28a091a3b11279c}\index{chess\_types.h@{chess\_types.h}!game\_is\_enemy\_piece@{game\_is\_enemy\_piece}}
+\index{game\_is\_enemy\_piece@{game\_is\_enemy\_piece}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_enemy\_piece()}{game\_is\_enemy\_piece()}}
+{\footnotesize\ttfamily \label{chess__types_8h_a4a1fae8d66a8db2dd28a091a3b11279c} 
+bool game\+\_\+is\+\_\+enemy\+\_\+piece (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{piece}{, }\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{player}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je figurka nepratelska. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em piece} & Figurka k overeni \\
+\hline
+{\em player} & Hrac \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je figurka nepratelska
+\end{DoxyReturn}
+Overi zda je figurka nepratelska.
+
+\begin{DoxyReturn}{Návratová hodnota}
+true if insufficient material (draw)
+\end{DoxyReturn}
+Check if piece belongs to opponent 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08389}{8389}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{chess__types_8h_a7f31b3ea42f40399386306ba3d88cb9c}\index{chess\_types.h@{chess\_types.h}!game\_is\_own\_piece@{game\_is\_own\_piece}}
+\index{game\_is\_own\_piece@{game\_is\_own\_piece}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_own\_piece()}{game\_is\_own\_piece()}}
+{\footnotesize\ttfamily \label{chess__types_8h_a7f31b3ea42f40399386306ba3d88cb9c} 
+bool game\+\_\+is\+\_\+own\+\_\+piece (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}}}]{piece}{, }\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{player}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je figurka vlastni (patri aktualnimu hraci). 
+
+
+\begin{DoxyParams}{Parametry}
+{\em piece} & Figurka k overeni \\
+\hline
+{\em player} & Hrac \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je figurka vlastni
+\end{DoxyReturn}
+Overi zda je figurka vlastni (patri aktualnimu hraci). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08943}{8943}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{chess__types_8h_ad58024344b5777da494b4a35f8250c32}\index{chess\_types.h@{chess\_types.h}!game\_is\_valid\_square@{game\_is\_valid\_square}}
+\index{game\_is\_valid\_square@{game\_is\_valid\_square}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{game\_is\_valid\_square()}{game\_is\_valid\_square()}}
+{\footnotesize\ttfamily \label{chess__types_8h_ad58024344b5777da494b4a35f8250c32} 
+bool game\+\_\+is\+\_\+valid\+\_\+square (\begin{DoxyParamCaption}\item[{int}]{row}{, }\item[{int}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Overi zda je pozice platna na sachovnici. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em row} & Radek (0-\/7) \\
+\hline
+{\em col} & Sloupec (0-\/7) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je pozice platna
+\end{DoxyReturn}
+Overi zda je pozice platna na sachovnici. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08936}{8936}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{chess__types_8h_a3d771c47f735ab5e75fee68915b073fc}\index{chess\_types.h@{chess\_types.h}!game\_simulate\_move\_check@{game\_simulate\_move\_check}}
+\index{game\_simulate\_move\_check@{game\_simulate\_move\_check}!chess\_types.h@{chess\_types.h}}
+\doxysubsubsection{\texorpdfstring{game\_simulate\_move\_check()}{game\_simulate\_move\_check()}}
+{\footnotesize\ttfamily \label{chess__types_8h_a3d771c47f735ab5e75fee68915b073fc} 
+bool game\+\_\+simulate\+\_\+move\+\_\+check (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structchess__move__extended__t}{chess\+\_\+move\+\_\+extended\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{move}{, }\item[{\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}}}]{player}{}\end{DoxyParamCaption})}
+
+
+
+Simuluje tah a overi zda by nechal krale v sachu. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em move} & Tah k simulaci \\
+\hline
+{\em player} & Hrac \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud by tah nechal krale v sachu
+\end{DoxyReturn}
+Simuluje tah a overi zda by nechal krale v sachu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09047}{9047}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+

@@ -1,0 +1,177 @@
+\doxysection{Dokumentace struktury matrix\+\_\+event\+\_\+t}
+\hypertarget{structmatrix__event__t}{}\label{structmatrix__event__t}\index{matrix\_event\_t@{matrix\_event\_t}}
+
+
+Struktura matrix udalosti.  
+
+
+
+
+{\ttfamily \#include $<$chess\+\_\+types.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{chess__types_8h_a86af72d7b967d33d0fade767c033320f}{matrix\+\_\+event\+\_\+type\+\_\+t}} \mbox{\hyperlink{structmatrix__event__t_a136d126a221d1e83577bdec39d611382}{type}}
+\begin{DoxyCompactList}\small\item\em Typ udalosti (lifted, placed, move detected). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structmatrix__event__t_a2f07c2c41a4eb95ffb933402aa485de6}{from\+\_\+square}}
+\begin{DoxyCompactList}\small\item\em Zdrojove pole (0-\/63). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structmatrix__event__t_ab9ad1ee61d7f911f987a7da34798a2c7}{to\+\_\+square}}
+\begin{DoxyCompactList}\small\item\em Cilove pole (0-\/63). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \mbox{\hyperlink{structmatrix__event__t_a8a605943957a1d906ebbb3180b630cf7}{piece\+\_\+type}}
+\begin{DoxyCompactList}\small\item\em Typ figurky. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{structmatrix__event__t_afabbf043d2cf02d953194fc388c00ad4}{timestamp}}
+\begin{DoxyCompactList}\small\item\em Casova znamka udalosti. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structmatrix__event__t_a2f644f5eb6efda19f98cf82398d63f1f}{from\+\_\+row}}
+\begin{DoxyCompactList}\small\item\em Zdrojovy radek (0-\/7). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structmatrix__event__t_a74960ff8c206f3c997800987d93f0ab0}{from\+\_\+col}}
+\begin{DoxyCompactList}\small\item\em Zdrojovy sloupec (0-\/7). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structmatrix__event__t_a9dd9d3bb07f54ed5d020900ee4b4b965}{to\+\_\+row}}
+\begin{DoxyCompactList}\small\item\em Cilovy radek (0-\/7). \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structmatrix__event__t_a995368e0b41ee11bac2b47da35499757}{to\+\_\+col}}
+\begin{DoxyCompactList}\small\item\em Cilovy sloupec (0-\/7). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Struktura matrix udalosti. 
+
+Obsahuje informace o matrix udalosti (typ, pozice, figurka). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00494}{494}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structmatrix__event__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structmatrix__event__t_a74960ff8c206f3c997800987d93f0ab0}\index{matrix\_event\_t@{matrix\_event\_t}!from\_col@{from\_col}}
+\index{from\_col@{from\_col}!matrix\_event\_t@{matrix\_event\_t}}
+\doxysubsubsection{\texorpdfstring{from\_col}{from\_col}}
+{\footnotesize\ttfamily \label{structmatrix__event__t_a74960ff8c206f3c997800987d93f0ab0} 
+uint8\+\_\+t matrix\+\_\+event\+\_\+t\+::from\+\_\+col}
+
+
+
+Zdrojovy sloupec (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00501}{501}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmatrix__event__t_a2f644f5eb6efda19f98cf82398d63f1f}\index{matrix\_event\_t@{matrix\_event\_t}!from\_row@{from\_row}}
+\index{from\_row@{from\_row}!matrix\_event\_t@{matrix\_event\_t}}
+\doxysubsubsection{\texorpdfstring{from\_row}{from\_row}}
+{\footnotesize\ttfamily \label{structmatrix__event__t_a2f644f5eb6efda19f98cf82398d63f1f} 
+uint8\+\_\+t matrix\+\_\+event\+\_\+t\+::from\+\_\+row}
+
+
+
+Zdrojovy radek (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00500}{500}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmatrix__event__t_a2f07c2c41a4eb95ffb933402aa485de6}\index{matrix\_event\_t@{matrix\_event\_t}!from\_square@{from\_square}}
+\index{from\_square@{from\_square}!matrix\_event\_t@{matrix\_event\_t}}
+\doxysubsubsection{\texorpdfstring{from\_square}{from\_square}}
+{\footnotesize\ttfamily \label{structmatrix__event__t_a2f07c2c41a4eb95ffb933402aa485de6} 
+uint8\+\_\+t matrix\+\_\+event\+\_\+t\+::from\+\_\+square}
+
+
+
+Zdrojove pole (0-\/63). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00496}{496}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmatrix__event__t_a8a605943957a1d906ebbb3180b630cf7}\index{matrix\_event\_t@{matrix\_event\_t}!piece\_type@{piece\_type}}
+\index{piece\_type@{piece\_type}!matrix\_event\_t@{matrix\_event\_t}}
+\doxysubsubsection{\texorpdfstring{piece\_type}{piece\_type}}
+{\footnotesize\ttfamily \label{structmatrix__event__t_a8a605943957a1d906ebbb3180b630cf7} 
+\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} matrix\+\_\+event\+\_\+t\+::piece\+\_\+type}
+
+
+
+Typ figurky. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00498}{498}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmatrix__event__t_afabbf043d2cf02d953194fc388c00ad4}\index{matrix\_event\_t@{matrix\_event\_t}!timestamp@{timestamp}}
+\index{timestamp@{timestamp}!matrix\_event\_t@{matrix\_event\_t}}
+\doxysubsubsection{\texorpdfstring{timestamp}{timestamp}}
+{\footnotesize\ttfamily \label{structmatrix__event__t_afabbf043d2cf02d953194fc388c00ad4} 
+uint32\+\_\+t matrix\+\_\+event\+\_\+t\+::timestamp}
+
+
+
+Casova znamka udalosti. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00499}{499}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmatrix__event__t_a995368e0b41ee11bac2b47da35499757}\index{matrix\_event\_t@{matrix\_event\_t}!to\_col@{to\_col}}
+\index{to\_col@{to\_col}!matrix\_event\_t@{matrix\_event\_t}}
+\doxysubsubsection{\texorpdfstring{to\_col}{to\_col}}
+{\footnotesize\ttfamily \label{structmatrix__event__t_a995368e0b41ee11bac2b47da35499757} 
+uint8\+\_\+t matrix\+\_\+event\+\_\+t\+::to\+\_\+col}
+
+
+
+Cilovy sloupec (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00503}{503}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmatrix__event__t_a9dd9d3bb07f54ed5d020900ee4b4b965}\index{matrix\_event\_t@{matrix\_event\_t}!to\_row@{to\_row}}
+\index{to\_row@{to\_row}!matrix\_event\_t@{matrix\_event\_t}}
+\doxysubsubsection{\texorpdfstring{to\_row}{to\_row}}
+{\footnotesize\ttfamily \label{structmatrix__event__t_a9dd9d3bb07f54ed5d020900ee4b4b965} 
+uint8\+\_\+t matrix\+\_\+event\+\_\+t\+::to\+\_\+row}
+
+
+
+Cilovy radek (0-\/7). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00502}{502}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmatrix__event__t_ab9ad1ee61d7f911f987a7da34798a2c7}\index{matrix\_event\_t@{matrix\_event\_t}!to\_square@{to\_square}}
+\index{to\_square@{to\_square}!matrix\_event\_t@{matrix\_event\_t}}
+\doxysubsubsection{\texorpdfstring{to\_square}{to\_square}}
+{\footnotesize\ttfamily \label{structmatrix__event__t_ab9ad1ee61d7f911f987a7da34798a2c7} 
+uint8\+\_\+t matrix\+\_\+event\+\_\+t\+::to\+\_\+square}
+
+
+
+Cilove pole (0-\/63). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00497}{497}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+\Hypertarget{structmatrix__event__t_a136d126a221d1e83577bdec39d611382}\index{matrix\_event\_t@{matrix\_event\_t}!type@{type}}
+\index{type@{type}!matrix\_event\_t@{matrix\_event\_t}}
+\doxysubsubsection{\texorpdfstring{type}{type}}
+{\footnotesize\ttfamily \label{structmatrix__event__t_a136d126a221d1e83577bdec39d611382} 
+\mbox{\hyperlink{chess__types_8h_a86af72d7b967d33d0fade767c033320f}{matrix\+\_\+event\+\_\+type\+\_\+t}} matrix\+\_\+event\+\_\+t\+::type}
+
+
+
+Typ udalosti (lifted, placed, move detected). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00495}{495}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{chess__types_8h}{chess\+\_\+types.\+h}}\end{DoxyCompactItemize}

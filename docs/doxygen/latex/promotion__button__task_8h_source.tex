@@ -1,0 +1,49 @@
+\doxysection{promotion\+\_\+button\+\_\+task.\+h}
+\hypertarget{promotion__button__task_8h_source}{}\label{promotion__button__task_8h_source}\index{promotion\_button\_task.h@{promotion\_button\_task.h}}
+\mbox{\hyperlink{promotion__button__task_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00021}00021\ \textcolor{preprocessor}{\#ifndef\ PROMOTION\_BUTTON\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00022}00022\ \textcolor{preprocessor}{\#define\ PROMOTION\_BUTTON\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00023}00023\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00024}00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}freertos/task.h"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00028}00028\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00029}00029\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00030}00030\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00032}00032\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00033}00033\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00034}00034\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00036}00036\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00037}00037\ \textcolor{comment}{//\ KONSTANTY\ A\ TYPY}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00038}00038\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00041}\mbox{\hyperlink{promotion__button__task_8h_a58d022d18b73ee9efae31b39b6fd4343}{00041}}\ \textcolor{preprocessor}{\#define\ PROMOTION\_BUTTON\_TASK\_PRIORITY\ \ \ 3}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00043}00043\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00044}00044\ \textcolor{comment}{//\ PROTOTYPY\ FUNKCI}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00045}00045\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00046}00046\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00054}00054\ esp\_err\_t\ \mbox{\hyperlink{promotion__button__task_8h_a4a7c298b8b954ba4e407167ec242242b}{promotion\_button\_task\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00064}00064\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{promotion__button__task_8h_a31932e440404a48bbeee15bd30220f31}{promotion\_button\_task}}(\textcolor{keywordtype}{void}\ *pvParameters);}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00065}00065\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00074}00074\ esp\_err\_t\ \mbox{\hyperlink{promotion__button__task_8h_a8e3a45fc9ac9fcda6e243449b9de66ff}{process\_promotion\_choice}}(\mbox{\hyperlink{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}{promotion\_choice\_t}}\ choice);}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00075}00075\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00084}00084\ esp\_err\_t\ \mbox{\hyperlink{promotion__button__task_8h_a0e0d52d07d70caef22af40a2969e79c3}{simulate\_promotion\_button\_press}}(uint8\_t\ button\_index);}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00085}00085\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00091}00091\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{promotion__button__task_8h_af6e9bc64868813a9a0c6134a471aefc9}{promotion\_button\_is\_initialized}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00092}00092\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00098}00098\ uint32\_t\ \mbox{\hyperlink{promotion__button__task_8h_acc92043a584171d17f29d9e0ae9bbd1a}{promotion\_button\_get\_event\_count}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00099}00099\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00100}00100\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00101}00101\ \}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00102}00102\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00103}00103\ }
+\DoxyCodeLine{\Hypertarget{promotion__button__task_8h_source_l00104}00104\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ PROMOTION\_BUTTON\_TASK\_H\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

@@ -1,0 +1,216 @@
+\doxysection{enhanced\+\_\+castling\+\_\+system.\+h}
+\hypertarget{enhanced__castling__system_8h_source}{}\label{enhanced__castling__system_8h_source}\index{enhanced\_castling\_system.h@{enhanced\_castling\_system.h}}
+\mbox{\hyperlink{enhanced__castling__system_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00020}00020\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00021}00021\ \textcolor{preprocessor}{\#ifndef\ ENHANCED\_CASTLING\_SYSTEM\_H}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00022}00022\ \textcolor{preprocessor}{\#define\ ENHANCED\_CASTLING\_SYSTEM\_H}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00023}00023\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00024}00024\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00025}00025\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00028}00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{game__led__animations_8h}{game\_led\_animations.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00030}00030\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00031}00031\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00032}00032\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00034}00034\ \textcolor{comment}{//\ Predni\ deklarace\ -\/\ tyto\ typy\ jsou\ definovany\ v\ freertos\_chess.h}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00035}00035\ \textcolor{comment}{//\ player\_t\ a\ rgb\_color\_t\ jsou\ jiz\ definovany\ v\ freertos\_chess.h}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00037}00037\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00038}00038\ \textcolor{comment}{//\ ENUMERACE\ FAZI\ ROSADY}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00039}00039\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00046}\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{00046}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00047}\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984adab804b233835495e7fc3d21592a228a}{00047}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984adab804b233835495e7fc3d21592a228a}{CASTLING\_STATE\_IDLE}}\ =\ 0,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00048}\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a6b8198b3c2a1bd0fc46f7d18dbfc04a6}{00048}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a6b8198b3c2a1bd0fc46f7d18dbfc04a6}{CASTLING\_STATE\_KING\_LIFTED}},\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00049}\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984ac9da4000210f2ea7dcbde1e49ecad0df}{00049}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984ac9da4000210f2ea7dcbde1e49ecad0df}{CASTLING\_STATE\_KING\_MOVED\_WAITING\_ROOK}},\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00050}\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a1dc5694d8891c142687e57791894626c}{00050}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a1dc5694d8891c142687e57791894626c}{CASTLING\_STATE\_ROOK\_LIFTED}},\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00051}\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984afb7f4437b4f3c44a900f182d8757bd52}{00051}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984afb7f4437b4f3c44a900f182d8757bd52}{CASTLING\_STATE\_COMPLETING}},\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00052}\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a0ddeffb101a9b2c9a7a288bbb22b714e}{00052}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a0ddeffb101a9b2c9a7a288bbb22b714e}{CASTLING\_STATE\_ERROR\_RECOVERY}},\ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00053}\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a8de3374bdedd9647eee7fc63b937ba9d}{00053}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984a8de3374bdedd9647eee7fc63b937ba9d}{CASTLING\_STATE\_COMPLETED}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00054}00054\ \}\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\_phase\_t}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00056}00056\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00057}00057\ \textcolor{comment}{//\ TYPY\ CHYB\ ROSADY}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00058}00058\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00063}\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{00063}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00064}\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a573c50f91e017666758f1305c0b66dd4}{00064}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a573c50f91e017666758f1305c0b66dd4}{CASTLING\_ERROR\_NONE}}\ =\ 0,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00065}\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a1db8f8d658faee09a9c932202bb42cce}{00065}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a1db8f8d658faee09a9c932202bb42cce}{CASTLING\_ERROR\_WRONG\_KING\_POSITION}},\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00066}\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a722a013d2eb253c852c9903fbb05fa50}{00066}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a722a013d2eb253c852c9903fbb05fa50}{CASTLING\_ERROR\_WRONG\_ROOK\_POSITION}},\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00067}\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1aad564a60d4b825e5595c9d6375cae76e}{00067}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1aad564a60d4b825e5595c9d6375cae76e}{CASTLING\_ERROR\_TIMEOUT}},\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00068}\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a90e0b9f36c173915167b09f99a664084}{00068}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a90e0b9f36c173915167b09f99a664084}{CASTLING\_ERROR\_INVALID\_SEQUENCE}},\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00069}\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a38d391c73001939d7a3b2f25f8d0f293}{00069}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a38d391c73001939d7a3b2f25f8d0f293}{CASTLING\_ERROR\_HARDWARE\_FAILURE}},\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00070}\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1ae1237a1a1e6880432a366a357f452a3c}{00070}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1ae1237a1a1e6880432a366a357f452a3c}{CASTLING\_ERROR\_GAME\_STATE\_INVALID}},\ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00071}\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a7df1f2f16b2c41d3e5b7f92eb9862eaf}{00071}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1a7df1f2f16b2c41d3e5b7f92eb9862eaf}{CASTLING\_ERROR\_MAX\_ERRORS\_EXCEEDED}}\ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00072}00072\ \}\ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\_error\_t}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00074}00074\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00075}00075\ \textcolor{comment}{//\ STRUKTURY\ PRO\ POZICE\ ROSADY}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00076}00076\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00077}00077\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00083}\mbox{\hyperlink{structcastling__positions__t}{00083}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00084}\mbox{\hyperlink{structcastling__positions__t_a61a8cebe1265bd5c314ede822850874d}{00084}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structcastling__positions__t_a8f8646113529baeede5db86bbca7b759}{king\_from\_row}},\ \mbox{\hyperlink{structcastling__positions__t_a61a8cebe1265bd5c314ede822850874d}{king\_from\_col}};\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00085}\mbox{\hyperlink{structcastling__positions__t_a6b2b0a29876d269219f706fa857eb78e}{00085}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structcastling__positions__t_af10c6d54bf7046e73a6a0d5d48a88bf9}{king\_to\_row}},\ \mbox{\hyperlink{structcastling__positions__t_a6b2b0a29876d269219f706fa857eb78e}{king\_to\_col}};\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00086}\mbox{\hyperlink{structcastling__positions__t_a5bf47d2b25a7365cfada2110d6c375f2}{00086}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structcastling__positions__t_a268786a1222cb336eec41510ac089f01}{rook\_from\_row}},\ \mbox{\hyperlink{structcastling__positions__t_a5bf47d2b25a7365cfada2110d6c375f2}{rook\_from\_col}};\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00087}\mbox{\hyperlink{structcastling__positions__t_a56dd6d90404022b71164de6f9b02b88d}{00087}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structcastling__positions__t_a327b358b5219956a1a4c1a17cadb9363}{rook\_to\_row}},\ \mbox{\hyperlink{structcastling__positions__t_a56dd6d90404022b71164de6f9b02b88d}{rook\_to\_col}};\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00088}00088\ \}\ \mbox{\hyperlink{structcastling__positions__t}{castling\_positions\_t}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00089}00089\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00093}\mbox{\hyperlink{structcastling__led__state__t}{00093}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00094}\mbox{\hyperlink{structcastling__led__state__t_acc27bb99a6cbb794b94854f40d593c59}{00094}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structcastling__led__state__t_acc27bb99a6cbb794b94854f40d593c59}{king\_animation\_id}};\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00095}\mbox{\hyperlink{structcastling__led__state__t_a31ff62b630a954e7384df452efdf94f2}{00095}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structcastling__led__state__t_a31ff62b630a954e7384df452efdf94f2}{rook\_animation\_id}};\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00096}\mbox{\hyperlink{structcastling__led__state__t_a6a52813b439afa5496bd6351ba351954}{00096}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structcastling__led__state__t_a6a52813b439afa5496bd6351ba351954}{guidance\_animation\_id}};\ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00097}\mbox{\hyperlink{structcastling__led__state__t_a0d3a81d2075158d32cc067fc2aa6d1c5}{00097}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structcastling__led__state__t_a0d3a81d2075158d32cc067fc2aa6d1c5}{showing\_error}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00098}\mbox{\hyperlink{structcastling__led__state__t_af2bc6f8611d243b8d9cee39e4353bfec}{00098}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structcastling__led__state__t_af2bc6f8611d243b8d9cee39e4353bfec}{showing\_guidance}};\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00099}00099\ \}\ \mbox{\hyperlink{structcastling__led__state__t}{castling\_led\_state\_t}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00104}\mbox{\hyperlink{structcastling__led__config__t}{00104}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00105}00105\ \ \ \ \ \textcolor{comment}{//\ Barvy\ pro\ ruzne\ stavy}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00106}00106\ \ \ \ \ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00107}\mbox{\hyperlink{structcastling__led__config__t_a1fe1b245d36f081d19965a5289f9f712}{00107}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{structcastling__led__config__t_a1fe1b245d36f081d19965a5289f9f712}{king\_highlight}};\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00108}\mbox{\hyperlink{structcastling__led__config__t_af99e940507d3ef2e8fb16664fd167360}{00108}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{structcastling__led__config__t_af99e940507d3ef2e8fb16664fd167360}{king\_destination}};\ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00109}\mbox{\hyperlink{structcastling__led__config__t_a82da172dc989a50b96d81778b283e067}{00109}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{structcastling__led__config__t_a82da172dc989a50b96d81778b283e067}{rook\_highlight}};\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00110}\mbox{\hyperlink{structcastling__led__config__t_acce48927878d078580e8acc3e47294dc}{00110}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{structcastling__led__config__t_acce48927878d078580e8acc3e47294dc}{rook\_destination}};\ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00111}\mbox{\hyperlink{structcastling__led__config__t_aa84e4a577f5bc80b788921512546b748}{00111}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{structcastling__led__config__t_aa84e4a577f5bc80b788921512546b748}{error\_indication}};\ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00112}\mbox{\hyperlink{structcastling__led__config__t_a09f718a9ce213215e3d661ffd636a879}{00112}}\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structrgb__color__t}{rgb\_color\_t}}\ \mbox{\hyperlink{structcastling__led__config__t_a09f718a9ce213215e3d661ffd636a879}{path\_guidance}};\ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00113}\mbox{\hyperlink{structcastling__led__config__t_abb030c5d0841242d7878ae92a3ff6c31}{00113}}\ \ \ \ \ \}\ colors;\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00114}00114\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00115}00115\ \ \ \ \ \textcolor{comment}{//\ Animacni\ vzory}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00116}00116\ \ \ \ \ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00117}\mbox{\hyperlink{structcastling__led__config__t_a94c260b9495c4ff37f896d47baea1f9a}{00117}}\ \ \ \ \ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structcastling__led__config__t_a94c260b9495c4ff37f896d47baea1f9a}{pulsing\_speed}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00118}\mbox{\hyperlink{structcastling__led__config__t_a6c699c147c9888fb2919a2fb790277a9}{00118}}\ \ \ \ \ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structcastling__led__config__t_a6c699c147c9888fb2919a2fb790277a9}{guidance\_speed}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00119}\mbox{\hyperlink{structcastling__led__config__t_a12575b4c400d92d567187cdf9b5127a8}{00119}}\ \ \ \ \ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structcastling__led__config__t_a12575b4c400d92d567187cdf9b5127a8}{error\_flash\_count}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00120}\mbox{\hyperlink{structcastling__led__config__t_a0478760a2694c3ca13222f3e64083b03}{00120}}\ \ \ \ \ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structcastling__led__config__t_a0478760a2694c3ca13222f3e64083b03}{completion\_celebration\_duration}};\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00121}\mbox{\hyperlink{structcastling__led__config__t_a9126cd142c5d8a01981e4c13ae3fd62d}{00121}}\ \ \ \ \ \}\ timing;\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00122}00122\ \}\ \mbox{\hyperlink{structcastling__led__config__t}{castling\_led\_config\_t}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00123}00123\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00127}\mbox{\hyperlink{structcastling__error__info__t}{00127}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00128}\mbox{\hyperlink{structcastling__error__info__t_acb3a3313d18dedd85e669edb5f493bd3}{00128}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\_error\_t}}\ \mbox{\hyperlink{structcastling__error__info__t_acb3a3313d18dedd85e669edb5f493bd3}{error\_type}};\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00129}\mbox{\hyperlink{structcastling__error__info__t_acd904d8c841b637d1d3d311472d84e8e}{00129}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structcastling__error__info__t_acd904d8c841b637d1d3d311472d84e8e}{description}}[128];\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00130}\mbox{\hyperlink{structcastling__error__info__t_ab4dcce8a4f74078bf52a19211c137c74}{00130}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structcastling__error__info__t_ab4dcce8a4f74078bf52a19211c137c74}{error\_led\_positions}}[8];\ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00131}\mbox{\hyperlink{structcastling__error__info__t_a6b18152768ec2ff1295e705b10a74b18}{00131}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structcastling__error__info__t_a6b18152768ec2ff1295e705b10a74b18}{correction\_led\_positions}}[8];\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00132}\mbox{\hyperlink{structcastling__error__info__t_a3fa688388a68b217d091d9f92a49e8bd}{00132}}\ \ \ \ \ void\ (*\mbox{\hyperlink{structcastling__error__info__t_a3fa688388a68b217d091d9f92a49e8bd}{recovery\_action}})(void);\ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00133}00133\ \}\ \mbox{\hyperlink{structcastling__error__info__t}{castling\_error\_info\_t}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00134}00134\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00138}\mbox{\hyperlink{structenhanced__castling__system__t}{00138}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00139}00139\ \ \ \ \ \textcolor{comment}{//\ Stav}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00140}\mbox{\hyperlink{structenhanced__castling__system__t_a9ad143ea4c1df172843b282169a4dfde}{00140}}\ \ \ \ \ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\_phase\_t}}\ \mbox{\hyperlink{structenhanced__castling__system__t_a9ad143ea4c1df172843b282169a4dfde}{phase}};\ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00141}\mbox{\hyperlink{structenhanced__castling__system__t_a193693f084c9983b7d3631df4ca11cf0}{00141}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structenhanced__castling__system__t_a193693f084c9983b7d3631df4ca11cf0}{active}};\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00142}00142\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00143}00143\ \ \ \ \ \textcolor{comment}{//\ Hrac\ a\ typ\ rosady}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00144}\mbox{\hyperlink{structenhanced__castling__system__t_abe1e8b371d2cd4a14f44bc619ba239c9}{00144}}\ \ \ \ \ \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\_t}}\ \mbox{\hyperlink{structenhanced__castling__system__t_abe1e8b371d2cd4a14f44bc619ba239c9}{player}};\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00145}\mbox{\hyperlink{structenhanced__castling__system__t_aed1696fbc7c2f7f72e5b8488abc901fd}{00145}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structenhanced__castling__system__t_aed1696fbc7c2f7f72e5b8488abc901fd}{is\_kingside}};\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00146}00146\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00147}00147\ \ \ \ \ \textcolor{comment}{//\ Pozice\ figurek}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00148}\mbox{\hyperlink{structenhanced__castling__system__t_ad8d7f5951f47c93f5e4af53e4c6374a2}{00148}}\ \ \ \ \ \mbox{\hyperlink{structcastling__positions__t}{castling\_positions\_t}}\ \mbox{\hyperlink{structenhanced__castling__system__t_ad8d7f5951f47c93f5e4af53e4c6374a2}{positions}};\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00149}00149\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00150}00150\ \ \ \ \ \textcolor{comment}{//\ Casovani\ a\ error\ handling}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00151}\mbox{\hyperlink{structenhanced__castling__system__t_a578c27a1cbedf763948800fd7331b635}{00151}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structenhanced__castling__system__t_a578c27a1cbedf763948800fd7331b635}{phase\_start\_time}};\ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00152}\mbox{\hyperlink{structenhanced__castling__system__t_acdf875b3cc914c109c760c56f7fff55d}{00152}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structenhanced__castling__system__t_acdf875b3cc914c109c760c56f7fff55d}{phase\_timeout\_ms}};\ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00153}\mbox{\hyperlink{structenhanced__castling__system__t_af58209be6b886146ebd983684f6e339e}{00153}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structenhanced__castling__system__t_af58209be6b886146ebd983684f6e339e}{error\_count}};\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00154}\mbox{\hyperlink{structenhanced__castling__system__t_a0907be6b43008863a3914d90dea75b3b}{00154}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structenhanced__castling__system__t_a0907be6b43008863a3914d90dea75b3b}{max\_errors}};\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00155}00155\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00156}00156\ \ \ \ \ \textcolor{comment}{//\ LED\ animace\ a\ indikace}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00157}\mbox{\hyperlink{structenhanced__castling__system__t_a2a0f299e6a721d6a6f7c9e6d80dc7a35}{00157}}\ \ \ \ \ \mbox{\hyperlink{structcastling__led__state__t}{castling\_led\_state\_t}}\ \mbox{\hyperlink{structenhanced__castling__system__t_a2a0f299e6a721d6a6f7c9e6d80dc7a35}{led\_state}};\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00158}00158\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00159}00159\ \ \ \ \ \textcolor{comment}{//\ Callback\ pro\ dokonceni}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00160}\mbox{\hyperlink{structenhanced__castling__system__t_ab9d558418c635e3e56021273d508f6a1}{00160}}\ \ \ \ \ void\ (*\mbox{\hyperlink{structenhanced__castling__system__t_ab9d558418c635e3e56021273d508f6a1}{completion\_callback}})(\textcolor{keywordtype}{bool}\ success);\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00161}00161\ \}\ \mbox{\hyperlink{structenhanced__castling__system__t}{enhanced\_castling\_system\_t}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00162}00162\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00163}00163\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00164}00164\ \textcolor{comment}{//\ GLOBALNI\ PROMENNE}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00165}00165\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00166}00166\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00168}00168\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{structenhanced__castling__system__t}{enhanced\_castling\_system\_t}}\ \mbox{\hyperlink{enhanced__castling__system_8c_a3e1c3a621bec2612240013522edf0638}{castling\_system}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00169}00169\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00171}00171\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{structcastling__led__config__t}{castling\_led\_config\_t}}\ \mbox{\hyperlink{enhanced__castling__system_8c_ad5f9d23be7ccc7853164b1b290e6ad84}{castling\_led\_config}};}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00172}00172\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00173}00173\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00174}00174\ \textcolor{comment}{//\ HLAVNI\ API\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00175}00175\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00176}00176\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00182}00182\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8h_a61f43ef55c76d2c5863819a96679f86d}{enhanced\_castling\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00183}00183\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00191}00191\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8h_a68473225caaf82fb02dbe69dd2b0ac90}{enhanced\_castling\_start}}(\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\_t}}\ \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}},\ \textcolor{keywordtype}{bool}\ is\_kingside);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00192}00192\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00200}00200\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8h_a71c6334fe7eed0d589acfeb1cb6aeaaf}{enhanced\_castling\_handle\_king\_lift}}(uint8\_t\ row,\ uint8\_t\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00201}00201\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00209}00209\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8h_ac1a783168547602db601cce5f25f5ef6}{enhanced\_castling\_handle\_king\_drop}}(uint8\_t\ row,\ uint8\_t\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00210}00210\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00218}00218\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8h_a1298ed566772765b083158dd04d7617e}{enhanced\_castling\_handle\_rook\_lift}}(uint8\_t\ row,\ uint8\_t\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00219}00219\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00227}00227\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8h_ad0b372fd30752be5c2817d04115ad28d}{enhanced\_castling\_handle\_rook\_drop}}(uint8\_t\ row,\ uint8\_t\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00228}00228\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00234}00234\ esp\_err\_t\ \mbox{\hyperlink{enhanced__castling__system_8h_a84967829c955ce40cb552af8f336c88d}{enhanced\_castling\_cancel}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00235}00235\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00241}00241\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{enhanced__castling__system_8h_a551d56ee547e30c59358ecfbef86302b}{enhanced\_castling\_is\_active}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00242}00242\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00248}00248\ \mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\_phase\_t}}\ \mbox{\hyperlink{enhanced__castling__system_8h_a573e41c1cc049dbb2722bc68b25f174b}{enhanced\_castling\_get\_phase}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00249}00249\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00255}00255\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_a2addf80390a5195a77495585144214c4}{enhanced\_castling\_update\_phase}}(\mbox{\hyperlink{enhanced__castling__system_8h_a5488d560e2ddb85e20098a6a750ff984}{castling\_phase\_t}}\ new\_phase);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00256}00256\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00264}00264\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_a0996145f3c92961e6d97861fb01e0fff}{enhanced\_castling\_handle\_error}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\_error\_t}}\ error,\ uint8\_t\ row,\ uint8\_t\ col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00265}00265\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00266}00266\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00267}00267\ \textcolor{comment}{//\ LED\ NAVODOVE\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00268}00268\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00269}00269\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00273}00273\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_aef98d7b498beb12daa3096022ec887e7}{castling\_show\_king\_guidance}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00274}00274\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00278}00278\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_ad5dc5a20cfdaf9d84030f5072778aff1}{castling\_show\_rook\_guidance}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00279}00279\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00285}00285\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_af9ae62a763763e34333532307fe30289}{castling\_show\_error\_indication}}(\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\_error\_t}}\ error);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00286}00286\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00290}00290\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_a6ccaa8b8a98da9de19017ad2fc611628}{castling\_show\_completion\_celebration}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00291}00291\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00295}00295\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_ae909113298c4be97e6a36572d3efeb4f}{castling\_clear\_all\_indications}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00296}00296\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00297}00297\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00298}00298\ \textcolor{comment}{//\ VALIDACNI\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00299}00299\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00300}00300\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00310}00310\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{enhanced__castling__system_8h_ae7bdbea7f5cfb9978bd0603bc5f4b4d0}{castling\_validate\_king\_move}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00311}00311\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00312}00312\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00322}00322\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{enhanced__castling__system_8h_a1669c97b2e5dcb839542b59392dbacbd}{castling\_validate\_rook\_move}}(uint8\_t\ from\_row,\ uint8\_t\ from\_col,}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00323}00323\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ to\_row,\ uint8\_t\ to\_col);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00324}00324\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00330}00330\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{enhanced__castling__system_8h_a104226173b83a62df2d44053ed147131}{castling\_validate\_sequence}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00331}00331\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00332}00332\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00333}00333\ \textcolor{comment}{//\ ERROR\ RECOVERY\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00334}00334\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00335}00335\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00339}00339\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_afe8c7b5de0f3719166f89e975059247c}{castling\_recover\_king\_wrong\_position}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00340}00340\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00344}00344\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_a61e387e4475acd4a6c9db96fc1333e1f}{castling\_recover\_rook\_wrong\_position}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00345}00345\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00349}00349\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_ae58c1122476af928bccd44407c0e5822}{castling\_recover\_timeout\_error}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00350}00350\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00354}00354\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_a12f1ed6212174d4f9532880ea94601a3}{castling\_show\_correct\_positions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00355}00355\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00359}00359\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_a4733364aef5fb97b725594cada6e7679}{castling\_show\_tutorial}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00360}00360\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00361}00361\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00362}00362\ \textcolor{comment}{//\ INTERNI\ UTILITY\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00363}00363\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00364}00364\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00371}00371\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_a7fea86462c2fa344578489036f7fb9eb}{castling\_calculate\_positions}}(\mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\_t}}\ \mbox{\hyperlink{game__task_8c_ac5a8201c5f6bbce303ec36500d67b6d8}{player}},\ \textcolor{keywordtype}{bool}\ is\_kingside);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00372}00372\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00378}00378\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{enhanced__castling__system_8h_a3e4dc75c38e98d97cf35f984fa66b2ce}{castling\_is\_timeout\_expired}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00379}00379\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00383}00383\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_af27a9e2af8a688e4ef4f6ea423ff5952}{castling\_reset\_system}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00384}00384\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00390}00390\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{enhanced__castling__system_8h_aee86001fa49a0428f9241c1e7427069b}{castling\_log\_state\_change}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ action);}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00391}00391\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00392}00392\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00393}00393\ \}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00394}00394\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00395}00395\ }
+\DoxyCodeLine{\Hypertarget{enhanced__castling__system_8h_source_l00396}00396\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ ENHANCED\_CASTLING\_SYSTEM\_H}}
+
+\end{DoxyCode}

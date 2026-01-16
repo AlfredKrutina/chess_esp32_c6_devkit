@@ -1,0 +1,111 @@
+\doxysection{Dokumentace struktury castling\+\_\+error\+\_\+info\+\_\+t}
+\hypertarget{structcastling__error__info__t}{}\label{structcastling__error__info__t}\index{castling\_error\_info\_t@{castling\_error\_info\_t}}
+
+
+Struktura informaci o chybe.  
+
+
+
+
+{\ttfamily \#include $<$enhanced\+\_\+castling\+\_\+system.\+h$>$}
+
+\doxysubsubsection*{Datové položky}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\+\_\+error\+\_\+t}} \mbox{\hyperlink{structcastling__error__info__t_acb3a3313d18dedd85e669edb5f493bd3}{error\+\_\+type}}
+\begin{DoxyCompactList}\small\item\em Typ chyby. \end{DoxyCompactList}\item 
+char \mbox{\hyperlink{structcastling__error__info__t_acd904d8c841b637d1d3d311472d84e8e}{description}} \mbox{[}128\mbox{]}
+\begin{DoxyCompactList}\small\item\em Popis chyby. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structcastling__error__info__t_ab4dcce8a4f74078bf52a19211c137c74}{error\+\_\+led\+\_\+positions}} \mbox{[}8\mbox{]}
+\begin{DoxyCompactList}\small\item\em Pozice pro cervene LED. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{structcastling__error__info__t_a6b18152768ec2ff1295e705b10a74b18}{correction\+\_\+led\+\_\+positions}} \mbox{[}8\mbox{]}
+\begin{DoxyCompactList}\small\item\em Pozice pro napravne LED. \end{DoxyCompactList}\item 
+void(\texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structcastling__error__info__t_a3fa688388a68b217d091d9f92a49e8bd}{recovery\+\_\+action}} )(void)
+\begin{DoxyCompactList}\small\item\em Akce pro napravu. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+Struktura informaci o chybe. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00127}{127}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structcastling__error__info__t_doc-variable-members}
+\doxysubsection{Dokumentace položek}
+\Hypertarget{structcastling__error__info__t_a6b18152768ec2ff1295e705b10a74b18}\index{castling\_error\_info\_t@{castling\_error\_info\_t}!correction\_led\_positions@{correction\_led\_positions}}
+\index{correction\_led\_positions@{correction\_led\_positions}!castling\_error\_info\_t@{castling\_error\_info\_t}}
+\doxysubsubsection{\texorpdfstring{correction\_led\_positions}{correction\_led\_positions}}
+{\footnotesize\ttfamily \label{structcastling__error__info__t_a6b18152768ec2ff1295e705b10a74b18} 
+uint8\+\_\+t castling\+\_\+error\+\_\+info\+\_\+t\+::correction\+\_\+led\+\_\+positions\mbox{[}8\mbox{]}}
+
+
+
+Pozice pro napravne LED. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00131}{131}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__error__info__t_acd904d8c841b637d1d3d311472d84e8e}\index{castling\_error\_info\_t@{castling\_error\_info\_t}!description@{description}}
+\index{description@{description}!castling\_error\_info\_t@{castling\_error\_info\_t}}
+\doxysubsubsection{\texorpdfstring{description}{description}}
+{\footnotesize\ttfamily \label{structcastling__error__info__t_acd904d8c841b637d1d3d311472d84e8e} 
+char castling\+\_\+error\+\_\+info\+\_\+t\+::description\mbox{[}128\mbox{]}}
+
+
+
+Popis chyby. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00129}{129}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__error__info__t_ab4dcce8a4f74078bf52a19211c137c74}\index{castling\_error\_info\_t@{castling\_error\_info\_t}!error\_led\_positions@{error\_led\_positions}}
+\index{error\_led\_positions@{error\_led\_positions}!castling\_error\_info\_t@{castling\_error\_info\_t}}
+\doxysubsubsection{\texorpdfstring{error\_led\_positions}{error\_led\_positions}}
+{\footnotesize\ttfamily \label{structcastling__error__info__t_ab4dcce8a4f74078bf52a19211c137c74} 
+uint8\+\_\+t castling\+\_\+error\+\_\+info\+\_\+t\+::error\+\_\+led\+\_\+positions\mbox{[}8\mbox{]}}
+
+
+
+Pozice pro cervene LED. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00130}{130}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__error__info__t_acb3a3313d18dedd85e669edb5f493bd3}\index{castling\_error\_info\_t@{castling\_error\_info\_t}!error\_type@{error\_type}}
+\index{error\_type@{error\_type}!castling\_error\_info\_t@{castling\_error\_info\_t}}
+\doxysubsubsection{\texorpdfstring{error\_type}{error\_type}}
+{\footnotesize\ttfamily \label{structcastling__error__info__t_acb3a3313d18dedd85e669edb5f493bd3} 
+\mbox{\hyperlink{enhanced__castling__system_8h_a9efb9de3b24e4bcd4d5307a6ce23cbd1}{castling\+\_\+error\+\_\+t}} castling\+\_\+error\+\_\+info\+\_\+t\+::error\+\_\+type}
+
+
+
+Typ chyby. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00128}{128}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+\Hypertarget{structcastling__error__info__t_a3fa688388a68b217d091d9f92a49e8bd}\index{castling\_error\_info\_t@{castling\_error\_info\_t}!recovery\_action@{recovery\_action}}
+\index{recovery\_action@{recovery\_action}!castling\_error\_info\_t@{castling\_error\_info\_t}}
+\doxysubsubsection{\texorpdfstring{recovery\_action}{recovery\_action}}
+{\footnotesize\ttfamily \label{structcastling__error__info__t_a3fa688388a68b217d091d9f92a49e8bd} 
+void(\texorpdfstring{$\ast$}{*} castling\+\_\+error\+\_\+info\+\_\+t\+::recovery\+\_\+action) (void)}
+
+
+
+Akce pro napravu. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{enhanced__castling__system_8h_source_l00132}{132}} v souboru \mbox{\hyperlink{enhanced__castling__system_8h_source}{enhanced\+\_\+castling\+\_\+system.\+h}}.
+
+
+
+Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{enhanced__castling__system_8h}{enhanced\+\_\+castling\+\_\+system.\+h}}\end{DoxyCompactItemize}

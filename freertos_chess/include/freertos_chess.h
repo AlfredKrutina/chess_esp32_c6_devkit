@@ -118,14 +118,23 @@ extern "C" {
 #define BUTTON_BISHOP MATRIX_COL_2 // C1 square + Button Bishop
 /** @brief Tlacitko pro promoci na kone (sdileno s MATRIX_COL_3) */
 #define BUTTON_KNIGHT MATRIX_COL_3 // D1 square + Button Knight
-/** @brief Tlacitko pro promoci na damu B (sdileno s MATRIX_COL_4) */
-#define BUTTON_PROMOTION_QUEEN MATRIX_COL_4 // E1 square + Promotion Queen
-/** @brief Tlacitko pro promoci na vez B (sdileno s MATRIX_COL_5) */
-#define BUTTON_PROMOTION_ROOK MATRIX_COL_5 // F1 square + Promotion Rook
-/** @brief Tlacitko pro promoci na strelce B (sdileno s MATRIX_COL_6) */
-#define BUTTON_PROMOTION_BISHOP MATRIX_COL_6 // G1 square + Promotion Bishop
-/** @brief Tlacitko pro promoci na kone B (sdileno s MATRIX_COL_7) */
-#define BUTTON_PROMOTION_KNIGHT MATRIX_COL_7 // H1 square + Promotion Knight
+
+// ============================================================================
+// NEPOUZIVANA MAKRA - ZAKOMENTOVANO
+// ============================================================================
+// ⚠️ POZOR: Následující makra se NEPOUŽÍVAJÍ v kódu!
+// Byly původně navržena pro druhou sadu promotion tlačítek, ale systém
+// používá pouze 4 sdílená tlačítka (BUTTON_QUEEN, BUTTON_ROOK, BUTTON_BISHOP, BUTTON_KNIGHT)
+// která jsou společná pro oba hráče. Pole promotion_button_pins_b také není použito.
+//
+// /** @brief Tlacitko pro promoci na damu B (sdileno s MATRIX_COL_4) */
+// #define BUTTON_PROMOTION_QUEEN MATRIX_COL_4 // E1 square + Promotion Queen
+// /** @brief Tlacitko pro promoci na vez B (sdileno s MATRIX_COL_5) */
+// #define BUTTON_PROMOTION_ROOK MATRIX_COL_5 // F1 square + Promotion Rook
+// /** @brief Tlacitko pro promoci na strelce B (sdileno s MATRIX_COL_6) */
+// #define BUTTON_PROMOTION_BISHOP MATRIX_COL_6 // G1 square + Promotion Bishop
+// /** @brief Tlacitko pro promoci na kone B (sdileno s MATRIX_COL_7) */
+// #define BUTTON_PROMOTION_KNIGHT MATRIX_COL_7 // H1 square + Promotion Knight
 
 // ============================================================================
 // SYSTEMOVE CASOVE KONSTANTY
@@ -357,8 +366,9 @@ extern const gpio_num_t matrix_row_pins[8];
 extern const gpio_num_t matrix_col_pins[8];
 /** @brief Pole GPIO pinu pro promotion tlacitka A (4 tlacitka) */
 extern const gpio_num_t promotion_button_pins_a[4];
-/** @brief Pole GPIO pinu pro promotion tlacitka B (4 tlacitka) */
-extern const gpio_num_t promotion_button_pins_b[4];
+// ⚠️ NEPOUZIVANO: Toto pole se nikde v kódu nepoužívá!
+// /** @brief Pole GPIO pinu pro promotion tlacitka B (4 tlacitka) */
+// extern const gpio_num_t promotion_button_pins_b[4];
 
 // ============================================================================
 // SYSTEMOVE INICIALIZACNI FUNKCE
