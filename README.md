@@ -361,18 +361,17 @@ Vytvořili jsme kompletní dokumentaci pomocí Doxygen. Dokumentace je dostupná
 
 Interaktivní dokumentace s vyhledáváním a navigací:
 
+**Lokální zobrazení:**
 ```bash
 ./generate_docs.sh
-open docs/public_doxygen/html/index.html  # Viditelné na GitHubu (plná verze)
-# nebo
-open docs/public_doxygen/rtf/refman.rtf  # RTF dokumentace pro Word
+open docs/doxygen/html/index.html  # Otevře dokumentaci v prohlížeči
 ```
 
-**Nasdílení HTML dokumentace:**
-- 🚀 Rychlé nasdílení na GitHub Pages: 
-  - **S git repozitářem**: `./update_gh_pages.sh` (automatické)
+**Online verze na GitHub Pages:**
+- 🌐 Dostupné na: https://alfredkrutina.github.io/chess_esp32_c6_devkit/
+- 🚀 Nasazení na GitHub Pages: 
+  - **S git repozitářem**: `./deploy_to_gh_pages.sh` (automatické)
   - **Bez git repozitáře**: `./prepare_gh_pages.sh` (připraví dokumentaci k ručnímu nahrání)
-- 📁 Dokumentace je automaticky zkopírována do `docs/public_doxygen/` při generování (viditelná na GitHubu)
 - 📖 Kompletní návod na nastavení: [docs/GITHUB_PAGES_SETUP.md](docs/GITHUB_PAGES_SETUP.md)
 
 ### RTF dokumentace (jeden soubor)
@@ -424,6 +423,9 @@ free_chess_v1/
 │
 ├── docs/                          # Dokumentace
 │   ├── doxygen/                   # Doxygen výstup
+│   │   ├── html/                  # HTML dokumentace (lokální zobrazení)
+│   │   └── rtf/                   # RTF dokumentace (Word)
+│   ├── diagrams_mermaid.html      # Mermaid diagramy
 │   ├── bugs/                      # Bug reporty a opravy
 │   ├── analysis/                  # Technické analýzy
 │   ├── planning/                  # Plány a návrhy
