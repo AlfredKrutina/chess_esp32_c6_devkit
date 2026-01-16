@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace struktury matrix_event_t</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('structmatrix__event__t.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace struktury matrix_event_t</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Struktura matrix udalosti.  
+ <a href="#details">...</a></p>
+
+<p><code>#include &lt;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Datové položky</h2></td></tr>
+<tr class="memitem:a136d126a221d1e83577bdec39d611382" id="r_a136d126a221d1e83577bdec39d611382"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#a86af72d7b967d33d0fade767c033320f">matrix_event_type_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a136d126a221d1e83577bdec39d611382">type</a></td></tr>
+<tr class="memdesc:a136d126a221d1e83577bdec39d611382"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typ udalosti (lifted, placed, move detected).  <br /></td></tr>
+<tr class="memitem:a2f07c2c41a4eb95ffb933402aa485de6" id="r_a2f07c2c41a4eb95ffb933402aa485de6"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2f07c2c41a4eb95ffb933402aa485de6">from_square</a></td></tr>
+<tr class="memdesc:a2f07c2c41a4eb95ffb933402aa485de6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zdrojove pole (0-63).  <br /></td></tr>
+<tr class="memitem:ab9ad1ee61d7f911f987a7da34798a2c7" id="r_ab9ad1ee61d7f911f987a7da34798a2c7"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab9ad1ee61d7f911f987a7da34798a2c7">to_square</a></td></tr>
+<tr class="memdesc:ab9ad1ee61d7f911f987a7da34798a2c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cilove pole (0-63).  <br /></td></tr>
+<tr class="memitem:a8a605943957a1d906ebbb3180b630cf7" id="r_a8a605943957a1d906ebbb3180b630cf7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8a605943957a1d906ebbb3180b630cf7">piece_type</a></td></tr>
+<tr class="memdesc:a8a605943957a1d906ebbb3180b630cf7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typ figurky.  <br /></td></tr>
+<tr class="memitem:afabbf043d2cf02d953194fc388c00ad4" id="r_afabbf043d2cf02d953194fc388c00ad4"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afabbf043d2cf02d953194fc388c00ad4">timestamp</a></td></tr>
+<tr class="memdesc:afabbf043d2cf02d953194fc388c00ad4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Casova znamka udalosti.  <br /></td></tr>
+<tr class="memitem:a2f644f5eb6efda19f98cf82398d63f1f" id="r_a2f644f5eb6efda19f98cf82398d63f1f"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2f644f5eb6efda19f98cf82398d63f1f">from_row</a></td></tr>
+<tr class="memdesc:a2f644f5eb6efda19f98cf82398d63f1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zdrojovy radek (0-7).  <br /></td></tr>
+<tr class="memitem:a74960ff8c206f3c997800987d93f0ab0" id="r_a74960ff8c206f3c997800987d93f0ab0"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a74960ff8c206f3c997800987d93f0ab0">from_col</a></td></tr>
+<tr class="memdesc:a74960ff8c206f3c997800987d93f0ab0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zdrojovy sloupec (0-7).  <br /></td></tr>
+<tr class="memitem:a9dd9d3bb07f54ed5d020900ee4b4b965" id="r_a9dd9d3bb07f54ed5d020900ee4b4b965"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9dd9d3bb07f54ed5d020900ee4b4b965">to_row</a></td></tr>
+<tr class="memdesc:a9dd9d3bb07f54ed5d020900ee4b4b965"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cilovy radek (0-7).  <br /></td></tr>
+<tr class="memitem:a995368e0b41ee11bac2b47da35499757" id="r_a995368e0b41ee11bac2b47da35499757"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a995368e0b41ee11bac2b47da35499757">to_col</a></td></tr>
+<tr class="memdesc:a995368e0b41ee11bac2b47da35499757"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cilovy sloupec (0-7).  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Struktura matrix udalosti. </p>
+<p>Obsahuje informace o matrix udalosti (typ, pozice, figurka). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00494">494</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+</div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Dokumentace položek</h2>
+<a id="a74960ff8c206f3c997800987d93f0ab0" name="a74960ff8c206f3c997800987d93f0ab0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a74960ff8c206f3c997800987d93f0ab0">&#9670;&#160;</a></span>from_col</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_event_t::from_col</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zdrojovy sloupec (0-7). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00501">501</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a2f644f5eb6efda19f98cf82398d63f1f" name="a2f644f5eb6efda19f98cf82398d63f1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f644f5eb6efda19f98cf82398d63f1f">&#9670;&#160;</a></span>from_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_event_t::from_row</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zdrojovy radek (0-7). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00500">500</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a2f07c2c41a4eb95ffb933402aa485de6" name="a2f07c2c41a4eb95ffb933402aa485de6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f07c2c41a4eb95ffb933402aa485de6">&#9670;&#160;</a></span>from_square</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_event_t::from_square</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zdrojove pole (0-63). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00496">496</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a8a605943957a1d906ebbb3180b630cf7" name="a8a605943957a1d906ebbb3180b630cf7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a605943957a1d906ebbb3180b630cf7">&#9670;&#160;</a></span>piece_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> matrix_event_t::piece_type</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typ figurky. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00498">498</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="afabbf043d2cf02d953194fc388c00ad4" name="afabbf043d2cf02d953194fc388c00ad4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afabbf043d2cf02d953194fc388c00ad4">&#9670;&#160;</a></span>timestamp</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t matrix_event_t::timestamp</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Casova znamka udalosti. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00499">499</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a995368e0b41ee11bac2b47da35499757" name="a995368e0b41ee11bac2b47da35499757"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a995368e0b41ee11bac2b47da35499757">&#9670;&#160;</a></span>to_col</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_event_t::to_col</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cilovy sloupec (0-7). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00503">503</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a9dd9d3bb07f54ed5d020900ee4b4b965" name="a9dd9d3bb07f54ed5d020900ee4b4b965"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9dd9d3bb07f54ed5d020900ee4b4b965">&#9670;&#160;</a></span>to_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_event_t::to_row</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cilovy radek (0-7). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00502">502</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="ab9ad1ee61d7f911f987a7da34798a2c7" name="ab9ad1ee61d7f911f987a7da34798a2c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9ad1ee61d7f911f987a7da34798a2c7">&#9670;&#160;</a></span>to_square</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_event_t::to_square</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cilove pole (0-63). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00497">497</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a136d126a221d1e83577bdec39d611382" name="a136d126a221d1e83577bdec39d611382"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a136d126a221d1e83577bdec39d611382">&#9670;&#160;</a></span>type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#a86af72d7b967d33d0fade767c033320f">matrix_event_type_t</a> matrix_event_t::type</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typ udalosti (lifted, placed, move detected). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00495">495</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<hr/>Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru:<ul>
+<li><a class="el" href="chess__types_8h_source.html">chess_types.h</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="structmatrix__event__t.html">matrix_event_t</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>
