@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor reset_button_task.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('reset__button__task_8c_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">reset_button_task.c</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="reset__button__task_8c.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;<a class="code" href="reset__button__task_8h.html">reset_button_task.h</a>&quot;</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;esp_log.h&quot;</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;esp_task_wdt.h&quot;</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &quot;freertos/FreeRTOS.h&quot;</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;freertos/task.h&quot;</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#include &quot;freertos/queue.h&quot;</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#include &quot;<a class="code" href="freertos__chess_8h.html">freertos_chess.h</a>&quot;</span>  <span class="comment">// OPRAVENO: Přidán include pro konstanty</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="reset__button__task_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">   30</a></span><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = <span class="stringliteral">&quot;RESET_BUTTON_TASK&quot;</span>;</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">// Reset button task status</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="reset__button__task_8c.html#a2a86e8e816b985c84e78ba6b842e52bf">   33</a></span><span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_variable" href="reset__button__task_8c.html#a2a86e8e816b985c84e78ba6b842e52bf">reset_button_initialized</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="reset__button__task_8c.html#ab36b66e9f95206af3b83dfa622d5cc7d">   34</a></span><span class="keyword">static</span> uint32_t <a class="code hl_variable" href="promotion__button__task_8c.html#ab36b66e9f95206af3b83dfa622d5cc7d">button_event_count</a> = 0;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span></div>
+<div class="foldopen" id="foldopen00041" data-start="{" data-end="}">
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="reset__button__task_8h.html#adf092b27f7d985c1b6e1f5980a1ec99e">   41</a></span>esp_err_t <a class="code hl_function" href="reset__button__task_8c.html#adf092b27f7d985c1b6e1f5980a1ec99e">reset_button_task_init</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>{</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="reset__button__task_8c.html#a2a86e8e816b985c84e78ba6b842e52bf">reset_button_initialized</a>) {</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    }</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Initializing reset button task (SIMULATION MODE)...&quot;</span>);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="comment">// Create reset button task</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    BaseType_t task_created = xTaskCreate(</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        <a class="code hl_function" href="reset__button__task_8h.html#a2b2018c335a91336642118cc74af7b4a">reset_button_task</a>,</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="stringliteral">&quot;reset_button_task&quot;</span>,</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        <a class="code hl_define" href="freertos__chess_8h.html#aa89cf203c391fae0636372b71659d297">RESET_BUTTON_TASK_STACK_SIZE</a>,  <span class="comment">// OPRAVENO: Místo hardcodované 2048</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        NULL,</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        <a class="code hl_define" href="freertos__chess_8h.html#a9317390fd5035b22532eaaa19884d747">RESET_BUTTON_TASK_PRIORITY</a>,    <span class="comment">// OPRAVENO: Místo hardcodované 3</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        NULL</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    );</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    </div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">if</span> (task_created != pdPASS) {</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to create reset button task&quot;</span>);</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        <span class="keywordflow">return</span> ESP_ERR_NO_MEM;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    }</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <a class="code hl_variable" href="reset__button__task_8c.html#a2a86e8e816b985c84e78ba6b842e52bf">reset_button_initialized</a> = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Reset button task initialized successfully (SIMULATION MODE)&quot;</span>);</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>}</div>
+</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span></div>
+<div class="foldopen" id="foldopen00075" data-start="{" data-end="}">
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno"><a class="line" href="reset__button__task_8h.html#a2b2018c335a91336642118cc74af7b4a">   75</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="reset__button__task_8c.html#a2b2018c335a91336642118cc74af7b4a">reset_button_task</a>(<span class="keywordtype">void</span> *pvParameters)</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>{</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Reset button task started (SIMULATION MODE)&quot;</span>);</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    TickType_t last_wake_time = xTaskGetTickCount();</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordflow">while</span> (1) {</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        <span class="comment">// CRITICAL: Reset watchdog for reset button task in every iteration</span></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        esp_task_wdt_reset();</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        </div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        <span class="comment">// Process reset button events (simulation mode - no real queue)</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        <span class="comment">// TODO: Implement queue communication in the future</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        vTaskDelayUntil(&amp;last_wake_time, pdMS_TO_TICKS(100));</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    }</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>}</div>
+</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span></div>
+<div class="foldopen" id="foldopen00098" data-start="{" data-end="}">
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno"><a class="line" href="reset__button__task_8h.html#a828ddd0ce9a37f1fbe484e6663d96a57">   98</a></span>esp_err_t <a class="code hl_function" href="reset__button__task_8c.html#a828ddd0ce9a37f1fbe484e6663d96a57">process_reset_request</a>(<span class="keywordtype">bool</span> reset_request)</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>{</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keywordflow">if</span> (!<a class="code hl_variable" href="reset__button__task_8c.html#a2a86e8e816b985c84e78ba6b842e52bf">reset_button_initialized</a>) {</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        <span class="keywordflow">return</span> ESP_ERR_INVALID_STATE;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    }</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    </div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <span class="keywordflow">if</span> (reset_request) {</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Reset button pressed - requesting game reset&quot;</span>);</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>        <span class="comment">// TODO: Send reset command to game task</span></div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>        <span class="comment">// For now, just log the request</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Reset button released&quot;</span>);</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    }</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    </div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>}</div>
+</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span></div>
+<div class="foldopen" id="foldopen00121" data-start="{" data-end="}">
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno"><a class="line" href="reset__button__task_8h.html#a9d96f74aeb8c8ab64a9ea78a857747dc">  121</a></span>esp_err_t <a class="code hl_function" href="reset__button__task_8c.html#a9d96f74aeb8c8ab64a9ea78a857747dc">simulate_reset_button_press</a>(<span class="keywordtype">bool</span> pressed)</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>{</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keywordflow">if</span> (!<a class="code hl_variable" href="reset__button__task_8c.html#a2a86e8e816b985c84e78ba6b842e52bf">reset_button_initialized</a>) {</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        <span class="keywordflow">return</span> ESP_ERR_INVALID_STATE;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    }</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    </div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="comment">// Simulation mode - just log the event</span></div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <a class="code hl_variable" href="promotion__button__task_8c.html#ab36b66e9f95206af3b83dfa622d5cc7d">button_event_count</a>++;</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Simulated reset button %s&quot;</span>, pressed ? <span class="stringliteral">&quot;press&quot;</span> : <span class="stringliteral">&quot;release&quot;</span>);</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    </div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>}</div>
+</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span></div>
+<div class="foldopen" id="foldopen00139" data-start="{" data-end="}">
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno"><a class="line" href="reset__button__task_8h.html#a9c119f00a30675bdd20fd69a03775b71">  139</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="reset__button__task_8c.html#a9c119f00a30675bdd20fd69a03775b71">reset_button_is_initialized</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>{</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="reset__button__task_8c.html#a2a86e8e816b985c84e78ba6b842e52bf">reset_button_initialized</a>;</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>}</div>
+</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span></div>
+<div class="foldopen" id="foldopen00149" data-start="{" data-end="}">
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno"><a class="line" href="reset__button__task_8h.html#a06d02f46f762a840863c8353f7e7f506">  149</a></span>uint32_t <a class="code hl_function" href="reset__button__task_8c.html#a06d02f46f762a840863c8353f7e7f506">reset_button_get_event_count</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>{</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="promotion__button__task_8c.html#ab36b66e9f95206af3b83dfa622d5cc7d">button_event_count</a>;</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>}</div>
+</div>
+<div class="ttc" id="afreertos__chess_8h_html"><div class="ttname"><a href="freertos__chess_8h.html">freertos_chess.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - Hlavni systemova hlavicka.</div></div>
+<div class="ttc" id="afreertos__chess_8h_html_a9317390fd5035b22532eaaa19884d747"><div class="ttname"><a href="freertos__chess_8h.html#a9317390fd5035b22532eaaa19884d747">RESET_BUTTON_TASK_PRIORITY</a></div><div class="ttdeci">#define RESET_BUTTON_TASK_PRIORITY</div><div class="ttdoc">Priorita Reset Button tasku (3 - uzivatelsky vstup).</div><div class="ttdef"><b>Definition</b> <a href="freertos__chess_8h_source.html#l00280">freertos_chess.h:280</a></div></div>
+<div class="ttc" id="afreertos__chess_8h_html_aa89cf203c391fae0636372b71659d297"><div class="ttname"><a href="freertos__chess_8h.html#aa89cf203c391fae0636372b71659d297">RESET_BUTTON_TASK_STACK_SIZE</a></div><div class="ttdeci">#define RESET_BUTTON_TASK_STACK_SIZE</div><div class="ttdoc">Velikost stacku Reset Button tasku (2KB - nezmeneno).</div><div class="ttdef"><b>Definition</b> <a href="freertos__chess_8h_source.html#l00255">freertos_chess.h:255</a></div></div>
+<div class="ttc" id="amain_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00193">main.c:193</a></div></div>
+<div class="ttc" id="apromotion__button__task_8c_html_ab36b66e9f95206af3b83dfa622d5cc7d"><div class="ttname"><a href="promotion__button__task_8c.html#ab36b66e9f95206af3b83dfa622d5cc7d">button_event_count</a></div><div class="ttdeci">static uint32_t button_event_count</div><div class="ttdef"><b>Definition</b> <a href="promotion__button__task_8c_source.html#l00035">promotion_button_task.c:35</a></div></div>
+<div class="ttc" id="areset__button__task_8c_html_a06d02f46f762a840863c8353f7e7f506"><div class="ttname"><a href="reset__button__task_8c.html#a06d02f46f762a840863c8353f7e7f506">reset_button_get_event_count</a></div><div class="ttdeci">uint32_t reset_button_get_event_count(void)</div><div class="ttdoc">Ziskej pocet zpracovanych tlacitkovych udalosti.</div><div class="ttdef"><b>Definition</b> <a href="#l00149">reset_button_task.c:149</a></div></div>
+<div class="ttc" id="areset__button__task_8c_html_a2a86e8e816b985c84e78ba6b842e52bf"><div class="ttname"><a href="reset__button__task_8c.html#a2a86e8e816b985c84e78ba6b842e52bf">reset_button_initialized</a></div><div class="ttdeci">static bool reset_button_initialized</div><div class="ttdef"><b>Definition</b> <a href="#l00033">reset_button_task.c:33</a></div></div>
+<div class="ttc" id="areset__button__task_8c_html_a2b2018c335a91336642118cc74af7b4a"><div class="ttname"><a href="reset__button__task_8c.html#a2b2018c335a91336642118cc74af7b4a">reset_button_task</a></div><div class="ttdeci">void reset_button_task(void *pvParameters)</div><div class="ttdoc">Hlavni funkce reset button tasku.</div><div class="ttdef"><b>Definition</b> <a href="#l00075">reset_button_task.c:75</a></div></div>
+<div class="ttc" id="areset__button__task_8c_html_a828ddd0ce9a37f1fbe484e6663d96a57"><div class="ttname"><a href="reset__button__task_8c.html#a828ddd0ce9a37f1fbe484e6663d96a57">process_reset_request</a></div><div class="ttdeci">esp_err_t process_reset_request(bool reset_request)</div><div class="ttdoc">Zpracuj pozadavek na reset hry.</div><div class="ttdef"><b>Definition</b> <a href="#l00098">reset_button_task.c:98</a></div></div>
+<div class="ttc" id="areset__button__task_8c_html_a9c119f00a30675bdd20fd69a03775b71"><div class="ttname"><a href="reset__button__task_8c.html#a9c119f00a30675bdd20fd69a03775b71">reset_button_is_initialized</a></div><div class="ttdeci">bool reset_button_is_initialized(void)</div><div class="ttdoc">Overi zda je reset button task inicializovan.</div><div class="ttdef"><b>Definition</b> <a href="#l00139">reset_button_task.c:139</a></div></div>
+<div class="ttc" id="areset__button__task_8c_html_a9d96f74aeb8c8ab64a9ea78a857747dc"><div class="ttname"><a href="reset__button__task_8c.html#a9d96f74aeb8c8ab64a9ea78a857747dc">simulate_reset_button_press</a></div><div class="ttdeci">esp_err_t simulate_reset_button_press(bool pressed)</div><div class="ttdoc">Simuluj stisknuti reset tlacitka (pro testovani).</div><div class="ttdef"><b>Definition</b> <a href="#l00121">reset_button_task.c:121</a></div></div>
+<div class="ttc" id="areset__button__task_8c_html_adf092b27f7d985c1b6e1f5980a1ec99e"><div class="ttname"><a href="reset__button__task_8c.html#adf092b27f7d985c1b6e1f5980a1ec99e">reset_button_task_init</a></div><div class="ttdeci">esp_err_t reset_button_task_init(void)</div><div class="ttdoc">Inicializuj reset button task.</div><div class="ttdef"><b>Definition</b> <a href="#l00041">reset_button_task.c:41</a></div></div>
+<div class="ttc" id="areset__button__task_8h_html"><div class="ttname"><a href="reset__button__task_8h.html">reset_button_task.h</a></div><div class="ttdoc">Reset Button Task hlavicka pro ESP32-C6 sachovy projekt.</div></div>
+<div class="ttc" id="areset__button__task_8h_html_a2b2018c335a91336642118cc74af7b4a"><div class="ttname"><a href="reset__button__task_8h.html#a2b2018c335a91336642118cc74af7b4a">reset_button_task</a></div><div class="ttdeci">void reset_button_task(void *pvParameters)</div><div class="ttdoc">Hlavni funkce reset button tasku.</div><div class="ttdef"><b>Definition</b> <a href="#l00075">reset_button_task.c:75</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_d81a3c6208ed0beed325ac804e7f20d3.html">reset_button_task</a></li><li class="navelem"><a href="reset__button__task_8c.html">reset_button_task.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+var searchData=
+[
+  ['animation_5fqueue_5fsize_0',['ANIMATION_QUEUE_SIZE',['../freertos__chess_8h.html#affde4e66cef922d3fa060b3013d10c3a',1,'freertos_chess.h']]],
+  ['animation_5ftask_5finterval_1',['ANIMATION_TASK_INTERVAL',['../animation__task_8c.html#aaaafe1fcaf34b610aa12a2b28705e111',1,'animation_task.c']]],
+  ['animation_5ftask_5fpriority_2',['ANIMATION_TASK_PRIORITY',['../freertos__chess_8h.html#aa535c253da7bfeb4f3fcba9b47fcfe4f',1,'freertos_chess.h']]],
+  ['animation_5ftask_5fstack_5fsize_3',['ANIMATION_TASK_STACK_SIZE',['../freertos__chess_8h.html#a6e9d80d372a5d67bfe61ef2373242891',1,'freertos_chess.h']]],
+  ['ansi_5fblue_4',['ANSI_BLUE',['../game__colors_8h.html#a50a197ede59d7694515c3dad4557cf00',1,'game_colors.h']]],
+  ['ansi_5fbold_5',['ANSI_BOLD',['../game__colors_8h.html#a46587b83544b8e9be045bb93f644ac82',1,'game_colors.h']]],
+  ['ansi_5fclear_5fline_6',['ANSI_CLEAR_LINE',['../uart__task_8c.html#a98051331efc7fbe841adfaa6e359a26a',1,'uart_task.c']]],
+  ['ansi_5fclear_5fto_5fend_7',['ANSI_CLEAR_TO_END',['../uart__task_8c.html#a54bbc18dc1f760f32f69ac714dc6ff88',1,'uart_task.c']]],
+  ['ansi_5fcursor_5fleft_8',['ANSI_CURSOR_LEFT',['../uart__task_8c.html#ab4fc8f34cc7e3b4b32035605f6fcedf9',1,'uart_task.c']]],
+  ['ansi_5fcursor_5fright_9',['ANSI_CURSOR_RIGHT',['../uart__task_8c.html#a552e4dda434cca9e6e4c4ce6caa8765e',1,'uart_task.c']]],
+  ['ansi_5fcyan_10',['ANSI_CYAN',['../game__colors_8h.html#a8e74e295b54795a32a16ea744f6aed5e',1,'game_colors.h']]],
+  ['ansi_5fdim_11',['ANSI_DIM',['../game__colors_8h.html#a51fea81bd0f75dcc2fc1b341d9cc7958',1,'game_colors.h']]],
+  ['ansi_5fgray_12',['ANSI_GRAY',['../game__colors_8h.html#a81a44be9e5e45edcb6be0d83133c1aa0',1,'game_colors.h']]],
+  ['ansi_5fgreen_13',['ANSI_GREEN',['../game__colors_8h.html#ad050fd71ced44460a0c723a1715c40e5',1,'game_colors.h']]],
+  ['ansi_5fmagenta_14',['ANSI_MAGENTA',['../game__colors_8h.html#a8a9c0853e05b02c03acdfaab90f534c8',1,'game_colors.h']]],
+  ['ansi_5fred_15',['ANSI_RED',['../game__colors_8h.html#a7f026776e12ac1b5e7736c24b756085d',1,'game_colors.h']]],
+  ['ansi_5freset_16',['ANSI_RESET',['../game__colors_8h.html#af77a445894f2f750d43cf2182cd29e55',1,'game_colors.h']]],
+  ['ansi_5fwhite_17',['ANSI_WHITE',['../game__colors_8h.html#a141dae929732a29e6654ebc4741d6c93',1,'game_colors.h']]],
+  ['ansi_5fyellow_18',['ANSI_YELLOW',['../game__colors_8h.html#af6e8b5c7b35e8bff4c581efd8019c798',1,'game_colors.h']]],
+  ['auto_5fnew_5fgame_5fconfirmation_5ftime_5fms_19',['AUTO_NEW_GAME_CONFIRMATION_TIME_MS',['../game__task_8c.html#ab5d37ae881c4c3c8d9ac1a35e00e7b71',1,'game_task.c']]]
+];
