@@ -1,0 +1,1896 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru animation_task.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('animation__task_8c.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru animation_task.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>ESP32-C6 Chess System v2.4 - Implementace Animation tasku.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="animation__task_8h_source.html">animation_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__task__simple_8h_source.html">led_task_simple.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
+<code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
+<code>#include &quot;freertos/task.h&quot;</code><br />
+<code>#include &quot;freertos/queue.h&quot;</code><br />
+<code>#include &quot;freertos/semphr.h&quot;</code><br />
+<code>#include &quot;freertos/timers.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_system.h&quot;</code><br />
+<code>#include &quot;esp_timer.h&quot;</code><br />
+<code>#include &quot;esp_task_wdt.h&quot;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
+<code>#include &lt;math.h&gt;</code><br />
+<code>#include &lt;inttypes.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro animation_task.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="animation__task_8c__incl.png" border="0" usemap="#aanimation__task_8c" loading="lazy" alt=""/></div>
+<map name="aanimation__task_8c" id="aanimation__task_8c">
+<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; Implementace Animation tasku." alt="" coords="1257,5,1377,31"/>
+<area shape="rect" href="animation__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavicka Animation Tasku." alt="" coords="442,79,563,105"/>
+<area shape="poly" title=" " alt="" coords="1255,27,578,87,577,81,1258,22"/>
+<area shape="rect" title=" " alt="" coords="866,300,1009,326"/>
+<area shape="poly" title=" " alt="" coords="1315,30,1298,75,1266,136,1221,200,1194,229,1163,254,1130,273,1095,287,1024,305,1024,300,1093,282,1128,268,1160,250,1190,225,1217,197,1262,133,1293,73,1311,33"/>
+<area shape="rect" title=" " alt="" coords="975,226,1081,252"/>
+<area shape="poly" title=" " alt="" coords="1278,31,1229,52,1173,77,1117,111,1069,154,1050,183,1037,214,1033,210,1045,181,1065,151,1114,107,1171,72,1227,47,1273,32"/>
+<area shape="rect" title=" " alt="" coords="100,300,215,326"/>
+<area shape="poly" title=" " alt="" coords="1254,19,1031,22,719,29,557,36,407,47,278,62,182,82,118,103,70,129,52,146,36,168,23,194,12,227,8,240,12,251,26,267,44,280,87,299,82,302,41,285,22,271,7,253,3,240,7,226,18,192,31,165,48,143,67,125,116,98,181,76,277,57,406,42,557,31,719,23,1031,17,1259,19"/>
+<area shape="rect" title=" " alt="" coords="33,226,156,252"/>
+<area shape="poly" title=" " alt="" coords="1254,20,1059,23,794,31,657,38,531,49,423,63,342,82,276,110,214,147,161,185,121,218,117,214,157,181,211,143,273,105,340,76,422,58,530,43,657,33,793,25,1059,18,1259,19"/>
+<area shape="rect" title=" " alt="" coords="180,226,297,252"/>
+<area shape="poly" title=" " alt="" coords="1254,21,1077,28,838,38,602,55,504,67,431,82,385,94,350,106,318,124,283,154,263,183,249,213,245,210,258,180,279,151,315,120,348,101,384,89,430,76,503,62,601,50,837,33,1077,22,1259,20"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="521,153,639,178"/>
+<area shape="poly" title=" " alt="" coords="1255,33,655,152,654,147,1259,30"/>
+<area shape="rect" title=" " alt="" coords="1314,300,1379,326"/>
+<area shape="poly" title=" " alt="" coords="1323,29,1342,65,1370,103,1391,117,1412,124,1432,132,1450,151,1457,172,1457,192,1451,212,1440,231,1410,266,1378,293,1376,288,1407,262,1436,228,1446,210,1452,191,1452,172,1446,154,1429,136,1410,129,1389,122,1366,107,1337,68,1321,34"/>
+<area shape="rect" title=" " alt="" coords="449,300,524,326"/>
+<area shape="poly" title=" " alt="" coords="1254,20,1048,24,764,31,618,39,482,49,366,63,279,82,195,104,128,126,100,142,73,162,48,190,24,228,19,240,23,250,43,260,81,270,194,287,435,306,433,311,194,292,80,275,41,265,19,254,14,240,19,225,44,187,70,159,97,137,126,122,194,99,278,76,365,58,482,44,618,33,764,26,1048,18,1259,19"/>
+<area shape="rect" href="led__task__simple_8h.html" title="Jednoduchy LED system &#45; Bezpecne rozhrani z vice vlaken." alt="" coords="1078,153,1204,178"/>
+<area shape="poly" title=" " alt="" coords="1297,31,1261,55,1224,81,1191,112,1162,143,1159,139,1187,108,1221,77,1258,50,1292,32"/>
+<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapovani funkce." alt="" coords="1330,153,1435,178"/>
+<area shape="poly" title=" " alt="" coords="1317,29,1318,65,1320,85,1326,104,1339,124,1356,143,1351,142,1335,127,1322,106,1315,86,1312,65,1314,33"/>
+<area shape="rect" title=" " alt="" coords="1380,79,1457,105"/>
+<area shape="poly" title=" " alt="" coords="1335,29,1391,70,1386,69,1334,34"/>
+<area shape="rect" title=" " alt="" coords="1482,79,1585,105"/>
+<area shape="poly" title=" " alt="" coords="1354,29,1485,74,1479,74,1354,34"/>
+<area shape="rect" title=" " alt="" coords="1609,79,1697,105"/>
+<area shape="poly" title=" " alt="" coords="1375,29,1596,78,1591,78,1375,34"/>
+<area shape="rect" title=" " alt="" coords="1722,79,1835,105"/>
+<area shape="poly" title=" " alt="" coords="1378,26,1709,78,1704,79,1378,31"/>
+<area shape="rect" title=" " alt="" coords="1860,79,1924,105"/>
+<area shape="poly" title=" " alt="" coords="1378,21,1581,39,1711,55,1847,79,1842,79,1710,60,1581,44,1378,26"/>
+<area shape="rect" title=" " alt="" coords="1948,79,2009,105"/>
+<area shape="poly" title=" " alt="" coords="1378,19,1618,36,1773,52,1936,79,1931,79,1773,58,1617,41,1378,25"/>
+<area shape="rect" title=" " alt="" coords="2032,79,2096,105"/>
+<area shape="poly" title=" " alt="" coords="1378,18,1652,33,1832,50,2020,79,2014,79,1831,55,1651,38,1378,24"/>
+<area shape="rect" title=" " alt="" coords="2120,79,2181,105"/>
+<area shape="poly" title=" " alt="" coords="1378,18,1507,21,1686,30,1893,48,2107,79,2102,79,1892,53,1686,36,1507,26,1378,23"/>
+<area shape="rect" title=" " alt="" coords="2205,79,2283,105"/>
+<area shape="poly" title=" " alt="" coords="1377,18,1520,22,1719,31,1951,48,2192,79,2187,79,1950,54,1719,36,1520,27,1378,23"/>
+<area shape="poly" title=" " alt="" coords="563,96,638,109,726,133,771,149,816,170,859,195,898,224,920,253,933,287,928,284,915,256,894,228,856,199,814,175,769,154,724,138,636,114,563,102"/>
+<area shape="poly" title=" " alt="" coords="563,93,661,99,775,110,882,127,925,138,957,150,976,163,992,179,1017,214,1012,212,988,182,972,167,955,155,924,143,881,132,775,115,661,104,564,98"/>
+<area shape="poly" title=" " alt="" coords="439,102,333,119,206,146,145,162,92,182,50,204,23,228,18,239,18,248,31,266,56,281,89,294,84,296,54,286,27,270,13,250,13,237,19,225,47,199,89,177,143,157,204,140,332,114,444,99"/>
+<area shape="poly" title=" " alt="" coords="445,106,369,128,282,155,201,188,132,221,130,217,199,184,280,150,368,123,450,104"/>
+<area shape="poly" title=" " alt="" coords="440,105,380,125,348,138,317,155,283,184,257,216,253,212,280,180,314,150,345,134,378,120,444,103"/>
+<area shape="rect" title=" " alt="" coords="653,300,728,326"/>
+<area shape="poly" title=" " alt="" coords="504,103,505,138,512,178,526,218,536,233,552,250,595,278,641,299,636,298,592,282,549,254,532,237,521,220,507,179,500,139,500,107"/>
+<area shape="poly" title=" " alt="" coords="516,103,558,142,553,142,515,108"/>
+<area shape="poly" title=" " alt="" coords="563,90,713,90,904,97,1000,105,1088,115,1162,130,1217,150,1258,179,1291,215,1318,253,1337,288,1332,285,1313,256,1287,219,1254,183,1215,155,1161,136,1087,121,1000,110,904,102,713,96,564,95"/>
+<area shape="poly" title=" " alt="" coords="439,105,401,124,383,137,369,154,356,179,351,202,356,225,369,251,382,266,398,279,437,300,432,299,395,284,378,270,364,253,351,227,346,202,351,178,364,151,380,133,399,120,444,103"/>
+<area shape="poly" title=" " alt="" coords="639,166,690,171,747,181,807,198,863,224,898,253,924,288,919,286,894,257,860,229,805,203,746,187,689,177,639,171"/>
+<area shape="poly" title=" " alt="" coords="640,174,962,226,957,228,639,179"/>
+<area shape="poly" title=" " alt="" coords="546,181,208,297,206,292,543,177"/>
+<area shape="poly" title=" " alt="" coords="520,178,172,228,171,223,520,173"/>
+<area shape="poly" title=" " alt="" coords="519,180,312,225,311,220,524,178"/>
+<area shape="poly" title=" " alt="" coords="574,177,561,214,559,233,565,251,579,268,598,281,641,302,636,301,595,286,576,272,560,253,554,234,556,213,570,180"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="743,226,849,252"/>
+<area shape="poly" title=" " alt="" coords="617,176,747,221,742,221,616,182"/>
+<area shape="poly" title=" " alt="" coords="639,167,842,184,968,200,1094,224,1209,257,1306,294,1301,294,1207,262,1093,229,967,206,842,189,640,172"/>
+<area shape="poly" title=" " alt="" coords="566,178,543,202,521,228,506,257,495,287,491,283,501,255,516,225,539,198,562,180"/>
+<area shape="rect" title=" " alt="" coords="575,226,667,252"/>
+<area shape="poly" title=" " alt="" coords="588,176,609,214,604,212,586,181"/>
+<area shape="poly" title=" " alt="" coords="821,250,902,293,897,292,819,255"/>
+<area shape="poly" title=" " alt="" coords="743,249,231,306,230,301,742,244"/>
+<area shape="poly" title=" " alt="" coords="781,252,722,293,720,288,776,253"/>
+<area shape="poly" title=" " alt="" coords="850,245,1301,305,1296,306,850,250"/>
+<area shape="poly" title=" " alt="" coords="746,252,539,302,538,297,740,253"/>
+<area shape="poly" title=" " alt="" coords="1146,177,1151,214,1149,235,1139,254,1116,276,1087,293,1056,304,1024,311,1024,305,1055,299,1085,288,1112,272,1135,250,1143,233,1146,214,1143,181"/>
+<area shape="poly" title=" " alt="" coords="1125,178,1061,220,1059,215,1120,180"/>
+<area shape="poly" title=" " alt="" coords="1140,177,1126,217,1113,237,1095,254,1075,262,1041,270,946,285,743,309,743,304,946,280,1040,265,1073,257,1092,250,1108,234,1121,214,1136,180"/>
+<area shape="poly" title=" " alt="" coords="1159,176,1320,291,1315,290,1158,181"/>
+<area shape="poly" title=" " alt="" coords="1075,170,918,188,824,205,732,229,706,241,681,254,608,281,540,301,539,295,606,275,679,250,704,236,730,224,823,200,918,183,1080,169"/>
+<area shape="poly" title=" " alt="" coords="1388,177,1396,212,1397,233,1393,253,1384,273,1370,291,1368,286,1379,270,1388,251,1392,232,1391,213,1385,181"/>
+</map>
+</div>
+</div>
+<p><a href="animation__task_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Datové struktury</h2></td></tr>
+<tr class="memitem:chess_5Fposition_5Ft" id="r_chess_5Fposition_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structchess__position__t.html">chess_position_t</a></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-define-members" class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:a99f9cfd68ef4237b568bda6e3e63312f" id="r_a99f9cfd68ef4237b568bda6e3e63312f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a99f9cfd68ef4237b568bda6e3e63312f">MAX_ANIMATIONS</a>&#160;&#160;&#160;20</td></tr>
+<tr class="memitem:a5b4055201d2d8170e179b1ceaa438b9c" id="r_a5b4055201d2d8170e179b1ceaa438b9c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5b4055201d2d8170e179b1ceaa438b9c">MAX_FRAMES</a>&#160;&#160;&#160;100</td></tr>
+<tr class="memitem:aaaafe1fcaf34b610aa12a2b28705e111" id="r_aaaafe1fcaf34b610aa12a2b28705e111"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaaafe1fcaf34b610aa12a2b28705e111">ANIMATION_TASK_INTERVAL</a>&#160;&#160;&#160;50</td></tr>
+<tr class="memitem:a1d1bdfd77e8bb3d8df370e30f70dd329" id="r_a1d1bdfd77e8bb3d8df370e30f70dd329"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1d1bdfd77e8bb3d8df370e30f70dd329">FRAME_DURATION_MS</a>&#160;&#160;&#160;100</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a08e644be7a7cc71b0a4fcdde5ea8d1f5" id="r_a08e644be7a7cc71b0a4fcdde5ea8d1f5"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a08e644be7a7cc71b0a4fcdde5ea8d1f5">animation_task_wdt_reset_safe</a> (void)</td></tr>
+<tr class="memdesc:a08e644be7a7cc71b0a4fcdde5ea8d1f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND.  <br /></td></tr>
+<tr class="memitem:a09488753d3a3be4415fb5e1bc44d1fb0" id="r_a09488753d3a3be4415fb5e1bc44d1fb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a09488753d3a3be4415fb5e1bc44d1fb0">animation_initialize_system</a> (void)</td></tr>
+<tr class="memdesc:a09488753d3a3be4415fb5e1bc44d1fb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuje system animaci.  <br /></td></tr>
+<tr class="memitem:a8f46cd6a1f375c8d19d1c4315cabdbfd" id="r_a8f46cd6a1f375c8d19d1c4315cabdbfd"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8f46cd6a1f375c8d19d1c4315cabdbfd">animation_create</a> (<a class="el" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899f">animation_task_type_t</a> type, uint32_t duration_ms, uint8_t priority, bool loop)</td></tr>
+<tr class="memdesc:a8f46cd6a1f375c8d19d1c4315cabdbfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vytvori novou animaci.  <br /></td></tr>
+<tr class="memitem:abb35a3172d5d24a24902916b1ecfa40f" id="r_abb35a3172d5d24a24902916b1ecfa40f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abb35a3172d5d24a24902916b1ecfa40f">animation_start</a> (uint8_t animation_id)</td></tr>
+<tr class="memdesc:abb35a3172d5d24a24902916b1ecfa40f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spusti animaci.  <br /></td></tr>
+<tr class="memitem:adc882a0b86428a7333c86eddd1f26b8d" id="r_adc882a0b86428a7333c86eddd1f26b8d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adc882a0b86428a7333c86eddd1f26b8d">animation_stop</a> (uint8_t animation_id)</td></tr>
+<tr class="memdesc:adc882a0b86428a7333c86eddd1f26b8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastavi animaci.  <br /></td></tr>
+<tr class="memitem:a41183595937bafd37b4ba07c47b8c62d" id="r_a41183595937bafd37b4ba07c47b8c62d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a41183595937bafd37b4ba07c47b8c62d">animation_pause</a> (uint8_t animation_id)</td></tr>
+<tr class="memdesc:a41183595937bafd37b4ba07c47b8c62d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pozastavi animaci.  <br /></td></tr>
+<tr class="memitem:a04765d28e82fce17f90d526a7ce60fc2" id="r_a04765d28e82fce17f90d526a7ce60fc2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a04765d28e82fce17f90d526a7ce60fc2">animation_resume</a> (uint8_t animation_id)</td></tr>
+<tr class="memdesc:a04765d28e82fce17f90d526a7ce60fc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obnovi animaci.  <br /></td></tr>
+<tr class="memitem:a03563b1b04565e45d3892b520708bd64" id="r_a03563b1b04565e45d3892b520708bd64"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a03563b1b04565e45d3892b520708bd64">animation_generate_wave_frame</a> (uint32_t frame, uint32_t color, uint8_t speed)</td></tr>
+<tr class="memdesc:a03563b1b04565e45d3892b520708bd64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generuje snimek vlnove animace.  <br /></td></tr>
+<tr class="memitem:a348dfefe5bb753b16839d5215505e4f4" id="r_a348dfefe5bb753b16839d5215505e4f4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a348dfefe5bb753b16839d5215505e4f4">animation_generate_pulse_frame</a> (uint32_t frame, uint32_t color, uint8_t speed)</td></tr>
+<tr class="memdesc:a348dfefe5bb753b16839d5215505e4f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generuje snimek pulzni animace.  <br /></td></tr>
+<tr class="memitem:ad2116436a161de0d3c2aa663ef02d12e" id="r_ad2116436a161de0d3c2aa663ef02d12e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad2116436a161de0d3c2aa663ef02d12e">animation_generate_fade_frame</a> (uint32_t frame, uint32_t from_color, uint32_t to_color, uint32_t total_frames)</td></tr>
+<tr class="memdesc:ad2116436a161de0d3c2aa663ef02d12e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generuje snimek fade animace.  <br /></td></tr>
+<tr class="memitem:afb64e912fbca18925c8cac41b6006f2c" id="r_afb64e912fbca18925c8cac41b6006f2c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb64e912fbca18925c8cac41b6006f2c">animation_generate_chess_pattern</a> (uint32_t frame, uint32_t color1, uint32_t color2)</td></tr>
+<tr class="memdesc:afb64e912fbca18925c8cac41b6006f2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generuje snimek sachovnicoveho vzoru.  <br /></td></tr>
+<tr class="memitem:a63112c5794b76845d9afff7eb6fd3259" id="r_a63112c5794b76845d9afff7eb6fd3259"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a63112c5794b76845d9afff7eb6fd3259">animation_generate_rainbow_frame</a> (uint32_t frame)</td></tr>
+<tr class="memdesc:a63112c5794b76845d9afff7eb6fd3259"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generuje snimek duhove animace.  <br /></td></tr>
+<tr class="memitem:ab537cab674b8a582c2ee24dfa0fd10c5" id="r_ab537cab674b8a582c2ee24dfa0fd10c5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab537cab674b8a582c2ee24dfa0fd10c5">animate_path_with_interruption</a> (<a class="el" href="structchess__position__t.html">chess_position_t</a> *path, int path_length, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="memdesc:ab537cab674b8a582c2ee24dfa0fd10c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Animate path with interruption capability.  <br /></td></tr>
+<tr class="memitem:a0123299d5b5afc994cbb803c1f1b9aa2" id="r_a0123299d5b5afc994cbb803c1f1b9aa2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0123299d5b5afc994cbb803c1f1b9aa2">check_for_move_interruption</a> ()</td></tr>
+<tr class="memdesc:a0123299d5b5afc994cbb803c1f1b9aa2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check for move interruption during animation.  <br /></td></tr>
+<tr class="memitem:ad4a9e6f0e9175a5f2f10c3536fb43308" id="r_ad4a9e6f0e9175a5f2f10c3536fb43308"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad4a9e6f0e9175a5f2f10c3536fb43308">new_move_detected</a> ()</td></tr>
+<tr class="memdesc:ad4a9e6f0e9175a5f2f10c3536fb43308"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if new move was detected (placeholder).  <br /></td></tr>
+<tr class="memitem:afce4e9bc86ef7e438e2066f5c20e17a6" id="r_afce4e9bc86ef7e438e2066f5c20e17a6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structchess__position__t.html">chess_position_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afce4e9bc86ef7e438e2066f5c20e17a6">calculate_knight_path</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col, int *path_length)</td></tr>
+<tr class="memdesc:afce4e9bc86ef7e438e2066f5c20e17a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate natural knight path (L-shape movement).  <br /></td></tr>
+<tr class="memitem:aef79ecbdeed6b80aac570f45da8c041f" id="r_aef79ecbdeed6b80aac570f45da8c041f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structchess__position__t.html">chess_position_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aef79ecbdeed6b80aac570f45da8c041f">calculate_diagonal_path</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col, int *path_length)</td></tr>
+<tr class="memdesc:aef79ecbdeed6b80aac570f45da8c041f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate diagonal path for bishop.  <br /></td></tr>
+<tr class="memitem:aca2bc3d94fa18bedc3b83e79151283e1" id="r_aca2bc3d94fa18bedc3b83e79151283e1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structchess__position__t.html">chess_position_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aca2bc3d94fa18bedc3b83e79151283e1">calculate_straight_path</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col, int *path_length)</td></tr>
+<tr class="memdesc:aca2bc3d94fa18bedc3b83e79151283e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate straight path for rook.  <br /></td></tr>
+<tr class="memitem:a5e3bb756394f0aa6b8846678a266bee6" id="r_a5e3bb756394f0aa6b8846678a266bee6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structchess__position__t.html">chess_position_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e3bb756394f0aa6b8846678a266bee6">calculate_direct_path</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col, int *path_length)</td></tr>
+<tr class="memdesc:a5e3bb756394f0aa6b8846678a266bee6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate direct path for other pieces.  <br /></td></tr>
+<tr class="memitem:a5361d673dfa5c9b0568be0e4cac80444" id="r_a5361d673dfa5c9b0568be0e4cac80444"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5361d673dfa5c9b0568be0e4cac80444">animate_piece_move_natural</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="memdesc:a5361d673dfa5c9b0568be0e4cac80444"><td class="mdescLeft">&#160;</td><td class="mdescRight">Animate piece move with natural movement patterns.  <br /></td></tr>
+<tr class="memitem:a2b5de7f9e2ba904cd16a02a3add0b6d6" id="r_a2b5de7f9e2ba904cd16a02a3add0b6d6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2b5de7f9e2ba904cd16a02a3add0b6d6">animation_request_interrupt</a> ()</td></tr>
+<tr class="memdesc:a2b5de7f9e2ba904cd16a02a3add0b6d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request animation interruption.  <br /></td></tr>
+<tr class="memitem:afecf0d9f3014ec819b9d8d4efecc1ee5" id="r_afecf0d9f3014ec819b9d8d4efecc1ee5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afecf0d9f3014ec819b9d8d4efecc1ee5">animation_execute_frame</a> (<a class="el" href="structanimation__task__t.html">animation_task_t</a> *anim)</td></tr>
+<tr class="memdesc:afecf0d9f3014ec819b9d8d4efecc1ee5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vykona snimek animace.  <br /></td></tr>
+<tr class="memitem:aec58eeb9ffe892383adeef75473dc160" id="r_aec58eeb9ffe892383adeef75473dc160"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aec58eeb9ffe892383adeef75473dc160">animation_send_frame_to_leds</a> (const uint8_t frame[<a class="el" href="chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728">CHESS_LED_COUNT_TOTAL</a>][3])</td></tr>
+<tr class="memdesc:aec58eeb9ffe892383adeef75473dc160"><td class="mdescLeft">&#160;</td><td class="mdescRight">Posle data snimku do LED.  <br /></td></tr>
+<tr class="memitem:a06e87351882b4abb2b090c3e3fad2098" id="r_a06e87351882b4abb2b090c3e3fad2098"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a06e87351882b4abb2b090c3e3fad2098">animation_execute_move_highlight</a> (<a class="el" href="structanimation__task__t.html">animation_task_t</a> *anim)</td></tr>
+<tr class="memdesc:a06e87351882b4abb2b090c3e3fad2098"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vykona animaci zvyrazneni tahu.  <br /></td></tr>
+<tr class="memitem:aeeb63457d09fa55c64a67b38e895ab4a" id="r_aeeb63457d09fa55c64a67b38e895ab4a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeeb63457d09fa55c64a67b38e895ab4a">animation_execute_check_highlight</a> (<a class="el" href="structanimation__task__t.html">animation_task_t</a> *anim)</td></tr>
+<tr class="memdesc:aeeb63457d09fa55c64a67b38e895ab4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vykona animaci zvyrazneni sachu.  <br /></td></tr>
+<tr class="memitem:aa4e0d21daa2bff68ffc49abd0995d812" id="r_aa4e0d21daa2bff68ffc49abd0995d812"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa4e0d21daa2bff68ffc49abd0995d812">animation_execute_game_over</a> (<a class="el" href="structanimation__task__t.html">animation_task_t</a> *anim)</td></tr>
+<tr class="memdesc:aa4e0d21daa2bff68ffc49abd0995d812"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vykona animaci konce hry.  <br /></td></tr>
+<tr class="memitem:a0060e7605dd42ba4e2041e1c4402f60e" id="r_a0060e7605dd42ba4e2041e1c4402f60e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0060e7605dd42ba4e2041e1c4402f60e">animation_process_commands</a> (void)</td></tr>
+<tr class="memdesc:a0060e7605dd42ba4e2041e1c4402f60e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuje prikazy animaci z fronty.  <br /></td></tr>
+<tr class="memitem:a19ff3a915b7dad334a1d306492667916" id="r_a19ff3a915b7dad334a1d306492667916"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a19ff3a915b7dad334a1d306492667916">animation_stop_all</a> (void)</td></tr>
+<tr class="memdesc:a19ff3a915b7dad334a1d306492667916"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastavi vsechny animace.  <br /></td></tr>
+<tr class="memitem:a70e168a5ba925ad0d8da01a49d34e75c" id="r_a70e168a5ba925ad0d8da01a49d34e75c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a70e168a5ba925ad0d8da01a49d34e75c">animation_pause_all</a> (void)</td></tr>
+<tr class="memdesc:a70e168a5ba925ad0d8da01a49d34e75c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pozastavi vsechny animace.  <br /></td></tr>
+<tr class="memitem:a749cd1a19567e9b741fb320e1d440736" id="r_a749cd1a19567e9b741fb320e1d440736"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a749cd1a19567e9b741fb320e1d440736">animation_resume_all</a> (void)</td></tr>
+<tr class="memdesc:a749cd1a19567e9b741fb320e1d440736"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obnovi vsechny animace.  <br /></td></tr>
+<tr class="memitem:a9731cdb2cdcf0234b35af6ba0b7b1402" id="r_a9731cdb2cdcf0234b35af6ba0b7b1402"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9731cdb2cdcf0234b35af6ba0b7b1402">animation_print_status</a> (void)</td></tr>
+<tr class="memdesc:a9731cdb2cdcf0234b35af6ba0b7b1402"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vypise stav animaci.  <br /></td></tr>
+<tr class="memitem:ab87baa702421428476b149e35aa74ab9" id="r_ab87baa702421428476b149e35aa74ab9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab87baa702421428476b149e35aa74ab9">animation_test_all</a> (void)</td></tr>
+<tr class="memdesc:ab87baa702421428476b149e35aa74ab9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Otestuje vsechny typy animaci.  <br /></td></tr>
+<tr class="memitem:ad90823f255171d2792d13345b96d9477" id="r_ad90823f255171d2792d13345b96d9477"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad90823f255171d2792d13345b96d9477">animation_get_name</a> (<a class="el" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899f">animation_task_type_t</a> animation_type)</td></tr>
+<tr class="memdesc:ad90823f255171d2792d13345b96d9477"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get animation name as string.  <br /></td></tr>
+<tr class="memitem:a79382186a6a22377fff18924934c118a" id="r_a79382186a6a22377fff18924934c118a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a79382186a6a22377fff18924934c118a">animation_print_progress</a> (const <a class="el" href="structanimation__task__t.html">animation_task_t</a> *anim)</td></tr>
+<tr class="memdesc:a79382186a6a22377fff18924934c118a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print animation progress with text representation.  <br /></td></tr>
+<tr class="memitem:a1fc234eed1ddbb156d9c1d61d21abd52" id="r_a1fc234eed1ddbb156d9c1d61d21abd52"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1fc234eed1ddbb156d9c1d61d21abd52">animation_print_piece_move</a> (const char *from_square, const char *to_square, const char *piece_name, float progress)</td></tr>
+<tr class="memdesc:a1fc234eed1ddbb156d9c1d61d21abd52"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print piece move animation with chess notation.  <br /></td></tr>
+<tr class="memitem:afd9f1291c4f0584d7d02b26744a24475" id="r_afd9f1291c4f0584d7d02b26744a24475"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afd9f1291c4f0584d7d02b26744a24475">animation_print_check_status</a> (bool is_checkmate, float progress)</td></tr>
+<tr class="memdesc:afd9f1291c4f0584d7d02b26744a24475"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print check/checkmate animation status.  <br /></td></tr>
+<tr class="memitem:a817be6e29efbd666e7334307f7c5fe5a" id="r_a817be6e29efbd666e7334307f7c5fe5a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a817be6e29efbd666e7334307f7c5fe5a">animation_print_summary</a> (void)</td></tr>
+<tr class="memdesc:a817be6e29efbd666e7334307f7c5fe5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print animation summary for all active animations.  <br /></td></tr>
+<tr class="memitem:a18ab65be2c5b763305a8d6c1fa886392" id="r_a18ab65be2c5b763305a8d6c1fa886392"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a18ab65be2c5b763305a8d6c1fa886392">animation_task_start</a> (void *pvParameters)</td></tr>
+<tr class="memdesc:a18ab65be2c5b763305a8d6c1fa886392"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spusti animation task.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;ANIMATION_TASK&quot;</td></tr>
+<tr class="memitem:a3506bb72f29fcaebecde5c53bd6139f2" id="r_a3506bb72f29fcaebecde5c53bd6139f2"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structanimation__task__t.html">animation_task_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3506bb72f29fcaebecde5c53bd6139f2">animations</a> [20]</td></tr>
+<tr class="memitem:a2c59480d31f1d62c0da421b1b3826642" id="r_a2c59480d31f1d62c0da421b1b3826642"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2c59480d31f1d62c0da421b1b3826642">next_animation_id</a> = 0</td></tr>
+<tr class="memitem:a35141cb45623cb3b7b4d96da35ed1831" id="r_a35141cb45623cb3b7b4d96da35ed1831"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a35141cb45623cb3b7b4d96da35ed1831">task_running</a> = false</td></tr>
+<tr class="memitem:a87e4e638f9c673b363ba09ebff9fe0c7" id="r_a87e4e638f9c673b363ba09ebff9fe0c7"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a87e4e638f9c673b363ba09ebff9fe0c7">active_animation_count</a> = 0</td></tr>
+<tr class="memitem:a261a1c96f2134fa07a122bcbaf14167b" id="r_a261a1c96f2134fa07a122bcbaf14167b"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a261a1c96f2134fa07a122bcbaf14167b">current_animation_index</a> = 0</td></tr>
+<tr class="memitem:af2889f0cc8ff05da5e068e7574ed5b3b" id="r_af2889f0cc8ff05da5e068e7574ed5b3b"><td class="memItemLeft" align="right" valign="top">static volatile bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af2889f0cc8ff05da5e068e7574ed5b3b">animation_interrupted</a> = false</td></tr>
+<tr class="memitem:a5579f35967ee72c55398c089594c9f69" id="r_a5579f35967ee72c55398c089594c9f69"><td class="memItemLeft" align="right" valign="top">static SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5579f35967ee72c55398c089594c9f69">animation_interrupt_mutex</a> = NULL</td></tr>
+<tr class="memitem:a58427d18cd3eb18ee8c7802c2a5a7814" id="r_a58427d18cd3eb18ee8c7802c2a5a7814"><td class="memItemLeft" align="right" valign="top">static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a58427d18cd3eb18ee8c7802c2a5a7814">rainbow_colors</a> []</td></tr>
+<tr class="memitem:abcfc9b225da909e47ab361defc782a42" id="r_abcfc9b225da909e47ab361defc782a42"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abcfc9b225da909e47ab361defc782a42">wave_frame</a> [<a class="el" href="chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728">CHESS_LED_COUNT_TOTAL</a>][3]</td></tr>
+<tr class="memitem:a63913cf3472539c76d9f3b05a1a49361" id="r_a63913cf3472539c76d9f3b05a1a49361"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a63913cf3472539c76d9f3b05a1a49361">pulse_frame</a> [<a class="el" href="chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728">CHESS_LED_COUNT_TOTAL</a>][3]</td></tr>
+<tr class="memitem:afc4dd0f46762995c1147511282c4cb2d" id="r_afc4dd0f46762995c1147511282c4cb2d"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afc4dd0f46762995c1147511282c4cb2d">fade_frame</a> [<a class="el" href="chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728">CHESS_LED_COUNT_TOTAL</a>][3]</td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>ESP32-C6 Chess System v2.4 - Implementace Animation tasku. </p>
+<p>Tento task zpracovava LED animace a vzory:</p><ul>
+<li>Animace pohybu sachovych figurek</li>
+<li>Animace stavu hry</li>
+<li>Animace feedback tlacitek</li>
+<li>Animace stavu systemu</li>
+<li>Vlastni vzory animaci</li>
+</ul>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-08-24</dd></dl>
+<p>Tento task je zodpovedny za vsechny LED animace v systemu. Obsahuje 20+ animacnich vzoru pro ruzne situace v hre. Animace jsou plynule a efektivne z hlediska pameti.</p>
+<p>Funkce:</p><ul>
+<li>20+ animacnich vzoru</li>
+<li>Konfigurovatelny timing a barvy</li>
+<li>Plynule prechody</li>
+<li>Efektivni ulozeni framu</li>
+<li>Real-time ovladani animaci </li>
+</ul>
+
+<p class="definition">Definice v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+</div><a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Dokumentace definic maker</h2>
+<a id="aaaafe1fcaf34b610aa12a2b28705e111" name="aaaafe1fcaf34b610aa12a2b28705e111"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaaafe1fcaf34b610aa12a2b28705e111">&#9670;&#160;</a></span>ANIMATION_TASK_INTERVAL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ANIMATION_TASK_INTERVAL&#160;&#160;&#160;50</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00085">85</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1d1bdfd77e8bb3d8df370e30f70dd329" name="a1d1bdfd77e8bb3d8df370e30f70dd329"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d1bdfd77e8bb3d8df370e30f70dd329">&#9670;&#160;</a></span>FRAME_DURATION_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FRAME_DURATION_MS&#160;&#160;&#160;100</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00086">86</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a99f9cfd68ef4237b568bda6e3e63312f" name="a99f9cfd68ef4237b568bda6e3e63312f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99f9cfd68ef4237b568bda6e3e63312f">&#9670;&#160;</a></span>MAX_ANIMATIONS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MAX_ANIMATIONS&#160;&#160;&#160;20</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00083">83</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5b4055201d2d8170e179b1ceaa438b9c" name="a5b4055201d2d8170e179b1ceaa438b9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b4055201d2d8170e179b1ceaa438b9c">&#9670;&#160;</a></span>MAX_FRAMES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MAX_FRAMES&#160;&#160;&#160;100</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00084">84</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="ab537cab674b8a582c2ee24dfa0fd10c5" name="ab537cab674b8a582c2ee24dfa0fd10c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab537cab674b8a582c2ee24dfa0fd10c5">&#9670;&#160;</a></span>animate_path_with_interruption()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animate_path_with_interruption </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structchess__position__t.html">chess_position_t</a> *</td>          <td class="paramname"><span class="paramname"><em>path</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>path_length</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a></td>          <td class="paramname"><span class="paramname"><em>piece</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Animate path with interruption capability. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>Array of positions to animate </td></tr>
+    <tr><td class="paramname">path_length</td><td>Number of positions in path </td></tr>
+    <tr><td class="paramname">piece</td><td>Piece being animated </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00538">538</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5361d673dfa5c9b0568be0e4cac80444" name="a5361d673dfa5c9b0568be0e4cac80444"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5361d673dfa5c9b0568be0e4cac80444">&#9670;&#160;</a></span>animate_piece_move_natural()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animate_piece_move_natural </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a></td>          <td class="paramname"><span class="paramname"><em>piece</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Animate piece move with natural movement patterns. </p>
+<p>Animuje pohyb figurky s prirozenymi pohybovymi vzory.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Source row </td></tr>
+    <tr><td class="paramname">from_col</td><td>Source column </td></tr>
+    <tr><td class="paramname">to_row</td><td>Destination row </td></tr>
+    <tr><td class="paramname">to_col</td><td>Destination column </td></tr>
+    <tr><td class="paramname">piece</td><td>Piece being moved </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00496">496</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8f46cd6a1f375c8d19d1c4315cabdbfd" name="a8f46cd6a1f375c8d19d1c4315cabdbfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f46cd6a1f375c8d19d1c4315cabdbfd">&#9670;&#160;</a></span>animation_create()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_create </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899f">animation_task_type_t</a></td>          <td class="paramname"><span class="paramname"><em>type</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>duration_ms</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>priority</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>loop</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vytvori novou animaci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>Typ animace </td></tr>
+    <tr><td class="paramname">duration_ms</td><td>Delka v milisekundach </td></tr>
+    <tr><td class="paramname">priority</td><td>Priorita animace (0-255) </td></tr>
+    <tr><td class="paramname">loop</td><td>Zda animaci opakovat </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ID animace nebo 0xFF pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00152">152</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aeeb63457d09fa55c64a67b38e895ab4a" name="aeeb63457d09fa55c64a67b38e895ab4a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeeb63457d09fa55c64a67b38e895ab4a">&#9670;&#160;</a></span>animation_execute_check_highlight()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_execute_check_highlight </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structanimation__task__t.html">animation_task_t</a> *</td>          <td class="paramname"><span class="paramname"><em>anim</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vykona animaci zvyrazneni sachu. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">anim</td><td>Data animace </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00732">732</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afecf0d9f3014ec819b9d8d4efecc1ee5" name="afecf0d9f3014ec819b9d8d4efecc1ee5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afecf0d9f3014ec819b9d8d4efecc1ee5">&#9670;&#160;</a></span>animation_execute_frame()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_execute_frame </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structanimation__task__t.html">animation_task_t</a> *</td>          <td class="paramname"><span class="paramname"><em>anim</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vykona snimek animace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">anim</td><td>Animace k vykonani </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00613">613</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa4e0d21daa2bff68ffc49abd0995d812" name="aa4e0d21daa2bff68ffc49abd0995d812"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4e0d21daa2bff68ffc49abd0995d812">&#9670;&#160;</a></span>animation_execute_game_over()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_execute_game_over </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structanimation__task__t.html">animation_task_t</a> *</td>          <td class="paramname"><span class="paramname"><em>anim</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vykona animaci konce hry. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">anim</td><td>Data animace </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00750">750</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a06e87351882b4abb2b090c3e3fad2098" name="a06e87351882b4abb2b090c3e3fad2098"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06e87351882b4abb2b090c3e3fad2098">&#9670;&#160;</a></span>animation_execute_move_highlight()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_execute_move_highlight </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structanimation__task__t.html">animation_task_t</a> *</td>          <td class="paramname"><span class="paramname"><em>anim</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vykona animaci zvyrazneni tahu. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">anim</td><td>Data animace </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00715">715</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afb64e912fbca18925c8cac41b6006f2c" name="afb64e912fbca18925c8cac41b6006f2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb64e912fbca18925c8cac41b6006f2c">&#9670;&#160;</a></span>animation_generate_chess_pattern()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_generate_chess_pattern </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>frame</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>color1</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>color2</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generuje snimek sachovnicoveho vzoru. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">frame</td><td>Cislo snimku </td></tr>
+    <tr><td class="paramname">color1</td><td>Prvni barva </td></tr>
+    <tr><td class="paramname">color2</td><td>Druha barva </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00324">324</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad2116436a161de0d3c2aa663ef02d12e" name="ad2116436a161de0d3c2aa663ef02d12e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2116436a161de0d3c2aa663ef02d12e">&#9670;&#160;</a></span>animation_generate_fade_frame()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_generate_fade_frame </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>frame</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>from_color</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>to_color</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>total_frames</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generuje snimek fade animace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">frame</td><td>Cislo snimku </td></tr>
+    <tr><td class="paramname">from_color</td><td>Zacatecni barva </td></tr>
+    <tr><td class="paramname">to_color</td><td>Koncova barva </td></tr>
+    <tr><td class="paramname">total_frames</td><td>Celkovy pocet snimku </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00300">300</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a348dfefe5bb753b16839d5215505e4f4" name="a348dfefe5bb753b16839d5215505e4f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a348dfefe5bb753b16839d5215505e4f4">&#9670;&#160;</a></span>animation_generate_pulse_frame()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_generate_pulse_frame </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>frame</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>color</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>speed</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generuje snimek pulzni animace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">frame</td><td>Cislo snimku </td></tr>
+    <tr><td class="paramname">color</td><td>Zakladni barva </td></tr>
+    <tr><td class="paramname">speed</td><td>Rychlost pulzu </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00283">283</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a63112c5794b76845d9afff7eb6fd3259" name="a63112c5794b76845d9afff7eb6fd3259"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63112c5794b76845d9afff7eb6fd3259">&#9670;&#160;</a></span>animation_generate_rainbow_frame()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_generate_rainbow_frame </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>frame</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generuje snimek duhove animace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">frame</td><td>Cislo snimku </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00339">339</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a03563b1b04565e45d3892b520708bd64" name="a03563b1b04565e45d3892b520708bd64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a03563b1b04565e45d3892b520708bd64">&#9670;&#160;</a></span>animation_generate_wave_frame()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_generate_wave_frame </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>frame</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>color</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>speed</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generuje snimek vlnove animace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">frame</td><td>Cislo snimku </td></tr>
+    <tr><td class="paramname">color</td><td>Zakladni barva </td></tr>
+    <tr><td class="paramname">speed</td><td>Rychlost vlny </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00262">262</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad90823f255171d2792d13345b96d9477" name="ad90823f255171d2792d13345b96d9477"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad90823f255171d2792d13345b96d9477">&#9670;&#160;</a></span>animation_get_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * animation_get_name </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="animation__task_8h.html#a3da732fa10b2f45510643d0280be899f">animation_task_type_t</a></td>          <td class="paramname"><span class="paramname"><em>animation_type</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get animation name as string. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">animation_type</td><td>Animation type </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Animation name string </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00899">899</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a09488753d3a3be4415fb5e1bc44d1fb0" name="a09488753d3a3be4415fb5e1bc44d1fb0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09488753d3a3be4415fb5e1bc44d1fb0">&#9670;&#160;</a></span>animation_initialize_system()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_initialize_system </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializuje system animaci. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00124">124</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a41183595937bafd37b4ba07c47b8c62d" name="a41183595937bafd37b4ba07c47b8c62d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41183595937bafd37b4ba07c47b8c62d">&#9670;&#160;</a></span>animation_pause()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_pause </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>animation_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pozastavi animaci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">animation_id</td><td>ID animace k pozastaveni </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00229">229</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a70e168a5ba925ad0d8da01a49d34e75c" name="a70e168a5ba925ad0d8da01a49d34e75c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70e168a5ba925ad0d8da01a49d34e75c">&#9670;&#160;</a></span>animation_pause_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_pause_all </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pozastavi vsechny animace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00820">820</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afd9f1291c4f0584d7d02b26744a24475" name="afd9f1291c4f0584d7d02b26744a24475"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd9f1291c4f0584d7d02b26744a24475">&#9670;&#160;</a></span>animation_print_check_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_print_check_status </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>is_checkmate</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>progress</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Print check/checkmate animation status. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">is_checkmate</td><td>True if checkmate, false if just check </td></tr>
+    <tr><td class="paramname">progress</td><td>Animation progress (0.0-1.0) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00995">995</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1fc234eed1ddbb156d9c1d61d21abd52" name="a1fc234eed1ddbb156d9c1d61d21abd52"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1fc234eed1ddbb156d9c1d61d21abd52">&#9670;&#160;</a></span>animation_print_piece_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_print_piece_move </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>from_square</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>to_square</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>piece_name</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>progress</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Print piece move animation with chess notation. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_square</td><td>Source square (e.g., "e2") </td></tr>
+    <tr><td class="paramname">to_square</td><td>Destination square (e.g., "e4") </td></tr>
+    <tr><td class="paramname">piece_name</td><td>Piece name (e.g., "White Pawn") </td></tr>
+    <tr><td class="paramname">progress</td><td>Animation progress (0.0-1.0) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00964">964</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a79382186a6a22377fff18924934c118a" name="a79382186a6a22377fff18924934c118a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a79382186a6a22377fff18924934c118a">&#9670;&#160;</a></span>animation_print_progress()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_print_progress </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structanimation__task__t.html">animation_task_t</a> *</td>          <td class="paramname"><span class="paramname"><em>anim</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Print animation progress with text representation. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">anim</td><td>Animation to display </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00919">919</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9731cdb2cdcf0234b35af6ba0b7b1402" name="a9731cdb2cdcf0234b35af6ba0b7b1402"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9731cdb2cdcf0234b35af6ba0b7b1402">&#9670;&#160;</a></span>animation_print_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_print_status </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vypise stav animaci. </p>
+<p>Vypis status animaci. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00844">844</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a817be6e29efbd666e7334307f7c5fe5a" name="a817be6e29efbd666e7334307f7c5fe5a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a817be6e29efbd666e7334307f7c5fe5a">&#9670;&#160;</a></span>animation_print_summary()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_print_summary </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Print animation summary for all active animations. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l01023">1023</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0060e7605dd42ba4e2041e1c4402f60e" name="a0060e7605dd42ba4e2041e1c4402f60e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0060e7605dd42ba4e2041e1c4402f60e">&#9670;&#160;</a></span>animation_process_commands()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_process_commands </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuje prikazy animaci z fronty. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00769">769</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2b5de7f9e2ba904cd16a02a3add0b6d6" name="a2b5de7f9e2ba904cd16a02a3add0b6d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b5de7f9e2ba904cd16a02a3add0b6d6">&#9670;&#160;</a></span>animation_request_interrupt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_request_interrupt </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Request animation interruption. </p>
+<p>Pozada o preruseni animace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00587">587</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a04765d28e82fce17f90d526a7ce60fc2" name="a04765d28e82fce17f90d526a7ce60fc2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04765d28e82fce17f90d526a7ce60fc2">&#9670;&#160;</a></span>animation_resume()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_resume </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>animation_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Obnovi animaci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">animation_id</td><td>ID animace k obnoveni </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00243">243</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a749cd1a19567e9b741fb320e1d440736" name="a749cd1a19567e9b741fb320e1d440736"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a749cd1a19567e9b741fb320e1d440736">&#9670;&#160;</a></span>animation_resume_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_resume_all </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Obnovi vsechny animace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00832">832</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aec58eeb9ffe892383adeef75473dc160" name="aec58eeb9ffe892383adeef75473dc160"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec58eeb9ffe892383adeef75473dc160">&#9670;&#160;</a></span>animation_send_frame_to_leds()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_send_frame_to_leds </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t</td>          <td class="paramname"><span class="paramname"><em>frame</em></span>[CHESS_LED_COUNT_TOTAL][3]</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Posle data snimku do LED. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">frame</td><td>Pole dat snimku </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00704">704</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abb35a3172d5d24a24902916b1ecfa40f" name="abb35a3172d5d24a24902916b1ecfa40f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb35a3172d5d24a24902916b1ecfa40f">&#9670;&#160;</a></span>animation_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_start </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>animation_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spusti animaci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">animation_id</td><td>ID animace ke spusteni </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00190">190</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="adc882a0b86428a7333c86eddd1f26b8d" name="adc882a0b86428a7333c86eddd1f26b8d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc882a0b86428a7333c86eddd1f26b8d">&#9670;&#160;</a></span>animation_stop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_stop </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>animation_id</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zastavi animaci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">animation_id</td><td>ID animace k zastaveni </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00213">213</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a19ff3a915b7dad334a1d306492667916" name="a19ff3a915b7dad334a1d306492667916"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19ff3a915b7dad334a1d306492667916">&#9670;&#160;</a></span>animation_stop_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_stop_all </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zastavi vsechny animace. </p>
+<p>Zastav vsechny animace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00806">806</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a18ab65be2c5b763305a8d6c1fa886392" name="a18ab65be2c5b763305a8d6c1fa886392"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18ab65be2c5b763305a8d6c1fa886392">&#9670;&#160;</a></span>animation_task_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_task_start </td>
+          <td>(</td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>pvParameters</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spusti animation task. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pvParameters</td><td>Parametry tasku (nepouzivane) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l01052">1052</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a08e644be7a7cc71b0a4fcdde5ea8d1f5" name="a08e644be7a7cc71b0a4fcdde5ea8d1f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08e644be7a7cc71b0a4fcdde5ea8d1f5">&#9670;&#160;</a></span>animation_task_wdt_reset_safe()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t animation_task_wdt_reset_safe </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK if successful, ESP_ERR_NOT_FOUND if task not registered (WARNING only) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00062">62</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab87baa702421428476b149e35aa74ab9" name="ab87baa702421428476b149e35aa74ab9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab87baa702421428476b149e35aa74ab9">&#9670;&#160;</a></span>animation_test_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void animation_test_all </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Otestuje vsechny typy animaci. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00860">860</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aef79ecbdeed6b80aac570f45da8c041f" name="aef79ecbdeed6b80aac570f45da8c041f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef79ecbdeed6b80aac570f45da8c041f">&#9670;&#160;</a></span>calculate_diagonal_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structchess__position__t.html">chess_position_t</a> * calculate_diagonal_path </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *</td>          <td class="paramname"><span class="paramname"><em>path_length</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Calculate diagonal path for bishop. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Source row </td></tr>
+    <tr><td class="paramname">from_col</td><td>Source column </td></tr>
+    <tr><td class="paramname">to_row</td><td>Destination row </td></tr>
+    <tr><td class="paramname">to_col</td><td>Destination column </td></tr>
+    <tr><td class="paramname">path_length</td><td>Output parameter for path length </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Array of positions for diagonal path </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00412">412</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5e3bb756394f0aa6b8846678a266bee6" name="a5e3bb756394f0aa6b8846678a266bee6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e3bb756394f0aa6b8846678a266bee6">&#9670;&#160;</a></span>calculate_direct_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structchess__position__t.html">chess_position_t</a> * calculate_direct_path </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *</td>          <td class="paramname"><span class="paramname"><em>path_length</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Calculate direct path for other pieces. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Source row </td></tr>
+    <tr><td class="paramname">from_col</td><td>Source column </td></tr>
+    <tr><td class="paramname">to_row</td><td>Destination row </td></tr>
+    <tr><td class="paramname">to_col</td><td>Destination column </td></tr>
+    <tr><td class="paramname">path_length</td><td>Output parameter for path length </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Array of positions for direct path </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00476">476</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afce4e9bc86ef7e438e2066f5c20e17a6" name="afce4e9bc86ef7e438e2066f5c20e17a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afce4e9bc86ef7e438e2066f5c20e17a6">&#9670;&#160;</a></span>calculate_knight_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structchess__position__t.html">chess_position_t</a> * calculate_knight_path </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *</td>          <td class="paramname"><span class="paramname"><em>path_length</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Calculate natural knight path (L-shape movement). </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Source row </td></tr>
+    <tr><td class="paramname">from_col</td><td>Source column </td></tr>
+    <tr><td class="paramname">to_row</td><td>Destination row </td></tr>
+    <tr><td class="paramname">to_col</td><td>Destination column </td></tr>
+    <tr><td class="paramname">path_length</td><td>Output parameter for path length </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Array of positions for knight path </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00375">375</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aca2bc3d94fa18bedc3b83e79151283e1" name="aca2bc3d94fa18bedc3b83e79151283e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca2bc3d94fa18bedc3b83e79151283e1">&#9670;&#160;</a></span>calculate_straight_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structchess__position__t.html">chess_position_t</a> * calculate_straight_path </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *</td>          <td class="paramname"><span class="paramname"><em>path_length</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Calculate straight path for rook. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Source row </td></tr>
+    <tr><td class="paramname">from_col</td><td>Source column </td></tr>
+    <tr><td class="paramname">to_row</td><td>Destination row </td></tr>
+    <tr><td class="paramname">to_col</td><td>Destination column </td></tr>
+    <tr><td class="paramname">path_length</td><td>Output parameter for path length </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Array of positions for straight path </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00444">444</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0123299d5b5afc994cbb803c1f1b9aa2" name="a0123299d5b5afc994cbb803c1f1b9aa2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0123299d5b5afc994cbb803c1f1b9aa2">&#9670;&#160;</a></span>check_for_move_interruption()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void check_for_move_interruption </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check for move interruption during animation. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00574">574</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad4a9e6f0e9175a5f2f10c3536fb43308" name="ad4a9e6f0e9175a5f2f10c3536fb43308"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4a9e6f0e9175a5f2f10c3536fb43308">&#9670;&#160;</a></span>new_move_detected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool new_move_detected </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if new move was detected (placeholder). </p>
+<p>Overi zda byla detekovana nova animace (placeholder).</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true if new move detected </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00601">601</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Dokumentace proměnných</h2>
+<a id="a87e4e638f9c673b363ba09ebff9fe0c7" name="a87e4e638f9c673b363ba09ebff9fe0c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87e4e638f9c673b363ba09ebff9fe0c7">&#9670;&#160;</a></span>active_animation_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t active_animation_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00098">98</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5579f35967ee72c55398c089594c9f69" name="a5579f35967ee72c55398c089594c9f69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5579f35967ee72c55398c089594c9f69">&#9670;&#160;</a></span>animation_interrupt_mutex</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">SemaphoreHandle_t animation_interrupt_mutex = NULL</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00103">103</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af2889f0cc8ff05da5e068e7574ed5b3b" name="af2889f0cc8ff05da5e068e7574ed5b3b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af2889f0cc8ff05da5e068e7574ed5b3b">&#9670;&#160;</a></span>animation_interrupted</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">volatile bool animation_interrupted = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00102">102</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3506bb72f29fcaebecde5c53bd6139f2" name="a3506bb72f29fcaebecde5c53bd6139f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3506bb72f29fcaebecde5c53bd6139f2">&#9670;&#160;</a></span>animations</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structanimation__task__t.html">animation_task_t</a> animations[20]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00093">93</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a261a1c96f2134fa07a122bcbaf14167b" name="a261a1c96f2134fa07a122bcbaf14167b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a261a1c96f2134fa07a122bcbaf14167b">&#9670;&#160;</a></span>current_animation_index</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t current_animation_index = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00099">99</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afc4dd0f46762995c1147511282c4cb2d" name="afc4dd0f46762995c1147511282c4cb2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc4dd0f46762995c1147511282c4cb2d">&#9670;&#160;</a></span>fade_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t fade_frame[<a class="el" href="chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728">CHESS_LED_COUNT_TOTAL</a>][3]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00116">116</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2c59480d31f1d62c0da421b1b3826642" name="a2c59480d31f1d62c0da421b1b3826642"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c59480d31f1d62c0da421b1b3826642">&#9670;&#160;</a></span>next_animation_id</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t next_animation_id = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00094">94</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a63913cf3472539c76d9f3b05a1a49361" name="a63913cf3472539c76d9f3b05a1a49361"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63913cf3472539c76d9f3b05a1a49361">&#9670;&#160;</a></span>pulse_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t pulse_frame[<a class="el" href="chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728">CHESS_LED_COUNT_TOTAL</a>][3]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00115">115</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a58427d18cd3eb18ee8c7802c2a5a7814" name="a58427d18cd3eb18ee8c7802c2a5a7814"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58427d18cd3eb18ee8c7802c2a5a7814">&#9670;&#160;</a></span>rainbow_colors</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint32_t rainbow_colors[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    0xFF0000, 0xFF8000, 0xFFFF00, 0x80FF00, 0x00FF00, 0x00FF80,</div>
+<div class="line">    0x00FFFF, 0x0080FF, 0x0000FF, 0x8000FF, 0xFF00FF, 0xFF0080</div>
+<div class="line">}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00106">106</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;ANIMATION_TASK&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00052">52</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a35141cb45623cb3b7b4d96da35ed1831" name="a35141cb45623cb3b7b4d96da35ed1831"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35141cb45623cb3b7b4d96da35ed1831">&#9670;&#160;</a></span>task_running</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool task_running = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00095">95</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abcfc9b225da909e47ab361defc782a42" name="abcfc9b225da909e47ab361defc782a42"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abcfc9b225da909e47ab361defc782a42">&#9670;&#160;</a></span>wave_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t wave_frame[<a class="el" href="chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728">CHESS_LED_COUNT_TOTAL</a>][3]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="animation__task_8c_source.html#l00114">114</a> v souboru <a class="el" href="animation__task_8c_source.html">animation_task.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_41295a85b1295fc0ebd5beaf3e0347d1.html">animation_task</a></li><li class="navelem"><a href="animation__task_8c.html">animation_task.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>
