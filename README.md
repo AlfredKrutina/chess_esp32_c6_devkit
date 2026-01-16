@@ -369,8 +369,11 @@ open docs/public_doxygen/rtf/refman.rtf  # RTF dokumentace pro Word
 ```
 
 **Nasdílení HTML dokumentace:**
-- 🚀 Rychlé nasdílení na GitHub Pages: `./update_gh_pages.sh`
+- 🚀 Rychlé nasdílení na GitHub Pages: 
+  - **S git repozitářem**: `./update_gh_pages.sh` (automatické)
+  - **Bez git repozitáře**: `./prepare_gh_pages.sh` (připraví dokumentaci k ručnímu nahrání)
 - 📁 Dokumentace je automaticky zkopírována do `docs/public_doxygen/` při generování (viditelná na GitHubu)
+- 📖 Kompletní návod na nastavení: [docs/GITHUB_PAGES_SETUP.md](docs/GITHUB_PAGES_SETUP.md)
 
 ### RTF dokumentace (jeden soubor)
 

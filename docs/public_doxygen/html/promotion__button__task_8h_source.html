@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor promotion_button_task.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('promotion__button__task_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">promotion_button_task.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="promotion__button__task_8h.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#ifndef PROMOTION_BUTTON_TASK_H</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#define PROMOTION_BUTTON_TASK_H</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;<a class="code" href="freertos__chess_8h.html">freertos_chess.h</a>&quot;</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &quot;esp_err.h&quot;</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;freertos/FreeRTOS.h&quot;</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#include &quot;freertos/task.h&quot;</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#include &quot;freertos/queue.h&quot;</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment">// KONSTANTY A TYPY</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="promotion__button__task_8h.html#a58d022d18b73ee9efae31b39b6fd4343">   41</a></span><span class="preprocessor">#define PROMOTION_BUTTON_TASK_PRIORITY   3</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="comment">// PROTOTYPY FUNKCI</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>esp_err_t <a class="code hl_function" href="promotion__button__task_8h.html#a4a7c298b8b954ba4e407167ec242242b">promotion_button_task_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keywordtype">void</span> <a class="code hl_function" href="promotion__button__task_8h.html#a31932e440404a48bbeee15bd30220f31">promotion_button_task</a>(<span class="keywordtype">void</span> *pvParameters);</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>esp_err_t <a class="code hl_function" href="promotion__button__task_8h.html#a8e3a45fc9ac9fcda6e243449b9de66ff">process_promotion_choice</a>(<a class="code hl_enumeration" href="chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237">promotion_choice_t</a> choice);</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>esp_err_t <a class="code hl_function" href="promotion__button__task_8h.html#a0e0d52d07d70caef22af40a2969e79c3">simulate_promotion_button_press</a>(uint8_t button_index);</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="keywordtype">bool</span> <a class="code hl_function" href="promotion__button__task_8h.html#af6e9bc64868813a9a0c6134a471aefc9">promotion_button_is_initialized</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>uint32_t <a class="code hl_function" href="promotion__button__task_8h.html#acc92043a584171d17f29d9e0ae9bbd1a">promotion_button_get_event_count</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>}</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="preprocessor">#endif </span><span class="comment">/* PROMOTION_BUTTON_TASK_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="achess__types_8h_html_a1b67a105371c4a0066f77f3fa12ad237"><div class="ttname"><a href="chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237">promotion_choice_t</a></div><div class="ttdeci">promotion_choice_t</div><div class="ttdoc">Typy volby promoci pescu.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00154">chess_types.h:154</a></div></div>
+<div class="ttc" id="afreertos__chess_8h_html"><div class="ttname"><a href="freertos__chess_8h.html">freertos_chess.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - Hlavni systemova hlavicka.</div></div>
+<div class="ttc" id="apromotion__button__task_8h_html_a0e0d52d07d70caef22af40a2969e79c3"><div class="ttname"><a href="promotion__button__task_8h.html#a0e0d52d07d70caef22af40a2969e79c3">simulate_promotion_button_press</a></div><div class="ttdeci">esp_err_t simulate_promotion_button_press(uint8_t button_index)</div><div class="ttdoc">Simuluj stisknuti promotion tlacitka.</div><div class="ttdef"><b>Definition</b> <a href="promotion__button__task_8c_source.html#l00137">promotion_button_task.c:137</a></div></div>
+<div class="ttc" id="apromotion__button__task_8h_html_a31932e440404a48bbeee15bd30220f31"><div class="ttname"><a href="promotion__button__task_8h.html#a31932e440404a48bbeee15bd30220f31">promotion_button_task</a></div><div class="ttdeci">void promotion_button_task(void *pvParameters)</div><div class="ttdoc">Hlavni funkce promotion button tasku.</div><div class="ttdef"><b>Definition</b> <a href="promotion__button__task_8c_source.html#l00076">promotion_button_task.c:76</a></div></div>
+<div class="ttc" id="apromotion__button__task_8h_html_a4a7c298b8b954ba4e407167ec242242b"><div class="ttname"><a href="promotion__button__task_8h.html#a4a7c298b8b954ba4e407167ec242242b">promotion_button_task_init</a></div><div class="ttdeci">esp_err_t promotion_button_task_init(void)</div><div class="ttdoc">Inicializuje promotion button task.</div><div class="ttdef"><b>Definition</b> <a href="promotion__button__task_8c_source.html#l00042">promotion_button_task.c:42</a></div></div>
+<div class="ttc" id="apromotion__button__task_8h_html_a8e3a45fc9ac9fcda6e243449b9de66ff"><div class="ttname"><a href="promotion__button__task_8h.html#a8e3a45fc9ac9fcda6e243449b9de66ff">process_promotion_choice</a></div><div class="ttdeci">esp_err_t process_promotion_choice(promotion_choice_t choice)</div><div class="ttdoc">Zpracuj volbu promoci.</div><div class="ttdef"><b>Definition</b> <a href="promotion__button__task_8c_source.html#l00099">promotion_button_task.c:99</a></div></div>
+<div class="ttc" id="apromotion__button__task_8h_html_acc92043a584171d17f29d9e0ae9bbd1a"><div class="ttname"><a href="promotion__button__task_8h.html#acc92043a584171d17f29d9e0ae9bbd1a">promotion_button_get_event_count</a></div><div class="ttdeci">uint32_t promotion_button_get_event_count(void)</div><div class="ttdoc">Ziskej pocet zpracovanych button udalosti.</div><div class="ttdef"><b>Definition</b> <a href="promotion__button__task_8c_source.html#l00179">promotion_button_task.c:179</a></div></div>
+<div class="ttc" id="apromotion__button__task_8h_html_af6e9bc64868813a9a0c6134a471aefc9"><div class="ttname"><a href="promotion__button__task_8h.html#af6e9bc64868813a9a0c6134a471aefc9">promotion_button_is_initialized</a></div><div class="ttdeci">bool promotion_button_is_initialized(void)</div><div class="ttdoc">Overi zda je promotion button task inicializovan.</div><div class="ttdef"><b>Definition</b> <a href="promotion__button__task_8c_source.html#l00169">promotion_button_task.c:169</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_ab6b3e4c64325f478abea97ff504e20e.html">promotion_button_task</a></li><li class="navelem"><a href="dir_a5c61a8ab78e4dbc07599a87e6ffeb5d.html">include</a></li><li class="navelem"><a href="promotion__button__task_8h.html">promotion_button_task.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

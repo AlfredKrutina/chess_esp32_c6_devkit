@@ -1,0 +1,35 @@
+<map id="led_state_manager.h" name="led_state_manager.h">
+<area shape="rect" id="Node000001" title="LED State Manager &#45; Pokrocila sprava LED stavu a vrstev." alt="" coords="329,5,470,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="277,226,341,252"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="326,23,249,30,163,40,87,57,58,68,39,81,19,104,10,128,11,152,24,177,39,189,63,199,126,216,197,226,264,235,258,235,197,232,125,221,61,204,37,193,20,180,6,153,4,127,15,101,35,77,56,63,86,52,162,35,249,25,331,21"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="365,226,439,252"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="326,27,218,44,160,56,106,72,62,92,34,116,27,129,26,143,31,159,43,176,64,192,96,203,179,214,271,218,352,226,347,227,270,224,178,220,94,208,62,197,39,180,26,162,21,144,22,128,30,113,59,88,104,67,158,51,217,39,331,24"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="602,226,677,252"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="470,23,597,38,744,63,815,80,878,100,928,124,961,151,981,170,995,179,1001,186,989,188,903,194,816,206,692,228,692,223,815,201,902,189,989,183,996,184,992,184,977,174,958,155,925,128,876,105,814,85,743,68,596,43,471,28"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="701,226,845,252"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="470,18,552,22,651,31,757,49,862,76,938,100,968,118,994,151,1001,172,997,189,985,203,967,214,917,229,860,237,860,232,916,224,965,209,982,199,993,187,996,172,989,154,964,122,936,105,860,82,756,54,650,37,552,27,471,23"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="53,153,175,178"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="376,34,153,147,150,143,375,29"/>
+<area shape="rect" id="Node000007" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="436,79,555,105"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="416,29,470,70,465,70,415,34"/>
+<area shape="poly" id="edge21_Node000007_Node000002" title=" " alt="" coords="481,104,414,155,336,219,333,214,411,151,476,106"/>
+<area shape="poly" id="edge20_Node000007_Node000003" title=" " alt="" coords="481,104,455,127,432,154,418,183,409,213,405,209,413,181,428,151,452,124,476,106"/>
+<area shape="poly" id="edge14_Node000007_Node000004" title=" " alt="" coords="518,103,550,124,583,151,608,181,628,214,623,212,604,184,579,155,547,128,517,108"/>
+<area shape="poly" id="edge15_Node000007_Node000005" title=" " alt="" coords="519,103,611,150,739,219,734,218,609,155,518,108"/>
+<area shape="poly" id="edge17_Node000007_Node000006" title=" " alt="" coords="435,107,191,153,190,147,437,102"/>
+<area shape="rect" id="Node000008" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="442,153,549,178"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="497,103,498,138,493,135,494,107"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="463,226,579,252"/>
+<area shape="poly" id="edge16_Node000007_Node000009" title=" " alt="" coords="516,102,543,123,563,152,567,169,563,186,545,217,542,212,558,184,561,169,558,154,539,127,515,108"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="725,153,818,178"/>
+<area shape="poly" id="edge13_Node000007_Node000010" title=" " alt="" coords="543,103,713,148,708,149,542,108"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="842,153,947,178"/>
+<area shape="poly" id="edge18_Node000007_Node000011" title=" " alt="" coords="555,101,829,151,824,153,555,106"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="200,153,316,178"/>
+<area shape="poly" id="edge19_Node000007_Node000012" title=" " alt="" coords="453,106,314,150,312,145,458,104"/>
+<area shape="poly" id="edge8_Node000008_Node000002" title=" " alt="" coords="466,178,356,223,354,218,461,179"/>
+<area shape="poly" id="edge9_Node000008_Node000003" title=" " alt="" coords="482,178,431,219,429,214,477,180"/>
+<area shape="poly" id="edge12_Node000008_Node000004" title=" " alt="" coords="521,176,604,219,599,219,519,181"/>
+<area shape="poly" id="edge10_Node000008_Node000005" title=" " alt="" coords="543,176,714,222,708,222,542,182"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="501,176,514,213,509,210,498,181"/>
+</map>

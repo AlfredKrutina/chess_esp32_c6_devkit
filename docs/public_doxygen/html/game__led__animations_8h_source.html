@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor game_led_animations.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('game__led__animations_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">game_led_animations.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="game__led__animations_8h.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#ifndef GAME_LED_ANIMATIONS_H</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#define GAME_LED_ANIMATIONS_H</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &quot;esp_err.h&quot;</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &quot;freertos/FreeRTOS.h&quot;</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#include &quot;freertos/timers.h&quot;</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">// KONSTANTY A DEFINICE</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#a1767d604401a9b047932166494ed7b9e">   29</a></span><span class="preprocessor">#define MAX_WAVES 5          </span><span class="comment">// Maximální počet vln současně</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#ad146c422c93828b517dc1801a40ca01f">   30</a></span><span class="preprocessor">#define MAX_FIREWORKS 6      </span><span class="comment">// Maximální počet ohňostrojů současně</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="comment">// VÝČTOVÉ TYPY</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span></div>
+<div class="foldopen" id="foldopen00039" data-start="{" data-end="};">
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">   39</a></span><span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757">   40</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757">ENDGAME_ANIM_VICTORY_WAVE</a> = 1,     <span class="comment">// Vlna vítězství od krále</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6">   41</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6">ENDGAME_ANIM_VICTORY_CIRCLES</a> = 2,  <span class="comment">// Expandující kruhy</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415">   42</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415">ENDGAME_ANIM_VICTORY_CASCADE</a> = 3,  <span class="comment">// Kaskádové padání</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37">   43</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37">ENDGAME_ANIM_VICTORY_FIREWORKS</a> = 4,<span class="comment">// Ohňostroj</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99">   44</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99">ENDGAME_ANIM_VICTORY_CROWN</a> = 5,    <span class="comment">// Korunka pro vítěze</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9">   45</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9">ENDGAME_ANIM_MAX</a>                   <span class="comment">// Maximální hodnota</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>} <a class="code hl_enumeration" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a>;</div>
+</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span></div>
+<div class="foldopen" id="foldopen00051" data-start="{" data-end="};">
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08">   51</a></span><span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03">   52</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03">SUBTLE_ANIM_GENTLE_WAVE</a> = 0,    <span class="comment">// Jemná vlna - mírné změny sytosti</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0">   53</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0">SUBTLE_ANIM_WARM_GLOW</a> = 1,      <span class="comment">// Teplé záření - žlutý/oranžový nádech</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4">   54</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4">SUBTLE_ANIM_COOL_PULSE</a> = 2,     <span class="comment">// Chladné pulzování - modrý/fialový nádech</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf">   55</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf">SUBTLE_ANIM_WHITE_WINS</a> = 3,     <span class="comment">// Bílý vítězí - bílá animace</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3">   56</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3">SUBTLE_ANIM_BLACK_WINS</a> = 4,     <span class="comment">// Černý vítězí - černá animace</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f">   57</a></span>    <a class="code hl_enumvalue" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f">SUBTLE_ANIM_DRAW</a> = 5            <span class="comment">// Remíza - neutrální animace</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>} <a class="code hl_enumeration" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a>;</div>
+</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="comment">// STRUKTURY</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span></div>
+<div class="foldopen" id="foldopen00067" data-start="{" data-end="};">
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="structrgb__color__t.html">   67</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="structrgb__color__t.html#a43cb2f2dc1e60fa14bf93d90f9d7015e">   68</a></span>    uint8_t <a class="code hl_variable" href="structrgb__color__t.html#a43cb2f2dc1e60fa14bf93d90f9d7015e">r</a>;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="structrgb__color__t.html#ae73935f5f2386b4c62fd24a8ec6d5512">   69</a></span>    uint8_t <a class="code hl_variable" href="structrgb__color__t.html#ae73935f5f2386b4c62fd24a8ec6d5512">g</a>; </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="structrgb__color__t.html#a6e7156f19f70236f20113f612b7ea1d2">   70</a></span>    uint8_t <a class="code hl_variable" href="structrgb__color__t.html#a6e7156f19f70236f20113f612b7ea1d2">b</a>;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>} <a class="code hl_struct" href="structrgb__color__t.html">rgb_color_t</a>;</div>
+</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span></div>
+<div class="foldopen" id="foldopen00076" data-start="{" data-end="};">
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="structwave__t.html">   76</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno"><a class="line" href="structwave__t.html#a1962dccb7b6f3344dd1dc371bef551fb">   77</a></span>    <span class="keywordtype">float</span> <a class="code hl_variable" href="structwave__t.html#a1962dccb7b6f3344dd1dc371bef551fb">radius</a>;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="structwave__t.html#a48a5cf022f2cc66351d4119cabdc3b8d">   78</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structwave__t.html#a48a5cf022f2cc66351d4119cabdc3b8d">active</a>;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>} <a class="code hl_struct" href="structwave__t.html">wave_t</a>;</div>
+</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span></div>
+<div class="foldopen" id="foldopen00084" data-start="{" data-end="};">
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="structwave__animation__state__t.html">   84</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="structwave__animation__state__t.html#acc72a17b7ca0887b4acae5c311285340">   85</a></span>    uint8_t <a class="code hl_variable" href="structwave__animation__state__t.html#acc72a17b7ca0887b4acae5c311285340">center_pos</a>;      <span class="comment">// Pozice středu (vítězný král)</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno"><a class="line" href="structwave__animation__state__t.html#a6a4f1113953d2497b53501e25dfcf5a5">   86</a></span>    <span class="keywordtype">float</span> <a class="code hl_variable" href="structwave__animation__state__t.html#a6a4f1113953d2497b53501e25dfcf5a5">max_radius</a>;        <span class="comment">// Maximální rádius vlny</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno"><a class="line" href="structwave__animation__state__t.html#a95ef4cec8f186f8be1d5d22b0c2857fe">   87</a></span>    <span class="keywordtype">float</span> <a class="code hl_variable" href="structwave__animation__state__t.html#a95ef4cec8f186f8be1d5d22b0c2857fe">current_radius</a>;    <span class="comment">// Aktuální rádius</span></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="structwave__animation__state__t.html#a023bf89bd5ddd84d9793e50ddfe57d23">   88</a></span>    <span class="keywordtype">float</span> <a class="code hl_variable" href="structwave__animation__state__t.html#a023bf89bd5ddd84d9793e50ddfe57d23">wave_speed</a>;        <span class="comment">// Rychlost vlny</span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="structwave__animation__state__t.html#a9d860f0d4cf5173b8f9b42f1ec384acd">   89</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structwave__animation__state__t.html#a9d860f0d4cf5173b8f9b42f1ec384acd">active_waves</a>;        <span class="comment">// Počet aktivních vln</span></div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno"><a class="line" href="structwave__animation__state__t.html#ad00eb787772807623eeb9ec904de2737">   90</a></span>    <a class="code hl_struct" href="structwave__t.html">wave_t</a> <a class="code hl_variable" href="structwave__animation__state__t.html#ad00eb787772807623eeb9ec904de2737">waves</a>[<a class="code hl_define" href="game__led__animations_8h.html#a1767d604401a9b047932166494ed7b9e">MAX_WAVES</a>]; <span class="comment">// Jednotlivé vlny</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno"><a class="line" href="structwave__animation__state__t.html#a14d86f2ce0c27cbaf849141fdaaf53f6">   91</a></span>    uint32_t <a class="code hl_variable" href="structwave__animation__state__t.html#a14d86f2ce0c27cbaf849141fdaaf53f6">frame</a>;          <span class="comment">// Čítač snímků</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>} <a class="code hl_struct" href="structwave__animation__state__t.html">wave_animation_state_t</a>;</div>
+</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span></div>
+<div class="foldopen" id="foldopen00097" data-start="{" data-end="};">
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="structfirework__t.html">   97</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno"><a class="line" href="structfirework__t.html#a81ca0f04b4c781a1f799eb96a3395009">   98</a></span>    uint8_t <a class="code hl_variable" href="structfirework__t.html#a81ca0f04b4c781a1f799eb96a3395009">center_x</a>, <a class="code hl_variable" href="structfirework__t.html#a37330f2a3b0e7da717cfccb0912b8cfd">center_y</a>;  <span class="comment">// Střed ohňostroje</span></div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno"><a class="line" href="structfirework__t.html#a25ee75b0312399808b4c1aa7d36cdacb">   99</a></span>    <span class="keywordtype">float</span> <a class="code hl_variable" href="structfirework__t.html#a25ee75b0312399808b4c1aa7d36cdacb">radius</a>;                <span class="comment">// Aktuální rádius</span></div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno"><a class="line" href="structfirework__t.html#a6ed1b298267dbca24bf65e40f7661b24">  100</a></span>    <span class="keywordtype">float</span> <a class="code hl_variable" href="structfirework__t.html#a6ed1b298267dbca24bf65e40f7661b24">max_radius</a>;            <span class="comment">// Maximální rádius</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno"><a class="line" href="structfirework__t.html#a01940dbfdce44ef9a569aaa7820353fd">  101</a></span>    uint8_t <a class="code hl_variable" href="structfirework__t.html#a01940dbfdce44ef9a569aaa7820353fd">color_idx</a>;           <span class="comment">// Index barvy</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno"><a class="line" href="structfirework__t.html#ab8dfb88348a42289cd5ce7a31b40c77b">  102</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structfirework__t.html#ab8dfb88348a42289cd5ce7a31b40c77b">active</a>;                 <span class="comment">// Aktivní stav</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno"><a class="line" href="structfirework__t.html#accc9b17020e87c721a531237aa0b78c3">  103</a></span>    <span class="keywordtype">int</span> <a class="code hl_variable" href="structfirework__t.html#accc9b17020e87c721a531237aa0b78c3">delay</a>;                   <span class="comment">// Zpoždění před startem</span></div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>} <a class="code hl_struct" href="structfirework__t.html">firework_t</a>;</div>
+</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span></div>
+<div class="foldopen" id="foldopen00109" data-start="{" data-end="};">
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno"><a class="line" href="structsubtle__animation__state__t.html">  109</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno"><a class="line" href="structsubtle__animation__state__t.html#acf12e9fc843cf75d5976e43e64c73a95">  110</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structsubtle__animation__state__t.html#acf12e9fc843cf75d5976e43e64c73a95">active</a>;                 <span class="comment">// Aktivní stav</span></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno"><a class="line" href="structsubtle__animation__state__t.html#a28a89503fb8a1a8db1aaf1cef5feac3c">  111</a></span>    <a class="code hl_enumeration" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a> <a class="code hl_variable" href="structsubtle__animation__state__t.html#a28a89503fb8a1a8db1aaf1cef5feac3c">type</a>;     <span class="comment">// Typ animace</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno"><a class="line" href="structsubtle__animation__state__t.html#abb3851357c569eed9dadb3d1930d62e2">  112</a></span>    uint32_t <a class="code hl_variable" href="structsubtle__animation__state__t.html#abb3851357c569eed9dadb3d1930d62e2">frame</a>;              <span class="comment">// Čítač snímků</span></div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno"><a class="line" href="structsubtle__animation__state__t.html#a7260489ddfb0f0039463d116b0341250">  113</a></span>    <a class="code hl_struct" href="structrgb__color__t.html">rgb_color_t</a> <a class="code hl_variable" href="structsubtle__animation__state__t.html#a7260489ddfb0f0039463d116b0341250">base_color</a>;      <span class="comment">// Základní barva</span></div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>} <a class="code hl_struct" href="structsubtle__animation__state__t.html">subtle_animation_state_t</a>;</div>
+</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span><span class="comment">// HLAVNÍ API FUNKCE</span></div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span></div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>esp_err_t <a class="code hl_function" href="game__led__animations_8h.html#a9c35ac742c83bf78240d93599dd54556">game_led_animations_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span></div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>esp_err_t <a class="code hl_function" href="game__led__animations_8h.html#a512b0ba5745a638b00545a16423c4e17">start_endgame_animation</a>(<a class="code hl_enumeration" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a> animation_type, uint8_t king_position);</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span></div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>esp_err_t <a class="code hl_function" href="game__led__animations_8h.html#ad8316144bc70b897342c47d341b52b5b">stop_endgame_animation</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span></div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__led__animations_8h.html#abc332d95d86dbce7893f640161167edb">is_endgame_animation_running</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span></div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span><span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code hl_function" href="game__led__animations_8h.html#a657e1bb5d40ff05278f1fd817295a34b">get_endgame_animation_name</a>(<a class="code hl_enumeration" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a> animation_type);</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span> </div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span><span class="comment">// JEMNÉ ANIMACE</span></div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span></div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>esp_err_t <a class="code hl_function" href="game__led__animations_8h.html#ac3099afed7bffbea6eaba00603a015a9">start_subtle_piece_animation</a>(uint8_t piece_position, <a class="code hl_enumeration" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a> anim_type);</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span></div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>esp_err_t <a class="code hl_function" href="game__led__animations_8h.html#abb3b14cd5eb31a70450c0a404902e4e0">start_subtle_button_animation</a>(uint8_t button_id, <a class="code hl_enumeration" href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a> anim_type);</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span></div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>esp_err_t <a class="code hl_function" href="game__led__animations_8h.html#a7d2e178a6334fe293dd266e15b194ceb">stop_all_subtle_animations</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span><span class="comment">// HELPER FUNKCE PRO INTEGRACE</span></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span></div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#acb38fb824c92dc6d289f623bc15fcac6">  189</a></span>esp_err_t <a class="code hl_function" href="game__led__animations_8h.html#acb38fb824c92dc6d289f623bc15fcac6">activate_subtle_animations_for_movable_pieces</a>(uint8_t* movable_positions, uint8_t count);</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#ae9a2e770a4936e32e42c67ebb236ce01">  197</a></span>esp_err_t <a class="code hl_function" href="game__led__animations_8h.html#ae9a2e770a4936e32e42c67ebb236ce01">activate_subtle_animations_for_buttons</a>(uint8_t* available_buttons, uint8_t count);</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="comment">// KOMPATIBILNÍ ALIASY PRO EXISTUJÍCÍ KÓD</span></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span></div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno"><a class="line" href="game__led__animations_8h.html#aff587ca038d004104b274391cb221113">  206</a></span><span class="preprocessor">#define init_endgame_animation_system() game_led_animations_init()</span></div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>}</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="preprocessor">#endif </span><span class="comment">// GAME_LED_ANIMATIONS_H</span></div>
+<div class="ttc" id="agame__led__animations_8h_html_a1767d604401a9b047932166494ed7b9e"><div class="ttname"><a href="game__led__animations_8h.html#a1767d604401a9b047932166494ed7b9e">MAX_WAVES</a></div><div class="ttdeci">#define MAX_WAVES</div><div class="ttdef"><b>Definition</b> <a href="#l00029">game_led_animations.h:29</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a30603ef39ed3a32a5ae1be1274874159"><div class="ttname"><a href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a></div><div class="ttdeci">endgame_animation_type_t</div><div class="ttdoc">Typy endgame animací</div><div class="ttdef"><b>Definition</b> <a href="#l00039">game_led_animations.h:39</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415"><div class="ttname"><a href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415">ENDGAME_ANIM_VICTORY_CASCADE</a></div><div class="ttdeci">@ ENDGAME_ANIM_VICTORY_CASCADE</div><div class="ttdef"><b>Definition</b> <a href="#l00042">game_led_animations.h:42</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99"><div class="ttname"><a href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99">ENDGAME_ANIM_VICTORY_CROWN</a></div><div class="ttdeci">@ ENDGAME_ANIM_VICTORY_CROWN</div><div class="ttdef"><b>Definition</b> <a href="#l00044">game_led_animations.h:44</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9"><div class="ttname"><a href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9">ENDGAME_ANIM_MAX</a></div><div class="ttdeci">@ ENDGAME_ANIM_MAX</div><div class="ttdef"><b>Definition</b> <a href="#l00045">game_led_animations.h:45</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37"><div class="ttname"><a href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37">ENDGAME_ANIM_VICTORY_FIREWORKS</a></div><div class="ttdeci">@ ENDGAME_ANIM_VICTORY_FIREWORKS</div><div class="ttdef"><b>Definition</b> <a href="#l00043">game_led_animations.h:43</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757"><div class="ttname"><a href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757">ENDGAME_ANIM_VICTORY_WAVE</a></div><div class="ttdeci">@ ENDGAME_ANIM_VICTORY_WAVE</div><div class="ttdef"><b>Definition</b> <a href="#l00040">game_led_animations.h:40</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6"><div class="ttname"><a href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6">ENDGAME_ANIM_VICTORY_CIRCLES</a></div><div class="ttdeci">@ ENDGAME_ANIM_VICTORY_CIRCLES</div><div class="ttdef"><b>Definition</b> <a href="#l00041">game_led_animations.h:41</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a512b0ba5745a638b00545a16423c4e17"><div class="ttname"><a href="game__led__animations_8h.html#a512b0ba5745a638b00545a16423c4e17">start_endgame_animation</a></div><div class="ttdeci">esp_err_t start_endgame_animation(endgame_animation_type_t animation_type, uint8_t king_position)</div><div class="ttdoc">Spuštění endgame animace.</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8c_source.html#l00653">game_led_animations.c:653</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a657e1bb5d40ff05278f1fd817295a34b"><div class="ttname"><a href="game__led__animations_8h.html#a657e1bb5d40ff05278f1fd817295a34b">get_endgame_animation_name</a></div><div class="ttdeci">const char * get_endgame_animation_name(endgame_animation_type_t animation_type)</div><div class="ttdoc">Získání názvu animace.</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8c_source.html#l00709">game_led_animations.c:709</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a7d2e178a6334fe293dd266e15b194ceb"><div class="ttname"><a href="game__led__animations_8h.html#a7d2e178a6334fe293dd266e15b194ceb">stop_all_subtle_animations</a></div><div class="ttdeci">esp_err_t stop_all_subtle_animations(void)</div><div class="ttdoc">Zastavení všech jemných animací</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8c_source.html#l00720">game_led_animations.c:720</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_a9c35ac742c83bf78240d93599dd54556"><div class="ttname"><a href="game__led__animations_8h.html#a9c35ac742c83bf78240d93599dd54556">game_led_animations_init</a></div><div class="ttdeci">esp_err_t game_led_animations_init(void)</div><div class="ttdoc">Inicializace animačního systému.</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8c_source.html#l00609">game_led_animations.c:609</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_aaf8aea34899d30734001c2e6a651bc08"><div class="ttname"><a href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a></div><div class="ttdeci">subtle_anim_type_t</div><div class="ttdoc">Typy jemných animací</div><div class="ttdef"><b>Definition</b> <a href="#l00051">game_led_animations.h:51</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f"><div class="ttname"><a href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f">SUBTLE_ANIM_DRAW</a></div><div class="ttdeci">@ SUBTLE_ANIM_DRAW</div><div class="ttdef"><b>Definition</b> <a href="#l00057">game_led_animations.h:57</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0"><div class="ttname"><a href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0">SUBTLE_ANIM_WARM_GLOW</a></div><div class="ttdeci">@ SUBTLE_ANIM_WARM_GLOW</div><div class="ttdef"><b>Definition</b> <a href="#l00053">game_led_animations.h:53</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03"><div class="ttname"><a href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03">SUBTLE_ANIM_GENTLE_WAVE</a></div><div class="ttdeci">@ SUBTLE_ANIM_GENTLE_WAVE</div><div class="ttdef"><b>Definition</b> <a href="#l00052">game_led_animations.h:52</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf"><div class="ttname"><a href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf">SUBTLE_ANIM_WHITE_WINS</a></div><div class="ttdeci">@ SUBTLE_ANIM_WHITE_WINS</div><div class="ttdef"><b>Definition</b> <a href="#l00055">game_led_animations.h:55</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3"><div class="ttname"><a href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3">SUBTLE_ANIM_BLACK_WINS</a></div><div class="ttdeci">@ SUBTLE_ANIM_BLACK_WINS</div><div class="ttdef"><b>Definition</b> <a href="#l00056">game_led_animations.h:56</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4"><div class="ttname"><a href="game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4">SUBTLE_ANIM_COOL_PULSE</a></div><div class="ttdeci">@ SUBTLE_ANIM_COOL_PULSE</div><div class="ttdef"><b>Definition</b> <a href="#l00054">game_led_animations.h:54</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_abb3b14cd5eb31a70450c0a404902e4e0"><div class="ttname"><a href="game__led__animations_8h.html#abb3b14cd5eb31a70450c0a404902e4e0">start_subtle_button_animation</a></div><div class="ttdeci">esp_err_t start_subtle_button_animation(uint8_t button_id, subtle_anim_type_t anim_type)</div><div class="ttdoc">Spuštění jemné animace pro tlačítko.</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8c_source.html#l00465">game_led_animations.c:465</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_abc332d95d86dbce7893f640161167edb"><div class="ttname"><a href="game__led__animations_8h.html#abc332d95d86dbce7893f640161167edb">is_endgame_animation_running</a></div><div class="ttdeci">bool is_endgame_animation_running(void)</div><div class="ttdoc">Kontrola zda běží endgame animace.</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8c_source.html#l00705">game_led_animations.c:705</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_ac3099afed7bffbea6eaba00603a015a9"><div class="ttname"><a href="game__led__animations_8h.html#ac3099afed7bffbea6eaba00603a015a9">start_subtle_piece_animation</a></div><div class="ttdeci">esp_err_t start_subtle_piece_animation(uint8_t piece_position, subtle_anim_type_t anim_type)</div><div class="ttdoc">Spuštění jemné animace pro figurku.</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8c_source.html#l00448">game_led_animations.c:448</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_acb38fb824c92dc6d289f623bc15fcac6"><div class="ttname"><a href="game__led__animations_8h.html#acb38fb824c92dc6d289f623bc15fcac6">activate_subtle_animations_for_movable_pieces</a></div><div class="ttdeci">esp_err_t activate_subtle_animations_for_movable_pieces(uint8_t *movable_positions, uint8_t count)</div><div class="ttdoc">Aktivace jemných animací pro pohyblivé figurky.</div></div>
+<div class="ttc" id="agame__led__animations_8h_html_ad8316144bc70b897342c47d341b52b5b"><div class="ttname"><a href="game__led__animations_8h.html#ad8316144bc70b897342c47d341b52b5b">stop_endgame_animation</a></div><div class="ttdeci">esp_err_t stop_endgame_animation(void)</div><div class="ttdoc">Zastavení endgame animace.</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8c_source.html#l00689">game_led_animations.c:689</a></div></div>
+<div class="ttc" id="agame__led__animations_8h_html_ae9a2e770a4936e32e42c67ebb236ce01"><div class="ttname"><a href="game__led__animations_8h.html#ae9a2e770a4936e32e42c67ebb236ce01">activate_subtle_animations_for_buttons</a></div><div class="ttdeci">esp_err_t activate_subtle_animations_for_buttons(uint8_t *available_buttons, uint8_t count)</div><div class="ttdoc">Aktivace jemných animací pro dostupná tlačítka.</div></div>
+<div class="ttc" id="astructfirework__t_html"><div class="ttname"><a href="structfirework__t.html">firework_t</a></div><div class="ttdoc">Stav ohňostroje.</div><div class="ttdef"><b>Definition</b> <a href="#l00097">game_led_animations.h:97</a></div></div>
+<div class="ttc" id="astructfirework__t_html_a01940dbfdce44ef9a569aaa7820353fd"><div class="ttname"><a href="structfirework__t.html#a01940dbfdce44ef9a569aaa7820353fd">firework_t::color_idx</a></div><div class="ttdeci">uint8_t color_idx</div><div class="ttdef"><b>Definition</b> <a href="#l00101">game_led_animations.h:101</a></div></div>
+<div class="ttc" id="astructfirework__t_html_a25ee75b0312399808b4c1aa7d36cdacb"><div class="ttname"><a href="structfirework__t.html#a25ee75b0312399808b4c1aa7d36cdacb">firework_t::radius</a></div><div class="ttdeci">float radius</div><div class="ttdef"><b>Definition</b> <a href="#l00099">game_led_animations.h:99</a></div></div>
+<div class="ttc" id="astructfirework__t_html_a37330f2a3b0e7da717cfccb0912b8cfd"><div class="ttname"><a href="structfirework__t.html#a37330f2a3b0e7da717cfccb0912b8cfd">firework_t::center_y</a></div><div class="ttdeci">uint8_t center_y</div><div class="ttdef"><b>Definition</b> <a href="#l00098">game_led_animations.h:98</a></div></div>
+<div class="ttc" id="astructfirework__t_html_a6ed1b298267dbca24bf65e40f7661b24"><div class="ttname"><a href="structfirework__t.html#a6ed1b298267dbca24bf65e40f7661b24">firework_t::max_radius</a></div><div class="ttdeci">float max_radius</div><div class="ttdef"><b>Definition</b> <a href="#l00100">game_led_animations.h:100</a></div></div>
+<div class="ttc" id="astructfirework__t_html_a81ca0f04b4c781a1f799eb96a3395009"><div class="ttname"><a href="structfirework__t.html#a81ca0f04b4c781a1f799eb96a3395009">firework_t::center_x</a></div><div class="ttdeci">uint8_t center_x</div><div class="ttdef"><b>Definition</b> <a href="#l00098">game_led_animations.h:98</a></div></div>
+<div class="ttc" id="astructfirework__t_html_ab8dfb88348a42289cd5ce7a31b40c77b"><div class="ttname"><a href="structfirework__t.html#ab8dfb88348a42289cd5ce7a31b40c77b">firework_t::active</a></div><div class="ttdeci">bool active</div><div class="ttdef"><b>Definition</b> <a href="#l00102">game_led_animations.h:102</a></div></div>
+<div class="ttc" id="astructfirework__t_html_accc9b17020e87c721a531237aa0b78c3"><div class="ttname"><a href="structfirework__t.html#accc9b17020e87c721a531237aa0b78c3">firework_t::delay</a></div><div class="ttdeci">int delay</div><div class="ttdef"><b>Definition</b> <a href="#l00103">game_led_animations.h:103</a></div></div>
+<div class="ttc" id="astructrgb__color__t_html"><div class="ttname"><a href="structrgb__color__t.html">rgb_color_t</a></div><div class="ttdoc">RGB barva.</div><div class="ttdef"><b>Definition</b> <a href="#l00067">game_led_animations.h:67</a></div></div>
+<div class="ttc" id="astructrgb__color__t_html_a43cb2f2dc1e60fa14bf93d90f9d7015e"><div class="ttname"><a href="structrgb__color__t.html#a43cb2f2dc1e60fa14bf93d90f9d7015e">rgb_color_t::r</a></div><div class="ttdeci">uint8_t r</div><div class="ttdef"><b>Definition</b> <a href="#l00068">game_led_animations.h:68</a></div></div>
+<div class="ttc" id="astructrgb__color__t_html_a6e7156f19f70236f20113f612b7ea1d2"><div class="ttname"><a href="structrgb__color__t.html#a6e7156f19f70236f20113f612b7ea1d2">rgb_color_t::b</a></div><div class="ttdeci">uint8_t b</div><div class="ttdef"><b>Definition</b> <a href="#l00070">game_led_animations.h:70</a></div></div>
+<div class="ttc" id="astructrgb__color__t_html_ae73935f5f2386b4c62fd24a8ec6d5512"><div class="ttname"><a href="structrgb__color__t.html#ae73935f5f2386b4c62fd24a8ec6d5512">rgb_color_t::g</a></div><div class="ttdeci">uint8_t g</div><div class="ttdef"><b>Definition</b> <a href="#l00069">game_led_animations.h:69</a></div></div>
+<div class="ttc" id="astructsubtle__animation__state__t_html"><div class="ttname"><a href="structsubtle__animation__state__t.html">subtle_animation_state_t</a></div><div class="ttdoc">Stav jemné animace.</div><div class="ttdef"><b>Definition</b> <a href="#l00109">game_led_animations.h:109</a></div></div>
+<div class="ttc" id="astructsubtle__animation__state__t_html_a28a89503fb8a1a8db1aaf1cef5feac3c"><div class="ttname"><a href="structsubtle__animation__state__t.html#a28a89503fb8a1a8db1aaf1cef5feac3c">subtle_animation_state_t::type</a></div><div class="ttdeci">subtle_anim_type_t type</div><div class="ttdef"><b>Definition</b> <a href="#l00111">game_led_animations.h:111</a></div></div>
+<div class="ttc" id="astructsubtle__animation__state__t_html_a7260489ddfb0f0039463d116b0341250"><div class="ttname"><a href="structsubtle__animation__state__t.html#a7260489ddfb0f0039463d116b0341250">subtle_animation_state_t::base_color</a></div><div class="ttdeci">rgb_color_t base_color</div><div class="ttdef"><b>Definition</b> <a href="#l00113">game_led_animations.h:113</a></div></div>
+<div class="ttc" id="astructsubtle__animation__state__t_html_abb3851357c569eed9dadb3d1930d62e2"><div class="ttname"><a href="structsubtle__animation__state__t.html#abb3851357c569eed9dadb3d1930d62e2">subtle_animation_state_t::frame</a></div><div class="ttdeci">uint32_t frame</div><div class="ttdef"><b>Definition</b> <a href="#l00112">game_led_animations.h:112</a></div></div>
+<div class="ttc" id="astructsubtle__animation__state__t_html_acf12e9fc843cf75d5976e43e64c73a95"><div class="ttname"><a href="structsubtle__animation__state__t.html#acf12e9fc843cf75d5976e43e64c73a95">subtle_animation_state_t::active</a></div><div class="ttdeci">bool active</div><div class="ttdef"><b>Definition</b> <a href="#l00110">game_led_animations.h:110</a></div></div>
+<div class="ttc" id="astructwave__animation__state__t_html"><div class="ttname"><a href="structwave__animation__state__t.html">wave_animation_state_t</a></div><div class="ttdoc">Stav vlnové animace.</div><div class="ttdef"><b>Definition</b> <a href="#l00084">game_led_animations.h:84</a></div></div>
+<div class="ttc" id="astructwave__animation__state__t_html_a023bf89bd5ddd84d9793e50ddfe57d23"><div class="ttname"><a href="structwave__animation__state__t.html#a023bf89bd5ddd84d9793e50ddfe57d23">wave_animation_state_t::wave_speed</a></div><div class="ttdeci">float wave_speed</div><div class="ttdef"><b>Definition</b> <a href="#l00088">game_led_animations.h:88</a></div></div>
+<div class="ttc" id="astructwave__animation__state__t_html_a14d86f2ce0c27cbaf849141fdaaf53f6"><div class="ttname"><a href="structwave__animation__state__t.html#a14d86f2ce0c27cbaf849141fdaaf53f6">wave_animation_state_t::frame</a></div><div class="ttdeci">uint32_t frame</div><div class="ttdef"><b>Definition</b> <a href="#l00091">game_led_animations.h:91</a></div></div>
+<div class="ttc" id="astructwave__animation__state__t_html_a6a4f1113953d2497b53501e25dfcf5a5"><div class="ttname"><a href="structwave__animation__state__t.html#a6a4f1113953d2497b53501e25dfcf5a5">wave_animation_state_t::max_radius</a></div><div class="ttdeci">float max_radius</div><div class="ttdef"><b>Definition</b> <a href="#l00086">game_led_animations.h:86</a></div></div>
+<div class="ttc" id="astructwave__animation__state__t_html_a95ef4cec8f186f8be1d5d22b0c2857fe"><div class="ttname"><a href="structwave__animation__state__t.html#a95ef4cec8f186f8be1d5d22b0c2857fe">wave_animation_state_t::current_radius</a></div><div class="ttdeci">float current_radius</div><div class="ttdef"><b>Definition</b> <a href="#l00087">game_led_animations.h:87</a></div></div>
+<div class="ttc" id="astructwave__animation__state__t_html_a9d860f0d4cf5173b8f9b42f1ec384acd"><div class="ttname"><a href="structwave__animation__state__t.html#a9d860f0d4cf5173b8f9b42f1ec384acd">wave_animation_state_t::active_waves</a></div><div class="ttdeci">int active_waves</div><div class="ttdef"><b>Definition</b> <a href="#l00089">game_led_animations.h:89</a></div></div>
+<div class="ttc" id="astructwave__animation__state__t_html_acc72a17b7ca0887b4acae5c311285340"><div class="ttname"><a href="structwave__animation__state__t.html#acc72a17b7ca0887b4acae5c311285340">wave_animation_state_t::center_pos</a></div><div class="ttdeci">uint8_t center_pos</div><div class="ttdef"><b>Definition</b> <a href="#l00085">game_led_animations.h:85</a></div></div>
+<div class="ttc" id="astructwave__animation__state__t_html_ad00eb787772807623eeb9ec904de2737"><div class="ttname"><a href="structwave__animation__state__t.html#ad00eb787772807623eeb9ec904de2737">wave_animation_state_t::waves</a></div><div class="ttdeci">wave_t waves[5]</div><div class="ttdef"><b>Definition</b> <a href="#l00090">game_led_animations.h:90</a></div></div>
+<div class="ttc" id="astructwave__t_html"><div class="ttname"><a href="structwave__t.html">wave_t</a></div><div class="ttdoc">Stav jedné vlny.</div><div class="ttdef"><b>Definition</b> <a href="#l00076">game_led_animations.h:76</a></div></div>
+<div class="ttc" id="astructwave__t_html_a1962dccb7b6f3344dd1dc371bef551fb"><div class="ttname"><a href="structwave__t.html#a1962dccb7b6f3344dd1dc371bef551fb">wave_t::radius</a></div><div class="ttdeci">float radius</div><div class="ttdef"><b>Definition</b> <a href="#l00077">game_led_animations.h:77</a></div></div>
+<div class="ttc" id="astructwave__t_html_a48a5cf022f2cc66351d4119cabdc3b8d"><div class="ttname"><a href="structwave__t.html#a48a5cf022f2cc66351d4119cabdc3b8d">wave_t::active</a></div><div class="ttdeci">bool active</div><div class="ttdef"><b>Definition</b> <a href="#l00078">game_led_animations.h:78</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_1181698f7cc37b6be6aee502a0a15bc1.html">game_led_animations</a></li><li class="navelem"><a href="dir_8469098ac891347999a5a46e0fb7673a.html">include</a></li><li class="navelem"><a href="game__led__animations_8h.html">game_led_animations.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

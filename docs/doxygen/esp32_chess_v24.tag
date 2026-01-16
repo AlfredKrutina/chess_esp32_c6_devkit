@@ -2309,13 +2309,6 @@
       <anchor>aa13f5879e99176ffada8295c49c67b6c</anchor>
       <arglist>[4]</arglist>
     </member>
-    <member kind="variable">
-      <type>const gpio_num_t</type>
-      <name>promotion_button_pins_b</name>
-      <anchorfile>freertos__chess_8c.html</anchorfile>
-      <anchor>aa7eef5582b36e8d1b9ad310a5fa823c9</anchor>
-      <arglist>[4]</arglist>
-    </member>
   </compound>
   <compound kind="file">
     <name>chess_types.h</name>
@@ -3800,34 +3793,6 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>BUTTON_PROMOTION_QUEEN</name>
-      <anchorfile>freertos__chess_8h.html</anchorfile>
-      <anchor>a29ac29c2c62ab78673d61042e3e3ca62</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>BUTTON_PROMOTION_ROOK</name>
-      <anchorfile>freertos__chess_8h.html</anchorfile>
-      <anchor>a79413d40d1650babbf5f8b844d37c3e8</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>BUTTON_PROMOTION_BISHOP</name>
-      <anchorfile>freertos__chess_8h.html</anchorfile>
-      <anchor>a805312c532b6c535e89b43cd7f346701</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>BUTTON_PROMOTION_KNIGHT</name>
-      <anchorfile>freertos__chess_8h.html</anchorfile>
-      <anchor>a595db85714b2eb4b657a831abd1c5492</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
       <name>MATRIX_SCAN_TIME_MS</name>
       <anchorfile>freertos__chess_8h.html</anchorfile>
       <anchor>ab3d042ad7a50f8a44015cc2a749d3fa4</anchor>
@@ -4468,13 +4433,6 @@
       <name>promotion_button_pins_a</name>
       <anchorfile>freertos__chess_8h.html</anchorfile>
       <anchor>aa13f5879e99176ffada8295c49c67b6c</anchor>
-      <arglist>[4]</arglist>
-    </member>
-    <member kind="variable">
-      <type>const gpio_num_t</type>
-      <name>promotion_button_pins_b</name>
-      <anchorfile>freertos__chess_8h.html</anchorfile>
-      <anchor>aa7eef5582b36e8d1b9ad310a5fa823c9</anchor>
       <arglist>[4]</arglist>
     </member>
     <member kind="variable">

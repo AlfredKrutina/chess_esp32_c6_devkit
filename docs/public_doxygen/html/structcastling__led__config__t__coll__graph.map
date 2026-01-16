@@ -1,0 +1,5 @@
+<map id="castling_led_config_t" name="castling_led_config_t">
+<area shape="rect" id="Node000001" title="LED konfigurace pro rosadu." alt="" coords="5,204,149,229"/>
+<area shape="rect" id="Node000002" href="$structrgb__color__t.html" title="RGB barva." alt="" coords="34,5,120,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="80,45,80,204,74,203,74,47"/>
+</map>

@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor timer_system.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('timer__system_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">timer_system.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="timer__system_8h.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#ifndef TIMER_SYSTEM_H</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#define TIMER_SYSTEM_H</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#include &quot;esp_err.h&quot;</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment">// KONSTANTY A TYPY</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span></div>
+<div class="foldopen" id="foldopen00040" data-start="{" data-end="};">
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">   40</a></span><span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97acf683a55dbe135350a71b0ae0fbf10c0">   41</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97acf683a55dbe135350a71b0ae0fbf10c0">TIME_CONTROL_NONE</a> = 0,           </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a4590561dd3adc65b92f81fe3f8053621">   42</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a4590561dd3adc65b92f81fe3f8053621">TIME_CONTROL_BULLET_1_0</a>,         </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97abfd7351a76a07e65ec86ca5c746979fb">   43</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97abfd7351a76a07e65ec86ca5c746979fb">TIME_CONTROL_BULLET_1_1</a>,         </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ac79917867e8f53ebc64e9ad0803e2d10">   44</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ac79917867e8f53ebc64e9ad0803e2d10">TIME_CONTROL_BULLET_2_1</a>,         </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a1c86f38b02477a4ffae67385557b7a0c">   45</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a1c86f38b02477a4ffae67385557b7a0c">TIME_CONTROL_BLITZ_3_0</a>,          </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ac39517d993f861ef116e27a65230e36e">   46</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ac39517d993f861ef116e27a65230e36e">TIME_CONTROL_BLITZ_3_2</a>,          </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97afeb4080afc1298ba5ce62539db577930">   47</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97afeb4080afc1298ba5ce62539db577930">TIME_CONTROL_BLITZ_5_0</a>,          </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a2d310c7eb7f901c4a224147c25246b55">   48</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a2d310c7eb7f901c4a224147c25246b55">TIME_CONTROL_BLITZ_5_3</a>,          </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a47f79cf56da828e18a83f0706683ec64">   49</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a47f79cf56da828e18a83f0706683ec64">TIME_CONTROL_RAPID_10_0</a>,         </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ac9c5b404dfc4d1201a9079fd5311c550">   50</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ac9c5b404dfc4d1201a9079fd5311c550">TIME_CONTROL_RAPID_10_5</a>,         </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a612f0dba840f6eaabbeea7c8dcda66e1">   51</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a612f0dba840f6eaabbeea7c8dcda66e1">TIME_CONTROL_RAPID_15_10</a>,        </div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a6518ce7c17b27cb83fd62f9c87b5d8b0">   52</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a6518ce7c17b27cb83fd62f9c87b5d8b0">TIME_CONTROL_RAPID_30_0</a>,         </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a964a727e4de3eda49c2a016f08abc9bf">   53</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a964a727e4de3eda49c2a016f08abc9bf">TIME_CONTROL_CLASSICAL_60_0</a>,     </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a3a174259dec49ebf339cd25e5bcd68f0">   54</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a3a174259dec49ebf339cd25e5bcd68f0">TIME_CONTROL_CLASSICAL_90_30</a>,     </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ad913e6fe488ef15d0d74676c2f09cef0">   55</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ad913e6fe488ef15d0d74676c2f09cef0">TIME_CONTROL_CUSTOM</a>,             </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97aa9340059a5efb33278af20922b715b55">   56</a></span>    <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97aa9340059a5efb33278af20922b715b55">TIME_CONTROL_MAX</a></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>} <a class="code hl_enumeration" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a>;</div>
+</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span></div>
+<div class="foldopen" id="foldopen00062" data-start="{" data-end="};">
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="structtime__control__config__t.html">   62</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="structtime__control__config__t.html#af313100707e76ca6c609540266c9866d">   63</a></span>    <a class="code hl_enumeration" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a> <a class="code hl_variable" href="structtime__control__config__t.html#af313100707e76ca6c609540266c9866d">type</a>;        </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno"><a class="line" href="structtime__control__config__t.html#a76ce0ead776d0b8fcd0350151eb96ba4">   64</a></span>    uint32_t <a class="code hl_variable" href="structtime__control__config__t.html#a76ce0ead776d0b8fcd0350151eb96ba4">initial_time_ms</a>;       </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="structtime__control__config__t.html#a162132d93fca69ac7a11de84a3c933ad">   65</a></span>    uint32_t <a class="code hl_variable" href="structtime__control__config__t.html#a162132d93fca69ac7a11de84a3c933ad">increment_ms</a>;          </div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno"><a class="line" href="structtime__control__config__t.html#ac5f05a43dfc9af7383b21d26235c8425">   66</a></span>    <span class="keywordtype">char</span> <a class="code hl_variable" href="structtime__control__config__t.html#ac5f05a43dfc9af7383b21d26235c8425">name</a>[32];                  </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno"><a class="line" href="structtime__control__config__t.html#a33dadcbfeb5085df5844171bc5bea672">   67</a></span>    <span class="keywordtype">char</span> <a class="code hl_variable" href="structtime__control__config__t.html#a33dadcbfeb5085df5844171bc5bea672">description</a>[64];           </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno"><a class="line" href="structtime__control__config__t.html#aa9d8d8cc9914cded99bb765fa6e6be3f">   68</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structtime__control__config__t.html#aa9d8d8cc9914cded99bb765fa6e6be3f">is_fast</a>;                   </div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>} <a class="code hl_struct" href="structtime__control__config__t.html">time_control_config_t</a>;</div>
+</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span></div>
+<div class="foldopen" id="foldopen00074" data-start="{" data-end="};">
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno"><a class="line" href="structchess__timer__t.html">   74</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="comment">// Casove udaje</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#a7d0e2964acf12e9046f18f07e99486c4">   76</a></span>    uint32_t <a class="code hl_variable" href="structchess__timer__t.html#a7d0e2964acf12e9046f18f07e99486c4">white_time_ms</a>;         </div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#a258578da63390a476c98ed0cee25867c">   77</a></span>    uint32_t <a class="code hl_variable" href="structchess__timer__t.html#a258578da63390a476c98ed0cee25867c">black_time_ms</a>;         </div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#a7f7510da4fac73ade5242b40627e62c5">   78</a></span>    uint32_t <a class="code hl_variable" href="structchess__timer__t.html#a7f7510da4fac73ade5242b40627e62c5">move_start_time</a>;       </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#ac77301ca2e97bf1a65e71ea92937a893">   79</a></span>    uint32_t <a class="code hl_variable" href="structchess__timer__t.html#ac77301ca2e97bf1a65e71ea92937a893">last_move_time</a>;        </div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="comment">// Stav timeru</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#a31819afd556ed4a6266abee25bef7f70">   82</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structchess__timer__t.html#a31819afd556ed4a6266abee25bef7f70">timer_running</a>;             </div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#a5fbbe88e66de5ea14c6570f5526a39ae">   83</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structchess__timer__t.html#a5fbbe88e66de5ea14c6570f5526a39ae">is_white_turn</a>;             </div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#ac4990048c62805c9cec772b9d7005abe">   84</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structchess__timer__t.html#ac4990048c62805c9cec772b9d7005abe">game_paused</a>;               </div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#a7389bbc57384b8534999549a9f36b9f2">   85</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structchess__timer__t.html#a7389bbc57384b8534999549a9f36b9f2">time_expired</a>;              </div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    </div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <span class="comment">// Konfigurace</span></div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#a07b9f7d20041000000ac867e286454e5">   88</a></span>    <a class="code hl_struct" href="structtime__control__config__t.html">time_control_config_t</a> <a class="code hl_variable" href="structchess__timer__t.html#a07b9f7d20041000000ac867e286454e5">config</a>;   </div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    </div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="comment">// Statistiky</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#a2821d53bca4e86476b744bc2fb372461">   91</a></span>    uint32_t <a class="code hl_variable" href="structchess__timer__t.html#a2821d53bca4e86476b744bc2fb372461">total_moves</a>;           </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#a9f1982f8c62719b0b75a2f0c5147c0aa">   92</a></span>    uint32_t <a class="code hl_variable" href="structchess__timer__t.html#a9f1982f8c62719b0b75a2f0c5147c0aa">avg_move_time_ms</a>;      </div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    </div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="comment">// Upozorneni</span></div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#ad20283280bacabc85f2662834c6e659b">   95</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structchess__timer__t.html#ad20283280bacabc85f2662834c6e659b">warning_30s_shown</a>;          </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#a3509cb6dc20f8a0fd54d869fb90e69f8">   96</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structchess__timer__t.html#a3509cb6dc20f8a0fd54d869fb90e69f8">warning_10s_shown</a>;          </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="structchess__timer__t.html#ac73b4959948d7f77c5cff4d9dcd671ca">   97</a></span>    <span class="keywordtype">bool</span> <a class="code hl_variable" href="structchess__timer__t.html#ac73b4959948d7f77c5cff4d9dcd671ca">warning_5s_shown</a>;           </div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>} <a class="code hl_struct" href="structchess__timer__t.html">chess_timer_t</a>;</div>
+</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="comment">// VEREJNE API FUNKCE</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span></div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a8ad517573ace8a78289a8305b9acb3ea">timer_system_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span></div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a158cdf2baa4bc74c696f82e8c610737d">timer_set_time_control</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structtime__control__config__t.html">time_control_config_t</a>* config);</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span></div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a23265b63c17ea7990a7362a4d497d6d9">timer_start_move</a>(<span class="keywordtype">bool</span> is_white_turn);</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span></div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a89c7235662a4eeb08b1d5e8b77c58492">timer_end_move</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span></div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span></div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a48d538badd51ca6eca88b2f54ae3f7fe">timer_resume</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span></div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#ac52afa2de7a6af69f2f67d86af351a05">timer_reset</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span></div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span><span class="keywordtype">bool</span> <a class="code hl_function" href="timer__system_8h.html#aaa24fcf316f295f7a17bf2ff5ed8dd5e">timer_check_timeout</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span></div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a10198b60b509490f91eee1685ba0d980">timer_get_state</a>(<a class="code hl_struct" href="structchess__timer__t.html">chess_timer_t</a>* timer_data);</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span></div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>uint32_t <a class="code hl_function" href="timer__system_8h.html#a3129dee6f4627aead1732185abca4395">timer_get_remaining_time</a>(<span class="keywordtype">bool</span> is_white_turn);</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span></div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#acc36d1000e481c6d6062135a9f115d40">timer_get_config_by_type</a>(<a class="code hl_enumeration" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a> type, <a class="code hl_struct" href="structtime__control__config__t.html">time_control_config_t</a>* config);</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a902602a46b245d091fd3d474ecde0e82">timer_get_json</a>(<span class="keywordtype">char</span>* buffer, <span class="keywordtype">size_t</span> buffer_size);</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>uint32_t <a class="code hl_function" href="timer__system_8h.html#a701d8be89867444c5062b138fda7eaf9">timer_get_available_controls_count</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>uint32_t <a class="code hl_function" href="timer__system_8h.html#a737397401ab70e21a2979653e14837e6">timer_get_available_controls</a>(<a class="code hl_struct" href="structtime__control__config__t.html">time_control_config_t</a>* controls, uint32_t max_count);</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span></div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a3eb1bcce9e90aea183f509abe543f624">timer_save_settings</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span></div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a8f43d4d19e19f59397bdb2e824e89edc">timer_load_settings</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span></div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>uint32_t <a class="code hl_function" href="timer__system_8h.html#a918dfb50c8da934336dc81cf36c28a08">timer_get_average_move_time</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span></div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>uint32_t <a class="code hl_function" href="timer__system_8h.html#a1e23fdb509bdce625a0de3e5ce093fba">timer_get_total_moves</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span></div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="keywordtype">bool</span> <a class="code hl_function" href="timer__system_8h.html#a0812f137aa77d3f66c950c1b98505e20">timer_is_active</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span></div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><a class="code hl_enumeration" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a> <a class="code hl_function" href="timer__system_8h.html#af9ad41921ea1477b929f7dd703b71adc">timer_get_current_type</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span></div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#a11ab1bc968801095ba83fad279c4d282">timer_set_custom_time_control</a>(uint32_t minutes, uint32_t increment_seconds);</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#ab0399771af7d827987018c7153cd381b">timer_get_config_by_index</a>(uint32_t index, <a class="code hl_struct" href="structtime__control__config__t.html">time_control_config_t</a>* config);</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>esp_err_t <a class="code hl_function" href="timer__system_8h.html#aeaa8c85da85c6cdb61cf09dc46dd1c64">timer_system_deinit</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>}</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span><span class="preprocessor">#endif </span><span class="comment">// TIMER_SYSTEM_H</span></div>
+<div class="ttc" id="astructchess__timer__t_html"><div class="ttname"><a href="structchess__timer__t.html">chess_timer_t</a></div><div class="ttdoc">Stav casoveho systemu.</div><div class="ttdef"><b>Definition</b> <a href="#l00074">timer_system.h:74</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a07b9f7d20041000000ac867e286454e5"><div class="ttname"><a href="structchess__timer__t.html#a07b9f7d20041000000ac867e286454e5">chess_timer_t::config</a></div><div class="ttdeci">time_control_config_t config</div><div class="ttdoc">Aktualni konfigurace.</div><div class="ttdef"><b>Definition</b> <a href="#l00088">timer_system.h:88</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a258578da63390a476c98ed0cee25867c"><div class="ttname"><a href="structchess__timer__t.html#a258578da63390a476c98ed0cee25867c">chess_timer_t::black_time_ms</a></div><div class="ttdeci">uint32_t black_time_ms</div><div class="ttdoc">Zbyvajici cas cerneho.</div><div class="ttdef"><b>Definition</b> <a href="#l00077">timer_system.h:77</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a2821d53bca4e86476b744bc2fb372461"><div class="ttname"><a href="structchess__timer__t.html#a2821d53bca4e86476b744bc2fb372461">chess_timer_t::total_moves</a></div><div class="ttdeci">uint32_t total_moves</div><div class="ttdoc">Celkovy pocet tahu.</div><div class="ttdef"><b>Definition</b> <a href="#l00091">timer_system.h:91</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a31819afd556ed4a6266abee25bef7f70"><div class="ttname"><a href="structchess__timer__t.html#a31819afd556ed4a6266abee25bef7f70">chess_timer_t::timer_running</a></div><div class="ttdeci">bool timer_running</div><div class="ttdoc">Je-li timer aktivni.</div><div class="ttdef"><b>Definition</b> <a href="#l00082">timer_system.h:82</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a3509cb6dc20f8a0fd54d869fb90e69f8"><div class="ttname"><a href="structchess__timer__t.html#a3509cb6dc20f8a0fd54d869fb90e69f8">chess_timer_t::warning_10s_shown</a></div><div class="ttdeci">bool warning_10s_shown</div><div class="ttdoc">Upozorneni na 10s bylo zobrazeno.</div><div class="ttdef"><b>Definition</b> <a href="#l00096">timer_system.h:96</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a5fbbe88e66de5ea14c6570f5526a39ae"><div class="ttname"><a href="structchess__timer__t.html#a5fbbe88e66de5ea14c6570f5526a39ae">chess_timer_t::is_white_turn</a></div><div class="ttdeci">bool is_white_turn</div><div class="ttdoc">Je-li na tahu bily.</div><div class="ttdef"><b>Definition</b> <a href="#l00083">timer_system.h:83</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a7389bbc57384b8534999549a9f36b9f2"><div class="ttname"><a href="structchess__timer__t.html#a7389bbc57384b8534999549a9f36b9f2">chess_timer_t::time_expired</a></div><div class="ttdeci">bool time_expired</div><div class="ttdoc">Vyprsel-li cas.</div><div class="ttdef"><b>Definition</b> <a href="#l00085">timer_system.h:85</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a7d0e2964acf12e9046f18f07e99486c4"><div class="ttname"><a href="structchess__timer__t.html#a7d0e2964acf12e9046f18f07e99486c4">chess_timer_t::white_time_ms</a></div><div class="ttdeci">uint32_t white_time_ms</div><div class="ttdoc">Zbyvajici cas bileho.</div><div class="ttdef"><b>Definition</b> <a href="#l00076">timer_system.h:76</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a7f7510da4fac73ade5242b40627e62c5"><div class="ttname"><a href="structchess__timer__t.html#a7f7510da4fac73ade5242b40627e62c5">chess_timer_t::move_start_time</a></div><div class="ttdeci">uint32_t move_start_time</div><div class="ttdoc">Cas zacatku tahu (esp_timer_get_time()).</div><div class="ttdef"><b>Definition</b> <a href="#l00078">timer_system.h:78</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a9f1982f8c62719b0b75a2f0c5147c0aa"><div class="ttname"><a href="structchess__timer__t.html#a9f1982f8c62719b0b75a2f0c5147c0aa">chess_timer_t::avg_move_time_ms</a></div><div class="ttdeci">uint32_t avg_move_time_ms</div><div class="ttdoc">Prumerny cas na tah.</div><div class="ttdef"><b>Definition</b> <a href="#l00092">timer_system.h:92</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_ac4990048c62805c9cec772b9d7005abe"><div class="ttname"><a href="structchess__timer__t.html#ac4990048c62805c9cec772b9d7005abe">chess_timer_t::game_paused</a></div><div class="ttdeci">bool game_paused</div><div class="ttdoc">Je-li hra pozastavena.</div><div class="ttdef"><b>Definition</b> <a href="#l00084">timer_system.h:84</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_ac73b4959948d7f77c5cff4d9dcd671ca"><div class="ttname"><a href="structchess__timer__t.html#ac73b4959948d7f77c5cff4d9dcd671ca">chess_timer_t::warning_5s_shown</a></div><div class="ttdeci">bool warning_5s_shown</div><div class="ttdoc">Upozorneni na 5s bylo zobrazeno.</div><div class="ttdef"><b>Definition</b> <a href="#l00097">timer_system.h:97</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_ac77301ca2e97bf1a65e71ea92937a893"><div class="ttname"><a href="structchess__timer__t.html#ac77301ca2e97bf1a65e71ea92937a893">chess_timer_t::last_move_time</a></div><div class="ttdeci">uint32_t last_move_time</div><div class="ttdoc">Cas posledniho tahu.</div><div class="ttdef"><b>Definition</b> <a href="#l00079">timer_system.h:79</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_ad20283280bacabc85f2662834c6e659b"><div class="ttname"><a href="structchess__timer__t.html#ad20283280bacabc85f2662834c6e659b">chess_timer_t::warning_30s_shown</a></div><div class="ttdeci">bool warning_30s_shown</div><div class="ttdoc">Upozorneni na 30s bylo zobrazeno.</div><div class="ttdef"><b>Definition</b> <a href="#l00095">timer_system.h:95</a></div></div>
+<div class="ttc" id="astructtime__control__config__t_html"><div class="ttname"><a href="structtime__control__config__t.html">time_control_config_t</a></div><div class="ttdoc">Konfigurace casove kontroly.</div><div class="ttdef"><b>Definition</b> <a href="#l00062">timer_system.h:62</a></div></div>
+<div class="ttc" id="astructtime__control__config__t_html_a162132d93fca69ac7a11de84a3c933ad"><div class="ttname"><a href="structtime__control__config__t.html#a162132d93fca69ac7a11de84a3c933ad">time_control_config_t::increment_ms</a></div><div class="ttdeci">uint32_t increment_ms</div><div class="ttdoc">Increment po tahu v milisekundach.</div><div class="ttdef"><b>Definition</b> <a href="#l00065">timer_system.h:65</a></div></div>
+<div class="ttc" id="astructtime__control__config__t_html_a33dadcbfeb5085df5844171bc5bea672"><div class="ttname"><a href="structtime__control__config__t.html#a33dadcbfeb5085df5844171bc5bea672">time_control_config_t::description</a></div><div class="ttdeci">char description[64]</div><div class="ttdoc">Popis pro uzivatele.</div><div class="ttdef"><b>Definition</b> <a href="#l00067">timer_system.h:67</a></div></div>
+<div class="ttc" id="astructtime__control__config__t_html_a76ce0ead776d0b8fcd0350151eb96ba4"><div class="ttname"><a href="structtime__control__config__t.html#a76ce0ead776d0b8fcd0350151eb96ba4">time_control_config_t::initial_time_ms</a></div><div class="ttdeci">uint32_t initial_time_ms</div><div class="ttdoc">Pocatecni cas v milisekundach.</div><div class="ttdef"><b>Definition</b> <a href="#l00064">timer_system.h:64</a></div></div>
+<div class="ttc" id="astructtime__control__config__t_html_aa9d8d8cc9914cded99bb765fa6e6be3f"><div class="ttname"><a href="structtime__control__config__t.html#aa9d8d8cc9914cded99bb765fa6e6be3f">time_control_config_t::is_fast</a></div><div class="ttdeci">bool is_fast</div><div class="ttdoc">Je-li rychla hra (&lt; 10 min).</div><div class="ttdef"><b>Definition</b> <a href="#l00068">timer_system.h:68</a></div></div>
+<div class="ttc" id="astructtime__control__config__t_html_ac5f05a43dfc9af7383b21d26235c8425"><div class="ttname"><a href="structtime__control__config__t.html#ac5f05a43dfc9af7383b21d26235c8425">time_control_config_t::name</a></div><div class="ttdeci">char name[32]</div><div class="ttdoc">Nazev casove kontroly.</div><div class="ttdef"><b>Definition</b> <a href="#l00066">timer_system.h:66</a></div></div>
+<div class="ttc" id="astructtime__control__config__t_html_af313100707e76ca6c609540266c9866d"><div class="ttname"><a href="structtime__control__config__t.html#af313100707e76ca6c609540266c9866d">time_control_config_t::type</a></div><div class="ttdeci">time_control_type_t type</div><div class="ttdoc">Typ casove kontroly.</div><div class="ttdef"><b>Definition</b> <a href="#l00063">timer_system.h:63</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a0812f137aa77d3f66c950c1b98505e20"><div class="ttname"><a href="timer__system_8h.html#a0812f137aa77d3f66c950c1b98505e20">timer_is_active</a></div><div class="ttdeci">bool timer_is_active(void)</div><div class="ttdoc">Kontroluje zda je casova kontrola aktivni.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00836">timer_system.c:836</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a10198b60b509490f91eee1685ba0d980"><div class="ttname"><a href="timer__system_8h.html#a10198b60b509490f91eee1685ba0d980">timer_get_state</a></div><div class="ttdeci">esp_err_t timer_get_state(chess_timer_t *timer_data)</div><div class="ttdoc">Ziska aktualni stav timeru.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00519">timer_system.c:519</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a11ab1bc968801095ba83fad279c4d282"><div class="ttname"><a href="timer__system_8h.html#a11ab1bc968801095ba83fad279c4d282">timer_set_custom_time_control</a></div><div class="ttdeci">esp_err_t timer_set_custom_time_control(uint32_t minutes, uint32_t increment_seconds)</div><div class="ttdoc">Nastavi vlastni casovou kontrolu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00864">timer_system.c:864</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a158cdf2baa4bc74c696f82e8c610737d"><div class="ttname"><a href="timer__system_8h.html#a158cdf2baa4bc74c696f82e8c610737d">timer_set_time_control</a></div><div class="ttdeci">esp_err_t timer_set_time_control(const time_control_config_t *config)</div><div class="ttdoc">Nastavi casovou kontrolu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00193">timer_system.c:193</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a1e23fdb509bdce625a0de3e5ce093fba"><div class="ttname"><a href="timer__system_8h.html#a1e23fdb509bdce625a0de3e5ce093fba">timer_get_total_moves</a></div><div class="ttdeci">uint32_t timer_get_total_moves(void)</div><div class="ttdoc">Ziska celkovy pocet tahu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00822">timer_system.c:822</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a23265b63c17ea7990a7362a4d497d6d9"><div class="ttname"><a href="timer__system_8h.html#a23265b63c17ea7990a7362a4d497d6d9">timer_start_move</a></div><div class="ttdeci">esp_err_t timer_start_move(bool is_white_turn)</div><div class="ttdoc">Spusti timer pro tah.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00237">timer_system.c:237</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a3129dee6f4627aead1732185abca4395"><div class="ttname"><a href="timer__system_8h.html#a3129dee6f4627aead1732185abca4395">timer_get_remaining_time</a></div><div class="ttdeci">uint32_t timer_get_remaining_time(bool is_white_turn)</div><div class="ttdoc">Ziska zbývající cas pro hrace.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00574">timer_system.c:574</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a3eb1bcce9e90aea183f509abe543f624"><div class="ttname"><a href="timer__system_8h.html#a3eb1bcce9e90aea183f509abe543f624">timer_save_settings</a></div><div class="ttdeci">esp_err_t timer_save_settings(void)</div><div class="ttdoc">Ulozi nastaveni timeru do NVS.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00705">timer_system.c:705</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a48d538badd51ca6eca88b2f54ae3f7fe"><div class="ttname"><a href="timer__system_8h.html#a48d538badd51ca6eca88b2f54ae3f7fe">timer_resume</a></div><div class="ttdeci">esp_err_t timer_resume(void)</div><div class="ttdoc">Obnovi timer.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00381">timer_system.c:381</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a></div><div class="ttdeci">time_control_type_t</div><div class="ttdoc">Typy casovych kontrol.</div><div class="ttdef"><b>Definition</b> <a href="#l00040">timer_system.h:40</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97a1c86f38b02477a4ffae67385557b7a0c"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a1c86f38b02477a4ffae67385557b7a0c">TIME_CONTROL_BLITZ_3_0</a></div><div class="ttdeci">@ TIME_CONTROL_BLITZ_3_0</div><div class="ttdoc">Blitz 3+0 (3 minuty).</div><div class="ttdef"><b>Definition</b> <a href="#l00045">timer_system.h:45</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97a2d310c7eb7f901c4a224147c25246b55"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a2d310c7eb7f901c4a224147c25246b55">TIME_CONTROL_BLITZ_5_3</a></div><div class="ttdeci">@ TIME_CONTROL_BLITZ_5_3</div><div class="ttdoc">Blitz 5+3 (5 min + 3s increment).</div><div class="ttdef"><b>Definition</b> <a href="#l00048">timer_system.h:48</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97a3a174259dec49ebf339cd25e5bcd68f0"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a3a174259dec49ebf339cd25e5bcd68f0">TIME_CONTROL_CLASSICAL_90_30</a></div><div class="ttdeci">@ TIME_CONTROL_CLASSICAL_90_30</div><div class="ttdoc">Classical 90+30 (90 min + 30s increment).</div><div class="ttdef"><b>Definition</b> <a href="#l00054">timer_system.h:54</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97a4590561dd3adc65b92f81fe3f8053621"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a4590561dd3adc65b92f81fe3f8053621">TIME_CONTROL_BULLET_1_0</a></div><div class="ttdeci">@ TIME_CONTROL_BULLET_1_0</div><div class="ttdoc">Bullet 1+0 (1 minuta).</div><div class="ttdef"><b>Definition</b> <a href="#l00042">timer_system.h:42</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97a47f79cf56da828e18a83f0706683ec64"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a47f79cf56da828e18a83f0706683ec64">TIME_CONTROL_RAPID_10_0</a></div><div class="ttdeci">@ TIME_CONTROL_RAPID_10_0</div><div class="ttdoc">Rapid 10+0 (10 minut).</div><div class="ttdef"><b>Definition</b> <a href="#l00049">timer_system.h:49</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97a612f0dba840f6eaabbeea7c8dcda66e1"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a612f0dba840f6eaabbeea7c8dcda66e1">TIME_CONTROL_RAPID_15_10</a></div><div class="ttdeci">@ TIME_CONTROL_RAPID_15_10</div><div class="ttdoc">Rapid 15+10 (15 min + 10s increment).</div><div class="ttdef"><b>Definition</b> <a href="#l00051">timer_system.h:51</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97a6518ce7c17b27cb83fd62f9c87b5d8b0"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a6518ce7c17b27cb83fd62f9c87b5d8b0">TIME_CONTROL_RAPID_30_0</a></div><div class="ttdeci">@ TIME_CONTROL_RAPID_30_0</div><div class="ttdoc">Rapid 30+0 (30 minut).</div><div class="ttdef"><b>Definition</b> <a href="#l00052">timer_system.h:52</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97a964a727e4de3eda49c2a016f08abc9bf"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97a964a727e4de3eda49c2a016f08abc9bf">TIME_CONTROL_CLASSICAL_60_0</a></div><div class="ttdeci">@ TIME_CONTROL_CLASSICAL_60_0</div><div class="ttdoc">Classical 60+0 (1 hodina).</div><div class="ttdef"><b>Definition</b> <a href="#l00053">timer_system.h:53</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97aa9340059a5efb33278af20922b715b55"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97aa9340059a5efb33278af20922b715b55">TIME_CONTROL_MAX</a></div><div class="ttdeci">@ TIME_CONTROL_MAX</div><div class="ttdef"><b>Definition</b> <a href="#l00056">timer_system.h:56</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97abfd7351a76a07e65ec86ca5c746979fb"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97abfd7351a76a07e65ec86ca5c746979fb">TIME_CONTROL_BULLET_1_1</a></div><div class="ttdeci">@ TIME_CONTROL_BULLET_1_1</div><div class="ttdoc">Bullet 1+1 (1 min + 1s increment).</div><div class="ttdef"><b>Definition</b> <a href="#l00043">timer_system.h:43</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97ac39517d993f861ef116e27a65230e36e"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ac39517d993f861ef116e27a65230e36e">TIME_CONTROL_BLITZ_3_2</a></div><div class="ttdeci">@ TIME_CONTROL_BLITZ_3_2</div><div class="ttdoc">Blitz 3+2 (3 min + 2s increment).</div><div class="ttdef"><b>Definition</b> <a href="#l00046">timer_system.h:46</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97ac79917867e8f53ebc64e9ad0803e2d10"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ac79917867e8f53ebc64e9ad0803e2d10">TIME_CONTROL_BULLET_2_1</a></div><div class="ttdeci">@ TIME_CONTROL_BULLET_2_1</div><div class="ttdoc">Bullet 2+1 (2 min + 1s increment).</div><div class="ttdef"><b>Definition</b> <a href="#l00044">timer_system.h:44</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97ac9c5b404dfc4d1201a9079fd5311c550"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ac9c5b404dfc4d1201a9079fd5311c550">TIME_CONTROL_RAPID_10_5</a></div><div class="ttdeci">@ TIME_CONTROL_RAPID_10_5</div><div class="ttdoc">Rapid 10+5 (10 min + 5s increment).</div><div class="ttdef"><b>Definition</b> <a href="#l00050">timer_system.h:50</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97acf683a55dbe135350a71b0ae0fbf10c0"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97acf683a55dbe135350a71b0ae0fbf10c0">TIME_CONTROL_NONE</a></div><div class="ttdeci">@ TIME_CONTROL_NONE</div><div class="ttdoc">Bez casove kontroly.</div><div class="ttdef"><b>Definition</b> <a href="#l00041">timer_system.h:41</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97ad913e6fe488ef15d0d74676c2f09cef0"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ad913e6fe488ef15d0d74676c2f09cef0">TIME_CONTROL_CUSTOM</a></div><div class="ttdeci">@ TIME_CONTROL_CUSTOM</div><div class="ttdoc">Vlastni nastaveni.</div><div class="ttdef"><b>Definition</b> <a href="#l00055">timer_system.h:55</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97afeb4080afc1298ba5ce62539db577930"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97afeb4080afc1298ba5ce62539db577930">TIME_CONTROL_BLITZ_5_0</a></div><div class="ttdeci">@ TIME_CONTROL_BLITZ_5_0</div><div class="ttdoc">Blitz 5+0 (5 minut).</div><div class="ttdef"><b>Definition</b> <a href="#l00047">timer_system.h:47</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a66030ee8356a62eed7bbe0717cbd5f22"><div class="ttname"><a href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a></div><div class="ttdeci">esp_err_t timer_pause(void)</div><div class="ttdoc">Pozastavi timer.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00352">timer_system.c:352</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a701d8be89867444c5062b138fda7eaf9"><div class="ttname"><a href="timer__system_8h.html#a701d8be89867444c5062b138fda7eaf9">timer_get_available_controls_count</a></div><div class="ttdeci">uint32_t timer_get_available_controls_count(void)</div><div class="ttdoc">Ziska pocet dostupnych casovych kontrol.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00685">timer_system.c:685</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a737397401ab70e21a2979653e14837e6"><div class="ttname"><a href="timer__system_8h.html#a737397401ab70e21a2979653e14837e6">timer_get_available_controls</a></div><div class="ttdeci">uint32_t timer_get_available_controls(time_control_config_t *controls, uint32_t max_count)</div><div class="ttdoc">Ziska seznam dostupnych casovych kontrol.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00690">timer_system.c:690</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a89c7235662a4eeb08b1d5e8b77c58492"><div class="ttname"><a href="timer__system_8h.html#a89c7235662a4eeb08b1d5e8b77c58492">timer_end_move</a></div><div class="ttdeci">esp_err_t timer_end_move(void)</div><div class="ttdoc">Ukonci tah a prida increment.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00278">timer_system.c:278</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a8ad517573ace8a78289a8305b9acb3ea"><div class="ttname"><a href="timer__system_8h.html#a8ad517573ace8a78289a8305b9acb3ea">timer_system_init</a></div><div class="ttdeci">esp_err_t timer_system_init(void)</div><div class="ttdoc">Inicializuje timer system.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00164">timer_system.c:164</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a8f43d4d19e19f59397bdb2e824e89edc"><div class="ttname"><a href="timer__system_8h.html#a8f43d4d19e19f59397bdb2e824e89edc">timer_load_settings</a></div><div class="ttdeci">esp_err_t timer_load_settings(void)</div><div class="ttdoc">Nacte nastaveni timeru z NVS.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00755">timer_system.c:755</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a902602a46b245d091fd3d474ecde0e82"><div class="ttname"><a href="timer__system_8h.html#a902602a46b245d091fd3d474ecde0e82">timer_get_json</a></div><div class="ttdeci">esp_err_t timer_get_json(char *buffer, size_t buffer_size)</div><div class="ttdoc">Vytvori JSON reprezentaci stavu casoveho systemu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00622">timer_system.c:622</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a918dfb50c8da934336dc81cf36c28a08"><div class="ttname"><a href="timer__system_8h.html#a918dfb50c8da934336dc81cf36c28a08">timer_get_average_move_time</a></div><div class="ttdeci">uint32_t timer_get_average_move_time(void)</div><div class="ttdoc">Ziska prumerny cas na tah.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00808">timer_system.c:808</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_aaa24fcf316f295f7a17bf2ff5ed8dd5e"><div class="ttname"><a href="timer__system_8h.html#aaa24fcf316f295f7a17bf2ff5ed8dd5e">timer_check_timeout</a></div><div class="ttdeci">bool timer_check_timeout(void)</div><div class="ttdoc">Kontroluje vyprseni casu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00444">timer_system.c:444</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_ab0399771af7d827987018c7153cd381b"><div class="ttname"><a href="timer__system_8h.html#ab0399771af7d827987018c7153cd381b">timer_get_config_by_index</a></div><div class="ttdeci">esp_err_t timer_get_config_by_index(uint32_t index, time_control_config_t *config)</div><div class="ttdoc">Ziska casovou kontrolu podle indexu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00892">timer_system.c:892</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_ac52afa2de7a6af69f2f67d86af351a05"><div class="ttname"><a href="timer__system_8h.html#ac52afa2de7a6af69f2f67d86af351a05">timer_reset</a></div><div class="ttdeci">esp_err_t timer_reset(void)</div><div class="ttdoc">Resetuje timer na pocatecni hodnoty.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00415">timer_system.c:415</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_acc36d1000e481c6d6062135a9f115d40"><div class="ttname"><a href="timer__system_8h.html#acc36d1000e481c6d6062135a9f115d40">timer_get_config_by_type</a></div><div class="ttdeci">esp_err_t timer_get_config_by_type(time_control_type_t type, time_control_config_t *config)</div><div class="ttdoc">Ziska konfiguraci casove kontroly podle typu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00604">timer_system.c:604</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_aeaa8c85da85c6cdb61cf09dc46dd1c64"><div class="ttname"><a href="timer__system_8h.html#aeaa8c85da85c6cdb61cf09dc46dd1c64">timer_system_deinit</a></div><div class="ttdeci">esp_err_t timer_system_deinit(void)</div><div class="ttdoc">Deinicializuje timer system.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00910">timer_system.c:910</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_af9ad41921ea1477b929f7dd703b71adc"><div class="ttname"><a href="timer__system_8h.html#af9ad41921ea1477b929f7dd703b71adc">timer_get_current_type</a></div><div class="ttdeci">time_control_type_t timer_get_current_type(void)</div><div class="ttdoc">Ziska typ aktualni casove kontroly.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00850">timer_system.c:850</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_37ff961cb22580004e48f495a430ad7c.html">timer_system</a></li><li class="navelem"><a href="dir_f4061742f0d55e22ad8d9337e92bcefc.html">include</a></li><li class="navelem"><a href="timer__system_8h.html">timer_system.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

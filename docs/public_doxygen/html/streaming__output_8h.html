@@ -1,0 +1,993 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru streaming_output.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('streaming__output_8h.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru streaming_output.h</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>ESP32-C6 Chess System - Hlavicka Streaming Output Systemu.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stddef.h&gt;</code><br />
+<code>#include &quot;freertos/queue.h&quot;</code><br />
+<code>#include &quot;esp_err.h&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro streaming_output.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="streaming__output_8h__incl.png" border="0" usemap="#astreaming__output_8h" loading="lazy" alt=""/></div>
+<map name="astreaming__output_8h" id="astreaming__output_8h">
+<area shape="rect" title="ESP32&#45;C6 Chess System &#45; Hlavicka Streaming Output Systemu." alt="" coords="161,5,293,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,70,105"/>
+<area shape="poly" title=" " alt="" coords="196,34,85,76,83,71,194,29"/>
+<area shape="rect" title=" " alt="" coords="94,79,168,105"/>
+<area shape="poly" title=" " alt="" coords="213,31,160,72,157,68,208,32"/>
+<area shape="rect" title=" " alt="" coords="193,79,261,105"/>
+<area shape="poly" title=" " alt="" coords="229,29,229,65,225,62,225,33"/>
+<area shape="rect" title=" " alt="" coords="285,79,400,105"/>
+<area shape="poly" title=" " alt="" coords="247,29,313,71,308,71,246,34"/>
+<area shape="rect" title=" " alt="" coords="424,79,499,105"/>
+<area shape="poly" title=" " alt="" coords="267,29,412,74,407,75,266,34"/>
+</map>
+</div>
+</div>
+<p><a href="streaming__output_8h_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Datové struktury</h2></td></tr>
+<tr class="memitem:streaming_5Foutput_5Ft" id="r_streaming_5Foutput_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstreaming__output__t.html">streaming_output_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Konfigurace streaming vystupu.  <a href="structstreaming__output__t.html#details">...</a><br /></td></tr>
+<tr class="memitem:streaming_5Fstats_5Ft" id="r_streaming_5Fstats_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstreaming__stats__t.html">streaming_stats_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Statistiky streamovani.  <a href="structstreaming__stats__t.html#details">...</a><br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-define-members" class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:a23a8466caaf2282acdc686a4a9dde41d" id="r_a23a8466caaf2282acdc686a4a9dde41d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a23a8466caaf2282acdc686a4a9dde41d">STREAM_LINE_BUFFER_SIZE</a>&#160;&#160;&#160;256</td></tr>
+<tr class="memdesc:a23a8466caaf2282acdc686a4a9dde41d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Velikost radkoveho bufferu (misto velkych bufferu).  <br /></td></tr>
+<tr class="memitem:a69dfd27db3e015fc85f81dea4affbbeb" id="r_a69dfd27db3e015fc85f81dea4affbbeb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a69dfd27db3e015fc85f81dea4affbbeb">STREAM_MAX_OUTPUT_TARGETS</a>&#160;&#160;&#160;4</td></tr>
+<tr class="memdesc:a69dfd27db3e015fc85f81dea4affbbeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximalni pocet soucastnych vystupnich cilu.  <br /></td></tr>
+<tr class="memitem:ad0fce4a1af286f625bf5aa844e794cb2" id="r_ad0fce4a1af286f625bf5aa844e794cb2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad0fce4a1af286f625bf5aa844e794cb2">STREAM_CHESS_BOARD</a>(board_array)</td></tr>
+<tr class="memdesc:ad0fce4a1af286f625bf5aa844e794cb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pomocne makro pro streamovani sachovnice z pole figurek.  <br /></td></tr>
+<tr class="memitem:a51d51314482adade900fa2659aede2b5" id="r_a51d51314482adade900fa2659aede2b5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a51d51314482adade900fa2659aede2b5">STREAM_LED_BOARD</a>(led_array)</td></tr>
+<tr class="memdesc:a51d51314482adade900fa2659aede2b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pomocne makro pro streamovani LED sachovnice z pole LED stavu.  <br /></td></tr>
+<tr class="memitem:a6c724a82f7d007d4bffa449079138389" id="r_a6c724a82f7d007d4bffa449079138389"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6c724a82f7d007d4bffa449079138389">STREAM_CHUNKED_REPORT</a>(title)</td></tr>
+<tr class="memdesc:a6c724a82f7d007d4bffa449079138389"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pomocne makro pro streamovani velkych reportu po castech.  <br /></td></tr>
+<tr class="memitem:a8caa346fb405cea674904eee2b84abad" id="r_a8caa346fb405cea674904eee2b84abad"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8caa346fb405cea674904eee2b84abad">STREAM_REPORT_END</a>()</td></tr>
+<tr class="memdesc:a8caa346fb405cea674904eee2b84abad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ukoncovaci makro pro STREAM_CHUNKED_REPORT.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
+Výčty</h2></td></tr>
+<tr class="memitem:aebb40016c198e3e5e1f82c86929dc454" id="r_aebb40016c198e3e5e1f82c86929dc454"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aebb40016c198e3e5e1f82c86929dc454">stream_type_t</a> { <a class="el" href="#aebb40016c198e3e5e1f82c86929dc454a041393ad29ad01be710ecd3d8d77c2b9">STREAM_UART</a> = 0
+, <a class="el" href="#aebb40016c198e3e5e1f82c86929dc454ae9b3c32d282a15b603c991744840756b">STREAM_WEB</a>
+, <a class="el" href="#aebb40016c198e3e5e1f82c86929dc454ab09258d1ed838a3032df63357bc7d4b7">STREAM_QUEUE</a>
+ }</td></tr>
+<tr class="memdesc:aebb40016c198e3e5e1f82c86929dc454"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typy vystupnich proudu.  <a href="#aebb40016c198e3e5e1f82c86929dc454">...</a><br /></td></tr>
+<tr class="memitem:affdaded1b69ffceddaa030802cd994a8" id="r_affdaded1b69ffceddaa030802cd994a8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#affdaded1b69ffceddaa030802cd994a8">stream_line_ending_t</a> { <a class="el" href="#affdaded1b69ffceddaa030802cd994a8aabee12901eb5b407a8ed908c56f14c88">STREAM_LF</a> = 0
+, <a class="el" href="#affdaded1b69ffceddaa030802cd994a8a54fc8c6ca2040ea2b614ef90ae36a068">STREAM_CRLF</a>
+ }</td></tr>
+<tr class="memdesc:affdaded1b69ffceddaa030802cd994a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typy koncu radku.  <a href="#affdaded1b69ffceddaa030802cd994a8">...</a><br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a5ce23c8be43f17f9b75c37d63fdb7eac" id="r_a5ce23c8be43f17f9b75c37d63fdb7eac"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5ce23c8be43f17f9b75c37d63fdb7eac">streaming_output_init</a> (void)</td></tr>
+<tr class="memdesc:a5ce23c8be43f17f9b75c37d63fdb7eac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuj streaming output system.  <br /></td></tr>
+<tr class="memitem:a936645e3895fd2cd3cda93e2b9302a4d" id="r_a936645e3895fd2cd3cda93e2b9302a4d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a936645e3895fd2cd3cda93e2b9302a4d">streaming_output_deinit</a> (void)</td></tr>
+<tr class="memdesc:a936645e3895fd2cd3cda93e2b9302a4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deinicializuj streaming output system.  <br /></td></tr>
+<tr class="memitem:a8aa67921edc9b4e0c2ffcf2660a96982" id="r_a8aa67921edc9b4e0c2ffcf2660a96982"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8aa67921edc9b4e0c2ffcf2660a96982">streaming_set_uart_output</a> (int uart_port)</td></tr>
+<tr class="memdesc:a8aa67921edc9b4e0c2ffcf2660a96982"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav UART jako vystupni cil.  <br /></td></tr>
+<tr class="memitem:aae842b19f1975942c5b3674cb42fbddb" id="r_aae842b19f1975942c5b3674cb42fbddb"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aae842b19f1975942c5b3674cb42fbddb">streaming_set_web_output</a> (void *web_client)</td></tr>
+<tr class="memdesc:aae842b19f1975942c5b3674cb42fbddb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav web klienta jako vystupni cil.  <br /></td></tr>
+<tr class="memitem:aca427711530c81651095df3f70106d66" id="r_aca427711530c81651095df3f70106d66"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aca427711530c81651095df3f70106d66">streaming_set_queue_output</a> (QueueHandle_t queue)</td></tr>
+<tr class="memdesc:aca427711530c81651095df3f70106d66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav FreeRTOS frontu jako vystupni cil.  <br /></td></tr>
+<tr class="memitem:a19603309bb16a4e39d500f27a16101c1" id="r_a19603309bb16a4e39d500f27a16101c1"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a19603309bb16a4e39d500f27a16101c1">stream_printf</a> (const char *format,...) <a class="el" href="game__led__animations_8c.html#a36f229bbda63818246ec86181b1fdd42">__attribute__</a>((format(printf</td></tr>
+<tr class="memdesc:a19603309bb16a4e39d500f27a16101c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zapis formatovany retezec do aktualniho vystupniho proudu.  <br /></td></tr>
+<tr class="memitem:a70b4216dd32edbb9b820bb46e0c6b45b" id="r_a70b4216dd32edbb9b820bb46e0c6b45b"><td class="memItemLeft" align="right" valign="top">esp_err_t esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a70b4216dd32edbb9b820bb46e0c6b45b">stream_write</a> (const char *data, size_t len)</td></tr>
+<tr class="memdesc:a70b4216dd32edbb9b820bb46e0c6b45b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zapis surova data do aktualniho vystupniho proudu.  <br /></td></tr>
+<tr class="memitem:a81bb5955edffac0083f39e3114c99386" id="r_a81bb5955edffac0083f39e3114c99386"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a81bb5955edffac0083f39e3114c99386">stream_writeln</a> (const char *data)</td></tr>
+<tr class="memdesc:a81bb5955edffac0083f39e3114c99386"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zapis retezec s koncem radku do aktualniho vystupniho proudu.  <br /></td></tr>
+<tr class="memitem:aee33cf86bf19206f11756f9e94544b6d" id="r_aee33cf86bf19206f11756f9e94544b6d"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aee33cf86bf19206f11756f9e94544b6d">stream_flush</a> (void)</td></tr>
+<tr class="memdesc:aee33cf86bf19206f11756f9e94544b6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flush vystupni proud.  <br /></td></tr>
+<tr class="memitem:a1435caf264b122a887df306e6b1b9d11" id="r_a1435caf264b122a887df306e6b1b9d11"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1435caf264b122a887df306e6b1b9d11">stream_set_auto_flush</a> (bool enabled)</td></tr>
+<tr class="memdesc:a1435caf264b122a887df306e6b1b9d11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zapni/vypni automaticky flush po kazdem zapisu.  <br /></td></tr>
+<tr class="memitem:a9173e4c76c40d5e2c7aeb6e63bd4cb31" id="r_a9173e4c76c40d5e2c7aeb6e63bd4cb31"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9173e4c76c40d5e2c7aeb6e63bd4cb31">stream_set_line_ending</a> (<a class="el" href="#affdaded1b69ffceddaa030802cd994a8">stream_line_ending_t</a> ending)</td></tr>
+<tr class="memdesc:a9173e4c76c40d5e2c7aeb6e63bd4cb31"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav typ konce radku pro writeln operace.  <br /></td></tr>
+<tr class="memitem:a59f0895b69aa9d69a3386adbc8f6c6e5" id="r_a59f0895b69aa9d69a3386adbc8f6c6e5"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a59f0895b69aa9d69a3386adbc8f6c6e5">stream_board_header</a> (void)</td></tr>
+<tr class="memdesc:a59f0895b69aa9d69a3386adbc8f6c6e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Streamuj hlavicku sachovnice (popisky sloupcu a horni okraj).  <br /></td></tr>
+<tr class="memitem:aeee82161b919e7c2993a0a40b564cf9f" id="r_aeee82161b919e7c2993a0a40b564cf9f"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeee82161b919e7c2993a0a40b564cf9f">stream_board_row</a> (int row, const char *pieces)</td></tr>
+<tr class="memdesc:aeee82161b919e7c2993a0a40b564cf9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Streamuj jeden radek sachovnice.  <br /></td></tr>
+<tr class="memitem:ab702b0aa249cc6463ecd01db54bea295" id="r_ab702b0aa249cc6463ecd01db54bea295"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab702b0aa249cc6463ecd01db54bea295">stream_board_footer</a> (void)</td></tr>
+<tr class="memdesc:ab702b0aa249cc6463ecd01db54bea295"><td class="mdescLeft">&#160;</td><td class="mdescRight">Streamuj paticku sachovnice (spodni okraj a popisky sloupcu).  <br /></td></tr>
+<tr class="memitem:a2bf893bcdd558c5d065c5b2dba1b369c" id="r_a2bf893bcdd558c5d065c5b2dba1b369c"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2bf893bcdd558c5d065c5b2dba1b369c">stream_led_board_header</a> (void)</td></tr>
+<tr class="memdesc:a2bf893bcdd558c5d065c5b2dba1b369c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Streamuj hlavicku LED sachovnice s emoji indikatory.  <br /></td></tr>
+<tr class="memitem:a812ce05742f894755d8b5d0b14019776" id="r_a812ce05742f894755d8b5d0b14019776"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a812ce05742f894755d8b5d0b14019776">stream_led_board_row</a> (int row, const uint32_t *led_colors)</td></tr>
+<tr class="memdesc:a812ce05742f894755d8b5d0b14019776"><td class="mdescLeft">&#160;</td><td class="mdescRight">Streamuj jeden radek LED sachovnice s barevnymi emoji indikatory.  <br /></td></tr>
+<tr class="memitem:a2be8864cdaed57fd8249185a4ade538f" id="r_a2be8864cdaed57fd8249185a4ade538f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2be8864cdaed57fd8249185a4ade538f">streaming_print_stats</a> (void)</td></tr>
+<tr class="memdesc:a2be8864cdaed57fd8249185a4ade538f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vypis statistiky streaming vystupu do logu.  <br /></td></tr>
+<tr class="memitem:aad4c641177bba008c8ec5c0a0265ac7c" id="r_aad4c641177bba008c8ec5c0a0265ac7c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structstreaming__stats__t.html">streaming_stats_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad4c641177bba008c8ec5c0a0265ac7c">streaming_get_stats</a> (void)</td></tr>
+<tr class="memdesc:aad4c641177bba008c8ec5c0a0265ac7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej statistiky streaming vystupu.  <br /></td></tr>
+<tr class="memitem:acf5e7d713d834d6fb513201f5f761582" id="r_acf5e7d713d834d6fb513201f5f761582"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acf5e7d713d834d6fb513201f5f761582">streaming_reset_stats</a> (void)</td></tr>
+<tr class="memdesc:acf5e7d713d834d6fb513201f5f761582"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuj vsechny statisticke citace.  <br /></td></tr>
+<tr class="memitem:a251a50a8653a9c02de813b176cfa1718" id="r_a251a50a8653a9c02de813b176cfa1718"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a251a50a8653a9c02de813b176cfa1718">streaming_is_healthy</a> (void)</td></tr>
+<tr class="memdesc:a251a50a8653a9c02de813b176cfa1718"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je streaming output system ve zdravem stavu.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>ESP32-C6 Chess System - Hlavicka Streaming Output Systemu. </p>
+<p>Nahradi pameti intenzivni budovani stringu primym streaming vystupem:</p><ul>
+<li>Eliminuje potrebu velkych bufferu (usetri 2KB+ na velky vystup)</li>
+<li>Snizuje fragmentaci pameti</li>
+<li>Umoznuje real-time postupny vystup</li>
+<li>Podporuje vice vystupnich cilu (UART, Web, Queue)</li>
+</ul>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-01-27</dd></dl>
+<p>Streaming Output System umoznuje efektivni vypis velkych textu bez budovani velkych stringu v pameti. Posila data primo do vystupu, coz eliminuje potrebu velkych bufferu a zlepsuje performance.</p>
+<dl class="section user"><dt>Priklad pouziti:</dt><dd><div class="fragment"><div class="line"><a class="code hl_function" href="#a5ce23c8be43f17f9b75c37d63fdb7eac">streaming_output_init</a>();</div>
+<div class="line"><a class="code hl_function" href="#a59f0895b69aa9d69a3386adbc8f6c6e5">stream_board_header</a>();</div>
+<div class="line"><span class="keywordflow">for</span> (<span class="keywordtype">int</span> row = 7; row &gt;= 0; row--) {</div>
+<div class="line">    <a class="code hl_function" href="#aeee82161b919e7c2993a0a40b564cf9f">stream_board_row</a>(row, piece_chars);</div>
+<div class="line">}</div>
+<div class="line"><a class="code hl_function" href="#ab702b0aa249cc6463ecd01db54bea295">stream_board_footer</a>();</div>
+<div class="ttc" id="astreaming__output_8h_html_a59f0895b69aa9d69a3386adbc8f6c6e5"><div class="ttname"><a href="#a59f0895b69aa9d69a3386adbc8f6c6e5">stream_board_header</a></div><div class="ttdeci">esp_err_t stream_board_header(void)</div><div class="ttdoc">Streamuj hlavicku sachovnice (popisky sloupcu a horni okraj).</div><div class="ttdef"><b>Definition</b> <a href="streaming__output_8c_source.html#l00423">streaming_output.c:423</a></div></div>
+<div class="ttc" id="astreaming__output_8h_html_a5ce23c8be43f17f9b75c37d63fdb7eac"><div class="ttname"><a href="#a5ce23c8be43f17f9b75c37d63fdb7eac">streaming_output_init</a></div><div class="ttdeci">esp_err_t streaming_output_init(void)</div><div class="ttdoc">Inicializuj streaming output system.</div><div class="ttdef"><b>Definition</b> <a href="streaming__output_8c_source.html#l00061">streaming_output.c:61</a></div></div>
+<div class="ttc" id="astreaming__output_8h_html_ab702b0aa249cc6463ecd01db54bea295"><div class="ttname"><a href="#ab702b0aa249cc6463ecd01db54bea295">stream_board_footer</a></div><div class="ttdeci">esp_err_t stream_board_footer(void)</div><div class="ttdoc">Streamuj paticku sachovnice (spodni okraj a popisky sloupcu).</div><div class="ttdef"><b>Definition</b> <a href="streaming__output_8c_source.html#l00459">streaming_output.c:459</a></div></div>
+<div class="ttc" id="astreaming__output_8h_html_aeee82161b919e7c2993a0a40b564cf9f"><div class="ttname"><a href="#aeee82161b919e7c2993a0a40b564cf9f">stream_board_row</a></div><div class="ttdeci">esp_err_t stream_board_row(int row, const char *pieces)</div><div class="ttdoc">Streamuj jeden radek sachovnice.</div><div class="ttdef"><b>Definition</b> <a href="streaming__output_8c_source.html#l00433">streaming_output.c:433</a></div></div>
+</div><!-- fragment --> </dd></dl>
+
+<p class="definition">Definice v souboru <a class="el" href="streaming__output_8h_source.html">streaming_output.h</a>.</p>
+</div><a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Dokumentace definic maker</h2>
+<a id="ad0fce4a1af286f625bf5aa844e794cb2" name="ad0fce4a1af286f625bf5aa844e794cb2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0fce4a1af286f625bf5aa844e794cb2">&#9670;&#160;</a></span>STREAM_CHESS_BOARD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STREAM_CHESS_BOARD</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>board_array</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Hodnota:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> { \</div>
+<div class="line">    stream_board_header(); \</div>
+<div class="line">    for (<span class="keywordtype">int</span> row = 7; row &gt;= 0; row--) { \</div>
+<div class="line">        <span class="keywordtype">char</span> row_pieces[9] = {0}; \</div>
+<div class="line">        for (<span class="keywordtype">int</span> col = 0; col &lt; 8; col++) { \</div>
+<div class="line">            <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece = board_array[row][col]; \</div>
+<div class="line">            row_pieces[col] = get_piece_char(piece); \</div>
+<div class="line">        } \</div>
+<div class="line">        stream_board_row(row, row_pieces); \</div>
+<div class="line">        esp_task_wdt_reset(); \</div>
+<div class="line">    } \</div>
+<div class="line">    stream_board_footer(); \</div>
+<div class="line">} <span class="keywordflow">while</span>(0)</div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a></div><div class="ttdeci">piece_t</div><div class="ttdoc">Typy sachovych figurek.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00049">chess_types.h:49</a></div></div>
+</div><!-- fragment -->
+<p>Pomocne makro pro streamovani sachovnice z pole figurek. </p>
+<p>Pouziti: </p><div class="fragment"><div class="line"><a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> <a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[8][8];</div>
+<div class="line"><a class="code hl_define" href="#ad0fce4a1af286f625bf5aa844e794cb2">STREAM_CHESS_BOARD</a>(<a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>);</div>
+<div class="ttc" id="agame__task_8c_html_acd8995588803c845a38aeae9849f7be8"><div class="ttname"><a href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a></div><div class="ttdeci">static piece_t board[8][8]</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00269">game_task.c:269</a></div></div>
+<div class="ttc" id="astreaming__output_8h_html_ad0fce4a1af286f625bf5aa844e794cb2"><div class="ttname"><a href="#ad0fce4a1af286f625bf5aa844e794cb2">STREAM_CHESS_BOARD</a></div><div class="ttdeci">#define STREAM_CHESS_BOARD(board_array)</div><div class="ttdoc">Pomocne makro pro streamovani sachovnice z pole figurek.</div><div class="ttdef"><b>Definition</b> <a href="streaming__output_8h_source.html#l00290">streaming_output.h:290</a></div></div>
+</div><!-- fragment --><p>Toto makro eliminuje potrebu docasnych string bufferu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8h_source.html#l00290">290</a> v souboru <a class="el" href="streaming__output_8h_source.html">streaming_output.h</a>.</p>
+
+</div>
+</div>
+<a id="a6c724a82f7d007d4bffa449079138389" name="a6c724a82f7d007d4bffa449079138389"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c724a82f7d007d4bffa449079138389">&#9670;&#160;</a></span>STREAM_CHUNKED_REPORT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STREAM_CHUNKED_REPORT</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>title</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Hodnota:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> { \</div>
+<div class="line">        esp_err_t _stream_result = ESP_OK; \</div>
+<div class="line">        _stream_result |= <a class="code hl_function" href="#a81bb5955edffac0083f39e3114c99386">stream_writeln</a>(<span class="stringliteral">&quot;&quot;</span>); \</div>
+<div class="line">        _stream_result |= <a class="code hl_function" href="#a81bb5955edffac0083f39e3114c99386">stream_writeln</a>(<span class="stringliteral">&quot;════════════════════════════════════════════════════════════════&quot;</span>); \</div>
+<div class="line">        _stream_result |= <a class="code hl_function" href="#a19603309bb16a4e39d500f27a16101c1">stream_printf</a>(<span class="stringliteral">&quot;📊 %s\n&quot;</span>, title); \</div>
+<div class="line">        _stream_result |= <a class="code hl_function" href="#a81bb5955edffac0083f39e3114c99386">stream_writeln</a>(<span class="stringliteral">&quot;════════════════════════════════════════════════════════════════&quot;</span>); \</div>
+<div class="line">        esp_task_wdt_reset(); \</div>
+<div class="line">        if (_stream_result == ESP_OK)</div>
+<div class="ttc" id="astreaming__output_8h_html_a19603309bb16a4e39d500f27a16101c1"><div class="ttname"><a href="#a19603309bb16a4e39d500f27a16101c1">stream_printf</a></div><div class="ttdeci">esp_err_t stream_printf(const char *format,...) __attribute__((format(printf</div><div class="ttdoc">Zapis formatovany retezec do aktualniho vystupniho proudu.</div></div>
+<div class="ttc" id="astreaming__output_8h_html_a81bb5955edffac0083f39e3114c99386"><div class="ttname"><a href="#a81bb5955edffac0083f39e3114c99386">stream_writeln</a></div><div class="ttdeci">esp_err_t stream_writeln(const char *data)</div><div class="ttdoc">Zapis retezec s koncem radku do aktualniho vystupniho proudu.</div><div class="ttdef"><b>Definition</b> <a href="streaming__output_8c_source.html#l00248">streaming_output.c:248</a></div></div>
+</div><!-- fragment -->
+<p>Pomocne makro pro streamovani velkych reportu po castech. </p>
+<p>Pouziti: </p><div class="fragment"><div class="line"><a class="code hl_define" href="#a6c724a82f7d007d4bffa449079138389">STREAM_CHUNKED_REPORT</a>(<span class="stringliteral">&quot;Nazev Reportu&quot;</span>) {</div>
+<div class="line">    <a class="code hl_function" href="#a19603309bb16a4e39d500f27a16101c1">stream_printf</a>(<span class="stringliteral">&quot;Radek 1: %s\n&quot;</span>, data1);</div>
+<div class="line">    <a class="code hl_function" href="#a19603309bb16a4e39d500f27a16101c1">stream_printf</a>(<span class="stringliteral">&quot;Radek 2: %d\n&quot;</span>, data2);</div>
+<div class="line">    <span class="comment">// ... dalsi radky</span></div>
+<div class="line">}</div>
+<div class="ttc" id="astreaming__output_8h_html_a6c724a82f7d007d4bffa449079138389"><div class="ttname"><a href="#a6c724a82f7d007d4bffa449079138389">STREAM_CHUNKED_REPORT</a></div><div class="ttdeci">#define STREAM_CHUNKED_REPORT(title)</div><div class="ttdoc">Pomocne makro pro streamovani velkych reportu po castech.</div><div class="ttdef"><b>Definition</b> <a href="streaming__output_8h_source.html#l00339">streaming_output.h:339</a></div></div>
+</div><!-- fragment --><p>Toto makro automaticky zpracovava watchdog resety a kontrolu chyb. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8h_source.html#l00339">339</a> v souboru <a class="el" href="streaming__output_8h_source.html">streaming_output.h</a>.</p>
+
+</div>
+</div>
+<a id="a51d51314482adade900fa2659aede2b5" name="a51d51314482adade900fa2659aede2b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51d51314482adade900fa2659aede2b5">&#9670;&#160;</a></span>STREAM_LED_BOARD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STREAM_LED_BOARD</td>
+          <td>(</td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>led_array</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Hodnota:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> { \</div>
+<div class="line">    stream_led_board_header(); \</div>
+<div class="line">    for (<span class="keywordtype">int</span> row = 7; row &gt;= 0; row--) { \</div>
+<div class="line">        stream_led_board_row(row, led_array); \</div>
+<div class="line">        esp_task_wdt_reset(); \</div>
+<div class="line">    } \</div>
+<div class="line">    stream_writeln(<span class="stringliteral">&quot; +---+---+---+---+---+---+---+---+&quot;</span>); \</div>
+<div class="line">    stream_writeln(<span class="stringliteral">&quot;     a   b   c   d   e   f   g   h&quot;</span>); \</div>
+<div class="line">} <span class="keywordflow">while</span>(0)</div>
+</div><!-- fragment -->
+<p>Pomocne makro pro streamovani LED sachovnice z pole LED stavu. </p>
+<p>Pouziti: </p><div class="fragment"><div class="line">uint32_t <a class="code hl_variable" href="led__task_8c.html#a3a21d6fc11052b5e1badc86408a5f3b2">led_states</a>[64];</div>
+<div class="line"><a class="code hl_define" href="#a51d51314482adade900fa2659aede2b5">STREAM_LED_BOARD</a>(<a class="code hl_variable" href="led__task_8c.html#a3a21d6fc11052b5e1badc86408a5f3b2">led_states</a>);</div>
+<div class="ttc" id="aled__task_8c_html_a3a21d6fc11052b5e1badc86408a5f3b2"><div class="ttname"><a href="led__task_8c.html#a3a21d6fc11052b5e1badc86408a5f3b2">led_states</a></div><div class="ttdeci">static uint32_t led_states[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00346">led_task.c:346</a></div></div>
+<div class="ttc" id="astreaming__output_8h_html_a51d51314482adade900fa2659aede2b5"><div class="ttname"><a href="#a51d51314482adade900fa2659aede2b5">STREAM_LED_BOARD</a></div><div class="ttdeci">#define STREAM_LED_BOARD(led_array)</div><div class="ttdoc">Pomocne makro pro streamovani LED sachovnice z pole LED stavu.</div><div class="ttdef"><b>Definition</b> <a href="streaming__output_8h_source.html#l00315">streaming_output.h:315</a></div></div>
+</div><!-- fragment --><p>Toto makro eliminuje potrebu velkych string bufferu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8h_source.html#l00315">315</a> v souboru <a class="el" href="streaming__output_8h_source.html">streaming_output.h</a>.</p>
+
+</div>
+</div>
+<a id="a23a8466caaf2282acdc686a4a9dde41d" name="a23a8466caaf2282acdc686a4a9dde41d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23a8466caaf2282acdc686a4a9dde41d">&#9670;&#160;</a></span>STREAM_LINE_BUFFER_SIZE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STREAM_LINE_BUFFER_SIZE&#160;&#160;&#160;256</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Velikost radkoveho bufferu (misto velkych bufferu). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8h_source.html#l00049">49</a> v souboru <a class="el" href="streaming__output_8h_source.html">streaming_output.h</a>.</p>
+
+</div>
+</div>
+<a id="a69dfd27db3e015fc85f81dea4affbbeb" name="a69dfd27db3e015fc85f81dea4affbbeb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69dfd27db3e015fc85f81dea4affbbeb">&#9670;&#160;</a></span>STREAM_MAX_OUTPUT_TARGETS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STREAM_MAX_OUTPUT_TARGETS&#160;&#160;&#160;4</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Maximalni pocet soucastnych vystupnich cilu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8h_source.html#l00051">51</a> v souboru <a class="el" href="streaming__output_8h_source.html">streaming_output.h</a>.</p>
+
+</div>
+</div>
+<a id="a8caa346fb405cea674904eee2b84abad" name="a8caa346fb405cea674904eee2b84abad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8caa346fb405cea674904eee2b84abad">&#9670;&#160;</a></span>STREAM_REPORT_END</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STREAM_REPORT_END</td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Hodnota:</b><div class="fragment"><div class="line">        _stream_result |= <a class="code hl_function" href="#a81bb5955edffac0083f39e3114c99386">stream_writeln</a>(<span class="stringliteral">&quot;════════════════════════════════════════════════════════════════&quot;</span>); \</div>
+<div class="line">        esp_task_wdt_reset(); \</div>
+<div class="line">        if (_stream_result != ESP_OK) { \</div>
+<div class="line">            ESP_LOGE(<span class="stringliteral">&quot;STREAMING&quot;</span>, <span class="stringliteral">&quot;Report streaming failed: %s&quot;</span>, esp_err_to_name(_stream_result)); \</div>
+<div class="line">        } \</div>
+<div class="line">    } <span class="keywordflow">while</span>(0)</div>
+</div><!-- fragment -->
+<p>Ukoncovaci makro pro STREAM_CHUNKED_REPORT. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8h_source.html#l00352">352</a> v souboru <a class="el" href="streaming__output_8h_source.html">streaming_output.h</a>.</p>
+
+</div>
+</div>
+<a name="doc-enum-members" id="doc-enum-members"></a><h2 id="header-doc-enum-members" class="groupheader">Dokumentace výčtových typů</h2>
+<a id="affdaded1b69ffceddaa030802cd994a8" name="affdaded1b69ffceddaa030802cd994a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#affdaded1b69ffceddaa030802cd994a8">&#9670;&#160;</a></span>stream_line_ending_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#affdaded1b69ffceddaa030802cd994a8">stream_line_ending_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typy koncu radku. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Hodnoty výčtu</th></tr><tr><td class="fieldname"><a id="affdaded1b69ffceddaa030802cd994a8aabee12901eb5b407a8ed908c56f14c88" name="affdaded1b69ffceddaa030802cd994a8aabee12901eb5b407a8ed908c56f14c88"></a>STREAM_LF&#160;</td><td class="fielddoc"><p>Unix konec radku (<br  />
+). </p>
+</td></tr>
+<tr><td class="fieldname"><a id="affdaded1b69ffceddaa030802cd994a8a54fc8c6ca2040ea2b614ef90ae36a068" name="affdaded1b69ffceddaa030802cd994a8a54fc8c6ca2040ea2b614ef90ae36a068"></a>STREAM_CRLF&#160;</td><td class="fielddoc"><p>Windows konec radku (\r<br  />
+). </p>
+</td></tr>
+</table>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8h_source.html#l00069">69</a> v souboru <a class="el" href="streaming__output_8h_source.html">streaming_output.h</a>.</p>
+
+</div>
+</div>
+<a id="aebb40016c198e3e5e1f82c86929dc454" name="aebb40016c198e3e5e1f82c86929dc454"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aebb40016c198e3e5e1f82c86929dc454">&#9670;&#160;</a></span>stream_type_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#aebb40016c198e3e5e1f82c86929dc454">stream_type_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typy vystupnich proudu. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Hodnoty výčtu</th></tr><tr><td class="fieldname"><a id="aebb40016c198e3e5e1f82c86929dc454a041393ad29ad01be710ecd3d8d77c2b9" name="aebb40016c198e3e5e1f82c86929dc454a041393ad29ad01be710ecd3d8d77c2b9"></a>STREAM_UART&#160;</td><td class="fielddoc"><p>UART/USB Serial JTAG vystup. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aebb40016c198e3e5e1f82c86929dc454ae9b3c32d282a15b603c991744840756b" name="aebb40016c198e3e5e1f82c86929dc454ae9b3c32d282a15b603c991744840756b"></a>STREAM_WEB&#160;</td><td class="fielddoc"><p>Web server HTTP odpoved. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aebb40016c198e3e5e1f82c86929dc454ab09258d1ed838a3032df63357bc7d4b7" name="aebb40016c198e3e5e1f82c86929dc454ab09258d1ed838a3032df63357bc7d4b7"></a>STREAM_QUEUE&#160;</td><td class="fielddoc"><p>FreeRTOS fronta vystup. </p>
+</td></tr>
+</table>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8h_source.html#l00060">60</a> v souboru <a class="el" href="streaming__output_8h_source.html">streaming_output.h</a>.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="ab702b0aa249cc6463ecd01db54bea295" name="ab702b0aa249cc6463ecd01db54bea295"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab702b0aa249cc6463ecd01db54bea295">&#9670;&#160;</a></span>stream_board_footer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stream_board_footer </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Streamuj paticku sachovnice (spodni okraj a popisky sloupcu). </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00459">459</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a59f0895b69aa9d69a3386adbc8f6c6e5" name="a59f0895b69aa9d69a3386adbc8f6c6e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59f0895b69aa9d69a3386adbc8f6c6e5">&#9670;&#160;</a></span>stream_board_header()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stream_board_header </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Streamuj hlavicku sachovnice (popisky sloupcu a horni okraj). </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00423">423</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="aeee82161b919e7c2993a0a40b564cf9f" name="aeee82161b919e7c2993a0a40b564cf9f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeee82161b919e7c2993a0a40b564cf9f">&#9670;&#160;</a></span>stream_board_row()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stream_board_row </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>pieces</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Streamuj jeden radek sachovnice. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Cislo radku (0-7, kde 0=rank 1, 7=rank 8) </td></tr>
+    <tr><td class="paramname">pieces</td><td>Retezec 8 znaku reprezentujicich figurky v tomto radku </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00433">433</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="aee33cf86bf19206f11756f9e94544b6d" name="aee33cf86bf19206f11756f9e94544b6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee33cf86bf19206f11756f9e94544b6d">&#9670;&#160;</a></span>stream_flush()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stream_flush </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Flush vystupni proud. </p>
+<p>Zajisti ze vsechna data jsou poslana do vystupu.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00373">373</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a2bf893bcdd558c5d065c5b2dba1b369c" name="a2bf893bcdd558c5d065c5b2dba1b369c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bf893bcdd558c5d065c5b2dba1b369c">&#9670;&#160;</a></span>stream_led_board_header()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stream_led_board_header </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Streamuj hlavicku LED sachovnice s emoji indikatory. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00469">469</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a812ce05742f894755d8b5d0b14019776" name="a812ce05742f894755d8b5d0b14019776"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a812ce05742f894755d8b5d0b14019776">&#9670;&#160;</a></span>stream_led_board_row()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stream_led_board_row </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint32_t *</td>          <td class="paramname"><span class="paramname"><em>led_colors</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Streamuj jeden radek LED sachovnice s barevnymi emoji indikatory. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Cislo radku (0-7) </td></tr>
+    <tr><td class="paramname">led_colors</td><td>Pole 64 LED barev (RGB hodnoty) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00482">482</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a19603309bb16a4e39d500f27a16101c1" name="a19603309bb16a4e39d500f27a16101c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19603309bb16a4e39d500f27a16101c1">&#9670;&#160;</a></span>stream_printf()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stream_printf </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>format</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>...</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zapis formatovany retezec do aktualniho vystupniho proudu. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">format</td><td>Formatovaci retezec (printf styl) </td></tr>
+    <tr><td class="paramname">...</td><td>Promenne argumenty pro formatovaci retezec </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+</div>
+</div>
+<a id="a1435caf264b122a887df306e6b1b9d11" name="a1435caf264b122a887df306e6b1b9d11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1435caf264b122a887df306e6b1b9d11">&#9670;&#160;</a></span>stream_set_auto_flush()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stream_set_auto_flush </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>enabled</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zapni/vypni automaticky flush po kazdem zapisu. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">enabled</td><td>true pro zapnuti auto-flush, false pro vypnuti </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00387">387</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a9173e4c76c40d5e2c7aeb6e63bd4cb31" name="a9173e4c76c40d5e2c7aeb6e63bd4cb31"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9173e4c76c40d5e2c7aeb6e63bd4cb31">&#9670;&#160;</a></span>stream_set_line_ending()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stream_set_line_ending </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="#affdaded1b69ffceddaa030802cd994a8">stream_line_ending_t</a></td>          <td class="paramname"><span class="paramname"><em>ending</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav typ konce radku pro writeln operace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ending</td><td>Typ konce radku (STREAM_LF nebo STREAM_CRLF) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00403">403</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a70b4216dd32edbb9b820bb46e0c6b45b" name="a70b4216dd32edbb9b820bb46e0c6b45b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70b4216dd32edbb9b820bb46e0c6b45b">&#9670;&#160;</a></span>stream_write()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t esp_err_t stream_write </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>data</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>len</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zapis surova data do aktualniho vystupniho proudu. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Data k zapsani </td></tr>
+    <tr><td class="paramname">len</td><td>Delka dat v bajtech </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00205">205</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a81bb5955edffac0083f39e3114c99386" name="a81bb5955edffac0083f39e3114c99386"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81bb5955edffac0083f39e3114c99386">&#9670;&#160;</a></span>stream_writeln()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stream_writeln </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zapis retezec s koncem radku do aktualniho vystupniho proudu. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Retezec k zapsani (bez konce radku) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00248">248</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="aad4c641177bba008c8ec5c0a0265ac7c" name="aad4c641177bba008c8ec5c0a0265ac7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad4c641177bba008c8ec5c0a0265ac7c">&#9670;&#160;</a></span>streaming_get_stats()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structstreaming__stats__t.html">streaming_stats_t</a> streaming_get_stats </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej statistiky streaming vystupu. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Struktura s aktualnimi statistikami </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00562">562</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a251a50a8653a9c02de813b176cfa1718" name="a251a50a8653a9c02de813b176cfa1718"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a251a50a8653a9c02de813b176cfa1718">&#9670;&#160;</a></span>streaming_is_healthy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool streaming_is_healthy </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda je streaming output system ve zdravem stavu. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je zdravy, false pokud jsou detekovany problemy </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00573">573</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a936645e3895fd2cd3cda93e2b9302a4d" name="a936645e3895fd2cd3cda93e2b9302a4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a936645e3895fd2cd3cda93e2b9302a4d">&#9670;&#160;</a></span>streaming_output_deinit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void streaming_output_deinit </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Deinicializuj streaming output system. </p>
+<p>Uvolni mutex a vymaze interni stav. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00093">93</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a5ce23c8be43f17f9b75c37d63fdb7eac" name="a5ce23c8be43f17f9b75c37d63fdb7eac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ce23c8be43f17f9b75c37d63fdb7eac">&#9670;&#160;</a></span>streaming_output_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t streaming_output_init </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializuj streaming output system. </p>
+<p>Vytvori mutex pro thread-safe pristup a nastavi vychozi vystup na UART.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, ESP_ERR_NO_MEM pri selhani vytvoreni mutexu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00061">61</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a2be8864cdaed57fd8249185a4ade538f" name="a2be8864cdaed57fd8249185a4ade538f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2be8864cdaed57fd8249185a4ade538f">&#9670;&#160;</a></span>streaming_print_stats()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void streaming_print_stats </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vypis statistiky streaming vystupu do logu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00536">536</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="acf5e7d713d834d6fb513201f5f761582" name="acf5e7d713d834d6fb513201f5f761582"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf5e7d713d834d6fb513201f5f761582">&#9670;&#160;</a></span>streaming_reset_stats()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void streaming_reset_stats </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resetuj vsechny statisticke citace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00567">567</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="aca427711530c81651095df3f70106d66" name="aca427711530c81651095df3f70106d66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca427711530c81651095df3f70106d66">&#9670;&#160;</a></span>streaming_set_queue_output()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t streaming_set_queue_output </td>
+          <td>(</td>
+          <td class="paramtype">QueueHandle_t</td>          <td class="paramname"><span class="paramname"><em>queue</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav FreeRTOS frontu jako vystupni cil. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">queue</td><td>Handle fronty pro posilani vystupnich zprav </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, ESP_ERR_TIMEOUT pri selhani ziskani mutexu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00154">154</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="a8aa67921edc9b4e0c2ffcf2660a96982" name="a8aa67921edc9b4e0c2ffcf2660a96982"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8aa67921edc9b4e0c2ffcf2660a96982">&#9670;&#160;</a></span>streaming_set_uart_output()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t streaming_set_uart_output </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>uart_port</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav UART jako vystupni cil. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">uart_port</td><td>Cislo UART portu (obvykle 0 pro USB Serial JTAG) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, ESP_ERR_TIMEOUT pri selhani ziskani mutexu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00114">114</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+<a id="aae842b19f1975942c5b3674cb42fbddb" name="aae842b19f1975942c5b3674cb42fbddb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae842b19f1975942c5b3674cb42fbddb">&#9670;&#160;</a></span>streaming_set_web_output()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t streaming_set_web_output </td>
+          <td>(</td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>web_client</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav web klienta jako vystupni cil. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">web_client</td><td>Handle web klienta (implementacne specificky) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, ESP_ERR_TIMEOUT pri selhani ziskani mutexu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="streaming__output_8c_source.html#l00134">134</a> v souboru <a class="el" href="streaming__output_8c_source.html">streaming_output.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_5c6c08d104c204cc3ac851f4559ad479.html">freertos_chess</a></li><li class="navelem"><a href="dir_f37fe88dea145212e3c3ec30fa23d01d.html">include</a></li><li class="navelem"><a href="streaming__output_8h.html">streaming_output.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>
