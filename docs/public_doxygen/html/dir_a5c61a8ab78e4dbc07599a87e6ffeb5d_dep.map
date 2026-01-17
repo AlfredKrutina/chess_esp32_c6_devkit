@@ -1,7 +1,0 @@
-<map id="include" name="include">
-<area shape="rect" id="node1" href="dir_a5c61a8ab78e4dbc07599a87e6ffeb5d.html" title="include" alt="" coords="61,52,123,78"/>
-<area shape="rect" id="node2" href="dir_5c6c08d104c204cc3ac851f4559ad479.html" title="freertos_chess" alt="" coords="38,126,146,152"/>
-<area shape="poly" id="edge1" href="dir_000018_000005.html" alt="" coords="94,76,95,111,89,109,90,80"/>
-<area shape="rect" id="edge1-headlabel" href="dir_000018_000005.html" title="1" alt="" coords="97,100,104,115"/>
-<area shape="rect" id="clust1" href="dir_ab6b3e4c64325f478abea97ff504e20e.html" title="promotion_button_task" alt="" coords="16,16,169,89"/>
-</map>
