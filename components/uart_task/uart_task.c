@@ -158,6 +158,7 @@
 // No POSIX includes needed
 
 #include "../freertos_chess/include/chess_types.h"
+#include "../ha_light_task/include/ha_light_task.h"
 #include "../matrix_task/include/matrix_task.h"
 #include "../timer_system/include/timer_system.h"
 #include "../uart_commands_extended/include/uart_commands_extended.h"
@@ -221,7 +222,7 @@ extern TaskHandle_t matrix_task_handle;
 extern TaskHandle_t button_task_handle;
 extern TaskHandle_t game_task_handle;
 extern QueueHandle_t game_command_queue;
-// extern QueueHandle_t led_command_queue;  // ❌ REMOVED: Queue hell eliminated
+// extern QueueHandle_t led_command_queue;  //  REMOVED: Queue hell eliminated
 
 // Component status tracking
 static bool matrix_component_enabled = true;
@@ -436,8 +437,8 @@ static system_config_t system_config;
 // Arrow key navigation state
 typedef enum {
   ESC_STATE_NONE,
-  ESC_STATE_ESC,      // ESC znak přijat
-  ESC_STATE_BRACKET   // ESC[ přijato, čekáme na finální znak
+  ESC_STATE_ESC,    // ESC znak přijat
+  ESC_STATE_BRACKET // ESC[ přijato, čekáme na finální znak
 } esc_state_t;
 
 static esc_state_t esc_state = ESC_STATE_NONE;
@@ -1293,7 +1294,8 @@ static void handle_arrow_up(void) {
   // Nejnovější příkaz je na pozici (current - 1) % max_size
   // Starší příkazy jsou na (current - 2) % max_size, atd.
   int start_idx = (command_history.current - command_history.count +
-                   command_history.max_size) % command_history.max_size;
+                   command_history.max_size) %
+                  command_history.max_size;
   int idx = (start_idx + history_navigation_index) % command_history.max_size;
 
   const char *cmd = command_history.commands[idx];
@@ -1336,7 +1338,8 @@ static void handle_arrow_down(void) {
 
   // Získat příkaz z historie
   int start_idx = (command_history.current - command_history.count +
-                   command_history.max_size) % command_history.max_size;
+                   command_history.max_size) %
+                  command_history.max_size;
   int idx = (start_idx + history_navigation_index) % command_history.max_size;
 
   const char *cmd = command_history.commands[idx];
@@ -1396,6 +1399,11 @@ command_result_t uart_cmd_wifi_clear(const char *args);
 // Web control UART prikazy
 command_result_t uart_cmd_web_lock(const char *args);
 command_result_t uart_cmd_web_status(const char *args);
+
+// MQTT control UART prikazy
+command_result_t uart_cmd_mqtt_config(const char *args);
+command_result_t uart_cmd_mqtt_status(const char *args);
+command_result_t uart_cmd_mqtt_test(const char *args);
 
 // Demo mode commands
 command_result_t uart_cmd_demo(const char *args);
@@ -1926,6 +1934,21 @@ void uart_cmd_help_web(void) {
   uart_send_formatted("    • Lock status (locked/unlocked)");
   uart_send_formatted("    • Internet status (online/offline)");
   uart_send_formatted("    • STA connection info (SSID, IP)");
+
+  uart_send_formatted("");
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;33m"); // bold yellow
+  uart_send_formatted("📡 MQTT (Home Assistant):");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+  uart_send_formatted("  MQTT_CONFIG <host> [port] [username] [password]");
+  uart_send_formatted("    - Configure MQTT broker");
+  uart_send_formatted("    - Example: MQTT_CONFIG broker.example.com 1883");
+  uart_send_formatted(
+      "    - Example: MQTT_CONFIG broker.example.com 1883 user pass");
+  uart_send_formatted(
+      "  MQTT_STATUS      - Show MQTT status (config, connection, mode)");
+  uart_send_formatted("  MQTT_TEST        - Test MQTT connection");
 
   uart_send_formatted("");
   if (color_enabled)
@@ -2633,6 +2656,26 @@ static const uart_command_t commands[] = {
      "",
      false,
      {"WEB", "WS", "", "", ""}},
+
+    // MQTT commands
+    {"MQTT_CONFIG",
+     uart_cmd_mqtt_config,
+     "Configure MQTT broker",
+     "MQTT_CONFIG <host> [port] [username] [password]",
+     true,
+     {"MQTT", "MQTT_CFG", "", "", ""}},
+    {"MQTT_STATUS",
+     uart_cmd_mqtt_status,
+     "Show MQTT status",
+     "",
+     false,
+     {"MQTT_ST", "MQTT_S", "", "", ""}},
+    {"MQTT_TEST",
+     uart_cmd_mqtt_test,
+     "Test MQTT connection",
+     "",
+     false,
+     {"MQTT_T", "", "", "", ""}},
 
     // Demo mode commands
     {"DEMO",
@@ -3845,6 +3888,199 @@ command_result_t uart_cmd_web_status(const char *args) {
 }
 
 /**
+ * @brief Nastaví MQTT konfiguraci
+ *
+ * @param args Parametry: <host> [port] [username] [password]
+ * @return command_result_t
+ */
+command_result_t uart_cmd_mqtt_config(const char *args) {
+  if (!args || strlen(args) == 0) {
+    uart_send_error(
+        "❌ Usage: MQTT_CONFIG <host> [port] [username] [password]");
+    uart_send_formatted("   Example: MQTT_CONFIG broker.example.com 1883");
+    uart_send_formatted(
+        "   Example: MQTT_CONFIG broker.example.com 1883 user pass");
+    return CMD_ERROR_INVALID_SYNTAX;
+  }
+
+  SAFE_WDT_RESET();
+
+  // Parse arguments
+  char host[128] = {0};
+  uint16_t port = 1883; // Default
+  char username[64] = {0};
+  char password[64] = {0};
+
+  int parsed =
+      sscanf(args, "%127s %hu %63s %63s", host, &port, username, password);
+  if (parsed < 1) {
+    uart_send_error("❌ Failed to parse arguments");
+    uart_send_formatted(
+        "   Usage: MQTT_CONFIG <host> [port] [username] [password]");
+    return CMD_ERROR_INVALID_PARAMETER;
+  }
+
+  // Validate port
+  if (port == 0 || port > 65535) {
+    uart_send_error("❌ Invalid port (must be 1-65535)");
+    return CMD_ERROR_INVALID_PARAMETER;
+  }
+
+  // Save to NVS
+  const char *username_ptr = (strlen(username) > 0) ? username : NULL;
+  const char *password_ptr = (strlen(password) > 0) ? password : NULL;
+
+  esp_err_t ret =
+      mqtt_save_config_to_nvs(host, port, username_ptr, password_ptr);
+  if (ret != ESP_OK) {
+    uart_send_error("❌ Failed to save MQTT configuration");
+    uart_send_formatted("   Error: %s", esp_err_to_name(ret));
+    return CMD_ERROR_SYSTEM_ERROR;
+  }
+
+  uart_send_formatted("✅ MQTT configuration saved");
+  uart_send_formatted("   Host: %s", host);
+  uart_send_formatted("   Port: %d", port);
+  uart_send_formatted("   Username: %s",
+                      username_ptr ? username_ptr : "(none)");
+  uart_send_formatted("   Password: %s", password_ptr ? "***" : "(none)");
+  uart_send_formatted("");
+
+  // Reinit MQTT client if WiFi STA is connected
+  extern bool wifi_is_sta_connected(void);
+  if (wifi_is_sta_connected()) {
+    uart_send_formatted(
+        "🔄 Reinitializing MQTT client with new configuration...");
+    esp_err_t reinit_ret = ha_light_reinit_mqtt();
+    if (reinit_ret == ESP_OK) {
+      uart_send_formatted("✅ MQTT client reinicialized");
+    } else {
+      uart_send_formatted("⚠️  Failed to reinit MQTT client: %s",
+                          esp_err_to_name(reinit_ret));
+      uart_send_formatted("   Client will reconnect on next WiFi connection");
+    }
+  } else {
+    uart_send_formatted("ℹ️  MQTT client will reconnect with new configuration "
+                        "on next WiFi connection");
+  }
+
+  return CMD_SUCCESS;
+}
+
+/**
+ * @brief Zobrazí MQTT status
+ *
+ * @param args Nepoužitý
+ * @return command_result_t
+ */
+command_result_t uart_cmd_mqtt_status(const char *args) {
+  (void)args; // Unused
+  SAFE_WDT_RESET();
+
+  uart_send_colored_line(COLOR_INFO, "📡 MQTT Status");
+  uart_send_formatted(
+      "═══════════════════════════════════════════════════════════════");
+
+  // Get MQTT config
+  char host[128] = {0};
+  char username[64] = {0};
+  char password[64] = {0};
+  uint16_t port = 1883;
+
+  esp_err_t ret = mqtt_get_config(host, sizeof(host), &port, username,
+                                  sizeof(username), password, sizeof(password));
+  if (ret != ESP_OK) {
+    uart_send_error("❌ Failed to get MQTT configuration");
+    return CMD_ERROR_SYSTEM_ERROR;
+  }
+
+  uart_send_formatted("Configuration:");
+  uart_send_formatted("  Broker: %s:%d", host, port);
+  uart_send_formatted("  Username: %s", username[0] ? username : "(none)");
+  uart_send_formatted("  Password: %s", password[0] ? "***" : "(none)");
+
+  uart_send_formatted("");
+
+  // Get WiFi STA status (required for MQTT)
+  bool sta_connected = wifi_is_sta_connected();
+  uart_send_formatted("WiFi STA: %s",
+                      sta_connected ? "🟢 CONNECTED" : "🔴 DISCONNECTED");
+  if (!sta_connected) {
+    uart_send_formatted("  ℹ️  MQTT requires WiFi STA connection");
+  }
+
+  uart_send_formatted("");
+
+  // Get MQTT connection status
+  bool mqtt_connected = ha_light_is_mqtt_connected();
+  uart_send_formatted("MQTT Client: %s",
+                      mqtt_connected ? "🟢 CONNECTED" : "🔴 DISCONNECTED");
+
+  uart_send_formatted("");
+
+  // Get HA Light mode
+  ha_mode_t mode = ha_light_get_mode();
+  uart_send_formatted("HA Mode: %s",
+                      (mode == HA_MODE_GAME) ? "🎮 GAME" : "💡 HA");
+
+  uart_send_formatted(
+      "═══════════════════════════════════════════════════════════════");
+
+  return CMD_SUCCESS;
+}
+
+/**
+ * @brief Otestuje MQTT připojení
+ *
+ * @param args Nepoužitý
+ * @return command_result_t
+ */
+command_result_t uart_cmd_mqtt_test(const char *args) {
+  (void)args; // Unused
+  SAFE_WDT_RESET();
+
+  uart_send_colored_line(COLOR_INFO, "🧪 MQTT Connection Test");
+  uart_send_formatted(
+      "═══════════════════════════════════════════════════════════════");
+
+  // Check WiFi STA
+  bool sta_connected = wifi_is_sta_connected();
+  if (!sta_connected) {
+    uart_send_error("❌ WiFi STA not connected");
+    uart_send_formatted("   MQTT requires WiFi STA connection");
+    uart_send_formatted("   Use 'WIFI_CONNECT' to connect");
+    return CMD_ERROR_SYSTEM_ERROR;
+  }
+
+  // Get MQTT config
+  char host[128] = {0};
+  uint16_t port = 1883;
+  char username[64] = {0};
+  char password[64] = {0};
+
+  esp_err_t ret = mqtt_get_config(host, sizeof(host), &port, username,
+                                  sizeof(username), password, sizeof(password));
+  if (ret != ESP_OK) {
+    uart_send_error("❌ Failed to get MQTT configuration");
+    return CMD_ERROR_SYSTEM_ERROR;
+  }
+
+  uart_send_formatted("Testing connection to: %s:%d", host, port);
+  uart_send_formatted("");
+
+  uart_send_formatted(
+      "ℹ️  MQTT connection is handled automatically by ha_light_task");
+  uart_send_formatted(
+      "   When WiFi STA connects, MQTT client will connect automatically");
+  uart_send_formatted("   Check 'MQTT_STATUS' to see current state");
+
+  uart_send_formatted(
+      "═══════════════════════════════════════════════════════════════");
+
+  return CMD_SUCCESS;
+}
+
+/**
  * @brief Vymaze WiFi konfiguraci z NVS
  *
  * @param args Nepouzivany
@@ -3978,43 +4214,66 @@ command_result_t uart_cmd_promote(const char *args) {
       "═══════════════════════════════════════════════════════════════");
 
   // Parse promotion notation (e.g., "e8=Q")
-  char square[4], piece[2];
-  if (sscanf(args, "%3s=%1s", square, piece) != 2) {
-    uart_send_error("❌ Invalid promotion format. Use: <square>=<piece>");
-    uart_send_formatted("💡 Example: PROMOTE e8=Q");
-    return CMD_ERROR_INVALID_SYNTAX;
+  char square[4] = {0};
+  char piece[2] = {0};
+
+  // Try parsing (support both "e8=Q" and just "Q" if square is implicit/ignored
+  // by game logic)
+  if (sscanf(args, "%3[^=]=%1s", square, piece) != 2) {
+    // Fallback: maybe just piece is provided "Q"
+    if (strlen(args) == 1) {
+      strcpy(piece, args);
+      strcpy(square, "??"); // Square handled by game state
+    } else {
+      uart_send_error(
+          "❌ Invalid promotion format. Use: <square>=<piece> or just <piece>");
+      uart_send_formatted("💡 Example: PROMOTE e8=Q or PROMOTE Q");
+      return CMD_ERROR_INVALID_SYNTAX;
+    }
   }
 
-  // MEMORY OPTIMIZATION: Use local promotion validation instead of queue
-  // communication
-  ESP_LOGI(TAG, "📡 Using local promotion validation (no queue communication)");
-
-  uart_send_formatted("🎯 Promotion Analysis:");
-  uart_send_formatted("  • Square: %s", square);
-  uart_send_formatted("  • Promote to: %s (%s)", piece,
-                      strcmp(piece, "Q") == 0   ? "Queen"
-                      : strcmp(piece, "R") == 0 ? "Rook"
-                      : strcmp(piece, "B") == 0 ? "Bishop"
-                      : strcmp(piece, "N") == 0 ? "Knight"
-                                                : "Unknown");
-  uart_send_formatted("");
-
-  if (strcmp(piece, "Q") == 0 || strcmp(piece, "R") == 0 ||
-      strcmp(piece, "B") == 0 || strcmp(piece, "N") == 0) {
-    uart_send_formatted("✅ Promotion is valid!");
-    uart_send_formatted("💡 Use 'UP %s' then 'DN %s' to execute promotion",
-                        square, square);
-    uart_send_formatted("💡 The pawn will automatically promote to %s", piece);
-  } else {
+  promotion_choice_t choice;
+  if (strcmp(piece, "Q") == 0 || strcmp(piece, "q") == 0)
+    choice = PROMOTION_QUEEN;
+  else if (strcmp(piece, "R") == 0 || strcmp(piece, "r") == 0)
+    choice = PROMOTION_ROOK;
+  else if (strcmp(piece, "B") == 0 || strcmp(piece, "b") == 0)
+    choice = PROMOTION_BISHOP;
+  else if (strcmp(piece, "N") == 0 || strcmp(piece, "n") == 0)
+    choice = PROMOTION_KNIGHT;
+  else {
     uart_send_error("❌ Invalid piece for promotion");
     uart_send_formatted(
         "💡 Valid pieces: Q (Queen), R (Rook), B (Bishop), N (Knight)");
     return CMD_ERROR_INVALID_SYNTAX;
   }
 
-  SAFE_WDT_RESET();
-  ESP_LOGI(TAG, "✅ Promotion analysis completed successfully (local)");
-  return CMD_SUCCESS;
+  uart_send_formatted("🎯 Promotion Command:");
+  uart_send_formatted("  • Promote to: %s (%s)", piece,
+                      choice == PROMOTION_QUEEN    ? "Queen"
+                      : choice == PROMOTION_ROOK   ? "Rook"
+                      : choice == PROMOTION_BISHOP ? "Bishop"
+                                                   : "Knight");
+
+  // Construct command
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_PROMOTION;
+  cmd.promotion_choice = choice;
+  cmd.response_queue = NULL;
+
+  // Send to queue
+  if (game_command_queue == NULL) {
+    uart_send_error("❌ internal error: game_command_queue not initialized");
+    return CMD_ERROR_SYSTEM_ERROR;
+  }
+
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+    uart_send_formatted("✅ Promotion command sent to game task");
+    return CMD_SUCCESS;
+  } else {
+    uart_send_error("❌ Failed to send command to queue (full?)");
+    return CMD_ERROR_SYSTEM_ERROR;
+  }
 }
 
 /**
@@ -4226,7 +4485,7 @@ command_result_t uart_cmd_component_on(const char *args) {
     //     .duration_ms = 0,
     //     .data = NULL
     // };
-    // ✅ DIRECT LED CALL - No queue hell
+    // DIRECT LED CALL - No queue hell
     led_component_enabled = true;
     uart_send_formatted("✅ LED component turned ON");
     uart_send_formatted("  • LED control: ENABLED");
@@ -4850,7 +5109,7 @@ bool uart_task_health_check(void) {
 // ============================================================================
 
 void uart_process_input(char c) {
-  // ✅ ARROW KEY SUPPORT: Zpracování ANSI escape sekvencí pro šipky
+  // ARROW KEY SUPPORT: Zpracování ANSI escape sekvencí pro šipky
   if (esc_state == ESC_STATE_NONE && c == CHAR_ESC) {
     esc_state = ESC_STATE_ESC;
     return; // Čekáme na další znak
@@ -4896,7 +5155,7 @@ void uart_process_input(char c) {
       // Clear buffer
       input_buffer_clear(&input_buffer);
 
-      // ✅ Resetovat navigační index při zadání příkazu
+      // Resetovat navigační index při zadání příkazu
       history_navigation_index = -1;
     }
 
@@ -5912,7 +6171,7 @@ command_result_t uart_cmd_self_test(const char *args) {
   tests_total++;
   extern QueueHandle_t uart_command_queue;
   extern QueueHandle_t game_command_queue;
-  // extern QueueHandle_t led_command_queue;  // ❌ REMOVED: Queue hell
+  // extern QueueHandle_t led_command_queue;  //  REMOVED: Queue hell
   // eliminated
 
   int queues_ok = 0;
@@ -6078,7 +6337,7 @@ command_result_t uart_cmd_debug_status(const char *args) {
   uart_send_formatted("📦 QUEUE DEBUG:");
   extern QueueHandle_t uart_command_queue;
   extern QueueHandle_t game_command_queue;
-  // extern QueueHandle_t led_command_queue;  // ❌ REMOVED: Queue hell
+  // extern QueueHandle_t led_command_queue;  //  REMOVED: Queue hell
   // eliminated
 
   if (uart_command_queue) {
@@ -6745,8 +7004,8 @@ command_result_t uart_cmd_show_fifos(const char *args) {
   extern QueueHandle_t uart_response_queue;
   extern QueueHandle_t game_command_queue;
   extern QueueHandle_t game_status_queue;
-  // extern QueueHandle_t led_command_queue;  // ❌ REMOVED: Queue hell
-  // eliminated extern QueueHandle_t led_status_queue;  // ❌ REMOVED: Queue
+  // extern QueueHandle_t led_command_queue;  //  REMOVED: Queue hell
+  // eliminated extern QueueHandle_t led_status_queue;  //  REMOVED: Queue
   // hell eliminated
   extern QueueHandle_t matrix_command_queue;
   extern QueueHandle_t matrix_event_queue;

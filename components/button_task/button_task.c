@@ -470,7 +470,7 @@ void button_send_event(uint8_t button_id, button_event_type_t event_type,
 // ============================================================================
 
 void button_update_led_feedback(uint8_t button_id, bool pressed) {
-  // ✅ LED feedback is now controlled by game_check_promotion_needed()
+  // LED feedback is now controlled by game_check_promotion_needed()
   // LED indications are:
   // - Green (0,255,0): Promotion is possible / button is active
   // - Blue (0,0,255): Promotion not possible / button is inactive
@@ -485,7 +485,7 @@ void button_update_led_feedback(uint8_t button_id, bool pressed) {
 
 void button_set_led_color(uint8_t led_index, uint8_t red, uint8_t green,
                           uint8_t blue) {
-  // ✅ DIRECT LED CALL - No queue hell
+  // DIRECT LED CALL - No queue hell
   led_set_pixel_safe(led_index, red, green, blue);
   ESP_LOGD(TAG, "Button LED %d set to RGB(%d,%d,%d)", led_index, red, green,
            blue);
@@ -578,7 +578,7 @@ void button_test_all(void) {
 void button_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "Button task started successfully");
 
-  // ✅ CRITICAL: Register with TWDT from within task
+  // CRITICAL: Register with TWDT from within task
   esp_err_t wdt_ret = esp_task_wdt_add(NULL);
   if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
     ESP_LOGE(TAG, "Failed to register Button task with TWDT: %s",

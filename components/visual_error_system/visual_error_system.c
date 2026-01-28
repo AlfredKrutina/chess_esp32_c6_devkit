@@ -121,11 +121,11 @@ esp_err_t error_show_visual(visual_error_type_t error_type, const chess_move_t* 
         }
     } else {
         // Generic error - flash first 8 board LEDs only (array size is 8!)
-        // ✅ CRITICAL BUG FIX: Was i < 64 causing buffer overflow!
+        // CRITICAL BUG FIX: Was i < 64 causing buffer overflow!
         for (int i = 0; i < 8; i++) {  
             led_positions[i] = i;
         }
-        led_count = 8;  // ✅ FIXED: Only 8 LEDs, not 64
+        led_count = 8;  // ED: Only 8 LEDs, not 64
     }
     
     // Store error information

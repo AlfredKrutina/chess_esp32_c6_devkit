@@ -103,7 +103,19 @@ esp_err_t game_get_board_json(char *buffer, size_t size);
  * @param size Velikost bufferu
  * @return ESP_OK pri uspechu, chybovy kod pri selhani
  */
+/**
+ * @brief Get current move count safely
+ * @return Current number of moves
+ */
+uint32_t game_get_move_count(void);
+
 esp_err_t game_get_status_json(char *buffer, size_t size);
+
+/**
+ * @brief Force refresh of LED state based on current game status
+ * Called when switching back from HA mode or other interruptions
+ */
+void game_refresh_leds(void);
 
 /**
  * @brief Exportuj historii tahu do JSON retezce

@@ -69,8 +69,8 @@ static const char *TAG = "FREERTOS_CHESS";
 // ============================================================================
 
 // LED control queues - REMOVED: Using direct LED calls instead
-// QueueHandle_t led_command_queue = NULL;  // ❌ REMOVED: Queue hell eliminated
-// QueueHandle_t led_status_queue = NULL;   // ❌ REMOVED: Queue hell eliminated
+// QueueHandle_t led_command_queue = NULL;  //  REMOVED: Queue hell eliminated
+// QueueHandle_t led_status_queue = NULL;   //  REMOVED: Queue hell eliminated
 
 // Matrix event queues
 QueueHandle_t matrix_event_queue = NULL;
@@ -127,6 +127,12 @@ TimerHandle_t system_health_timer = NULL;
 // Koordinovaný time-multiplexing timer (perioda 25ms)
 static TimerHandle_t coordinated_multiplex_timer = NULL;
 
+// PRODUCTION STABILITY:
+// DO NOT run multiplex scanning inside FreeRTOS Timer Service task ("Tmr Svc").
+// We'll run the coordinated scan in a dedicated task with sufficient stack.
+static TaskHandle_t coordinated_multiplex_task_handle = NULL;
+#define COORDINATED_MUX_TASK_STACK_SIZE (8 * 1024)
+
 // System state
 static bool system_initialized = false;
 static bool hardware_initialized = false;
@@ -144,7 +150,7 @@ const gpio_num_t matrix_col_pins[8] = {MATRIX_COL_0, MATRIX_COL_1, MATRIX_COL_2,
 const gpio_num_t promotion_button_pins_a[4] = {BUTTON_QUEEN, BUTTON_ROOK,
                                                BUTTON_BISHOP, BUTTON_KNIGHT};
 
-// ⚠️ NEPOUZIVANO: Toto pole se nikde v kódu nepoužívá!
+// NEPOUZIVANO: Toto pole se nikde v kódu nepoužívá!
 // Původně bylo navrženo pro druhou sadu promotion tlačítek, ale systém
 // používá pouze promotion_button_pins_a (4 sdílená tlačítka pro oba hráče).
 // const gpio_num_t promotion_button_pins_b[4] = {
@@ -287,6 +293,11 @@ esp_err_t chess_gpio_init(void) {
     ESP_LOGI(TAG, "Configuring MATRIX_COL_%d (GPIO%d, mask=0x%llx)...", i,
              pin_number, pin_mask);
 
+    // DEBUG: Special logging for GPIO17 (column 7)
+    if (pin_number == 17) {
+      ESP_LOGI(TAG, "🔍 DEBUG: Configuring GPIO17 (MATRIX_COL_7, index=%d)", i);
+    }
+
     // CRITICAL: Skip strapping pins to avoid system reset
     if (pin_number == 9) {
       ESP_LOGW(TAG, "Skipping GPIO%d (strapping pin) to avoid system reset",
@@ -298,8 +309,30 @@ esp_err_t chess_gpio_init(void) {
 
     ESP_LOGI(TAG, "DEBUG: Proceeding with GPIO%d configuration", pin_number);
 
+    // Explicitly reset GPIO17 before configuration
+    // GPIO17 is UART0 RX pin on ESP32-C6 and may have special properties
+    // that need to be cleared before using it as GPIO input
+    if (pin_number == 17) {
+      ESP_LOGI(TAG, "🔍 DEBUG: Resetting GPIO17 before configuration (UART0 RX pin)");
+      gpio_reset_pin(GPIO_NUM_17);
+      // Small delay to ensure reset is complete
+      vTaskDelay(pdMS_TO_TICKS(10));
+      
+      // CRITICAL: Explicitly switch GPIO17 from UART function to GPIO function
+      // GPIO17 is UART0 RX pin on ESP32-C6 and may be stuck in UART mode
+      // even if UART driver is not active. We need to force it to GPIO mode.
+      // Strategy: Call gpio_set_direction() BEFORE gpio_config() to ensure
+      // IOMUX is switched to GPIO function before configuration
+      gpio_set_direction(GPIO_NUM_17, GPIO_MODE_INPUT);
+      ESP_LOGI(TAG, "🔧 DEBUG: GPIO17 direction set to INPUT (forcing IOMUX switch from UART to GPIO)");
+      
+      // Small delay to ensure IOMUX switch is complete
+      vTaskDelay(pdMS_TO_TICKS(5));
+    }
+
     // WDT reset odstraněn během inicializace
 
+    // Configure all matrix column pins as INPUT with pull-up (standard configuration)
     gpio_config_t io_conf = {.pin_bit_mask = pin_mask,
                              .mode = GPIO_MODE_INPUT,
                              .pull_up_en = GPIO_PULLUP_ENABLE,
@@ -314,6 +347,19 @@ esp_err_t chess_gpio_init(void) {
       return ret; // Return error instead of continuing
     } else {
       ESP_LOGI(TAG, "Matrix column pin %d configured successfully", i);
+      
+      // Verify GPIO17 configuration (UART0 RX pin - needs explicit GPIO mode)
+      if (pin_number == 17) {
+        // Explicitly set GPIO17 to GPIO INPUT mode (not UART mode)
+        // GPIO17 is UART0 RX pin on ESP32-C6 and may default to UART mode
+        // even if UART is not active. Force it to GPIO INPUT mode.
+        gpio_set_direction(GPIO_NUM_17, GPIO_MODE_INPUT);
+        gpio_set_pull_mode(GPIO_NUM_17, GPIO_PULLUP_ONLY);
+        
+        // Verify configuration
+        int test_level = gpio_get_level(GPIO_NUM_17);
+        ESP_LOGI(TAG, "🔧 GPIO17: Configured as INPUT with pull-up, initial level=%d", test_level);
+      }
     }
   }
   ESP_LOGI(TAG, "DEBUG: Matrix column configuration loop completed");
@@ -324,14 +370,14 @@ esp_err_t chess_gpio_init(void) {
   // WDT reset removed during initialization  // Reset před status LED config
   ESP_LOGI(TAG, "DEBUG: About to configure STATUS_LED");
 
-  // OPRAVA: Správná bitová maska s explicitním castem
+  // Správná bitová maska s explicitním castem
   uint32_t status_led_pin = (uint32_t)STATUS_LED_PIN;
   uint64_t status_led_mask = (1ULL << status_led_pin);
 
   ESP_LOGI(TAG, "Configuring STATUS_LED (GPIO%d, mask=0x%llx)...",
            status_led_pin, status_led_mask);
 
-  // ✅ OPRAVA: Reset před gpio_config()
+  // Reset před gpio_config()
   // WDT reset removed during initialization
 
   gpio_config_t status_led_conf = {.pin_bit_mask = status_led_mask,
@@ -354,14 +400,14 @@ esp_err_t chess_gpio_init(void) {
   // Configure reset button pin
   // WDT reset removed during initialization  // Reset před reset button config
 
-  // OPRAVA: Správná bitová maska s explicitním castem
+  // Správná bitová maska s explicitním castem
   uint32_t reset_button_pin = (uint32_t)BUTTON_RESET;
   uint64_t reset_button_mask = (1ULL << reset_button_pin);
 
   ESP_LOGI(TAG, "Configuring RESET_BUTTON (GPIO%d, mask=0x%llx)...",
            reset_button_pin, reset_button_mask);
 
-  // ✅ OPRAVA: Reset před gpio_config()
+  // Reset před gpio_config()
   // WDT reset removed during initialization
 
   gpio_config_t reset_button_conf = {.pin_bit_mask = reset_button_mask,
@@ -389,8 +435,8 @@ esp_err_t chess_gpio_init(void) {
   // WDT reset removed during initialization
 
   // Fallback: If any GPIO configuration failed, log warning but continue
-  // ESP_LOGW(TAG, "⚠️ Some GPIO pins may not be configured correctly - running
-  // in simulation mode"); ESP_LOGW(TAG, "⚠️ Hardware functionality will be
+  // ESP_LOGW(TAG, " Some GPIO pins may not be configured correctly - running
+  // in simulation mode"); ESP_LOGW(TAG, " Hardware functionality will be
   // limited - check GPIO pin assignments");
 
   return ESP_OK;
@@ -587,10 +633,10 @@ esp_err_t chess_create_queues(void) {
 
   // CRITICAL: Create UART output queue for centralized output
   extern QueueHandle_t uart_output_queue;
-  ESP_LOGI(TAG, "  - UART Output Queue: %d items × %zu bytes", 20, 512);
+  ESP_LOGI(TAG, "  - UART Output Queue: %d items × %zu bytes", 20, 128);
   SAFE_CREATE_QUEUE(
-      uart_output_queue, 20, 512,
-      "UART Output Queue"); // Reduced from 50 to 20 to save ~15 KB
+      uart_output_queue, 20, 128,
+      "UART Output Queue"); // Reduced item size from 512 to 128 to save ~7.5KB
 
   ESP_LOGI(TAG, "✅ UART queues created. Free heap: %zu bytes",
            esp_get_free_heap_size());
@@ -738,56 +784,64 @@ esp_err_t chess_create_mutexes(void) {
  * 3. Button scan vola button_scan_all() (rychle)
  * 4. Po button scan: matrix_acquire_pins() (pripravi pro dalsi cyklus)
  */
-static void coordinated_multiplex_timer_callback(TimerHandle_t xTimer) {
-  // NOTE: Timer callbacks run in timer service task context
-  // which is not registered with TWDT, so we don't call WDT reset
+static void __attribute__((unused))
+coordinated_multiplex_timer_callback(TimerHandle_t xTimer) {
+  // IMPORTANT:
+  // Timer callbacks run in FreeRTOS Timer Service task ("Tmr Svc") which has
+  // limited stack. Running matrix scanning / move detection / logging here can
+  // crash the system (exactly what your logs show).
+  //
+  // The coordinated multiplexing is now executed by `coordinated_multiplex_task`.
+  (void)xTimer;
+}
 
-  static uint32_t cycle_count = 0;
-  cycle_count++;
+/**
+ * @brief Coordinated time-multiplexing task (25ms cycle)
+ *
+ * Runs OUTSIDE of "Tmr Svc" with sufficient stack, so scanning can safely call
+ * into game/HA/logging paths.
+ */
+static void coordinated_multiplex_task(void *pvParameters) {
+  (void)pvParameters;
 
-  // ============================================================================
-  // PHASE 1: MATRIX SCAN WINDOW (0-20ms)
-  // ============================================================================
+  ESP_LOGI(TAG,
+           "✅ Coordinated multiplexing TASK started (25ms cycle, stack=%dKB)",
+           COORDINATED_MUX_TASK_STACK_SIZE / 1024);
 
-  extern bool matrix_scanning_enabled;
-  if (matrix_scanning_enabled) {
-    // Call matrix scanning function
-    extern void matrix_scan_all(void);
-    matrix_scan_all();
+  // Register with TWDT (optional; safe wrapper pattern is used elsewhere)
+  esp_err_t wdt_ret = esp_task_wdt_add(NULL);
+  if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
+    ESP_LOGW(TAG, "Multiplex task WDT registration failed: %s",
+             esp_err_to_name(wdt_ret));
   }
 
-  // ============================================================================
-  // PHASE 2: PREPARE FOR BUTTON SCAN (release matrix pins)
-  // ============================================================================
+  TickType_t last_wake_time = xTaskGetTickCount();
 
-  // Release matrix row pins so button task can read column pins cleanly
-  extern void matrix_release_pins(void);
-  matrix_release_pins();
+  for (;;) {
+    // Reset WDT (if registered)
+    esp_task_wdt_reset();
 
-  // Small delay to ensure pins are settled (propagation delay)
-  // ESP32-C6 runs at 160MHz, 1us = 160 cycles, plenty of time for GPIO settling
-  // We use vTaskDelay with portTICK_PERIOD_MS = 1ms minimum on FreeRTOS
-  // Actually, no delay needed - GPIO changes are instant on ESP32
+    // PHASE 1: MATRIX scan
+    extern bool matrix_scanning_enabled;
+    if (matrix_scanning_enabled) {
+      extern void matrix_scan_all(void);
+      matrix_scan_all();
+    }
 
-  // ============================================================================
-  // PHASE 3: BUTTON SCAN WINDOW (20-25ms)
-  // ============================================================================
+    // PHASE 2: release matrix pins for button scan
+    extern void matrix_release_pins(void);
+    matrix_release_pins();
 
-  // Call button scanning function
-  extern void button_scan_all(void);
-  button_scan_all();
+    // PHASE 3: BUTTON scan
+    extern void button_scan_all(void);
+    button_scan_all();
 
-  // ============================================================================
-  // PHASE 4: CLEANUP (prepare for next cycle)
-  // ============================================================================
+    // PHASE 4: re-acquire matrix pins
+    extern void matrix_acquire_pins(void);
+    matrix_acquire_pins();
 
-  // Re-acquire matrix pins for next matrix scan cycle
-  extern void matrix_acquire_pins(void);
-  matrix_acquire_pins();
-
-  // Debug logging every 1000 cycles (25 seconds)
-  if (cycle_count % 1000 == 0) {
-    ESP_LOGD(TAG, "Multiplexing cycle %lu completed", cycle_count);
+    // Full multiplexing cycle
+    vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(TOTAL_CYCLE_TIME_MS));
   }
 }
 
@@ -840,25 +894,13 @@ esp_err_t chess_create_timers(void) {
   // COORDINATED TIME-MULTIPLEXING TIMER (NEW SYSTEM)
   // ============================================================================
 
-  // Create coordinated multiplexing timer (25ms period)
-  // This timer handles both matrix and button scanning in coordinated phases
-  coordinated_multiplex_timer = xTimerCreate(
-      "CoordMux",                          // Timer name
-      pdMS_TO_TICKS(TOTAL_CYCLE_TIME_MS),  // Period: 25ms (full cycle)
-      pdTRUE,                              // Auto-reload
-      NULL,                                // Timer ID (unused)
-      coordinated_multiplex_timer_callback // Callback function
-  );
-
-  if (coordinated_multiplex_timer == NULL) {
-    ESP_LOGE(TAG, "Failed to create coordinated multiplexing timer");
-    return ESP_ERR_NO_MEM;
-  }
-
-  ESP_LOGI(TAG, "✓ Coordinated multiplexing timer created (25ms period)");
-  ESP_LOGI(TAG, "  • Phase 1 (0-20ms):  Matrix scan window");
-  ESP_LOGI(TAG, "  • Phase 2 (20-21ms): Pin release & settling");
-  ESP_LOGI(TAG, "  • Phase 3 (21-25ms): Button scan window");
+  // PRODUCTION STABILITY:
+  // Do not create/start coordinated multiplexing as a FreeRTOS timer.
+  // The Timer Service task stack is too small for the call chain
+  // (matrix_detect_moves -> ha_light_report_activity -> esp_log -> vfprintf).
+  // We use `coordinated_multiplex_task` instead.
+  coordinated_multiplex_timer = NULL;
+  ESP_LOGI(TAG, "✓ Coordinated multiplexing will run as a TASK (not timer)");
 
   // ============================================================================
   // LEGACY TIMERS (kept for backward compatibility, not started)
@@ -907,20 +949,21 @@ esp_err_t chess_start_timers(void) {
   // START COORDINATED MULTIPLEXING TIMER (NEW SYSTEM)
   // ============================================================================
 
-  // Start coordinated multiplexing timer (handles both matrix and button
-  // scanning)
-  if (coordinated_multiplex_timer != NULL) {
-    if (xTimerStart(coordinated_multiplex_timer, 0) != pdPASS) {
-      ESP_LOGE(TAG, "Failed to start coordinated multiplexing timer");
-      return ESP_ERR_INVALID_STATE;
+  // Start coordinated multiplexing TASK (safe context)
+  if (coordinated_multiplex_task_handle == NULL) {
+    BaseType_t ok =
+        xTaskCreate(coordinated_multiplex_task, "coord_mux_task",
+                    COORDINATED_MUX_TASK_STACK_SIZE, NULL, MATRIX_TASK_PRIORITY,
+                    &coordinated_multiplex_task_handle);
+    if (ok != pdPASS || coordinated_multiplex_task_handle == NULL) {
+      ESP_LOGE(TAG, "Failed to create coordinated multiplexing task");
+      return ESP_ERR_NO_MEM;
     }
-    ESP_LOGI(TAG, "✓ Coordinated multiplexing timer started (25ms cycle)");
-    ESP_LOGI(TAG, "  ✅ Matrix and button scanning are now coordinated!");
-    ESP_LOGI(TAG, "  ✅ No GPIO conflicts - clean time-multiplexing active");
-  } else {
-    ESP_LOGE(TAG, "Coordinated multiplexing timer is NULL!");
-    return ESP_ERR_INVALID_STATE;
   }
+
+  ESP_LOGI(TAG, "✓ Coordinated multiplexing task active (25ms cycle)");
+  ESP_LOGI(TAG, "  ✅ Matrix and button scanning are now coordinated!");
+  ESP_LOGI(TAG, "  ✅ No GPIO conflicts - clean time-multiplexing active");
 
   // ============================================================================
   // LEGACY TIMERS (DO NOT START - would cause conflicts)
@@ -938,7 +981,7 @@ esp_err_t chess_start_timers(void) {
       TAG,
       "  ⏸️  Legacy button scan timer NOT started (coordinated system active)");
 
-  // ❌ DISABLED: LED update timer causes WDT errors (timer service task not
+  // DISABLED: LED update timer causes WDT errors (timer service task not
   // registered with TWDT)
   /*
   if (led_update_timer != NULL) {

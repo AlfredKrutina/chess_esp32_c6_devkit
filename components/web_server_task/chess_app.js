@@ -54,6 +54,8 @@ function createBoard() {
 
 function clearHighlights() {
     document.querySelectorAll('.square').forEach(sq => {
+        // NEMAZAT lifted, error-invalid, error-original - tyto jsou řízené serverem
+        // (z piece_lifted a error_state v JSON statusu)
         sq.classList.remove('selected', 'valid-move', 'valid-capture');
     });
     selectedSquare = null;
@@ -81,7 +83,12 @@ async function handleSquareClick(row, col) {
                 });
                 if (response.ok) {
                     clearHighlights();
-                    fetchData();
+                    fetchData(); // Refresh po úspěšném tahu
+                } else {
+                    // Nevalidní tah - okamžitě aktualizovat pro zobrazení error state
+                    console.warn('Invalid move:', response.status);
+                    clearHighlights(); // Smazat lokální highlights
+                    await fetchData(); // Okamžitá aktualizace pro error state (červená + modrá)
                 }
             } catch (error) {
                 console.error('Move error:', error);
@@ -166,7 +173,8 @@ function enterReviewMode(index) {
     const selectedItem = document.querySelector(`[data-move-index='${index}']`);
     if (selectedItem) {
         selectedItem.classList.add('selected');
-        selectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Removed scrollIntoView - causes unwanted scroll on mobile when using navigation arrows
+        // History item stays highlighted but page doesn't scroll away from board/banner
     }
 }
 
@@ -222,8 +230,8 @@ function updateBoard(board) {
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
-    // ✅ FIX: Clear all highlights before updating (fixes demo mode green squares issue)
-    clearHighlights();
+    // NEPŘIDÁVAT clearHighlights() - highlights jsou řízené přes updateStatus()
+    // (lifted, error-invalid, error-original jsou serverem řízené stavy)
 
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
@@ -245,17 +253,17 @@ function updateBoard(board) {
 // ENDGAME REPORT FUNCTIONS
 // ============================================================================
 
-// 🏆 Zobrazit endgame report na webu
+// Zobrazit endgame report na webu
 async function showEndgameReport(gameEnd) {
     console.log('🏆 showEndgameReport() called with:', gameEnd);
 
-    // ✅ FIX: Pokud už je banner zobrazen, nedělat nic (aby se nepřekresloval)
+    // Pokud už je banner zobrazen, nedělat nic (aby se nepřekresloval)
     if (endgameReportShown && document.getElementById('endgame-banner')) {
         console.log('Endgame report already shown, skipping...');
         return;
     }
 
-    // ✅ Načíst advantage history pro graf
+    // Načíst advantage history pro graf
     let advantageDataLocal = { history: [], white_checks: 0, black_checks: 0, white_castles: 0, black_castles: 0 };
     try {
         const response = await fetch('/api/advantage');
@@ -300,7 +308,7 @@ async function showEndgameReport(gameEnd) {
     const materialDiff = whiteMaterial - blackMaterial;
     const materialText = materialDiff > 0 ? `White +${materialDiff}` : materialDiff < 0 ? `Black +${-materialDiff}` : 'Vyrovnáno';
 
-    // ✅ Vytvořit SVG graf výhody (jako chess.com)
+    // Vytvořit SVG graf výhody (jako chess.com)
     let graphSVG = '';
     if (advantageDataLocal.history && advantageDataLocal.history.length > 1) {
         const history = advantageDataLocal.history;
@@ -478,7 +486,7 @@ async function showEndgameReport(gameEnd) {
     }
 
     document.body.appendChild(banner);
-    endgameReportShown = true;  // ✅ Označit, že je zobrazený
+    endgameReportShown = true;  // Označit, že je zobrazený
     console.log('🏆 ENDGAME REPORT SHOWN - banner displayed (left side)');
 }
 
@@ -562,21 +570,47 @@ function updateStatus(status) {
     document.getElementById('move-count').textContent = status.move_count || 0;
     document.getElementById('in-check').textContent = status.in_check ? 'Yes' : 'No';
 
-    // ✅ FIX: Vždy nejprve odstranit class 'lifted' ze všech polí, aby se nehromadily
-    document.querySelectorAll('.square').forEach(sq => sq.classList.remove('lifted'));
+    // ERROR STATE - vždy nejprve odstranit všechny error classes
+    document.querySelectorAll('.square').forEach(sq => {
+        sq.classList.remove('error-invalid', 'error-original');
+    });
 
+    // LIFTED PIECE - vždy nejprve odstranit všechny lifted classes
+    document.querySelectorAll('.square').forEach(sq => {
+        sq.classList.remove('lifted');
+    });
+
+    // Zobrazit lifted piece (zelená)
     const lifted = status.piece_lifted;
     if (lifted && lifted.lifted) {
         document.getElementById('lifted-piece').textContent = pieceSymbols[lifted.piece] || '-';
         document.getElementById('lifted-position').textContent = String.fromCharCode(97 + lifted.col) + (lifted.row + 1);
         const square = document.querySelector(`[data-row='${lifted.row}'][data-col='${lifted.col}']`);
-        if (square) square.classList.add('lifted');
+        if (square) square.classList.add('lifted'); // Zelená - zvednutá figurka
     } else {
         document.getElementById('lifted-piece').textContent = '-';
         document.getElementById('lifted-position').textContent = '-';
     }
 
-    // ✅ ENDGAME REPORT - zobrazit pouze JEDNOU, po prvnim skonceni
+    // Zobrazit error state (červená na invalid, modrá na original)
+    if (status.error_state && status.error_state.active) {
+        // Invalid position (červená - kde je figurka nyní na nevalidní pozici)
+        if (status.error_state.invalid_pos) {
+            const invalidCol = status.error_state.invalid_pos.charCodeAt(0) - 97;
+            const invalidRow = parseInt(status.error_state.invalid_pos[1]) - 1;
+            const invalidSquare = document.querySelector(`[data-row='${invalidRow}'][data-col='${invalidCol}']`);
+            if (invalidSquare) invalidSquare.classList.add('error-invalid'); // Červená - nevalidní pozice
+        }
+        // Original position (modrá - kde byla figurka původně)
+        if (status.error_state.original_pos) {
+            const originalCol = status.error_state.original_pos.charCodeAt(0) - 97;
+            const originalRow = parseInt(status.error_state.original_pos[1]) - 1;
+            const originalSquare = document.querySelector(`[data-row='${originalRow}'][data-col='${originalCol}']`);
+            if (originalSquare) originalSquare.classList.add('error-original'); // Modrá - původní pozice
+        }
+    }
+
+    // ENDGAME REPORT - zobrazit pouze JEDNOU, po prvnim skonceni
     if (status.game_end && status.game_end.ended) {
         // Ulozit data pro pozdejsi toggle
         window.lastGameEndData = status.game_end;
@@ -669,8 +703,8 @@ function initializeApp() {
     // Inject Demo Mode section at bottom
     injectDemoModeSection();
 
-    fetchBoardData();
-    setInterval(fetchBoardData, 500);
+    fetchData();
+    setInterval(fetchData, 2000); // Reduced from 500ms to 2s (4× fewer requests)
     console.log('✅ Chess App initialized');
 }
 
@@ -916,7 +950,7 @@ function initTimerSystem() {
 }
 
 function startTimerUpdateLoop() {
-    console.log('✅ Timer update loop starting... (will update every 300ms)');
+    console.log('✅ Timer update loop starting... (will update every 1000ms)');
     if (timerUpdateInterval) {
         console.log('⚠️ Clearing existing timer interval');
         clearInterval(timerUpdateInterval);
@@ -927,7 +961,7 @@ function startTimerUpdateLoop() {
         } catch (error) {
             console.error('❌ Timer update loop error:', error);
         }
-    }, 200);
+    }, 1000); // Optimized from 200ms to 1s (5× fewer requests, still responsive)
     console.log('✅ Timer interval set successfully, ID:', timerUpdateInterval);
     // Initial immediate update
     console.log('⏱️ Calling initial timer update...');
@@ -1212,7 +1246,7 @@ function startWiFiStatusUpdateLoop() {
     // Initial update
     updateWiFiStatus();
     // Update every 5 seconds
-    wifiStatusInterval = setInterval(updateWiFiStatus, 5000);
+    wifiStatusInterval = setInterval(updateWiFiStatus, 10000); // Reduced from 5s to 10s
 }
 
 // Start WiFi status updates when DOM is ready
@@ -1323,7 +1357,7 @@ function startDemoModeStatusUpdateLoop() {
     // Initial update
     updateDemoModeStatus();
     // Update every 3 seconds
-    demoModeStatusInterval = setInterval(updateDemoModeStatus, 3000);
+    demoModeStatusInterval = setInterval(updateDemoModeStatus, 5000); // Reduced from 3s to 5s
 }
 
 // Start demo mode status updates when DOM is ready
@@ -1333,3 +1367,28 @@ if (document.readyState === 'loading') {
     startDemoModeStatusUpdateLoop();
 }
 
+// Helper functions for move history navigation
+
+function goToMove(index) {
+    if (!historyData || historyData.length === 0) return;
+
+    // Special case: -1 means go to last move
+    if (index === -1) {
+        index = historyData.length - 1;
+    }
+
+    // Clamp index to valid range
+    index = Math.max(0, Math.min(index, historyData.length - 1));
+
+    enterReviewMode(index);
+}
+
+function prevReviewMove() {
+    if (!reviewMode || currentReviewIndex <= 0) return;
+    enterReviewMode(currentReviewIndex - 1);
+}
+
+function nextReviewMove() {
+    if (!reviewMode || currentReviewIndex >= historyData.length - 1) return;
+    enterReviewMode(currentReviewIndex + 1);
+}

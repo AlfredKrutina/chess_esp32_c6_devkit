@@ -70,7 +70,7 @@
  * - Obsah: BUTTON_PRESSED, BUTTON_RELEASED
  *
  * =============================================================================
- * TASK PRIORITY 
+ * TASK PRIORITY
  * =============================================================================
  *
  * ESP32 ma 25 priorit (0 = nejnizsi, 24 = nejvyssi):
@@ -152,17 +152,17 @@
 #include "animation_task.h"
 #include "button_task.h"
 #include "chess_types.h"
-#include "driver/uart.h"
-#include "driver/uart_vfs.h"
+// #include "driver/uart.h" // UNUSED
+// #include "driver/uart_vfs.h" // UNUSED
 #include "esp_console.h"
 #include "esp_log.h"
-#include "esp_random.h"
-#include "esp_sleep.h"
+// #include "esp_random.h" // UNUSED
+// #include "esp_sleep.h" // UNUSED
 #include "esp_system.h"
 #include "esp_task_wdt.h"
 #include "esp_timer.h"
-#include "esp_vfs_dev.h"
-#include "freertos/FreeRTOS.h"
+// #include "esp_vfs_dev.h" // UNUSED
+// #include "freertos/FreeRTOS.h" // UNUSED
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
@@ -174,15 +174,48 @@
 #include "nvs_flash.h"
 #include "test_task.h"
 #include "uart_task.h"
-#include <inttypes.h>
+// #include <inttypes.h> // UNUSED
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include "matter_task.h"  // DISABLED - Matter neni podporovan touhle verzi FW
-#include "config_manager.h"
+// #include "matter_task.h"  // DISABLED - Matter neni podporovan touhle verzi
+// FW
+// #include "config_manager.h" // UNUSED
 #include "game_led_animations.h"
+#include "ha_light_task.h"
 #include "uart_commands_extended.h"
 #include "web_server_task.h"
+
+// ============================================================================
+// RESET REASON DIAGNOSTICS (PRODUCTION STABILITY)
+// ============================================================================
+
+static const char *reset_reason_to_str(esp_reset_reason_t reason) {
+  switch (reason) {
+  case ESP_RST_POWERON:
+    return "POWERON";
+  case ESP_RST_EXT:
+    return "EXT (external reset pin)";
+  case ESP_RST_SW:
+    return "SW (esp_restart)";
+  case ESP_RST_PANIC:
+    return "PANIC";
+  case ESP_RST_INT_WDT:
+    return "INT_WDT";
+  case ESP_RST_TASK_WDT:
+    return "TASK_WDT";
+  case ESP_RST_WDT:
+    return "WDT (other watchdog)";
+  case ESP_RST_DEEPSLEEP:
+    return "DEEPSLEEP";
+  case ESP_RST_BROWNOUT:
+    return "BROWNOUT";
+  case ESP_RST_SDIO:
+    return "SDIO";
+  default:
+    return "UNKNOWN";
+  }
+}
 
 // ============================================================================
 // FORWARD DECLARATIONS
@@ -243,6 +276,8 @@ TaskHandle_t test_task_handle = NULL;
 // TaskHandle_t matter_task_handle = NULL;  // DISABLED - Matter not needed
 /** @brief Handle pro Web Server task */
 TaskHandle_t web_server_task_handle = NULL;
+/** @brief Handle pro HA Light task */
+TaskHandle_t ha_light_task_handle = NULL;
 /** @brief Handle pro Reset Button task */
 TaskHandle_t reset_button_task_handle = NULL;
 /** @brief Handle pro Promotion Button task */
@@ -475,7 +510,7 @@ void initialize_chess_game(void) {
     ESP_LOGE(TAG, "❌ Game command queue not available");
   }
 
-  //Update button LED availability after game starts
+  // Update button LED availability after game starts
   extern void led_update_button_availability_from_game(void);
   led_update_button_availability_from_game();
 
@@ -544,6 +579,19 @@ void demo_report_activity(void) {
 bool is_demo_mode_enabled(void) { return demo_mode_enabled; }
 
 /**
+ * @brief Set demo mode speed
+ * @param speed_ms Delay between moves in milliseconds
+ */
+void set_demo_speed_ms(uint32_t speed_ms) {
+  if (speed_ms < 500)
+    speed_ms = 500;
+  if (speed_ms > 10000)
+    speed_ms = 10000;
+  current_demo_delay_ms = speed_ms;
+  ESP_LOGI(TAG, "⏱️ Demo speed set to %lu ms", current_demo_delay_ms);
+}
+
+/**
  * @brief Vykona jeden demo tah
  *
  * Tato funkce vykona jeden tah z preddefinovane sekvence demo tahu.
@@ -556,6 +604,11 @@ bool is_demo_mode_enabled(void) { return demo_mode_enabled; }
  * Po dokonceni vsech tahu se index resetuje na 0.
  */
 void execute_demo_move(void) {
+  // Reset watchdog at function entry.
+  // This function can block for 10+ seconds (castling), causing main task
+  // timeout
+  main_task_wdt_reset_safe();
+
   if (!demo_mode_enabled || demo_move_index >= demo_moves_count) {
     return;
   }
@@ -573,6 +626,7 @@ void execute_demo_move(void) {
 
     // Step 1: PICKUP command (lift piece from source square)
     cmd.type = GAME_CMD_PICKUP;
+    cmd.is_demo_mode = true; // Skip resignation timer in demo mode.
     strncpy(cmd.from_notation, move, 2); // e.g. "e2"
 
     ESP_LOGI(TAG, "  ⬆️  Lifting piece from %c%c...", move[0], move[1]);
@@ -587,9 +641,11 @@ void execute_demo_move(void) {
 
     // Longer delay for Pickup animation
     vTaskDelay(pdMS_TO_TICKS(1500)); // 1.5 seconds
+    main_task_wdt_reset_safe();      // Reset after delay.
 
     // Step 2: DROP command (place piece on destination square)
     cmd.type = GAME_CMD_DROP;
+    cmd.is_demo_mode = true; // Skip error recovery in demo mode.
     strncpy(cmd.to_notation, move + 2, 2); // e.g. "e4"
 
     ESP_LOGI(TAG, "  ⬇️  Placing piece on %c%c...", move[2], move[3]);
@@ -604,6 +660,7 @@ void execute_demo_move(void) {
 
     //  Wait for DROP animation
     vTaskDelay(pdMS_TO_TICKS(800)); // 0.8 seconds
+    main_task_wdt_reset_safe();     // Reset after delay.
 
     // Step 3: CASTLING Handling
     // If move is castling, we must also move the rook!
@@ -633,37 +690,46 @@ void execute_demo_move(void) {
       ESP_LOGI(TAG, "  ♜ Castling detected! Moving rook %s -> %s", rook_from,
                rook_to);
       vTaskDelay(pdMS_TO_TICKS(500)); // Pause before moving rook
+      main_task_wdt_reset_safe();     // Reset during castling.
 
       // Rook Pickup
       memset(&cmd, 0, sizeof(cmd));
       cmd.type = GAME_CMD_PICKUP;
+      cmd.is_demo_mode = true; // Skip resignation timer for rook.
       strncpy(cmd.from_notation, rook_from, 2);
-      cmd.response_queue = uart_response_queue; // ✅ Add feedback
+      cmd.response_queue = uart_response_queue; // Add feedback.
       xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
       vTaskDelay(pdMS_TO_TICKS(1000));
+      main_task_wdt_reset_safe(); // Reset after rook pickup delay.
 
       // Rook Drop
       memset(&cmd, 0, sizeof(cmd));
       cmd.type = GAME_CMD_DROP;
+      cmd.is_demo_mode = true; // Skip error recovery for rook.
       strncpy(cmd.to_notation, rook_to, 2);
-      cmd.response_queue = uart_response_queue; // ✅ Add feedback
+      cmd.response_queue = uart_response_queue; // Add feedback.
       xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
       vTaskDelay(pdMS_TO_TICKS(800));
+      main_task_wdt_reset_safe(); // Reset after rook drop delay.
     }
   }
 
   demo_move_index++;
 
-  // ✅ Check if we've played all moves (endgame reached)
+  // Check if all moves were played (endgame reached).
   if (demo_move_index >= demo_moves_count) {
     ESP_LOGI(TAG, "🏁 Demo game '%s' complete! Endgame animations playing...",
              DEMO_GAME_NAMES[current_demo_game]);
     ESP_LOGI(TAG, "⏱️  Waiting 5 seconds for endgame animation to complete...");
 
     // Wait 5 seconds for endgame animation to play
-    vTaskDelay(pdMS_TO_TICKS(5000));
+    // Split into shorter delays with watchdog resets.
+    for (int i = 0; i < 5; i++) {
+      vTaskDelay(pdMS_TO_TICKS(1000));
+      main_task_wdt_reset_safe();
+    }
 
-    // ✅ Rotate to next demo game
+    // Rotate to the next demo game.
     current_demo_game = (current_demo_game + 1) % DEMO_GAMES_COUNT;
     current_demo_moves = DEMO_GAMES[current_demo_game];
     demo_moves_count = DEMO_GAME_LENGTHS[current_demo_game];
@@ -677,11 +743,15 @@ void execute_demo_move(void) {
       chess_move_command_t cmd = {.type = GAME_CMD_NEW_GAME};
       cmd.player = (demo_move_index % 2 == 0) ? PLAYER_WHITE : PLAYER_BLACK;
 
-      // ✅ Set response queue so game_task sends confirmation (like UART
-      // commands) This ensures consistent behavior and logging
+      // Set response queue so game_task sends confirmation (like UART commands).
       cmd.response_queue = uart_response_queue;
 
       xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
+
+      // Wait for the game reset to complete before starting the first move.
+      ESP_LOGI(TAG, "⏱️  Waiting 1 second for game reset to complete...");
+      vTaskDelay(pdMS_TO_TICKS(1000));
+      main_task_wdt_reset_safe(); // Reset after game reset delay.
     }
   }
 }
@@ -907,6 +977,22 @@ esp_err_t create_system_tasks(void) {
            "self-register with TWDT",
            WEB_SERVER_TASK_STACK_SIZE / 1024);
 
+  // Create HA Light task (starts after WiFi STA is connected)
+  result = xTaskCreate((TaskFunction_t)ha_light_task_start, "ha_light_task",
+                       HA_LIGHT_TASK_STACK_SIZE, NULL, HA_LIGHT_TASK_PRIORITY,
+                       &ha_light_task_handle);
+
+  if (result != pdPASS) {
+    ESP_LOGE(TAG, "Failed to create HA Light task");
+    return ESP_FAIL;
+  }
+
+  // Task will register itself with TWDT internally
+  ESP_LOGI(TAG,
+           "✓ HA Light task created successfully (%dKB stack) - will "
+           "self-register with TWDT",
+           HA_LIGHT_TASK_STACK_SIZE / 1024);
+
   ESP_LOGI(TAG, "All system tasks created successfully");
 
   // Wait for all tasks to initialize before showing boot animation
@@ -921,6 +1007,9 @@ esp_err_t create_system_tasks(void) {
   // Resume UART task now that boot animation is complete
   vTaskResume(uart_task_handle);
   ESP_LOGI(TAG, "✅ UART task resumed after boot animation");
+
+  // NOTE: LED boot flag is managed by LED task itself - it will clear
+  // after LED boot animation completes (including fade-out)
 
   return ESP_OK;
 }
@@ -1177,7 +1266,7 @@ void show_boot_animation_and_board(void) {
     }
   }
 
-  // ✅ Po dokončení boot animace - fade out
+  // Fade out after the boot animation completes.
   led_boot_animation_fade_out();
 
   printf("\n\033[1;32m✓ Chess Engine Ready!\033[0m\n\n"); // Success message
@@ -1228,6 +1317,8 @@ void show_boot_animation_and_board(void) {
 void app_main(void) {
   ESP_LOGI(TAG, "🎯 ESP32-C6 Chess System v2.4 starting...");
   ESP_LOGI(TAG, "📅 Build Timestamp: %s %s", __DATE__, __TIME__);
+  esp_reset_reason_t rr = esp_reset_reason();
+  ESP_LOGI(TAG, "🔁 Reset reason: %d (%s)", (int)rr, reset_reason_to_str(rr));
   ESP_LOGI(TAG,
            "===============================================================");
 
@@ -1343,13 +1434,15 @@ void app_main(void) {
             current_time_ms, last_demo_move_time, current_demo_delay_ms);
 
         execute_demo_move();
-        last_demo_move_time = current_time_ms;
 
-        // ⏳ Fixed delay between moves (accounting for animation time already
-        // in execute_demo_move) execute_demo_move already waits: 1500ms
-        // (pickup) + 800ms (drop) = 2300ms So we only need small extra delay
-        // for board refresh
-        current_demo_delay_ms = 500; // Just 0.5s extra = total ~2.8s per move
+        // Update time AFTER execution to ensure delay is counted from end
+        // of move Otherwise long execution time (>delay) causes immediate
+        // re-trigger
+        last_demo_move_time = esp_timer_get_time() / 1000;
+
+        // ⏳ Delay is now controlled by user configuration via
+        // set_demo_speed_ms current_demo_delay_ms is NOT modified here,
+        // preserving user setting
       }
     }
 

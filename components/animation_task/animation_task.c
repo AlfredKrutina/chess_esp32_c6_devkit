@@ -703,8 +703,8 @@ void animation_execute_frame(animation_task_t* anim)
 
 void animation_send_frame_to_leds(const uint8_t frame[CHESS_LED_COUNT_TOTAL][3])
 {
-    // ✅ DIRECT LED CALLS - No queue hell
-    // ✅ CRITICAL FIX: Only animate board LEDs (0-63), preserve button LEDs (64-72)
+    // DIRECT LED CALLS - No queue hell
+    // Only animate board LEDs (0-63), preserve button LEDs (64-72)
     for (int i = 0; i < CHESS_LED_COUNT_BOARD; i++) {
         led_set_pixel_safe(i, frame[i][0], frame[i][1], frame[i][2]);
     }
@@ -1053,7 +1053,7 @@ void animation_task_start(void *pvParameters)
 {
     ESP_LOGI(TAG, "Animation task started successfully");
     
-    // ✅ CRITICAL: Register with TWDT from within task
+    // CRITICAL: Register with TWDT from within task
     esp_err_t wdt_ret = esp_task_wdt_add(NULL);
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
         ESP_LOGE(TAG, "Failed to register Animation task with TWDT: %s", esp_err_to_name(wdt_ret));

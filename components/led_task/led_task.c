@@ -178,7 +178,7 @@
 #include "../freertos_chess/include/streaming_output.h"
 #include "../game_task/include/game_task.h" // For game_get_piece() function
 #include "../unified_animation_manager/include/unified_animation_manager.h" // Non-blocking endgame animations
-#include "led_mapping.h" // ✅ FIX: Include LED mapping functions
+#include "led_mapping.h" // Include LED mapping functions
 
 // Define min macro if not available
 #ifndef min
@@ -221,6 +221,12 @@ static const char *TAG = "LED_TASK";
  * (WARNING only)
  */
 static esp_err_t led_task_wdt_reset_safe(void) {
+  // Only reset WDT if running in the context of the LED task
+  if (led_task_handle != NULL &&
+      xTaskGetCurrentTaskHandle() != led_task_handle) {
+    return ESP_OK; // Ignore WDT reset requests from other tasks
+  }
+
   esp_err_t ret = esp_task_wdt_reset();
 
   if (ret == ESP_ERR_NOT_FOUND) {
@@ -242,18 +248,18 @@ static esp_err_t led_task_wdt_reset_safe(void) {
 // ============================================================================
 
 // WS2812B optimal timing constants
-#define LED_CRITICAL_SECTION_TIMEOUT_MS 50 // ✅ Critical section timeout
-#define LED_TASK_MUTEX_TIMEOUT_MS 100      // ✅ Mutex timeout in milliseconds
+#define LED_CRITICAL_SECTION_TIMEOUT_MS 50 // Critical section timeout
+#define LED_TASK_MUTEX_TIMEOUT_MS 100      // Mutex timeout in milliseconds
 #define LED_TASK_MUTEX_TIMEOUT_TICKS                                           \
-  (LED_TASK_MUTEX_TIMEOUT_MS / portTICK_PERIOD_MS) // ✅ Convert to ticks
-#define LED_FRAME_BUFFER_SIZE 2                    // ✅ Double buffering
-#define LED_MAX_RETRY_COUNT 3                      // ✅ Max retry attempts
-#define LED_ERROR_RECOVERY_THRESHOLD 10   // ✅ Error recovery threshold
-#define LED_HEALTH_CHECK_INTERVAL_MS 5000 // ✅ Health check interval
+  (LED_TASK_MUTEX_TIMEOUT_MS / portTICK_PERIOD_MS) // Convert to ticks
+#define LED_FRAME_BUFFER_SIZE 2                    // Double buffering
+#define LED_MAX_RETRY_COUNT 3                      // Max retry attempts
+#define LED_ERROR_RECOVERY_THRESHOLD 10   // Error recovery threshold
+#define LED_HEALTH_CHECK_INTERVAL_MS 5000 // Health check interval
 #define LED_BATCH_COMMIT_INTERVAL_MS                                           \
-  50 // ✅ Batch commit interval for optimal performance
+  50 // Batch commit interval for optimal performance
 #define LED_WATCHDOG_RESET_INTERVAL                                            \
-  10 // ✅ Reset watchdog every N LEDs during batch update
+  10 // Reset watchdog every N LEDs during batch update
 
 // ============================================================================
 // LED DURATION MANAGEMENT SYSTEM - NOVÝ PRO ŘEŠENÍ DURATION PROBLÉMU
@@ -311,23 +317,23 @@ static esp_err_t led_hardware_init(void);
 // refresh
 static void led_hardware_cleanup(void);
 
-// ✅ BATCH UPDATE FUNCTIONS
+// BATCH UPDATE FUNCTIONS
 static void
-led_commit_pending_changes(void); // ✅ Commit all pending changes atomically
+led_commit_pending_changes(void); // Commit all pending changes atomically
 void led_force_immediate_update(
-    void); // ✅ Force immediate update for critical operations
+    void); // Force immediate update for critical operations
 static void led_privileged_batch_commit(
-    void); // ✅ Optimized batch commit with privileged mutex sync
+    void); // Optimized batch commit with privileged mutex sync
 
 // LED layer management functions
 void led_clear_board_only(void);   // Clear only board LEDs (0-63)
 void led_clear_buttons_only(void); // Clear only button LEDs (64-72)
 void led_preserve_buttons(void);   // Preserve button states during operations
 
-// ✅ NOVÝ: Duration management functions
+// NOVÝ: Duration management functions
 static void led_set_pixel_with_duration(uint8_t led_index, uint8_t r, uint8_t g,
                                         uint8_t b, uint32_t duration_ms);
-static void led_duration_timer_callback(TimerHandle_t xTimer);
+static void led_process_duration_expirations(void);
 static void led_init_duration_system(void);
 
 // Helper function to get ANSI color code from RGB
@@ -350,7 +356,7 @@ static uint32_t led_states[CHESS_LED_COUNT_TOTAL] = {
 static bool button_pressed[CHESS_BUTTON_COUNT] = {false}; // Button press state
 static bool button_available[CHESS_BUTTON_COUNT] = {
     false, false, false, false, false,
-    false, false, false, true}; // ✅ FIX: Only reset button (index 8) available
+    false, false, false, true}; // Only reset button (index 8) available
                                 // by default
 static uint32_t button_release_time[CHESS_BUTTON_COUNT] = {
     0}; // Release time for blink
@@ -369,7 +375,7 @@ static bool led_component_enabled = true;   // LED component enabled by default
 static bool simulation_mode =
     false; // Changed to false for real hardware operation
 
-// ✅ LED STRIP HARDWARE STATE - Using official driver
+// LED STRIP HARDWARE STATE - Using official driver
 static led_strip_handle_t led_strip = NULL;
 static bool led_initialized = false;
 
@@ -380,19 +386,18 @@ static bool led_initialized = false;
 
 // LED synchronization - BATCH UPDATE SYSTEM
 static SemaphoreHandle_t led_unified_mutex =
-    NULL; // ✅ Queue synchronization only
+    NULL; // Queue synchronization only
 
-// ✅ BATCH UPDATE SYSTEM - Collect changes, then commit atomically
-static bool led_changes_pending = false; // ✅ Flag indicating pending changes
+// BATCH UPDATE SYSTEM - Collect changes, then commit atomically
+static bool led_changes_pending = false; // Flag indicating pending changes
 static uint32_t
-    led_pending_changes[CHESS_LED_COUNT_TOTAL]; // ✅ Pending color changes
-static bool led_changed_flags[CHESS_LED_COUNT_TOTAL]; // ✅ Track which LEDs
+    led_pending_changes[CHESS_LED_COUNT_TOTAL]; // Pending color changes
+static bool led_changed_flags[CHESS_LED_COUNT_TOTAL]; // Track which LEDs
                                                       // actually changed
 
-// ✅ NOVÝ: Duration management system
+// NOVÝ: Duration management system
 static led_duration_state_t led_durations[CHESS_LED_COUNT_TOTAL] = {0};
 static bool led_duration_system_enabled = true;
-static TimerHandle_t led_duration_timer = NULL;
 
 // LED patterns
 static const uint32_t chess_board_pattern[64] = {
@@ -505,7 +510,7 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
     }
   }
 
-  // ✅ OPRAVA: Unified mutex protection
+  // Unified mutex protection
   if (led_unified_mutex != NULL) {
     if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) !=
         pdTRUE) {
@@ -515,7 +520,7 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
     }
   }
 
-  // ✅ BATCH UPDATE SYSTEM - Just collect change, don't commit immediately
+  // BATCH UPDATE SYSTEM - Just collect change, don't commit immediately
   uint32_t color = (red << 16) | (green << 8) | blue;
 
   // Update internal state
@@ -524,7 +529,7 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
   // Mark change as pending for next batch commit
   if (led_initialized && led_strip != NULL && !simulation_mode) {
     led_pending_changes[led_index] = color;
-    led_changed_flags[led_index] = true; // ✅ Mark this LED as changed
+    led_changed_flags[led_index] = true; // Mark this LED as changed
     led_changes_pending = true;
   }
 
@@ -533,7 +538,7 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
              blue, led_states[led_index]);
   }
 
-  // ✅ OPRAVA: Release unified mutex
+  // Release unified mutex
   if (led_unified_mutex != NULL) {
     xSemaphoreGive(led_unified_mutex);
   }
@@ -542,7 +547,7 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
 void led_set_all_internal(uint8_t red, uint8_t green, uint8_t blue) {
   uint32_t color = (red << 16) | (green << 8) | blue;
 
-  // ✅ BATCH UPDATE - use batch system instead of immediate hardware access
+  // BATCH UPDATE - use batch system instead of immediate hardware access
   if (led_initialized && led_strip && !simulation_mode) {
     // Mark all LEDs as changed for batch commit
     for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
@@ -568,11 +573,11 @@ void led_set_all_internal(uint8_t red, uint8_t green, uint8_t blue) {
 void led_clear_all_internal(void) {
   ESP_LOGI(TAG, "🔄 Clearing all LED states...");
 
-  // ✅ SIMPLE CLEAR OPERATION - let driver handle timing
+  // SIMPLE CLEAR OPERATION - let driver handle timing
   if (led_initialized && led_strip != NULL && !simulation_mode) {
     esp_err_t ret = led_strip_clear(led_strip);
     if (ret == ESP_OK) {
-      ret = led_strip_refresh(led_strip); // ✅ Let driver handle timing
+      ret = led_strip_refresh(led_strip); // Let driver handle timing
     }
 
     if (ret != ESP_OK) {
@@ -620,10 +625,10 @@ void led_show_chess_board(void) {
   // Force immediate update to ensure button LEDs are visible
   led_force_immediate_update();
 
-  // ✅ OPRAVA: Šachovnice už je nastavena výše, jen potvrdit
+  // Šachovnice už je nastavena výše, jen potvrdit
   ESP_LOGI(TAG, "✅ Chess board pattern displayed - button LEDs preserved");
 
-  // ✅ CRITICAL: Force another update to ensure button LEDs are visible
+  // CRITICAL: Force another update to ensure button LEDs are visible
   // immediately
   led_force_immediate_update();
 
@@ -644,6 +649,57 @@ void led_show_chess_board(void) {
   led_start_quiet_period(5000); // 5 seconds quiet after board setup
 
   ESP_LOGI(TAG, "🎉 Chess board pattern complete!");
+}
+
+/**
+ * @brief Nastav barvu všech 64 LED desky pro HA mód
+ *
+ * @param r Červená složka (0-255)
+ * @param g Zelená složka (0-255)
+ * @param b Modrá složka (0-255)
+ * @param brightness Jas (0-255) - aplikuje se na RGB
+ */
+void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
+  // CRITICAL: Limit max brightness to prevent brownout
+  // 64 LEDs at full white = ~3.8A, ESP32 power supply can't handle this
+  // Cap at 40% (102/255) for safety
+  const uint8_t MAX_SAFE_BRIGHTNESS = 102; // 40% of 255
+  if (brightness > MAX_SAFE_BRIGHTNESS) {
+    ESP_LOGW(TAG, "⚠️ Limiting brightness from %d to %d to prevent brownout",
+             brightness, MAX_SAFE_BRIGHTNESS);
+    brightness = MAX_SAFE_BRIGHTNESS;
+  }
+
+  // Apply brightness to RGB values
+  uint8_t r_scaled = (r * brightness) / 255;
+  uint8_t g_scaled = (g * brightness) / 255;
+  uint8_t b_scaled = (b * brightness) / 255;
+
+  ESP_LOGI(
+      TAG,
+      "Setting HA color: RGB(%d,%d,%d) brightness=%d -> scaled RGB(%d,%d,%d)",
+      r, g, b, brightness, r_scaled, g_scaled, b_scaled);
+
+  // Set all 64 board LEDs (indices 0-63)
+  for (int i = 0; i < CHESS_LED_COUNT_BOARD; i++) {
+    led_set_pixel_internal(i, r_scaled, g_scaled, b_scaled);
+  }
+
+  // Force immediate update
+  led_force_immediate_update();
+
+  ESP_LOGI(TAG, "✅ HA color applied to all %d board LEDs",
+           CHESS_LED_COUNT_BOARD);
+}
+
+/**
+ * @brief Obnoví šachovnici po HA módu
+ *
+ * Tato funkce obnoví normální zobrazení šachovnice (černá/bílá pole).
+ */
+void led_restore_chess_board(void) {
+  ESP_LOGI(TAG, "Restoring chess board pattern");
+  led_show_chess_board();
 }
 
 void led_set_button_feedback(uint8_t button_id, bool available) {
@@ -713,7 +769,7 @@ uint32_t led_get_button_color(uint8_t button_id) {
     return 0;
   }
 
-  // ✅ OPRAVA: Správné mapování button ID na LED indexy
+  // Správné mapování button ID na LED indexy
   uint8_t led_index = led_get_button_led_index(button_id);
   return led_states[led_index];
 }
@@ -730,7 +786,7 @@ uint32_t led_get_led_state(uint8_t led_index) {
     return 0;
   }
 
-  // ✅ OPRAVA: Unified mutex protection
+  // Unified mutex protection
   if (led_unified_mutex != NULL) {
     if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) ==
         pdTRUE) {
@@ -761,7 +817,7 @@ void led_get_all_states(uint32_t *states, size_t max_count) {
   size_t count =
       (max_count < CHESS_LED_COUNT_TOTAL) ? max_count : CHESS_LED_COUNT_TOTAL;
 
-  // ✅ OPRAVA: Unified mutex protection
+  // Unified mutex protection
   if (led_unified_mutex != NULL) {
     if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) ==
         pdTRUE) {
@@ -886,7 +942,7 @@ void led_execute_command_new(const led_command_t *cmd) {
   ESP_LOGI(TAG, "🔄 led_execute_command_new: type=%d", cmd->type);
   switch (cmd->type) {
   case LED_CMD_SET_PIXEL:
-    // ✅ OPRAVA: Podporovat duration management
+    // Podporovat duration management
     if (cmd->duration_ms > 0) {
       led_set_pixel_with_duration(cmd->led_index, cmd->red, cmd->green,
                                   cmd->blue, cmd->duration_ms);
@@ -1097,7 +1153,7 @@ void led_execute_command_new(const led_command_t *cmd) {
 // ============================================================================
 
 void led_update_hardware(void) {
-  // ✅ OBSOLETE: This function is no longer needed
+  // OBSOLETE: This function is no longer needed
   // All LED updates now happen immediately via led_set_pixel_internal()
   // Kept only for compatibility with existing code that might call it
   ESP_LOGD(
@@ -1502,12 +1558,18 @@ void led_update_game_state(void) {
  * @brief Highlight pieces that can move for current player
  */
 void led_highlight_pieces_that_can_move(void) {
+  // Check if system is booting - if so, DO NOT highlight anything
+  if (led_is_booting()) {
+    ESP_LOGW(TAG, "⚠️ Attempted to highlight pieces during BOOT - blocked");
+    return;
+  }
+
   ESP_LOGI(TAG, "🎯 Highlighting pieces that can move");
 
   // Clear all highlights first
   led_clear_all_highlights();
 
-  // ✅ OPRAVA: Použít skutečnou game logiku místo simulace
+  // Použít skutečnou game logiku místo simulace
   // Voláme game_highlight_movable_pieces() z game_task.c
   extern void game_highlight_movable_pieces(void);
   game_highlight_movable_pieces();
@@ -1609,7 +1671,7 @@ static esp_err_t led_hardware_init(void) {
       TAG,
       "🔧 Initializing WS2812B hardware with official led_strip driver...");
 
-  // ✅ LED STRIP CONFIGURATION
+  // LED STRIP CONFIGURATION
   led_strip_config_t strip_config = {
       .strip_gpio_num = LED_DATA_PIN,
       .max_leds = CHESS_LED_COUNT_TOTAL,
@@ -1617,7 +1679,7 @@ static esp_err_t led_hardware_init(void) {
       .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
   };
 
-  // ✅ RMT BACKEND CONFIGURATION - Optimized for WS2812B timing
+  // RMT BACKEND CONFIGURATION - Optimized for WS2812B timing
   led_strip_rmt_config_t rmt_config = {
       .clk_src = RMT_CLK_SRC_DEFAULT,
       .resolution_hz =
@@ -1629,7 +1691,7 @@ static esp_err_t led_hardware_init(void) {
           },
   };
 
-  // ✅ CREATE LED STRIP OBJECT
+  // CREATE LED STRIP OBJECT
   esp_err_t ret =
       led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip);
   if (ret != ESP_OK) {
@@ -1638,13 +1700,13 @@ static esp_err_t led_hardware_init(void) {
     return ret;
   }
 
-  // ✅ Verify LED strip handle is valid
+  // Verify LED strip handle is valid
   if (led_strip == NULL) {
     ESP_LOGE(TAG, "❌ LED strip handle is NULL after creation");
     return ESP_ERR_INVALID_STATE;
   }
 
-  // ✅ CLEAR ALL LEDS
+  // CLEAR ALL LEDS
   ret = led_strip_clear(led_strip);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "❌ LED strip clear failed: %s", esp_err_to_name(ret));
@@ -1654,7 +1716,7 @@ static esp_err_t led_hardware_init(void) {
 
   led_initialized = true;
 
-  // ✅ Initialize batch update system
+  // Initialize batch update system
   led_changes_pending = false;
   memset(led_changed_flags, false, sizeof(led_changed_flags));
   memset(led_pending_changes, 0, sizeof(led_pending_changes));
@@ -1665,31 +1727,6 @@ static esp_err_t led_hardware_init(void) {
   ESP_LOGI(TAG, "  • LEDs: %d total", CHESS_LED_COUNT_TOTAL);
   ESP_LOGI(TAG, "  • Driver: espressif/led_strip");
   ESP_LOGI(TAG, "  • Batch update system: initialized");
-
-  // ✅ SIMPLE STARTUP TEST - NO critical sections, just verify driver works
-  ESP_LOGI(TAG, "🟢 STARTING SIMPLE STARTUP TEST...");
-
-  // ✅ Wait for RMT channel to be fully initialized
-  vTaskDelay(pdMS_TO_TICKS(50));
-
-  // ✅ NO CRITICAL SECTION - let driver handle timing
-  ret = led_strip_clear(led_strip);
-  if (ret == ESP_OK) {
-    ret = led_strip_refresh(led_strip);
-  }
-
-  if (ret == ESP_OK) {
-    ESP_LOGI(TAG, "✅ LED strip cleared and initialized successfully");
-  } else {
-    ESP_LOGW(
-        TAG,
-        "⚠️ LED strip initialization warning: %s (may be normal during startup)",
-        esp_err_to_name(ret));
-  }
-
-  ESP_LOGI(
-      TAG,
-      "✅ Simple startup test completed, proceeding with normal operation");
 
   return ESP_OK;
 }
@@ -1806,9 +1843,10 @@ bool led_has_significant_changes(void) {
 // ============================================================================
 
 void led_task_start(void *pvParameters) {
+  led_task_handle = xTaskGetCurrentTaskHandle();
   ESP_LOGI(TAG, "🚀 LED task starting...");
 
-  // ✅ CRITICAL: Register with TWDT from within task
+  // CRITICAL: Register with TWDT from within task
   esp_err_t wdt_ret = esp_task_wdt_add(NULL);
   if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
     ESP_LOGE(TAG, "Failed to register LED task with TWDT: %s",
@@ -1835,9 +1873,12 @@ void led_task_start(void *pvParameters) {
     led_initialized = true;
   }
 
-  // BOOTING ANIMATION: Progressive LED illumination
-  ESP_LOGI(TAG, "🌟 Starting booting animation...");
-  // led_booting_animation(); // TODO: Fix function declaration
+  // BOOTING ANIMATION: Controlled by main.c (not here!)
+  // BACKUP FIX: Animation řízena z main.c přes led_boot_animation_step()
+  // Pokud je toto odkomentováno, led_task se zablokuje na 2-3s a main.c animace
+  // nefunguje
+  ESP_LOGI(TAG, "🌟 Boot animation ready (controlled by main.c)...");
+  // led_booting_animation(); // ← ZAKOMENTOVÁNO jako v backupu!
   ESP_LOGI(TAG, "LED task started successfully (%s)",
            simulation_mode ? "SIMULATION MODE" : "HARDWARE MODE");
   ESP_LOGI(TAG, "Features:");
@@ -1854,7 +1895,7 @@ void led_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "🔄 Initializing LED states...");
   task_running = true;
 
-  // ✅ OPRAVA: Initialize LED unified mutex for synchronization
+  // Initialize LED unified mutex for synchronization
   led_unified_mutex = xSemaphoreCreateMutex();
   if (led_unified_mutex == NULL) {
     ESP_LOGE(TAG, "❌ CRITICAL: Failed to create LED unified mutex!");
@@ -1862,10 +1903,10 @@ void led_task_start(void *pvParameters) {
   }
   ESP_LOGI(TAG, "✅ LED unified mutex created");
 
-  // ✅ Initialize duration management system
+  // Initialize duration management system
   led_init_duration_system();
 
-  // ✅ Initialize unified animation manager for non-blocking endgame animations
+  // Initialize unified animation manager for non-blocking endgame animations
   animation_config_t anim_config = {.max_concurrent_animations = 8,
                                     .update_frequency_hz =
                                         30, // 30 FPS for smooth animations
@@ -1913,10 +1954,13 @@ void led_task_start(void *pvParameters) {
     // Update endgame wave animation (non-blocking, podle starého projektu)
     led_update_endgame_wave();
 
+    // Process LED duration expirations (task-driven, no FreeRTOS timer)
+    led_process_duration_expirations();
+
     // Process button blink timers
     led_process_button_blink_timers();
 
-    // ✅ COMMIT PENDING LED CHANGES - Use privileged batch commit for maximum
+    // COMMIT PENDING LED CHANGES - Use privileged batch commit for maximum
     // stability
     led_privileged_batch_commit();
 
@@ -1930,7 +1974,7 @@ void led_task_start(void *pvParameters) {
 
     loop_count++;
 
-    // ✅ Optimalizovaný cyklus - 33ms pro 30 FPS animace
+    // Optimalizovaný cyklus - 33ms pro 30 FPS animace
     vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(33));
   }
 }
@@ -2062,7 +2106,7 @@ void led_anim_move_path(const led_command_t *cmd) {
 
   ESP_LOGI(TAG, "🎬 Enhanced move path animation: %d -> %d", from_led, to_led);
 
-  // ✅ OPRAVA: Použít led_index_to_chess_pos() místo jednoduchého dělení (kvůli
+  // Použít led_index_to_chess_pos() místo jednoduchého dělení (kvůli
   // serpentine layoutu)
   uint8_t from_row, from_col, to_row, to_col;
   led_index_to_chess_pos(from_led, &from_row, &from_col);
@@ -2092,7 +2136,7 @@ void led_anim_move_path(const led_command_t *cmd) {
       uint8_t current_led =
           chess_pos_to_led_index((uint8_t)current_row, (uint8_t)current_col);
 
-      // ✅ OPRAVA: Modrá barva pro move animaci (podle požadavku uživatele)
+      // Modrá barva pro move animaci (podle požadavku uživatele)
       // Modrá s různou intenzitou podle pozice v trailu
       uint8_t red, green, blue;
 
@@ -2127,7 +2171,7 @@ void led_anim_move_path(const led_command_t *cmd) {
       led_set_pixel_safe(current_led, red, green, blue);
     }
 
-    // ✅ KRITICKÉ: Okamžitě aktualizovat LED po každém frame (jako ve starém
+    // KRITICKÉ: Okamžitě aktualizovat LED po každém frame (jako ve starém
     // projektu)
     led_force_immediate_update();
 
@@ -2141,14 +2185,14 @@ void led_anim_move_path(const led_command_t *cmd) {
 
     float breath_intensity =
         0.5f + 0.5f * sin(breath * 0.785f); // Breathing effect
-    // ✅ OPRAVA: Modrá barva pro final destination (podle požadavku uživatele)
+    // Modrá barva pro final destination (podle požadavku uživatele)
     uint8_t final_red = 0;
     uint8_t final_green = 0;
     uint8_t final_blue = (uint8_t)(255 * breath_intensity);
 
     led_set_pixel_safe(to_led, final_red, final_green, final_blue);
 
-    // ✅ KRITICKÉ: Okamžitě aktualizovat LED po každém breath frame
+    // KRITICKÉ: Okamžitě aktualizovat LED po každém breath frame
     led_force_immediate_update();
 
     vTaskDelay(pdMS_TO_TICKS(20)); // Optimized breathing timing
@@ -2179,7 +2223,7 @@ void led_anim_castle(const led_command_t *cmd) {
     rook_to = king_from - 1;   // d1 or d8
   }
 
-  // FIXED: Ensure valid LED indices
+  // ED: Ensure valid LED indices
   if (rook_from >= 64)
     rook_from = 63;
   if (rook_to >= 64)
@@ -2271,7 +2315,7 @@ void led_anim_promote(const led_command_t *cmd) {
 
   uint8_t promotion_led = cmd->led_index;
 
-  // ✅ OPRAVA: Non-blocking promotion animation using unified_animation_manager
+  // Non-blocking promotion animation using unified_animation_manager
   uint32_t anim_id =
       unified_animation_create(ANIM_TYPE_PROMOTION, ANIM_PRIORITY_HIGH);
   if (anim_id != 0) {
@@ -2291,14 +2335,19 @@ void led_anim_promote(const led_command_t *cmd) {
 /**
  * @brief Booting animation - progressive LED illumination
  */
+static bool led_booting_active = true;
+
+bool led_is_booting(void) { return led_booting_active; }
+
+/**
+ * @brief Booting animation - progressive LED illumination
+ */
 void led_booting_animation(void) {
+  led_booting_active = true;
   ESP_LOGI(TAG, "🌟 Starting booting animation...");
 
-  // Clear all LEDs first
-  led_clear_all_safe();
-
-  // Progressive illumination of board LEDs (0-63)
-  for (int brightness = 0; brightness <= 100; brightness += 5) {
+  // Progressive illumination of board LEDs (0-63) - start at 20% for visibility
+  for (int brightness = 20; brightness <= 100; brightness += 5) {
     for (int led = 0; led < 64; led++) {
       // Calculate color based on position
       uint8_t row = led / 8;
@@ -2319,6 +2368,12 @@ void led_booting_animation(void) {
       }
 
       led_set_pixel_safe(led, r, g, b);
+    }
+
+    // Pulse buttons green (indices 64-72)
+    uint8_t btn_brightness = (uint8_t)(255 * brightness / 100);
+    for (int btn = 64; btn < 73; btn++) {
+      led_set_pixel_safe(btn, 0, btn_brightness, 0); // Green pulse
     }
 
     // Show current brightness
@@ -2352,14 +2407,31 @@ void led_booting_animation(void) {
       led_set_pixel_safe(led, r, g, b);
     }
 
+    // Fade out buttons too
+    uint8_t btn_brightness = (uint8_t)(255 * brightness / 100);
+    for (int btn = 64; btn < 73; btn++) {
+      led_set_pixel_safe(btn, 0, btn_brightness, 0);
+    }
+
     led_strip_refresh(led_strip);
     vTaskDelay(pdMS_TO_TICKS(30));
     led_task_wdt_reset_safe();
   }
 
-  // Clear all LEDs
-  led_clear_all_safe();
-  ESP_LOGI(TAG, "🌟 Booting animation completed");
+  // Clear board LEDs
+  led_clear_board_only();
+
+  // Set default button state (dim blue) so they are not dark
+  // Game logic will update this shortly
+  for (int btn = 64; btn < 73; btn++) {
+    led_set_pixel_safe(btn, 0, 0, 32);
+  }
+
+  led_strip_refresh(led_strip);
+
+  // NOW clear boot flag - animation is fully done (including fade-out)
+  led_booting_active = false;
+  ESP_LOGI(TAG, "🌟 Booting animation completed - boot flag cleared");
 }
 
 // Endgame animation state structure (podle starého projektu)
@@ -2389,7 +2461,7 @@ void led_anim_endgame(const led_command_t *cmd) {
 
   // Get winner king position from led_index
   endgame_wave.win_king_led = cmd->led_index;
-  // ✅ OPRAVA: Použít led_index_to_chess_pos() místo jednoduchého dělení (kvůli
+  // Použít led_index_to_chess_pos() místo jednoduchého dělení (kvůli
   // serpentine layoutu)
   led_index_to_chess_pos(endgame_wave.win_king_led, &endgame_wave.win_king_row,
                          &endgame_wave.win_king_col);
@@ -2431,7 +2503,7 @@ void led_update_endgame_wave(void) {
   }
 
   const uint32_t WAVE_STEP_MS =
-      100; // ✅ OPRAVA: Pomalejší animace (100ms místo 30ms)
+      100; // Pomalejší animace (100ms místo 30ms)
   const uint8_t MAX_RADIUS = 14;     // Larger radius for better coverage
   const float WAVE_THICKNESS = 1.2f; // Thinner waves for more precise effect
   const int WAVE_LAYERS = 4;         // Fewer layers but with higher FPS
@@ -2475,13 +2547,13 @@ void led_update_endgame_wave(void) {
             // Get piece at this position
             piece_t piece = game_get_piece(row, col);
 
-            // ✅ OPRAVA: Použít intensity místo gradientu (jako ve starém
+            // Použít intensity místo gradientu (jako ve starém
             // projektu) Calculate intensity based on distance from ring center
             // (smooth gradient)
             float intensity = 1.0f - (ring_distance / WAVE_THICKNESS);
             intensity = fmaxf(0.15f, intensity); // Higher minimum brightness
 
-            // ✅ OPRAVA: Barvy podle starého projektu - všechny barvy se násobí
+            // Barvy podle starého projektu - všechny barvy se násobí
             // intensity
             uint8_t red, green, blue;
 
@@ -2525,7 +2597,7 @@ void led_update_endgame_wave(void) {
     }
   }
 
-  // ✅ OPRAVA: Always highlight winner king in BRIGHT GOLD (mimo wave loop,
+  // Always highlight winner king in BRIGHT GOLD (mimo wave loop,
   // jako ve starém projektu)
   led_set_pixel_safe(endgame_wave.win_king_led, 255, 215, 0);
 
@@ -2543,7 +2615,7 @@ void led_stop_endgame_animation(void) {
   ESP_LOGI(TAG, "🛑 Stopping endless endgame animation...");
   endgame_animation_active = false;
 
-  // ✅ OPRAVA: Zastavit endgame wave animaci
+  // Zastavit endgame wave animaci
   endgame_wave.active = false;
   endgame_wave.initialized = false;
   endgame_wave.radius = 0;
@@ -2619,18 +2691,14 @@ void led_anim_check(const led_command_t *cmd) {
   if (!cmd)
     return;
 
-  // Flashing red warning
-  for (int flash = 0; flash < 6; flash++) {
-    led_clear_board_only();
-    vTaskDelay(pdMS_TO_TICKS(100));
+  // Získat pozici krále z cmd->led_index (předáno z game_task)
+  uint8_t king_led_index = cmd->led_index;
 
-    for (int i = 0; i < 64; i++) {
-      led_set_pixel_safe(i, 255, 0, 0); // Red
-    }
-    vTaskDelay(pdMS_TO_TICKS(100));
-  }
+  // Růžové svícení na pozici krále (255, 192, 203) - statické, trvalé až do
+  // dalšího tahu
+  led_set_pixel_safe(king_led_index, 255, 192, 203);
 
-  led_clear_board_only();
+  ESP_LOGI(TAG, "⚠️ Check: Pink LED at king position %d", king_led_index);
 }
 
 void led_anim_checkmate(const led_command_t *cmd) {
@@ -2796,7 +2864,7 @@ void led_update_button_availability_from_game(void) {
     }
   }
 
-  // ✅ CRITICAL: Force immediate update to ensure changes are visible
+  // CRITICAL: Force immediate update to ensure changes are visible
   led_force_immediate_update();
 
   ESP_LOGI(TAG,
@@ -2842,7 +2910,7 @@ static void led_update_button_led_state(uint8_t button_id) {
   if (button_id >= CHESS_BUTTON_COUNT)
     return;
 
-  // ✅ OPRAVA: Správné mapování button ID na LED indexy
+  // Správné mapování button ID na LED indexy
   uint8_t led_index = led_get_button_led_index(button_id);
   uint32_t current_time = esp_timer_get_time() / 1000;
 
@@ -2929,13 +2997,13 @@ static void led_commit_pending_changes(void) {
     return;
   }
 
-  // ✅ Reset watchdog BEFORE critical section (only if registered)
+  // Reset watchdog BEFORE critical section (only if registered)
   esp_err_t wdt_ret = led_task_wdt_reset_safe();
   if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
     // Task not registered with TWDT yet - this is normal during startup
   }
 
-  // ✅ Count changes for watchdog timing
+  // Count changes for watchdog timing
   uint32_t changed_count = 0;
   for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
     if (led_changed_flags[i]) {
@@ -2945,13 +3013,13 @@ static void led_commit_pending_changes(void) {
 
   ESP_LOGD(TAG, "Committing %lu LED changes...", changed_count);
 
-  // ✅ NO CRITICAL SECTION - let led_strip driver handle timing internally
+  // NO CRITICAL SECTION - let led_strip driver handle timing internally
   // Update ONLY changed LEDs - much more efficient
   for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
     if (!led_changed_flags[i])
       continue;
 
-    // ✅ Watchdog reset every N LEDs for large updates (only if registered)
+    // Watchdog reset every N LEDs for large updates (only if registered)
     if ((i % LED_WATCHDOG_RESET_INTERVAL) == 0) {
       wdt_ret = led_task_wdt_reset_safe();
       if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
@@ -2972,13 +3040,13 @@ static void led_commit_pending_changes(void) {
     led_changed_flags[i] = false;
   }
 
-  // ✅ Final watchdog reset before refresh (only if registered)
+  // Final watchdog reset before refresh (only if registered)
   wdt_ret = led_task_wdt_reset_safe();
   if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
     // Task not registered with TWDT yet - this is normal during startup
   }
 
-  // ✅ SINGLE REFRESH - driver handles timing
+  // SINGLE REFRESH - driver handles timing
   esp_err_t ret = led_strip_refresh(led_strip);
   if (ret == ESP_OK) {
     led_changes_pending = false;
@@ -2990,7 +3058,7 @@ static void led_commit_pending_changes(void) {
     ESP_LOGW(TAG, "LED strip refresh warning: %s", esp_err_to_name(ret));
   }
 
-  // ✅ Final reset after refresh (only if registered)
+  // Final reset after refresh (only if registered)
   wdt_ret = led_task_wdt_reset_safe();
   if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
     // Task not registered with TWDT yet - this is normal during startup
@@ -3006,8 +3074,24 @@ void led_force_immediate_update(void) {
     return;
   }
 
-  // ✅ FORCE COMMIT ANY PENDING CHANGES
-  led_commit_pending_changes();
+  // BOOT FIX: POVOLIT update i během bootování!
+  // Main.c animace MUSÍ mít přístup k LED, aby mohla vykreslit progress bar.
+  // Původní kontrola if (led_is_booting()) return; BLOKOVALA animaci.
+  // Ochrana před race condition je řešena skipováním LED operací v game_task
+  // (total_games check).
+
+  // FORCE COMMIT ANY PENDING CHANGES WITH MUTEX PROTECTION
+  if (led_unified_mutex != NULL) {
+    if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) ==
+        pdTRUE) {
+      led_commit_pending_changes();
+      xSemaphoreGive(led_unified_mutex);
+    } else {
+      ESP_LOGW(TAG, "Failed to take mutex for immediate update");
+    }
+  } else {
+    led_commit_pending_changes();
+  }
 }
 
 /**
@@ -3020,7 +3104,7 @@ static void led_privileged_batch_commit(void) {
     return;
   }
 
-  // ✅ Privileged mutex synchronization with timeout
+  // Privileged mutex synchronization with timeout
   if (led_unified_mutex != NULL) {
     if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) !=
         pdTRUE) {
@@ -3029,13 +3113,13 @@ static void led_privileged_batch_commit(void) {
     }
   }
 
-  // ✅ Reset watchdog BEFORE critical section
+  // Reset watchdog BEFORE critical section
   esp_err_t wdt_ret = led_task_wdt_reset_safe();
   if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
     // Task not registered with TWDT yet - this is normal during startup
   }
 
-  // ✅ Count changes for performance monitoring
+  // Count changes for performance monitoring
   uint32_t changed_count = 0;
   for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
     if (led_changed_flags[i]) {
@@ -3045,12 +3129,12 @@ static void led_privileged_batch_commit(void) {
 
   ESP_LOGD(TAG, "Privileged batch commit: %lu LED changes", changed_count);
 
-  // ✅ Optimized batch update with watchdog safety
+  // Optimized batch update with watchdog safety
   for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
     if (!led_changed_flags[i])
       continue;
 
-    // ✅ Watchdog reset every N LEDs for large updates
+    // Watchdog reset every N LEDs for large updates
     if ((i % LED_WATCHDOG_RESET_INTERVAL) == 0) {
       wdt_ret = led_task_wdt_reset_safe();
       if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
@@ -3071,13 +3155,13 @@ static void led_privileged_batch_commit(void) {
     led_changed_flags[i] = false;
   }
 
-  // ✅ Final watchdog reset before refresh
+  // Final watchdog reset before refresh
   wdt_ret = led_task_wdt_reset_safe();
   if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
     // Task not registered with TWDT yet - this is normal during startup
   }
 
-  // ✅ Single refresh with WS2812B timing handled by driver
+  // Single refresh with WS2812B timing handled by driver
   esp_err_t ret = led_strip_refresh(led_strip);
   if (ret == ESP_OK) {
     led_changes_pending = false;
@@ -3090,13 +3174,13 @@ static void led_privileged_batch_commit(void) {
     ESP_LOGW(TAG, "LED strip refresh warning: %s", esp_err_to_name(ret));
   }
 
-  // ✅ Final watchdog reset after refresh
+  // Final watchdog reset after refresh
   wdt_ret = led_task_wdt_reset_safe();
   if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
     // Task not registered with TWDT yet - this is normal during startup
   }
 
-  // ✅ Release privileged mutex
+  // Release privileged mutex
   if (led_unified_mutex != NULL) {
     xSemaphoreGive(led_unified_mutex);
   }
@@ -3123,12 +3207,12 @@ static void led_set_pixel_with_duration(uint8_t led_index, uint8_t r, uint8_t g,
       uint32_t new_color = (r << 16) | (g << 8) | b;
       uint32_t current_time = esp_timer_get_time() / 1000;
 
-      // ✅ Uložit původní barvu pokud není aktivní duration
+      // Uložit původní barvu pokud není aktivní duration
       if (!led_durations[led_index].is_active) {
         led_durations[led_index].original_color = led_states[led_index];
       }
 
-      // ✅ Nastavit duration tracking
+      // Nastavit duration tracking
       led_durations[led_index].led_index = led_index;
       led_durations[led_index].duration_color = new_color;
       led_durations[led_index].start_time = current_time;
@@ -3136,7 +3220,7 @@ static void led_set_pixel_with_duration(uint8_t led_index, uint8_t r, uint8_t g,
       led_durations[led_index].is_active = true;
       led_durations[led_index].restore_original = true;
 
-      // ✅ Aplikovat novou barvu
+      // Aplikovat novou barvu
       led_states[led_index] = new_color;
 
       ESP_LOGD(TAG, "LED[%d] set with duration: RGB(%d,%d,%d) for %lums",
@@ -3150,69 +3234,76 @@ static void led_set_pixel_with_duration(uint8_t led_index, uint8_t r, uint8_t g,
 }
 
 /**
- * @brief Duration timer callback - zkontroluje expired durations
- * @param xTimer Timer handle
+ * @brief Process expired durations (runs in LED task context)
+ *
+ * IMPORTANT:
+ * - Do NOT run duration logic from FreeRTOS timer callbacks ("Tmr Svc").
+ *   Timer callbacks have small stacks and must not block on mutexes.
+ * - We process expirations in the main LED task loop (33ms), then commit via the
+ *   existing batch system.
  */
-static void led_duration_timer_callback(TimerHandle_t xTimer) {
+static void led_process_duration_expirations(void) {
+  if (!led_duration_system_enabled) {
+    return;
+  }
+
   uint32_t current_time = esp_timer_get_time() / 1000;
   bool state_changed = false;
 
+  // Take mutex (task context -> safe to wait briefly)
   if (led_unified_mutex != NULL) {
-    if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) ==
+    if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) !=
         pdTRUE) {
-      for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-        if (led_durations[i].is_active) {
-          uint32_t elapsed = current_time - led_durations[i].start_time;
-
-          // ✅ Duration vypršela?
-          if (elapsed >= led_durations[i].duration_ms) {
-            // Obnovit původní barvu
-            if (led_durations[i].restore_original) {
-              led_states[i] = led_durations[i].original_color;
-            }
-
-            // Deaktivovat duration
-            led_durations[i].is_active = false;
-            state_changed = true;
-
-            ESP_LOGD(TAG,
-                     "Duration expired for LED %d, restored original color", i);
-          }
-        }
-      }
-
-      xSemaphoreGive(led_unified_mutex);
+      return;
     }
   }
 
-  // ✅ Trigger hardware update pokud se něco změnilo
-  if (state_changed) {
-    // ✅ Force commit changes to hardware after duration restoration
-    led_force_immediate_update();
+  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+    if (!led_durations[i].is_active) {
+      continue;
+    }
+
+    uint32_t elapsed = current_time - led_durations[i].start_time;
+    if (elapsed < led_durations[i].duration_ms) {
+      continue;
+    }
+
+    // Restore original color if requested
+    if (led_durations[i].restore_original) {
+      uint32_t restore_color = led_durations[i].original_color;
+      led_states[i] = restore_color;
+
+      // Mark pending changes so batch commit can refresh HW
+      if (led_initialized && led_strip != NULL && !simulation_mode) {
+        led_pending_changes[i] = restore_color;
+        led_changed_flags[i] = true;
+        led_changes_pending = true;
+      }
+    }
+
+    led_durations[i].is_active = false;
+    state_changed = true;
   }
+
+  if (led_unified_mutex != NULL) {
+    xSemaphoreGive(led_unified_mutex);
+  }
+
+  // No immediate refresh here — main loop already calls `led_privileged_batch_commit()`.
+  (void)state_changed;
 }
 
 /**
  * @brief Initialize duration management system
  */
 static void led_init_duration_system(void) {
-  // ✅ Vymazat všechny duration states
+  // Vymazat všechny duration states
   memset(led_durations, 0, sizeof(led_durations));
 
-  // ✅ BEZPEČNÝ duration timer - 50ms interval for better visual smoothness
-  led_duration_timer = xTimerCreate(
-      "led_duration",
-      pdMS_TO_TICKS(50), // 50ms interval - lepší vizuální plynulost
-      pdTRUE,            // Auto-reload
-      NULL, led_duration_timer_callback);
-
-  if (led_duration_timer != NULL) {
-    xTimerStart(led_duration_timer, 0);
-    ESP_LOGI(TAG, "✅ LED duration management system initialized");
-  } else {
-    ESP_LOGE(TAG, "❌ Failed to create LED duration timer");
-    led_duration_system_enabled = false;
-  }
+  // PRODUCTION STABILITY:
+  // Duration expirations are processed in LED task main loop, not via FreeRTOS timers.
+  led_duration_system_enabled = true;
+  ESP_LOGI(TAG, "✅ LED duration management system initialized (task-driven)");
 }
 
 // ============================================================================
@@ -3373,6 +3464,9 @@ void led_boot_animation_step(uint8_t progress_percent) {
   // Rozsvitit LED svetle zelenou
   led_set_pixel_internal(led_index, 0, 128, 0);
 
+  // FORCE immediate update - batch systém by jinak držel změny
+  led_force_immediate_update();
+
   ESP_LOGD(TAG, "LED boot: Progress %d%% -> LED[%d] RGB(0,128,0)",
            progress_percent, led_index);
 }
@@ -3407,6 +3501,9 @@ void led_boot_animation_fade_out(void) {
       led_set_pixel_internal(led_index, 0, brightness, 0);
     }
 
+    // FORCE immediate update - batch systém by jinak držel změny
+    led_force_immediate_update();
+
     // Kratka pauza pro plynulou animaci
     vTaskDelay(pdMS_TO_TICKS(step_delay_ms));
 
@@ -3417,5 +3514,8 @@ void led_boot_animation_fade_out(void) {
   // Vymazat vsechny board LED
   led_clear_board_only();
 
-  ESP_LOGI(TAG, "✅ LED boot animation fade out completed");
+  // Clear boot flag - animace dokončena (řízená z main.c)
+  led_booting_active = false;
+
+  ESP_LOGI(TAG, "✅ LED boot animation fade out completed - boot flag cleared");
 }

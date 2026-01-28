@@ -31,7 +31,7 @@
 #include <string.h>
 #include "streaming_output.h"
 #include "chess_types.h"
-#include "led_mapping.h"  // ✅ FIX: Include LED mapping functions
+#include "led_mapping.h"  // Include LED mapping functions
 
 static const char *TAG = "STREAMING_OUT";
 
@@ -331,7 +331,7 @@ static esp_err_t stream_write_queue(const char* data, size_t len)
         return ESP_ERR_INVALID_STATE;
     }
 
-    // CRITICAL FIX: Actually send data to queue instead of just logging
+    // Actually send data to queue instead of just logging
     // Create a proper game_response_t message for the queue
     game_response_t response = {
         .type = GAME_RESPONSE_SUCCESS,

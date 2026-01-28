@@ -123,7 +123,8 @@
 
 #include "web_server_task.h"
 #include "../game_task/include/game_task.h"
-#include "../timer_system/include/timer_system.h"
+#include "../ha_light_task/include/ha_light_task.h"
+// #include "../timer_system/include/timer_system.h" // UNUSED
 #include "esp_event.h"
 #include "esp_http_server.h"
 #include "esp_log.h"
@@ -132,7 +133,7 @@
 #include "esp_wifi.h"
 #include "freertos_chess.h"
 #include "nvs.h"
-#include "nvs_flash.h"
+// #include "nvs_flash.h" // UNUSED
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -185,7 +186,8 @@ static esp_err_t web_server_task_wdt_reset_safe(void) {
 #define WIFI_AP_SSID "ESP32-CzechMate"
 #define WIFI_AP_PASSWORD "12345678"
 #define WIFI_AP_CHANNEL 1
-#define WIFI_AP_MAX_CONNECTIONS 4
+#define WIFI_AP_MAX_CONNECTIONS                                                \
+  10 // Support for 6+ clients (ESP32-C6 can handle up to ~10-16)
 #define WIFI_AP_IP "192.168.4.1"
 #define WIFI_AP_GATEWAY "192.168.4.1"
 #define WIFI_AP_NETMASK "255.255.255.0"
@@ -238,6 +240,7 @@ QueueHandle_t web_server_command_queue = NULL;
 
 // Extern funcions from main.c for Demo Mode
 extern void toggle_demo_mode(bool enabled);
+extern void set_demo_speed_ms(uint32_t speed_ms);
 extern bool is_demo_mode_enabled(void);
 
 // JSON buffer pool (znovupouzitelny)
@@ -259,6 +262,8 @@ static esp_err_t
 http_get_chess_js_handler(httpd_req_t *req); // chess_app.js file
 static esp_err_t
 http_get_test_handler(httpd_req_t *req); // Testovaci stranka pro timer
+static esp_err_t
+http_get_favicon_handler(httpd_req_t *req); // Favicon handler (204 No Content)
 static esp_err_t http_get_board_handler(httpd_req_t *req);
 static esp_err_t http_get_status_handler(httpd_req_t *req);
 static esp_err_t http_get_history_handler(httpd_req_t *req);
@@ -272,6 +277,9 @@ static esp_err_t http_post_timer_reset_handler(httpd_req_t *req);
 // static esp_err_t http_post_move_handler(httpd_req_t *req);  // VYPNUTO - web
 // je 100% READ-ONLY
 
+// Handler pro Tahy (Move)
+static esp_err_t http_post_game_move_handler(httpd_req_t *req);
+
 // WiFi API handlery
 static esp_err_t http_post_wifi_config_handler(httpd_req_t *req);
 static esp_err_t http_post_wifi_connect_handler(httpd_req_t *req);
@@ -284,6 +292,14 @@ static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req);
 // Handlery pro Demo API
 static esp_err_t http_post_demo_config_handler(httpd_req_t *req);
 static esp_err_t http_get_demo_status_handler(httpd_req_t *req);
+
+// Handler pro Virtual Actions
+static esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req);
+static esp_err_t http_post_game_new_handler(httpd_req_t *req);
+
+// Handlery pro MQTT API
+static esp_err_t http_get_mqtt_status_handler(httpd_req_t *req);
+static esp_err_t http_post_mqtt_config_handler(httpd_req_t *req);
 
 // WiFi NVS funkce
 esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
@@ -991,6 +1007,247 @@ static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req) {
 }
 
 // ============================================================================
+// MQTT API HANDLERS
+// ============================================================================
+
+/**
+ * @brief Handler pro GET /api/mqtt/status
+ *
+ * Vrátí JSON s aktuálním stavem MQTT konfigurace a připojení.
+ *
+ * @param req HTTP request
+ * @return ESP_OK při úspěchu, chybový kód při chybě
+ *
+ * @details
+ * Vrací JSON:
+ * {"host":"...","port":1883,"username":"...","connected":true/false,"mode":"game/ha"}
+ */
+static esp_err_t http_get_mqtt_status_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/mqtt/status");
+
+  // Get MQTT config
+  char host[128] = {0};
+  char username[64] = {0};
+  char password[64] = {0};
+  uint16_t port = 1883;
+
+  esp_err_t ret = mqtt_get_config(host, sizeof(host), &port, username,
+                                  sizeof(username), password, sizeof(password));
+  if (ret != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to get MQTT config", -1);
+    return ESP_FAIL;
+  }
+
+  // Get WiFi STA status (required for MQTT)
+  bool sta_connected = wifi_is_sta_connected();
+
+  // Get MQTT connection status
+  bool mqtt_connected = ha_light_is_mqtt_connected();
+
+  // Get HA mode
+  ha_mode_t mode = ha_light_get_mode();
+  const char *mode_str = (mode == HA_MODE_GAME) ? "game" : "ha";
+
+  // Build JSON response
+  char response[512];
+  int len = snprintf(response, sizeof(response),
+                     "{"
+                     "\"host\":\"%s\","
+                     "\"port\":%d,"
+                     "\"username\":\"%s\","
+                     "\"password\":\"%s\","
+                     "\"wifi_connected\":%s,"
+                     "\"mqtt_connected\":%s,"
+                     "\"mode\":\"%s\""
+                     "}",
+                     host, port, username[0] ? username : "",
+                     password[0] ? "***" : "", sta_connected ? "true" : "false",
+                     mqtt_connected ? "true" : "false", mode_str);
+
+  if (len < 0 || len >= (int)sizeof(response)) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to create response", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, response, strlen(response));
+  return ESP_OK;
+}
+
+/**
+ * @brief Handler pro POST /api/mqtt/config
+ *
+ * Uloží MQTT konfiguraci (host, port, username, password) do NVS.
+ *
+ * @param req HTTP request
+ * @return ESP_OK při úspěchu, chybový kód při chybě
+ *
+ * @details
+ * Očekává JSON: {"host":"...","port":1883,"username":"...","password":"..."}
+ * Vrací JSON: {"success": true/false, "message": "..."}
+ */
+static esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/mqtt/config");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "MQTT config blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  // Načíst JSON z request body
+  char content[512] = {0};
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data received\"}",
+                    -1);
+    return ESP_FAIL;
+  }
+  content[ret] = '\0';
+
+  // Parsovat JSON - hledat "host", "port", "username", "password"
+  char host[128] = {0};
+  uint16_t port = 1883; // Default
+  char username[64] = {0};
+  char password[64] = {0};
+
+  // Najít "host"
+  const char *host_start = strstr(content, "\"host\"");
+  if (host_start != NULL) {
+    host_start = strchr(host_start, ':');
+    if (host_start != NULL) {
+      host_start++; // Přeskočit ':'
+      while (*host_start == ' ' || *host_start == '\"')
+        host_start++;
+      const char *host_end = strchr(host_start, '\"');
+      if (host_end != NULL && host_end > host_start) {
+        size_t len = host_end - host_start;
+        if (len < sizeof(host)) {
+          strncpy(host, host_start, len);
+          host[len] = '\0';
+        }
+      }
+    }
+  }
+
+  // Najít "port"
+  const char *port_start = strstr(content, "\"port\"");
+  if (port_start != NULL) {
+    port_start = strchr(port_start, ':');
+    if (port_start != NULL) {
+      port_start++; // Přeskočit ':'
+      while (*port_start == ' ')
+        port_start++;
+      uint32_t port_val = strtoul(port_start, NULL, 10);
+      if (port_val > 0 && port_val <= 65535) {
+        port = (uint16_t)port_val;
+      }
+    }
+  }
+
+  // Najít "username" (volitelné)
+  const char *username_start = strstr(content, "\"username\"");
+  if (username_start != NULL) {
+    username_start = strchr(username_start, ':');
+    if (username_start != NULL) {
+      username_start++; // Přeskočit ':'
+      while (*username_start == ' ' || *username_start == '\"')
+        username_start++;
+      const char *username_end = strchr(username_start, '\"');
+      if (username_end != NULL && username_end > username_start) {
+        size_t len = username_end - username_start;
+        if (len < sizeof(username)) {
+          strncpy(username, username_start, len);
+          username[len] = '\0';
+        }
+      }
+    }
+  }
+
+  // Najít "password" (volitelné)
+  const char *password_start = strstr(content, "\"password\"");
+  if (password_start != NULL) {
+    password_start = strchr(password_start, ':');
+    if (password_start != NULL) {
+      password_start++; // Přeskočit ':'
+      while (*password_start == ' ' || *password_start == '\"')
+        password_start++;
+      const char *password_end = strchr(password_start, '\"');
+      if (password_end != NULL && password_end > password_start) {
+        size_t len = password_end - password_start;
+        if (len < sizeof(password)) {
+          strncpy(password, password_start, len);
+          password[len] = '\0';
+        }
+      }
+    }
+  }
+
+  // Validovat host
+  if (strlen(host) == 0 || strlen(host) > 127) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Invalid host (must be "
+                    "1-127 characters)\"}",
+                    -1);
+    return ESP_FAIL;
+  }
+
+  // Uložit do NVS
+  const char *username_ptr = (strlen(username) > 0) ? username : NULL;
+  const char *password_ptr = (strlen(password) > 0) ? password : NULL;
+
+  esp_err_t err =
+      mqtt_save_config_to_nvs(host, port, username_ptr, password_ptr);
+  if (err != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    char error_msg[256];
+    snprintf(error_msg, sizeof(error_msg),
+             "{\"success\":false,\"message\":\"Failed to save: %s\"}",
+             esp_err_to_name(err));
+    httpd_resp_send(req, error_msg, -1);
+    return ESP_FAIL;
+  }
+
+  // Reinit MQTT client if WiFi STA is connected
+  const char *success_message;
+  if (wifi_is_sta_connected()) {
+    esp_err_t reinit_ret = ha_light_reinit_mqtt();
+    if (reinit_ret == ESP_OK) {
+      success_message = "MQTT configuration saved and client reinicialized "
+                        "with new settings.";
+    } else {
+      success_message = "MQTT configuration saved. Client reinit failed (will "
+                        "reconnect on next WiFi connection).";
+    }
+  } else {
+    success_message = "MQTT configuration saved. Client will reconnect with "
+                      "new settings on next WiFi connection.";
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  char response[256];
+  snprintf(response, sizeof(response), "{\"success\":true,\"message\":\"%s\"}",
+           success_message);
+  httpd_resp_send(req, response, strlen(response));
+
+  return ESP_OK;
+}
+
+// ============================================================================
 // DEMO MODE API HANDLERS
 // ============================================================================
 
@@ -1012,14 +1269,39 @@ static esp_err_t http_post_demo_config_handler(httpd_req_t *req) {
   }
   content[ret] = '\0';
 
-  // Simple JSON parsing for {"enabled": true/false}
+  // Parse "enabled"
   bool enabled = (strstr(content, "\"enabled\":true") != NULL) ||
                  (strstr(content, "\"enabled\": true") != NULL);
+
+  // Parse "speed_ms"
+  char *speed_ptr = strstr(content, "\"speed_ms\":");
+  if (speed_ptr) {
+    int speed_val;
+    if (sscanf(speed_ptr, "\"speed_ms\":%d", &speed_val) == 1) {
+      set_demo_speed_ms((uint32_t)speed_val);
+    }
+  }
 
   toggle_demo_mode(enabled);
 
   httpd_resp_set_type(req, "application/json");
   httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
+}
+
+static esp_err_t http_post_demo_start_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/demo/start");
+
+  if (web_is_locked()) {
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
+    return ESP_OK;
+  }
+
+  toggle_demo_mode(true);
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true,\"message\":\"Demo started\"}", -1);
   return ESP_OK;
 }
 
@@ -1068,14 +1350,16 @@ static esp_err_t start_http_server(void) {
   // Konfigurovat HTTP server
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.server_port = HTTP_SERVER_PORT;
-  config.max_uri_handlers = 25; // zajistit dostatek slotu pro vsechny
-                                // registrovane endpointy (včetně WiFi API)
+  config.max_uri_handlers =
+      32; // Increased to 32 to accommodate all endpoints (currently ~25)
   config.max_open_sockets =
-      4; // Maximalni povoleno: LWIP_MAX_SOCKETS(7) - 3 interni = 4
-  config.lru_purge_enable = true;
+      10; // LWIP_MAX_SOCKETS(16) - HTTP_INTERNAL(3) - MQTT(1) - SYSTEM(2) = 10
+  config.lru_purge_enable = false; // CRITICAL: Disabled to prevent socket
+                                   // closure during chunked transfer
   config.recv_wait_timeout = 10;
   config.send_wait_timeout =
-      1000; // 1 sekunda timeout pro 6-cast HTML (6×50ms zpozdeni + cas prenosu)
+      3000; // 3 seconds timeout for reliable chunked transfer (8 chunks, ~250ms
+            // transfer time + network overhead)
   config.max_resp_headers = 8;
   config.backlog_conn = 5;
   config.stack_size = 8192; // Zvysena velikost stacku pro HTTP server task
@@ -1149,6 +1433,13 @@ static esp_err_t start_http_server(void) {
                            .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &timer_uri);
 
+  // Handler pro favicon.ico (silence 404 warnings)
+  httpd_uri_t favicon_uri = {.uri = "/favicon.ico",
+                             .method = HTTP_GET,
+                             .handler = http_get_favicon_handler,
+                             .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &favicon_uri);
+
   httpd_uri_t timer_config_uri = {.uri = "/api/timer/config",
                                   .method = HTTP_POST,
                                   .handler = http_post_timer_config_handler,
@@ -1220,11 +1511,52 @@ static esp_err_t start_http_server(void) {
                                  .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &demo_config_uri);
 
+  httpd_uri_t demo_start_uri = {.uri = "/api/demo/start",
+                                .method = HTTP_POST,
+                                .handler = http_post_demo_start_handler,
+                                .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &demo_start_uri);
+
   httpd_uri_t demo_status_uri = {.uri = "/api/demo/status",
                                  .method = HTTP_GET,
                                  .handler = http_get_demo_status_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &demo_status_uri);
+
+  // Handler pro Tahy
+  httpd_uri_t move_uri = {.uri = "/api/move",
+                          .method = HTTP_POST,
+                          .handler = http_post_game_move_handler,
+                          .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &move_uri);
+
+  // Handler pro Virtual Actions (Remote Control)
+  httpd_uri_t virtual_action_uri = {.uri = "/api/game/virtual_action",
+                                    .method = HTTP_POST,
+                                    .handler =
+                                        http_post_game_virtual_action_handler,
+                                    .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &virtual_action_uri);
+
+  // Handler pro New Game
+  httpd_uri_t new_game_uri = {.uri = "/api/game/new",
+                              .method = HTTP_POST,
+                              .handler = http_post_game_new_handler,
+                              .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &new_game_uri);
+
+  // Handlery pro MQTT API
+  httpd_uri_t mqtt_status_uri = {.uri = "/api/mqtt/status",
+                                 .method = HTTP_GET,
+                                 .handler = http_get_mqtt_status_handler,
+                                 .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &mqtt_status_uri);
+
+  httpd_uri_t mqtt_config_uri = {.uri = "/api/mqtt/config",
+                                 .method = HTTP_POST,
+                                 .handler = http_post_mqtt_config_handler,
+                                 .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &mqtt_config_uri);
 
   ESP_LOGI(TAG, "HTTP server started successfully on port %d",
            HTTP_SERVER_PORT);
@@ -1279,6 +1611,17 @@ static esp_err_t http_get_status_handler(httpd_req_t *req) {
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Failed to get game status", -1);
     return ESP_FAIL;
+  }
+
+  // INJECT WEB STATUS FIELDS
+  // Game task doesn't know about web lock or wifi, so we add it here.
+  char *last_brace = strrchr(json_buffer, '}');
+  if (last_brace) {
+    size_t current_len = last_brace - json_buffer;
+    size_t remaining = sizeof(json_buffer) - current_len;
+    snprintf(
+        last_brace, remaining, ",\"web_locked\":%s,\"internet_connected\":%s}",
+        web_is_locked() ? "true" : "false", sta_connected ? "true" : "false");
   }
 
   httpd_resp_set_type(req, "application/json");
@@ -1556,6 +1899,464 @@ static esp_err_t http_post_timer_reset_handler(httpd_req_t *req) {
 
   httpd_resp_set_status(req, "200 OK");
   httpd_resp_send(req, "Timer reset", -1);
+
+  return ESP_OK;
+}
+
+// ============================================================================
+// VIRTUAL GAME ACTIONS (REMOTE CONTROL)
+// ============================================================================
+
+/**
+ * @brief Handler pro POST /api/move
+ *
+ * Provede tah na sachovnici.
+ *
+ * @param req HTTP request
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ *
+ * @details
+ * Ocekava JSON: {"from": "e2", "to": "e4", "promotion": "q"}
+ */
+static esp_err_t http_post_game_move_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/move");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "Move blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  // Precist JSON data
+  char content[128];
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "No data received", -1);
+    return ESP_FAIL;
+  }
+  content[ret] = '\0';
+
+  // Jednoduchy JSON parser
+  char from[8] = {0};
+  char to[8] = {0};
+  char promotion[4] = {0};
+
+  // Najit "from"
+  const char *from_start = strstr(content, "\"from\"");
+  if (from_start != NULL) {
+    from_start = strchr(from_start, ':');
+    if (from_start != NULL) {
+      from_start++;
+      while (*from_start == ' ' || *from_start == '\"')
+        from_start++;
+      const char *from_end = strchr(from_start, '\"');
+      if (from_end != NULL && from_end > from_start) {
+        size_t len = from_end - from_start;
+        if (len < sizeof(from))
+          strncpy(from, from_start, len);
+      }
+    }
+  }
+
+  // Najit "to"
+  const char *to_start = strstr(content, "\"to\"");
+  if (to_start != NULL) {
+    to_start = strchr(to_start, ':');
+    if (to_start != NULL) {
+      to_start++;
+      while (*to_start == ' ' || *to_start == '\"')
+        to_start++;
+      const char *to_end = strchr(to_start, '\"');
+      if (to_end != NULL && to_end > to_start) {
+        size_t len = to_end - to_start;
+        if (len < sizeof(to))
+          strncpy(to, to_start, len);
+      }
+    }
+  }
+
+  // Najit "promotion"
+  const char *promo_start = strstr(content, "\"promotion\"");
+  if (promo_start != NULL) {
+    promo_start = strchr(promo_start, ':');
+    if (promo_start != NULL) {
+      promo_start++;
+      while (*promo_start == ' ' || *promo_start == '\"')
+        promo_start++;
+      const char *promo_end = strchr(promo_start, '\"');
+      if (promo_end != NULL && promo_end > promo_start) {
+        size_t len = promo_end - promo_start;
+        if (len < sizeof(promotion))
+          strncpy(promotion, promo_start, len);
+      }
+    }
+  }
+
+  if (strlen(from) == 0 || strlen(to) == 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(
+        req, "{\"success\":false,\"message\":\"Missing 'from' or 'to'\"}", -1);
+    return ESP_FAIL;
+  }
+
+  // VALIDACE PROMOCE: Zkontrolovat zda je cíl na promotion rank
+  // Promotion rank: 1. řádek (rank 1) pro černé, 8. řádek (rank 8) pro bílé
+  bool is_promotion_rank = false;
+  if (strlen(to) >= 2) {
+    char rank = to[1]; // Druhý znak je rank (1-8)
+    if (rank == '1' || rank == '8') {
+      is_promotion_rank = true;
+    }
+  }
+
+  // VALIDACE: Pokud je to promoce, promotion parametr je povinný
+  if (is_promotion_rank && strlen(promotion) == 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Promotion required for "
+                    "move to promotion rank\"}",
+                    -1);
+    return ESP_FAIL;
+  }
+
+  // VAROVÁNÍ: Pokud to není promoce, ale promotion parametr je poskytnut
+  if (!is_promotion_rank && strlen(promotion) > 0) {
+    ESP_LOGW(TAG,
+             "Promotion parameter provided for non-promotion move %s->%s, "
+             "ignoring",
+             from, to);
+    // Ignorovat promotion parametr, ale pokračovat
+  }
+
+  // Pripravit command pro game task
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_MOVE;
+  strncpy(cmd.from_notation, from, sizeof(cmd.from_notation) - 1);
+  strncpy(cmd.to_notation, to, sizeof(cmd.to_notation) - 1);
+
+  // Zpracovat promotion choice (pouze pokud je to skutečně promoce)
+  if (is_promotion_rank && strlen(promotion) > 0) {
+    if (strcasecmp(promotion, "Q") == 0)
+      cmd.promotion_choice = PROMOTION_QUEEN;
+    else if (strcasecmp(promotion, "R") == 0)
+      cmd.promotion_choice = PROMOTION_ROOK;
+    else if (strcasecmp(promotion, "B") == 0)
+      cmd.promotion_choice = PROMOTION_BISHOP;
+    else if (strcasecmp(promotion, "N") == 0)
+      cmd.promotion_choice = PROMOTION_KNIGHT;
+    else
+      cmd.promotion_choice = PROMOTION_QUEEN;
+  } else if (is_promotion_rank) {
+    // Promoce bez promotion parametru - mělo by být zachyceno výše, ale pro jistotu
+    cmd.promotion_choice = PROMOTION_QUEEN; // Default fallback
+  } else {
+    // Není to promoce - promotion_choice není relevantní
+    cmd.promotion_choice = PROMOTION_QUEEN; // Default (nebude použito)
+  }
+
+  // Odeslat do fronty
+  if (game_command_queue == NULL) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Game queue not available", -1);
+    return ESP_FAIL;
+  }
+
+  // Synchronous Verification Setup
+  // Create a temporary queue to receive the validation result
+  // This allows us to return 400 Bad Request if the move is invalid
+  QueueHandle_t response_queue = xQueueCreate(1, sizeof(game_response_t));
+  if (response_queue == NULL) {
+    ESP_LOGE(TAG, "Failed to create response queue");
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to create response queue", -1);
+    return ESP_FAIL;
+  }
+  cmd.response_queue = response_queue;
+
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    vQueueDelete(response_queue); // Cleanup
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to queue move", -1);
+    return ESP_FAIL;
+  }
+
+  // Wait for response (validation result)
+  game_response_t response;
+  // 500ms timeout should be enough for simple validation
+  if (xQueueReceive(response_queue, &response, pdMS_TO_TICKS(1000)) == pdTRUE) {
+    // Check if move was successful
+    if (response.type == GAME_RESPONSE_ERROR) {
+      ESP_LOGW(TAG, "❌ Move rejected by game task: %s", response.data);
+      httpd_resp_set_status(req, "400 Bad Request");
+      httpd_resp_set_type(req, "application/json");
+      char error_json[256];
+      snprintf(error_json, sizeof(error_json),
+               "{\"success\":false,\"message\":\"%s\"}", response.data);
+      httpd_resp_send(req, error_json, -1);
+    } else {
+      ESP_LOGI(TAG, "✅ Move accepted by game task");
+      httpd_resp_set_status(req, "200 OK");
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_send(req, "{\"success\":true,\"message\":\"Move processed\"}",
+                      -1);
+    }
+  } else {
+    // Timeout - treat as success (async fallback) or error?
+    // Let's treat as partial success but log warning
+    ESP_LOGW(TAG, "⚠️ Move validation timed out");
+    httpd_resp_set_status(req, "202 Accepted"); // Accepted but not verified yet
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(
+        req, "{\"success\":true,\"message\":\"Move queued (timeout)\"}", -1);
+  }
+
+  // Cleanup queue
+  vQueueDelete(response_queue);
+  return ESP_OK;
+}
+
+/**
+ * @brief Handler pro POST /api/game/virtual_action
+ *
+ * Umoznuje virtualni zvedani a pokladani figurek pres web.
+ *
+ * @param req HTTP request
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ *
+ * @details
+ * Ocekava JSON: {"action": "pickup"|"drop", "square": "e2"}
+ */
+static esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/game/virtual_action");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "Virtual action blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  // Nacist JSON z request body
+  char content[128] = {0};
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data received\"}",
+                    -1);
+    return ESP_FAIL;
+  }
+  content[ret] = '\0';
+
+  // Jednoduchy JSON parser
+  char action[16] = {0};
+  char square[8] = {0};
+  char choice[4] = {0};
+
+  // Najit "action"
+  const char *action_start = strstr(content, "\"action\"");
+  if (action_start != NULL) {
+    action_start = strchr(action_start, ':');
+    if (action_start != NULL) {
+      action_start++; // Preskocit ':'
+      while (*action_start == ' ' || *action_start == '\"')
+        action_start++;
+      const char *action_end = strchr(action_start, '\"');
+      if (action_end != NULL && action_end > action_start) {
+        size_t len = action_end - action_start;
+        if (len < sizeof(action)) {
+          strncpy(action, action_start, len);
+        }
+      }
+    }
+  }
+
+  // Najit "square"
+  const char *square_start = strstr(content, "\"square\"");
+  if (square_start != NULL) {
+    square_start = strchr(square_start, ':');
+    if (square_start != NULL) {
+      square_start++; // Preskocit ':'
+      while (*square_start == ' ' || *square_start == '\"')
+        square_start++;
+      const char *square_end = strchr(square_start, '\"');
+      if (square_end != NULL && square_end > square_start) {
+        size_t len = square_end - square_start;
+        if (len < sizeof(square)) {
+          strncpy(square, square_start, len);
+        }
+      }
+    }
+  }
+
+  // Najit "choice" (pro promotion)
+  const char *choice_start = strstr(content, "\"choice\"");
+  if (choice_start != NULL) {
+    choice_start = strchr(choice_start, ':');
+    if (choice_start != NULL) {
+      choice_start++; // Preskocit ':'
+      while (*choice_start == ' ' || *choice_start == '\"')
+        choice_start++;
+      const char *choice_end = strchr(choice_start, '\"');
+      if (choice_end != NULL && choice_end > choice_start) {
+        size_t len = choice_end - choice_start;
+        if (len < sizeof(choice)) {
+          strncpy(choice, choice_start, len);
+        }
+      }
+    }
+  }
+
+  // Validace
+  if (strlen(action) == 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Missing action\"}",
+                    -1);
+    return ESP_FAIL;
+  }
+
+  // Pripravit command pro game task
+  chess_move_command_t cmd = {0};
+
+  if (strcmp(action, "pickup") == 0) {
+    cmd.type = GAME_CMD_PICKUP; // UP command
+  } else if (strcmp(action, "drop") == 0) {
+    cmd.type = GAME_CMD_DROP; // DOWN command
+  } else if (strcmp(action, "promote") == 0) {
+    cmd.type = GAME_CMD_PROMOTION;
+  } else {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Invalid action\"}",
+                    -1);
+    return ESP_FAIL;
+  }
+
+  if (strcmp(action, "pickup") == 0) {
+    // PICKUP: source square goes in from_notation
+    if (strlen(square) == 0) {
+      httpd_resp_send(
+          req, "{\"success\":false,\"message\":\"Missing square for pickup\"}",
+          -1);
+      return ESP_FAIL;
+    }
+    strncpy(cmd.from_notation, square, sizeof(cmd.from_notation) - 1);
+  } else if (strcmp(action, "drop") == 0) {
+    // DROP: destination square goes in to_notation
+    if (strlen(square) == 0) {
+      httpd_resp_send(
+          req, "{\"success\":false,\"message\":\"Missing square for drop\"}",
+          -1);
+      return ESP_FAIL;
+    }
+    strncpy(cmd.to_notation, square, sizeof(cmd.to_notation) - 1);
+  } else if (strcmp(action, "promote") == 0) {
+    // PROMOTE: choice goes into promotion_choice
+    if (strlen(choice) == 0)
+      strcpy(choice, "Q"); // Default to Queen
+
+    if (strcasecmp(choice, "Q") == 0)
+      cmd.promotion_choice = PROMOTION_QUEEN;
+    else if (strcasecmp(choice, "R") == 0)
+      cmd.promotion_choice = PROMOTION_ROOK;
+    else if (strcasecmp(choice, "B") == 0)
+      cmd.promotion_choice = PROMOTION_BISHOP;
+    else if (strcasecmp(choice, "N") == 0)
+      cmd.promotion_choice = PROMOTION_KNIGHT;
+    else
+      cmd.promotion_choice = PROMOTION_QUEEN; // Fallback
+
+    // Optional square
+    if (strlen(square) > 0)
+      strncpy(cmd.to_notation, square, sizeof(cmd.to_notation) - 1);
+  }
+
+  // Odeslat do fronty
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to send command", -1);
+    return ESP_FAIL;
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true,\"message\":\"Action processed\"}",
+                  -1);
+
+  return ESP_OK;
+}
+
+/**
+ * @brief Handler pro POST /api/game/new
+ *
+ * Spustí novou hru odesíláním příkazu GAME_CMD_NEW_GAME do game tasku.
+ *
+ * @param req HTTP request
+ * @return ESP_OK při úspěchu, chybový kód při chybě
+ *
+ * @details
+ * Nepotřebuje žádné JSON payload. Prostě pošle NEW_GAME příkaz.
+ */
+static esp_err_t http_post_game_new_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/game/new");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "New game blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(
+        req, "{\"success\":false,\"error\":\"Web interface locked\"}", -1);
+    return ESP_OK;
+  }
+
+  // Vytvořit NEW_GAME příkaz
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_NEW_GAME;
+  cmd.player = 0;            // Neznámé
+  cmd.response_queue = NULL; // Web nepotřebuje response
+
+  // Odeslat do fronty
+  if (game_command_queue == NULL) {
+    ESP_LOGE(TAG, "Game command queue not available");
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(
+        req, "{\"success\":false,\"error\":\"Queue not available\"}", -1);
+    return ESP_FAIL;
+  }
+
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    ESP_LOGE(TAG, "Failed to send NEW_GAME command to queue");
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(
+        req, "{\"success\":false,\"error\":\"Failed to send command\"}", -1);
+    return ESP_FAIL;
+  }
+
+  ESP_LOGI(TAG, "✅ NEW_GAME command sent successfully");
+
+  // Odpovědět úspěchem
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true,\"message\":\"New game started\"}",
+                  -1);
 
   return ESP_OK;
 }
@@ -1919,6 +2720,7 @@ static esp_err_t http_get_wifi_status_handler(httpd_req_t *req) {
 // ============================================================================
 // TEST PAGE - MINIMAL TIMER TEST (for debugging)
 // chess_app.js embedded (27426 bytes, 696 lines)
+// chess_app.js embedded (54831 bytes, 1361 lines)
 static const char chess_app_js_content[] =
     "// "
     "=========================================================================="
@@ -1947,15 +2749,19 @@ static const char chess_app_js_content[] =
     "let boardData = [];\n"
     "let statusData = {};\n"
     "let historyData = [];\n"
-    "let capturedData = {white_captured: [], black_captured: []};\n"
+    "let capturedData = { white_captured: [], black_captured: [] };\n"
+    "let advantageData = { history: [], white_checks: 0, black_checks: 0, "
+    "white_castles: 0, black_castles: 0 };\n"
     "let selectedSquare = null;\n"
     "let reviewMode = false;\n"
     "let currentReviewIndex = -1;\n"
     "let initialBoard = [];\n"
     "let sandboxMode = false;\n"
+    "let remoteControlEnabled = false;\n"
     "let sandboxBoard = [];\n"
     "let sandboxHistory = [];\n"
     "let endgameReportShown = false;\n"
+    "let pendingPromotion = null;\n"
     "\n"
     "// "
     "=========================================================================="
@@ -1988,129 +2794,283 @@ static const char chess_app_js_content[] =
     "\n"
     "function clearHighlights() {\n"
     "    document.querySelectorAll('.square').forEach(sq => {\n"
-    "        sq.classList.remove('selected', 'valid-move', 'valid-capture', "
-    "'error-invalid', 'error-original');\n"
+    "        // NEMAZAT lifted, error-invalid, error-original - tyto jsou řízené serverem\n"
+    "        // (z piece_lifted a error_state v JSON statusu)\n"
+    "        sq.classList.remove('selected', 'valid-move', 'valid-capture');\n"
     "    });\n"
     "    selectedSquare = null;\n"
     "}\n"
     "\n"
-    "function showErrorState(invalidPos, originalPos) {\n"
-    "    if (!invalidPos || !originalPos) return;\n"
-    "    \n"
-    "    // Konverze notace na row/col (např. 'a5' -> row=3, col=0)\n"
-    "    const invalidCol = invalidPos.charCodeAt(0) - 97;  // a=0, b=1, ...\n"
-    "    const invalidRow = 8 - parseInt(invalidPos[1]);     // 8->0, 1->7\n"
-    "    const originalCol = originalPos.charCodeAt(0) - 97;\n"
-    "    const originalRow = 8 - parseInt(originalPos[1]);\n"
-    "    \n"
-    "    // Najít políčka na DOM\n"
-    "    const squares = document.querySelectorAll('.square');\n"
-    "    squares.forEach((sq, index) => {\n"
-    "        const row = Math.floor(index / 8);\n"
-    "        const col = index % 8;\n"
-    "        \n"
-    "        if (row === invalidRow && col === invalidCol) {\n"
-    "            sq.classList.add('error-invalid');  // Červená - invalid "
-    "pozice\n"
-    "        } else if (row === originalRow && col === originalCol) {\n"
-    "            sq.classList.add('error-original'); // Modrá - původní "
-    "pozice\n"
-    "        }\n"
-    "    });\n"
-    "}\n"
+    "async function selectPromotion(pieceChar) {\n"
+    "        if (pendingPromotion) {\n"
+    "            // Scenario A: Web-initiated move\n"
+    "            const { from, to } = pendingPromotion;\n"
+    "            document.getElementById('promotion-modal').style.display = "
+    "'none';\n"
+    "            pendingPromotion = null;\n"
     "\n"
-    "async function handleSquareClick(row, col) {\n"
-    "    const piece = sandboxMode ? sandboxBoard[row][col] : "
-    "boardData[row][col];\n"
-    "    const index = row * 8 + col;\n"
-    "    \n"
-    "    // ✅ SANDBOX MODE: Umožnit tahy (i brání figurek)\n"
-    "    if (sandboxMode && selectedSquare !== null) {\n"
-    "        const fromRow = Math.floor(selectedSquare / 8);\n"
-    "        const fromCol = selectedSquare % 8;\n"
-    "        \n"
-    "        // Pokud klikneš na JINÉ pole než ze kterého máš zvede figurku = "
-    "udělej tah\n"
-    "        // (V sandboxu můžeš táhnout kamkoliv - i na soupeřovu figurku!)\n"
-    "        if (fromRow !== row || fromCol !== col) {\n"
-    "            makeSandboxMove(fromRow, fromCol, row, col);\n"
-    "            clearHighlights();\n"
-    "            selectedSquare = null;\n"
-    "            return;\n"
-    "        }\n"
-    "    }\n"
-
-    "    \n"
-    "    // ✅ REAL GAME MODE: Pouze prázdná pole\n"
-    "    if (!sandboxMode && piece === ' ' && selectedSquare !== null) {\n"
-    "        const fromRow = Math.floor(selectedSquare / 8);\n"
-    "        const fromCol = selectedSquare % 8;\n"
-    "        \n"
-    "        {\n"
-    "            const fromNotation = String.fromCharCode(97 + fromCol) + (8 - "
-    "fromRow);\n"
-    "            const toNotation = String.fromCharCode(97 + col) + (8 - "
-    "row);\n"
     "            try {\n"
     "                const response = await fetch('/api/move', {\n"
     "                    method: 'POST',\n"
-    "                    headers: {'Content-Type': 'application/json'},\n"
-    "                    body: JSON.stringify({from: fromNotation, to: "
-    "toNotation})\n"
+    "                    headers: { 'Content-Type': 'application/json' },\n"
+    "                    // Send move WITH promotion choice (q, r, b, n)\n"
+    "                    body: JSON.stringify({ from: from, to: to, promotion: "
+    "pieceChar })\n"
     "                });\n"
     "                if (response.ok) {\n"
     "                    clearHighlights();\n"
     "                    fetchData();\n"
     "                }\n"
     "            } catch (error) {\n"
-    "                console.error('Move error:', error);\n"
+    "                console.error('Promotion move error:', error);\n"
     "            }\n"
+    "        } else {\n"
+    "            // Scenario B: Physical/Remote-initiated promotion\n"
+    "            try {\n"
+    "                const response = await fetch('/api/game/virtual_action', "
+    "{\n"
+    "                    method: 'POST',\n"
+    "                    headers: { 'Content-Type': 'application/json' },\n"
+    "                    body: JSON.stringify({ action: 'promote', choice: "
+    "pieceChar })\n"
+    "                });\n"
+    "                if (response.ok) {\n"
+    "                    "
+    "document.getElementById('promotion-modal').style.display "
+    "= 'none';\n"
+    "                    fetchData();\n"
+    "                }\n"
+    "            } catch (error) {\n"
+    "                console.error('Promotion action error:', error);\n"
+    "            }\n"
+    "        }\n"
+    "    }\n"
+    "\n"
+    "async function startNewGame() {\n"
+    "    if (confirm('Start a new game?')) {\n"
+    "        try {\n"
+    "            const response = await fetch('/api/game/new', { method: "
+    "'POST' });\n"
+    "            if (response.ok) {\n"
+    "                console.log('New game started');\n"
+    "                fetchData();\n"
+    "            } else {\n"
+    "                alert('Failed to start new game');\n"
+    "            }\n"
+    "        } catch (error) {\n"
+    "            console.error('New game error:', error);\n"
+    "        }\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function cancelPromotion() {\n"
+    "    document.getElementById('promotion-modal').style.display = 'none';\n"
+    "    pendingPromotion = null;\n"
+    "    clearHighlights();\n"
+    "    selectedSquare = null;\n"
+    "    document.getElementById('lifted-piece').textContent = '-';\n"
+    "    document.getElementById('lifted-position').textContent = '-';\n"
+    "    document.querySelectorAll('.square').forEach(sq => "
+    "sq.classList.remove('selected', 'lifted'));\n"
+    "}\n"
+    "\n"
+    "// REMOTE CONTROL LOGIC\n"
+    "function toggleRemoteControl() {\n"
+    "    const checkbox = document.getElementById('remote-control-enabled');\n"
+    "    remoteControlEnabled = checkbox.checked;\n"
+    "    console.log('Remote control:', remoteControlEnabled);\n"
+    "    \n"
+    "    if (!remoteControlEnabled) {\n"
+    "        clearHighlights();\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "async function handleRemoteControlClick(row, col) {\n"
+    "    const notation = String.fromCharCode(97 + col) + (row + 1);\n"
+    "    let action = 'pickup';\n"
+    "    \n"
+    "    // Determine action based on currently lifted piece status\n"
+    "    // Note: statusData is updated from backend\n"
+    "    if (statusData && statusData.piece_lifted && "
+    "statusData.piece_lifted.lifted) {\n"
+    "        action = 'drop';\n"
+    "    }\n"
+    "    \n"
+    "    console.log(`Remote control: ${action} at ${notation}`);\n"
+    "    \n"
+    "    // Visual feedback immediately (optimistic update)\n"
+    "    const square = "
+    "document.querySelector(`[data-row='${row}'][data-col='${col}']`);\n"
+    "    if (square) {\n"
+    "        square.style.boxShadow = action === 'pickup' ? \n"
+    "            'inset 0 0 20px rgba(255, 255, 0, 0.8)' : \n"
+    "            'inset 0 0 20px rgba(0, 255, 0, 0.8)';\n"
+    "        \n"
+    "        setTimeout(() => {\n"
+    "            if (square) square.style.boxShadow = '';\n"
+    "        }, 500);\n"
+    "    }\n"
+    "    \n"
+    "    try {\n"
+    "        const response = await fetch('/api/game/virtual_action', {\n"
+    "            method: 'POST',\n"
+    "            headers: {'Content-Type': 'application/json'},\n"
+    "            body: JSON.stringify({action: action, square: notation})\n"
+    "        });\n"
+    "        const res = await response.json();\n"
+    "        console.log('Remote action response:', res);\n"
+    "        \n"
+    "        if (!res.success) {\n"
+    "            alert('Remote action failed: ' + res.message);\n"
+    "        }\n"
+    "    } catch (e) {\n"
+    "        console.error('Remote action error:', e);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "async function handleSquareClick(row, col) {\n"
+    "    const piece = sandboxMode ? sandboxBoard[row][col] : "
+    "boardData[row][col];\n"
+    "    const index = row * 8 + col;\n"
+    "\n"
+    "    // REMOTE CONTROL MODE\n"
+    "    if (remoteControlEnabled) {\n"
+    "        handleRemoteControlClick(row, col);\n"
+    "        return;\n"
+    "    }\n"
+    "\n"
+    "    if (piece === ' ' && selectedSquare !== null) {\n"
+    "        const fromRow = Math.floor(selectedSquare / 8);\n"
+    "        const fromCol = selectedSquare % 8;\n"
+    "        const fromNotation = String.fromCharCode(97 + fromCol) + (8 - "
+    "fromRow);\n"
+    "        const toNotation = String.fromCharCode(97 + col) + (8 - row);\n"
+    "\n"
+    "        // DETEKCE PROMOCE: Zkontrolovat zda je pěšec a jde na promotion rank\n"
+    "        const sourcePiece = boardData[fromRow][fromCol];\n"
+    "        const isPromotion = (sourcePiece === 'P' && row === 0) || "
+    "(sourcePiece === 'p' && row === 7);\n"
+    "\n"
+    "        if (isPromotion) {\n"
+    "            // Web-initiated promoce: Nastavit pendingPromotion a zobrazit modal\n"
+    "            pendingPromotion = { from: fromNotation, to: toNotation };\n"
+    "            const promoModal = document.getElementById('promotion-modal');\n"
+    "            if (promoModal) promoModal.style.display = 'flex';\n"
+    "            clearHighlights(); // Smazat highlights, ale ponechat selectedSquare pro vizuální feedback\n"
+    "            return; // NEposílat tah ještě - počkat na výběr figurky v selectPromotion()\n"
+    "        }\n"
+    "\n"
+    "        try {\n"
+    "            const response = await fetch('/api/move', {\n"
+    "                method: 'POST',\n"
+    "                headers: { 'Content-Type': 'application/json' },\n"
+    "                body: JSON.stringify({ from: fromNotation, to: "
+    "toNotation })\n"
+    "            });\n"
+            "            if (response.ok) {\n"
+            "                clearHighlights();\n"
+            "                fetchData(); // Refresh po úspěšném tahu\n"
+            "            } else {\n"
+            "                // Nevalidní tah - okamžitě aktualizovat pro zobrazení error state\n"
+            "                console.warn('Invalid move:', response.status);\n"
+            "                clearHighlights(); // Smazat lokální highlights\n"
+            "                await fetchData(); // Okamžitá aktualizace pro error state (červená + modrá)\n"
+            "            }\n"
+    "        } catch (error) {\n"
+    "            console.error('Move error:', error);\n"
     "        }\n"
     "        return;\n"
     "    }\n"
-    "    \n"
+    "\n"
     "    if (piece !== ' ') {\n"
     "        if (sandboxMode) {\n"
     "            clearHighlights();\n"
     "            selectedSquare = index;\n"
     "            const square = "
     "document.querySelector(`[data-row='${row}'][data-col='${col}']`);\n"
-    "            if (square) square.classList.add('selected');\n"
-    "        } else {\n"
+    "            if (square) square.classList.add('lifted');\n"
+        "        } else if (selectedSquare !== null) {\n"
+        "                // CAPTURE LOGIC\n"
+        "                // If we have a selected piece and click an opponent "
+    "piece -> Capture\n"
+        "                const fromRow = Math.floor(selectedSquare / 8);\n"
+        "                const fromCol = selectedSquare % 8;\n"
+        "                const fromNotation = String.fromCharCode(97 + fromCol) + "
+    "(8 - fromRow);\n"
+        "                const toNotation = String.fromCharCode(97 + col) + (8 - "
+    "row);\n"
+        "\n"
+        "                // DETEKCE PROMOCE S CAPTURE: Zkontrolovat zda je pěšec a jde na promotion rank\n"
+        "                const sourcePiece = boardData[fromRow][fromCol];\n"
+        "                const isPromotion = (sourcePiece === 'P' && row === 0) || "
+    "(sourcePiece === 'p' && row === 7);\n"
+        "\n"
+        "                if (isPromotion) {\n"
+        "                    // Web-initiated promoce s capture: Nastavit pendingPromotion a zobrazit modal\n"
+        "                    pendingPromotion = { from: fromNotation, to: toNotation };\n"
+        "                    const promoModal = document.getElementById('promotion-modal');\n"
+        "                    if (promoModal) promoModal.style.display = 'flex';\n"
+        "                    clearHighlights();\n"
+        "                    return; // NEposílat tah ještě - počkat na výběr figurky v selectPromotion()\n"
+        "                }\n"
+        "\n"
+        "                try {\n"
+        "                    const response = await fetch('/api/move', {\n"
+        "                        method: 'POST',\n"
+        "                        headers: { 'Content-Type': 'application/json' "
+    "},\n"
+        "                        body: JSON.stringify({ from: fromNotation, to: "
+    "toNotation })\n"
+        "                    });\n"
+                    "                    if (response.ok) {\n"
+                    "                        clearHighlights();\n"
+                    "                        fetchData(); // Refresh po úspěšném tahu\n"
+                    "                    } else {\n"
+                    "                        // Nevalidní capture - okamžitě aktualizovat pro zobrazení error state\n"
+                    "                        console.warn('Invalid capture:', response.status);\n"
+                    "                        clearHighlights(); // Smazat lokální highlights\n"
+                    "                        await fetchData(); // Okamžitá aktualizace pro error state (červená + modrá)\n"
+                    "                    }\n"
+    "                } catch (error) {\n"
+    "                    console.error('Capture error:', error);\n"
+    "                }\n"
+    "            } else {\n"
     "            const isWhitePiece = piece === piece.toUpperCase();\n"
     "            const currentPlayerIsWhite = statusData.current_player === "
     "'White';\n"
-    "            \n"
+    "\n"
     "            if ((isWhitePiece && currentPlayerIsWhite) || (!isWhitePiece "
     "&& !currentPlayerIsWhite)) {\n"
     "                clearHighlights();\n"
     "                selectedSquare = index;\n"
     "                const square = "
     "document.querySelector(`[data-row='${row}'][data-col='${col}']`);\n"
-    "                if (square) square.classList.add('selected');\n"
+    "                if (square) square.classList.add('lifted');\n"
     "            }\n"
     "        }\n"
     "    }\n"
     "}\n"
     "\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "// REVIEW MODE\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "\n"
     "function reconstructBoardAtMove(moveIndex) {\n"
     "    const startBoard = [\n"
-    "        ['R','N','B','Q','K','B','N','R'],\n"
-    "        ['P','P','P','P','P','P','P','P'],\n"
-    "        [' ',' ',' ',' ',' ',' ',' ',' '],\n"
-    "        [' ',' ',' ',' ',' ',' ',' ',' '],\n"
-    "        [' ',' ',' ',' ',' ',' ',' ',' '],\n"
-    "        [' ',' ',' ',' ',' ',' ',' ',' '],\n"
-    "        ['p','p','p','p','p','p','p','p'],\n"
-    "        ['r','n','b','q','k','b','n','r']\n"
+    "        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],\n"
+    "        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],\n"
+    "        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],\n"
+    "        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],\n"
+    "        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],\n"
+    "        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],\n"
+    "        ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],\n"
+    "        ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']\n"
     "    ];\n"
     "    const board = JSON.parse(JSON.stringify(startBoard));\n"
     "    for (let i = 0; i <= moveIndex && i < historyData.length; i++) {\n"
@@ -2158,15 +3118,19 @@ static const char chess_app_js_content[] =
     "document.querySelector(`[data-move-index='${index}']`);\n"
     "    if (selectedItem) {\n"
     "        selectedItem.classList.add('selected');\n"
-    "        "
-    "selectedItem.scrollIntoView({behavior:'smooth',block:'nearest'});\n"
+    "        // Removed scrollIntoView - causes unwanted scroll on mobile "
+    "when "
+    "using navigation arrows\n"
+    "        // History item stays highlighted but page doesn't scroll away "
+    "from board/banner\n"
     "    }\n"
     "}\n"
     "\n"
     "function exitReviewMode() {\n"
     "    reviewMode = false;\n"
     "    currentReviewIndex = -1;\n"
-    "    document.getElementById('review-banner').classList.remove('active');\n"
+    "    "
+    "document.getElementById('review-banner').classList.remove('active');\n"
     "    document.querySelectorAll('.square').forEach(sq => {\n"
     "        sq.classList.remove('move-from', 'move-to');\n"
     "    });\n"
@@ -2177,11 +3141,13 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "// SANDBOX MODE\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "\n"
     "function enterSandboxMode() {\n"
@@ -2191,7 +3157,6 @@ static const char chess_app_js_content[] =
     "    const banner = document.getElementById('sandbox-banner');\n"
     "    banner.classList.add('active');\n"
     "    clearHighlights();\n"
-    "    updateSandboxUI();  // ✅ Inicializovat UI (undo tlačítko disabled)\n"
     "}\n"
     "\n"
     "function exitSandboxMode() {\n"
@@ -2205,92 +3170,32 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "function makeSandboxMove(fromRow, fromCol, toRow, toCol) {\n"
-    "    // ✅ Uložit board state PŘED tahem pro undo\n"
-    "    const boardCopy = JSON.parse(JSON.stringify(sandboxBoard));\n"
     "    const piece = sandboxBoard[fromRow][fromCol];\n"
-    "    const capturedPiece = sandboxBoard[toRow][toCol];\n"
-    "    \n"
-    "    // Provést tah\n"
     "    sandboxBoard[toRow][toCol] = piece;\n"
     "    sandboxBoard[fromRow][fromCol] = ' ';\n"
-    "    \n"
-    "    // ✅ Uložit do historie s board state\n"
-    "    sandboxHistory.push({\n"
-    "        from: `${String.fromCharCode(97+fromCol)}${8-fromRow}`,\n"
-    "        to: `${String.fromCharCode(97+toCol)}${8-toRow}`,\n"
-    "        piece: piece,\n"
-    "        captured: capturedPiece,\n"
-    "        boardState: boardCopy  // Board PŘED tahem\n"
-    "    });\n"
-    "    \n"
-    "    // ✅ Limit historie na 10 tahů\n"
-    "    if (sandboxHistory.length > 10) {\n"
-    "        sandboxHistory.shift();  // Odstranit nejstarší tah\n"
-    "    }\n"
-    "    \n"
+    "    sandboxHistory.push({ from: `${String.fromCharCode(97 + fromCol)}${8 "
+    "- fromRow}`, to: `${String.fromCharCode(97 + toCol)}${8 - toRow}` });\n"
     "    updateBoard(sandboxBoard);\n"
-    "    updateSandboxUI();  // ✅ Aktualizovat UI (undo tlačítko)\n"
-    "}\n"
-    "\n"
-    "function undoSandboxMove() {\n"
-    "    if (!sandboxMode || sandboxHistory.length === 0) return;\n"
-    "    \n"
-    "    // Vzít poslední tah z historie\n"
-    "    const lastMove = sandboxHistory.pop();\n"
-    "    \n"
-    "    // Obnovit board state PŘED tahem\n"
-    "    sandboxBoard = JSON.parse(JSON.stringify(lastMove.boardState));\n"
-    "    \n"
-    "    updateBoard(sandboxBoard);\n"
-    "    updateSandboxUI();  // ✅ Aktualizovat UI\n"
-    "    \n"
-    "    console.log('Undo sandbox move:', lastMove.from, '->', lastMove.to);\n"
-    "}\n"
-    "\n"
-    "function updateSandboxUI() {\n"
-    "    // Aktualizovat počítadlo tahů a stav undo tlačítka\n"
-    "    const banner = document.getElementById('sandbox-banner');\n"
-    "    if (banner && sandboxMode) {\n"
-    "        const moveCount = sandboxHistory.length;\n"
-    "        const undoBtn = document.getElementById('sandbox-undo-btn');\n"
-    "        if (undoBtn) {\n"
-    "            undoBtn.disabled = (moveCount === 0);\n"
-    "            undoBtn.textContent = `↶ Undo (${moveCount}/10)`;\n"
-    "        }\n"
-    "    }\n"
-    "}\n"
-    "\n"
-    "function updateBoard(board) {\n"
-    "    // ✅ POUZE vykreslit board na DOM - NEMĚNIT globální proměnné!\n"
-    "    const squares = document.querySelectorAll('.square');\n"
-    "    squares.forEach((square, index) => {\n"
-    "        const row = Math.floor(index / 8);\n"
-    "        const col = index % 8;\n"
-    "        const boardRow = 7 - row;  // Převrátit řádky (board[0] = řádek "
-    "8)\n"
-    "        const piece = board[boardRow][col];\n"
-    "        square.textContent = piece === ' ' ? '' : piece;\n"
-    "    });\n"
-    "    \n"
-    "    // ✅ FIX: Aktualizovat boardData POUZE pokud NEJSME v sandbox/review "
-    "módu!\n"
-    "    if (!sandboxMode && !reviewMode) {\n"
-    "        boardData = JSON.parse(JSON.stringify(board));\n"
-    "    }\n"
     "}\n"
     "\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "// UPDATE FUNCTIONS\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "\n"
     "function updateBoard(board) {\n"
     "    boardData = board;\n"
     "    const loading = document.getElementById('loading');\n"
     "    if (loading) loading.style.display = 'none';\n"
+    "\n"
+    "    // NEPŘIDÁVAT clearHighlights() - highlights jsou řízené přes updateStatus()\n"
+    "    // (lifted, error-invalid, error-original jsou serverem řízené stavy)\n"
+    "\n"
     "    for (let row = 0; row < 8; row++) {\n"
     "        for (let col = 0; col < 8; col++) {\n"
     "            const piece = board[row][col];\n"
@@ -2310,43 +3215,45 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "// ENDGAME REPORT FUNCTIONS\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "\n"
     "// Zobrazit endgame report na webu\n"
     "async function showEndgameReport(gameEnd) {\n"
     "    console.log('🏆 showEndgameReport() called with:', gameEnd);\n"
-    "    \n"
-    "    // ✅ FIX: Pokud už je banner zobrazen, nedělat nic (aby se "
+    "\n"
+    "    // Pokud už je banner zobrazen, nedělat nic (aby se "
     "nepřekresloval)\n"
     "    if (endgameReportShown && document.getElementById('endgame-banner')) "
     "{\n"
     "        console.log('Endgame report already shown, skipping...');\n"
     "        return;\n"
     "    }\n"
-    "    \n"
-    "    // ✅ Načíst advantage history pro graf\n"
-    "    let advantageData = {history: [], white_checks: 0, black_checks: 0, "
-    "white_castles: 0, black_castles: 0};\n"
+    "\n"
+    "    // Načíst advantage history pro graf\n"
+    "    let advantageDataLocal = { history: [], white_checks: 0, "
+    "black_checks: 0, white_castles: 0, black_castles: 0 };\n"
     "    try {\n"
     "        const response = await fetch('/api/advantage');\n"
-    "        advantageData = await response.json();\n"
-    "        console.log('Advantage data loaded:', advantageData);\n"
+    "        advantageDataLocal = await response.json();\n"
+    "        console.log('Advantage data loaded:', advantageDataLocal);\n"
     "    } catch (e) {\n"
     "        console.error('Failed to load advantage data:', e);\n"
     "    }\n"
-    "    \n"
+    "\n"
     "    // Určit výsledek a barvy\n"
     "    let emoji = '🏆';\n"
     "    let title = '';\n"
     "    let subtitle = '';\n"
     "    let accentColor = '#4CAF50';\n"
     "    let bgGradient = 'linear-gradient(135deg, #1e3a1e, #2d4a2d)';\n"
-    "    \n"
+    "\n"
     "    if (gameEnd.winner === 'Draw') {\n"
     "        emoji = '🤝';\n"
     "        title = 'REMÍZA';\n"
@@ -2355,7 +3262,7 @@ static const char chess_app_js_content[] =
     "        bgGradient = 'linear-gradient(135deg, #3a2e1e, #4a3e2d)';\n"
     "    } else {\n"
     "        emoji = gameEnd.winner === 'White' ? '⚪' : '⚫';\n"
-    "        title = gameEnd.winner.toUpperCase() + ' VYHRÁL!';\n"
+    "        title = `${gameEnd.winner.toUpperCase()} VYHRÁL!`;\n"
     "        subtitle = gameEnd.reason;\n"
     "        accentColor = gameEnd.winner === 'White' ? '#4CAF50' : "
     "'#2196F3';\n"
@@ -2363,337 +3270,416 @@ static const char chess_app_js_content[] =
     "'linear-gradient(135deg, #1e3a1e, #2d4a2d)' : 'linear-gradient(135deg, "
     "#1e2a3a, #2d3a4a)';\n"
     "    }\n"
-    "    \n"
+    "\n"
     "    // Získat statistiky\n"
     "    const whiteMoves = Math.ceil(statusData.move_count / 2);\n"
     "    const blackMoves = Math.floor(statusData.move_count / 2);\n"
     "    const whiteCaptured = capturedData.white_captured || [];\n"
     "    const blackCaptured = capturedData.black_captured || [];\n"
-    "    \n"
+    "\n"
     "    // Material advantage\n"
-    "    const pieceValues = {p:1,n:3,b:3,r:5,q:9,P:1,N:3,B:3,R:5,Q:9};\n"
+    "    const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, P: 1, N: 3, B: "
+    "3, "
+    "R: 5, Q: 9 };\n"
     "    let whiteMaterial = 0, blackMaterial = 0;\n"
     "    whiteCaptured.forEach(p => whiteMaterial += pieceValues[p] || 0);\n"
     "    blackCaptured.forEach(p => blackMaterial += pieceValues[p] || 0);\n"
     "    const materialDiff = whiteMaterial - blackMaterial;\n"
-    "    const materialText = materialDiff > 0 ? 'White +' + materialDiff : "
-    "materialDiff < 0 ? 'Black +' + (-materialDiff) : 'Vyrovnáno';\n"
-    "    \n"
-    "    // ✅ Vytvořit SVG graf výhody (jako chess.com)\n"
+    "    const materialText = materialDiff > 0 ? `White +${materialDiff}` : "
+    "materialDiff < 0 ? `Black +${-materialDiff}` : 'Vyrovnáno';\n"
+    "\n"
+    "    // Vytvořit SVG graf výhody (jako chess.com)\n"
     "    let graphSVG = '';\n"
-    "    if (advantageData.history && advantageData.history.length > 1) {\n"
-    "        const history = advantageData.history;\n"
+    "    if (advantageDataLocal.history && advantageDataLocal.history.length "
+    "> "
+    "1) {\n"
+    "        const history = advantageDataLocal.history;\n"
     "        const width = 280;\n"
     "        const height = 100;\n"
     "        const maxAdvantage = Math.max(10, ...history.map(Math.abs));\n"
     "        const scaleY = height / (2 * maxAdvantage);\n"
     "        const scaleX = width / (history.length - 1);\n"
-    "        \n"
+    "\n"
     "        // Vytvořit body pro polyline (0,0 je nahoře vlevo, y roste "
     "dolů)\n"
     "        let points = history.map((adv, i) => {\n"
     "            const x = i * scaleX;\n"
     "            const y = height / 2 - adv * scaleY;  // Převrátit Y (White "
     "nahoře, Black dole)\n"
-    "            return x + ',' + y;\n"
+    "            return `${x},${y}`;\n"
     "        }).join(' ');\n"
-    "        \n"
+    "\n"
     "        // Vytvořit polygon pro vyplněnou oblast\n"
-    "        let areaPoints = '0,' + (height / 2) + ' ' + points + ' ' + width "
-    "+ ',' + (height / 2);\n"
-    "        \n"
-    "        graphSVG = '<svg width=\"280\" height=\"100\" "
-    "style=\"border-radius:6px;background:rgba(0,0,0,0.2);\">' +\n"
-    "            '<!-- Středová čára (vyrovnaná pozice) -->' +\n"
-    "            '<line x1=\"0\" y1=\"' + (height / 2) + '\" x2=\"' + width + "
-    "'\" y2=\"' + (height / 2) + '\" stroke=\"#555\" stroke-width=\"1\" "
-    "stroke-dasharray=\"3,3\"/>' +\n"
-    "            '<!-- Vyplněná oblast pod křivkou -->' +\n"
-    "            '<polygon points=\"' + areaPoints + '\" fill=\"' + "
-    "accentColor + '\" opacity=\"0.2\"/>' +\n"
-    "            '<!-- Křivka výhody -->' +\n"
-    "            '<polyline points=\"' + points + '\" fill=\"none\" stroke=\"' "
-    "+ accentColor + '\" stroke-width=\"2\" stroke-linejoin=\"round\"/>' +\n"
-    "            '<!-- Tečky na koncích -->' +\n"
-    "            '<circle cx=\"0\" cy=\"' + (height / 2) + '\" r=\"3\" "
-    "fill=\"' + accentColor + '\"/>' +\n"
-    "            '<circle cx=\"' + ((history.length - 1) * scaleX) + '\" "
-    "cy=\"' + (height / 2 - history[history.length - 1] * scaleY) + '\" "
-    "r=\"4\" fill=\"' + accentColor + '\"/>' +\n"
-    "            '<!-- Popisky -->' +\n"
-    "            '<text x=\"5\" y=\"12\" fill=\"#888\" font-size=\"10\" "
-    "font-weight=\"600\">White</text>' +\n"
-    "            '<text x=\"5\" y=\"' + (height - 2) + '\" fill=\"#888\" "
-    "font-size=\"10\" font-weight=\"600\">Black</text>' +\n"
-    "        '</svg>';\n"
+    "        let areaPoints = `0,${height / 2} ${points} ${width},${height / "
+    "2}`;\n"
+    "\n"
+    "        graphSVG = `<svg width=\"280\" height=\"100\" "
+    "style=\"border-radius:6px;background:rgba(0,0,0,0.2);\">\n"
+    "            <!-- Středová čára (vyrovnaná pozice) -->\n"
+    "            <line x1=\"0\" y1=\"${height / 2}\" x2=\"${width}\" "
+    "y2=\"${height / 2}\" stroke=\"#555\" stroke-width=\"1\" "
+    "stroke-dasharray=\"3,3\"/>\n"
+    "            <!-- Vyplněná oblast pod křivkou -->\n"
+    "            <polygon points=\"${areaPoints}\" fill=\"${accentColor}\" "
+    "opacity=\"0.2\"/>\n"
+    "            <!-- Křivka výhody -->\n"
+    "            <polyline points=\"${points}\" fill=\"none\" "
+    "stroke=\"${accentColor}\" stroke-width=\"2\" "
+    "stroke-linejoin=\"round\"/>\n"
+    "            <!-- Tečky na koncích -->\n"
+    "            <circle cx=\"0\" cy=\"${height / 2}\" r=\"3\" "
+    "fill=\"${accentColor}\"/>\n"
+    "            <circle cx=\"${(history.length - 1) * scaleX}\" "
+    "cy=\"${height "
+    "/ 2 - history[history.length - 1] * scaleY}\" r=\"4\" "
+    "fill=\"${accentColor}\"/>\n"
+    "            <!-- Popisky -->\n"
+    "            <text x=\"5\" y=\"12\" fill=\"#888\" font-size=\"10\" "
+    "font-weight=\"600\">White</text>\n"
+    "            <text x=\"5\" y=\"${height - 2}\" fill=\"#888\" "
+    "font-size=\"10\" font-weight=\"600\">Black</text>\n"
+    "        </svg>`;\n"
     "    }\n"
-    "    \n"
+    "\n"
     "    // Vytvořit nový banner - VLEVO OD BOARDU, NE UPROSTŘED!\n"
     "    const banner = document.createElement('div');\n"
     "    banner.id = 'endgame-banner';\n"
-    "    banner.style.cssText = '\\\n"
-    "        position: fixed;\\\n"
-    "        left: 10px;\\\n"
-    "        top: 50%;\\\n"
-    "        transform: translateY(-50%);\\\n"
-    "        width: 320px;\\\n"
-    "        max-height: 90vh;\\\n"
-    "        overflow-y: auto;\\\n"
-    "        background: ' + bgGradient + ';\\\n"
-    "        border: 2px solid ' + accentColor + ';\\\n"
-    "        border-radius: 12px;\\\n"
-    "        padding: 0;\\\n"
-    "        box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 40px ' + accentColor "
-    "+ '40;\\\n"
-    "        z-index: 9999;\\\n"
-    "        animation: slideInLeft 0.4s ease-out;\\\n"
-    "        backdrop-filter: blur(10px);\\\n"
-    "    ';\n"
-    "    \n"
+    "\n"
     "    // Na mobilu - jiné umístění (nahoře, plná šířka)\n"
     "    if (window.innerWidth <= 768) {\n"
-    "        banner.style.cssText = '\\\n"
-    "            position: fixed;\\\n"
-    "            left: 10px;\\\n"
-    "            right: 10px;\\\n"
-    "            top: 10px;\\\n"
-    "            width: auto;\\\n"
-    "            max-height: 80vh;\\\n"
-    "            transform: none;\\\n"
-    "            overflow-y: auto;\\\n"
-    "            background: ' + bgGradient + ';\\\n"
-    "            border: 2px solid ' + accentColor + ';\\\n"
-    "            border-radius: 12px;\\\n"
-    "            padding: 0;\\\n"
-    "            box-shadow: 0 8px 32px rgba(0,0,0,0.6);\\\n"
-    "            z-index: 9999;\\\n"
-    "            animation: slideInTop 0.4s ease-out;\\\n"
-    "        ';\n"
+    "        banner.style.cssText = `\n"
+    "            position: fixed;\n"
+    "            left: 10px;\n"
+    "            right: 10px;\n"
+    "            top: 10px;\n"
+    "            width: auto;\n"
+    "            max-height: 80vh;\n"
+    "            transform: none;\n"
+    "            overflow-y: auto;\n"
+    "            background: ${bgGradient};\n"
+    "            border: 2px solid ${accentColor};\n"
+    "            border-radius: 12px;\n"
+    "            padding: 0;\n"
+    "            box-shadow: 0 8px 32px rgba(0,0,0,0.6);\n"
+    "            z-index: 9999;\n"
+    "            animation: slideInTop 0.4s ease-out;\n"
+    "        `;\n"
+    "    } else {\n"
+    "        banner.style.cssText = `\n"
+    "            position: fixed;\n"
+    "            left: 10px;\n"
+    "            top: 50%;\n"
+    "            transform: translateY(-50%);\n"
+    "            width: 320px;\n"
+    "            max-height: 90vh;\n"
+    "            overflow-y: auto;\n"
+    "            background: ${bgGradient};\n"
+    "            border: 2px solid ${accentColor};\n"
+    "            border-radius: 12px;\n"
+    "            padding: 0;\n"
+    "            box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 40px "
+    "${accentColor}40;\n"
+    "            z-index: 9999;\n"
+    "            animation: slideInLeft 0.4s ease-out;\n"
+    "            backdrop-filter: blur(10px);\n"
+    "        `;\n"
     "    }\n"
-    "    \n"
+    "\n"
     "    // HTML obsah\n"
-    "    banner.innerHTML = '\\\n"
-    "        <div style=\"background:' + accentColor + "
-    "';padding:20px;text-align:center;border-radius:10px 10px 0 0;\">\\\n"
-    "            <div style=\"font-size:64px;margin-bottom:8px;\">' + emoji + "
-    "'</div>\\\n"
+    "    banner.innerHTML = `\n"
+    "        <div "
+    "style=\"background:${accentColor};padding:20px;text-align:center;border-"
+    "radius:10px 10px 0 0;\">\n"
+    "            <div "
+    "style=\"font-size:64px;margin-bottom:8px;\">${emoji}</div>\n"
     "            <h2 "
-    "style=\"margin:0;color:white;font-size:24px;font-weight:700;text-shadow:0 "
-    "2px 4px rgba(0,0,0,0.4);\">' + title + '</h2>\\\n"
+    "style=\"margin:0;color:white;font-size:24px;font-weight:700;text-shadow:"
+    "0 "
+    "2px 4px rgba(0,0,0,0.4);\">${title}</h2>\n"
     "            <p style=\"margin:8px 0 0 "
-    "0;color:rgba(255,255,255,0.9);font-size:14px;font-weight:500;\">' + "
-    "subtitle + '</p>\\\n"
-    "        </div>\\\n"
-    "        <div style=\"padding:20px;\">\\\n"
-    "            ' + (graphSVG ? '\\\n"
+    "0;color:rgba(255,255,255,0.9);font-size:14px;font-weight:500;\">${"
+    "subtitle}</p>\n"
+    "        </div>\n"
+    "        <div style=\"padding:20px;\">\n"
+    "            ${graphSVG ? `\n"
     "            <div "
     "style=\"background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-"
-    "bottom:15px;\">\\\n"
-    "                <h3 style=\"margin:0 0 12px 0;color:' + accentColor + "
-    "';font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;"
-    "\">\\\n"
-    "                    <span>📈</span> Průběh hry\\\n"
-    "                </h3>\\\n"
-    "                ' + graphSVG + '\\\n"
+    "bottom:15px;\">\n"
+    "                <h3 style=\"margin:0 0 12px "
+    "0;color:${accentColor};font-size:16px;font-weight:600;display:flex;align-"
+    "items:center;gap:8px;\">\n"
+    "                    <span>📈</span> Průběh hry\n"
+    "                </h3>\n"
+    "                ${graphSVG}\n"
     "                <div "
     "style=\"display:flex;justify-content:space-between;margin-top:8px;font-"
-    "size:11px;color:#888;\">\\\n"
-    "                    <span>Začátek</span>\\\n"
-    "                    <span>Tah ' + (advantageData.count || 0) + "
-    "'</span>\\\n"
-    "                </div>\\\n"
-    "            </div>' : '') + '\\\n"
+    "size:11px;color:#888;\">\n"
+    "                    <span>Začátek</span>\n"
+    "                    <span>Tah ${advantageDataLocal.count || 0}</span>\n"
+    "                </div>\n"
+    "            </div>` : ''}\n"
     "            <div "
     "style=\"background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-"
-    "bottom:15px;\">\\\n"
-    "                <h3 style=\"margin:0 0 12px 0;color:' + accentColor + "
-    "';font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;"
-    "\">\\\n"
-    "                    <span>📊</span> Statistiky\\\n"
-    "                </h3>\\\n"
+    "bottom:15px;\">\n"
+    "                <h3 style=\"margin:0 0 12px "
+    "0;color:${accentColor};font-size:16px;font-weight:600;display:flex;align-"
+    "items:center;gap:8px;\">\n"
+    "                    <span>📊</span> Statistiky\n"
+    "                </h3>\n"
     "                <div style=\"display:grid;grid-template-columns:1fr "
-    "1fr;gap:10px;font-size:13px;\">\\\n"
+    "1fr;gap:10px;font-size:13px;\">\n"
     "                    <div "
     "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
-    "\">\\\n"
+    "\">\n"
     "                        <div "
-    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Tahy</div>\\\n"
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Tahy</div>\n"
     "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ "
-    "' + whiteMoves + ' | ⚫ ' + blackMoves + '</div>\\\n"
-    "                    </div>\\\n"
+    "${whiteMoves} | ⚫ ${blackMoves}</div>\n"
+    "                    </div>\n"
     "                    <div "
     "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
-    "\">\\\n"
+    "\">\n"
     "                        <div "
-    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Materiál</div>\\\n"
-    "                        <div style=\"color:' + accentColor + "
-    "';font-weight:600;\">' + materialText + '</div>\\\n"
-    "                    </div>\\\n"
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Materiál</div>\n"
+    "                        <div "
+    "style=\"color:${accentColor};font-weight:600;\">${materialText}</div>\n"
+    "                    </div>\n"
     "                    <div "
     "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
-    "\">\\\n"
+    "\">\n"
     "                        <div "
-    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Sebráno</div>\\\n"
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Sebráno</div>\n"
     "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ "
-    "' + whiteCaptured.length + ' | ⚫ ' + blackCaptured.length + '</div>\\\n"
-    "                    </div>\\\n"
+    "${whiteCaptured.length} | ⚫ ${blackCaptured.length}</div>\n"
+    "                    </div>\n"
     "                    <div "
     "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
-    "\">\\\n"
+    "\">\n"
     "                        <div "
-    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Celkem</div>\\\n"
-    "                        <div style=\"color:#e0e0e0;font-weight:600;\">' + "
-    "statusData.move_count + ' tahů</div>\\\n"
-    "                    </div>\\\n"
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Celkem</div>\n"
+    "                        <div "
+    "style=\"color:#e0e0e0;font-weight:600;\">${statusData.move_count} "
+    "tahů</div>\n"
+    "                    </div>\n"
     "                    <div "
     "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
-    "\">\\\n"
+    "\">\n"
     "                        <div "
-    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Šachy</div>\\\n"
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Šachy</div>\n"
     "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ "
-    "' + (advantageData.white_checks || 0) + ' | ⚫ ' + "
-    "(advantageData.black_checks || 0) + '</div>\\\n"
-    "                    </div>\\\n"
+    "${advantageDataLocal.white_checks || 0} | ⚫ "
+    "${advantageDataLocal.black_checks || 0}</div>\n"
+    "                    </div>\n"
     "                    <div "
     "style=\"background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;"
-    "\">\\\n"
+    "\">\n"
     "                        <div "
-    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Rošády</div>\\\n"
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Rošády</div>\n"
     "                        <div style=\"color:#e0e0e0;font-weight:600;\">⚪ "
-    "' + (advantageData.white_castles || 0) + ' | ⚫ ' + "
-    "(advantageData.black_castles || 0) + '</div>\\\n"
-    "                    </div>\\\n"
-    "                </div>\\\n"
-    "            </div>\\\n"
+    "${advantageDataLocal.white_castles || 0} | ⚫ "
+    "${advantageDataLocal.black_castles || 0}</div>\n"
+    "                    </div>\n"
+    "                </div>\n"
+    "            </div>\n"
     "            <div "
     "style=\"background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-"
-    "bottom:15px;\">\\\n"
-    "                <h3 style=\"margin:0 0 12px 0;color:' + accentColor + "
-    "';font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;"
-    "\">\\\n"
-    "                    <span>⚔️</span> Sebrané figurky\\\n"
-    "                </h3>\\\n"
-    "                <div style=\"margin-bottom:10px;\">\\\n"
+    "bottom:15px;\">\n"
+    "                <h3 style=\"margin:0 0 12px "
+    "0;color:${accentColor};font-size:16px;font-weight:600;display:flex;align-"
+    "items:center;gap:8px;\">\n"
+    "                    <span>⚔️</span> Sebrané figurky\n"
+    "                </h3>\n"
+    "                <div style=\"margin-bottom:10px;\">\n"
     "                    <div "
-    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">White sebral (' + "
-    "whiteCaptured.length + ')</div>\\\n"
-    "                    <div style=\"font-size:20px;line-height:1.4;\">' + "
-    "(whiteCaptured.map(p => pieceSymbols[p] || p).join(' ') || '−') + "
-    "'</div>\\\n"
-    "                </div>\\\n"
-    "                <div>\\\n"
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">White sebral "
+    "(${whiteCaptured.length})</div>\n"
     "                    <div "
-    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Black sebral (' + "
-    "blackCaptured.length + ')</div>\\\n"
-    "                    <div style=\"font-size:20px;line-height:1.4;\">' + "
-    "(blackCaptured.map(p => pieceSymbols[p] || p).join(' ') || '−') + "
-    "'</div>\\\n"
-    "                </div>\\\n"
-    "            </div>\\\n"
-    "            <button onclick=\"hideEndgameReport()\" style=\"\\\n"
-    "                width:100%;\\\n"
-    "                padding:14px;\\\n"
-    "                font-size:16px;\\\n"
-    "                background:' + accentColor + ';\\\n"
-    "                color:white;\\\n"
-    "                border:none;\\\n"
-    "                border-radius:8px;\\\n"
-    "                cursor:pointer;\\\n"
-    "                font-weight:600;\\\n"
-    "                box-shadow:0 4px 12px rgba(0,0,0,0.3);\\\n"
-    "                transition:all 0.2s;\\\n"
+    "style=\"font-size:20px;line-height:1.4;\">${whiteCaptured.map(p => "
+    "pieceSymbols[p] || p).join(' ') || '−'}</div>\n"
+    "                </div>\n"
+    "                <div>\n"
+    "                    <div "
+    "style=\"color:#888;font-size:11px;margin-bottom:4px;\">Black sebral "
+    "(${blackCaptured.length})</div>\n"
+    "                    <div "
+    "style=\"font-size:20px;line-height:1.4;\">${blackCaptured.map(p => "
+    "pieceSymbols[p] || p).join(' ') || '−'}</div>\n"
+    "                </div>\n"
+    "            </div>\n"
+    "            <button onclick=\"hideEndgameReport()\" style=\"\n"
+    "                width:100%;\n"
+    "                padding:14px;\n"
+    "                font-size:16px;\n"
+    "                background:${accentColor};\n"
+    "                color:white;\n"
+    "                border:none;\n"
+    "                border-radius:8px;\n"
+    "                cursor:pointer;\n"
+    "                font-weight:600;\n"
+    "                box-shadow:0 4px 12px rgba(0,0,0,0.3);\n"
+    "                transition:all 0.2s;\n"
     "            \" "
-    "onmouseover=\"this.style.transform=\\'translateY(-2px)\\';this.style."
-    "boxShadow=\\'0 6px 16px rgba(0,0,0,0.4)\\'\" "
-    "onmouseout=\"this.style.transform=\\'translateY(0)\\';this.style."
-    "boxShadow=\\'0 4px 12px rgba(0,0,0,0.3)\\'\">\\\n"
-    "                ✓ OK\\\n"
-    "            </button>\\\n"
-    "        </div>\\\n"
-    "    ';\n"
-    "    \n"
+    "onmouseover=\"this.style.transform='translateY(-2px)';this.style."
+    "boxShadow='0 6px 16px rgba(0,0,0,0.4)'\" "
+    "onmouseout=\"this.style.transform='translateY(0)';this.style.boxShadow='"
+    "0 "
+    "4px 12px rgba(0,0,0,0.3)'\">\n"
+    "                ✓ OK\n"
+    "            </button>\n"
+    "        </div>\n"
+    "    `;\n"
+    "\n"
+    "    // Přidat CSS animace pokud ještě neexistují\n"
+    "    if (!document.getElementById('endgame-animations')) {\n"
+    "        const style = document.createElement('style');\n"
+    "        style.id = 'endgame-animations';\n"
+    "        style.textContent = `\n"
+    "            @keyframes slideInLeft {\n"
+    "                from { transform: translateY(-50%) translateX(-100%); "
+    "opacity: 0; }\n"
+    "                to { transform: translateY(-50%) translateX(0); opacity: "
+    "1; }\n"
+    "            }\n"
+    "            @keyframes slideInTop {\n"
+    "                from { transform: translateY(-100%); opacity: 0; }\n"
+    "                to { transform: translateY(0); opacity: 1; }\n"
+    "            }\n"
+    "        `;\n"
+    "        document.head.appendChild(style);\n"
+    "    }\n"
+    "\n"
     "    document.body.appendChild(banner);\n"
-    "    endgameReportShown = true;  // ✅ Označit, že je zobrazený\n"
+    "    endgameReportShown = true;  // Označit, že je zobrazený\n"
     "    console.log('🏆 ENDGAME REPORT SHOWN - banner displayed (left "
     "side)');\n"
     "}\n"
     "\n"
-    "// Skrýt endgame report\n"
+    "// Skrýt endgame report (ale zachovat flag pro toggle)\n"
     "function hideEndgameReport() {\n"
+    "    console.log('Hiding endgame report...');\n"
     "    const banner = document.getElementById('endgame-banner');\n"
     "    if (banner) {\n"
-    "        banner.style.display = 'none';\n"
+    "        banner.remove();\n"
+    "        console.log('Endgame report hidden (can be toggled back)');\n"
     "    }\n"
     "}\n"
     "\n"
-    "// Toggle endgame report visibility\n"
+    "// Toggle endgame report (show/hide)\n"
     "function toggleEndgameReport() {\n"
     "    const banner = document.getElementById('endgame-banner');\n"
     "    if (banner) {\n"
-    "        if (banner.style.display === 'none') {\n"
-    "            banner.style.display = 'block';\n"
-    "        } else {\n"
-    "            banner.style.display = 'none';\n"
+    "        // Uz je zobrazen -> skryj\n"
+    "        hideEndgameReport();\n"
+    "    } else {\n"
+    "        // Neni zobrazen -> znovu zobraz (pokud mame data)\n"
+    "        if (window.lastGameEndData) {\n"
+    "            showEndgameReport(window.lastGameEndData);\n"
     "        }\n"
     "    }\n"
     "}\n"
     "\n"
-    "// Show toggle button (top-right corner)\n"
+    "// Zobrazit toggle button\n"
     "function showEndgameToggleButton() {\n"
+    "    // Zjistit zda uz button existuje\n"
     "    if (document.getElementById('endgame-toggle-btn')) return;\n"
+    "\n"
     "    const button = document.createElement('button');\n"
     "    button.id = 'endgame-toggle-btn';\n"
-    "    button.textContent = '🏆 Report';\n"
+    "    button.innerHTML = '🏆 Report';\n"
+    "    button.title = 'Show/Hide Endgame Report';\n"
     "    button.style.cssText = `\n"
     "        position: fixed;\n"
-    "        top: 20px;\n"
-    "        right: 20px;\n"
-    "        padding: 10px 18px;\n"
-    "        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n"
+    "        top: 10px;\n"
+    "        left: 10px;\n"
+    "        padding: 10px 16px;\n"
+    "        background: linear-gradient(135deg, #4CAF50, #45a049);\n"
     "        color: white;\n"
     "        border: none;\n"
-    "        border-radius: 20px;\n"
+    "        border-radius: 8px;\n"
     "        cursor: pointer;\n"
     "        font-weight: 600;\n"
-    "        font-size: 13px;\n"
-    "        box-shadow: 0 3px 10px rgba(0,0,0,0.3);\n"
+    "        font-size: 14px;\n"
+    "        box-shadow: 0 4px 12px rgba(0,0,0,0.3);\n"
     "        z-index: 10000;\n"
     "        transition: all 0.2s;\n"
     "    `;\n"
-    "    button.onmouseover = function() { this.style.transform = "
-    "'translateY(-1px)'; this.style.boxShadow = '0 5px 15px rgba(0,0,0,0.4)'; "
-    "};\n"
-    "    button.onmouseout = function() { this.style.transform = "
-    "'translateY(0)'; this.style.boxShadow = '0 3px 10px rgba(0,0,0,0.3)'; };\n"
+    "    button.onmouseover = function () {\n"
+    "        this.style.transform = 'translateY(-2px)';\n"
+    "        this.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';\n"
+    "    };\n"
+    "    button.onmouseout = function () {\n"
+    "        this.style.transform = 'translateY(0)';\n"
+    "        this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';\n"
+    "    };\n"
     "    button.onclick = toggleEndgameReport;\n"
     "    document.body.appendChild(button);\n"
     "}\n"
     "\n"
-    "// Hide toggle button\n"
+    "// Skrýt toggle button\n"
     "function hideEndgameToggleButton() {\n"
     "    const button = document.getElementById('endgame-toggle-btn');\n"
-    "    if (button) button.remove();\n"
+    "    if (button) {\n"
+    "        button.remove();\n"
+    "    }\n"
     "}\n"
     "\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "// STATUS UPDATE FUNCTION\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "\n"
     "function updateStatus(status) {\n"
     "    statusData = status;\n"
-    "    document.getElementById('game-state').textContent = status.game_state "
+    "    document.getElementById('game-state').textContent = "
+    "status.game_state "
     "|| '-';\n"
     "    document.getElementById('current-player').textContent = "
     "status.current_player || '-';\n"
-    "    document.getElementById('move-count').textContent = status.move_count "
+    "    document.getElementById('move-count').textContent = "
+    "status.move_count "
     "|| 0;\n"
     "    document.getElementById('in-check').textContent = status.in_check ? "
     "'Yes' : 'No';\n"
-    "    \n"
+    "\n"
+    "    // PROMOTION LOGIC: Show modal if game state is 'promotion'\n"
+    "    const promoModal = document.getElementById('promotion-modal');\n"
+    "    if (status.game_state === 'promotion') {\n"
+    "        if (promoModal && promoModal.style.display !== 'flex') {\n"
+    "            promoModal.style.display = 'flex';\n"
+    "        }\n"
+    "    } else {\n"
+    "        // Game state se změnil z 'promotion' na něco jiného\n"
+    "        // CLEANUP: Pokud je pendingPromotion nastaveno, vyčistit ho\n"
+    "        if (pendingPromotion) {\n"
+    "            console.log('Promotion state changed - cleaning up pendingPromotion');\n"
+    "            pendingPromotion = null;\n"
+    "        }\n"
+    "        // Hide modal only if we are NOT waiting for user to select "
+    "promotion "
+    "for a pending web move\n"
+    "        if (!pendingPromotion && promoModal && promoModal.style.display !== 'none') {\n"
+    "            promoModal.style.display = 'none';\n"
+    "        }\n"
+    "    }\n"
+    "\n"
+
+    "\n"
+    "    // ERROR STATE - vždy nejprve odstranit všechny error classes\n"
+    "    document.querySelectorAll('.square').forEach(sq => {\n"
+    "        sq.classList.remove('error-invalid', 'error-original');\n"
+    "    });\n"
+    "\n"
+    "    // LIFTED PIECE - vždy nejprve odstranit všechny lifted classes\n"
+    "    document.querySelectorAll('.square').forEach(sq => {\n"
+    "        sq.classList.remove('lifted');\n"
+    "    });\n"
+    "\n"
+    "    // Zobrazit lifted piece (zelená)\n"
     "    const lifted = status.piece_lifted;\n"
     "    if (lifted && lifted.lifted) {\n"
     "        document.getElementById('lifted-piece').textContent = "
@@ -2701,44 +3687,75 @@ static const char chess_app_js_content[] =
     "        document.getElementById('lifted-position').textContent = "
     "String.fromCharCode(97 + lifted.col) + (lifted.row + 1);\n"
     "        const square = "
-    "document.querySelector(`[data-row='${lifted.row}'][data-col='${lifted.col}"
+    "document.querySelector(`[data-row='${lifted.row}'][data-col='${lifted."
+    "col}"
     "']`);\n"
-    "        if (square) square.classList.add('lifted');\n"
+    "        if (square) square.classList.add('lifted'); // Zelená - zvednutá figurka\n"
     "    } else {\n"
     "        document.getElementById('lifted-piece').textContent = '-';\n"
     "        document.getElementById('lifted-position').textContent = '-';\n"
-    "        document.querySelectorAll('.square').forEach(sq => "
-    "sq.classList.remove('lifted'));\n"
     "    }\n"
-    "    \n"
-    "    // ✅ ERROR STATE - zobrazit červenou/modrou indikaci\n"
+    "\n"
+    "\n"
+    "    // Zobrazit error state (červená na invalid, modrá na original)\n"
     "    if (status.error_state && status.error_state.active) {\n"
-    "        showErrorState(status.error_state.invalid_pos, "
-    "status.error_state.original_pos);\n"
-    "    } else {\n"
-    "        // ✅ Vypnout error animaci když už není aktivní\n"
-    "        clearHighlights();\n"
+    "        // Invalid position (červená - kde je figurka nyní na nevalidní pozici)\n"
+    "        if (status.error_state.invalid_pos) {\n"
+    "            const invalidCol = status.error_state.invalid_pos.charCodeAt(0) - 97;\n"
+    "            const invalidRow = parseInt(status.error_state.invalid_pos[1]) - 1;\n"
+    "            const invalidSquare = "
+    "document.querySelector(`[data-row='${invalidRow}'][data-col='${invalidCol}']`);\n"
+    "            if (invalidSquare) invalidSquare.classList.add('error-invalid'); // Červená - nevalidní pozice\n"
+    "        }\n"
+    "        // Original position (modrá - kde byla figurka původně)\n"
+    "        if (status.error_state.original_pos) {\n"
+    "            const originalCol = status.error_state.original_pos.charCodeAt(0) - 97;\n"
+    "            const originalRow = parseInt(status.error_state.original_pos[1]) - 1;\n"
+    "            const originalSquare = "
+    "document.querySelector(`[data-row='${originalRow}'][data-col='${originalCol}']`);\n"
+    "            if (originalSquare) originalSquare.classList.add('error-original'); // Modrá - původní pozice\n"
+    "        }\n"
     "    }\n"
-    "    \n"
-    "    // ENDGAME REPORT - zobrazit pouze jednou, pak toggle button\n"
+
+    "\n"
+    "    // ENDGAME REPORT - zobrazit pouze JEDNOU, po prvnim skonceni\n"
     "    if (status.game_end && status.game_end.ended) {\n"
+    "        // Ulozit data pro pozdejsi toggle\n"
     "        window.lastGameEndData = status.game_end;\n"
-    "        \n"
+    "\n"
+    "        // Zobrazit report jen pokud jeste nebyl nikdy zobrazen\n"
     "        if (!endgameReportShown) {\n"
     "            console.log('Game ended, showing endgame report...');\n"
     "            showEndgameReport(status.game_end);\n"
-    "            endgameReportShown = true;\n"
     "        }\n"
-    "        \n"
+    "\n"
+    "        // Zobrazit toggle button (jen pokud je hra skoncena)\n"
     "        showEndgameToggleButton();\n"
     "    } else {\n"
+    "        // Hra je aktivni - skryj report i toggle button\n"
     "        if (endgameReportShown) {\n"
-    "            console.log('Game no longer ended, hiding report...');\n"
+    "            console.log('Game restarted, clearing endgame report...');\n"
     "            hideEndgameReport();\n"
-    "            endgameReportShown = false;\n"
     "        }\n"
+    "        endgameReportShown = false;  // Reset flagu po restartu\n"
     "        window.lastGameEndData = null;\n"
     "        hideEndgameToggleButton();\n"
+    "    }\n"
+    "\n"
+    "    // Update Web Status (injected by server)\n"
+    "    const lockStatus = document.getElementById('web-lock-status');\n"
+    "    if (lockStatus) {\n"
+    "        lockStatus.textContent = status.web_locked ? 'LOCKED' : "
+    "'UNLOCKED';\n"
+    "        lockStatus.style.color = status.web_locked ? '#ff4444' : "
+    "'#44ff44';\n"
+    "    }\n"
+    "    const netStatus = document.getElementById('web-online-status');\n"
+    "    if (netStatus) {\n"
+    "        netStatus.textContent = status.internet_connected ? 'Online' : "
+    "'Offline';\n"
+    "        netStatus.style.color = status.internet_connected ? '#44ff44' : "
+    "'#ff4444';\n"
     "    }\n"
     "}\n"
     "\n"
@@ -2782,41 +3799,115 @@ static const char chess_app_js_content[] =
     "\n"
     "async function fetchData() {\n"
     "    if (reviewMode || sandboxMode) return;\n"
+    "    \n"
+    "    // OPTIMIZED POLLING: Sequential instead of parallel to reduce load\n"
     "    try {\n"
-    "        const [boardRes, statusRes, historyRes, capturedRes] = await "
-    "Promise.all([\n"
-    "            fetch('/api/board'),\n"
-    "            fetch('/api/status'),\n"
-    "            fetch('/api/history'),\n"
-    "            fetch('/api/captured')\n"
-    "        ]);\n"
-    "        const board = await boardRes.json();\n"
+    "        // 1. Always fetch status (fast, small)\n"
+    "        const statusRes = await fetch('/api/status');\n"
+    "        if (!statusRes.ok) throw new Error('Status fetch failed');\n"
     "        const status = await statusRes.json();\n"
-    "        const history = await historyRes.json();\n"
-    "        const captured = await capturedRes.json();\n"
-    "        updateBoard(board.board);\n"
+    "        \n"
+    "        // 2. Update status UI first\n"
     "        updateStatus(status);\n"
-    "        updateHistory(history);\n"
-    "        updateCaptured(captured);\n"
+    "        \n"
+    "        // 3. Decide if we need board update\n"
+    "        // We can check a move counter or hash if available, or just "
+    "always fetch for now\n"
+    "        // but sequential prevents network congestion.\n"
+    "        const boardRes = await fetch('/api/board');\n"
+    "        if (boardRes.ok) {\n"
+    "            const board = await boardRes.json();\n"
+    "            updateBoard(board.board);\n"
+    "        }\n"
+    "\n"
+    "        // 4. Heavy data (History/Captured) - maybe fetch less often?\n"
+    "        // For now, sequentially is safe.\n"
+    "        const historyRes = await fetch('/api/history');\n"
+    "        if (historyRes.ok) {\n"
+    "            const history = await historyRes.json();\n"
+    "            updateHistory(history);\n"
+    "        }\n"
+    "        \n"
+    "        const capturedRes = await fetch('/api/captured');\n"
+    "        if (capturedRes.ok) {\n"
+    "            const captured = await capturedRes.json();\n"
+    "            updateCaptured(captured);\n"
+    "        }\n"
+    "\n"
     "    } catch (error) {\n"
-    "        console.error('Fetch error:', error);\n"
+    "        console.error('Fetch cycle error:', error);\n"
+    "        // Optional: Show connection lost icon\n"
+    "        const onlineStatus = "
+    "document.getElementById('web-online-status');\n"
+    "        if(onlineStatus) onlineStatus.textContent = '❌ Offline';\n"
     "    }\n"
     "}\n"
     "\n"
+    "function initializeApp() {\n"
+    "    console.log('🎮 Initializing Chess App...');\n"
+    "    createBoard();\n"
+    "\n"
+    "    // Inject Demo Mode section at bottom\n"
+    "    // injectDemoModeSection(); // REMOVED: Avoid duplication\n"
+    "\n"
+    "    fetchData();\n"
+    "    setInterval(fetchData, 2000); // Reduced from 500ms to 2s (4× "
+    "fewer requests)\n"
+    "    console.log('✅ Chess App initialized');\n"
+    "}\n"
+    "\n"
+    "/**\n"
+    " * Inject Demo Mode control section into DOM\n"
+    " * Placed at bottom, below all main content\n"
+    " */\n"
+    /*
+        // FUNCTION REMOVED: Demo Mode UI is now handled by server-side HTML
+       chunk (Chunk 6)
+        // to prevent duplication and ensure consistent styling.
+        function injectDemoModeSection() {
+        const container = document.querySelector('.container') ||
+       document.body;
+
+        const demoSection = document.createElement('div');
+        demoSection.style.cssText = 'margin-top:30px; padding:20px;
+       background:#2a2a2a; border-radius:8px; border-left:4px solid #666;';
+        demoSection.innerHTML = `
+            <h3
+       style="color:#999;font-size:0.9em;margin-bottom:15px;text-transform:uppercase;letter-spacing:1px;">🤖
+       Demo Mode</h3> <div
+       style="display:flex;align-items:center;gap:15px;margin-bottom:10px;">
+                <button id="btnDemoMode" onclick="toggleDemoMode()"
+                        style="padding:10px
+       20px;background:#008CBA;color:white;border:2px solid #007396;
+                               border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;transition:all
+       0.3s;"> Toggle Demo Mode
+                </button>
+                <span id="demoStatus" style="font-size:14px;color:#999;">⚫
+       Off</span>
+            </div>
+            <p style="font-size:12px;color:#666;margin:0;font-style:italic;">
+                Automatic chess game playback. Touch board to interrupt.
+            </p>
+        `;
+
+        container.appendChild(demoSection);
+        console.log('✅ Demo Mode section injected');
+        }
+    */
+    "\n"
     "console.log('🚀 Creating chess board...');\n"
-    "createBoard();\n"
-    "console.log('🚀 Fetching initial data...');\n"
-    "fetchData();\n"
-    "setInterval(fetchData, 500);\n"
+    "initializeApp(); // Call the new initialization function\n"
     "console.log('✅ Chess JavaScript loaded successfully!');\n"
     "console.log('⏱️ About to initialize timer system...');\n"
     "\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "// TIMER SYSTEM\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "\n"
     "let timerData = {\n"
@@ -2852,21 +3943,28 @@ static const char chess_app_js_content[] =
     "    const timeElement = document.getElementById(player + '-time');\n"
     "    const playerElement = document.getElementById(player + '-timer');\n"
     "    if (!timeElement || !playerElement) return;\n"
+    "\n"
+    "    // Zkontrolovat zda je časová kontrola aktivní\n"
     "    const isTimerActive = timerData.config && timerData.config.type !== "
     "0;\n"
+    "\n"
     "    if (isTimerActive) {\n"
     "        const formattedTime = formatTime(timeMs);\n"
     "        timeElement.textContent = formattedTime;\n"
     "        playerElement.classList.remove('low-time', 'critical-time');\n"
-    "        if (timeMs < 5000) playerElement.classList.add('critical-time');\n"
+    "        if (timeMs < 5000) "
+    "playerElement.classList.add('critical-time');\n"
     "        else if (timeMs < 30000) "
     "playerElement.classList.add('low-time');\n"
     "    } else {\n"
+    "        // Bez časové kontroly - zobrazit \"--:--\" a odstranit všechny "
+    "warning třídy\n"
     "        timeElement.textContent = '--:--';\n"
     "        playerElement.classList.remove('low-time', 'critical-time', "
     "'active');\n"
-    "        return;\n"
+    "        return; // Nedělat nic dalšího\n"
     "    }\n"
+    "\n"
     "    if ((player === 'white' && timerData.is_white_turn) || (player === "
     "'black' && !timerData.is_white_turn)) {\n"
     "        playerElement.classList.add('active');\n"
@@ -2891,13 +3989,19 @@ static const char chess_app_js_content[] =
     "        console.warn('Timer info missing config:', timerInfo);\n"
     "        return;\n"
     "    }\n"
+    "\n"
+    "    // Zkontrolovat zda je časová kontrola aktivní\n"
     "    if (timerInfo.config.type === 0) {\n"
-    "        const whiteProgress = document.getElementById('white-progress');\n"
-    "        const blackProgress = document.getElementById('black-progress');\n"
+    "        // Bez časové kontroly - skrýt progress bary\n"
+    "        const whiteProgress = "
+    "document.getElementById('white-progress');\n"
+    "        const blackProgress = "
+    "document.getElementById('black-progress');\n"
     "        if (whiteProgress) whiteProgress.style.width = '0%';\n"
     "        if (blackProgress) blackProgress.style.width = '0%';\n"
     "        return;\n"
     "    }\n"
+    "\n"
     "    const initialTime = timerInfo.config.initial_time_ms;\n"
     "    if (initialTime === 0) return;\n"
     "    const whiteProgress = document.getElementById('white-progress');\n"
@@ -2917,10 +4021,12 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "function updateTimerStats(timerInfo) {\n"
-    "    const avgMoveTimeElement = document.getElementById('avg-move-time');\n"
+    "    const avgMoveTimeElement = "
+    "document.getElementById('avg-move-time');\n"
     "    const totalMovesElement = document.getElementById('total-moves');\n"
     "    if (avgMoveTimeElement) {\n"
-    "        avgMoveTimeElement.textContent = timerInfo.avg_move_time_ms > 0 ? "
+    "        avgMoveTimeElement.textContent = timerInfo.avg_move_time_ms > 0 "
+    "? "
     "formatTime(timerInfo.avg_move_time_ms) : '-';\n"
     "    }\n"
     "    if (totalMovesElement) {\n"
@@ -2929,18 +4035,22 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "function checkTimeWarnings(timerInfo) {\n"
+    "    // Nekontrolovat upozornění pokud není časová kontrola aktivní\n"
     "    if (!timerInfo || !timerInfo.config || timerInfo.config.type === 0) "
     "{\n"
     "        return;\n"
     "    }\n"
+    "\n"
     "    const currentPlayerTime = timerInfo.is_white_turn ? "
     "timerInfo.white_time_ms : timerInfo.black_time_ms;\n"
     "    if (currentPlayerTime < 5000 && !timerInfo.warning_5s_shown) {\n"
     "        showTimeWarning('Critical! Less than 5 seconds!', 'critical');\n"
-    "    } else if (currentPlayerTime < 10000 && !timerInfo.warning_10s_shown) "
+    "    } else if (currentPlayerTime < 10000 && "
+    "!timerInfo.warning_10s_shown) "
     "{\n"
     "        showTimeWarning('Warning! Less than 10 seconds!', 'warning');\n"
-    "    } else if (currentPlayerTime < 30000 && !timerInfo.warning_30s_shown) "
+    "    } else if (currentPlayerTime < 30000 && "
+    "!timerInfo.warning_30s_shown) "
     "{\n"
     "        showTimeWarning('Low time! Less than 30 seconds!', 'info');\n"
     "    }\n"
@@ -2971,10 +4081,12 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "function handleTimeExpiration(timerInfo) {\n"
+    "    // Nekontrolovat expiraci pokud není časová kontrola aktivní\n"
     "    if (!timerInfo || !timerInfo.config || timerInfo.config.type === 0) "
     "{\n"
     "        return;\n"
     "    }\n"
+    "\n"
     "    const expiredPlayer = timerInfo.is_white_turn ? 'White' : 'Black';\n"
     "    showTimeWarning('Time expired! ' + expiredPlayer + ' lost on time.', "
     "'critical');\n"
@@ -3020,7 +4132,8 @@ static const char chess_app_js_content[] =
     "        setTimeout(() => initTimerSystem(), 100);\n"
     "        return;\n"
     "    }\n"
-    "    const savedTimeControl = localStorage.getItem('chess_time_control');\n"
+    "    const savedTimeControl = "
+    "localStorage.getItem('chess_time_control');\n"
     "    if (savedTimeControl) {\n"
     "        selectedTimeControl = parseInt(savedTimeControl);\n"
     "        timeControlSelect.value = selectedTimeControl;\n"
@@ -3039,7 +4152,7 @@ static const char chess_app_js_content[] =
     "\n"
     "function startTimerUpdateLoop() {\n"
     "    console.log('✅ Timer update loop starting... (will update every "
-    "300ms)');\n"
+    "1000ms)');\n"
     "    if (timerUpdateInterval) {\n"
     "        console.log('⚠️ Clearing existing timer interval');\n"
     "        clearInterval(timerUpdateInterval);\n"
@@ -3050,7 +4163,8 @@ static const char chess_app_js_content[] =
     "        } catch (error) {\n"
     "            console.error('❌ Timer update loop error:', error);\n"
     "        }\n"
-    "    }, 200);\n"
+    "    }, 1000); // Optimized from 200ms to 1s (5× fewer requests, still "
+    "responsive)\n"
     "    console.log('✅ Timer interval set successfully, ID:', "
     "timerUpdateInterval);\n"
     "    // Initial immediate update\n"
@@ -3158,7 +4272,8 @@ static const char chess_app_js_content[] =
     "\n"
     "async function pauseTimer() {\n"
     "    try {\n"
-    "        const response = await fetch('/api/timer/pause', { method: 'POST' "
+    "        const response = await fetch('/api/timer/pause', { method: "
+    "'POST' "
     "});\n"
     "        if (response.ok) {\n"
     "            const pauseBtn = document.getElementById('pause-timer');\n"
@@ -3211,6 +4326,16 @@ static const char chess_app_js_content[] =
     "window.resumeTimer = resumeTimer;\n"
     "window.resetTimer = resetTimer;\n"
     "window.hideEndgameReport = hideEndgameReport;\n"
+    "window.toggleRemoteControl = function() {\n"
+    "    const checkbox = document.getElementById('remote-control-enabled');\n"
+    "    if (checkbox) {\n"
+    "        remoteControlEnabled = checkbox.checked;\n"
+    "        console.log('Remote control:', remoteControlEnabled ? 'ENABLED' "
+    ": "
+    "'DISABLED');\n"
+    "    }\n"
+    "};\n"
+    "window.hideEndgameReport = hideEndgameReport;\n"
     "\n"
     "// Initialize timer system immediately (will retry if DOM not ready)\n"
     "console.log('⏱️ Exposing timer functions and calling "
@@ -3224,11 +4349,13 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "// KEYBOARD SHORTCUTS AND EVENT HANDLERS\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "\n"
     "document.addEventListener('keydown', (e) => {\n"
@@ -3242,7 +4369,7 @@ static const char chess_app_js_content[] =
     "        }\n"
     "    }\n"
     "    if (historyData.length === 0) return;\n"
-    "    switch(e.key) {\n"
+    "    switch (e.key) {\n"
     "        case 'ArrowLeft':\n"
     "            e.preventDefault();\n"
     "            if (reviewMode && currentReviewIndex > 0) {\n"
@@ -3267,67 +4394,39 @@ static const char chess_app_js_content[] =
     "    if (!e.target.closest('.square') && "
     "!e.target.closest('.history-item')) {\n"
     "        if (!reviewMode) {\n"
-    "            clearHighlights();        }\n"
+    "            clearHighlights();\n"
+    "        }\n"
     "    }\n"
     "});\n"
     "\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "// WIFI FUNCTIONS\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "\n"
-    "console.log('📡 WiFi functions loading...');\n"
-    "\n"
     "async function saveWiFiConfig() {\n"
-    "    console.log('📡 saveWiFiConfig() called');\n"
-    "    const ssid = document.getElementById('wifi-ssid').value.trim();\n"
+    "    const ssid = document.getElementById('wifi-ssid').value;\n"
     "    const password = document.getElementById('wifi-password').value;\n"
-    "    \n"
-    "    // Resetovat editing flagy po ulozeni\n"
-    "    wifiInputEditing.ssid = false;\n"
-    "    wifiInputEditing.password = false;\n"
-    "    \n"
-    "    // Validace SSID\n"
-    "    if (!ssid) {\n"
-    "        alert('❌ SSID is required');\n"
-    "        return;\n"
-    "    }\n"
-    "    if (ssid.length > 32) {\n"
-    "        alert('❌ SSID must be 1-32 characters (current: ' + ssid.length "
-    "+ ')');\n"
-    "        return;\n"
-    "    }\n"
-    "    \n"
-    "    // Validace password\n"
-    "    if (!password) {\n"
-    "        alert('❌ Password is required');\n"
-    "        return;\n"
-    "    }\n"
-    "    if (password.length > 64) {\n"
-    "        alert('❌ Password must be 1-64 characters (current: ' + "
-    "password.length + ')');\n"
+    "    if (!ssid || !password) {\n"
+    "        alert('SSID and password are required');\n"
     "        return;\n"
     "    }\n"
     "    try {\n"
     "        const response = await fetch('/api/wifi/config', {\n"
     "            method: 'POST',\n"
-    "            headers: {'Content-Type': 'application/json'},\n"
-    "            body: JSON.stringify({ssid: ssid, password: password})\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ ssid: ssid, password: password })\n"
     "        });\n"
-    "                const data = await response.json();\n"
+    "        const data = await response.json();\n"
     "        if (data.success) {\n"
-    "            alert('✅ WiFi config saved. Now press \"Connect STA\".');\n"
-    "            // Resetovat config loaded flag, aby se nova konfigurace "
-    "zobrazila v polich\n"
-    "            wifiConfigLoaded = false;\n"
-    "            // Aktualizovat status po kratke dobe, aby se nova "
-    "konfigurace zobrazila a tlacitka se aktualizovala\n"
-    "            setTimeout(updateWiFiStatus, 500);\n"
+    "            alert('WiFi config saved. Now press \"Connect STA\".');\n"
     "        } else {\n"
-    "            alert('❌ Failed to save WiFi config: ' + data.message);\n"
+    "            alert('Failed to save WiFi config: ' + data.message);\n"
     "        }\n"
     "    } catch (error) {\n"
     "        alert('Error: ' + error.message);\n"
@@ -3336,18 +4435,14 @@ static const char chess_app_js_content[] =
     "\n"
     "async function connectSTA() {\n"
     "    try {\n"
-    "        const response = await fetch('/api/wifi/connect', {method: "
-    "'POST'});\n"
-    "                const data = await response.json();\n"
+    "        const response = await fetch('/api/wifi/connect', { method: "
+    "'POST' });\n"
+    "        const data = await response.json();\n"
     "        if (data.success) {\n"
-    "            alert('✅ Connecting to WiFi... Please wait.');\n"
-    "            // Aktualizovat status a stav tlacitek po kratke dobe\n"
-    "            setTimeout(updateWiFiStatus, 2000);\n"
-    "            setTimeout(updateWiFiStatus, 5000);\n"
+    "            alert('Connecting to WiFi...');\n"
+    "            setTimeout(updateWiFiStatus, 1500);\n"
     "        } else {\n"
-    "            alert('❌ Failed to connect: ' + data.message);\n"
-    "            // Aktualizovat status a stav tlacitek\n"
-    "            updateWiFiStatus();\n"
+    "            alert('Failed to connect: ' + data.message);\n"
     "        }\n"
     "    } catch (error) {\n"
     "        alert('Error: ' + error.message);\n"
@@ -3356,82 +4451,19 @@ static const char chess_app_js_content[] =
     "\n"
     "async function disconnectSTA() {\n"
     "    try {\n"
-    "        const response = await fetch('/api/wifi/disconnect', {method: "
-    "'POST'});\n"
+    "        const response = await fetch('/api/wifi/disconnect', { method: "
+    "'POST' });\n"
     "        const data = await response.json();\n"
     "        if (data.success) {\n"
     "            alert('Disconnected from WiFi');\n"
-    "            // Aktualizovat status a stav tlacitek\n"
     "            setTimeout(updateWiFiStatus, 1000);\n"
     "        } else {\n"
     "            alert('Failed to disconnect: ' + data.message);\n"
-    "            // Aktualizovat status a stav tlacitek\n"
-    "            updateWiFiStatus();\n"
     "        }\n"
     "    } catch (error) {\n"
     "        alert('Error: ' + error.message);\n"
     "    }\n"
     "}\n"
-    "\n"
-    "async function clearWiFiConfig() {\n"
-    "    if (!confirm('Are you sure you want to clear WiFi configuration? This "
-    "will remove saved SSID and password.')) {\n"
-    "        return;\n"
-    "    }\n"
-    "    try {\n"
-    "        const response = await fetch('/api/wifi/clear', {method: "
-    "'POST'});\n"
-    "        const data = await response.json();\n"
-    "        if (data.success) {\n"
-    "            alert('✅ WiFi configuration cleared');\n"
-    "            // Resetovat config loaded flag (ale NERESETOVAT editing "
-    "flagy - uzivatel muze prave editovat)\n"
-    "            wifiConfigLoaded = false;\n"
-    "            \n"
-    "            // Vymazat pole a zajistit, ze jsou editovatelna\n"
-    "            const ssidInput = document.getElementById('wifi-ssid');\n"
-    "            const passwordInput = "
-    "document.getElementById('wifi-password');\n"
-    "            \n"
-    "            if (ssidInput) {\n"
-    "                // Vymazat pouze pokud uzivatel prave needituje\n"
-    "                if (!wifiInputEditing.ssid) {\n"
-    "                    ssidInput.value = '';\n"
-    "                }\n"
-    "                ssidInput.removeAttribute('disabled');\n"
-    "                ssidInput.removeAttribute('readonly');\n"
-    "                ssidInput.style.pointerEvents = 'auto';\n"
-    "                ssidInput.style.userSelect = 'text';\n"
-    "                // Zajistit, ze pole je focusovatelne\n"
-    "                ssidInput.focus();\n"
-    "            }\n"
-    "            \n"
-    "            if (passwordInput) {\n"
-    "                // Vymazat pouze pokud uzivatel prave needituje\n"
-    "                if (!wifiInputEditing.password) {\n"
-    "                    passwordInput.value = '';\n"
-    "                }\n"
-    "                passwordInput.removeAttribute('disabled');\n"
-    "                passwordInput.removeAttribute('readonly');\n"
-    "                passwordInput.style.pointerEvents = 'auto';\n"
-    "                passwordInput.style.userSelect = 'text';\n"
-    "            }\n"
-    "            \n"
-    "            // Aktualizovat status po kratke dobe (ale ne prepisovat pole "
-    "pokud uzivatel edituje)\n"
-    "            setTimeout(updateWiFiStatus, 500);\n"
-    "        } else {\n"
-    "            alert('❌ Failed to clear WiFi config: ' + data.message);\n"
-    "        }\n"
-    "    } catch (error) {\n"
-    "        alert('Error: ' + error.message);\n"
-    "    }\n"
-    "}\n"
-    "\n"
-    "// Flag pro sledovani, zda uzivatel prave edituje input pole\n"
-    "let wifiInputEditing = {ssid: false, password: false};\n"
-    "let wifiConfigLoaded = false; // Flag pro jednorazove nacteni "
-    "konfigurace\n"
     "\n"
     "async function updateWiFiStatus() {\n"
     "    try {\n"
@@ -3449,224 +4481,18 @@ static const char chess_app_js_content[] =
     "'Not connected';\n"
     "        document.getElementById('sta-connected').textContent = "
     "data.sta_connected ? 'true' : 'false';\n"
-    "        \n"
-    "        // Aktualizovat Web Status\n"
-    "        const lockStatusEl = document.getElementById('web-lock-status');\n"
-    "        const onlineStatusEl = "
-    "document.getElementById('web-online-status');\n"
-    "        if (lockStatusEl) {\n"
-    "            lockStatusEl.textContent = data.locked ? '🔒 Locked' : '🔓 "
-    "Unlocked';\n"
-    "            lockStatusEl.style.color = data.locked ? '#f44336' : "
-    "'#4CAF50';\n"
+    "        if (data.sta_ssid && data.sta_ssid !== 'Not configured') {\n"
+    "            document.getElementById('wifi-ssid').value = data.sta_ssid;\n"
     "        }\n"
-    "        if (onlineStatusEl) {\n"
-    "            onlineStatusEl.textContent = data.online ? '🟢 Online' : '🔴 "
-    "Offline';\n"
-    "            onlineStatusEl.style.color = data.online ? '#4CAF50' : "
-    "'#f44336';\n"
-    "        }\n"
-    "        \n"
-    "        // Disable tlačítka timer a WiFi při lock\n"
-    "        if (data.locked) {\n"
-    "            const timerBtns = "
-    "document.querySelectorAll('#time-control-select, #pause-timer, "
-    "#resume-timer, #reset-timer');\n"
-    "            timerBtns.forEach(btn => {\n"
-    "                if (btn) {\n"
-    "                    btn.disabled = true;\n"
-    "                    btn.style.opacity = '0.5';\n"
-    "                    btn.style.cursor = 'not-allowed';\n"
-    "                }\n"
-    "            });\n"
-    "            const wifiBtns = document.querySelectorAll('#wifi-save-btn, "
-    "#wifi-connect-btn, #wifi-disconnect-btn, #wifi-clear-btn');\n"
-    "            wifiBtns.forEach(btn => {\n"
-    "                if (btn) {\n"
-    "                    btn.disabled = true;\n"
-    "                    btn.style.opacity = '0.5';\n"
-    "                    btn.style.cursor = 'not-allowed';\n"
-    "                }\n"
-    "            });\n"
-    "        } else {\n"
-    "            // Enable tlačítka když není lock\n"
-    "            const timerBtns = "
-    "document.querySelectorAll('#time-control-select, #pause-timer, "
-    "#resume-timer, #reset-timer');\n"
-    "            timerBtns.forEach(btn => {\n"
-    "                if (btn) {\n"
-    "                    btn.disabled = false;\n"
-    "                    btn.style.opacity = '1';\n"
-    "                    btn.style.cursor = 'pointer';\n"
-    "                }\n"
-    "            });\n"
-    "            // WiFi tlačítka se aktualizují v updateWiFiButtonsState()\n"
-    "        }\n"
-    "        \n"
-    "        // Aktualizovat input pole pouze pokud uzivatel prave needituje\n"
-    "        const ssidInput = document.getElementById('wifi-ssid');\n"
-    "        const passwordInput = document.getElementById('wifi-password');\n"
-    "        \n"
-    "        // SSID pole: aktualizovat pouze pokud uzivatel needituje\n"
-    "        if (ssidInput && !wifiInputEditing.ssid) {\n"
-    "            if (data.sta_ssid && data.sta_ssid !== 'Not configured') {\n"
-    "                // Prepisovat pouze pokud:\n"
-    "                // 1. Konfigurace jeste nebyla nactena "
-    "(!wifiConfigLoaded) NEBO pole je prazdne\n"
-    "                // 2. A uzivatel prave needituje (kontrola je vyse)\n"
-    "                // 3. A v NVS je konfigurace (kontrola je vyse)\n"
-    "                if (!wifiConfigLoaded || ssidInput.value === '') {\n"
-    "                    ssidInput.value = data.sta_ssid;\n"
-    "                    wifiConfigLoaded = true;\n"
-    "                }\n"
-    "            }\n"
-    "            // Pokud neni konfigurace, NEPREPISOVAT pole - uzivatel muze "
-    "psat novou konfiguraci\n"
-    "        }\n"
-    "        \n"
-    "        // Password pole: NIKDY neprepisujeme automaticky - uzivatel musi "
-    "zadat ručně\n"
-    "        // (z bezpecnostnich duvodu a pro lepsi UX)\n"
-    "        \n"
-    "        // Aktualizovat stav tlacitek podle konfigurace\n"
-    "        updateWiFiButtonsState(data);\n"
     "    } catch (error) {\n"
     "        console.error('Failed to update WiFi status:', error);\n"
     "    }\n"
     "}\n"
     "\n"
-    "// Funkce pro aktualizaci stavu WiFi tlacitek podle konfigurace\n"
-    "function updateWiFiButtonsState(data) {\n"
-    "    const connectBtn = document.getElementById('wifi-connect-btn');\n"
-    "    const disconnectBtn = "
-    "document.getElementById('wifi-disconnect-btn');\n"
-    "    const saveBtn = document.getElementById('wifi-save-btn');\n"
-    "    \n"
-    "    // Zjistit, zda je konfigurace ulozena v NVS\n"
-    "    const hasConfig = data.sta_ssid && data.sta_ssid !== 'Not "
-    "configured';\n"
-    "    const isConnected = data.sta_connected === true;\n"
-    "    \n"
-    "    // Connect STA: enable pouze pokud je konfigurace ulozena a neni "
-    "pripojeno\n"
-    "    if (connectBtn) {\n"
-    "        if (hasConfig && !isConnected) {\n"
-    "            connectBtn.disabled = false;\n"
-    "            connectBtn.style.opacity = '1';\n"
-    "            connectBtn.style.cursor = 'pointer';\n"
-    "        } else {\n"
-    "            connectBtn.disabled = true;\n"
-    "            connectBtn.style.opacity = '0.5';\n"
-    "            connectBtn.style.cursor = 'not-allowed';\n"
-    "        }\n"
-    "    }\n"
-    "    \n"
-    "    // Disconnect STA: enable pouze pokud je pripojeno\n"
-    "    if (disconnectBtn) {\n"
-    "        if (isConnected) {\n"
-    "            disconnectBtn.disabled = false;\n"
-    "            disconnectBtn.style.opacity = '1';\n"
-    "            disconnectBtn.style.cursor = 'pointer';\n"
-    "        } else {\n"
-    "            disconnectBtn.disabled = true;\n"
-    "            disconnectBtn.style.opacity = '0.5';\n"
-    "            disconnectBtn.style.cursor = 'not-allowed';\n"
-    "        }\n"
-    "    }\n"
-    "    \n"
-    "    // Save button: vzdy enabled (uzivatel muze ulozit kdykoliv)\n"
-    "    if (saveBtn) {\n"
-    "        saveBtn.disabled = false;\n"
-    "        saveBtn.style.opacity = '1';\n"
-    "        saveBtn.style.cursor = 'pointer';\n"
-    "    }\n"
-    "}\n"
-    "\n"
     "// Expose WiFi functions globally for inline onclick handlers\n"
-    "console.log('📡 Exposing WiFi functions to window object...');\n"
     "window.saveWiFiConfig = saveWiFiConfig;\n"
     "window.connectSTA = connectSTA;\n"
     "window.disconnectSTA = disconnectSTA;\n"
-    "console.log('✅ WiFi functions exposed:', typeof window.saveWiFiConfig, "
-    "typeof window.connectSTA, typeof window.disconnectSTA);\n"
-    "console.log('✅ WiFi clear function available:', typeof "
-    "clearWiFiConfig);\n"
-    "\n"
-    "// Attach event listeners to WiFi buttons and input fields\n"
-    "function attachWiFiEventListeners() {\n"
-    "    console.log('📡 Attaching WiFi event listeners...');\n"
-    "    const saveBtn = document.getElementById('wifi-save-btn');\n"
-    "    const connectBtn = document.getElementById('wifi-connect-btn');\n"
-    "    const disconnectBtn = "
-    "document.getElementById('wifi-disconnect-btn');\n"
-    "    const clearBtn = document.getElementById('wifi-clear-btn');\n"
-    "    const ssidInput = document.getElementById('wifi-ssid');\n"
-    "    const passwordInput = document.getElementById('wifi-password');\n"
-    "    \n"
-    "    // Event listenery pro input pole - zabranuji automatickemu "
-    "prepisovani behem editace\n"
-    "    if (ssidInput) {\n"
-    "        ssidInput.addEventListener('focus', function() {\n"
-    "            wifiInputEditing.ssid = true;\n"
-    "            console.log('📡 SSID input focused - editing mode');\n"
-    "        });\n"
-    "        ssidInput.addEventListener('blur', function() {\n"
-    "            wifiInputEditing.ssid = false;\n"
-    "            console.log('📡 SSID input blurred - editing mode off');\n"
-    "        });\n"
-    "    }\n"
-    "    \n"
-    "    if (passwordInput) {\n"
-    "        passwordInput.addEventListener('focus', function() {\n"
-    "            wifiInputEditing.password = true;\n"
-    "            console.log('📡 Password input focused - editing mode');\n"
-    "        });\n"
-    "        passwordInput.addEventListener('blur', function() {\n"
-    "            wifiInputEditing.password = false;\n"
-    "            console.log('📡 Password input blurred - editing mode off');\n"
-    "        });\n"
-    "    }\n"
-    "    \n"
-    "    if (saveBtn) {\n"
-    "        console.log('✅ Found wifi-save-btn');\n"
-    "        saveBtn.addEventListener('click', function() {\n"
-    "            console.log('📡 wifi-save-btn clicked');\n"
-    "            saveWiFiConfig();\n"
-    "        });\n"
-    "    } else {\n"
-    "        console.error('❌ wifi-save-btn not found!');\n"
-    "    }\n"
-    "    \n"
-    "    if (connectBtn) {\n"
-    "        console.log('✅ Found wifi-connect-btn');\n"
-    "        connectBtn.addEventListener('click', function() {\n"
-    "            console.log('📡 wifi-connect-btn clicked');\n"
-    "            connectSTA();\n"
-    "        });\n"
-    "    } else {\n"
-    "        console.error('❌ wifi-connect-btn not found!');\n"
-    "    }\n"
-    "    \n"
-    "    if (disconnectBtn) {\n"
-    "        console.log('✅ Found wifi-disconnect-btn');\n"
-    "        disconnectBtn.addEventListener('click', function() {\n"
-    "            console.log('📡 wifi-disconnect-btn clicked');\n"
-    "            disconnectSTA();\n"
-    "        });\n"
-    "    } else {\n"
-    "        console.error('❌ wifi-disconnect-btn not found!');\n"
-    "    }\n"
-    "    \n"
-    "    if (clearBtn) {\n"
-    "        console.log('✅ Found wifi-clear-btn');\n"
-    "        clearBtn.addEventListener('click', function() {\n"
-    "            console.log('📡 wifi-clear-btn clicked');\n"
-    "            clearWiFiConfig();\n"
-    "        });\n"
-    "    } else {\n"
-    "        console.error('❌ wifi-clear-btn not found!');\n"
-    "    }\n"
-    "}\n"
     "\n"
     "// Start WiFi status update loop (every 5 seconds)\n"
     "let wifiStatusInterval = null;\n"
@@ -3674,77 +4500,219 @@ static const char chess_app_js_content[] =
     "    if (wifiStatusInterval) {\n"
     "        clearInterval(wifiStatusInterval);\n"
     "    }\n"
-    "    // Initial update je jiz volano v initWiFiSystem(), takze zde jen "
-    "nastavit interval\n"
+    "    // Initial update\n"
+    "    updateWiFiStatus();\n"
     "    // Update every 5 seconds\n"
-    "    wifiStatusInterval = setInterval(updateWiFiStatus, 5000);\n"
+    "    wifiStatusInterval = setInterval(updateWiFiStatus, 10000); // "
+    "Reduced "
+    "from 5s to 10s\n"
+    "}\n"
+    "\n"
+    "// Start WiFi status updates when DOM is ready\n"
+    "if (document.readyState === 'loading') {\n"
+    "    document.addEventListener('DOMContentLoaded', "
+    "startWiFiStatusUpdateLoop);\n"
+    "} else {\n"
+    "    startWiFiStatusUpdateLoop();\n"
     "}\n"
     "\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
-    "// SCREENSAVER FUNCTIONS\n"
+    "// DEMO MODE (SCREENSAVER) FUNCTIONS\n"
     "// "
-    "=========================================================================="
+    "========================================================================="
+    "="
     "==\n"
     "\n"
-    "async function toggleScreensaver() {\n"
-    "    const btn = document.getElementById('screensaver-btn');\n"
-    "    const isEnabled = btn.classList.contains('active');\n"
+    "/**\n"
+    " * Toggle demo/screensaver mode on or off\n"
+    " */\n"
+    "async function toggleDemoMode() {\n"
     "    try {\n"
+    "        // Get current state\n"
+    "        const currentlyEnabled = await isDemoModeEnabled();\n"
+    "        const newState = !currentlyEnabled;\n"
+    "\n"
+    "        // Send toggle request\n"
     "        const response = await fetch('/api/demo/config', {\n"
     "            method: 'POST',\n"
-    "            headers: {'Content-Type': 'application/json'},\n"
-    "            body: JSON.stringify({enabled: !isEnabled})\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ enabled: newState })\n"
     "        });\n"
+    "\n"
     "        const data = await response.json();\n"
+    "\n"
     "        if (data.success) {\n"
-    "            updateScreensaverStatus();\n"
+    "            console.log('✅ Demo mode toggled:', newState ? 'ON' : "
+    "'OFF');\n"
+    "            // Update status immediately\n"
+    "            await updateDemoModeStatus();\n"
+    "        } else {\n"
+    "            console.error('❌ Failed to toggle demo mode');\n"
+    "            alert('Failed to toggle demo mode: ' + (data.message || "
+    "'Unknown error'));\n"
     "        }\n"
-    "    } catch(e) { console.error(e); }\n"
+    "    } catch (error) {\n"
+    "        console.error('Error toggling demo mode:', error);\n"
+    "        alert('Error toggling demo mode');\n"
+    "    }\n"
     "}\n"
     "\n"
-
-    "// Initialize WiFi system when DOM is ready\n"
-    "function initWiFiSystem() {\n"
-    "    console.log('📡 Initializing WiFi system...');\n"
-    "    attachWiFiEventListeners();\n"
-    "    // Zavolat updateWiFiStatus() ihned pro nacteni konfigurace z NVS a "
-    "zobrazeni v polich\n"
-    "    updateWiFiStatus();\n"
-    "    startWiFiStatusUpdateLoop();\n"
-    "    console.log('✅ WiFi system initialized');\n"
+    "/**\n"
+    " * Check if demo mode is currently enabled\n"
+    " * @returns {Promise<boolean>} True if enabled\n"
+    " */\n"
+    "async function isDemoModeEnabled() {\n"
+    "    try {\n"
+    "        const response = await fetch('/api/demo/status');\n"
+    "        const data = await response.json();\n"
+    "        return data.enabled === true;\n"
+    "    } catch (error) {\n"
+    "        console.error('Failed to check demo mode status:', error);\n"
+    "        return false;\n"
+    "    }\n"
     "}\n"
     "\n"
-    "// Start WiFi system when DOM is ready\n"
+    "/**\n"
+    " * Update demo mode status indicator in UI\n"
+    " */\n"
+    "async function updateDemoModeStatus() {\n"
+    "    try {\n"
+    "        const enabled = await isDemoModeEnabled();\n"
+    "        const statusEl = document.getElementById('demoStatus');\n"
+    "        const btnEl = document.getElementById('btnDemoMode');\n"
+    "\n"
+    "        if (statusEl) {\n"
+    "            if (enabled) {\n"
+    "                statusEl.textContent = '🟢 Active';\n"
+    "                statusEl.style.color = '#4CAF50';\n"
+    "                statusEl.style.fontWeight = 'bold';\n"
+    "            } else {\n"
+    "                statusEl.textContent = '⚫ Off';\n"
+    "                statusEl.style.color = '#999';\n"
+    "                statusEl.style.fontWeight = 'normal';\n"
+    "            }\n"
+    "        }\n"
+    "\n"
+    "        if (btnEl) {\n"
+    "            if (enabled) {\n"
+    "                btnEl.classList.add('btn-active');\n"
+    "                btnEl.style.backgroundColor = '#4CAF50';\n"
+    "                btnEl.style.borderColor = '#45a049';\n"
+    "            } else {\n"
+    "                btnEl.classList.remove('btn-active');\n"
+    "                btnEl.style.backgroundColor = '#008CBA';\n"
+    "                btnEl.style.borderColor = '#007396';\n"
+    "            }\n"
+    "        }\n"
+    "    } catch (error) {\n"
+    "        console.error('Failed to update demo mode status:', error);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "// Expose demo mode functions globally\n"
+    "window.toggleDemoMode = toggleDemoMode;\n"
+    "window.updateDemoModeStatus = updateDemoModeStatus;\n"
+    "\n"
+    "// Start demo mode status update loop (every 3 seconds)\n"
+    "let demoModeStatusInterval = null;\n"
+    "function startDemoModeStatusUpdateLoop() {\n"
+    "    if (demoModeStatusInterval) {\n"
+    "        clearInterval(demoModeStatusInterval);\n"
+    "    }\n"
+    "    // Initial update\n"
+    "    updateDemoModeStatus();\n"
+    "    // Update every 3 seconds\n"
+    "    demoModeStatusInterval = setInterval(updateDemoModeStatus, 5000); // "
+    "Reduced from 3s to 5s\n"
+    "}\n"
+    "\n"
+    "// Start demo mode status updates when DOM is ready\n"
     "if (document.readyState === 'loading') {\n"
-    "    document.addEventListener('DOMContentLoaded', initWiFiSystem);\n"
+    "    document.addEventListener('DOMContentLoaded', "
+    "startDemoModeStatusUpdateLoop);\n"
     "} else {\n"
-    "    // DOM already loaded, wait a bit for elements to be available\n"
-    "    setTimeout(initWiFiSystem, 100);\n"
+    "    startDemoModeStatusUpdateLoop();\n"
     "}\n"
     "\n"
-    "";
+    "// Helper functions for move history navigation\n"
+    "\n"
+    "function goToMove(index) {\n"
+    "    if (!historyData || historyData.length === 0) return;\n"
+    "\n"
+    "    // Special case: -1 means go to last move\n"
+    "    if (index === -1) {\n"
+    "        index = historyData.length - 1;\n"
+    "    }\n"
+    "\n"
+    "    // Clamp index to valid range\n"
+    "    index = Math.max(0, Math.min(index, historyData.length - 1));\n"
+    "\n"
+    "    enterReviewMode(index);\n"
+    "}\n"
+    "\n"
+    "function prevReviewMove() {\n"
+    "    if (!reviewMode || currentReviewIndex <= 0) return;\n"
+    "    enterReviewMode(currentReviewIndex - 1);\n"
+    "}\n"
+    "\n"
+    "function nextReviewMove() {\n"
+    "    if (!reviewMode || currentReviewIndex >= historyData.length - 1) "
+    "return;\n"
+    "    enterReviewMode(currentReviewIndex + 1);\n"
+    "}\n";
 
 static esp_err_t http_get_chess_js_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "GET /chess_app.js (%zu bytes)", strlen(chess_app_js_content));
+  size_t total_len = strlen(chess_app_js_content);
+  ESP_LOGI(TAG, "GET /chess_app.js (%zu bytes) - using chunked transfer",
+           total_len);
+
   httpd_resp_set_type(req, "application/javascript; charset=utf-8");
   // Cache-busting: no-cache zajisti, ze se JavaScript vzdy nacte cerstvy
   httpd_resp_set_hdr(req, "Cache-Control",
                      "no-cache, no-store, must-revalidate");
   httpd_resp_set_hdr(req, "Pragma", "no-cache");
   httpd_resp_set_hdr(req, "Expires", "0");
-  httpd_resp_send(req, chess_app_js_content, strlen(chess_app_js_content));
+
+  // CHUNKED TRANSFER: ESP32 HTTP server cannot handle 54KB in one send
+  // Send in 4KB chunks to prevent ECONNRESET (error 104)
+  const char *ptr = chess_app_js_content;
+  size_t remaining = total_len;
+  size_t chunk_num = 0;
+  const size_t CHUNK_SIZE = 4096;
+
+  while (remaining > 0) {
+    size_t chunk = (remaining > CHUNK_SIZE) ? CHUNK_SIZE : remaining;
+    esp_err_t ret = httpd_resp_send_chunk(req, ptr, chunk);
+    if (ret != ESP_OK) {
+      ESP_LOGE(TAG, "❌ Chunk %zu send failed: %s", chunk_num,
+               esp_err_to_name(ret));
+      return ret;
+    }
+    ptr += chunk;
+    remaining -= chunk;
+    chunk_num++;
+  }
+
+  // End chunked transfer
+  httpd_resp_send_chunk(req, NULL, 0);
+  ESP_LOGI(TAG, "✅ chess_app.js sent in %zu chunks (%zu bytes total)",
+           chunk_num, total_len);
   return ESP_OK;
 }
 // ============================================================================
 
 static const char test_html[] =
-    "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Timer Test</title>"
-    "<style>body{background:#1a1a1a;color:white;padding:20px;font-family:Arial;"
+    "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Timer "
+    "Test</title>"
+    "<style>body{background:#1a1a1a;color:white;padding:20px;font-family:"
+    "Arial;"
     "}"
     ".timer{background:#333;padding:20px;margin:10px;border-radius:8px;}"
-    "button{padding:10px 20px;margin:5px;cursor:pointer;}</style></head><body>"
+    "button{padding:10px "
+    "20px;margin:5px;cursor:pointer;}</style></head><body>"
     "<h1>Timer Test</h1><div class='timer'>"
     "<h2>White: <span id='white-time'>--:--</span></h2>"
     "<h2>Black: <span id='black-time'>--:--</span></h2></div>"
@@ -3804,60 +4772,70 @@ static esp_err_t http_get_test_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
+static esp_err_t http_get_favicon_handler(httpd_req_t *req) {
+  // Return 204 No Content to silence the browser's request without sending a
+  // file
+  httpd_resp_set_status(req, "204 No Content");
+  httpd_resp_send(req, NULL, 0);
+  return ESP_OK;
+}
+
 // ============================================================================
 // HTML CONTENT - CHUNKED ARRAYS IN FLASH MEMORY (READ-ONLY)
 // ============================================================================
 
-// ✅ HTML split into logical chunks for reliable chunked transfer
+// HTML split into logical chunks for reliable chunked transfer
 // Each chunk is a separate const string in flash memory (.rodata section)
 // JavaScript is kept as ONE complete chunk to avoid "is not defined" errors
 
 // Chunk 1: HTML head with bootstrap script and CSS
 static const char html_chunk_head[] =
     // HTML head and initial structure
-    "<!DOCTYPE html>"
-    "<html lang='en'>"
-    "<head>"
-    "<meta charset='UTF-8'>"
-    "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
-    "<title>ESP32 Chess</title>"
+    "<!DOCTYPE html>\n"
+    "<html lang='en'>\n"
+    "<head>\n"
+    "<meta charset='UTF-8'>\n"
+    "<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n"
+    "<title>CZECHMATE</title>\n"
 
     // Early bootstrap to avoid 'is not defined' before main script loads
-    "<script>"
-    "window.changeTimeControl = window.changeTimeControl || function(){};"
-    "window.applyTimeControl = window.applyTimeControl || function(){};"
-    "window.pauseTimer = window.pauseTimer || function(){};"
-    "window.resumeTimer = window.resumeTimer || function(){};"
-    "window.resetTimer = window.resetTimer || function(){};"
-    "window.hideEndgameReport = window.hideEndgameReport || function(){};"
-    "</script>"
+    "<script>\n"
+    "window.changeTimeControl = window.changeTimeControl || function(){};\n"
+    "window.applyTimeControl = window.applyTimeControl || function(){};\n"
+    "window.pauseTimer = window.pauseTimer || function(){};\n"
+    "window.resumeTimer = window.resumeTimer || function(){};\n"
+    "window.resetTimer = window.resetTimer || function(){};\n"
+    "window.hideEndgameReport = window.hideEndgameReport || function(){};\n"
+    "</script>\n"
     // Global JS error capture to surface syntax/runtime errors visibly
-    "<script>"
-    "(function(){"
-    "function showJsError(msg, src, line, col){"
-    "try {"
-    "var b=document.body||document.documentElement;"
-    "var d=document.getElementById('js-error')||document.createElement('pre');"
-    "d.id='js-error';"
-    "d.style.cssText='position:fixed;left:6px;bottom:6px;right:6px;max-height:"
+    "<script>\n"
+    "(function(){\n"
+    "function showJsError(msg, src, line, col){\n"
+    "try {\n"
+    "var b=document.body||document.documentElement;\n"
+    "var "
+    "d=document.getElementById('js-error')||document.createElement('pre');\n"
+    "d.id='js-error';\n"
+    "d.style.cssText='position:fixed;left:6px;bottom:6px;right:6px;max-"
+    "height:"
     "40vh;overflow:auto;background:#300;color:#fff;border:1px solid "
     "#900;padding:8px;margin:0;z-index:99999;font:12px/1.4 "
-    "monospace;white-space:pre-wrap;';"
-    "d.textContent='JS ERROR: '+msg+'\nSource: '+(src||'-')+'\nLine: "
-    "'+line+':'+col;"
-    "b&&b.appendChild(d);"
-    "} catch(e) {}"
-    "}"
+    "monospace;white-space:pre-wrap;';\n"
+    "d.textContent='JS ERROR: '+msg+'\\nSource: '+(src||'-')+'\\nLine: "
+    "'+line+':'+col;\n"
+    "b&&b.appendChild(d);\n"
+    "} catch(e) {}\n"
+    "}\n"
     "window.addEventListener('error', function(e){ showJsError(e.message, "
-    "e.filename, e.lineno, e.colno); });"
+    "e.filename, e.lineno, e.colno); });\n"
     "window.addEventListener('unhandledrejection', function(e){ "
-    "showJsError('Unhandled promise rejection: '+e.reason, '', 0, 0); });"
-    "})();"
-    "</script>"
+    "showJsError('Unhandled promise rejection: '+e.reason, '', 0, 0); });\n"
+    "})();\n"
+    "</script>\n"
 
     // CSS styles - part 1
-    "<style>"
-    "* { margin: 0; padding: 0; box-sizing: border-box; }"
+    "<style>\n"
+    "* { margin: 0; padding: 0; box-sizing: border-box; }\n"
     "body { "
     "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, "
     "sans-serif; "
@@ -3865,32 +4843,46 @@ static const char html_chunk_head[] =
     "color: #e0e0e0; "
     "min-height: 100vh; "
     "padding: 10px; "
-    "}"
+    "}\n"
     ".container { "
-    "max-width: 900px; "
+    "width: 95%; "
+    "max-width: 1600px; "
     "margin: 0 auto; "
-    "}"
+    "}\n"
     "h1 { "
     "color: #4CAF50; "
     "text-align: center; "
     "margin-bottom: 20px; "
     "font-size: 1.5em; "
     "font-weight: 600; "
-    "}"
+    "}\n"
     ".main-content { "
     "display: grid; "
-    "grid-template-columns: 1fr 280px; "
+    "grid-template-columns: 280px 1fr 280px; "
+    "grid-template-areas: 'left center right'; "
     "gap: 15px; "
-    "}"
+    "}\n"
+    "@media (max-width: 1200px) { "
+    ".main-content { "
+    "grid-template-columns: 1fr 280px; "
+    "grid-template-areas: 'center right' 'left right'; "
+    "} "
+    "}\n"
     "@media (max-width: 768px) { "
-    ".main-content { grid-template-columns: 1fr; } "
-    "}"
+    ".main-content { "
+    "grid-template-columns: 1fr; "
+    "grid-template-areas: 'center' 'left' 'right'; "
+    "} "
+    "}\n"
+    ".board-container { grid-area: center; } "
+    ".info-panel { grid-area: right; } "
+    ".game-info-panel { grid-area: left; } "
     ".board-container { "
     "background: #2a2a2a; "
     "border-radius: 8px; "
     "padding: 15px; "
     "box-shadow: 0 4px 12px rgba(0,0,0,0.3); "
-    "}"
+    "}\n"
     ".board { "
     "display: grid; "
     "grid-template-columns: repeat(8, 1fr); "
@@ -3928,8 +4920,17 @@ static const char html_chunk_head[] =
     "box-shadow: inset 0 0 20px rgba(33,150,243,0.6); "
     "}"
     "@keyframes errorPulse { "
-    "0%, 100% { opacity: 1; } "
-    "50% { opacity: 0.7; } "
+    "0% { transform: translate(1px, 1px) rotate(0deg); } "
+    "10% { transform: translate(-1px, -2px) rotate(-1deg); } "
+    "20% { transform: translate(-3px, 0px) rotate(1deg); } "
+    "30% { transform: translate(3px, 2px) rotate(0deg); } "
+    "40% { transform: translate(1px, -1px) rotate(1deg); } "
+    "50% { transform: translate(-1px, 2px) rotate(-1deg); } "
+    "60% { transform: translate(-3px, 1px) rotate(0deg); } "
+    "70% { transform: translate(3px, 1px) rotate(-1deg); } "
+    "80% { transform: translate(-1px, -1px) rotate(1deg); } "
+    "90% { transform: translate(1px, 2px) rotate(0deg); } "
+    "100% { transform: translate(1px, -2px) rotate(-1deg); } "
     "}"
     ".piece { "
     "font-size: 4vw; "
@@ -3940,7 +4941,7 @@ static const char html_chunk_head[] =
     ".piece.black { color: black; }"
 
     // CSS styles - part 2
-    ".info-panel { "
+    ".info-panel, .game-info-panel { "
     "background: #2a2a2a; "
     "border-radius: 8px; "
     "padding: 15px; "
@@ -3994,7 +4995,8 @@ static const char html_chunk_head[] =
     "font-size: 1.2em; "
     "color: #888; "
     "}"
-    ".captured-box h3 { color: #4CAF50; font-size: 0.85em; margin-bottom: 5px; "
+    ".captured-box h3 { color: #4CAF50; font-size: 0.85em; margin-bottom: "
+    "5px; "
     "}"
     ".captured-box div { font-size: 0.75em; color: #888; margin-top: 5px; }"
     ".loading { "
@@ -4006,44 +5008,121 @@ static const char html_chunk_head[] =
     // CSS styles - part 3 (Review Mode, Sandbox Mode, etc.)
     "/* Review Mode */"
     ".review-banner { "
-    "position: fixed; "
-    "top: 0; left: 0; right: 0; "
-    "background: linear-gradient(135deg, #FF9800, #FF6F00); "
-    "color: white; "
-    "padding: 12px 20px; "
     "display: none; "
+    "position: fixed; "
+    "top: 10px; "
+    "right: 10px; "
+    "background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%); "
+    "padding: 0; "
+    "border-radius: 12px; "
+    "box-shadow: 0 8px 24px rgba(255, 140, 0, 0.5), 0 4px 12px "
+    "rgba(0,0,0,0.3); "
+    "z-index: 1001; "
+    "max-width: 90vw; "
+    "animation: slideInRight 0.3s ease-out; "
+    "overflow: hidden; "
+    "color: white; "
+    "} "
+    ".review-header { "
+    "display: flex; "
+    "align-items: center; "
+    "justify-content: space-between; "
+    "gap: 10px; "
+    "padding: 12px 16px; "
+    "background: rgba(0,0,0,0.2); "
+    "font-weight: 600; "
+    "font-size: 15px; "
+    "} "
+    ".review-controls { "
+    "display: grid; "
+    "grid-template-columns: repeat(4, 1fr); "
+    "gap: 8px; "
+    "padding: 12px; "
+    "} "
+    ".nav-btn { "
+    "padding: 12px 8px; "
+    "font-size: 20px; "
+    "background: rgba(255, 255, 255, 0.15); "
+    "border: 2px solid rgba(255, 255, 255, 0.3); "
+    "border-radius: 8px; "
+    "color: white; "
+    "cursor: pointer; "
+    "transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); "
+    "min-height: 44px; "
+    "display: flex; "
     "align-items: center; "
     "justify-content: center; "
-    "gap: 16px; "
-    "box-shadow: 0 4px 12px rgba(0,0,0,0.3); "
-    "z-index: 100; "
-    "animation: slideDown 0.3s ease; "
-    "}"
-    "@keyframes slideDown { "
-    "from { transform: translateY(-100%); } "
-    "to { transform: translateY(0); } "
-    "}"
-    "@keyframes slideInLeft { "
-    "from { transform: translateY(-50%) translateX(-100%); opacity: 0; } "
-    "to { transform: translateY(-50%) translateX(0); opacity: 1; } "
-    "}"
-    "@keyframes slideInTop { "
-    "from { transform: translateY(-100%); opacity: 0; } "
-    "to { transform: translateY(0); opacity: 1; } "
-    "}"
-    ".review-banner.active { display: flex; }"
-    ".review-text { font-weight: 600; }"
-    ".btn-exit-review { "
-    "padding: 8px 20px; "
-    "background: white; "
-    "color: #FF9800; "
-    "border: none; "
-    "border-radius: 6px; "
     "font-weight: 600; "
+    "text-shadow: 0 1px 2px rgba(0,0,0,0.3); "
+    "} "
+    ".nav-btn:hover, .nav-btn:focus { "
+    "background: rgba(255, 255, 255, 0.25); "
+    "border-color: rgba(255, 255, 255, 0.5); "
+    "transform: translateY(-2px); "
+    "box-shadow: 0 4px 12px rgba(0,0,0,0.2); "
+    "} "
+    ".nav-btn:active { "
+    "transform: translateY(0); "
+    "box-shadow: 0 2px 6px rgba(0,0,0,0.15); "
+    "} "
+    ".btn-header-close { "
+    "background: transparent; "
+    "border: none; "
+    "color: rgba(255,255,255,0.8); "
+    "font-size: 20px; "
+    "padding: 8px; "
+    "cursor: pointer; "
+    "border-radius: 50%; "
+    "display: flex; "
+    "align-items: center; "
+    "justify-content: center; "
+    "transition: all 0.2s; "
+    "} "
+    ".btn-header-close:hover { "
+    "background: rgba(255,255,255,0.2); "
+    "color: white; "
+    "} "
+    "@media (max-width: 600px) { "
+    ".review-banner { "
+    "top: auto; "
+    "bottom: 0; "
+    "left: 0; "
+    "right: 0; "
+    "border-radius: 16px 16px 0 0; "
+    "max-width: none; "
+    "padding-bottom: env(safe-area-inset-bottom, 10px); "
+    "} "
+    ".review-controls { "
+    "gap: 12px; "
+    "padding: 12px 16px; "
+    "} "
+    ".nav-btn { "
+    "font-size: 24px; "
+    "min-height: 52px; "
+    "} "
+    "} "
+    ".review-banner.active { display: block; }"
+    "@keyframes slideInRight { "
+    "from { transform: translateX(100%); opacity: 0; } "
+    "to { transform: translateX(0); opacity: 1; } "
+    "}"
+    ".btn-review-nav { "
+    "background: rgba(255,255,255,0.2); "
+    "border: 1px solid rgba(255,255,255,0.4); "
+    "border-radius: 4px; "
+    "color: white; "
+    "width: 32px; "
+    "height: 32px; "
+    "display: flex; "
+    "align-items: center; "
+    "justify-content: center; "
     "cursor: pointer; "
     "transition: all 0.2s; "
     "}"
-    ".btn-exit-review:hover { transform: scale(1.05); }"
+    ".btn-review-nav:hover:not(:disabled) { background: "
+    "rgba(255,255,255,0.4); "
+    "}"
+    ".btn-review-nav:disabled { opacity: 0.3; cursor: not-allowed; }"
     ".history-item.selected { "
     "background: #FF9800 !important; "
     "color: white !important; "
@@ -4285,93 +5364,15 @@ static const char html_chunk_head[] =
     "</head>";
 
 // Chunk 2: HTML body structure (no JavaScript yet)
-static const char html_chunk_body[] =
-    "<body>"
-    "<div class='container'>"
-    "<h1>♟️ ESP32 Chess</h1>"
-    "<div class='main-content'>"
-    "<div class='board-container'>"
-    "<button class='btn-try-moves' onclick='enterSandboxMode()'>Try "
-    "Moves</button>"
-    "<div id='board' class='board'></div>"
-    "<div id='loading' class='loading'>Loading board...</div>"
-    "</div>";
+// Chunk 2a: Layout Start (Body, Container, H1, Main Content Open)
+static const char html_chunk_layout_start[] = "<body>"
+                                              "<div class='container'>"
+                                              "<h1>♟️ CZECHMATE</h1>"
+                                              "<div class='main-content'>";
 
-// Chunk 2b: Info panel (status, timer, history, captured)
-static const char html_chunk_infopanel[] =
-    "<div class='info-panel'>"
-    "<div class='status-box'>"
-    "<h3>Game Status</h3>"
-    "<div class='status-item'>"
-    "<span>State:</span>"
-    "<span id='game-state' class='status-value'>-</span>"
-    "</div>"
-    "<div class='status-item'>"
-    "<span>Player:</span>"
-    "<span id='current-player' class='status-value'>-</span>"
-    "</div>"
-    "<div class='status-item'>"
-    "<span>Moves:</span>"
-    "<span id='move-count' class='status-value'>0</span>"
-    "</div>"
-    "<div class='status-item'>"
-    "<span>In Check:</span>"
-    "<span id='in-check' class='status-value'>No</span>"
-    "</div>"
-    "</div>"
-    "<div class='status-box'>"
-    "<h3>Lifted Piece</h3>"
-    "<div class='status-item'>"
-    "<span>Piece:</span>"
-    "<span id='lifted-piece' class='status-value'>-</span>"
-    "</div>"
-    "<div class='status-item'>"
-    "<span>Position:</span>"
-    "<span id='lifted-position' class='status-value'>-</span>"
-    "</div>"
-    "</div>"
-    "<div class='captured-box'>"
-    "<h3>Captured Pieces</h3>"
-    "<div>White:</div>"
-    "<div id='white-captured' class='captured-pieces'></div>"
-    "<div style='margin-top: 10px;'>Black:</div>"
-    "<div id='black-captured' class='captured-pieces'></div>"
-    "</div>"
-    "<div class='status-box'>"
-    "<h3>⏱️ Časová kontrola</h3>"
-    "<div class='time-control-selector'>"
-    "<select id='time-control-select' onchange='changeTimeControl()'>"
-    "<option value='0'>Bez časové kontroly</option>"
-    "<option value='1'>Bullet 1+0</option>"
-    "<option value='2'>Bullet 1+1</option>"
-    "<option value='3'>Bullet 2+1</option>"
-    "<option value='4'>Blitz 3+0</option>"
-    "<option value='5'>Blitz 3+2</option>"
-    "<option value='6'>Blitz 5+0</option>"
-    "<option value='7'>Blitz 5+3</option>"
-    "<option value='8'>Rapid 10+0</option>"
-    "<option value='9'>Rapid 10+5</option>"
-    "<option value='10'>Rapid 15+10</option>"
-    "<option value='11'>Rapid 30+0</option>"
-    "<option value='12'>Classical 60+0</option>"
-    "<option value='13'>Classical 90+30</option>"
-    "<option value='14'>Vlastní</option>"
-    "</select>"
-    "<button id='apply-time-control' onclick='applyTimeControl()' "
-    "disabled>Použít</button>"
-    "</div>"
-    "<div id='custom-time-settings' class='custom-settings' style='display: "
-    "none;'>"
-    "<div class='custom-input-group'>"
-    "<label>Minuty:</label>"
-    "<input type='number' id='custom-minutes' min='1' max='180' value='10'>"
-    "</div>"
-    "<div class='custom-input-group'>"
-    "<label>Increment (sekundy):</label>"
-    "<input type='number' id='custom-increment' min='0' max='60' value='0'>"
-    "</div>"
-    "</div>"
-    "</div>"
+// Chunk 2b: Game Info Panel (Left Column)
+static const char html_chunk_game_info[] =
+    "<div class='game-info-panel'>"
     "<div class='status-box'>"
     "<h3>⏰ Čas</h3>"
     "<div class='timer-display'>"
@@ -4414,9 +5415,134 @@ static const char html_chunk_infopanel[] =
     "</div>"
     "</div>"
     "<div class='status-box'>"
-    "<h3>Move History</h3>"
-    "<div id='history' class='history-box'></div>"
+    "<h3>Game Status</h3>"
+    "<div class='status-item'>"
+    "<span>State:</span>"
+    "<span id='game-state' class='status-value'>-</span>"
     "</div>"
+    "<div class='status-item'>"
+    "<span>Player:</span>"
+    "<span id='current-player' class='status-value'>-</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>Moves:</span>"
+    "<span id='move-count' class='status-value'>0</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>In Check:</span>"
+    "<span id='in-check' class='status-value'>No</span>"
+    "</div>"
+    "<div class='status-item' "
+    "style='margin-top:12px;padding-top:12px;border-top:1px solid "
+    "rgba(255,255,255,0.1)'>"
+    "<button id='new-game-btn' onclick='startNewGame()' "
+    "style='width:100%;padding:10px;background:#4CAF50;color:white;border:"
+    "none;"
+    "border-radius:6px;cursor:pointer;font-weight:600;font-size:14px;"
+    "transition:all 0.2s;box-shadow:0 2px 5px rgba(0,0,0,0.2)' "
+    "onmouseover=\"this.style.transform='translateY(-1px)';this.style."
+    "boxShadow='0 4px 8px rgba(0,0,0,0.3)'\" "
+    "onmouseout=\"this.style.transform='translateY(0)';this.style.boxShadow='"
+    "0 "
+    "2px 5px rgba(0,0,0,0.2)'\">➕ New Game</button>"
+    "</div>"
+    "</div>"
+    "<div class='captured-box'>"
+    "<h3>Captured Pieces</h3>"
+    "<div>White:</div>"
+    "<div id='white-captured' class='captured-pieces'></div>"
+    "<div style='margin-top: 10px;'>Black:</div>"
+    "<div id='black-captured' class='captured-pieces'></div>"
+    "</div>"
+    "<div class='status-box'>"
+    "<h3>Move History</h3>"
+    "<div id='history' class='history-box' style='max-height: 400px;'></div>"
+    "</div>"
+    "<div class='status-box'>"
+    "<h3>⏱️ Časová kontrola</h3>"
+    "<div class='time-control-selector'>"
+    "<select id='time-control-select' onchange='changeTimeControl()'>"
+    "<option value='0'>Bez časové kontroly</option>"
+    "<option value='1'>Bullet 1+0</option>"
+    "<option value='2'>Bullet 1+1</option>"
+    "<option value='3'>Bullet 2+1</option>"
+    "<option value='4'>Blitz 3+0</option>"
+    "<option value='5'>Blitz 3+2</option>"
+    "<option value='6'>Blitz 5+0</option>"
+    "<option value='7'>Blitz 5+3</option>"
+    "<option value='8'>Rapid 10+0</option>"
+    "<option value='9'>Rapid 10+5</option>"
+    "<option value='10'>Rapid 15+10</option>"
+    "<option value='11'>Rapid 30+0</option>"
+    "<option value='12'>Classical 60+0</option>"
+    "<option value='13'>Classical 90+30</option>"
+    "<option value='14'>Vlastní</option>"
+    "</select>"
+    "<button id='apply-time-control' onclick='applyTimeControl()' "
+    "disabled>Použít</button>"
+    "</div>"
+    "<div id='custom-time-settings' class='custom-settings' style='display: "
+    "none;'>"
+    "<div class='custom-input-group'>"
+    "<label>Minuty:</label>"
+    "<input type='number' id='custom-minutes' min='1' max='180' value='10'>"
+    "</div>"
+    "<div class='custom-input-group'>"
+    "<label>Increment (sekundy):</label>"
+    "<input type='number' id='custom-increment' min='0' max='60' value='0'>"
+    "</div>"
+    "</div>"
+    "</div>"
+    "<div class='status-box'>"
+    "<h3>Lifted Piece</h3>"
+    "<div class='status-item'>"
+    "<span>Piece:</span>"
+    "<span id='lifted-piece' class='status-value'>-</span>"
+    "</div>"
+    "<div class='status-item'>"
+    "<span>Position:</span>"
+    "<span id='lifted-position' class='status-value'>-</span>"
+    "</div>"
+    "</div>"
+    "</div>";
+
+// Chunk 2c: Board Container (Center Column) + Modal
+static const char html_chunk_board[] =
+    "<div class='board-container'>"
+    "<button class='btn-try-moves' onclick='enterSandboxMode()'>Try "
+    "Moves</button>"
+    "<div id='board' class='board'></div>"
+    "<div id='loading' class='loading'>Loading board...</div>"
+    "</div>"
+    "<!-- Promotion Modal -->"
+    "<div id='promotion-modal' class='modal' style='display:none; "
+    "position:fixed; top:0; left:0; width:100%; height:100%; "
+    "background:rgba(0,0,0,0.8); z-index:2000; align-items:center; "
+    "justify-content:center;'>"
+    "<div class='modal-content' style='background:#333; padding:20px; "
+    "border-radius:8px; text-align:center; border:2px solid #4CAF50;'>"
+    "<h3 style='color:#4CAF50; margin-bottom:15px;'>Promote Pawn</h3>"
+    "<div style='display:flex; gap:10px; justify-content:center;'>"
+    "<button onclick=\"selectPromotion('Q')\" style='font-size:24px; "
+    "padding:10px; cursor:pointer;'>♛</button>"
+    "<button onclick=\"selectPromotion('R')\" style='font-size:24px; "
+    "padding:10px; cursor:pointer;'>♜</button>"
+    "<button onclick=\"selectPromotion('B')\" style='font-size:24px; "
+    "padding:10px; cursor:pointer;'>♝</button>"
+    "<button onclick=\"selectPromotion('N')\" style='font-size:24px; "
+    "padding:10px; cursor:pointer;'>♞</button>"
+    "</div>"
+    "<button onclick='cancelPromotion()' style='margin-top:15px; padding:8px "
+    "16px; background:#f44336; color:white; border:none; border-radius:4px; "
+    "cursor:pointer;'>Cancel</button>"
+    "</div>"
+    "</div>";
+
+// Chunk 2b: Info panel (status, timer, history, captured)
+static const char html_chunk_infopanel[] =
+    "<div class='info-panel'>"
+    // Items moved to html_chunk_game_info
+
     "<div class='status-box'>"
     "<h3>WiFi (Internet)</h3>"
     "<div class='status-item'>"
@@ -4444,25 +5570,33 @@ static const char html_chunk_infopanel[] =
     "<span id='sta-connected' class='status-value'>false</span>"
     "</div>"
     "<div style='margin-top: 15px;'>"
-    "<input type='text' id='wifi-ssid' placeholder='WiFi SSID' maxlength='32' "
+    "<input type='text' id='wifi-ssid' placeholder='WiFi SSID' "
+    "maxlength='32' "
     "style='width: 100%; padding: 8px; margin-bottom: 8px; background: #111; "
     "color: #e0e0e0; border: 1px solid #444; border-radius: 4px; "
     "pointer-events: auto; user-select: text;'>"
     "<input type='password' id='wifi-password' placeholder='WiFi password' "
     "maxlength='64' style='width: 100%; padding: 8px; margin-bottom: 8px; "
-    "background: #111; color: #e0e0e0; border: 1px solid #444; border-radius: "
+    "background: #111; color: #e0e0e0; border: 1px solid #444; "
+    "border-radius: "
     "4px; pointer-events: auto; user-select: text;'>"
-    "<button id='wifi-save-btn' style='width: 100%; padding: 10px; background: "
-    "#4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; "
+    "<button id='wifi-save-btn' style='width: 100%; padding: 10px; "
+    "background: "
+    "#4CAF50; color: white; border: none; border-radius: 4px; cursor: "
+    "pointer; "
     "margin-bottom: 5px;'>Save WiFi config</button>"
     "<button id='wifi-connect-btn' style='width: 48%; padding: 10px; "
-    "background: #666; color: white; border: none; border-radius: 4px; cursor: "
+    "background: #666; color: white; border: none; border-radius: 4px; "
+    "cursor: "
     "pointer; margin-right: 4%;'>Connect STA</button>"
     "<button id='wifi-disconnect-btn' style='width: 48%; padding: 10px; "
-    "background: #666; color: white; border: none; border-radius: 4px; cursor: "
+    "background: #666; color: white; border: none; border-radius: 4px; "
+    "cursor: "
     "pointer;'>Disconnect STA</button>"
-    "<button id='wifi-clear-btn' style='width: 100%; padding: 8px; margin-top: "
-    "5px; background: #f44336; color: white; border: none; border-radius: 4px; "
+    "<button id='wifi-clear-btn' style='width: 100%; padding: 8px; "
+    "margin-top: "
+    "5px; background: #f44336; color: white; border: none; border-radius: "
+    "4px; "
     "cursor: pointer; font-size: 0.9em;'>Clear WiFi config</button>"
     "</div>"
     "</div>"
@@ -4477,6 +5611,18 @@ static const char html_chunk_infopanel[] =
     "<span id='web-online-status' class='status-value'>-</span>"
     "</div>"
     "</div>"
+    "<div class='status-box'>"
+    "<h3>🎮 Remote Control</h3>"
+    "<div style='margin: 10px 0;'>"
+    "<label style='display: flex; align-items: center; cursor: pointer;'>"
+    "<input type='checkbox' id='remote-control-enabled' "
+    "onchange='toggleRemoteControl()' "
+    "style='margin-right: 10px; width: 20px; height: 20px; cursor: "
+    "pointer;'> "
+    "<span>Enable Remote Control</span>"
+    "</label>"
+    "<div style='margin-top: 5px; font-size: 0.8em; color: #ff9800;'>"
+    "⚠️ Warning: Sync logic/physical state!"
     "</div>"
     "</div>"
     "</div>";
@@ -4485,12 +5631,24 @@ static const char html_chunk_infopanel[] =
 static const char html_chunk_banners[] =
     "<!-- Review Mode Banner -->"
     "<div class='review-banner' id='review-banner'>"
-    "<div class='review-text'>"
-    "<span>📋</span>"
+    "<div class='review-header'>"
+    "<div style='display:flex;align-items:center;gap:8px;flex:1'>"
+    "<span style='font-size: 20px;'>📖</span>"
     "<span id='review-move-text'>Prohlížíš tah 0</span>"
     "</div>"
-    "<button class='btn-exit-review' onclick='exitReviewMode()'>Zpět na "
-    "aktuální pozici</button>"
+    "<button class='btn-header-close' onclick='exitReviewMode()' "
+    "title='Zavřít'>✕</button>"
+    "</div>"
+    "<div class='review-controls'>"
+    "<button class='nav-btn nav-first' onclick='goToMove(0)' "
+    "title='Na začátek' aria-label='První tah'>⏮️</button>"
+    "<button class='nav-btn nav-prev' onclick='prevReviewMove()' "
+    "title='Předchozí tah' aria-label='Předchozí'>◀️</button>"
+    "<button class='nav-btn nav-next' onclick='nextReviewMove()' "
+    "title='Další tah' aria-label='Další'>▶️</button>"
+    "<button class='nav-btn nav-last' onclick='goToMove(-1)' "
+    "title='Na konec' aria-label='Poslední tah'>⏭️</button>"
+    "</div>"
     "</div>"
     "<!-- Sandbox Mode Banner -->"
     "<div class='sandbox-banner' id='sandbox-banner'>"
@@ -4513,9 +5671,8 @@ static const char html_chunk_javascript[] =
 
 // Chunk: Demo Mode UI Panel
 static const char html_chunk_demo_mode[] =
-    "<div class='panel demo-panel' style='margin-top: 20px; padding: 15px; "
-    "background: #2a2a2a; border-radius: 8px;'>"
-    "<h3 style='margin-top: 0; color: #ffa500;'>🎮 Demo Mode</h3>"
+    "<div class='status-box' style='border-left: 3px solid #ffa500;'>"
+    "<h3 style='color: #ffa500;'>🎮 Demo Mode</h3>"
     "<div style='margin: 10px 0;'>"
     "<label style='display: flex; align-items: center; cursor: pointer;'>"
     "<input type='checkbox' id='demo-enabled' style='margin-right: 10px; "
@@ -4524,73 +5681,179 @@ static const char html_chunk_demo_mode[] =
     "</label>"
     "</div>"
     "<div style='margin: 15px 0;'>"
-    "<label style='display: block; margin-bottom: 5px;'>Move Speed "
-    "(ms):</label>"
+    "<label style='display: block; margin-bottom: 5px; color: #888;'>Move "
+    "Speed:</label>"
+    "<div style='display: flex; align-items: center; gap: 10px;'>"
     "<input type='range' id='demo-speed' min='500' max='5000' step='100' "
-    "value='2000' "
-    "style='width: 100%; cursor: pointer;' disabled>"
-    "<div style='text-align: center; margin-top: 5px;'>"
-    "<span id='demo-speed-value' style='color: #888;'>2000ms</span>"
+    "value='2000' style='flex-grow: 1; cursor: pointer;' disabled>"
+    "<span id='demo-speed-value' style='width: 60px; text-align: right; "
+    "color: #888;'>2000ms</span>"
     "</div>"
     "</div>"
-    "<div style='margin: 15px 0;'>"
-    "<button onclick='startDemoMode()' id='demo-start-btn' style='width: 100%; "
-    "padding: 10px; font-size: 16px; cursor: pointer; background: #444; color: "
-    "#888; border: 1px solid #555; border-radius: 4px;' disabled>"
-    "▶️ Start Demo"
-    "</button>"
-    "</div>"
-    "<script>"
-    "const demoCheckbox = document.getElementById('demo-enabled');"
-    "const demoSpeed = document.getElementById('demo-speed');"
-    "const demoSpeedValue = document.getElementById('demo-speed-value');"
-    "const demoStartBtn = document.getElementById('demo-start-btn');"
-    ""
-    "demoCheckbox.addEventListener('change', function() {"
-    "  const enabled = this.checked;"
-    "  demoSpeed.disabled = !enabled;"
-    "  demoStartBtn.disabled = !enabled;"
-    "  demoSpeed.style.cursor = enabled ? 'pointer' : 'not-allowed';"
-    "  demoSpeedValue.style.color = enabled ? '#fff' : '#888';"
-    "  demoStartBtn.style.background = enabled ? '#4CAF50' : '#444';"
-    "  demoStartBtn.style.color = enabled ? '#fff' : '#888';"
-    "  demoStartBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';"
-    "  "
-    "  fetch('/api/demo/config', {"
-    "    method: 'POST',"
-    "    headers: {'Content-Type': 'application/json'},"
-    "    body: JSON.stringify({enabled: enabled, speed_ms: "
-    "parseInt(demoSpeed.value)})"
-    "  }).catch(e => console.error('Demo config error:', e));"
-    "});"
-    ""
-    "demoSpeed.addEventListener('input', function() {"
-    "  demoSpeedValue.textContent = this.value + 'ms';"
-    "});"
-    ""
-    "demoSpeed.addEventListener('change', function() {"
-    "  if (demoCheckbox.checked) {"
-    "    fetch('/api/demo/config', {"
-    "      method: 'POST',"
-    "      headers: {'Content-Type': 'application/json'},"
-    "      body: JSON.stringify({enabled: true, speed_ms: "
-    "parseInt(this.value)})"
-    "    }).catch(e => console.error('Demo speed error:', e));"
-    "  }"
-    "});"
-    ""
-    "function startDemoMode() {"
-    "  if (!demoCheckbox.checked) return;"
-    "  fetch('/api/demo/start', {method: 'POST'})"
-    "    .then(r => r.ok ? console.log('Demo started') : console.error('Demo "
-    "start failed'))"
-    "    .catch(e => console.error('Demo start error:', e));"
-    "}"
+    "<button id='stop-demo-btn' onclick='stopDemo()' "
+    "style='width: 100%; padding: 10px; margin-top: 10px; background: "
+    "#f44336; "
+    "color: white; "
+    "border: none; border-radius: 4px; cursor: pointer; font-size: 14px; "
+    "font-weight: 600; display: none; transition: background 0.2s;'>"
+    "⏹️ Stop Playback</button>"
+    "<script>\n"
+    "const demoCheckbox = document.getElementById('demo-enabled');\n"
+    "const demoSpeed = document.getElementById('demo-speed');\n"
+    "const demoSpeedValue = document.getElementById('demo-speed-value');\n"
+    "const stopDemoBtn = document.getElementById('stop-demo-btn');\n"
+    "\n"
+    "demoCheckbox.addEventListener('change', function() {\n"
+    "  const enabled = this.checked;\n"
+    "  demoSpeed.disabled = !enabled;\n"
+    "  demoSpeedValue.style.color = enabled ? '#fff' : '#888';\n"
+    "  stopDemoBtn.style.display = enabled ? 'block' : 'none';\n"
+    "  \n"
+    "  fetch('/api/demo/config', {\n"
+    "    method: 'POST',\n"
+    "    headers: {'Content-Type': 'application/json'},\n"
+    "    body: JSON.stringify({enabled: enabled, speed_ms: \n"
+    "parseInt(demoSpeed.value)})\n"
+    "  }).catch(e => console.error('Demo config error:', e));\n"
+    "});\n"
+    "\n"
+    "demoSpeed.addEventListener('input', function() {\n"
+    "  demoSpeedValue.textContent = this.value + 'ms';\n"
+    "});\n"
+    "\n"
+    "demoSpeed.addEventListener('change', function() {\n"
+    "  fetch('/api/demo/config', {\n"
+    "    method: 'POST',\n"
+    "    headers: {'Content-Type': 'application/json'},\n"
+    "    body: JSON.stringify({enabled: demoCheckbox.checked, speed_ms: "
+    "parseInt(this.value)})\n"
+    "  }).catch(e => console.error('Demo speed error:', e));\n"
+    "});\n"
+    "\n"
+    "function stopDemo() {\n"
+    "  demoCheckbox.checked = false;\n"
+    "  demoSpeed.disabled = true;\n"
+    "  demoSpeedValue.style.color = '#888';\n"
+    "  stopDemoBtn.style.display = 'none';\n"
+    "  \n"
+    "  fetch('/api/demo/config', {\n"
+    "    method: 'POST',\n"
+    "    headers: {'Content-Type': 'application/json'},\n"
+    "    body: JSON.stringify({enabled: false, speed_ms: "
+    "parseInt(demoSpeed.value)})\n"
+    "  }).catch(e => console.error('Stop demo error:', e));\n"
+    "}\n"
+    "\n"
     "</script>"
     "</div>";
 
+// Chunk: MQTT Configuration Panel
+static const char html_chunk_mqtt_config[] =
+    "<div class='status-box' style='margin-top: 20px;'>"
+    "<h3 style='margin-top: 0; color: #4CAF50;'>📡 MQTT Configuration</h3>"
+    "<div style='margin: 10px 0;'>"
+    "<label style='display: block; margin-bottom: 5px;'>Broker "
+    "Host/IP:</label>"
+    "<input type='text' id='mqtt-host' placeholder='homeassistant.local' "
+    "style='width: 100%; padding: 8px; border-radius: 4px; border: 1px solid "
+    "#555; "
+    "background: #1a1a1a; color: #fff;'>"
+    "</div>"
+    "<div style='margin: 15px 0;'>"
+    "<label style='display: block; margin-bottom: 5px;'>Port:</label>"
+    "<input type='number' id='mqtt-port' value='1883' min='1' max='65535' "
+    "style='width: 100%; padding: 8px; border-radius: 4px; border: 1px solid "
+    "#555; "
+    "background: #1a1a1a; color: #fff;'>"
+    "</div>"
+    "<div style='margin: 15px 0;'>"
+    "<label style='display: block; margin-bottom: 5px;'>Username:</label>"
+    "<input type='text' id='mqtt-username' placeholder='mqtt_user' "
+    "style='width: 100%; padding: 8px; border-radius: 4px; border: 1px solid "
+    "#555; "
+    "background: #1a1a1a; color: #fff;'>"
+    "</div>"
+    "<div style='margin: 15px 0;'>"
+    "<label style='display: block; margin-bottom: 5px;'>Password:</label>"
+    "<input type='password' id='mqtt-password' placeholder='••••••••' "
+    "style='width: 100%; padding: 8px; border-radius: 4px; border: 1px solid "
+    "#555; "
+    "background: #1a1a1a; color: #fff;'>"
+    "</div>"
+    "<button onclick='saveMQTTConfig()' "
+    "style='width: 100%; padding: 10px; background: #4CAF50; color: white; "
+    "border: none; border-radius: 4px; cursor: pointer; font-size: 16px;'>"
+    "Save MQTT Config</button>"
+    "<div id='mqtt-status' style='margin-top: 10px; padding: 8px; "
+    "border-radius: 4px; "
+    "display: none;'></div>"
+    "<script>\n"
+    "async function saveMQTTConfig() {\n"
+    "  const host = document.getElementById('mqtt-host').value;\n"
+    "  const port = parseInt(document.getElementById('mqtt-port').value);\n"
+    "  const username = document.getElementById('mqtt-username').value;\n"
+    "  const password = document.getElementById('mqtt-password').value;\n"
+    "  const statusDiv = document.getElementById('mqtt-status');\n"
+    "  \n"
+    "  if (!host) {\n"
+    "    statusDiv.style.display = 'block';\n"
+    "    statusDiv.style.background = '#f44336';\n"
+    "    statusDiv.textContent = 'Error: Host is required';\n"
+    "    return;\n"
+    "  }\n"
+    "  \n"
+    "  try {\n"
+    "    const response = await fetch('/api/mqtt/config', {\n"
+    "      method: 'POST',\n"
+    "      headers: {'Content-Type': 'application/json'},\n"
+    "      body: JSON.stringify({host: host, port: port, username: username, "
+    "password: password})\n"
+    "    });\n"
+    "    const data = await response.json();\n"
+    "    \n"
+    "    statusDiv.style.display = 'block';\n"
+    "    if (data.success) {\n"
+    "      statusDiv.style.background = '#4CAF50';\n"
+    "      statusDiv.textContent = 'MQTT config saved! Restart ESP32 to "
+    "apply.';\n"
+    "    } else {\n"
+    "      statusDiv.style.background = '#f44336';\n"
+    "      statusDiv.textContent = 'Error: ' + (data.message || 'Unknown "
+    "error');\n"
+    "    }\n"
+    "  } catch (e) {\n"
+    "    statusDiv.style.display = 'block';\n"
+    "    statusDiv.style.background = '#f44336';\n"
+    "    statusDiv.textContent = 'Error: ' + e.message;\n"
+    "  }\n"
+    "}\n"
+    "\n"
+    "// Load current MQTT config on page load\n"
+    "async function loadMQTTConfig() {\n"
+    "  try {\n"
+    "    const response = await fetch('/api/mqtt/status');\n"
+    "    const data = await response.json();\n"
+    "    if (data.host) document.getElementById('mqtt-host').value = "
+    "data.host;\n"
+    "    if (data.port) document.getElementById('mqtt-port').value = "
+    "data.port;\n"
+    "    if (data.username) document.getElementById('mqtt-username').value = "
+    "data.username;\n"
+    "  } catch (e) {\n"
+    "    console.log('Could not load MQTT config:', e);\n"
+    "  }\n"
+    "}\n"
+    "if (document.readyState === 'loading') {\n"
+    "  document.addEventListener('DOMContentLoaded', loadMQTTConfig);\n"
+    "} else {\n"
+    "  setTimeout(loadMQTTConfig, 100);\n"
+    "}\n"
+    "</script>\n"
+    "</div></div></div>";
+
 // Chunk 4: HTML closing tags
-static const char html_chunk_end[] = "</body>"
+static const char html_chunk_end[] = "</div>"
+                                     "</body>"
                                      "</html>";
 
 // ============================================================================
@@ -4603,11 +5866,18 @@ static esp_err_t http_get_root_handler(httpd_req_t *req) {
   // Set content type
   httpd_resp_set_type(req, "text/html; charset=utf-8");
 
-  // Set chunked transfer encoding
-  httpd_resp_set_hdr(req, "Transfer-Encoding", "chunked");
+  // Prevent caching to ensure updates (especially JS fixes) are loaded
+  httpd_resp_set_hdr(req, "Cache-Control",
+                     "no-cache, no-store, must-revalidate");
+  httpd_resp_set_hdr(req, "Pragma", "no-cache");
+  httpd_resp_set_hdr(req, "Expires", "0");
 
-  // ✅ Send HTML in 6 smaller chunks with explicit logging
-  // Using explicit strlen() and longer delays for reliability
+  // Transfer-Encoding is handled automatically by httpd_resp_send_chunk
+  // when Content-Length is not set. Don't set it manually!
+
+  // Send HTML in 8 chunks for better debugging and memory efficiency
+  // Traffic shaping: Small delays to prevent socket buffer overflow with
+  // multiple clients
 
   // CHUNK 1: HEAD (CSS + bootstrap script)
   size_t chunk1_len = strlen(html_chunk_head);
@@ -4617,27 +5887,44 @@ static esp_err_t http_get_root_handler(httpd_req_t *req) {
     ESP_LOGE(TAG, "❌ Chunk 1 failed: %s", esp_err_to_name(ret));
     return ret;
   }
-  vTaskDelay(pdMS_TO_TICKS(50));
 
-  // CHUNK 2: BODY start + board container
-  size_t chunk2_len = strlen(html_chunk_body);
-  ESP_LOGI(TAG, "📤 Chunk 2: BODY+BOARD (%zu bytes)", chunk2_len);
-  ret = httpd_resp_send_chunk(req, html_chunk_body, chunk2_len);
+  // CHUNK 2: Layout Start + Game Info + Board + Right Panel Start
+
+  // 1. Layout Start
+  size_t chunk_layout_len = strlen(html_chunk_layout_start);
+  ESP_LOGI(TAG, "📤 Chunk 2a: LAYOUT START (%zu bytes)", chunk_layout_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_layout_start, chunk_layout_len);
+  if (ret != ESP_OK)
+    return ret;
+
+  // 2. Game Info (Left)
+  size_t chunk_game_len = strlen(html_chunk_game_info);
+  ESP_LOGI(TAG, "📤 Chunk 2b: GAME INFO (%zu bytes)", chunk_game_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_game_info, chunk_game_len);
+  if (ret != ESP_OK)
+    return ret;
+
+  // 3. Board (Center)
+  size_t chunk_board_len = strlen(html_chunk_board);
+  ESP_LOGI(TAG, "📤 Chunk 2c: BOARD (%zu bytes)", chunk_board_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_board, chunk_board_len);
   if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "❌ Chunk 2 failed: %s", esp_err_to_name(ret));
+    ESP_LOGE(TAG, "❌ Chunk 2c failed: %s", esp_err_to_name(ret));
     return ret;
   }
-  vTaskDelay(pdMS_TO_TICKS(50));
+  // Traffic shaping
+  vTaskDelay(pdMS_TO_TICKS(20));
 
-  // CHUNK 3: Info panel (status, timer UI, history, captured)
-  size_t chunk3_len = strlen(html_chunk_infopanel);
-  ESP_LOGI(TAG, "📤 Chunk 3: INFOPANEL (%zu bytes)", chunk3_len);
-  ret = httpd_resp_send_chunk(req, html_chunk_infopanel, chunk3_len);
+  // 4. Info Panel (Right) start + content
+  // Note: html_chunk_infopanel starts with <div class='info-panel'> and
+  // contains WiFi etc. It stays open to accept Demo/MQTT.
+  size_t chunk_info_len = strlen(html_chunk_infopanel);
+  ESP_LOGI(TAG, "📤 Chunk 3: INFO PANEL START (%zu bytes)", chunk_info_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_infopanel, chunk_info_len);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "❌ Chunk 3 failed: %s", esp_err_to_name(ret));
     return ret;
   }
-  vTaskDelay(pdMS_TO_TICKS(50));
 
   // CHUNK 4: Banners (review mode, sandbox mode)
   size_t chunk4_len = strlen(html_chunk_banners);
@@ -4647,7 +5934,8 @@ static esp_err_t http_get_root_handler(httpd_req_t *req) {
     ESP_LOGE(TAG, "❌ Chunk 4 failed: %s", esp_err_to_name(ret));
     return ret;
   }
-  vTaskDelay(pdMS_TO_TICKS(50));
+  // Traffic shaping
+  vTaskDelay(pdMS_TO_TICKS(20));
 
   // CHUNK 5: Complete JavaScript (all functions in ONE piece!)
   size_t chunk5_len = strlen(html_chunk_javascript);
@@ -4657,6 +5945,7 @@ static esp_err_t http_get_root_handler(httpd_req_t *req) {
     ESP_LOGE(TAG, "❌ Chunk 5 failed: %s", esp_err_to_name(ret));
     return ret;
   }
+  // Traffic shaping (JS is large)
   vTaskDelay(pdMS_TO_TICKS(50));
 
   // CHUNK 6: Demo Mode UI
@@ -4667,14 +5956,24 @@ static esp_err_t http_get_root_handler(httpd_req_t *req) {
     ESP_LOGE(TAG, "❌ Chunk 6 failed: %s", esp_err_to_name(ret));
     return ret;
   }
-  vTaskDelay(pdMS_TO_TICKS(50));
+  // Traffic shaping
+  vTaskDelay(pdMS_TO_TICKS(20));
 
-  // CHUNK 7: Closing tags
-  size_t chunk7_len = strlen(html_chunk_end);
-  ESP_LOGI(TAG, "📤 Chunk 7: CLOSING (%zu bytes)", chunk7_len);
-  ret = httpd_resp_send_chunk(req, html_chunk_end, chunk7_len);
+  // CHUNK 7: MQTT Configuration UI
+  size_t chunk7_len = strlen(html_chunk_mqtt_config);
+  ESP_LOGI(TAG, "📤 Chunk 7: MQTT CONFIG (%zu bytes)", chunk7_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_mqtt_config, chunk7_len);
   if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "❌ Chunk 6 failed: %s", esp_err_to_name(ret));
+    ESP_LOGE(TAG, "❌ Chunk 7 failed: %s", esp_err_to_name(ret));
+    return ret;
+  }
+
+  // CHUNK 8: Closing tags
+  size_t chunk8_len = strlen(html_chunk_end);
+  ESP_LOGI(TAG, "📤 Chunk 8: CLOSING (%zu bytes)", chunk8_len);
+  ret = httpd_resp_send_chunk(req, html_chunk_end, chunk8_len);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "❌ Chunk 8 failed: %s", esp_err_to_name(ret));
     return ret;
   }
 
@@ -4686,10 +5985,11 @@ static esp_err_t http_get_root_handler(httpd_req_t *req) {
   }
 
   ESP_LOGI(TAG,
-           "✅ HTML sent successfully (6 chunks: %zu + %zu + %zu + %zu + %zu + "
-           "%zu bytes)",
-           chunk1_len, chunk2_len, chunk3_len, chunk4_len, chunk5_len,
-           chunk6_len);
+           "✅ HTML sent successfully (10 chunks: %zu + %zu + %zu + %zu + %zu "
+           "+ %zu + %zu + %zu + %zu + %zu bytes)",
+           chunk1_len, chunk_layout_len, chunk_game_len, chunk_board_len,
+           chunk_info_len, chunk4_len, chunk5_len, chunk6_len, chunk7_len,
+           chunk8_len);
   return ESP_OK;
 }
 
@@ -4723,7 +6023,7 @@ void __wrap_esp_log_write(esp_log_level_t level, const char *tag,
 void web_server_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "Web server task starting...");
 
-  // ✅ CRITICAL: Register with TWDT
+  // CRITICAL: Register with TWDT
   esp_err_t wdt_ret = esp_task_wdt_add(NULL);
   if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
     ESP_LOGE(TAG, "Failed to register web server task with TWDT: %s",

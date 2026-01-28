@@ -122,10 +122,11 @@ extern "C" {
 // ============================================================================
 // NEPOUZIVANA MAKRA - ZAKOMENTOVANO
 // ============================================================================
-// ⚠️ POZOR: Následující makra se NEPOUŽÍVAJÍ v kódu!
+// POZOR: Následující makra se NEPOUŽÍVAJÍ v kódu!
 // Byly původně navržena pro druhou sadu promotion tlačítek, ale systém
-// používá pouze 4 sdílená tlačítka (BUTTON_QUEEN, BUTTON_ROOK, BUTTON_BISHOP, BUTTON_KNIGHT)
-// která jsou společná pro oba hráče. Pole promotion_button_pins_b také není použito.
+// používá pouze 4 sdílená tlačítka (BUTTON_QUEEN, BUTTON_ROOK, BUTTON_BISHOP,
+// BUTTON_KNIGHT) která jsou společná pro oba hráče. Pole
+// promotion_button_pins_b také není použito.
 //
 // /** @brief Tlacitko pro promoci na damu B (sdileno s MATRIX_COL_4) */
 // #define BUTTON_PROMOTION_QUEEN MATRIX_COL_4 // E1 square + Promotion Queen
@@ -145,7 +146,7 @@ extern "C" {
 #define MATRIX_SCAN_TIME_MS 20 // Matrix scanning time (0-20ms)
 /** @brief Cas skenovani tlacitek v milisekundach (20-25ms) */
 #define BUTTON_SCAN_TIME_MS 5 // Button scanning time (20-25ms)
-// #define LED_UPDATE_TIME_MS 5        // ❌ REMOVED: No longer needed
+// #define LED_UPDATE_TIME_MS 5        //  REMOVED: No longer needed
 /** @brief Celkovy cas multiplexing cyklu v milisekundach (snizeno z 30ms) */
 #define TOTAL_CYCLE_TIME_MS 25 // Total multiplexing cycle (reduced from 30ms)
 /** @brief Interval kontroly zdravi systemu v milisekundach */
@@ -198,7 +199,8 @@ extern "C" {
 /** @brief Velikost game fronty (20 prvku, snizeno z 30 na 20, dostatecne pro
  * game prikazy) */
 #define GAME_QUEUE_SIZE                                                        \
-  50 // ✅ STABILITY FIX: Increased from 20 to 50 for better handling of rapid moves // Reduced from 30 to 20 (sufficient for game commands)
+  50 // STABILITY FIX: Increased from 20 to 50 for better handling of rapid
+     // moves // Reduced from 30 to 20 (sufficient for game commands)
 /** @brief Velikost animation fronty (5 prvku, snizeno z 8 na 5, jednoduche
  * animace) */
 #define ANIMATION_QUEUE_SIZE 5 // Reduced from 8 to 5 (simple animations)
@@ -219,20 +221,20 @@ extern "C" {
 // pro game_response_t na stacku)
 /** @brief Velikost stacku LED tasku (8KB - KRITICKE: LED task potrebuje vice
  * stacku pro critical sections + velka pole) */
-#define LED_TASK_STACK_SIZE                                                    \
-  (16 * 1024) // 16KB (INCREASED: led_strip_new_rmt_device needs more stack)
+#define LED_TASK_STACK_SIZE (8 * 1024) // 8KB (Optimized: 16KB was excessive)
 /** @brief Velikost stacku Matrix tasku (8KB - zvyseno pro game_response_t na
  * stacku) */
 #define MATRIX_TASK_STACK_SIZE                                                 \
-  (8 * 1024) // 8KB (increased for game_response_t on stack)
+  (4 * 1024) // 4KB (Optimized: Reduced struct size allow smaller stack)
 /** @brief Velikost stacku Button tasku (3KB - nezmeneno, jiz optimalni) */
 #define BUTTON_TASK_STACK_SIZE (3 * 1024) // 3KB (unchanged - already optimal)
 /** @brief Velikost stacku UART tasku (10KB - game_response_t je 3.8KB +
  * overhead) */
 #define UART_TASK_STACK_SIZE                                                   \
-  (10 * 1024) // 10KB (game_response_t je 3.8KB + overhead)
+  (5 * 1024) // 5KB (Optimized: Reduced struct size allow smaller stack)
 /** @brief Velikost stacku Game tasku (10KB pro bezpecny error handling) */
-#define GAME_TASK_STACK_SIZE (10 * 1024) // 10KB pro bezpečný error handling
+#define GAME_TASK_STACK_SIZE                                                   \
+  (6 * 1024) // 6KB (Optimized: Reduced struct size allow smaller stack)
 /** @brief Velikost stacku Animation tasku (2KB, snizeno z 3KB, jednoduche
  * animace) */
 #define ANIMATION_TASK_STACK_SIZE                                              \
@@ -255,6 +257,8 @@ extern "C" {
 #define RESET_BUTTON_TASK_STACK_SIZE (2 * 1024) // 2KB (unchanged)
 /** @brief Velikost stacku Promotion Button tasku (2KB - nezmeneno) */
 #define PROMOTION_BUTTON_TASK_STACK_SIZE (2 * 1024) // 2KB (unchanged)
+/** @brief Velikost stacku HA Light tasku (8KB) */
+#define HA_LIGHT_TASK_STACK_SIZE (8 * 1024) // 8KB
 
 // Priority tasku
 /** @brief Priorita LED tasku (7 - nejvyssi priorita pro LED timing) */
@@ -280,14 +284,16 @@ extern "C" {
 #define RESET_BUTTON_TASK_PRIORITY 3 // Uživatelský vstup
 /** @brief Priorita Promotion Button tasku (3 - uzivatelsky vstup) */
 #define PROMOTION_BUTTON_TASK_PRIORITY 3 // Uživatelský vstup
+/** @brief Priorita HA Light tasku (3 - komunikace) */
+#define HA_LIGHT_TASK_PRIORITY 3 // Komunikace
 
 // ============================================================================
 // GLOBALNI QUEUE HANDLES
 // ============================================================================
 
 // LED control queues - ODSTRANENO: Pouzivaji se prime LED volani misto toho
-// extern QueueHandle_t led_command_queue;  // ❌ REMOVED: Queue hell eliminated
-// extern QueueHandle_t led_status_queue;   // ❌ REMOVED: Queue hell eliminated
+// extern QueueHandle_t led_command_queue;  //  REMOVED: Queue hell eliminated
+// extern QueueHandle_t led_status_queue;   //  REMOVED: Queue hell eliminated
 /** @brief Fronta pro matrix udalosti (piece lifted/placed) */
 extern QueueHandle_t matrix_event_queue;
 /** @brief Fronta pro matrix prikazy (scan, reset, test) */
@@ -352,7 +358,7 @@ extern SemaphoreHandle_t uart_mutex;
 extern TimerHandle_t matrix_scan_timer;
 /** @brief Timer pro periodicke skenovani tlacitek */
 extern TimerHandle_t button_scan_timer;
-// extern TimerHandle_t led_update_timer;  // ❌ REMOVED: No longer needed
+// extern TimerHandle_t led_update_timer;  //  REMOVED: No longer needed
 /** @brief Timer pro periodicke kontroly zdravi systemu */
 extern TimerHandle_t system_health_timer;
 
@@ -366,7 +372,7 @@ extern const gpio_num_t matrix_row_pins[8];
 extern const gpio_num_t matrix_col_pins[8];
 /** @brief Pole GPIO pinu pro promotion tlacitka A (4 tlacitka) */
 extern const gpio_num_t promotion_button_pins_a[4];
-// ⚠️ NEPOUZIVANO: Toto pole se nikde v kódu nepoužívá!
+// NEPOUZIVANO: Toto pole se nikde v kódu nepoužívá!
 // /** @brief Pole GPIO pinu pro promotion tlacitka B (4 tlacitka) */
 // extern const gpio_num_t promotion_button_pins_b[4];
 
@@ -460,7 +466,7 @@ void matrix_scan_timer_callback(TimerHandle_t xTimer);
  * @brief LED update timer callback - ODSTRANENO: Pouzivaji se prime LED volani
  * @param xTimer Handle timeru
  */
-// void led_update_timer_callback(TimerHandle_t xTimer);  // ❌ REMOVED: No
+// void led_update_timer_callback(TimerHandle_t xTimer);  //  REMOVED: No
 // longer needed
 
 /**

@@ -467,7 +467,7 @@ test_result_t test_execute_led_matrix_test(void)
     ESP_LOGI(TAG, "Executing LED Matrix Test...");
     
     // Test LED matrix functionality
-    // ✅ DIRECT LED CALL - No queue hell
+    // DIRECT LED CALL - No queue hell
     led_set_all_safe(50, 50, 50);
     ESP_LOGI(TAG, "LED matrix test executed directly");
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -517,7 +517,7 @@ test_result_t test_execute_ws2812b_test(void)
     ESP_LOGI(TAG, "Executing WS2812B LED Test...");
     
     // Test WS2812B LED functionality
-    // ✅ DIRECT LED CALL - No queue hell
+    // DIRECT LED CALL - No queue hell
     led_set_pixel_safe(0, 255, 0, 0);
     ESP_LOGI(TAG, "WS2812B test executed directly");
     vTaskDelay(pdMS_TO_TICKS(500));
@@ -988,7 +988,7 @@ void test_task_start(void *pvParameters)
 {
     ESP_LOGI(TAG, "Test task started successfully");
     
-    // ✅ CRITICAL: Register with TWDT from within task
+    // CRITICAL: Register with TWDT from within task
     esp_err_t wdt_ret = esp_task_wdt_add(NULL);
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_INVALID_ARG) {
         ESP_LOGE(TAG, "Failed to register Test task with TWDT: %s", esp_err_to_name(wdt_ret));

@@ -2,5 +2,5 @@
 idf_component_register(
     SRCS "matrix_task.c"
     INCLUDE_DIRS "include"
-    REQUIRES freertos_chess driver
+    REQUIRES freertos_chess driver ha_light_task
 )

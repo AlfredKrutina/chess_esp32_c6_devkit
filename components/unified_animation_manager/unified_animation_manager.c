@@ -123,7 +123,7 @@ uint32_t unified_animation_create(animation_type_t type, animation_priority_t pr
         return 0;
     }
     
-    // ✅ OPRAVA: Zastavit všechny předchozí animace - pouze jedna současně
+    // Zastavit všechny předchozí animace - pouze jedna současně
     int stopped_count = 0;
     for (int i = 0; i < current_config.max_concurrent_animations; i++) {
         if (animations[i].active) {
