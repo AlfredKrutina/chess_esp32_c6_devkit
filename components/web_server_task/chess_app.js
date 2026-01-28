@@ -24,6 +24,7 @@ let reviewMode = false;
 let currentReviewIndex = -1;
 let initialBoard = [];
 let sandboxMode = false;
+let remoteControlEnabled = false;
 let sandboxBoard = [];
 let sandboxHistory = [];
 let endgameReportShown = false;
@@ -61,60 +62,119 @@ function clearHighlights() {
     selectedSquare = null;
 }
 
+// ============================================================================
+// REMOTE CONTROL LOGIC
+// ============================================================================
+
+function toggleRemoteControl() {
+    const checkbox = document.getElementById('remote-control-enabled');
+    remoteControlEnabled = checkbox.checked;
+    console.log('Remote control:', remoteControlEnabled);
+    
+    if (!remoteControlEnabled) {
+        clearHighlights();
+    }
+}
+
+async function handleRemoteControlClick(row, col) {
+    const notation = String.fromCharCode(97 + col) + (row + 1);
+    let action = 'pickup';
+    
+    // Determine action based on currently lifted piece status
+    // Note: statusData is updated from backend
+    if (statusData && statusData.piece_lifted && statusData.piece_lifted.lifted) {
+        action = 'drop';
+    }
+    
+    console.log(`Remote control: ${action} at ${notation}`);
+    
+    // Visual feedback immediately (optimistic update)
+    const square = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
+    if (square) {
+        square.style.boxShadow = action === 'pickup' ? 
+            'inset 0 0 20px rgba(255, 255, 0, 0.8)' : 
+            'inset 0 0 20px rgba(0, 255, 0, 0.8)';
+        
+        setTimeout(() => {
+            if (square) square.style.boxShadow = '';
+        }, 500);
+    }
+    
+    try {
+        const response = await fetch('/api/game/virtual_action', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({action: action, square: notation})
+        });
+        const res = await response.json();
+        console.log('Remote action response:', res);
+        
+        if (!res.success) {
+            alert('Remote action failed: ' + res.message);
+        }
+    } catch (e) {
+        console.error('Remote action error:', e);
+    }
+}
+
+// ============================================================================
+// SQUARE CLICK HANDLER
+// ============================================================================
+
 async function handleSquareClick(row, col) {
     const piece = sandboxMode ? sandboxBoard[row][col] : boardData[row][col];
     const index = row * 8 + col;
 
-    if (piece === ' ' && selectedSquare !== null) {
-        const fromRow = Math.floor(selectedSquare / 8);
-        const fromCol = selectedSquare % 8;
-
-        if (sandboxMode) {
-            makeSandboxMove(fromRow, fromCol, row, col);
-            clearHighlights();
-        } else {
-            const fromNotation = String.fromCharCode(97 + fromCol) + (8 - fromRow);
-            const toNotation = String.fromCharCode(97 + col) + (8 - row);
-            try {
-                const response = await fetch('/api/move', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ from: fromNotation, to: toNotation })
-                });
-                if (response.ok) {
-                    clearHighlights();
-                    fetchData(); // Refresh po úspěšném tahu
-                } else {
-                    // Nevalidní tah - okamžitě aktualizovat pro zobrazení error state
-                    console.warn('Invalid move:', response.status);
-                    clearHighlights(); // Smazat lokální highlights
-                    await fetchData(); // Okamžitá aktualizace pro error state (červená + modrá)
-                }
-            } catch (error) {
-                console.error('Move error:', error);
-            }
-        }
+    // REMOTE CONTROL MODE - posílat příkazy na ESP
+    if (remoteControlEnabled) {
+        handleRemoteControlClick(row, col);
         return;
     }
 
-    if (piece !== ' ') {
-        if (sandboxMode) {
+    // SANDBOX MODE - vše lokálně, žádné POST requesty (včetně braní figurek)
+    if (sandboxMode) {
+        if (piece === ' ' && selectedSquare !== null) {
+            // Tah na prázdné pole
+            const fromRow = Math.floor(selectedSquare / 8);
+            const fromCol = selectedSquare % 8;
+            makeSandboxMove(fromRow, fromCol, row, col);
             clearHighlights();
-            selectedSquare = index;
-            const square = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
-            if (square) square.classList.add('selected');
-        } else {
-            const isWhitePiece = piece === piece.toUpperCase();
-            const currentPlayerIsWhite = statusData.current_player === 'White';
+        } else if (piece !== ' ') {
+            if (selectedSquare !== null) {
+                const fromRow = Math.floor(selectedSquare / 8);
+                const fromCol = selectedSquare % 8;
+                const selectedPiece = sandboxBoard[fromRow][fromCol];
+                const isSameSquare = (fromRow === row && fromCol === col);
+                const isOurPiece = (selectedPiece === selectedPiece.toUpperCase()) === (piece === piece.toUpperCase());
 
-            if ((isWhitePiece && currentPlayerIsWhite) || (!isWhitePiece && !currentPlayerIsWhite)) {
+                if (isSameSquare) {
+                    // Klik na stejné pole – zrušit výběr
+                    clearHighlights();
+                } else if (isOurPiece) {
+                    // Klik na vlastní figurku – vybrat jinou
+                    clearHighlights();
+                    selectedSquare = index;
+                    const square = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
+                    if (square) square.classList.add('selected');
+                } else {
+                    // Klik na soupeřovu figurku – brát (capture)
+                    makeSandboxMove(fromRow, fromCol, row, col);
+                    clearHighlights();
+                }
+            } else {
+                // Žádná figurka vybraná – vybrat tuto
                 clearHighlights();
                 selectedSquare = index;
                 const square = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
                 if (square) square.classList.add('selected');
             }
         }
+        return;
     }
+
+    // NORMÁLNÍ REŽIM (ne sandbox, ne remote control) - žádné POST requesty, žádný vizuální feedback
+    // Web je jen pasivní zobrazení, hra se ovládá fyzicky
+    return;
 }
 
 // ============================================================================
@@ -202,6 +262,7 @@ function enterSandboxMode() {
     const banner = document.getElementById('sandbox-banner');
     banner.classList.add('active');
     clearHighlights();
+    updateUndoButton(); // Aktualizovat tlačítko undo při vstupu do sandbox mode
 }
 
 function exitSandboxMode() {
@@ -215,10 +276,60 @@ function exitSandboxMode() {
 
 function makeSandboxMove(fromRow, fromCol, toRow, toCol) {
     const piece = sandboxBoard[fromRow][fromCol];
+    const capturedPiece = sandboxBoard[toRow][toCol]; // Uložit captured piece (může být ' ')
+    
+    // Provedení tahu
     sandboxBoard[toRow][toCol] = piece;
     sandboxBoard[fromRow][fromCol] = ' ';
-    sandboxHistory.push({ from: `${String.fromCharCode(97 + fromCol)}${8 - fromRow}`, to: `${String.fromCharCode(97 + toCol)}${8 - toRow}` });
+    
+    // Uložit tah do historie s kompletními informacemi
+    sandboxHistory.push({
+        fromRow: fromRow,
+        fromCol: fromCol,
+        toRow: toRow,
+        toCol: toCol,
+        movingPiece: piece,
+        capturedPiece: capturedPiece
+    });
+    
+    // Omezit historii na 10 tahů
+    if (sandboxHistory.length > 10) {
+        sandboxHistory.shift(); // Odstranit nejstarší tah
+    }
+    
     updateBoard(sandboxBoard);
+    updateUndoButton();
+}
+
+function updateUndoButton() {
+    const undoBtn = document.getElementById('sandbox-undo-btn');
+    if (!undoBtn) return;
+    
+    const availableUndos = sandboxHistory.length;
+    const maxUndos = 10;
+    
+    undoBtn.textContent = `↶ Undo (${availableUndos}/${maxUndos})`;
+    undoBtn.disabled = availableUndos === 0;
+}
+
+function undoSandboxMove() {
+    if (sandboxHistory.length === 0) {
+        return; // Žádné tahy k vrácení
+    }
+    
+    // Vzít poslední tah z historie
+    const lastMove = sandboxHistory.pop();
+    
+    // Vrátit figurku zpět
+    sandboxBoard[lastMove.fromRow][lastMove.fromCol] = lastMove.movingPiece;
+    
+    // Obnovit captured piece (nebo prázdné pole)
+    sandboxBoard[lastMove.toRow][lastMove.toCol] = lastMove.capturedPiece;
+    
+    // Aktualizovat board a tlačítko
+    updateBoard(sandboxBoard);
+    updateUndoButton();
+    clearHighlights();
 }
 
 // ============================================================================
@@ -1103,6 +1214,8 @@ window.pauseTimer = pauseTimer;
 window.resumeTimer = resumeTimer;
 window.resetTimer = resetTimer;
 window.hideEndgameReport = hideEndgameReport;
+window.toggleRemoteControl = toggleRemoteControl;
+window.undoSandboxMove = undoSandboxMove;
 
 // Initialize timer system immediately (will retry if DOM not ready)
 console.log('⏱️ Exposing timer functions and calling initTimerSystem()...');
