@@ -441,7 +441,7 @@
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00467}00467\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Executing\ LED\ Matrix\ Test..."{}});}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00468}00468\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00469}00469\ \ \ \ \ \textcolor{comment}{//\ Test\ LED\ matrix\ functionality}}
-\DoxyCodeLine{\Hypertarget{test__task_8c_source_l00470}00470\ \ \ \ \ \textcolor{comment}{//\ ✅\ DIRECT\ LED\ CALL\ -\/\ No\ queue\ hell}}
+\DoxyCodeLine{\Hypertarget{test__task_8c_source_l00470}00470\ \ \ \ \ \textcolor{comment}{//\ DIRECT\ LED\ CALL\ -\/\ No\ queue\ hell}}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00471}00471\ \ \ \ \ \mbox{\hyperlink{led__task_8h_a67410e7a666d076402f2eaf116716a2b}{led\_set\_all\_safe}}(50,\ 50,\ 50);}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00472}00472\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}LED\ matrix\ test\ executed\ directly"{}});}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00473}00473\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
@@ -491,7 +491,7 @@
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00517}00517\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Executing\ WS2812B\ LED\ Test..."{}});}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00518}00518\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00519}00519\ \ \ \ \ \textcolor{comment}{//\ Test\ WS2812B\ LED\ functionality}}
-\DoxyCodeLine{\Hypertarget{test__task_8c_source_l00520}00520\ \ \ \ \ \textcolor{comment}{//\ ✅\ DIRECT\ LED\ CALL\ -\/\ No\ queue\ hell}}
+\DoxyCodeLine{\Hypertarget{test__task_8c_source_l00520}00520\ \ \ \ \ \textcolor{comment}{//\ DIRECT\ LED\ CALL\ -\/\ No\ queue\ hell}}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00521}00521\ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(0,\ 255,\ 0,\ 0);}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00522}00522\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}WS2812B\ test\ executed\ directly"{}});}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00523}00523\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));}
@@ -962,7 +962,7 @@
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00988}00988\ \{}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00989}00989\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Test\ task\ started\ successfully"{}});}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00990}00990\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{test__task_8c_source_l00991}00991\ \ \ \ \ \textcolor{comment}{//\ ✅\ CRITICAL:\ Register\ with\ TWDT\ from\ within\ task}}
+\DoxyCodeLine{\Hypertarget{test__task_8c_source_l00991}00991\ \ \ \ \ \textcolor{comment}{//\ CRITICAL:\ Register\ with\ TWDT\ from\ within\ task}}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00992}00992\ \ \ \ \ esp\_err\_t\ wdt\_ret\ =\ esp\_task\_wdt\_add(NULL);}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00993}00993\ \ \ \ \ \textcolor{keywordflow}{if}\ (wdt\_ret\ !=\ ESP\_OK\ \&\&\ wdt\_ret\ !=\ ESP\_ERR\_INVALID\_ARG)\ \{}
 \DoxyCodeLine{\Hypertarget{test__task_8c_source_l00994}00994\ \ \ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ register\ Test\ task\ with\ TWDT:\ \%s"{}},\ esp\_err\_to\_name(wdt\_ret));}

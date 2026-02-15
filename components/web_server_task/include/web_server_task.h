@@ -126,7 +126,7 @@ void web_server_set_config(void);
 /**
  * @brief Aktualizuj stav web serveru
  *
- * Periodicky aktualizuje interní stav serveru.
+ * Periodicky aktualizuje interni stav serveru.
  */
 void web_server_update_state(void);
 

@@ -1,0 +1,100 @@
+\doxysection{ha\+\_\+light\+\_\+task.\+h}
+\hypertarget{ha__light__task_8h_source}{}\label{ha__light__task_8h_source}\index{ha\_light\_task.h@{ha\_light\_task.h}}
+\mbox{\hyperlink{ha__light__task_8h}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00027}00027\ \textcolor{preprocessor}{\#ifndef\ HA\_LIGHT\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00028}00028\ \textcolor{preprocessor}{\#define\ HA\_LIGHT\_TASK\_H}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00030}00030\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00031}00031\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00032}00032\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00033}00033\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00034}00034\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00036}00036\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00037}00037\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00038}00038\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00040}00040\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00041}00041\ \textcolor{comment}{//\ KONSTANTY}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00042}00042\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00044}00044\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00046}00046\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00047}00047\ \textcolor{comment}{//\ KONSTANTY}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00048}00048\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00049}00049\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00050}00050\ \textcolor{comment}{//\ 10\ minut\ necinosti\ =\ automaticky\ prepne\ do\ HA\ modu}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00051}\mbox{\hyperlink{ha__light__task_8h_a59a4f99e5382fed36fc539ce0b1b79c5}{00051}}\ \textcolor{preprocessor}{\#define\ HA\_ACTIVITY\_TIMEOUT\_AUTO\_MS\ (600000)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00053}00053\ \textcolor{comment}{//\ 2\ minuty\ necinosti\ =\ umozni\ HA\ command\ prepnout\ do\ HA\ modu}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00054}\mbox{\hyperlink{ha__light__task_8h_a59e49211d6a9fc9ca8c1481be531753d}{00054}}\ \textcolor{preprocessor}{\#define\ HA\_ACTIVITY\_TIMEOUT\_COMMAND\_MS\ (120000)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00056}00056\ \textcolor{comment}{//\ MQTT\ topics}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00057}\mbox{\hyperlink{ha__light__task_8h_a8252c914f758fbce0485c28d94e84b0c}{00057}}\ \textcolor{preprocessor}{\#define\ HA\_TOPIC\_LIGHT\_COMMAND\ "{}esp32-\/chess/light/command"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00058}\mbox{\hyperlink{ha__light__task_8h_ac8d834caaa63c1dfab5bfbdaf442f78f}{00058}}\ \textcolor{preprocessor}{\#define\ HA\_TOPIC\_LIGHT\_STATE\ "{}esp32-\/chess/light/state"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00059}\mbox{\hyperlink{ha__light__task_8h_ac2d5de1749d4171f82324a7276f6fb14}{00059}}\ \textcolor{preprocessor}{\#define\ HA\_TOPIC\_LIGHT\_AVAILABILITY\ "{}esp32-\/chess/light/availability"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00060}\mbox{\hyperlink{ha__light__task_8h_ab8a6d62c662a157b70d0fabc6c03e6fc}{00060}}\ \textcolor{preprocessor}{\#define\ HA\_TOPIC\_GAME\_ACTIVITY\ "{}esp32-\/chess/game/activity"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00061}00061\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00062}00062\ \textcolor{comment}{//\ MQTT\ Payloads}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00063}\mbox{\hyperlink{ha__light__task_8h_a6e17c7afd5219d2aad45fa7d87822f3b}{00063}}\ \textcolor{preprocessor}{\#define\ HA\_MQTT\_PAYLOAD\_ONLINE\ "{}online"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00064}\mbox{\hyperlink{ha__light__task_8h_a6842398162d1d365ca5d5c711ecb6145}{00064}}\ \textcolor{preprocessor}{\#define\ HA\_MQTT\_PAYLOAD\_OFFLINE\ "{}offline"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00065}00065\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00066}00066\ \textcolor{comment}{//\ HA\ Auto-\/Discovery\ Constants}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00067}\mbox{\hyperlink{ha__light__task_8h_accaea9ff6b9f1de5ca1c5625eab21cf4}{00067}}\ \textcolor{preprocessor}{\#define\ HA\_DISCOVERY\_PREFIX\ "{}homeassistant"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00068}\mbox{\hyperlink{ha__light__task_8h_a88f6ce72b1c205860c6f824cf2b23d8e}{00068}}\ \textcolor{preprocessor}{\#define\ HA\_COMPONENT\_LIGHT\ "{}light"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00069}\mbox{\hyperlink{ha__light__task_8h_a2d3c04b509cf1d7315195a4cbcdd20a3}{00069}}\ \textcolor{preprocessor}{\#define\ HA\_DEVICE\_MANUFACTURER\ "{}Alfred\ Krutina"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00070}\mbox{\hyperlink{ha__light__task_8h_a166cbf522b7a67a3c366f928e06d66c3}{00070}}\ \textcolor{preprocessor}{\#define\ HA\_DEVICE\_MODEL\ "{}ESP32-\/Chess-\/System"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00071}\mbox{\hyperlink{ha__light__task_8h_a5303289f6afee06f476293223b01b8bb}{00071}}\ \textcolor{preprocessor}{\#define\ HA\_DEVICE\_SW\_VERSION\ "{}2.4.1"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00072}00072\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00073}00073\ \textcolor{comment}{//\ MQTT\ client\ config}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00074}\mbox{\hyperlink{ha__light__task_8h_a3e86bf68640eb01f845f67eb32fbc9d6}{00074}}\ \textcolor{preprocessor}{\#define\ HA\_MQTT\_CLIENT\_ID\ "{}esp32-\/chess-\/light"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00075}\mbox{\hyperlink{ha__light__task_8h_a5b297c2591120ddece81447ffd44844f}{00075}}\ \textcolor{preprocessor}{\#define\ HA\_MQTT\_BROKER\_PORT\ 1883}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00076}00076\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00077}00077\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00078}00078\ \textcolor{comment}{//\ TYPY\ A\ STRUKTURY}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00079}00079\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00080}00080\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00084}\mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588}{00084}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00085}\mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{00085}}\ \ \ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\_MODE\_GAME}}\ =\ 0,\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00086}\mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588ab05fd74afbd0d17e1b0de540a49c60c5}{00086}}\ \ \ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588ab05fd74afbd0d17e1b0de540a49c60c5}{HA\_MODE\_HA}}\ =\ 1\ \ \ \ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00087}00087\ \}\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588}{ha\_mode\_t}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00088}00088\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00092}\mbox{\hyperlink{structha__light__command__t}{00092}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00093}\mbox{\hyperlink{structha__light__command__t_aa655a0a61f12692c31c68803ae070fcf}{00093}}\ \ \ uint8\_t\ \mbox{\hyperlink{structha__light__command__t_aa655a0a61f12692c31c68803ae070fcf}{type}};\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00094}\mbox{\hyperlink{structha__light__command__t_ab0bc8ed3f5ca6cb30316a8163e8da184}{00094}}\ \ \ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{structha__light__command__t_ab0bc8ed3f5ca6cb30316a8163e8da184}{data}};\ \ \ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00095}00095\ \}\ \mbox{\hyperlink{structha__light__command__t}{ha\_light\_command\_t}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00096}00096\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00097}00097\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00098}00098\ \textcolor{comment}{//\ PROTOTYPY\ FUNKCI}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00099}00099\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00106}00106\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8h_adeb86d27a08d24abfd9a912c9c89a729}{ha\_light\_task\_start}}(\textcolor{keywordtype}{void}\ *pvParameters);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00107}00107\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00113}00113\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588}{ha\_mode\_t}}\ \mbox{\hyperlink{ha__light__task_8h_a745b4de0bfe0480fe88c73e3d23170eb}{ha\_light\_get\_mode}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00114}00114\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00120}00120\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{ha__light__task_8h_a0fc50519ca67911865aa6f8afc0a939f}{ha\_light\_is\_available}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00121}00121\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00130}00130\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8h_af2c48fb0be8e0af2ec8f26872bea2721}{ha\_light\_report\_activity}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *activity\_type);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00131}00131\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00141}00141\ esp\_err\_t\ \mbox{\hyperlink{ha__light__task_8h_ad116a346513e475c7ffe3e5137a18d0d}{mqtt\_save\_config\_to\_nvs}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ uint16\_t\ \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00142}00142\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00143}00143\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00156}00156\ esp\_err\_t\ \mbox{\hyperlink{ha__light__task_8h_a0564ec8bd0c8c4e490ed84e22246df81}{mqtt\_get\_config}}(\textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ \textcolor{keywordtype}{size\_t}\ host\_len,\ uint16\_t\ *\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},\ \textcolor{keywordtype}{size\_t}\ username\_len,\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00158}00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ password\_len);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00159}00159\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00165}00165\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{ha__light__task_8h_a7f38fb48c581f40707dbed343cedb07c}{ha\_light\_is\_mqtt\_connected}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00166}00166\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00177}00177\ esp\_err\_t\ \mbox{\hyperlink{ha__light__task_8h_aaa92358f60e1043bee0865be41fb1b2c}{ha\_light\_reinit\_mqtt}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00178}00178\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00179}00179\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00180}00180\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00181}00181\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00182}00182\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8h_source_l00183}00183\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ HA\_LIGHT\_TASK\_H}}
+
+\end{DoxyCode}

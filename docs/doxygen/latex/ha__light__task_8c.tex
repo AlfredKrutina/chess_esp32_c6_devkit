@@ -1,0 +1,883 @@
+\doxysection{Dokumentace souboru ha\+\_\+light\+\_\+task.\+c}
+\hypertarget{ha__light__task_8c}{}\label{ha__light__task_8c}\index{ha\_light\_task.c@{ha\_light\_task.c}}
+
+
+HA Light Task -\/ Home Assistant RGB Light Integration via MQTT.  
+
+
+{\ttfamily \#include "{}ha\+\_\+light\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}c\+JSON.\+h"{}}\newline
+{\ttfamily \#include "{}chess\+\_\+types.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+event.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+mac.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+netif.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+task\+\_\+wdt.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+timer.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+wifi.\+h"{}}\newline
+{\ttfamily \#include "{}freertos\+\_\+chess.\+h"{}}\newline
+{\ttfamily \#include "{}game\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}led\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}mqtt\+\_\+client.\+h"{}}\newline
+{\ttfamily \#include "{}nvs.\+h"{}}\newline
+{\ttfamily \#include "{}nvs\+\_\+flash.\+h"{}}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+Graf závislostí na vkládaných souborech pro ha\+\_\+light\+\_\+task.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{ha__light__task_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Definice maker}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{ha__light__task_8c_a296a7bbb8593405108b39d1ab6c0ecc6}{MQTT\+\_\+\+NVS\+\_\+\+NAMESPACE}}~"{}mqtt\+\_\+config"{}
+\item 
+\#define \mbox{\hyperlink{ha__light__task_8c_a081583a2a1790d8fb1b2617f75e28001}{MQTT\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+HOST}}~"{}broker\+\_\+host"{}
+\item 
+\#define \mbox{\hyperlink{ha__light__task_8c_a86093592f3d60d17d74e7fb27193ea3a}{MQTT\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+PORT}}~"{}broker\+\_\+port"{}
+\item 
+\#define \mbox{\hyperlink{ha__light__task_8c_aeeff4bcf4d1d0b27a9da374befe7bc8d}{MQTT\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+USERNAME}}~"{}broker\+\_\+username"{}
+\item 
+\#define \mbox{\hyperlink{ha__light__task_8c_ab809ff3bf1caf2065817bd285c78889d}{MQTT\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+PASSWORD}}~"{}broker\+\_\+password"{}
+\item 
+\#define \mbox{\hyperlink{ha__light__task_8c_a52bd6fcbbfadb261cdd62abc295f4dd5}{MQTT\+\_\+\+DEFAULT\+\_\+\+HOST}}~"{}homeassistant.\+local"{}
+\item 
+\#define \mbox{\hyperlink{ha__light__task_8c_a47dbba2fb767e8362864895e3ce87a36}{MQTT\+\_\+\+DEFAULT\+\_\+\+PORT}}~1883
+\item 
+\#define \mbox{\hyperlink{ha__light__task_8c_a67a711e15478d8d8ba7aa984947f1cd8}{MQTT\+\_\+\+DEFAULT\+\_\+\+USERNAME}}~"{}"{}
+\item 
+\#define \mbox{\hyperlink{ha__light__task_8c_a38f208acaf4f9f771cf7e707488f8c29}{MQTT\+\_\+\+DEFAULT\+\_\+\+PASSWORD}}~"{}"{}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Funkce}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{ha__light__task_8c_a5a6bb92dacbf05bc953f9d712c939ed4}{ha\+\_\+light\+\_\+check\+\_\+activity\+\_\+timeout}} (void)
+\begin{DoxyCompactList}\small\item\em Kontroluje zda byl prekrocen 5 minutovy timeout. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{ha__light__task_8c_aff8e250ad01ba14909377eaea2f0dce6}{ha\+\_\+light\+\_\+switch\+\_\+to\+\_\+ha\+\_\+mode}} (void)
+\begin{DoxyCompactList}\small\item\em Prepne do HA modu. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{ha__light__task_8c_a33c86dd0c42ba70448023639e56096f0}{ha\+\_\+light\+\_\+switch\+\_\+to\+\_\+game\+\_\+mode}} (void)
+\begin{DoxyCompactList}\small\item\em Prepne do herniho modu. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{ha__light__task_8c_a1819a1e1ebc04fa6179f55ee77454506}{ha\+\_\+light\+\_\+monitor\+\_\+game\+\_\+activity}} (void)
+\begin{DoxyCompactList}\small\item\em Monitoruje aktivitu hry a resetuje timer. \end{DoxyCompactList}\item 
+static bool \mbox{\hyperlink{ha__light__task_8c_a687dd5b61866fa4896abac67db3944d9}{ha\+\_\+light\+\_\+check\+\_\+wifi\+\_\+sta\+\_\+connected}} (void)
+\begin{DoxyCompactList}\small\item\em Zkontroluj zda je Wi\+Fi STA pripojeno. \end{DoxyCompactList}\item 
+static esp\+\_\+err\+\_\+t \mbox{\hyperlink{ha__light__task_8c_ab445707e64ef5877d69ff4443c54bfd5}{ha\+\_\+light\+\_\+init\+\_\+mqtt}} (void)
+\begin{DoxyCompactList}\small\item\em Inicializuje MQTT klienta. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{ha__light__task_8c_aaa50395cd97ca2238e5b5a64d0583d07}{ha\+\_\+light\+\_\+mqtt\+\_\+event\+\_\+handler}} (void \texorpdfstring{$\ast$}{*}handler\+\_\+args, esp\+\_\+event\+\_\+base\+\_\+t base, int32\+\_\+t event\+\_\+id, void \texorpdfstring{$\ast$}{*}event\+\_\+data)
+\begin{DoxyCompactList}\small\item\em MQTT event handler. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{ha__light__task_8c_ae13c9a71f7715bc11cf0c8dc511d7b33}{ha\+\_\+light\+\_\+handle\+\_\+mqtt\+\_\+command}} (const char \texorpdfstring{$\ast$}{*}topic, const char \texorpdfstring{$\ast$}{*}data, int data\+\_\+len)
+\begin{DoxyCompactList}\small\item\em Zpracuje MQTT prikaz. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b}{ha\+\_\+light\+\_\+publish\+\_\+state}} (void)
+\begin{DoxyCompactList}\small\item\em Publikuje stav do MQTT. \end{DoxyCompactList}\item 
+static esp\+\_\+err\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a220eb7a6a15e1c82a39c3128aeffa19f}{ha\+\_\+light\+\_\+task\+\_\+wdt\+\_\+reset\+\_\+safe}} (void)
+\begin{DoxyCompactList}\small\item\em Bezpecny reset WDT. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ha__light__task_8c_af2c48fb0be8e0af2ec8f26872bea2721}{ha\+\_\+light\+\_\+report\+\_\+activity}} (const char \texorpdfstring{$\ast$}{*}activity\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Zprava o aktivity hry (volano z jinych tasku). \end{DoxyCompactList}\item 
+static esp\+\_\+err\+\_\+t \mbox{\hyperlink{ha__light__task_8c_ad61c60d5f24e8689c8607c69c989b761}{mqtt\+\_\+load\+\_\+config\+\_\+from\+\_\+nvs}} (char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}, size\+\_\+t host\+\_\+len, uint16\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}, char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}, size\+\_\+t username\+\_\+len, char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}, size\+\_\+t password\+\_\+len)
+\begin{DoxyCompactList}\small\item\em Načte MQTT konfiguraci z NVS. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{ha__light__task_8c_ad116a346513e475c7ffe3e5137a18d0d}{mqtt\+\_\+save\+\_\+config\+\_\+to\+\_\+nvs}} (const char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}, uint16\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}, const char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}, const char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}})
+\begin{DoxyCompactList}\small\item\em Uloží MQTT konfiguraci do NVS. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{ha__light__task_8c_a0f43fcd5e5a6b5aa88a40bfbf987d381}{ha\+\_\+light\+\_\+publish\+\_\+discovery}} (void)
+\begin{DoxyCompactList}\small\item\em Publish Home Assistant Auto-\/\+Discovery configuration. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{ha__light__task_8c_af54ee77cebff3b3c12301819b1082ce4}{mqtt\+\_\+ensure\+\_\+config\+\_\+loaded}} (void)
+\begin{DoxyCompactList}\small\item\em Načte MQTT konfiguraci z NVS (pokud ještě nebyla načtena). \end{DoxyCompactList}\item 
+\mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588}{ha\+\_\+mode\+\_\+t}} \mbox{\hyperlink{ha__light__task_8c_a745b4de0bfe0480fe88c73e3d23170eb}{ha\+\_\+light\+\_\+get\+\_\+mode}} (void)
+\begin{DoxyCompactList}\small\item\em Ziskej aktualni rezim. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{ha__light__task_8c_a0fc50519ca67911865aa6f8afc0a939f}{ha\+\_\+light\+\_\+is\+\_\+available}} (void)
+\begin{DoxyCompactList}\small\item\em Zjisti zda je HA rezim dostupny (Wi\+Fi STA pripojeno). \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a0564ec8bd0c8c4e490ed84e22246df81}{mqtt\+\_\+get\+\_\+config}} (char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}, size\+\_\+t host\+\_\+len, uint16\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}, char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}, size\+\_\+t username\+\_\+len, char \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}, size\+\_\+t password\+\_\+len)
+\begin{DoxyCompactList}\small\item\em Získá MQTT konfiguraci (načte z NVS pokud ještě nebyla načtena). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{ha__light__task_8c_a7f38fb48c581f40707dbed343cedb07c}{ha\+\_\+light\+\_\+is\+\_\+mqtt\+\_\+connected}} (void)
+\begin{DoxyCompactList}\small\item\em Zjisti zda je MQTT klient pripojen. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{ha__light__task_8c_aaa92358f60e1043bee0865be41fb1b2c}{ha\+\_\+light\+\_\+reinit\+\_\+mqtt}} (void)
+\begin{DoxyCompactList}\small\item\em Odpoji a reinicializuje MQTT klienta s aktualni konfiguraci z NVS. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{ha__light__task_8c_adeb86d27a08d24abfd9a912c9c89a729}{ha\+\_\+light\+\_\+task\+\_\+start}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em Hlavni funkce HA Light tasku. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Proměnné}
+\begin{DoxyCompactItemize}
+\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{ha__light__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}} = "{}HA\+\_\+\+LIGHT\+\_\+\+TASK"{}
+\item 
+static bool \mbox{\hyperlink{ha__light__task_8c_a35141cb45623cb3b7b4d96da35ed1831}{task\+\_\+running}} = false
+\item 
+static \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588}{ha\+\_\+mode\+\_\+t}} \mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\+\_\+mode}} = \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\+\_\+\+MODE\+\_\+\+GAME}}
+\item 
+static uint32\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\+\_\+activity\+\_\+time\+\_\+ms}} = 0
+\item 
+static bool \mbox{\hyperlink{ha__light__task_8c_a738f5dc6c12f15f0149e08de59f48064}{sta\+\_\+connected}} = false
+\item 
+static esp\+\_\+mqtt\+\_\+client\+\_\+handle\+\_\+t \mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\+\_\+client}} = NULL
+\item 
+static bool \mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\+\_\+connected}} = false
+\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+struct \{\\
+\>bool \mbox{\hyperlink{ha__light__task_8c_ab30ba07e2a0bd07a15e45a92c32db9c5}{state}}\\
+\>uint8\_t \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}}\\
+\>uint8\_t \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\\
+\>uint8\_t \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\\
+\>uint8\_t \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}\\
+\>char \mbox{\hyperlink{ha__light__task_8c_af7b0cb88246dfc40187f86c43e8d18f0}{effect}} \mbox{[}32\mbox{]}\\
+\} \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}\\
+
+\end{tabbing}\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+struct \{\\
+\>char \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}} \mbox{[}128\mbox{]}\\
+\>uint16\_t \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}\\
+\>char \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}} \mbox{[}64\mbox{]}\\
+\>char \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}} \mbox{[}64\mbox{]}\\
+\>bool \mbox{\hyperlink{ha__light__task_8c_a992c70a16169035bc9e2e8f9953d91ed}{loaded}}\\
+\} \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}\\
+
+\end{tabbing}\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4ed770cbe46604586e494bae84b62304}{game\+\_\+command\+\_\+queue}}
+\begin{DoxyCompactList}\small\item\em Fronta pro game prikazy (new game, move, status). \end{DoxyCompactList}\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a1b93ff1badbca8962927cb6fd837463e}{matrix\+\_\+event\+\_\+queue}}
+\begin{DoxyCompactList}\small\item\em Fronta pro matrix udalosti (piece lifted/placed). \end{DoxyCompactList}\item 
+static Queue\+Handle\+\_\+t \mbox{\hyperlink{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4}{ha\+\_\+light\+\_\+cmd\+\_\+queue}} = NULL
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailní popis}
+HA Light Task -\/ Home Assistant RGB Light Integration via MQTT. 
+
+\hypertarget{ha__light__task_8c_autotoc_md36}{}\doxysubsection{\texorpdfstring{autotoc\+\_\+md36}{autotoc\+\_\+md36}}\label{ha__light__task_8c_autotoc_md36}
+\hypertarget{ha__light__task_8c_autotoc_md37}{}\doxysubsection{\texorpdfstring{CO TENTO SOUBOR DELA?}{CO TENTO SOUBOR DELA?}}\label{ha__light__task_8c_autotoc_md37}
+Tento task integruje sachovnici jako RGB svetlo do Home Assistant pres MQTT. Po pripojeni na Wi\+Fi STA se board automaticky prepne do HA modu po 5 minutach necinosti. V HA modu se vsechny LED desky chovaji jako jedno RGB svetlo.
+
+Rezimy\+:
+\begin{DoxyItemize}
+\item GAME MODE\+: LED zobrazuji sachovnici (vychozi)
+\item HA MODE\+: Vsech 64 LED jako RGB svetlo ovladane pres HA (po 5 min necinosti)
+\end{DoxyItemize}
+
+Automaticke prepinani\+:
+\begin{DoxyItemize}
+\item GAME -\/\texorpdfstring{$>$}{>} HA\+: Po 5 minutach bez aktivity (pohyb figurky nebo herni prikaz)
+\item HA -\/\texorpdfstring{$>$}{>} GAME\+: Okamzite pri detekci pohybu figurky (PICKUP/\+DROP)
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Autor}
+Alfred Krutina 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Verze}
+1.\+0 
+\end{DoxyVersion}
+\begin{DoxyDate}{Datum}
+2025-\/01-\/XX 
+\end{DoxyDate}
+
+
+Definice v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{ha__light__task_8c_doc-define-members}
+\doxysubsection{Dokumentace definic maker}
+\Hypertarget{ha__light__task_8c_a52bd6fcbbfadb261cdd62abc295f4dd5}\index{ha\_light\_task.c@{ha\_light\_task.c}!MQTT\_DEFAULT\_HOST@{MQTT\_DEFAULT\_HOST}}
+\index{MQTT\_DEFAULT\_HOST@{MQTT\_DEFAULT\_HOST}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{MQTT\_DEFAULT\_HOST}{MQTT\_DEFAULT\_HOST}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a52bd6fcbbfadb261cdd62abc295f4dd5} 
+\#define MQTT\+\_\+\+DEFAULT\+\_\+\+HOST~"{}homeassistant.\+local"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00061}{61}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a38f208acaf4f9f771cf7e707488f8c29}\index{ha\_light\_task.c@{ha\_light\_task.c}!MQTT\_DEFAULT\_PASSWORD@{MQTT\_DEFAULT\_PASSWORD}}
+\index{MQTT\_DEFAULT\_PASSWORD@{MQTT\_DEFAULT\_PASSWORD}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{MQTT\_DEFAULT\_PASSWORD}{MQTT\_DEFAULT\_PASSWORD}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a38f208acaf4f9f771cf7e707488f8c29} 
+\#define MQTT\+\_\+\+DEFAULT\+\_\+\+PASSWORD~"{}"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00064}{64}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a47dbba2fb767e8362864895e3ce87a36}\index{ha\_light\_task.c@{ha\_light\_task.c}!MQTT\_DEFAULT\_PORT@{MQTT\_DEFAULT\_PORT}}
+\index{MQTT\_DEFAULT\_PORT@{MQTT\_DEFAULT\_PORT}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{MQTT\_DEFAULT\_PORT}{MQTT\_DEFAULT\_PORT}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a47dbba2fb767e8362864895e3ce87a36} 
+\#define MQTT\+\_\+\+DEFAULT\+\_\+\+PORT~1883}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00062}{62}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a67a711e15478d8d8ba7aa984947f1cd8}\index{ha\_light\_task.c@{ha\_light\_task.c}!MQTT\_DEFAULT\_USERNAME@{MQTT\_DEFAULT\_USERNAME}}
+\index{MQTT\_DEFAULT\_USERNAME@{MQTT\_DEFAULT\_USERNAME}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{MQTT\_DEFAULT\_USERNAME}{MQTT\_DEFAULT\_USERNAME}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a67a711e15478d8d8ba7aa984947f1cd8} 
+\#define MQTT\+\_\+\+DEFAULT\+\_\+\+USERNAME~"{}"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00063}{63}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a081583a2a1790d8fb1b2617f75e28001}\index{ha\_light\_task.c@{ha\_light\_task.c}!MQTT\_NVS\_KEY\_HOST@{MQTT\_NVS\_KEY\_HOST}}
+\index{MQTT\_NVS\_KEY\_HOST@{MQTT\_NVS\_KEY\_HOST}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{MQTT\_NVS\_KEY\_HOST}{MQTT\_NVS\_KEY\_HOST}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a081583a2a1790d8fb1b2617f75e28001} 
+\#define MQTT\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+HOST~"{}broker\+\_\+host"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00055}{55}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_ab809ff3bf1caf2065817bd285c78889d}\index{ha\_light\_task.c@{ha\_light\_task.c}!MQTT\_NVS\_KEY\_PASSWORD@{MQTT\_NVS\_KEY\_PASSWORD}}
+\index{MQTT\_NVS\_KEY\_PASSWORD@{MQTT\_NVS\_KEY\_PASSWORD}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{MQTT\_NVS\_KEY\_PASSWORD}{MQTT\_NVS\_KEY\_PASSWORD}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_ab809ff3bf1caf2065817bd285c78889d} 
+\#define MQTT\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+PASSWORD~"{}broker\+\_\+password"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00058}{58}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a86093592f3d60d17d74e7fb27193ea3a}\index{ha\_light\_task.c@{ha\_light\_task.c}!MQTT\_NVS\_KEY\_PORT@{MQTT\_NVS\_KEY\_PORT}}
+\index{MQTT\_NVS\_KEY\_PORT@{MQTT\_NVS\_KEY\_PORT}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{MQTT\_NVS\_KEY\_PORT}{MQTT\_NVS\_KEY\_PORT}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a86093592f3d60d17d74e7fb27193ea3a} 
+\#define MQTT\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+PORT~"{}broker\+\_\+port"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00056}{56}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_aeeff4bcf4d1d0b27a9da374befe7bc8d}\index{ha\_light\_task.c@{ha\_light\_task.c}!MQTT\_NVS\_KEY\_USERNAME@{MQTT\_NVS\_KEY\_USERNAME}}
+\index{MQTT\_NVS\_KEY\_USERNAME@{MQTT\_NVS\_KEY\_USERNAME}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{MQTT\_NVS\_KEY\_USERNAME}{MQTT\_NVS\_KEY\_USERNAME}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_aeeff4bcf4d1d0b27a9da374befe7bc8d} 
+\#define MQTT\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+USERNAME~"{}broker\+\_\+username"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00057}{57}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a296a7bbb8593405108b39d1ab6c0ecc6}\index{ha\_light\_task.c@{ha\_light\_task.c}!MQTT\_NVS\_NAMESPACE@{MQTT\_NVS\_NAMESPACE}}
+\index{MQTT\_NVS\_NAMESPACE@{MQTT\_NVS\_NAMESPACE}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{MQTT\_NVS\_NAMESPACE}{MQTT\_NVS\_NAMESPACE}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a296a7bbb8593405108b39d1ab6c0ecc6} 
+\#define MQTT\+\_\+\+NVS\+\_\+\+NAMESPACE~"{}mqtt\+\_\+config"{}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00054}{54}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{ha__light__task_8c_doc-func-members}
+\doxysubsection{Dokumentace funkcí}
+\Hypertarget{ha__light__task_8c_a5a6bb92dacbf05bc953f9d712c939ed4}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_check\_activity\_timeout@{ha\_light\_check\_activity\_timeout}}
+\index{ha\_light\_check\_activity\_timeout@{ha\_light\_check\_activity\_timeout}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_check\_activity\_timeout()}{ha\_light\_check\_activity\_timeout()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a5a6bb92dacbf05bc953f9d712c939ed4} 
+void ha\+\_\+light\+\_\+check\+\_\+activity\+\_\+timeout (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Kontroluje zda byl prekrocen 5 minutovy timeout. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00232}{232}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a687dd5b61866fa4896abac67db3944d9}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_check\_wifi\_sta\_connected@{ha\_light\_check\_wifi\_sta\_connected}}
+\index{ha\_light\_check\_wifi\_sta\_connected@{ha\_light\_check\_wifi\_sta\_connected}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_check\_wifi\_sta\_connected()}{ha\_light\_check\_wifi\_sta\_connected()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a687dd5b61866fa4896abac67db3944d9} 
+bool ha\+\_\+light\+\_\+check\+\_\+wifi\+\_\+sta\+\_\+connected (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Zkontroluj zda je Wi\+Fi STA pripojeno. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je STA pripojeno a ma IP, false jinak 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00159}{159}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a745b4de0bfe0480fe88c73e3d23170eb}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_get\_mode@{ha\_light\_get\_mode}}
+\index{ha\_light\_get\_mode@{ha\_light\_get\_mode}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_get\_mode()}{ha\_light\_get\_mode()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a745b4de0bfe0480fe88c73e3d23170eb} 
+\mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588}{ha\+\_\+mode\+\_\+t}} ha\+\_\+light\+\_\+get\+\_\+mode (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Ziskej aktualni rezim. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+\doxylink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588}{ha\+\_\+mode\+\_\+t} Aktualni rezim (GAME nebo HA) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00911}{911}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_ae13c9a71f7715bc11cf0c8dc511d7b33}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_handle\_mqtt\_command@{ha\_light\_handle\_mqtt\_command}}
+\index{ha\_light\_handle\_mqtt\_command@{ha\_light\_handle\_mqtt\_command}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_handle\_mqtt\_command()}{ha\_light\_handle\_mqtt\_command()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_ae13c9a71f7715bc11cf0c8dc511d7b33} 
+void ha\+\_\+light\+\_\+handle\+\_\+mqtt\+\_\+command (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{topic}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{data}{, }\item[{int}]{data\+\_\+len}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Zpracuje MQTT prikaz. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00632}{632}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_ab445707e64ef5877d69ff4443c54bfd5}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_init\_mqtt@{ha\_light\_init\_mqtt}}
+\index{ha\_light\_init\_mqtt@{ha\_light\_init\_mqtt}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_init\_mqtt()}{ha\_light\_init\_mqtt()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_ab445707e64ef5877d69ff4443c54bfd5} 
+esp\+\_\+err\+\_\+t ha\+\_\+light\+\_\+init\+\_\+mqtt (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Inicializuje MQTT klienta. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00839}{839}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a0fc50519ca67911865aa6f8afc0a939f}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_is\_available@{ha\_light\_is\_available}}
+\index{ha\_light\_is\_available@{ha\_light\_is\_available}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_is\_available()}{ha\_light\_is\_available()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a0fc50519ca67911865aa6f8afc0a939f} 
+bool ha\+\_\+light\+\_\+is\+\_\+available (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zjisti zda je HA rezim dostupny (Wi\+Fi STA pripojeno). 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je Wi\+Fi STA pripojeno, false jinak 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00916}{916}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a7f38fb48c581f40707dbed343cedb07c}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_is\_mqtt\_connected@{ha\_light\_is\_mqtt\_connected}}
+\index{ha\_light\_is\_mqtt\_connected@{ha\_light\_is\_mqtt\_connected}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_is\_mqtt\_connected()}{ha\_light\_is\_mqtt\_connected()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a7f38fb48c581f40707dbed343cedb07c} 
+bool ha\+\_\+light\+\_\+is\+\_\+mqtt\+\_\+connected (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zjisti zda je MQTT klient pripojen. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud je MQTT pripojen, false jinak 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00947}{947}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a1819a1e1ebc04fa6179f55ee77454506}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_monitor\_game\_activity@{ha\_light\_monitor\_game\_activity}}
+\index{ha\_light\_monitor\_game\_activity@{ha\_light\_monitor\_game\_activity}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_monitor\_game\_activity()}{ha\_light\_monitor\_game\_activity()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a1819a1e1ebc04fa6179f55ee77454506} 
+void ha\+\_\+light\+\_\+monitor\+\_\+game\+\_\+activity (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Monitoruje aktivitu hry a resetuje timer. 
+
+Tato funkce se spoléhá na \doxylink{ha__light__task_8c_af2c48fb0be8e0af2ec8f26872bea2721}{ha\+\_\+light\+\_\+report\+\_\+activity()} volané z jiných tasků. Samotné monitorování front zde neděláme, abychom nekonzumovali příkazy. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00189}{189}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_aaa50395cd97ca2238e5b5a64d0583d07}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_mqtt\_event\_handler@{ha\_light\_mqtt\_event\_handler}}
+\index{ha\_light\_mqtt\_event\_handler@{ha\_light\_mqtt\_event\_handler}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_mqtt\_event\_handler()}{ha\_light\_mqtt\_event\_handler()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_aaa50395cd97ca2238e5b5a64d0583d07} 
+void ha\+\_\+light\+\_\+mqtt\+\_\+event\+\_\+handler (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{handler\+\_\+args}{, }\item[{esp\+\_\+event\+\_\+base\+\_\+t}]{base}{, }\item[{int32\+\_\+t}]{event\+\_\+id}{, }\item[{void \texorpdfstring{$\ast$}{*}}]{event\+\_\+data}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+MQTT event handler. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00574}{574}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a0f43fcd5e5a6b5aa88a40bfbf987d381}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_publish\_discovery@{ha\_light\_publish\_discovery}}
+\index{ha\_light\_publish\_discovery@{ha\_light\_publish\_discovery}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_publish\_discovery()}{ha\_light\_publish\_discovery()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a0f43fcd5e5a6b5aa88a40bfbf987d381} 
+void ha\+\_\+light\+\_\+publish\+\_\+discovery (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Publish Home Assistant Auto-\/\+Discovery configuration. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00504}{504}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_publish\_state@{ha\_light\_publish\_state}}
+\index{ha\_light\_publish\_state@{ha\_light\_publish\_state}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_publish\_state()}{ha\_light\_publish\_state()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b} 
+void ha\+\_\+light\+\_\+publish\+\_\+state (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Publikuje stav do MQTT. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00749}{749}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_aaa92358f60e1043bee0865be41fb1b2c}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_reinit\_mqtt@{ha\_light\_reinit\_mqtt}}
+\index{ha\_light\_reinit\_mqtt@{ha\_light\_reinit\_mqtt}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_reinit\_mqtt()}{ha\_light\_reinit\_mqtt()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_aaa92358f60e1043bee0865be41fb1b2c} 
+esp\+\_\+err\+\_\+t ha\+\_\+light\+\_\+reinit\+\_\+mqtt (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Odpoji a reinicializuje MQTT klienta s aktualni konfiguraci z NVS. 
+
+Odpojí a reinicializuje MQTT klienta s aktuální konfigurací z NVS.
+
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri chybe 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00954}{954}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_af2c48fb0be8e0af2ec8f26872bea2721}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_report\_activity@{ha\_light\_report\_activity}}
+\index{ha\_light\_report\_activity@{ha\_light\_report\_activity}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_report\_activity()}{ha\_light\_report\_activity()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_af2c48fb0be8e0af2ec8f26872bea2721} 
+void ha\+\_\+light\+\_\+report\+\_\+activity (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{activity\+\_\+type}{}\end{DoxyParamCaption})}
+
+
+
+Zprava o aktivity hry (volano z jinych tasku). 
+
+Zprava o aktivity hry (pro resetovani 5min timeru). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00199}{199}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a33c86dd0c42ba70448023639e56096f0}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_switch\_to\_game\_mode@{ha\_light\_switch\_to\_game\_mode}}
+\index{ha\_light\_switch\_to\_game\_mode@{ha\_light\_switch\_to\_game\_mode}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_switch\_to\_game\_mode()}{ha\_light\_switch\_to\_game\_mode()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a33c86dd0c42ba70448023639e56096f0} 
+void ha\+\_\+light\+\_\+switch\+\_\+to\+\_\+game\+\_\+mode (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Prepne do herniho modu. 
+
+Obnovi sachovnici (led\+\_\+show\+\_\+chess\+\_\+board). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00294}{294}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_aff8e250ad01ba14909377eaea2f0dce6}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_switch\_to\_ha\_mode@{ha\_light\_switch\_to\_ha\_mode}}
+\index{ha\_light\_switch\_to\_ha\_mode@{ha\_light\_switch\_to\_ha\_mode}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_switch\_to\_ha\_mode()}{ha\_light\_switch\_to\_ha\_mode()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_aff8e250ad01ba14909377eaea2f0dce6} 
+void ha\+\_\+light\+\_\+switch\+\_\+to\+\_\+ha\+\_\+mode (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Prepne do HA modu. 
+
+Vsech 64 LED desky se nastavi na barvu z ha\+\_\+light\+\_\+state. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00267}{267}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_adeb86d27a08d24abfd9a912c9c89a729}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_task\_start@{ha\_light\_task\_start}}
+\index{ha\_light\_task\_start@{ha\_light\_task\_start}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_task\_start()}{ha\_light\_task\_start()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_adeb86d27a08d24abfd9a912c9c89a729} 
+void ha\+\_\+light\+\_\+task\+\_\+start (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Hlavni funkce HA Light tasku. 
+
+Spusti HA Light task. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00991}{991}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a220eb7a6a15e1c82a39c3128aeffa19f}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_task\_wdt\_reset\_safe@{ha\_light\_task\_wdt\_reset\_safe}}
+\index{ha\_light\_task\_wdt\_reset\_safe@{ha\_light\_task\_wdt\_reset\_safe}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_task\_wdt\_reset\_safe()}{ha\_light\_task\_wdt\_reset\_safe()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a220eb7a6a15e1c82a39c3128aeffa19f} 
+esp\+\_\+err\+\_\+t ha\+\_\+light\+\_\+task\+\_\+wdt\+\_\+reset\+\_\+safe (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Bezpecny reset WDT. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00138}{138}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_af54ee77cebff3b3c12301819b1082ce4}\index{ha\_light\_task.c@{ha\_light\_task.c}!mqtt\_ensure\_config\_loaded@{mqtt\_ensure\_config\_loaded}}
+\index{mqtt\_ensure\_config\_loaded@{mqtt\_ensure\_config\_loaded}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_ensure\_config\_loaded()}{mqtt\_ensure\_config\_loaded()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_af54ee77cebff3b3c12301819b1082ce4} 
+void mqtt\+\_\+ensure\+\_\+config\+\_\+loaded (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Načte MQTT konfiguraci z NVS (pokud ještě nebyla načtena). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00802}{802}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a0564ec8bd0c8c4e490ed84e22246df81}\index{ha\_light\_task.c@{ha\_light\_task.c}!mqtt\_get\_config@{mqtt\_get\_config}}
+\index{mqtt\_get\_config@{mqtt\_get\_config}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_get\_config()}{mqtt\_get\_config()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a0564ec8bd0c8c4e490ed84e22246df81} 
+esp\+\_\+err\+\_\+t mqtt\+\_\+get\+\_\+config (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{host}{, }\item[{size\+\_\+t}]{host\+\_\+len}{, }\item[{uint16\+\_\+t \texorpdfstring{$\ast$}{*}}]{port}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{username}{, }\item[{size\+\_\+t}]{username\+\_\+len}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{password}{, }\item[{size\+\_\+t}]{password\+\_\+len}{}\end{DoxyParamCaption})}
+
+
+
+Získá MQTT konfiguraci (načte z NVS pokud ještě nebyla načtena). 
+
+Ziska MQTT konfiguraci (nacte z NVS pokud jeste nebyla nactena). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00921}{921}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_ad61c60d5f24e8689c8607c69c989b761}\index{ha\_light\_task.c@{ha\_light\_task.c}!mqtt\_load\_config\_from\_nvs@{mqtt\_load\_config\_from\_nvs}}
+\index{mqtt\_load\_config\_from\_nvs@{mqtt\_load\_config\_from\_nvs}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_load\_config\_from\_nvs()}{mqtt\_load\_config\_from\_nvs()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_ad61c60d5f24e8689c8607c69c989b761} 
+esp\+\_\+err\+\_\+t mqtt\+\_\+load\+\_\+config\+\_\+from\+\_\+nvs (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{host}{, }\item[{size\+\_\+t}]{host\+\_\+len}{, }\item[{uint16\+\_\+t \texorpdfstring{$\ast$}{*}}]{port}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{username}{, }\item[{size\+\_\+t}]{username\+\_\+len}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{password}{, }\item[{size\+\_\+t}]{password\+\_\+len}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Načte MQTT konfiguraci z NVS. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em host} & Buffer pro broker host (min 128 bytes) \\
+\hline
+{\em host\+\_\+len} & Velikost host bufferu \\
+\hline
+{\em port} & Ukazatel na port (1-\/65535) \\
+\hline
+{\em username} & Buffer pro username (min 64 bytes, může být prázdné) \\
+\hline
+{\em username\+\_\+len} & Velikost username bufferu \\
+\hline
+{\em password} & Buffer pro password (min 64 bytes, může být prázdné) \\
+\hline
+{\em password\+\_\+len} & Velikost password bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK při úspěchu, ESP\+\_\+\+ERR\+\_\+\+NOT\+\_\+\+FOUND pokud není v NVS (vrátí defaults) 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00329}{329}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_ad116a346513e475c7ffe3e5137a18d0d}\index{ha\_light\_task.c@{ha\_light\_task.c}!mqtt\_save\_config\_to\_nvs@{mqtt\_save\_config\_to\_nvs}}
+\index{mqtt\_save\_config\_to\_nvs@{mqtt\_save\_config\_to\_nvs}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_save\_config\_to\_nvs()}{mqtt\_save\_config\_to\_nvs()}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_ad116a346513e475c7ffe3e5137a18d0d} 
+esp\+\_\+err\+\_\+t mqtt\+\_\+save\+\_\+config\+\_\+to\+\_\+nvs (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{host}{, }\item[{uint16\+\_\+t}]{port}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{username}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{password}{}\end{DoxyParamCaption})}
+
+
+
+Uloží MQTT konfiguraci do NVS. 
+
+Ulozi MQTT konfiguraci do NVS.
+
+
+\begin{DoxyParams}{Parametry}
+{\em host} & Broker hostname/\+IP \\
+\hline
+{\em port} & Broker port (1-\/65535) \\
+\hline
+{\em username} & MQTT username (NULL nebo prázdné = bez auth) \\
+\hline
+{\em password} & MQTT password (NULL nebo prázdné = bez auth) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK při úspěchu, chybový kód při chybě 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00408}{408}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{ha__light__task_8c_doc-var-members}
+\doxysubsection{Dokumentace proměnných}
+\Hypertarget{ha__light__task_8c_a4313c9563516f94387762ab05763456b}\index{ha\_light\_task.c@{ha\_light\_task.c}!b@{b}}
+\index{b@{b}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{b}{b}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a4313c9563516f94387762ab05763456b} 
+uint8\+\_\+t b}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00088}{88}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}\index{ha\_light\_task.c@{ha\_light\_task.c}!brightness@{brightness}}
+\index{brightness@{brightness}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{brightness}{brightness}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4} 
+uint8\+\_\+t brightness}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00087}{87}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}\index{ha\_light\_task.c@{ha\_light\_task.c}!current\_mode@{current\_mode}}
+\index{current\_mode@{current\_mode}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{current\_mode}{current\_mode}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd} 
+\mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588}{ha\+\_\+mode\+\_\+t}} current\+\_\+mode = \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\+\_\+\+MODE\+\_\+\+GAME}}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00072}{72}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_af7b0cb88246dfc40187f86c43e8d18f0}\index{ha\_light\_task.c@{ha\_light\_task.c}!effect@{effect}}
+\index{effect@{effect}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{effect}{effect}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_af7b0cb88246dfc40187f86c43e8d18f0} 
+char effect\mbox{[}32\mbox{]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00089}{89}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}\index{ha\_light\_task.c@{ha\_light\_task.c}!g@{g}}
+\index{g@{g}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{g}{g}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60} 
+uint8\+\_\+t g}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00088}{88}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a4ed770cbe46604586e494bae84b62304}\index{ha\_light\_task.c@{ha\_light\_task.c}!game\_command\_queue@{game\_command\_queue}}
+\index{game\_command\_queue@{game\_command\_queue}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{game\_command\_queue}{game\_command\_queue}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a4ed770cbe46604586e494bae84b62304} 
+Queue\+Handle\+\_\+t game\+\_\+command\+\_\+queue\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Fronta pro game prikazy (new game, move, status). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00089}{89}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+
+\Hypertarget{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_cmd\_queue@{ha\_light\_cmd\_queue}}
+\index{ha\_light\_cmd\_queue@{ha\_light\_cmd\_queue}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_cmd\_queue}{ha\_light\_cmd\_queue}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4} 
+Queue\+Handle\+\_\+t ha\+\_\+light\+\_\+cmd\+\_\+queue = NULL\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00115}{115}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}\index{ha\_light\_task.c@{ha\_light\_task.c}!ha\_light\_state@{ha\_light\_state}}
+\index{ha\_light\_state@{ha\_light\_state}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{[struct]}{[struct]}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795} 
+struct  \{ ... \}  ha\+\_\+light\+\_\+state\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Inicializační hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{.state\ =\ \textcolor{keyword}{true},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .brightness\ =\ 255,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .r\ =\ 255,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .g\ =\ 255,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .b\ =\ 255,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .effect\ =\ \textcolor{stringliteral}{"{}solid"{}}\}}
+
+\end{DoxyCode}
+\Hypertarget{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}\index{ha\_light\_task.c@{ha\_light\_task.c}!host@{host}}
+\index{host@{host}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{host}{host}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758} 
+char host\mbox{[}128\mbox{]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00099}{99}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}\index{ha\_light\_task.c@{ha\_light\_task.c}!last\_activity\_time\_ms@{last\_activity\_time\_ms}}
+\index{last\_activity\_time\_ms@{last\_activity\_time\_ms}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{last\_activity\_time\_ms}{last\_activity\_time\_ms}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f} 
+uint32\+\_\+t last\+\_\+activity\+\_\+time\+\_\+ms = 0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00075}{75}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a992c70a16169035bc9e2e8f9953d91ed}\index{ha\_light\_task.c@{ha\_light\_task.c}!loaded@{loaded}}
+\index{loaded@{loaded}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{loaded}{loaded}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a992c70a16169035bc9e2e8f9953d91ed} 
+bool loaded}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00103}{103}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a1b93ff1badbca8962927cb6fd837463e}\index{ha\_light\_task.c@{ha\_light\_task.c}!matrix\_event\_queue@{matrix\_event\_queue}}
+\index{matrix\_event\_queue@{matrix\_event\_queue}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{matrix\_event\_queue}{matrix\_event\_queue}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a1b93ff1badbca8962927cb6fd837463e} 
+Queue\+Handle\+\_\+t matrix\+\_\+event\+\_\+queue\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Fronta pro matrix udalosti (piece lifted/placed). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00076}{76}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+
+\Hypertarget{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}\index{ha\_light\_task.c@{ha\_light\_task.c}!mqtt\_client@{mqtt\_client}}
+\index{mqtt\_client@{mqtt\_client}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_client}{mqtt\_client}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd} 
+esp\+\_\+mqtt\+\_\+client\+\_\+handle\+\_\+t mqtt\+\_\+client = NULL\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00081}{81}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}\index{ha\_light\_task.c@{ha\_light\_task.c}!mqtt\_config@{mqtt\_config}}
+\index{mqtt\_config@{mqtt\_config}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{[struct]}{[struct]}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461} 
+struct  \{ ... \}  mqtt\+\_\+config\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Inicializační hodnota\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{.host\ =\ \textcolor{stringliteral}{"{}homeassistant.local"{}}\ ,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .port\ =\ 1883\ ,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .username\ =\ \textcolor{stringliteral}{"{}"{}}\ ,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .password\ =\ \textcolor{stringliteral}{"{}"{}}\ ,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .loaded\ =\ \textcolor{keyword}{false}\}}
+
+\end{DoxyCode}
+\Hypertarget{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}\index{ha\_light\_task.c@{ha\_light\_task.c}!mqtt\_connected@{mqtt\_connected}}
+\index{mqtt\_connected@{mqtt\_connected}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_connected}{mqtt\_connected}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708} 
+bool mqtt\+\_\+connected = false\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00082}{82}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}\index{ha\_light\_task.c@{ha\_light\_task.c}!password@{password}}
+\index{password@{password}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{password}{password}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd} 
+char password\mbox{[}64\mbox{]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00102}{102}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}\index{ha\_light\_task.c@{ha\_light\_task.c}!port@{port}}
+\index{port@{port}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{port}{port}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236} 
+uint16\+\_\+t port}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00100}{100}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}\index{ha\_light\_task.c@{ha\_light\_task.c}!r@{r}}
+\index{r@{r}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{r}{r}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a} 
+uint8\+\_\+t r}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00088}{88}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a738f5dc6c12f15f0149e08de59f48064}\index{ha\_light\_task.c@{ha\_light\_task.c}!sta\_connected@{sta\_connected}}
+\index{sta\_connected@{sta\_connected}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{sta\_connected}{sta\_connected}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a738f5dc6c12f15f0149e08de59f48064} 
+bool sta\+\_\+connected = false\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00078}{78}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_ab30ba07e2a0bd07a15e45a92c32db9c5}\index{ha\_light\_task.c@{ha\_light\_task.c}!state@{state}}
+\index{state@{state}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{state}{state}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_ab30ba07e2a0bd07a15e45a92c32db9c5} 
+bool state}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00086}{86}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{ha\_light\_task.c@{ha\_light\_task.c}!TAG@{TAG}}
+\index{TAG@{TAG}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c} 
+const char\texorpdfstring{$\ast$}{*} TAG = "{}HA\+\_\+\+LIGHT\+\_\+\+TASK"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00047}{47}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_a35141cb45623cb3b7b4d96da35ed1831}\index{ha\_light\_task.c@{ha\_light\_task.c}!task\_running@{task\_running}}
+\index{task\_running@{task\_running}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{task\_running}{task\_running}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_a35141cb45623cb3b7b4d96da35ed1831} 
+bool task\+\_\+running = false\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00071}{71}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+
+\Hypertarget{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}\index{ha\_light\_task.c@{ha\_light\_task.c}!username@{username}}
+\index{username@{username}!ha\_light\_task.c@{ha\_light\_task.c}}
+\doxysubsubsection{\texorpdfstring{username}{username}}
+{\footnotesize\ttfamily \label{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018} 
+char username\mbox{[}64\mbox{]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{ha__light__task_8c_source_l00101}{101}} v souboru \mbox{\hyperlink{ha__light__task_8c_source}{ha\+\_\+light\+\_\+task.\+c}}.
+

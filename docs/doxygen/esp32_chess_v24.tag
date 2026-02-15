@@ -1195,6 +1195,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>CONFIG_DEFAULT_BRIGHTNESS</name>
+      <anchorfile>config__manager_8h.html</anchorfile>
+      <anchor>ab761ad48a054d663ba21852111fdc330</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>CONFIG_NVS_NAMESPACE</name>
       <anchorfile>config__manager_8h.html</anchorfile>
       <anchor>a3ec1858d742e64d0c66dfd9631302d11</anchor>
@@ -1233,6 +1240,13 @@
       <name>CONFIG_NVS_KEY_ECHO</name>
       <anchorfile>config__manager_8h.html</anchorfile>
       <anchor>a2ee245346700426e01e61948da5a9f8e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>CONFIG_NVS_KEY_BRIGHTNESS</name>
+      <anchorfile>config__manager_8h.html</anchorfile>
+      <anchor>a1bb567a5bd367abf7442aec292621481</anchor>
       <arglist></arglist>
     </member>
     <member kind="function">
@@ -1819,6 +1833,13 @@
     <includes id="led__task_8h" name="led_task.h" local="yes" import="no" module="no" objc="no">led_task.h</includes>
     <includes id="shared__buffer__pool_8h" name="shared_buffer_pool.h" local="yes" import="no" module="no" objc="no">shared_buffer_pool.h</includes>
     <includes id="streaming__output_8h" name="streaming_output.h" local="yes" import="no" module="no" objc="no">streaming_output.h</includes>
+    <member kind="define">
+      <type>#define</type>
+      <name>COORDINATED_MUX_TASK_STACK_SIZE</name>
+      <anchorfile>freertos__chess_8c.html</anchorfile>
+      <anchor>a53f20ff71110439851d63626a31312a5</anchor>
+      <arglist></arglist>
+    </member>
     <member kind="function" static="yes">
       <type>static esp_err_t</type>
       <name>validate_gpio_pin</name>
@@ -1877,10 +1898,17 @@
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
-      <name>coordinated_multiplex_timer_callback</name>
+      <name>__attribute__</name>
       <anchorfile>freertos__chess_8c.html</anchorfile>
-      <anchor>adba8746d32cf898252dbb49ef2c7db1b</anchor>
-      <arglist>(TimerHandle_t xTimer)</arglist>
+      <anchor>a43c4623c2553d09a59385aabe971d75d</anchor>
+      <arglist>((unused))</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>coordinated_multiplex_task</name>
+      <anchorfile>freertos__chess_8c.html</anchorfile>
+      <anchor>a00c0a35485fb3de6ba2a604e7eb9b566</anchor>
+      <arglist>(void *pvParameters)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2265,6 +2293,13 @@
       <name>coordinated_multiplex_timer</name>
       <anchorfile>freertos__chess_8c.html</anchorfile>
       <anchor>a0042f9cdb2f225fa940e25e47b2610ec</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static TaskHandle_t</type>
+      <name>coordinated_multiplex_task_handle</name>
+      <anchorfile>freertos__chess_8c.html</anchorfile>
+      <anchor>a5a10fe5e0bb7faf063f64958f1f7304b</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" static="yes">
@@ -3183,12 +3218,6 @@
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <name>LED_CMD_SET_BRIGHTNESS</name>
-      <anchorfile>chess__types_8h.html</anchorfile>
-      <anchor>a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
       <name>LED_CMD_TEST_ALL</name>
       <anchorfile>chess__types_8h.html</anchorfile>
       <anchor>a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38</anchor>
@@ -3411,6 +3440,12 @@
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
+      <name>LED_CMD_HIGHLIGHT_HINT</name>
+      <anchorfile>chess__types_8h.html</anchorfile>
+      <anchor>a4b9c35d83af38787d5601d9c2443a66daf9dfd49be96d73059bdcf3f4e30c42dc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
       <name>LED_CMD_STATUS_ACTIVE</name>
       <anchorfile>chess__types_8h.html</anchorfile>
       <anchor>a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69</anchor>
@@ -3426,6 +3461,12 @@
       <name>LED_CMD_STATUS_DETAILED</name>
       <anchorfile>chess__types_8h.html</anchorfile>
       <anchor>a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>LED_CMD_SET_BRIGHTNESS</name>
+      <anchorfile>chess__types_8h.html</anchorfile>
+      <anchor>a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumeration">
@@ -4003,6 +4044,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>HA_LIGHT_TASK_STACK_SIZE</name>
+      <anchorfile>freertos__chess_8h.html</anchorfile>
+      <anchor>ad527fcf9ba093641832abb9056b25774</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>LED_TASK_PRIORITY</name>
       <anchorfile>freertos__chess_8h.html</anchorfile>
       <anchor>a929063c46e63eb78271df5b5fd5819e9</anchor>
@@ -4076,6 +4124,13 @@
       <name>PROMOTION_BUTTON_TASK_PRIORITY</name>
       <anchorfile>freertos__chess_8h.html</anchorfile>
       <anchor>a58d022d18b73ee9efae31b39b6fd4343</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_LIGHT_TASK_PRIORITY</name>
+      <anchorfile>freertos__chess_8h.html</anchorfile>
+      <anchor>ad420cbd4164a1c35acf8ef56810955ab</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -5266,8 +5321,8 @@
     <path>components/game_led_animations/</path>
     <filename>game__led__animations_8c.html</filename>
     <includes id="game__led__animations_8h" name="game_led_animations.h" local="yes" import="no" module="no" objc="no">game_led_animations.h</includes>
-    <includes id="led__task__simple_8h" name="led_task_simple.h" local="yes" import="no" module="no" objc="no">led_task_simple.h</includes>
     <includes id="led__mapping_8h" name="led_mapping.h" local="yes" import="no" module="no" objc="no">led_mapping.h</includes>
+    <includes id="led__task__simple_8h" name="led_task_simple.h" local="yes" import="no" module="no" objc="no">led_task_simple.h</includes>
     <member kind="function">
       <type></type>
       <name>__attribute__</name>
@@ -5887,12 +5942,13 @@
     <includes id="chess__types_8h" name="chess_types.h" local="yes" import="no" module="no" objc="no">../freertos_chess/include/chess_types.h</includes>
     <includes id="streaming__output_8h" name="streaming_output.h" local="yes" import="no" module="no" objc="no">../freertos_chess/include/streaming_output.h</includes>
     <includes id="led__task_8h" name="led_task.h" local="yes" import="no" module="no" objc="no">../led_task/include/led_task.h</includes>
+    <includes id="matrix__task_8h" name="matrix_task.h" local="yes" import="no" module="no" objc="no">../matrix_task/include/matrix_task.h</includes>
     <includes id="unified__animation__manager_8h" name="unified_animation_manager.h" local="yes" import="no" module="no" objc="no">../unified_animation_manager/include/unified_animation_manager.h</includes>
     <includes id="freertos__chess_8h" name="freertos_chess.h" local="yes" import="no" module="no" objc="no">freertos_chess.h</includes>
     <includes id="game__led__animations_8h" name="game_led_animations.h" local="yes" import="no" module="no" objc="no">game_led_animations.h</includes>
     <includes id="led__mapping_8h" name="led_mapping.h" local="yes" import="no" module="no" objc="no">led_mapping.h</includes>
-    <includes id="enhanced__castling__system_8h" name="enhanced_castling_system.h" local="yes" import="no" module="no" objc="no">../enhanced_castling_system/include/enhanced_castling_system.h</includes>
     <includes id="game__colors_8h" name="game_colors.h" local="yes" import="no" module="no" objc="no">game_colors.h</includes>
+    <includes id="ha__light__task_8h" name="ha_light_task.h" local="yes" import="no" module="no" objc="no">../ha_light_task/include/ha_light_task.h</includes>
     <class kind="struct">castling_state_t</class>
     <class kind="struct">non_blocking_blink_state_t</class>
     <class kind="struct">king_resignation_state_t</class>
@@ -5915,27 +5971,6 @@
       <name>AUTO_NEW_GAME_CONFIRMATION_TIME_MS</name>
       <anchorfile>game__task_8c.html</anchorfile>
       <anchor>ab5d37ae881c4c3c8d9ac1a35e00e7b71</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>DEMO_MIN_INTERVAL_MS</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>a7e5175effe0673fdfe9cc5eba2d886bd</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>DEMO_MAX_INTERVAL_MS</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>a9d0135e87ed646894c9f20a29572e9e9</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>DEMO_MOVE_EXECUTION_DELAY_MS</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>ae3018fd2ec7531ed59747ce1c2dc84ac</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -6147,34 +6182,6 @@
       <arglist>(void)</arglist>
     </member>
     <member kind="function" static="yes">
-      <type>static bool</type>
-      <name>demo_is_castling_move</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>a04510825a543fa3b6bf49c440affc5dc</anchor>
-      <arglist>(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static void</type>
-      <name>demo_get_castling_rook_squares</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>a87d3fb112c7c6e13fcd25d68f697d731</anchor>
-      <arglist>(uint8_t king_from_row, uint8_t king_to_col, uint8_t *rook_from_row, uint8_t *rook_from_col, uint8_t *rook_to_row, uint8_t *rook_to_col)</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static bool</type>
-      <name>demo_is_promotion_move</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>a9e8f544c7945e8ce3f4d2c8cdbd398dd</anchor>
-      <arglist>(uint8_t from_row, uint8_t from_col, uint8_t to_row)</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static void</type>
-      <name>demo_ensure_safe_timing</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>a832ce297bfcf0b12c45b2ec754ab3bf5</anchor>
-      <arglist>(void)</arglist>
-    </member>
-    <member kind="function" static="yes">
       <type>static void</type>
       <name>resignation_main_timer_callback</name>
       <anchorfile>game__task_8c.html</anchorfile>
@@ -6208,6 +6215,20 @@
       <anchorfile>game__task_8c.html</anchorfile>
       <anchor>a6b536ba6f8bb5ebf7a76124fbb8d9b10</anchor>
       <arglist>(uint32_t elapsed_ms)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>resignation_tick</name>
+      <anchorfile>game__task_8c.html</anchorfile>
+      <anchor>a3bf81752bb1e6c0587cfdb9804f883be</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>resignation_finalize_timeout</name>
+      <anchorfile>game__task_8c.html</anchorfile>
+      <anchor>a5e2939300449fca26ad46d2a04e6ec08</anchor>
+      <arglist>(void)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -6253,6 +6274,13 @@
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
+      <name>game_update_promotion_anchor_led</name>
+      <anchorfile>game__task_8c.html</anchorfile>
+      <anchor>a5b0ea1f9a91c492a93d4ad9b2afcdb59</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
       <name>game_process_promotion_button</name>
       <anchorfile>game__task_8c.html</anchorfile>
       <anchor>a6f86764d953efaad0ea951c27cea07e3</anchor>
@@ -6292,13 +6320,6 @@
       <anchorfile>game__task_8c.html</anchorfile>
       <anchor>a5d48aea6f905097dca8c53e1c2a057b1</anchor>
       <arglist>(player_t player)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>game_reset_error_recovery_state</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>aa3dc2b9ee227e2a5302b2c1d908ec6d7</anchor>
-      <arglist>(void)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -6707,13 +6728,6 @@
       <arglist>(void)</arglist>
     </member>
     <member kind="function">
-      <type>uint32_t</type>
-      <name>game_get_move_count</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>a2e528b3b66fe59544f28ca993c4a6143</anchor>
-      <arglist>(void)</arglist>
-    </member>
-    <member kind="function">
       <type>void</type>
       <name>game_print_board</name>
       <anchorfile>game__task_8c.html</anchorfile>
@@ -6761,6 +6775,20 @@
       <anchorfile>game__task_8c.html</anchorfile>
       <anchor>a907213fbd2400f88f96bd2a5bb4ff98d</anchor>
       <arglist>(uint8_t error_row, uint8_t error_col)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>game_trigger_victory_animation</name>
+      <anchorfile>game__task_8c.html</anchorfile>
+      <anchor>a1e01fb94ceb1dc74ff280d87a35c1076</anchor>
+      <arglist>(player_t winner)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>game_reset_error_recovery_state</name>
+      <anchorfile>game__task_8c.html</anchorfile>
+      <anchor>aa3dc2b9ee227e2a5302b2c1d908ec6d7</anchor>
+      <arglist>(void)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
@@ -7246,6 +7274,13 @@
       <arglist>(char *buffer, size_t size)</arglist>
     </member>
     <member kind="function">
+      <type>uint32_t</type>
+      <name>game_get_move_count</name>
+      <anchorfile>game__task_8c.html</anchorfile>
+      <anchor>a2e528b3b66fe59544f28ca993c4a6143</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
       <type>esp_err_t</type>
       <name>game_get_status_json</name>
       <anchorfile>game__task_8c.html</anchorfile>
@@ -7406,6 +7441,13 @@
       <anchor>a7fb22aa3cdacc593dccf7d95db908750</anchor>
       <arglist>(void)</arglist>
     </member>
+    <member kind="function">
+      <type>void</type>
+      <name>game_refresh_leds</name>
+      <anchorfile>game__task_8c.html</anchorfile>
+      <anchor>a8b7aa3018c0775246c6fe867f3ae6af1</anchor>
+      <arglist>(void)</arglist>
+    </member>
     <member kind="variable" static="yes">
       <type>static const char *</type>
       <name>TAG</name>
@@ -7439,6 +7481,13 @@
       <name>move_count</name>
       <anchorfile>game__task_8c.html</anchorfile>
       <anchor>a154fb9029ef76390cf7a42e2672c397b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static bool</type>
+      <name>auto_new_game_blocked_until_move</name>
+      <anchorfile>game__task_8c.html</anchorfile>
+      <anchor>aeeb78940e65fff2e71ea41c1a8787c1c</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" static="yes">
@@ -7635,34 +7684,6 @@
       <name>auto_new_game_triggered</name>
       <anchorfile>game__task_8c.html</anchorfile>
       <anchor>a04d3ba5e73ae60bb8c57f895a51db47b</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" static="yes">
-      <type>static bool</type>
-      <name>demo_mode_enabled</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>a5e6a3c42019ea07caf53ff835fe123e4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" static="yes">
-      <type>static uint32_t</type>
-      <name>demo_move_interval_ms</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>a524b9d765ca7598d09da9209411ab721</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" static="yes">
-      <type>static bool</type>
-      <name>demo_in_progress</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>aa5125fe0a59dc9e79e7d3585a3bfde78</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" static="yes">
-      <type>static uint32_t</type>
-      <name>demo_last_move_time</name>
-      <anchorfile>game__task_8c.html</anchorfile>
-      <anchor>aa6c2b8854df7f9af92ed3920756942ab</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" static="yes">
@@ -7873,6 +7894,13 @@
       <name>promotion_state</name>
       <anchorfile>game__task_8c.html</anchorfile>
       <anchor>a434aeae5dd0d1550ab0cad1e0a6b5f0f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static SemaphoreHandle_t</type>
+      <name>promotion_mutex</name>
+      <anchorfile>game__task_8c.html</anchorfile>
+      <anchor>a63a7da38fbec25e9b4ca6591dbc94966</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" static="yes">
@@ -8475,11 +8503,25 @@
       <arglist>(char *buffer, size_t size)</arglist>
     </member>
     <member kind="function">
+      <type>uint32_t</type>
+      <name>game_get_move_count</name>
+      <anchorfile>game__task_8h.html</anchorfile>
+      <anchor>a2e528b3b66fe59544f28ca993c4a6143</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
       <type>esp_err_t</type>
       <name>game_get_status_json</name>
       <anchorfile>game__task_8h.html</anchorfile>
       <anchor>abdf3ba446d87db43c26b6c51275a521e</anchor>
       <arglist>(char *buffer, size_t size)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>game_refresh_leds</name>
+      <anchorfile>game__task_8h.html</anchorfile>
+      <anchor>a8b7aa3018c0775246c6fe867f3ae6af1</anchor>
+      <arglist>(void)</arglist>
     </member>
     <member kind="function">
       <type>esp_err_t</type>
@@ -8528,6 +8570,13 @@
       <name>game_start_new_game</name>
       <anchorfile>game__task_8h.html</anchorfile>
       <anchor>a57e990b9360540c1ba82ea3d5a32cf44</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>game_reset_error_recovery_state</name>
+      <anchorfile>game__task_8h.html</anchorfile>
+      <anchor>aa3dc2b9ee227e2a5302b2c1d908ec6d7</anchor>
       <arglist>(void)</arglist>
     </member>
     <member kind="function">
@@ -8689,13 +8738,6 @@
       <name>game_get_current_player</name>
       <anchorfile>game__task_8h.html</anchorfile>
       <anchor>a98c28bfe096e1b2f5dd819da477efbe1</anchor>
-      <arglist>(void)</arglist>
-    </member>
-    <member kind="function">
-      <type>uint32_t</type>
-      <name>game_get_move_count</name>
-      <anchorfile>game__task_8h.html</anchorfile>
-      <anchor>a2e528b3b66fe59544f28ca993c4a6143</anchor>
       <arglist>(void)</arglist>
     </member>
     <member kind="function">
@@ -9145,6 +9187,574 @@
       <anchorfile>game__task_8h.html</anchorfile>
       <anchor>a303099e83402e02cace5235656259b70</anchor>
       <arglist>(player_t player)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>ha_light_task.c</name>
+    <path>components/ha_light_task/</path>
+    <filename>ha__light__task_8c.html</filename>
+    <includes id="ha__light__task_8h" name="ha_light_task.h" local="yes" import="no" module="no" objc="no">ha_light_task.h</includes>
+    <includes id="chess__types_8h" name="chess_types.h" local="yes" import="no" module="no" objc="no">chess_types.h</includes>
+    <includes id="freertos__chess_8h" name="freertos_chess.h" local="yes" import="no" module="no" objc="no">freertos_chess.h</includes>
+    <includes id="game__task_8h" name="game_task.h" local="yes" import="no" module="no" objc="no">game_task.h</includes>
+    <includes id="led__task_8h" name="led_task.h" local="yes" import="no" module="no" objc="no">led_task.h</includes>
+    <member kind="define">
+      <type>#define</type>
+      <name>MQTT_NVS_NAMESPACE</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a296a7bbb8593405108b39d1ab6c0ecc6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MQTT_NVS_KEY_HOST</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a081583a2a1790d8fb1b2617f75e28001</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MQTT_NVS_KEY_PORT</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a86093592f3d60d17d74e7fb27193ea3a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MQTT_NVS_KEY_USERNAME</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>aeeff4bcf4d1d0b27a9da374befe7bc8d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MQTT_NVS_KEY_PASSWORD</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>ab809ff3bf1caf2065817bd285c78889d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MQTT_DEFAULT_HOST</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a52bd6fcbbfadb261cdd62abc295f4dd5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MQTT_DEFAULT_PORT</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a47dbba2fb767e8362864895e3ce87a36</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MQTT_DEFAULT_USERNAME</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a67a711e15478d8d8ba7aa984947f1cd8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MQTT_DEFAULT_PASSWORD</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a38f208acaf4f9f771cf7e707488f8c29</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>ha_light_check_activity_timeout</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a5a6bb92dacbf05bc953f9d712c939ed4</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>ha_light_switch_to_ha_mode</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>aff8e250ad01ba14909377eaea2f0dce6</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>ha_light_switch_to_game_mode</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a33c86dd0c42ba70448023639e56096f0</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>ha_light_monitor_game_activity</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a1819a1e1ebc04fa6179f55ee77454506</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static bool</type>
+      <name>ha_light_check_wifi_sta_connected</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a687dd5b61866fa4896abac67db3944d9</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>ha_light_init_mqtt</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>ab445707e64ef5877d69ff4443c54bfd5</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>ha_light_mqtt_event_handler</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>aaa50395cd97ca2238e5b5a64d0583d07</anchor>
+      <arglist>(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>ha_light_handle_mqtt_command</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>ae13c9a71f7715bc11cf0c8dc511d7b33</anchor>
+      <arglist>(const char *topic, const char *data, int data_len)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>ha_light_publish_state</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>ab17c9e100295b75e1b76d897d08a805b</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>ha_light_task_wdt_reset_safe</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a220eb7a6a15e1c82a39c3128aeffa19f</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>ha_light_report_activity</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>af2c48fb0be8e0af2ec8f26872bea2721</anchor>
+      <arglist>(const char *activity_type)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>mqtt_load_config_from_nvs</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>ad61c60d5f24e8689c8607c69c989b761</anchor>
+      <arglist>(char *host, size_t host_len, uint16_t *port, char *username, size_t username_len, char *password, size_t password_len)</arglist>
+    </member>
+    <member kind="function">
+      <type>esp_err_t</type>
+      <name>mqtt_save_config_to_nvs</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>ad116a346513e475c7ffe3e5137a18d0d</anchor>
+      <arglist>(const char *host, uint16_t port, const char *username, const char *password)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>ha_light_publish_discovery</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a0f43fcd5e5a6b5aa88a40bfbf987d381</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static void</type>
+      <name>mqtt_ensure_config_loaded</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>af54ee77cebff3b3c12301819b1082ce4</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>ha_mode_t</type>
+      <name>ha_light_get_mode</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a745b4de0bfe0480fe88c73e3d23170eb</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>ha_light_is_available</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a0fc50519ca67911865aa6f8afc0a939f</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>esp_err_t</type>
+      <name>mqtt_get_config</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a0564ec8bd0c8c4e490ed84e22246df81</anchor>
+      <arglist>(char *host, size_t host_len, uint16_t *port, char *username, size_t username_len, char *password, size_t password_len)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>ha_light_is_mqtt_connected</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a7f38fb48c581f40707dbed343cedb07c</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>esp_err_t</type>
+      <name>ha_light_reinit_mqtt</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>aaa92358f60e1043bee0865be41fb1b2c</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>ha_light_task_start</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>adeb86d27a08d24abfd9a912c9c89a729</anchor>
+      <arglist>(void *pvParameters)</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char *</type>
+      <name>TAG</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a5a85b9c772bbeb480b209a3e6ea92b4c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static bool</type>
+      <name>task_running</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a35141cb45623cb3b7b4d96da35ed1831</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static ha_mode_t</type>
+      <name>current_mode</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a6f970625bbaaf55b63054a651a0329fd</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static uint32_t</type>
+      <name>last_activity_time_ms</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a841339184f4dba27c769216e9b7e8a6f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static bool</type>
+      <name>sta_connected</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a738f5dc6c12f15f0149e08de59f48064</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static esp_mqtt_client_handle_t</type>
+      <name>mqtt_client</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>ad9332f302ae79b5195a71d791a9ccecd</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static bool</type>
+      <name>mqtt_connected</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a6a99fbef218ac40fc0b77e18f0e9a708</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>bool</type>
+      <name>state</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>ab30ba07e2a0bd07a15e45a92c32db9c5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>uint8_t</type>
+      <name>brightness</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a837c871f200f8c3d19d0c7f2e031ffc4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>uint8_t</type>
+      <name>r</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a4c5c6ceb8ed33456261fa907136e0c3a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>uint8_t</type>
+      <name>g</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a1673907d4d89d763bb7b94ec1eeb7b60</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>uint8_t</type>
+      <name>b</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a4313c9563516f94387762ab05763456b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>char</type>
+      <name>effect</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>af7b0cb88246dfc40187f86c43e8d18f0</anchor>
+      <arglist>[32]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static struct @210247337070230032013260354220374100003104353375</type>
+      <name>ha_light_state</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a6f7c9a2d773fd7d2e70af21f86a3a795</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>char</type>
+      <name>host</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a471a823d17bf7081fd4ebf84741f6758</anchor>
+      <arglist>[128]</arglist>
+    </member>
+    <member kind="variable">
+      <type>uint16_t</type>
+      <name>port</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a8e0798404bf2cf5dabb84c5ba9a4f236</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>char</type>
+      <name>username</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>acfea5fbe8295640a1489399ceeb6c018</anchor>
+      <arglist>[64]</arglist>
+    </member>
+    <member kind="variable">
+      <type>char</type>
+      <name>password</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>ae3a23efe266762659e03567d6afc26dd</anchor>
+      <arglist>[64]</arglist>
+    </member>
+    <member kind="variable">
+      <type>bool</type>
+      <name>loaded</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a992c70a16169035bc9e2e8f9953d91ed</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static struct @211342177250135123207242057200371264063325110270</type>
+      <name>mqtt_config</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>acceb8828f50bb72cef2187d48db6b461</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>QueueHandle_t</type>
+      <name>game_command_queue</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a4ed770cbe46604586e494bae84b62304</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>QueueHandle_t</type>
+      <name>matrix_event_queue</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>a1b93ff1badbca8962927cb6fd837463e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static QueueHandle_t</type>
+      <name>ha_light_cmd_queue</name>
+      <anchorfile>ha__light__task_8c.html</anchorfile>
+      <anchor>afa3c4fd245d700def50f8fbe578ca1c4</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>ha_light_task.h</name>
+    <path>components/ha_light_task/include/</path>
+    <filename>ha__light__task_8h.html</filename>
+    <includes id="freertos__chess_8h" name="freertos_chess.h" local="yes" import="no" module="no" objc="no">freertos_chess.h</includes>
+    <class kind="struct">ha_light_command_t</class>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_ACTIVITY_TIMEOUT_AUTO_MS</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a59a4f99e5382fed36fc539ce0b1b79c5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_ACTIVITY_TIMEOUT_COMMAND_MS</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a59e49211d6a9fc9ca8c1481be531753d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_TOPIC_LIGHT_COMMAND</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a8252c914f758fbce0485c28d94e84b0c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_TOPIC_LIGHT_STATE</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>ac8d834caaa63c1dfab5bfbdaf442f78f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_TOPIC_LIGHT_AVAILABILITY</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>ac2d5de1749d4171f82324a7276f6fb14</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_TOPIC_GAME_ACTIVITY</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>ab8a6d62c662a157b70d0fabc6c03e6fc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_MQTT_PAYLOAD_ONLINE</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a6e17c7afd5219d2aad45fa7d87822f3b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_MQTT_PAYLOAD_OFFLINE</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a6842398162d1d365ca5d5c711ecb6145</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_DISCOVERY_PREFIX</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>accaea9ff6b9f1de5ca1c5625eab21cf4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_COMPONENT_LIGHT</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a88f6ce72b1c205860c6f824cf2b23d8e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_DEVICE_MANUFACTURER</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a2d3c04b509cf1d7315195a4cbcdd20a3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_DEVICE_MODEL</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a166cbf522b7a67a3c366f928e06d66c3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_DEVICE_SW_VERSION</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a5303289f6afee06f476293223b01b8bb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_MQTT_CLIENT_ID</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a3e86bf68640eb01f845f67eb32fbc9d6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HA_MQTT_BROKER_PORT</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a5b297c2591120ddece81447ffd44844f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumeration">
+      <type></type>
+      <name>ha_mode_t</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>af2a3f8e1a020167cca1ba6c844ba3588</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>HA_MODE_GAME</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>HA_MODE_HA</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>af2a3f8e1a020167cca1ba6c844ba3588ab05fd74afbd0d17e1b0de540a49c60c5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>ha_light_task_start</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>adeb86d27a08d24abfd9a912c9c89a729</anchor>
+      <arglist>(void *pvParameters)</arglist>
+    </member>
+    <member kind="function">
+      <type>ha_mode_t</type>
+      <name>ha_light_get_mode</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a745b4de0bfe0480fe88c73e3d23170eb</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>ha_light_is_available</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a0fc50519ca67911865aa6f8afc0a939f</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>ha_light_report_activity</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>af2c48fb0be8e0af2ec8f26872bea2721</anchor>
+      <arglist>(const char *activity_type)</arglist>
+    </member>
+    <member kind="function">
+      <type>esp_err_t</type>
+      <name>mqtt_save_config_to_nvs</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>ad116a346513e475c7ffe3e5137a18d0d</anchor>
+      <arglist>(const char *host, uint16_t port, const char *username, const char *password)</arglist>
+    </member>
+    <member kind="function">
+      <type>esp_err_t</type>
+      <name>mqtt_get_config</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a0564ec8bd0c8c4e490ed84e22246df81</anchor>
+      <arglist>(char *host, size_t host_len, uint16_t *port, char *username, size_t username_len, char *password, size_t password_len)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>ha_light_is_mqtt_connected</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>a7f38fb48c581f40707dbed343cedb07c</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>esp_err_t</type>
+      <name>ha_light_reinit_mqtt</name>
+      <anchorfile>ha__light__task_8h.html</anchorfile>
+      <anchor>aaa92358f60e1043bee0865be41fb1b2c</anchor>
+      <arglist>(void)</arglist>
     </member>
   </compound>
   <compound kind="file">
@@ -9835,6 +10445,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>led_set_brightness_global</name>
+      <anchorfile>led__task_8h.html</anchorfile>
+      <anchor>aba7d182926787e311733fb41353c196e</anchor>
+      <arglist>(uint8_t brightness)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>led_execute_command_new</name>
       <anchorfile>led__task_8h.html</anchorfile>
       <anchor>a85578cf6b1c0acb68c6278c9cd1a4f26</anchor>
@@ -10003,6 +10620,27 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>led_set_ha_color</name>
+      <anchorfile>led__task_8h.html</anchorfile>
+      <anchor>acd139d9f40454ed76aa1f080f2299d07</anchor>
+      <arglist>(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>led_restore_chess_board</name>
+      <anchorfile>led__task_8h.html</anchorfile>
+      <anchor>aed864c4fd31d53e8498014ffda17dcc6</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>led_refresh_all_button_leds</name>
+      <anchorfile>led__task_8h.html</anchorfile>
+      <anchor>acffe67fadfe40ddc4c14618edebeedf8</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>led_error_invalid_move</name>
       <anchorfile>led__task_8h.html</anchorfile>
       <anchor>a1a82f432b46c4990df10c3c8c4d697b4</anchor>
@@ -10104,6 +10742,20 @@
       <name>led_stop_endgame_animation</name>
       <anchorfile>led__task_8h.html</anchorfile>
       <anchor>a081382ca7f7a773156291851fdbe6f5f</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>led_booting_animation</name>
+      <anchorfile>led__task_8h.html</anchorfile>
+      <anchor>a533dfd80b93f0821af12a5f929dcc40b</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>led_is_booting</name>
+      <anchorfile>led__task_8h.html</anchorfile>
+      <anchor>a006a24ec8e7f302c4a6f8481675803d1</anchor>
       <arglist>(void)</arglist>
     </member>
     <member kind="function">
@@ -10347,6 +10999,7 @@
     <path>components/led_task/</path>
     <filename>led__task_8c.html</filename>
     <includes id="led__task_8h" name="led_task.h" local="yes" import="no" module="no" objc="no">led_task.h</includes>
+    <includes id="config__manager_8h" name="config_manager.h" local="yes" import="no" module="no" objc="no">../config_manager/include/config_manager.h</includes>
     <includes id="chess__types_8h" name="chess_types.h" local="yes" import="no" module="no" objc="no">../freertos_chess/include/chess_types.h</includes>
     <includes id="streaming__output_8h" name="streaming_output.h" local="yes" import="no" module="no" objc="no">../freertos_chess/include/streaming_output.h</includes>
     <includes id="game__task_8h" name="game_task.h" local="yes" import="no" module="no" objc="no">../game_task/include/game_task.h</includes>
@@ -10527,10 +11180,10 @@
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
-      <name>led_duration_timer_callback</name>
+      <name>led_process_duration_expirations</name>
       <anchorfile>led__task_8c.html</anchorfile>
-      <anchor>af91e40f2e2bc7274cb04cfe498622aee</anchor>
-      <arglist>(TimerHandle_t xTimer)</arglist>
+      <anchor>adb4079e18c88be33df2ed464c968fad7</anchor>
+      <arglist>(void)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
@@ -10567,6 +11220,13 @@
       <anchor>a2135e4b3d98992bec7601350d477abc9</anchor>
       <arglist>(void)</arglist>
     </member>
+    <member kind="function">
+      <type>void</type>
+      <name>led_set_brightness_global</name>
+      <anchorfile>led__task_8c.html</anchorfile>
+      <anchor>aba7d182926787e311733fb41353c196e</anchor>
+      <arglist>(uint8_t brightness)</arglist>
+    </member>
     <member kind="function" static="yes">
       <type>static uint8_t</type>
       <name>led_get_button_led_index</name>
@@ -10600,6 +11260,27 @@
       <name>led_show_chess_board</name>
       <anchorfile>led__task_8c.html</anchorfile>
       <anchor>a13da231e8e3dc956e4c3415a89409670</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>led_set_ha_color</name>
+      <anchorfile>led__task_8c.html</anchorfile>
+      <anchor>acd139d9f40454ed76aa1f080f2299d07</anchor>
+      <arglist>(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>led_restore_chess_board</name>
+      <anchorfile>led__task_8c.html</anchorfile>
+      <anchor>aed864c4fd31d53e8498014ffda17dcc6</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>led_refresh_all_button_leds</name>
+      <anchorfile>led__task_8c.html</anchorfile>
+      <anchor>acffe67fadfe40ddc4c14618edebeedf8</anchor>
       <arglist>(void)</arglist>
     </member>
     <member kind="function">
@@ -10855,6 +11536,13 @@
       <arglist>(void *pvParameters)</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>led_is_booting</name>
+      <anchorfile>led__task_8c.html</anchorfile>
+      <anchor>a006a24ec8e7f302c4a6f8481675803d1</anchor>
+      <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>led_booting_animation</name>
       <anchorfile>led__task_8c.html</anchorfile>
@@ -11107,10 +11795,10 @@
       <arglist></arglist>
     </member>
     <member kind="variable" static="yes">
-      <type>static TimerHandle_t</type>
-      <name>led_duration_timer</name>
+      <type>static uint8_t</type>
+      <name>global_brightness</name>
       <anchorfile>led__task_8c.html</anchorfile>
-      <anchor>a2fcc158530262c3bb8a09287f5d1cb3e</anchor>
+      <anchor>ac96aaee8c56d42372878aa20a24362c1</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" static="yes">
@@ -11195,6 +11883,13 @@
       <name>endgame_animation_active</name>
       <anchorfile>led__task_8c.html</anchorfile>
       <anchor>a7c488b223b05495652330bf542a90669</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static bool</type>
+      <name>led_booting_active</name>
+      <anchorfile>led__task_8c.html</anchorfile>
+      <anchor>a7005076d8f4d04f878fd4c8e3efdcce5</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" static="yes">
@@ -11321,6 +12016,7 @@
     <path>components/matrix_task/</path>
     <filename>matrix__task_8c.html</filename>
     <includes id="matrix__task_8h" name="matrix_task.h" local="yes" import="no" module="no" objc="no">matrix_task.h</includes>
+    <includes id="ha__light__task_8h" name="ha_light_task.h" local="yes" import="no" module="no" objc="no">../ha_light_task/include/ha_light_task.h</includes>
     <includes id="chess__types_8h" name="chess_types.h" local="yes" import="no" module="no" objc="no">chess_types.h</includes>
     <includes id="freertos__chess_8h" name="freertos_chess.h" local="yes" import="no" module="no" objc="no">freertos_chess.h</includes>
     <member kind="function">
@@ -11363,13 +12059,6 @@
       <name>matrix_send_pickup_command</name>
       <anchorfile>matrix__task_8c.html</anchorfile>
       <anchor>ae622813bcd8b41c1040db3a6c8d34e13</anchor>
-      <arglist>(uint8_t square)</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static void</type>
-      <name>matrix_send_drop_command</name>
-      <anchorfile>matrix__task_8c.html</anchorfile>
-      <anchor>a0684c1516035306b49514c47a1af0fed</anchor>
       <arglist>(uint8_t square)</arglist>
     </member>
     <member kind="function" static="yes">
@@ -13711,6 +14400,7 @@
     <path>components/uart_task/</path>
     <filename>uart__task_8c.html</filename>
     <includes id="chess__types_8h" name="chess_types.h" local="yes" import="no" module="no" objc="no">../freertos_chess/include/chess_types.h</includes>
+    <includes id="ha__light__task_8h" name="ha_light_task.h" local="yes" import="no" module="no" objc="no">../ha_light_task/include/ha_light_task.h</includes>
     <includes id="matrix__task_8h" name="matrix_task.h" local="yes" import="no" module="no" objc="no">../matrix_task/include/matrix_task.h</includes>
     <includes id="timer__system_8h" name="timer_system.h" local="yes" import="no" module="no" objc="no">../timer_system/include/timer_system.h</includes>
     <includes id="uart__commands__extended_8h" name="uart_commands_extended.h" local="yes" import="no" module="no" objc="no">../uart_commands_extended/include/uart_commands_extended.h</includes>
@@ -14468,6 +15158,27 @@
       <name>uart_cmd_web_status</name>
       <anchorfile>uart__task_8c.html</anchorfile>
       <anchor>aa9f2f59b642c88983b3335005fa13d04</anchor>
+      <arglist>(const char *args)</arglist>
+    </member>
+    <member kind="function">
+      <type>command_result_t</type>
+      <name>uart_cmd_mqtt_config</name>
+      <anchorfile>uart__task_8c.html</anchorfile>
+      <anchor>a4cf583b305279172da15e67506989102</anchor>
+      <arglist>(const char *args)</arglist>
+    </member>
+    <member kind="function">
+      <type>command_result_t</type>
+      <name>uart_cmd_mqtt_status</name>
+      <anchorfile>uart__task_8c.html</anchorfile>
+      <anchor>a8a67f06fc8ba00682d61c5c380ce612b</anchor>
+      <arglist>(const char *args)</arglist>
+    </member>
+    <member kind="function">
+      <type>command_result_t</type>
+      <name>uart_cmd_mqtt_test</name>
+      <anchorfile>uart__task_8c.html</anchorfile>
+      <anchor>a0eaf4451977618b26df3ef6c207edfb1</anchor>
       <arglist>(const char *args)</arglist>
     </member>
     <member kind="function">
@@ -16465,30 +17176,6 @@
     </member>
   </compound>
   <compound kind="file">
-    <name>chess_app_js_fixed.c</name>
-    <path>components/web_server_task/</path>
-    <filename>chess__app__js__fixed_8c.html</filename>
-    <member kind="variable" static="yes">
-      <type>static const char</type>
-      <name>chess_app_js_content</name>
-      <anchorfile>chess__app__js__fixed_8c.html</anchorfile>
-      <anchor>a31bf285a16bbf718a86c71d94f2b9f31</anchor>
-      <arglist>[]</arglist>
-    </member>
-  </compound>
-  <compound kind="file">
-    <name>chess_app_js_new.c</name>
-    <path>components/web_server_task/</path>
-    <filename>chess__app__js__new_8c.html</filename>
-    <member kind="variable" static="yes">
-      <type>static const char</type>
-      <name>chess_app_js_content</name>
-      <anchorfile>chess__app__js__new_8c.html</anchorfile>
-      <anchor>a31bf285a16bbf718a86c71d94f2b9f31</anchor>
-      <arglist>[]</arglist>
-    </member>
-  </compound>
-  <compound kind="file">
     <name>web_server_task.h</name>
     <path>components/web_server_task/include/</path>
     <filename>web__server__task_8h.html</filename>
@@ -16797,7 +17484,9 @@
     <filename>web__server__task_8c.html</filename>
     <includes id="web__server__task_8h" name="web_server_task.h" local="yes" import="no" module="no" objc="no">web_server_task.h</includes>
     <includes id="game__task_8h" name="game_task.h" local="yes" import="no" module="no" objc="no">../game_task/include/game_task.h</includes>
-    <includes id="timer__system_8h" name="timer_system.h" local="yes" import="no" module="no" objc="no">../timer_system/include/timer_system.h</includes>
+    <includes id="ha__light__task_8h" name="ha_light_task.h" local="yes" import="no" module="no" objc="no">../ha_light_task/include/ha_light_task.h</includes>
+    <includes id="led__task_8h" name="led_task.h" local="yes" import="no" module="no" objc="no">../led_task/include/led_task.h</includes>
+    <includes id="led__mapping_8h" name="led_mapping.h" local="yes" import="no" module="no" objc="no">led_mapping.h</includes>
     <includes id="freertos__chess_8h" name="freertos_chess.h" local="yes" import="no" module="no" objc="no">freertos_chess.h</includes>
     <member kind="define">
       <type>#define</type>
@@ -16933,6 +17622,13 @@
       <arglist>(bool enabled)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>set_demo_speed_ms</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>a570c98f23cd91c36ce62964733732cdf</anchor>
+      <arglist>(uint32_t speed_ms)</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>is_demo_mode_enabled</name>
       <anchorfile>web__server__task_8c.html</anchorfile>
@@ -16986,6 +17682,13 @@
       <name>http_get_test_handler</name>
       <anchorfile>web__server__task_8c.html</anchorfile>
       <anchor>ae7ac8a7695f85cdf9c15b8045b2813b3</anchor>
+      <arglist>(httpd_req_t *req)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>http_get_favicon_handler</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>a9c15047ba3df7b2591894a68c0d80923</anchor>
       <arglist>(httpd_req_t *req)</arglist>
     </member>
     <member kind="function" static="yes">
@@ -17060,6 +17763,13 @@
     </member>
     <member kind="function" static="yes">
       <type>static esp_err_t</type>
+      <name>http_post_game_move_handler</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>aeb0c7739faebc37cc1a058f796ba24e9</anchor>
+      <arglist>(httpd_req_t *req)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
       <name>http_post_wifi_config_handler</name>
       <anchorfile>web__server__task_8c.html</anchorfile>
       <anchor>a6493232eb46ff49eb44d894c8c4a1daf</anchor>
@@ -17112,6 +17822,41 @@
       <name>http_get_demo_status_handler</name>
       <anchorfile>web__server__task_8c.html</anchorfile>
       <anchor>a1b2ca6e53cae11465e829b142b4ee049</anchor>
+      <arglist>(httpd_req_t *req)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>http_post_game_virtual_action_handler</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>af36e989f916f7fc74dfbe1bbf52b3869</anchor>
+      <arglist>(httpd_req_t *req)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>http_post_game_new_handler</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>aa9ed8d6dbc130fd18b7d409f4f742189</anchor>
+      <arglist>(httpd_req_t *req)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>http_post_game_hint_highlight_handler</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>afe04c688d88ea0650555b298507ea154</anchor>
+      <arglist>(httpd_req_t *req)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>http_get_mqtt_status_handler</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>a540c54cb24f48beccd6d626d89d25267</anchor>
+      <arglist>(httpd_req_t *req)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>http_post_mqtt_config_handler</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>a93314f062ff3d38822815ee5f6c2761d</anchor>
       <arglist>(httpd_req_t *req)</arglist>
     </member>
     <member kind="function">
@@ -17204,6 +17949,20 @@
       <anchorfile>web__server__task_8c.html</anchorfile>
       <anchor>a325753fb6460ffaa94c0c32237c8e7e1</anchor>
       <arglist>(bool locked)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>http_post_settings_brightness_handler</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>aa2b42e517ee6eb9665e1d10deb00c4ad</anchor>
+      <arglist>(httpd_req_t *req)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static esp_err_t</type>
+      <name>http_post_demo_start_handler</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>a35259616c06dac2e639ca26124109c70</anchor>
+      <arglist>(httpd_req_t *req)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -17506,6 +18265,20 @@
       <anchor>ae6a105bb6087d94dc1dff9c49c17a3d8</anchor>
       <arglist></arglist>
     </member>
+    <member kind="variable" static="yes">
+      <type>static uint8_t</type>
+      <name>cached_brightness</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>ab17ad7844a24ac3ce03f648f18a3c976</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static bool</type>
+      <name>cached_brightness_valid</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>a10437ead7390b9e656788a7546bb15b2</anchor>
+      <arglist></arglist>
+    </member>
     <member kind="variable">
       <type>QueueHandle_t</type>
       <name>web_server_status_queue</name>
@@ -17550,16 +18323,65 @@
     </member>
     <member kind="variable" static="yes">
       <type>static const char</type>
-      <name>html_chunk_body</name>
+      <name>html_chunk_layout_start</name>
       <anchorfile>web__server__task_8c.html</anchorfile>
-      <anchor>a58b080500cd1f710432d056604d841b4</anchor>
+      <anchor>ad8c6a6333babf87707dc21080b71f726</anchor>
       <arglist>[]</arglist>
     </member>
     <member kind="variable" static="yes">
       <type>static const char</type>
-      <name>html_chunk_infopanel</name>
+      <name>html_chunk_tab_hra_start</name>
       <anchorfile>web__server__task_8c.html</anchorfile>
-      <anchor>ada10d9693138282c09fb7cd6414e79d5</anchor>
+      <anchor>a84a7f8dd86a306e95f345b80a4940b1e</anchor>
+      <arglist>[]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char</type>
+      <name>html_chunk_game_left</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>ace9a7067ecc97f7c7756a562c9b5c1c0</anchor>
+      <arglist>[]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char</type>
+      <name>html_chunk_game_right</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>a4ed2739c81538da574348a3db94e6462</anchor>
+      <arglist>[]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char</type>
+      <name>html_chunk_tab_hra_end</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>a0dc3a9e01e0ee61af3f276badf9efc09</anchor>
+      <arglist>[]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char</type>
+      <name>html_chunk_board</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>a0075c9a2ed7f41df9d5f1e62ee82ff80</anchor>
+      <arglist>[]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char</type>
+      <name>html_chunk_tab_nastaveni_start</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>ad572c26c328220889e67688a5399ce65</anchor>
+      <arglist>[]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char</type>
+      <name>html_chunk_settings_sit</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>ae190241b4afa6e796e3537850ccbbdc7</anchor>
+      <arglist>[]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char</type>
+      <name>html_chunk_settings_zarizeni</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>aff807476fdafba6db3514a20fa7374cb</anchor>
       <arglist>[]</arglist>
     </member>
     <member kind="variable" static="yes">
@@ -17567,6 +18389,13 @@
       <name>html_chunk_banners</name>
       <anchorfile>web__server__task_8c.html</anchorfile>
       <anchor>a38326283e81a476ac89426aea7cf3250</anchor>
+      <arglist>[]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char</type>
+      <name>html_chunk_hint_inline</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>adc3003a9441c86d367006ae4415a82b4</anchor>
       <arglist>[]</arglist>
     </member>
     <member kind="variable" static="yes">
@@ -17581,6 +18410,20 @@
       <name>html_chunk_demo_mode</name>
       <anchorfile>web__server__task_8c.html</anchorfile>
       <anchor>a8bf9680c8995edd413cb2da4a543c3d6</anchor>
+      <arglist>[]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char</type>
+      <name>html_chunk_mqtt_config</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>aed0fb8deb128d87225f755340b40201e</anchor>
+      <arglist>[]</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char</type>
+      <name>html_chunk_tab_nastaveni_end</name>
+      <anchorfile>web__server__task_8c.html</anchorfile>
+      <anchor>a3e25ed064bdf023c8829e45eea11ea4d</anchor>
       <arglist>[]</arglist>
     </member>
     <member kind="variable" static="yes">
@@ -17604,10 +18447,17 @@
     <includes id="matrix__task_8h" name="matrix_task.h" local="yes" import="no" module="no" objc="no">matrix_task.h</includes>
     <includes id="test__task_8h" name="test_task.h" local="yes" import="no" module="no" objc="no">test_task.h</includes>
     <includes id="uart__task_8h" name="uart_task.h" local="yes" import="no" module="no" objc="no">uart_task.h</includes>
-    <includes id="config__manager_8h" name="config_manager.h" local="yes" import="no" module="no" objc="no">config_manager.h</includes>
     <includes id="game__led__animations_8h" name="game_led_animations.h" local="yes" import="no" module="no" objc="no">game_led_animations.h</includes>
+    <includes id="ha__light__task_8h" name="ha_light_task.h" local="yes" import="no" module="no" objc="no">ha_light_task.h</includes>
     <includes id="uart__commands__extended_8h" name="uart_commands_extended.h" local="yes" import="no" module="no" objc="no">uart_commands_extended.h</includes>
     <includes id="web__server__task_8h" name="web_server_task.h" local="yes" import="no" module="no" objc="no">web_server_task.h</includes>
+    <member kind="function" static="yes">
+      <type>static const char *</type>
+      <name>reset_reason_to_str</name>
+      <anchorfile>main_8c.html</anchorfile>
+      <anchor>abb182517d44ccd021b3dac9355989c7b</anchor>
+      <arglist>(esp_reset_reason_t reason)</arglist>
+    </member>
     <member kind="function">
       <type>void</type>
       <name>show_boot_animation_and_board</name>
@@ -17656,6 +18506,13 @@
       <anchorfile>main_8c.html</anchorfile>
       <anchor>ad190bb08e29e63b6f04a3715dae88706</anchor>
       <arglist>(void)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>set_demo_speed_ms</name>
+      <anchorfile>main_8c.html</anchorfile>
+      <anchor>a570c98f23cd91c36ce62964733732cdf</anchor>
+      <arglist>(uint32_t speed_ms)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -17753,6 +18610,13 @@
       <name>web_server_task_handle</name>
       <anchorfile>main_8c.html</anchorfile>
       <anchor>a36e9302901a63037025cd7970fa8adbe</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>TaskHandle_t</type>
+      <name>ha_light_task_handle</name>
+      <anchorfile>main_8c.html</anchorfile>
+      <anchor>a5c597bf4c3d1fff34c3ef12254f0efc4</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">
@@ -18746,6 +19610,13 @@
       <anchor>a2e078f65d1fab8a9ebd51547cd733fd9</anchor>
       <arglist></arglist>
     </member>
+    <member kind="variable">
+      <type>bool</type>
+      <name>is_demo_mode</name>
+      <anchorfile>structchess__move__command__t.html</anchorfile>
+      <anchor>a43bd07ae3571e5c911bb94292a4cf6b3</anchor>
+      <arglist></arglist>
+    </member>
   </compound>
   <compound kind="struct">
     <name>chess_move_extended_t</name>
@@ -19403,14 +20274,32 @@
       <type>char</type>
       <name>data</name>
       <anchorfile>structgame__response__t.html</anchorfile>
-      <anchor>ae9f24fd59c3cda6c038d6099efe5ec03</anchor>
-      <arglist>[3584]</arglist>
+      <anchor>a1b9907db84187372f7e5df9135e8d522</anchor>
+      <arglist>[64]</arglist>
     </member>
     <member kind="variable">
       <type>uint32_t</type>
       <name>timestamp</name>
       <anchorfile>structgame__response__t.html</anchorfile>
       <anchor>a6ca9b6d2062bf38fa5e6c8fb01a3ca04</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>ha_light_command_t</name>
+    <filename>structha__light__command__t.html</filename>
+    <member kind="variable">
+      <type>uint8_t</type>
+      <name>type</name>
+      <anchorfile>structha__light__command__t.html</anchorfile>
+      <anchor>aa655a0a61f12692c31c68803ae070fcf</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>void *</type>
+      <name>data</name>
+      <anchorfile>structha__light__command__t.html</anchorfile>
+      <anchor>ab0bc8ed3f5ca6cb30316a8163e8da184</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -20481,6 +21370,13 @@
       <anchor>a439d7cee1b183f7a6c09b3e85b2faa59</anchor>
       <arglist></arglist>
     </member>
+    <member kind="variable">
+      <type>uint8_t</type>
+      <name>brightness_level</name>
+      <anchorfile>structsystem__config__t.html</anchorfile>
+      <anchor>a05bbd482d93891e6ed1ec8d1068309d7</anchor>
+      <arglist></arglist>
+    </member>
   </compound>
   <compound kind="struct">
     <name>test_suite_t</name>
@@ -20794,6 +21690,7 @@
     <dir>freertos_chess</dir>
     <dir>game_led_animations</dir>
     <dir>game_task</dir>
+    <dir>ha_light_task</dir>
     <dir>led_state_manager</dir>
     <dir>led_task</dir>
     <dir>matrix_task</dir>
@@ -20848,6 +21745,13 @@
     <file>game_task.c</file>
   </compound>
   <compound kind="dir">
+    <name>ha_light_task</name>
+    <path>components/ha_light_task/</path>
+    <filename>dir_b118a6ff7afa3dc10b5f01379f4510ce.html</filename>
+    <dir>include</dir>
+    <file>ha_light_task.c</file>
+  </compound>
+  <compound kind="dir">
     <name>include</name>
     <path>components/animation_task/include/</path>
     <filename>dir_d0954016f3b51aa8e12d79ad9b090aaa.html</filename>
@@ -20894,6 +21798,12 @@
     <file>game_colors.h</file>
     <file>game_led_direct.h</file>
     <file>game_task.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>include</name>
+    <path>components/ha_light_task/include/</path>
+    <filename>dir_3267c1d62e884c3e01bf3c26b42e35ae.html</filename>
+    <file>ha_light_task.h</file>
   </compound>
   <compound kind="dir">
     <name>include</name>
@@ -21057,8 +21967,6 @@
     <path>components/web_server_task/</path>
     <filename>dir_17f9138bad1f9d2ff44cddc9da54d444.html</filename>
     <dir>include</dir>
-    <file>chess_app_js_fixed.c</file>
-    <file>chess_app_js_new.c</file>
     <file>web_server_task.c</file>
   </compound>
   <compound kind="page">

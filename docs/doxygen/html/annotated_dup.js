@@ -23,6 +23,7 @@ var annotated_dup =
     [ "error_system_config_t", "structerror__system__config__t.html", "structerror__system__config__t" ],
     [ "firework_t", "structfirework__t.html", "structfirework__t" ],
     [ "game_response_t", "structgame__response__t.html", "structgame__response__t" ],
+    [ "ha_light_command_t", "structha__light__command__t.html", "structha__light__command__t" ],
     [ "input_buffer_t", "structinput__buffer__t.html", "structinput__buffer__t" ],
     [ "king_resignation_state_t", "structking__resignation__state__t.html", "structking__resignation__state__t" ],
     [ "led_animation_state_t", "structled__animation__state__t.html", "structled__animation__state__t" ],

@@ -1,0 +1,1012 @@
+\doxysection{ha\+\_\+light\+\_\+task.\+c}
+\hypertarget{ha__light__task_8c_source}{}\label{ha__light__task_8c_source}\index{ha\_light\_task.c@{ha\_light\_task.c}}
+\mbox{\hyperlink{ha__light__task_8c}{Zobrazit dokumentaci tohoto souboru.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{ha__light__task_8h}{ha\_light\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00028}00028\ \textcolor{preprocessor}{\#include\ "{}cJSON.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00029}00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{chess__types_8h}{chess\_types.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00030}00030\ \textcolor{preprocessor}{\#include\ "{}esp\_err.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00031}00031\ \textcolor{preprocessor}{\#include\ "{}esp\_event.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00032}00032\ \textcolor{preprocessor}{\#include\ "{}esp\_log.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00033}00033\ \textcolor{preprocessor}{\#include\ "{}esp\_mac.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00034}00034\ \textcolor{preprocessor}{\#include\ "{}esp\_netif.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00035}00035\ \textcolor{preprocessor}{\#include\ "{}esp\_task\_wdt.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00036}00036\ \textcolor{preprocessor}{\#include\ "{}esp\_timer.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00037}00037\ \textcolor{preprocessor}{\#include\ "{}esp\_wifi.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00038}00038\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{freertos__chess_8h}{freertos\_chess.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00039}00039\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{game__task_8h}{game\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00040}00040\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__task_8h}{led\_task.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00041}00041\ \textcolor{preprocessor}{\#include\ "{}mqtt\_client.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00042}00042\ \textcolor{preprocessor}{\#include\ "{}nvs.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00043}00043\ \textcolor{preprocessor}{\#include\ "{}nvs\_flash.h"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00044}00044\ \textcolor{preprocessor}{\#include\ <stdio.h>}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00045}00045\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00046}00046\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00047}\mbox{\hyperlink{ha__light__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00047}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}}\ =\ \textcolor{stringliteral}{"{}HA\_LIGHT\_TASK"{}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00049}00049\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00050}00050\ \textcolor{comment}{//\ NVS\ KONFIGURACE\ PRO\ MQTT}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00051}00051\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00053}00053\ \textcolor{comment}{//\ NVS\ namespace\ a\ klíče\ pro\ MQTT\ konfiguraci}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00054}\mbox{\hyperlink{ha__light__task_8c_a296a7bbb8593405108b39d1ab6c0ecc6}{00054}}\ \textcolor{preprocessor}{\#define\ MQTT\_NVS\_NAMESPACE\ "{}mqtt\_config"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00055}\mbox{\hyperlink{ha__light__task_8c_a081583a2a1790d8fb1b2617f75e28001}{00055}}\ \textcolor{preprocessor}{\#define\ MQTT\_NVS\_KEY\_HOST\ "{}broker\_host"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00056}\mbox{\hyperlink{ha__light__task_8c_a86093592f3d60d17d74e7fb27193ea3a}{00056}}\ \textcolor{preprocessor}{\#define\ MQTT\_NVS\_KEY\_PORT\ "{}broker\_port"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00057}\mbox{\hyperlink{ha__light__task_8c_aeeff4bcf4d1d0b27a9da374befe7bc8d}{00057}}\ \textcolor{preprocessor}{\#define\ MQTT\_NVS\_KEY\_USERNAME\ "{}broker\_username"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00058}\mbox{\hyperlink{ha__light__task_8c_ab809ff3bf1caf2065817bd285c78889d}{00058}}\ \textcolor{preprocessor}{\#define\ MQTT\_NVS\_KEY\_PASSWORD\ "{}broker\_password"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00060}00060\ \textcolor{comment}{//\ Default\ hodnoty\ pro\ MQTT\ konfiguraci}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00061}\mbox{\hyperlink{ha__light__task_8c_a52bd6fcbbfadb261cdd62abc295f4dd5}{00061}}\ \textcolor{preprocessor}{\#define\ MQTT\_DEFAULT\_HOST\ "{}homeassistant.local"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00062}\mbox{\hyperlink{ha__light__task_8c_a47dbba2fb767e8362864895e3ce87a36}{00062}}\ \textcolor{preprocessor}{\#define\ MQTT\_DEFAULT\_PORT\ 1883}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00063}\mbox{\hyperlink{ha__light__task_8c_a67a711e15478d8d8ba7aa984947f1cd8}{00063}}\ \textcolor{preprocessor}{\#define\ MQTT\_DEFAULT\_USERNAME\ "{}"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00064}\mbox{\hyperlink{ha__light__task_8c_a38f208acaf4f9f771cf7e707488f8c29}{00064}}\ \textcolor{preprocessor}{\#define\ MQTT\_DEFAULT\_PASSWORD\ "{}"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00065}00065\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00066}00066\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00067}00067\ \textcolor{comment}{//\ GLOBALNI\ PROMENNE\ A\ STAV}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00068}00068\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00069}00069\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00070}00070\ \textcolor{comment}{//\ Task\ state}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00071}\mbox{\hyperlink{ha__light__task_8c_a35141cb45623cb3b7b4d96da35ed1831}{00071}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{animation__task_8c_a35141cb45623cb3b7b4d96da35ed1831}{task\_running}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00072}\mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{00072}}\ \textcolor{keyword}{static}\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588}{ha\_mode\_t}}\ \mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ =\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\_MODE\_GAME}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00074}00074\ \textcolor{comment}{//\ Activity\ tracking\ (5\ minut\ timer)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00075}\mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{00075}}\ \textcolor{keyword}{static}\ uint32\_t\ \mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\_activity\_time\_ms}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00076}00076\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00077}00077\ \textcolor{comment}{//\ WiFi\ STA\ status\ (shared\ with\ web\_server\_task\ via\ events)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00078}\mbox{\hyperlink{ha__light__task_8c_a738f5dc6c12f15f0149e08de59f48064}{00078}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{ha__light__task_8c_a738f5dc6c12f15f0149e08de59f48064}{sta\_connected}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00079}00079\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00080}00080\ \textcolor{comment}{//\ MQTT\ client}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00081}\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{00081}}\ \textcolor{keyword}{static}\ esp\_mqtt\_client\_handle\_t\ \mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00082}\mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{00082}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\_connected}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00083}00083\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00084}00084\ \textcolor{comment}{//\ HA\ Light\ state}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00085}00085\ \textcolor{keyword}{static}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00086}\mbox{\hyperlink{ha__light__task_8c_ab30ba07e2a0bd07a15e45a92c32db9c5}{00086}}\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{ha__light__task_8c_ab30ba07e2a0bd07a15e45a92c32db9c5}{state}};\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ on/off}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00087}\mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{00087}}\ \ \ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}};\ \textcolor{comment}{//\ 0-\/255}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00088}\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{00088}}\ \ \ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}};\ \ \ \ \textcolor{comment}{//\ RGB\ color}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00089}\mbox{\hyperlink{ha__light__task_8c_af7b0cb88246dfc40187f86c43e8d18f0}{00089}}\ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{ha__light__task_8c_af7b0cb88246dfc40187f86c43e8d18f0}{effect}}[32];\ \ \ \ \textcolor{comment}{//\ effect\ name}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00090}00090\ \}\ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}\ =\ \{.state\ =\ \textcolor{keyword}{true},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .brightness\ =\ 255,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .r\ =\ 255,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .g\ =\ 255,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .b\ =\ 255,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00095}\mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{00095}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .effect\ =\ \textcolor{stringliteral}{"{}solid"{}}\};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00096}00096\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00097}00097\ \textcolor{comment}{//\ MQTT\ konfigurace\ (načítá\ se\ z\ NVS)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00098}00098\ \textcolor{keyword}{static}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00099}\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{00099}}\ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}[128];\ \ \ \ \textcolor{comment}{//\ Broker\ hostname/IP}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00100}\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{00100}}\ \ \ uint16\_t\ \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}};\ \ \ \ \ \textcolor{comment}{//\ Broker\ port}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00101}\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{00101}}\ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}[64];\ \textcolor{comment}{//\ MQTT\ username\ (prázdné\ =\ bez\ auth)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00102}\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{00102}}\ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}[64];\ \textcolor{comment}{//\ MQTT\ password\ (prázdné\ =\ bez\ auth)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00103}\mbox{\hyperlink{ha__light__task_8c_a992c70a16169035bc9e2e8f9953d91ed}{00103}}\ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{ha__light__task_8c_a992c70a16169035bc9e2e8f9953d91ed}{loaded}};\ \ \ \ \ \ \ \textcolor{comment}{//\ Zda\ byla\ konfigurace\ načtena\ z\ NVS}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00104}00104\ \}\ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}\ =\ \{.host\ =\ \mbox{\hyperlink{ha__light__task_8c_a52bd6fcbbfadb261cdd62abc295f4dd5}{MQTT\_DEFAULT\_HOST}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .port\ =\ \mbox{\hyperlink{ha__light__task_8c_a47dbba2fb767e8362864895e3ce87a36}{MQTT\_DEFAULT\_PORT}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .username\ =\ \mbox{\hyperlink{ha__light__task_8c_a67a711e15478d8d8ba7aa984947f1cd8}{MQTT\_DEFAULT\_USERNAME}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .password\ =\ \mbox{\hyperlink{ha__light__task_8c_a38f208acaf4f9f771cf7e707488f8c29}{MQTT\_DEFAULT\_PASSWORD}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00108}\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{00108}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .loaded\ =\ \textcolor{keyword}{false}\};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00109}00109\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00110}00110\ \textcolor{comment}{//\ Externi\ fronty}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00111}00111\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00112}00112\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a1b93ff1badbca8962927cb6fd837463e}{matrix\_event\_queue}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00113}00113\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00114}00114\ \textcolor{comment}{//\ Interní\ fronta\ pro\ HA\ task}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00115}\mbox{\hyperlink{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4}{00115}}\ \textcolor{keyword}{static}\ QueueHandle\_t\ \mbox{\hyperlink{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4}{ha\_light\_cmd\_queue}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00116}00116\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00117}00117\ \textcolor{comment}{//\ Forward\ declarations}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00118}00118\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_a5a6bb92dacbf05bc953f9d712c939ed4}{ha\_light\_check\_activity\_timeout}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00119}00119\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_aff8e250ad01ba14909377eaea2f0dce6}{ha\_light\_switch\_to\_ha\_mode}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00120}00120\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_a33c86dd0c42ba70448023639e56096f0}{ha\_light\_switch\_to\_game\_mode}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00121}00121\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_a1819a1e1ebc04fa6179f55ee77454506}{ha\_light\_monitor\_game\_activity}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00122}00122\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{ha__light__task_8c_a687dd5b61866fa4896abac67db3944d9}{ha\_light\_check\_wifi\_sta\_connected}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00123}00123\ \textcolor{keyword}{static}\ esp\_err\_t\ \mbox{\hyperlink{ha__light__task_8c_ab445707e64ef5877d69ff4443c54bfd5}{ha\_light\_init\_mqtt}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00124}00124\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_aaa50395cd97ca2238e5b5a64d0583d07}{ha\_light\_mqtt\_event\_handler}}(\textcolor{keywordtype}{void}\ *handler\_args,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ esp\_event\_base\_t\ base,\ int32\_t\ event\_id,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ *event\_data);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00127}00127\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_ae13c9a71f7715bc11cf0c8dc511d7b33}{ha\_light\_handle\_mqtt\_command}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *topic,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *data,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ data\_len);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00129}00129\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b}{ha\_light\_publish\_state}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00130}00130\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00131}00131\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00132}00132\ \textcolor{comment}{//\ WDT\ HELPER\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00133}00133\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00134}00134\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00138}\mbox{\hyperlink{ha__light__task_8c_a220eb7a6a15e1c82a39c3128aeffa19f}{00138}}\ \textcolor{keyword}{static}\ esp\_err\_t\ \mbox{\hyperlink{ha__light__task_8c_a220eb7a6a15e1c82a39c3128aeffa19f}{ha\_light\_task\_wdt\_reset\_safe}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00139}00139\ \ \ esp\_err\_t\ ret\ =\ esp\_task\_wdt\_reset();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00140}00140\ \ \ \textcolor{keywordflow}{if}\ (ret\ ==\ ESP\_ERR\_NOT\_FOUND)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00141}00141\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}WDT\ reset:\ task\ not\ registered\ yet"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00142}00142\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00143}00143\ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00144}00144\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}WDT\ reset\ failed:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00145}00145\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00146}00146\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00147}00147\ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00148}00148\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00149}00149\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00150}00150\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00151}00151\ \textcolor{comment}{//\ WIFI\ STA\ STATUS\ CHECKING}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00152}00152\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00153}00153\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00159}\mbox{\hyperlink{ha__light__task_8c_a687dd5b61866fa4896abac67db3944d9}{00159}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{ha__light__task_8c_a687dd5b61866fa4896abac67db3944d9}{ha\_light\_check\_wifi\_sta\_connected}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00160}00160\ \ \ esp\_netif\_t\ *\mbox{\hyperlink{web__server__task_8c_a8475209c3d16d25790fc4b67e18f3f57}{sta\_netif}}\ =\ esp\_netif\_get\_handle\_from\_ifkey(\textcolor{stringliteral}{"{}WIFI\_STA\_DEF"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00161}00161\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{web__server__task_8c_a8475209c3d16d25790fc4b67e18f3f57}{sta\_netif}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00162}00162\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00163}00163\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00164}00164\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00165}00165\ \ \ esp\_netif\_ip\_info\_t\ ip\_info;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00166}00166\ \ \ esp\_err\_t\ ret\ =\ esp\_netif\_get\_ip\_info(\mbox{\hyperlink{web__server__task_8c_a8475209c3d16d25790fc4b67e18f3f57}{sta\_netif}},\ \&ip\_info);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00167}00167\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00168}00168\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00169}00169\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00170}00170\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00171}00171\ \ \ \textcolor{comment}{//\ Check\ if\ IP\ is\ valid\ (not\ 0.0.0.0)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00172}00172\ \ \ \textcolor{keywordflow}{if}\ (ip\_info.ip.addr\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00173}00173\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00174}00174\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00175}00175\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00176}00176\ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00177}00177\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00178}00178\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00179}00179\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00180}00180\ \textcolor{comment}{//\ ACTIVITY\ TRACKING}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00181}00181\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00182}00182\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00189}\mbox{\hyperlink{ha__light__task_8c_a1819a1e1ebc04fa6179f55ee77454506}{00189}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_a1819a1e1ebc04fa6179f55ee77454506}{ha\_light\_monitor\_game\_activity}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00190}00190\ \ \ \textcolor{comment}{//\ Activity\ monitoring\ is\ done\ via\ ha\_light\_report\_activity()\ calls\ from:}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00191}00191\ \ \ \textcolor{comment}{//\ -\/\ game\_task:\ when\ processing\ game\ commands}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00192}00192\ \ \ \textcolor{comment}{//\ -\/\ matrix\_task:\ when\ detecting\ piece\ movement}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00193}00193\ \ \ \textcolor{comment}{//\ We\ just\ check\ if\ we\ need\ to\ switch\ modes\ based\ on\ activity\ timeout}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00194}00194\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00195}00195\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00199}\mbox{\hyperlink{ha__light__task_8c_af2c48fb0be8e0af2ec8f26872bea2721}{00199}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_af2c48fb0be8e0af2ec8f26872bea2721}{ha\_light\_report\_activity}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *activity\_type)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00200}00200\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{animation__task_8c_a35141cb45623cb3b7b4d96da35ed1831}{task\_running}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00201}00201\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00202}00202\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00203}00203\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00204}00204\ \ \ \textcolor{comment}{//\ Keep\ this\ function\ lightweight:\ it\ may\ be\ called\ from\ input\ paths.}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00205}00205\ \ \ \textcolor{comment}{//\ Mode\ switching\ and\ LED\ refresh\ must\ happen\ in\ HA\ task\ context.}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00206}00206\ \ \ \mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\_activity\_time\_ms}}\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00207}00207\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00208}00208\ \ \ \textcolor{comment}{//\ CHECK:\ Rate\ limiting\ for\ activity\ reporting\ (max\ 1\ message\ per\ 500ms)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00209}00209\ \ \ \textcolor{keyword}{static}\ uint32\_t\ last\_report\_time\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00210}00210\ \ \ uint32\_t\ current\_time\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00211}00211\ \ \ \textcolor{keywordflow}{if}\ (current\_time\ -\/\ last\_report\_time\ <\ 500)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00212}00212\ \ \ \ \ \textcolor{keywordflow}{return};\ \textcolor{comment}{//\ Skip\ reporting\ if\ too\ frequent}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00213}00213\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00214}00214\ \ \ last\_report\_time\ =\ current\_time;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00215}00215\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00216}00216\ \ \ \textcolor{comment}{//\ Send\ simple\ command\ to\ queue\ -\/\ minimal\ overhead\ for\ caller}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00217}00217\ \ \ \mbox{\hyperlink{structha__light__command__t}{ha\_light\_command\_t}}\ cmd;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00218}00218\ \ \ cmd.\mbox{\hyperlink{structha__light__command__t_aa655a0a61f12692c31c68803ae070fcf}{type}}\ =\ 1;\ \textcolor{comment}{//\ 1\ =\ Activity\ Report\ (magic\ number\ but\ internal)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00219}00219\ \ \ \textcolor{comment}{//\ We\ don't\ need\ data\ for\ simple\ activity\ reset,\ but\ if\ we\ wanted\ to\ pass}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00220}00220\ \ \ \textcolor{comment}{//\ string:\ We\ can\ pass\ a\ static\ string\ pointer\ since\ most\ activity\ strings\ are}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00221}00221\ \ \ \textcolor{comment}{//\ literals.\ Warning:\ Do\ not\ pass\ stack\ buffers!}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00222}00222\ \ \ cmd.\mbox{\hyperlink{structha__light__command__t_ab0bc8ed3f5ca6cb30316a8163e8da184}{data}}\ =\ (\textcolor{keywordtype}{void}\ *)activity\_type;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00223}00223\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00224}00224\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4}{ha\_light\_cmd\_queue}}\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00225}00225\ \ \ \ \ xQueueSend(\mbox{\hyperlink{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4}{ha\_light\_cmd\_queue}},\ \&cmd,\ 0);\ \textcolor{comment}{//\ Non-\/blocking\ send}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00226}00226\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00227}00227\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00228}00228\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00232}\mbox{\hyperlink{ha__light__task_8c_a5a6bb92dacbf05bc953f9d712c939ed4}{00232}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_a5a6bb92dacbf05bc953f9d712c939ed4}{ha\_light\_check\_activity\_timeout}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00233}00233\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{animation__task_8c_a35141cb45623cb3b7b4d96da35ed1831}{task\_running}}\ ||\ \mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ ==\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588ab05fd74afbd0d17e1b0de540a49c60c5}{HA\_MODE\_HA}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00234}00234\ \ \ \ \ \textcolor{keywordflow}{return};\ \textcolor{comment}{//\ Already\ in\ HA\ mode\ or\ task\ not\ running}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00235}00235\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00236}00236\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00237}00237\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\_activity\_time\_ms}}\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00238}00238\ \ \ \ \ \textcolor{comment}{//\ First\ run\ -\/\ initialize\ timer}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00239}00239\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\_activity\_time\_ms}}\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00240}00240\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00241}00241\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00242}00242\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00243}00243\ \ \ uint32\_t\ current\_time\_ms\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00244}00244\ \ \ uint32\_t\ elapsed\_ms\ =\ current\_time\_ms\ -\/\ \mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\_activity\_time\_ms}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00245}00245\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00246}00246\ \ \ \textcolor{keywordflow}{if}\ (elapsed\_ms\ >=\ \mbox{\hyperlink{ha__light__task_8h_a59a4f99e5382fed36fc539ce0b1b79c5}{HA\_ACTIVITY\_TIMEOUT\_AUTO\_MS}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00247}00247\ \ \ \ \ \textcolor{comment}{//\ 10\ minutes\ passed\ -\/\ auto-\/switch\ to\ HA\ mode}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00248}00248\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a687dd5b61866fa4896abac67db3944d9}{ha\_light\_check\_wifi\_sta\_connected}}())\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00249}00249\ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}10\ minute\ timeout\ reached\ -\/\ auto-\/switching\ to\ HA\ mode"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00250}00250\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_aff8e250ad01ba14909377eaea2f0dce6}{ha\_light\_switch\_to\_ha\_mode}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00251}00251\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00252}00252\ \ \ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}5\ minute\ timeout\ reached\ but\ WiFi\ STA\ not\ connected\ -\/\ "{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00253}00253\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}staying\ in\ GAME\ mode"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00254}00254\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00255}00255\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00256}00256\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00257}00257\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00258}00258\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00259}00259\ \textcolor{comment}{//\ MODE\ SWITCHING}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00260}00260\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00261}00261\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00267}\mbox{\hyperlink{ha__light__task_8c_aff8e250ad01ba14909377eaea2f0dce6}{00267}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_aff8e250ad01ba14909377eaea2f0dce6}{ha\_light\_switch\_to\_ha\_mode}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00268}00268\ \ \ \textcolor{keywordtype}{bool}\ mode\_changed\ =\ (\mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ !=\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588ab05fd74afbd0d17e1b0de540a49c60c5}{HA\_MODE\_HA}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00269}00269\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00270}00270\ \ \ \textcolor{keywordflow}{if}\ (mode\_changed)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00271}00271\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Switching\ to\ HA\ MODE"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00272}00272\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00273}00273\ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ =\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588ab05fd74afbd0d17e1b0de540a49c60c5}{HA\_MODE\_HA}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00274}00274\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00275}00275\ \ \ \textcolor{comment}{//\ Apply\ HA\ color/state\ to\ all\ 64\ board\ LEDs}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00276}00276\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.state)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00277}00277\ \ \ \ \ \textcolor{comment}{//\ ON:\ Apply\ RGB\ color\ with\ brightness}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00278}00278\ \ \ \ \ \mbox{\hyperlink{led__task_8h_acd139d9f40454ed76aa1f080f2299d07}{led\_set\_ha\_color}}(\mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.r,\ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.g,\ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.b,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00279}00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.brightness);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00280}00280\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00281}00281\ \ \ \ \ \textcolor{comment}{//\ OFF:\ Turn\ all\ LEDs\ off\ (black)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00282}00282\ \ \ \ \ \mbox{\hyperlink{led__task_8h_acd139d9f40454ed76aa1f080f2299d07}{led\_set\_ha\_color}}(0,\ 0,\ 0,\ 0);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00283}00283\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00284}00284\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00285}00285\ \ \ \textcolor{comment}{//\ Publish\ state\ update}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00286}00286\ \ \ \mbox{\hyperlink{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b}{ha\_light\_publish\_state}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00287}00287\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00288}00288\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00294}\mbox{\hyperlink{ha__light__task_8c_a33c86dd0c42ba70448023639e56096f0}{00294}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_a33c86dd0c42ba70448023639e56096f0}{ha\_light\_switch\_to\_game\_mode}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00295}00295\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ ==\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\_MODE\_GAME}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00296}00296\ \ \ \ \ \textcolor{keywordflow}{return};\ \textcolor{comment}{//\ Already\ in\ game\ mode}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00297}00297\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00298}00298\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00299}00299\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Switching\ to\ GAME\ MODE"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00300}00300\ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ =\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\_MODE\_GAME}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00301}00301\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00302}00302\ \ \ \textcolor{comment}{//\ Restore\ game\ LED\ state\ (refresh\ based\ on\ current\ game\ status)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00303}00303\ \ \ \mbox{\hyperlink{game__task_8c_a8b7aa3018c0775246c6fe867f3ae6af1}{game\_refresh\_leds}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00304}00304\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00305}00305\ \ \ \textcolor{comment}{//\ Obnovit\ tlačítka\ (zelená/modrá/červená\ podle\ dostupnosti\ a\ stisku)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00306}00306\ \ \ \mbox{\hyperlink{led__task_8h_acffe67fadfe40ddc4c14618edebeedf8}{led\_refresh\_all\_button\_leds}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00307}00307\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00308}00308\ \ \ \textcolor{comment}{//\ Publish\ state\ update}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00309}00309\ \ \ \mbox{\hyperlink{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b}{ha\_light\_publish\_state}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00310}00310\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00311}00311\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00312}00312\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00313}00313\ \textcolor{comment}{//\ MQTT\ NVS\ KONFIGURACE\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00314}00314\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00315}00315\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00329}\mbox{\hyperlink{ha__light__task_8c_ad61c60d5f24e8689c8607c69c989b761}{00329}}\ \textcolor{keyword}{static}\ esp\_err\_t\ \mbox{\hyperlink{ha__light__task_8c_ad61c60d5f24e8689c8607c69c989b761}{mqtt\_load\_config\_from\_nvs}}(\textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ \textcolor{keywordtype}{size\_t}\ host\_len,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00330}00330\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint16\_t\ *\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}},\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00331}00331\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ username\_len,\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00332}00332\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ password\_len)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00333}00333\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}\ ==\ NULL\ ||\ \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}\ ==\ NULL\ ||\ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}\ ==\ NULL\ ||\ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}\ ==\ NULL\ ||}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00334}00334\ \ \ \ \ \ \ host\_len\ ==\ 0\ ||\ username\_len\ ==\ 0\ ||\ password\_len\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00335}00335\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Invalid\ parameters\ for\ mqtt\_load\_config\_from\_nvs"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00336}00336\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00337}00337\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00338}00338\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00339}00339\ \ \ nvs\_handle\_t\ nvs\_handle;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00340}00340\ \ \ esp\_err\_t\ ret\ =\ nvs\_open(\mbox{\hyperlink{ha__light__task_8c_a296a7bbb8593405108b39d1ab6c0ecc6}{MQTT\_NVS\_NAMESPACE}},\ NVS\_READONLY,\ \&nvs\_handle);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00341}00341\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00342}00342\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ config\ not\ found\ in\ NVS,\ using\ defaults"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00343}00343\ \ \ \ \ \textcolor{comment}{//\ Vrátit\ default\ hodnoty}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00344}00344\ \ \ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ \mbox{\hyperlink{ha__light__task_8c_a52bd6fcbbfadb261cdd62abc295f4dd5}{MQTT\_DEFAULT\_HOST}},\ host\_len\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00345}00345\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}[host\_len\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00346}00346\ \ \ \ \ *\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}\ =\ \mbox{\hyperlink{ha__light__task_8c_a47dbba2fb767e8362864895e3ce87a36}{MQTT\_DEFAULT\_PORT}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00347}00347\ \ \ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},\ \mbox{\hyperlink{ha__light__task_8c_a67a711e15478d8d8ba7aa984947f1cd8}{MQTT\_DEFAULT\_USERNAME}},\ username\_len\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00348}00348\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}[username\_len\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00349}00349\ \ \ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}},\ \mbox{\hyperlink{ha__light__task_8c_a38f208acaf4f9f771cf7e707488f8c29}{MQTT\_DEFAULT\_PASSWORD}},\ password\_len\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00350}00350\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}[password\_len\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00351}00351\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NOT\_FOUND;\ \textcolor{comment}{//\ Není\ v\ NVS,\ ale\ vrátil\ defaults}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00352}00352\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00353}00353\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00354}00354\ \ \ \textcolor{comment}{//\ Načíst\ host}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00355}00355\ \ \ \textcolor{keywordtype}{size\_t}\ required\_size\ =\ host\_len;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00356}00356\ \ \ ret\ =\ nvs\_get\_str(nvs\_handle,\ \mbox{\hyperlink{ha__light__task_8c_a081583a2a1790d8fb1b2617f75e28001}{MQTT\_NVS\_KEY\_HOST}},\ \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ \&required\_size);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00357}00357\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00358}00358\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ get\ MQTT\ host\ from\ NVS,\ using\ default"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00359}00359\ \ \ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ \mbox{\hyperlink{ha__light__task_8c_a52bd6fcbbfadb261cdd62abc295f4dd5}{MQTT\_DEFAULT\_HOST}},\ host\_len\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00360}00360\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}[host\_len\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00361}00361\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00362}00362\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00363}00363\ \ \ \textcolor{comment}{//\ Načíst\ port}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00364}00364\ \ \ uint32\_t\ port\_val\ =\ \mbox{\hyperlink{ha__light__task_8c_a47dbba2fb767e8362864895e3ce87a36}{MQTT\_DEFAULT\_PORT}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00365}00365\ \ \ ret\ =\ nvs\_get\_u32(nvs\_handle,\ \mbox{\hyperlink{ha__light__task_8c_a86093592f3d60d17d74e7fb27193ea3a}{MQTT\_NVS\_KEY\_PORT}},\ \&port\_val);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00366}00366\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK\ ||\ port\_val\ ==\ 0\ ||\ port\_val\ >\ 65535)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00367}00367\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ get\ MQTT\ port\ from\ NVS,\ using\ default"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00368}00368\ \ \ \ \ port\_val\ =\ \mbox{\hyperlink{ha__light__task_8c_a47dbba2fb767e8362864895e3ce87a36}{MQTT\_DEFAULT\_PORT}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00369}00369\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00370}00370\ \ \ *\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}\ =\ (uint16\_t)port\_val;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00371}00371\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00372}00372\ \ \ \textcolor{comment}{//\ Načíst\ username\ (volitelné\ -\/\ může\ být\ prázdné)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00373}00373\ \ \ required\_size\ =\ username\_len;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00374}00374\ \ \ ret\ =}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00375}00375\ \ \ \ \ \ \ nvs\_get\_str(nvs\_handle,\ \mbox{\hyperlink{ha__light__task_8c_aeeff4bcf4d1d0b27a9da374befe7bc8d}{MQTT\_NVS\_KEY\_USERNAME}},\ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},\ \&required\_size);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00376}00376\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00377}00377\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ username\ not\ in\ NVS,\ using\ empty"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00378}00378\ \ \ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},\ \mbox{\hyperlink{ha__light__task_8c_a67a711e15478d8d8ba7aa984947f1cd8}{MQTT\_DEFAULT\_USERNAME}},\ username\_len\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00379}00379\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}[username\_len\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00380}00380\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00381}00381\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00382}00382\ \ \ \textcolor{comment}{//\ Načíst\ password\ (volitelné\ -\/\ může\ být\ prázdné)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00383}00383\ \ \ required\_size\ =\ password\_len;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00384}00384\ \ \ ret\ =}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00385}00385\ \ \ \ \ \ \ nvs\_get\_str(nvs\_handle,\ \mbox{\hyperlink{ha__light__task_8c_ab809ff3bf1caf2065817bd285c78889d}{MQTT\_NVS\_KEY\_PASSWORD}},\ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}},\ \&required\_size);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00386}00386\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00387}00387\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ password\ not\ in\ NVS,\ using\ empty"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00388}00388\ \ \ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}},\ \mbox{\hyperlink{ha__light__task_8c_a38f208acaf4f9f771cf7e707488f8c29}{MQTT\_DEFAULT\_PASSWORD}},\ password\_len\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00389}00389\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}[password\_len\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00390}00390\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00391}00391\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00392}00392\ \ \ nvs\_close(nvs\_handle);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00393}00393\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ config\ loaded\ from\ NVS:\ host=\%s,\ port=\%d,\ username=\%s"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00394}00394\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ *\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}},\ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}[0]\ ?\ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}\ :\ \textcolor{stringliteral}{"{}(empty)"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00395}00395\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00396}00396\ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00397}00397\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00398}00398\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00408}\mbox{\hyperlink{ha__light__task_8c_ad116a346513e475c7ffe3e5137a18d0d}{00408}}\ esp\_err\_t\ \mbox{\hyperlink{ha__light__task_8c_ad116a346513e475c7ffe3e5137a18d0d}{mqtt\_save\_config\_to\_nvs}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ uint16\_t\ \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00409}00409\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00410}00410\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}\ ==\ NULL\ ||\ \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00411}00411\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Invalid\ parameters:\ host\ is\ NULL\ or\ port\ is\ 0"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00412}00412\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00413}00413\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00414}00414\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00415}00415\ \ \ \textcolor{keywordtype}{size\_t}\ host\_len\ =\ strlen(\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00416}00416\ \ \ \textcolor{keywordflow}{if}\ (host\_len\ ==\ 0\ ||\ host\_len\ >\ 127)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00417}00417\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Invalid\ host\ length:\ \%zu\ (must\ be\ 1-\/127)"{}},\ host\_len);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00418}00418\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00419}00419\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00420}00420\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00421}00421\ \ \ \textcolor{comment}{//\ Validovat\ username/password\ pokud\ jsou\ nastavené}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00422}00422\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00423}00423\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ username\_len\ =\ strlen(\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00424}00424\ \ \ \ \ \textcolor{keywordflow}{if}\ (username\_len\ >\ 63)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00425}00425\ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Invalid\ username\ length:\ \%zu\ (max\ 63)"{}},\ username\_len);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00426}00426\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00427}00427\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00428}00428\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00429}00429\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00430}00430\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00431}00431\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ password\_len\ =\ strlen(\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00432}00432\ \ \ \ \ \textcolor{keywordflow}{if}\ (password\_len\ >\ 63)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00433}00433\ \ \ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Invalid\ password\ length:\ \%zu\ (max\ 63)"{}},\ password\_len);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00434}00434\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00435}00435\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00436}00436\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00437}00437\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00438}00438\ \ \ nvs\_handle\_t\ nvs\_handle;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00439}00439\ \ \ esp\_err\_t\ ret\ =\ nvs\_open(\mbox{\hyperlink{ha__light__task_8c_a296a7bbb8593405108b39d1ab6c0ecc6}{MQTT\_NVS\_NAMESPACE}},\ NVS\_READWRITE,\ \&nvs\_handle);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00440}00440\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00441}00441\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ open\ NVS:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00442}00442\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00443}00443\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00444}00444\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00445}00445\ \ \ \textcolor{comment}{//\ Uložit\ host}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00446}00446\ \ \ ret\ =\ nvs\_set\_str(nvs\_handle,\ \mbox{\hyperlink{ha__light__task_8c_a081583a2a1790d8fb1b2617f75e28001}{MQTT\_NVS\_KEY\_HOST}},\ \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00447}00447\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00448}00448\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ set\ MQTT\ host\ in\ NVS:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00449}00449\ \ \ \ \ nvs\_close(nvs\_handle);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00450}00450\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00451}00451\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00452}00452\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00453}00453\ \ \ \textcolor{comment}{//\ Uložit\ port}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00454}00454\ \ \ ret\ =\ nvs\_set\_u32(nvs\_handle,\ \mbox{\hyperlink{ha__light__task_8c_a86093592f3d60d17d74e7fb27193ea3a}{MQTT\_NVS\_KEY\_PORT}},\ (uint32\_t)\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00455}00455\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00456}00456\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ set\ MQTT\ port\ in\ NVS:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00457}00457\ \ \ \ \ nvs\_close(nvs\_handle);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00458}00458\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00459}00459\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00460}00460\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00461}00461\ \ \ \textcolor{comment}{//\ Uložit\ username\ (pokud\ je\ nastavený,\ jinak\ uložit\ prázdný\ string)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00462}00462\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *username\_to\_save\ =}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00463}00463\ \ \ \ \ \ \ (\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}\ !=\ NULL\ \&\&\ strlen(\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}})\ >\ 0)\ ?\ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}\ :\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00464}00464\ \ \ ret\ =\ nvs\_set\_str(nvs\_handle,\ \mbox{\hyperlink{ha__light__task_8c_aeeff4bcf4d1d0b27a9da374befe7bc8d}{MQTT\_NVS\_KEY\_USERNAME}},\ username\_to\_save);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00465}00465\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00466}00466\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ set\ MQTT\ username\ in\ NVS:\ \%s"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00467}00467\ \ \ \ \ \ \ \ \ \ \ \ \ \ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00468}00468\ \ \ \ \ nvs\_close(nvs\_handle);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00469}00469\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00470}00470\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00471}00471\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00472}00472\ \ \ \textcolor{comment}{//\ Uložit\ password\ (pokud\ je\ nastavený,\ jinak\ uložit\ prázdný\ string)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00473}00473\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *password\_to\_save\ =}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00474}00474\ \ \ \ \ \ \ (\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}\ !=\ NULL\ \&\&\ strlen(\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}})\ >\ 0)\ ?\ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}\ :\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00475}00475\ \ \ ret\ =\ nvs\_set\_str(nvs\_handle,\ \mbox{\hyperlink{ha__light__task_8c_ab809ff3bf1caf2065817bd285c78889d}{MQTT\_NVS\_KEY\_PASSWORD}},\ password\_to\_save);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00476}00476\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00477}00477\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ set\ MQTT\ password\ in\ NVS:\ \%s"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00478}00478\ \ \ \ \ \ \ \ \ \ \ \ \ \ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00479}00479\ \ \ \ \ nvs\_close(nvs\_handle);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00480}00480\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00481}00481\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00482}00482\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00483}00483\ \ \ ret\ =\ nvs\_commit(nvs\_handle);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00484}00484\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00485}00485\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ commit\ NVS:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00486}00486\ \ \ \ \ nvs\_close(nvs\_handle);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00487}00487\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00488}00488\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00489}00489\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00490}00490\ \ \ nvs\_close(nvs\_handle);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00491}00491\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ config\ saved\ to\ NVS:\ host=\%s,\ port=\%d,\ username=\%s"{}},\ \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00492}00492\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}},\ username\_to\_save[0]\ ?\ username\_to\_save\ :\ \textcolor{stringliteral}{"{}(empty)"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00493}00493\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00494}00494\ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00495}00495\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00496}00496\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00497}00497\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00498}00498\ \textcolor{comment}{//\ MQTT\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00499}00499\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00500}00500\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00504}\mbox{\hyperlink{ha__light__task_8c_a0f43fcd5e5a6b5aa88a40bfbf987d381}{00504}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_a0f43fcd5e5a6b5aa88a40bfbf987d381}{ha\_light\_publish\_discovery}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00505}00505\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\_connected}}\ ||\ \mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00506}00506\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00507}00507\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00508}00508\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00509}00509\ \ \ \textcolor{comment}{//\ Get\ MAC\ address\ for\ unique\ ID}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00510}00510\ \ \ uint8\_t\ mac\_raw[6];}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00511}00511\ \ \ esp\_read\_mac(mac\_raw,\ ESP\_MAC\_WIFI\_STA);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00512}00512\ \ \ \textcolor{keywordtype}{char}\ mac\_str[13];}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00513}00513\ \ \ snprintf(mac\_str,\ \textcolor{keyword}{sizeof}(mac\_str),\ \textcolor{stringliteral}{"{}\%02x\%02x\%02x\%02x\%02x\%02x"{}},\ mac\_raw[0],}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00514}00514\ \ \ \ \ \ \ \ \ \ \ \ mac\_raw[1],\ mac\_raw[2],\ mac\_raw[3],\ mac\_raw[4],\ mac\_raw[5]);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00515}00515\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00516}00516\ \ \ \textcolor{comment}{//\ Construct\ unique\ ID\ and\ name}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00517}00517\ \ \ \textcolor{keywordtype}{char}\ unique\_id[64];}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00518}00518\ \ \ snprintf(unique\_id,\ \textcolor{keyword}{sizeof}(unique\_id),\ \textcolor{stringliteral}{"{}esp32\_chess\_light\_\%s"{}},\ mac\_str);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00519}00519\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00520}00520\ \ \ \textcolor{comment}{//\ Construct\ discovery\ topic:\ homeassistant/light/[node\_id]/config}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00521}00521\ \ \ \textcolor{keywordtype}{char}\ discovery\_topic[128];}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00522}00522\ \ \ snprintf(discovery\_topic,\ \textcolor{keyword}{sizeof}(discovery\_topic),\ \textcolor{stringliteral}{"{}\%s/\%s/\%s/config"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00523}00523\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8h_accaea9ff6b9f1de5ca1c5625eab21cf4}{HA\_DISCOVERY\_PREFIX}},\ \mbox{\hyperlink{ha__light__task_8h_a88f6ce72b1c205860c6f824cf2b23d8e}{HA\_COMPONENT\_LIGHT}},\ unique\_id);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00524}00524\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00525}00525\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Publishing\ HA\ Discovery\ to\ \%s"{}},\ discovery\_topic);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00526}00526\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00527}00527\ \ \ \textcolor{comment}{//\ Create\ JSON\ payload}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00528}00528\ \ \ cJSON\ *json\ =\ cJSON\_CreateObject();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00529}00529\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}name"{}},\ \textcolor{stringliteral}{"{}CzechMate"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00530}00530\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}unique\_id"{}},\ unique\_id);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00531}00531\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}command\_topic"{}},\ \mbox{\hyperlink{ha__light__task_8h_a8252c914f758fbce0485c28d94e84b0c}{HA\_TOPIC\_LIGHT\_COMMAND}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00532}00532\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}state\_topic"{}},\ \mbox{\hyperlink{ha__light__task_8h_ac8d834caaa63c1dfab5bfbdaf442f78f}{HA\_TOPIC\_LIGHT\_STATE}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00533}00533\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}availability\_topic"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00534}00534\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8h_ac2d5de1749d4171f82324a7276f6fb14}{HA\_TOPIC\_LIGHT\_AVAILABILITY}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00535}00535\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}payload\_available"{}},\ \mbox{\hyperlink{ha__light__task_8h_a6e17c7afd5219d2aad45fa7d87822f3b}{HA\_MQTT\_PAYLOAD\_ONLINE}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00536}00536\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}payload\_not\_available"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00537}00537\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8h_a6842398162d1d365ca5d5c711ecb6145}{HA\_MQTT\_PAYLOAD\_OFFLINE}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00538}00538\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}schema"{}},\ \textcolor{stringliteral}{"{}json"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00539}00539\ \ \ cJSON\_AddBoolToObject(json,\ \textcolor{stringliteral}{"{}brightness"{}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00540}00540\ \ \ cJSON\_AddBoolToObject(json,\ \textcolor{stringliteral}{"{}color\_mode"{}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00541}00541\ \ \ cJSON\ *color\_modes\ =\ cJSON\_CreateArray();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00542}00542\ \ \ cJSON\_AddItemToArray(color\_modes,\ cJSON\_CreateString(\textcolor{stringliteral}{"{}rgb"{}}));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00543}00543\ \ \ cJSON\_AddItemToObject(json,\ \textcolor{stringliteral}{"{}supported\_color\_modes"{}},\ color\_modes);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00544}00544\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00545}00545\ \ \ \textcolor{comment}{//\ Effect\ support}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00546}00546\ \ \ cJSON\_AddBoolToObject(json,\ \textcolor{stringliteral}{"{}effect"{}},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00547}00547\ \ \ cJSON\ *effects\ =\ cJSON\_CreateArray();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00548}00548\ \ \ cJSON\_AddItemToArray(effects,\ cJSON\_CreateString(\textcolor{stringliteral}{"{}rainbow"{}}));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00549}00549\ \ \ cJSON\_AddItemToArray(effects,\ cJSON\_CreateString(\textcolor{stringliteral}{"{}pulse"{}}));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00550}00550\ \ \ cJSON\_AddItemToArray(effects,\ cJSON\_CreateString(\textcolor{stringliteral}{"{}static"{}}));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00551}00551\ \ \ cJSON\_AddItemToObject(json,\ \textcolor{stringliteral}{"{}effect\_list"{}},\ effects);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00552}00552\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00553}00553\ \ \ \textcolor{comment}{//\ Device\ info}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00554}00554\ \ \ cJSON\ *device\ =\ cJSON\_CreateObject();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00555}00555\ \ \ cJSON\_AddStringToObject(device,\ \textcolor{stringliteral}{"{}identifiers"{}},\ unique\_id);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00556}00556\ \ \ cJSON\_AddStringToObject(device,\ \textcolor{stringliteral}{"{}name"{}},\ \textcolor{stringliteral}{"{}ESP32\ Chess\ System"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00557}00557\ \ \ cJSON\_AddStringToObject(device,\ \textcolor{stringliteral}{"{}manufacturer"{}},\ \mbox{\hyperlink{ha__light__task_8h_a2d3c04b509cf1d7315195a4cbcdd20a3}{HA\_DEVICE\_MANUFACTURER}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00558}00558\ \ \ cJSON\_AddStringToObject(device,\ \textcolor{stringliteral}{"{}model"{}},\ \mbox{\hyperlink{ha__light__task_8h_a166cbf522b7a67a3c366f928e06d66c3}{HA\_DEVICE\_MODEL}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00559}00559\ \ \ cJSON\_AddStringToObject(device,\ \textcolor{stringliteral}{"{}sw\_version"{}},\ \mbox{\hyperlink{ha__light__task_8h_a5303289f6afee06f476293223b01b8bb}{HA\_DEVICE\_SW\_VERSION}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00560}00560\ \ \ cJSON\_AddItemToObject(json,\ \textcolor{stringliteral}{"{}device"{}},\ device);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00561}00561\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00562}00562\ \ \ \textcolor{keywordtype}{char}\ *json\_str\ =\ cJSON\_PrintUnformatted(json);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00563}00563\ \ \ \textcolor{keywordflow}{if}\ (json\_str\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00564}00564\ \ \ \ \ \textcolor{comment}{//\ Publish\ with\ retain=true\ so\ HA\ picks\ it\ up\ anytime}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00565}00565\ \ \ \ \ esp\_mqtt\_client\_publish(\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}},\ discovery\_topic,\ json\_str,\ 0,\ 1,\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00566}00566\ \ \ \ \ free(json\_str);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00567}00567\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00568}00568\ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00569}00569\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00570}00570\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00574}\mbox{\hyperlink{ha__light__task_8c_aaa50395cd97ca2238e5b5a64d0583d07}{00574}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_aaa50395cd97ca2238e5b5a64d0583d07}{ha\_light\_mqtt\_event\_handler}}(\textcolor{keywordtype}{void}\ *handler\_args,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00575}00575\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ esp\_event\_base\_t\ base,\ int32\_t\ event\_id,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00576}00576\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ *event\_data)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00577}00577\ \ \ esp\_mqtt\_event\_handle\_t\ \textcolor{keyword}{event}\ =\ (esp\_mqtt\_event\_handle\_t)event\_data;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00578}00578\ \ \ esp\_mqtt\_client\_handle\_t\ client\ =\ \textcolor{keyword}{event}-\/>client;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00579}00579\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00580}00580\ \ \ \textcolor{keywordflow}{switch}\ ((esp\_mqtt\_event\_id\_t)event\_id)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00581}00581\ \ \ \textcolor{keywordflow}{case}\ MQTT\_EVENT\_CONNECTED:}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00582}00582\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ Connected"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00583}00583\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\_connected}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00584}00584\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00585}00585\ \ \ \ \ \textcolor{comment}{//\ Subscribe\ to\ light\ command\ topic}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00586}00586\ \ \ \ \ esp\_mqtt\_client\_subscribe(client,\ \mbox{\hyperlink{ha__light__task_8h_a8252c914f758fbce0485c28d94e84b0c}{HA\_TOPIC\_LIGHT\_COMMAND}},\ 0);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00587}00587\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Subscribed\ to\ \%s"{}},\ \mbox{\hyperlink{ha__light__task_8h_a8252c914f758fbce0485c28d94e84b0c}{HA\_TOPIC\_LIGHT\_COMMAND}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00588}00588\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00589}00589\ \ \ \ \ \textcolor{comment}{//\ Publish\ Auto-\/Discovery\ Config}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00590}00590\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a0f43fcd5e5a6b5aa88a40bfbf987d381}{ha\_light\_publish\_discovery}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00591}00591\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00592}00592\ \ \ \ \ \textcolor{comment}{//\ Publish\ availability:\ online}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00593}00593\ \ \ \ \ esp\_mqtt\_client\_publish(client,\ \mbox{\hyperlink{ha__light__task_8h_ac2d5de1749d4171f82324a7276f6fb14}{HA\_TOPIC\_LIGHT\_AVAILABILITY}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00594}00594\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8h_a6e17c7afd5219d2aad45fa7d87822f3b}{HA\_MQTT\_PAYLOAD\_ONLINE}},\ 0,\ 1,\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00595}00595\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00596}00596\ \ \ \ \ \textcolor{comment}{//\ Publish\ initial\ state}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00597}00597\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b}{ha\_light\_publish\_state}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00598}00598\ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00599}00599\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00600}00600\ \ \ \textcolor{keywordflow}{case}\ MQTT\_EVENT\_DISCONNECTED:}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00601}00601\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ Disconnected"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00602}00602\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\_connected}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00603}00603\ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00604}00604\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00605}00605\ \ \ \textcolor{keywordflow}{case}\ MQTT\_EVENT\_DATA:}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00606}00606\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ DATA:\ topic=\%.*s,\ data=\%.*s"{}},\ event-\/>topic\_len,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00607}00607\ \ \ \ \ \ \ \ \ \ \ \ \ \ event-\/>topic,\ event-\/>data\_len,\ event-\/>data);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00608}00608\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00609}00609\ \ \ \ \ \textcolor{comment}{//\ Handle\ command}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00610}00610\ \ \ \ \ \textcolor{keywordtype}{char}\ topic[128]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00611}00611\ \ \ \ \ \textcolor{keywordtype}{char}\ data[512]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00612}00612\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00613}00613\ \ \ \ \ \textcolor{keywordflow}{if}\ (event-\/>topic\_len\ <\ \textcolor{keyword}{sizeof}(topic)\ \&\&\ event-\/>data\_len\ <\ \textcolor{keyword}{sizeof}(data))\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00614}00614\ \ \ \ \ \ \ memcpy(topic,\ event-\/>topic,\ event-\/>topic\_len);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00615}00615\ \ \ \ \ \ \ memcpy(data,\ event-\/>data,\ event-\/>data\_len);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00616}00616\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_ae13c9a71f7715bc11cf0c8dc511d7b33}{ha\_light\_handle\_mqtt\_command}}(topic,\ data,\ event-\/>data\_len);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00617}00617\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00618}00618\ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00619}00619\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00620}00620\ \ \ \textcolor{keywordflow}{case}\ MQTT\_EVENT\_ERROR:}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00621}00621\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ Error"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00622}00622\ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00623}00623\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00624}00624\ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00625}00625\ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00626}00626\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00627}00627\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00628}00628\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00632}\mbox{\hyperlink{ha__light__task_8c_ae13c9a71f7715bc11cf0c8dc511d7b33}{00632}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_ae13c9a71f7715bc11cf0c8dc511d7b33}{ha\_light\_handle\_mqtt\_command}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *topic,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *data,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00633}00633\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ data\_len)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00634}00634\ \ \ \textcolor{keywordflow}{if}\ (strcmp(topic,\ \mbox{\hyperlink{ha__light__task_8h_a8252c914f758fbce0485c28d94e84b0c}{HA\_TOPIC\_LIGHT\_COMMAND}})\ !=\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00635}00635\ \ \ \ \ \textcolor{keywordflow}{return};\ \textcolor{comment}{//\ Not\ our\ topic}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00636}00636\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00637}00637\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00638}00638\ \ \ \textcolor{comment}{//\ Check\ if\ we\ can\ apply\ HA\ command\ during\ GAME\ mode}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00639}00639\ \ \ \textcolor{keywordtype}{bool}\ can\_apply\_command\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00640}00640\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ ==\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\_MODE\_GAME}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00641}00641\ \ \ \ \ uint32\_t\ current\_time\_ms\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00642}00642\ \ \ \ \ uint32\_t\ idle\_ms\ =\ current\_time\_ms\ -\/\ \mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\_activity\_time\_ms}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00643}00643\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00644}00644\ \ \ \ \ \textcolor{keywordflow}{if}\ (idle\_ms\ >=\ \mbox{\hyperlink{ha__light__task_8h_a59e49211d6a9fc9ca8c1481be531753d}{HA\_ACTIVITY\_TIMEOUT\_COMMAND\_MS}}\ ||}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00645}00645\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__task_8c_a2e528b3b66fe59544f28ca993c4a6143}{game\_get\_move\_count}}()\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00646}00646\ \ \ \ \ \ \ \textcolor{comment}{//\ Idle\ ≥\ 2min\ OR\ no\ moves\ yet\ →\ allow\ switch\ to\ HA\ mode}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00647}00647\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{game__task_8c_a2e528b3b66fe59544f28ca993c4a6143}{game\_get\_move\_count}}()\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00648}00648\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00649}00649\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}HA\ command\ accepted\ immediately\ (game\ not\ started,\ moves=0)"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00650}00650\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00651}00651\ \ \ \ \ \ \ \ \ ESP\_LOGI(}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00652}00652\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00653}00653\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}HA\ command\ after\ \%lu\ ms\ idle\ (≥2min)\ -\/\ will\ switch\ to\ HA\ mode"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00654}00654\ \ \ \ \ \ \ \ \ \ \ \ \ idle\_ms);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00655}00655\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00656}00656\ \ \ \ \ \ \ can\_apply\_command\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00657}00657\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00658}00658\ \ \ \ \ \ \ \textcolor{comment}{//\ Idle\ <\ 2min\ AND\ game\ in\ progress\ →\ ignore\ command\ (game\ has\ priority)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00659}00659\ \ \ \ \ \ \ ESP\_LOGI(}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00660}00660\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00661}00661\ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}HA\ command\ IGNORED\ (game\ active,\ moves=\%lu,\ idle=\%lu\ ms\ <\ 2min)"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00662}00662\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{game__task_8c_a2e528b3b66fe59544f28ca993c4a6143}{game\_get\_move\_count}}(),\ idle\_ms);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00663}00663\ \ \ \ \ \ \ can\_apply\_command\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00664}00664\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00665}00665\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00666}00666\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00667}00667\ \ \ \textcolor{comment}{//\ Parse\ JSON}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00668}00668\ \ \ cJSON\ *json\ =\ cJSON\_ParseWithLength(data,\ data\_len);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00669}00669\ \ \ \textcolor{keywordflow}{if}\ (json\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00670}00670\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ parse\ MQTT\ JSON"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00671}00671\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00672}00672\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00673}00673\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00674}00674\ \ \ \textcolor{comment}{//\ Parse\ state\ (on/off)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00675}00675\ \ \ cJSON\ *state\_item\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}state"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00676}00676\ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsString(state\_item))\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00677}00677\ \ \ \ \ \textcolor{keywordflow}{if}\ (strcasecmp(state\_item-\/>valuestring,\ \textcolor{stringliteral}{"{}ON"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00678}00678\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.state\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00679}00679\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcasecmp(state\_item-\/>valuestring,\ \textcolor{stringliteral}{"{}OFF"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00680}00680\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.state\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00681}00681\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00682}00682\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00683}00683\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00684}00684\ \ \ \textcolor{comment}{//\ Parse\ brightness}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00685}00685\ \ \ cJSON\ *brightness\_item\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}brightness"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00686}00686\ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(brightness\_item))\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00687}00687\ \ \ \ \ \textcolor{keywordtype}{int}\ brightness\_val\ =\ (int)cJSON\_GetNumberValue(brightness\_item);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00688}00688\ \ \ \ \ \textcolor{keywordflow}{if}\ (brightness\_val\ <\ 0)}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00689}00689\ \ \ \ \ \ \ brightness\_val\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00690}00690\ \ \ \ \ \textcolor{keywordflow}{if}\ (brightness\_val\ >\ 255)}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00691}00691\ \ \ \ \ \ \ brightness\_val\ =\ 255;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00692}00692\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.brightness\ =\ (uint8\_t)brightness\_val;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00693}00693\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00694}00694\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00695}00695\ \ \ \textcolor{comment}{//\ Parse\ color\ (JSON\ schema\ uses\ "{}color"{}:\ \{"{}r"{}:\ 255,\ "{}g"{}:\ 255,\ "{}b"{}:\ 255\})}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00696}00696\ \ \ cJSON\ *color\_item\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}color"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00697}00697\ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsObject(color\_item))\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00698}00698\ \ \ \ \ cJSON\ *\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\ =\ cJSON\_GetObjectItem(color\_item,\ \textcolor{stringliteral}{"{}r"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00699}00699\ \ \ \ \ cJSON\ *\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\ =\ cJSON\_GetObjectItem(color\_item,\ \textcolor{stringliteral}{"{}g"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00700}00700\ \ \ \ \ cJSON\ *\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}\ =\ cJSON\_GetObjectItem(color\_item,\ \textcolor{stringliteral}{"{}b"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00701}00701\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00702}00702\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}})\ \&\&\ cJSON\_IsNumber(\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}})\ \&\&\ cJSON\_IsNumber(\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}))\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00703}00703\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.r\ =\ (uint8\_t)cJSON\_GetNumberValue(\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00704}00704\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.g\ =\ (uint8\_t)cJSON\_GetNumberValue(\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00705}00705\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.b\ =\ (uint8\_t)cJSON\_GetNumberValue(\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00706}00706\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00707}00707\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00708}00708\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00709}00709\ \ \ \textcolor{comment}{//\ Parse\ legacy\ rgb\_color\ (if\ sent\ by\ some\ controllers)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00710}00710\ \ \ cJSON\ *rgb\_item\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}rgb\_color"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00711}00711\ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsArray(rgb\_item)\ \&\&\ cJSON\_GetArraySize(rgb\_item)\ >=\ 3)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00712}00712\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.r\ =}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00713}00713\ \ \ \ \ \ \ \ \ (uint8\_t)cJSON\_GetNumberValue(cJSON\_GetArrayItem(rgb\_item,\ 0));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00714}00714\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.g\ =}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00715}00715\ \ \ \ \ \ \ \ \ (uint8\_t)cJSON\_GetNumberValue(cJSON\_GetArrayItem(rgb\_item,\ 1));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00716}00716\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.b\ =}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00717}00717\ \ \ \ \ \ \ \ \ (uint8\_t)cJSON\_GetNumberValue(cJSON\_GetArrayItem(rgb\_item,\ 2));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00718}00718\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00719}00719\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00720}00720\ \ \ \textcolor{comment}{//\ Parse\ effect}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00721}00721\ \ \ cJSON\ *effect\_item\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}effect"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00722}00722\ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsString(effect\_item))\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00723}00723\ \ \ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.effect,\ effect\_item-\/>valuestring,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00724}00724\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.effect)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00725}00725\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.effect[\textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.effect)\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00726}00726\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00727}00727\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00728}00728\ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00729}00729\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00730}00730\ \ \ \textcolor{comment}{//\ Apply\ changes\ based\ on\ mode\ and\ idle\ time}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00731}00731\ \ \ \textcolor{keywordflow}{if}\ (can\_apply\_command)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00732}00732\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ ==\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\_MODE\_GAME}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00733}00733\ \ \ \ \ \ \ \textcolor{comment}{//\ Switch\ from\ GAME\ to\ HA\ mode}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00734}00734\ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Switching\ from\ GAME\ to\ HA\ mode\ (HA\ command\ accepted)"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00735}00735\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_aff8e250ad01ba14909377eaea2f0dce6}{ha\_light\_switch\_to\_ha\_mode}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00736}00736\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00737}00737\ \ \ \ \ \ \ \textcolor{comment}{//\ Already\ in\ HA\ mode,\ just\ re-\/apply}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00738}00738\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_aff8e250ad01ba14909377eaea2f0dce6}{ha\_light\_switch\_to\_ha\_mode}}();\ \textcolor{comment}{//\ Re-\/apply\ with\ new\ settings}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00739}00739\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00740}00740\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00741}00741\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00742}00742\ \ \ \textcolor{comment}{//\ Always\ publish\ state\ update\ (virtual\ state)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00743}00743\ \ \ \mbox{\hyperlink{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b}{ha\_light\_publish\_state}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00744}00744\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00745}00745\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00749}\mbox{\hyperlink{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b}{00749}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b}{ha\_light\_publish\_state}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00750}00750\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\_connected}}\ ||\ \mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00751}00751\ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00752}00752\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00753}00753\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00754}00754\ \ \ cJSON\ *json\ =\ cJSON\_CreateObject();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00755}00755\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00756}00756\ \ \ \textcolor{comment}{//\ State}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00757}00757\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}state"{}},\ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.state\ ?\ \textcolor{stringliteral}{"{}ON"{}}\ :\ \textcolor{stringliteral}{"{}OFF"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00758}00758\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00759}00759\ \ \ \textcolor{comment}{//\ Brightness}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00760}00760\ \ \ cJSON\_AddNumberToObject(json,\ \textcolor{stringliteral}{"{}brightness"{}},\ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.brightness);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00761}00761\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00762}00762\ \ \ \textcolor{comment}{//\ Color\ Mode}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00763}00763\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}color\_mode"{}},\ \textcolor{stringliteral}{"{}rgb"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00764}00764\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00765}00765\ \ \ \textcolor{comment}{//\ Color\ (standard\ JSON\ schema\ object)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00766}00766\ \ \ cJSON\ *color\ =\ cJSON\_CreateObject();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00767}00767\ \ \ cJSON\_AddNumberToObject(color,\ \textcolor{stringliteral}{"{}r"{}},\ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.r);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00768}00768\ \ \ cJSON\_AddNumberToObject(color,\ \textcolor{stringliteral}{"{}g"{}},\ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.g);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00769}00769\ \ \ cJSON\_AddNumberToObject(color,\ \textcolor{stringliteral}{"{}b"{}},\ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.b);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00770}00770\ \ \ cJSON\_AddItemToObject(json,\ \textcolor{stringliteral}{"{}color"{}},\ color);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00771}00771\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00772}00772\ \ \ \textcolor{comment}{//\ Effect}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00773}00773\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}effect"{}},\ \mbox{\hyperlink{ha__light__task_8c_a6f7c9a2d773fd7d2e70af21f86a3a795}{ha\_light\_state}}.effect);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00774}00774\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00775}00775\ \ \ \textcolor{comment}{//\ Mode}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00776}00776\ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}mode"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00777}00777\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (\mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ ==\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\_MODE\_GAME}})\ ?\ \textcolor{stringliteral}{"{}game"{}}\ :\ \textcolor{stringliteral}{"{}ha"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00778}00778\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00779}00779\ \ \ \textcolor{comment}{//\ Activity\ timeout}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00780}00780\ \ \ uint32\_t\ current\_time\_ms\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00781}00781\ \ \ uint32\_t\ time\_until\_timeout\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00782}00782\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\_activity\_time\_ms}}\ >\ 0\ \&\&\ \mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ ==\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\_MODE\_GAME}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00783}00783\ \ \ \ \ uint32\_t\ elapsed\ =\ current\_time\_ms\ -\/\ \mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\_activity\_time\_ms}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00784}00784\ \ \ \ \ \textcolor{keywordflow}{if}\ (elapsed\ <\ \mbox{\hyperlink{ha__light__task_8h_a59a4f99e5382fed36fc539ce0b1b79c5}{HA\_ACTIVITY\_TIMEOUT\_AUTO\_MS}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00785}00785\ \ \ \ \ \ \ time\_until\_timeout\ =\ \mbox{\hyperlink{ha__light__task_8h_a59a4f99e5382fed36fc539ce0b1b79c5}{HA\_ACTIVITY\_TIMEOUT\_AUTO\_MS}}\ -\/\ elapsed;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00786}00786\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00787}00787\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00788}00788\ \ \ cJSON\_AddNumberToObject(json,\ \textcolor{stringliteral}{"{}activity\_timeout\_ms"{}},\ time\_until\_timeout);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00789}00789\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00790}00790\ \ \ \textcolor{keywordtype}{char}\ *json\_str\ =\ cJSON\_Print(json);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00791}00791\ \ \ \textcolor{keywordflow}{if}\ (json\_str\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00792}00792\ \ \ \ \ esp\_mqtt\_client\_publish(\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}},\ \mbox{\hyperlink{ha__light__task_8h_ac8d834caaa63c1dfab5bfbdaf442f78f}{HA\_TOPIC\_LIGHT\_STATE}},\ json\_str,\ 0,\ 1,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00793}00793\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 0);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00794}00794\ \ \ \ \ free(json\_str);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00795}00795\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00796}00796\ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00797}00797\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00798}00798\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00802}\mbox{\hyperlink{ha__light__task_8c_af54ee77cebff3b3c12301819b1082ce4}{00802}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_af54ee77cebff3b3c12301819b1082ce4}{mqtt\_ensure\_config\_loaded}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00803}00803\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.loaded)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00804}00804\ \ \ \ \ \textcolor{keywordflow}{return};\ \textcolor{comment}{//\ Already\ loaded}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00805}00805\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00806}00806\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00807}00807\ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}[128]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00808}00808\ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}[64]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00809}00809\ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}[64]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00810}00810\ \ \ uint16\_t\ \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}\ =\ 1883;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00811}00811\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00812}00812\ \ \ esp\_err\_t\ ret\ =}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00813}00813\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_ad61c60d5f24e8689c8607c69c989b761}{mqtt\_load\_config\_from\_nvs}}(\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}),\ \&\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}},\ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00814}00814\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}),\ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00815}00815\ \ \ \textcolor{keywordflow}{if}\ (ret\ ==\ ESP\_OK\ ||\ ret\ ==\ ESP\_ERR\_NOT\_FOUND)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00816}00816\ \ \ \ \ \textcolor{comment}{//\ Config\ loaded\ (or\ defaults\ used)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00817}00817\ \ \ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.host,\ \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.host)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00818}00818\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.host[\textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.host)\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00819}00819\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.port\ =\ \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00820}00820\ \ \ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.username,\ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.username)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00821}00821\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.username[\textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.username)\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00822}00822\ \ \ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.password,\ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.password)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00823}00823\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.password[\textcolor{keyword}{sizeof}(\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.password)\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00824}00824\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.loaded\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00825}00825\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ config\ loaded:\ host=\%s,\ port=\%d"{}},\ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.host,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00826}00826\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.port);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00827}00827\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00828}00828\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ load\ MQTT\ config\ from\ NVS,\ using\ defaults"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00829}00829\ \ \ \ \ \textcolor{comment}{//\ Keep\ defaults}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00830}00830\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.loaded\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00831}00831\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00832}00832\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00833}00833\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00839}\mbox{\hyperlink{ha__light__task_8c_ab445707e64ef5877d69ff4443c54bfd5}{00839}}\ \textcolor{keyword}{static}\ esp\_err\_t\ \mbox{\hyperlink{ha__light__task_8c_ab445707e64ef5877d69ff4443c54bfd5}{ha\_light\_init\_mqtt}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00840}00840\ \ \ \textcolor{comment}{//\ Prevent\ multiple\ clients/memory\ leaks}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00841}00841\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}}\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00842}00842\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ client\ already\ initialized,\ skipping\ re-\/init"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00843}00843\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00844}00844\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00845}00845\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00846}00846\ \ \ \textcolor{comment}{//\ Ensure\ config\ is\ loaded\ from\ NVS\ (first\ time\ only)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00847}00847\ \ \ \mbox{\hyperlink{ha__light__task_8c_af54ee77cebff3b3c12301819b1082ce4}{mqtt\_ensure\_config\_loaded}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00848}00848\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00849}00849\ \ \ \textcolor{comment}{//\ Build\ MQTT\ broker\ URI\ (buffer\ size\ 512\ to\ avoid\ format-\/truncation\ warning)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00850}00850\ \ \ \textcolor{keywordtype}{char}\ mqtt\_broker\_uri[512];}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00851}00851\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.username[0]\ !=\ \textcolor{charliteral}{'\(\backslash\)0'}\ \&\&\ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.password[0]\ !=\ \textcolor{charliteral}{'\(\backslash\)0'})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00852}00852\ \ \ \ \ \textcolor{comment}{//\ MQTT\ URI\ with\ username/password:\ mqtt://user:pass@host:port}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00853}00853\ \ \ \ \ snprintf(mqtt\_broker\_uri,\ \textcolor{keyword}{sizeof}(mqtt\_broker\_uri),\ \textcolor{stringliteral}{"{}mqtt://\%s:\%s@\%s:\%d"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00854}00854\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.username,\ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.password,\ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.host,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00855}00855\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.port);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00856}00856\ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00857}00857\ \ \ \ \ \textcolor{comment}{//\ MQTT\ URI\ without\ auth:\ mqtt://host:port}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00858}00858\ \ \ \ \ snprintf(mqtt\_broker\_uri,\ \textcolor{keyword}{sizeof}(mqtt\_broker\_uri),\ \textcolor{stringliteral}{"{}mqtt://\%s:\%d"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00859}00859\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.host,\ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.port);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00860}00860\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00861}00861\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00862}00862\ \ \ \textcolor{comment}{//\ Generate\ unique\ Client\ ID\ combined\ from\ Base\ +\ MAC}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00863}00863\ \ \ uint8\_t\ mac\_raw[6];}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00864}00864\ \ \ esp\_read\_mac(mac\_raw,\ ESP\_MAC\_WIFI\_STA);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00865}00865\ \ \ \textcolor{keywordtype}{char}\ client\_id[64];}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00866}00866\ \ \ snprintf(client\_id,\ \textcolor{keyword}{sizeof}(client\_id),\ \textcolor{stringliteral}{"{}\%s-\/\%02x\%02x\%02x\%02x\%02x\%02x"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00867}00867\ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8h_a3e86bf68640eb01f845f67eb32fbc9d6}{HA\_MQTT\_CLIENT\_ID}},\ mac\_raw[0],\ mac\_raw[1],\ mac\_raw[2],\ mac\_raw[3],}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00868}00868\ \ \ \ \ \ \ \ \ \ \ \ mac\_raw[4],\ mac\_raw[5]);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00869}00869\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00870}00870\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Initializing\ MQTT\ client:\ \%s\ (ID:\ \%s)"{}},\ mqtt\_broker\_uri,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00871}00871\ \ \ \ \ \ \ \ \ \ \ \ client\_id);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00872}00872\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00873}00873\ \ \ esp\_mqtt\_client\_config\_t\ mqtt\_cfg\ =\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00874}00874\ \ \ \ \ \ \ .broker.address.uri\ =\ mqtt\_broker\_uri,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00875}00875\ \ \ \ \ \ \ .credentials.client\_id\ =\ client\_id,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00876}00876\ \ \ \ \ \ \ .session.last\_will.topic\ =\ \mbox{\hyperlink{ha__light__task_8h_ac2d5de1749d4171f82324a7276f6fb14}{HA\_TOPIC\_LIGHT\_AVAILABILITY}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00877}00877\ \ \ \ \ \ \ .session.last\_will.msg\ =\ \mbox{\hyperlink{ha__light__task_8h_a6842398162d1d365ca5d5c711ecb6145}{HA\_MQTT\_PAYLOAD\_OFFLINE}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00878}00878\ \ \ \ \ \ \ .session.last\_will.qos\ =\ 1,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00879}00879\ \ \ \ \ \ \ .session.last\_will.retain\ =\ \textcolor{keyword}{true},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00880}00880\ \ \ \ \ \ \ .session.keepalive\ =\ 120,\ \textcolor{comment}{//\ Increase\ keepalive\ to\ 120s\ for\ stability}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00881}00881\ \ \ \ \ \ \ .network.disable\_auto\_reconnect\ =}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00882}00882\ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{false},\ \textcolor{comment}{//\ Ensure\ auto-\/reconnect\ is\ enabled}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00883}00883\ \ \ \};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00884}00884\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00885}00885\ \ \ \mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}}\ =\ esp\_mqtt\_client\_init(\&mqtt\_cfg);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00886}00886\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00887}00887\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ initialize\ MQTT\ client"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00888}00888\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00889}00889\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00890}00890\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00891}00891\ \ \ esp\_mqtt\_client\_register\_event(\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}},\ ESP\_EVENT\_ANY\_ID,}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00892}00892\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_aaa50395cd97ca2238e5b5a64d0583d07}{ha\_light\_mqtt\_event\_handler}},\ NULL);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00893}00893\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00894}00894\ \ \ esp\_err\_t\ ret\ =\ esp\_mqtt\_client\_start(\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00895}00895\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00896}00896\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ start\ MQTT\ client:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00897}00897\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00898}00898\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00899}00899\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00900}00900\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ client\ initialized\ and\ started"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00901}00901\ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00902}00902\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00903}00903\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00904}00904\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00905}00905\ \textcolor{comment}{//\ PUBLIC\ API\ FUNCTIONS}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00906}00906\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00907}00907\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00911}\mbox{\hyperlink{ha__light__task_8c_a745b4de0bfe0480fe88c73e3d23170eb}{00911}}\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588}{ha\_mode\_t}}\ \mbox{\hyperlink{ha__light__task_8c_a745b4de0bfe0480fe88c73e3d23170eb}{ha\_light\_get\_mode}}(\textcolor{keywordtype}{void})\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}};\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00912}00912\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00916}\mbox{\hyperlink{ha__light__task_8c_a0fc50519ca67911865aa6f8afc0a939f}{00916}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{ha__light__task_8c_a0fc50519ca67911865aa6f8afc0a939f}{ha\_light\_is\_available}}(\textcolor{keywordtype}{void})\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{ha__light__task_8c_a687dd5b61866fa4896abac67db3944d9}{ha\_light\_check\_wifi\_sta\_connected}}();\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00917}00917\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00921}\mbox{\hyperlink{ha__light__task_8c_a0564ec8bd0c8c4e490ed84e22246df81}{00921}}\ esp\_err\_t\ \mbox{\hyperlink{ha__light__task_8c_a0564ec8bd0c8c4e490ed84e22246df81}{mqtt\_get\_config}}(\textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ \textcolor{keywordtype}{size\_t}\ host\_len,\ uint16\_t\ *\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00922}00922\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},\ \textcolor{keywordtype}{size\_t}\ username\_len,\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00923}00923\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ password\_len)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00924}00924\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}\ ==\ NULL\ ||\ \mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}\ ==\ NULL\ ||\ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}\ ==\ NULL\ ||\ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}\ ==\ NULL\ ||}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00925}00925\ \ \ \ \ \ \ host\_len\ ==\ 0\ ||\ username\_len\ ==\ 0\ ||\ password\_len\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00926}00926\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00927}00927\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00928}00928\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00929}00929\ \ \ \textcolor{comment}{//\ Ensure\ config\ is\ loaded}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00930}00930\ \ \ \mbox{\hyperlink{ha__light__task_8c_af54ee77cebff3b3c12301819b1082ce4}{mqtt\_ensure\_config\_loaded}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00931}00931\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00932}00932\ \ \ \textcolor{comment}{//\ Copy\ current\ config}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00933}00933\ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}},\ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.host,\ host\_len\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00934}00934\ \ \ \mbox{\hyperlink{ha__light__task_8c_a471a823d17bf7081fd4ebf84741f6758}{host}}[host\_len\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00935}00935\ \ \ *\mbox{\hyperlink{ha__light__task_8c_a8e0798404bf2cf5dabb84c5ba9a4f236}{port}}\ =\ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.port;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00936}00936\ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}},\ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.username,\ username\_len\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00937}00937\ \ \ \mbox{\hyperlink{ha__light__task_8c_acfea5fbe8295640a1489399ceeb6c018}{username}}[username\_len\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00938}00938\ \ \ strncpy(\mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}},\ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.password,\ password\_len\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00939}00939\ \ \ \mbox{\hyperlink{ha__light__task_8c_ae3a23efe266762659e03567d6afc26dd}{password}}[password\_len\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00940}00940\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00941}00941\ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00942}00942\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00943}00943\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00947}\mbox{\hyperlink{ha__light__task_8c_a7f38fb48c581f40707dbed343cedb07c}{00947}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{ha__light__task_8c_a7f38fb48c581f40707dbed343cedb07c}{ha\_light\_is\_mqtt\_connected}}(\textcolor{keywordtype}{void})\ \{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\_connected}};\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00948}00948\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00954}\mbox{\hyperlink{ha__light__task_8c_aaa92358f60e1043bee0865be41fb1b2c}{00954}}\ esp\_err\_t\ \mbox{\hyperlink{ha__light__task_8c_aaa92358f60e1043bee0865be41fb1b2c}{ha\_light\_reinit\_mqtt}}(\textcolor{keywordtype}{void})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00955}00955\ \ \ \textcolor{comment}{//\ Check\ WiFi\ STA\ connection}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00956}00956\ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{ha__light__task_8c_a687dd5b61866fa4896abac67db3944d9}{ha\_light\_check\_wifi\_sta\_connected}}())\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00957}00957\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Cannot\ reinit\ MQTT:\ WiFi\ STA\ not\ connected"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00958}00958\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00959}00959\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00960}00960\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00961}00961\ \ \ \textcolor{comment}{//\ Stop\ and\ destroy\ existing\ MQTT\ client\ if\ exists}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00962}00962\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}}\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00963}00963\ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Stopping\ existing\ MQTT\ client\ for\ reinit"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00964}00964\ \ \ \ \ esp\_mqtt\_client\_stop(\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00965}00965\ \ \ \ \ esp\_mqtt\_client\_destroy(\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00966}00966\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00967}00967\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\_connected}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00968}00968\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00969}00969\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00970}00970\ \ \ \textcolor{comment}{//\ Reset\ config\ loaded\ flag\ to\ force\ reload\ from\ NVS}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00971}00971\ \ \ \mbox{\hyperlink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\_config}}.loaded\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00972}00972\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00973}00973\ \ \ \textcolor{comment}{//\ Initialize\ new\ MQTT\ client\ with\ updated\ config}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00974}00974\ \ \ esp\_err\_t\ ret\ =\ \mbox{\hyperlink{ha__light__task_8c_ab445707e64ef5877d69ff4443c54bfd5}{ha\_light\_init\_mqtt}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00975}00975\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00976}00976\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ reinit\ MQTT\ client:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00977}00977\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00978}00978\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00979}00979\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00980}00980\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}MQTT\ client\ reinicialized\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00981}00981\ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00982}00982\ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00983}00983\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00984}00984\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00985}00985\ \textcolor{comment}{//\ MAIN\ TASK\ LOOP}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00986}00986\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00987}00987\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00991}\mbox{\hyperlink{ha__light__task_8c_adeb86d27a08d24abfd9a912c9c89a729}{00991}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{ha__light__task_8c_adeb86d27a08d24abfd9a912c9c89a729}{ha\_light\_task\_start}}(\textcolor{keywordtype}{void}\ *pvParameters)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00992}00992\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Starting\ HA\ Light\ Task..."{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00993}00993\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00994}00994\ \ \ \textcolor{comment}{//\ Register\ with\ WDT}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00995}00995\ \ \ esp\_err\_t\ ret\ =\ esp\_task\_wdt\_add(NULL);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00996}00996\ \ \ \textcolor{keywordflow}{if}\ (ret\ !=\ ESP\_OK\ \&\&\ ret\ !=\ ESP\_ERR\_INVALID\_ARG)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00997}00997\ \ \ \ \ ESP\_LOGW(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ register\ with\ WDT:\ \%s"{}},\ esp\_err\_to\_name(ret));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00998}00998\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l00999}00999\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01000}01000\ \ \ \mbox{\hyperlink{animation__task_8c_a35141cb45623cb3b7b4d96da35ed1831}{task\_running}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01001}01001\ \ \ \mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ =\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb}{HA\_MODE\_GAME}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01002}01002\ \ \ \mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\_activity\_time\_ms}}\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01003}01003\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01004}01004\ \ \ \textcolor{comment}{//\ Create\ internal\ command\ queue}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01005}01005\ \ \ \mbox{\hyperlink{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4}{ha\_light\_cmd\_queue}}\ =\ xQueueCreate(10,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{structha__light__command__t}{ha\_light\_command\_t}}));}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01006}01006\ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4}{ha\_light\_cmd\_queue}}\ ==\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01007}01007\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ create\ HA\ command\ queue"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01008}01008\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01009}01009\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01010}01010\ \ \ \textcolor{comment}{//\ Main\ loop}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01011}01011\ \ \ \textcolor{comment}{//\ TickType\_t\ last\_wake\_time\ =\ xTaskGetTickCount();\ //\ Unused\ in\ queue-\/based}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01012}01012\ \ \ \textcolor{comment}{//\ loop}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01013}01013\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01014}01014\ \ \ \textcolor{keywordflow}{for}\ (;;)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01015}01015\ \ \ \ \ \textcolor{comment}{//\ =========================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01016}01016\ \ \ \ \ \textcolor{comment}{//\ 🛑\ BOOT\ ANIMATION\ PROTECTION\ -\/\ BLOKUJE\ HA\ OPERACE\ BĚHEM\ BOOT}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01017}01017\ \ \ \ \ \textcolor{comment}{//\ =========================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01018}01018\ \ \ \ \ \textcolor{comment}{//\ Pokud\ běží\ boot\ animace,\ HA\ task\ nesmí\ posílat\ LED\ příkazy!}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01019}01019\ \ \ \ \ \textcolor{comment}{//\ (např.\ "{}zhasni\ světlo"{}\ při\ rychlém\ WiFi\ připojení)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01020}01020\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{led__task_8h_a006a24ec8e7f302c4a6f8481675803d1}{led\_is\_booting}}())\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01021}01021\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a220eb7a6a15e1c82a39c3128aeffa19f}{ha\_light\_task\_wdt\_reset\_safe}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01022}01022\ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(10));\ \textcolor{comment}{//\ 10ms\ -\/\ rychlé\ probuzení\ po\ fade\_out!}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01023}01023\ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01024}01024\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01025}01025\ \ \ \ \ \textcolor{comment}{//\ =========================================================================}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01026}01026\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01027}01027\ \ \ \ \ \textcolor{comment}{//\ Reset\ WDT}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01028}01028\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a220eb7a6a15e1c82a39c3128aeffa19f}{ha\_light\_task\_wdt\_reset\_safe}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01029}01029\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01030}01030\ \ \ \ \ \textcolor{comment}{//\ Process\ queue\ with\ timeout\ (100ms)\ -\/\ replaces\ vTaskDelay}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01031}01031\ \ \ \ \ \mbox{\hyperlink{structha__light__command__t}{ha\_light\_command\_t}}\ cmd;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01032}01032\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4}{ha\_light\_cmd\_queue}}\ \&\&}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01033}01033\ \ \ \ \ \ \ \ \ xQueueReceive(\mbox{\hyperlink{ha__light__task_8c_afa3c4fd245d700def50f8fbe578ca1c4}{ha\_light\_cmd\_queue}},\ \&cmd,\ pdMS\_TO\_TICKS(100))\ ==\ pdTRUE)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01034}01034\ \ \ \ \ \ \ \textcolor{comment}{//\ Handle\ internal\ command}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01035}01035\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (cmd.\mbox{\hyperlink{structha__light__command__t_aa655a0a61f12692c31c68803ae070fcf}{type}}\ ==\ 1)\ \{\ \textcolor{comment}{//\ Activity\ Report}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01036}01036\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *activity\_name\ =\ (\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *)cmd.\mbox{\hyperlink{structha__light__command__t_ab0bc8ed3f5ca6cb30316a8163e8da184}{data}};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01037}01037\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Reset\ activity\ timer\ in\ HA\ task\ context}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01038}01038\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a841339184f4dba27c769216e9b7e8a6f}{last\_activity\_time\_ms}}\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01039}01039\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01040}01040\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ currently\ in\ HA\ mode,\ switch\ back\ to\ GAME\ mode\ on\ first\ activity}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01041}01041\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ ==\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588ab05fd74afbd0d17e1b0de540a49c60c5}{HA\_MODE\_HA}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01042}01042\ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01043}01043\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Switching\ from\ HA\ mode\ to\ GAME\ mode\ (activity:\ \%s)"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01044}01044\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ activity\_name\ ?\ activity\_name\ :\ \textcolor{stringliteral}{"{}unknown"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01045}01045\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a33c86dd0c42ba70448023639e56096f0}{ha\_light\_switch\_to\_game\_mode}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01046}01046\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01047}01047\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01048}01048\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Check\ rate\ limit\ logic\ again\ here\ (in\ HA\ task\ context)\ to\ save\ MQTT}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01049}01049\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ bandwidth}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01050}01050\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ uint32\_t\ last\_mqtt\_activity\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01051}01051\ \ \ \ \ \ \ \ \ uint32\_t\ now\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01052}01052\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01053}01053\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (now\ -\/\ last\_mqtt\_activity\ >\ 500)\ \{\ \textcolor{comment}{//\ 500ms\ limit}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01054}01054\ \ \ \ \ \ \ \ \ \ \ last\_mqtt\_activity\ =\ now;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01055}01055\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01056}01056\ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\_connected}}\ \&\&\ \mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}}\ !=\ NULL)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01057}01057\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ topic[128];}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01058}01058\ \ \ \ \ \ \ \ \ \ \ \ \ snprintf(topic,\ \textcolor{keyword}{sizeof}(topic),\ \textcolor{stringliteral}{"{}\%s"{}},\ \mbox{\hyperlink{ha__light__task_8h_ab8a6d62c662a157b70d0fabc6c03e6fc}{HA\_TOPIC\_GAME\_ACTIVITY}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01059}01059\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\ *json\ =\ cJSON\_CreateObject();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01060}01060\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_AddStringToObject(json,\ \textcolor{stringliteral}{"{}event"{}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01061}01061\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ activity\_name\ ?\ activity\_name\ :\ \textcolor{stringliteral}{"{}unknown"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01062}01062\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_AddNumberToObject(json,\ \textcolor{stringliteral}{"{}timestamp\_ms"{}},\ now);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01063}01063\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *json\_str\ =\ cJSON\_PrintUnformatted(json);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01064}01064\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (json\_str)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01065}01065\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ esp\_mqtt\_client\_publish(\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}},\ topic,\ json\_str,\ 0,\ 0,\ 0);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01066}01066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ free(json\_str);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01067}01067\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01068}01068\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01069}01069\ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01070}01070\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01071}01071\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01072}01072\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01073}01073\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01074}01074\ \ \ \ \ \textcolor{comment}{//\ POLL:\ Check\ WiFi\ STA\ status\ periodically\ (every\ 5\ seconds)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01075}01075\ \ \ \ \ \textcolor{keyword}{static}\ uint32\_t\ last\_wifi\_check\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01076}01076\ \ \ \ \ uint32\_t\ current\_time\_ms\ =\ esp\_timer\_get\_time()\ /\ 1000;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01077}01077\ \ \ \ \ \textcolor{keywordflow}{if}\ (current\_time\_ms\ -\/\ last\_wifi\_check\ >=\ 5000)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01078}01078\ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ wifi\_connected\ =\ \mbox{\hyperlink{ha__light__task_8c_a687dd5b61866fa4896abac67db3944d9}{ha\_light\_check\_wifi\_sta\_connected}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01079}01079\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (wifi\_connected\ \&\&\ !\mbox{\hyperlink{ha__light__task_8c_a738f5dc6c12f15f0149e08de59f48064}{sta\_connected}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01080}01080\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ WiFi\ just\ connected\ -\/\ initialize\ MQTT}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01081}01081\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a738f5dc6c12f15f0149e08de59f48064}{sta\_connected}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01082}01082\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}WiFi\ STA\ connected\ -\/\ initializing\ MQTT"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01083}01083\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_ab445707e64ef5877d69ff4443c54bfd5}{ha\_light\_init\_mqtt}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01084}01084\ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!wifi\_connected\ \&\&\ \mbox{\hyperlink{ha__light__task_8c_a738f5dc6c12f15f0149e08de59f48064}{sta\_connected}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01085}01085\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ WiFi\ disconnected}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01086}01086\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a738f5dc6c12f15f0149e08de59f48064}{sta\_connected}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01087}01087\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\_connected}}\ =\ \textcolor{keyword}{false};\ \textcolor{comment}{//\ Just\ mark\ disconnected,\ don't\ destroy\ client}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01088}01088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ to\ avoid\ complex\ cleanup}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01089}01089\ \ \ \ \ \ \ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}WiFi\ STA\ disconnected\ -\/\ MQTT\ unavailable"{}});}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01090}01090\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a6f970625bbaaf55b63054a651a0329fd}{current\_mode}}\ ==\ \mbox{\hyperlink{ha__light__task_8h_af2a3f8e1a020167cca1ba6c844ba3588ab05fd74afbd0d17e1b0de540a49c60c5}{HA\_MODE\_HA}})\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01091}01091\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Switch\ back\ to\ game\ mode}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01092}01092\ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a33c86dd0c42ba70448023639e56096f0}{ha\_light\_switch\_to\_game\_mode}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01093}01093\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01094}01094\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01095}01095\ \ \ \ \ \ \ last\_wifi\_check\ =\ current\_time\_ms;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01096}01096\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01097}01097\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01098}01098\ \ \ \ \ \textcolor{comment}{//\ Monitor\ game\ activity\ (checks\ queues\ for\ activity)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01099}01099\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a1819a1e1ebc04fa6179f55ee77454506}{ha\_light\_monitor\_game\_activity}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01100}01100\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01101}01101\ \ \ \ \ \textcolor{comment}{//\ Check\ activity\ timeout\ (5\ minutes)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01102}01102\ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a5a6bb92dacbf05bc953f9d712c939ed4}{ha\_light\_check\_activity\_timeout}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01103}01103\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01104}01104\ \ \ \ \ \textcolor{comment}{//\ Periodically\ publish\ state\ (every\ 30\ seconds)}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01105}01105\ \ \ \ \ \textcolor{keyword}{static}\ uint32\_t\ last\_state\_publish\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01106}01106\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a6a99fbef218ac40fc0b77e18f0e9a708}{mqtt\_connected}}\ \&\&\ (current\_time\_ms\ -\/\ last\_state\_publish\ >=\ 30000))\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01107}01107\ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_ab17c9e100295b75e1b76d897d08a805b}{ha\_light\_publish\_state}}();}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01108}01108\ \ \ \ \ \ \ last\_state\_publish\ =\ current\_time\_ms;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01109}01109\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01110}01110\ \ \ \ \ \ \ \textcolor{comment}{//\ Periodically\ enforce\ "{}online"{}\ status\ (every\ 60s)\ to\ fix\ "{}Unknown"{}}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01111}01111\ \ \ \ \ \ \ \textcolor{comment}{//\ status\ issues}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01112}01112\ \ \ \ \ \ \ \textcolor{keyword}{static}\ uint32\_t\ last\_avail\_publish\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01113}01113\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (current\_time\_ms\ -\/\ last\_avail\_publish\ >=\ 60000)\ \{}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01114}01114\ \ \ \ \ \ \ \ \ esp\_mqtt\_client\_publish(\mbox{\hyperlink{ha__light__task_8c_ad9332f302ae79b5195a71d791a9ccecd}{mqtt\_client}},\ \mbox{\hyperlink{ha__light__task_8h_ac2d5de1749d4171f82324a7276f6fb14}{HA\_TOPIC\_LIGHT\_AVAILABILITY}},}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01115}01115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8h_a6e17c7afd5219d2aad45fa7d87822f3b}{HA\_MQTT\_PAYLOAD\_ONLINE}},\ 0,\ 1,\ 1);}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01116}01116\ \ \ \ \ \ \ \ \ last\_avail\_publish\ =\ current\_time\_ms;}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01117}01117\ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01118}01118\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01119}01119\ }
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01120}01120\ \ \ \ \ \textcolor{comment}{//\ Minimal\ yield\ not\ needed\ because\ xQueueReceive\ handles\ waiting}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01121}01121\ \ \ \}}
+\DoxyCodeLine{\Hypertarget{ha__light__task_8c_source_l01122}01122\ \}}
+
+\end{DoxyCode}

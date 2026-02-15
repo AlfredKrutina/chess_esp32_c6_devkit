@@ -10,5 +10,6 @@ var searchData=
   ['update_5ffunc_7',['update_func',['../structanimation__state__struct.html#ab1a5f1afbbdb0e1a7cf3eb90ddc29206',1,'animation_state_struct']]],
   ['usage_8',['usage',['../structuart__command__t.html#af54b176c77095097bdde582f4d1cbc26',1,'uart_command_t']]],
   ['user_5fconfirmed_9',['user_confirmed',['../structactive__error__t.html#ace7dcdd59cad912bc07b3fc6c4fdb007',1,'active_error_t']]],
-  ['user_5fmessage_10',['user_message',['../structerror__guidance__t.html#a2d4d5d7f00c4613b12fd59a5e48b123c',1,'error_guidance_t']]]
+  ['user_5fmessage_10',['user_message',['../structerror__guidance__t.html#a2d4d5d7f00c4613b12fd59a5e48b123c',1,'error_guidance_t']]],
+  ['username_11',['username',['../ha__light__task_8c.html#acfea5fbe8295640a1489399ceeb6c018',1,'ha_light_task.c']]]
 ];

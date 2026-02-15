@@ -28,6 +28,8 @@ Graf závislostí na vkládaných souborech pro config\+\_\+manager.\+h\+:\nopag
 \begin{DoxyCompactList}\small\item\em Vychozi timeout prikazu (5 sekund). \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{config__manager_8h_a47c2b95d1d8288422494efa813aac56d}{CONFIG\+\_\+\+DEFAULT\+\_\+\+ECHO\+\_\+\+ENABLED}}~true
 \begin{DoxyCompactList}\small\item\em Vychozi echo (zapnuto). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{config__manager_8h_ab761ad48a054d663ba21852111fdc330}{CONFIG\+\_\+\+DEFAULT\+\_\+\+BRIGHTNESS}}~50
+\begin{DoxyCompactList}\small\item\em Vychozi jas (50\%). \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{config__manager_8h_a3ec1858d742e64d0c66dfd9631302d11}{CONFIG\+\_\+\+NVS\+\_\+\+NAMESPACE}}~"{}chess\+\_\+config"{}
 \begin{DoxyCompactList}\small\item\em NVS namespace pro sachovou konfiguraci. \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{config__manager_8h_a1465441aad59c8e924e7d848436e88c8}{CONFIG\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+VERBOSE}}~"{}verbose"{}
@@ -39,7 +41,9 @@ Graf závislostí na vkládaných souborech pro config\+\_\+manager.\+h\+:\nopag
 \#define \mbox{\hyperlink{config__manager_8h_a5e5a923fe1f235adbf87c70147123bdc}{CONFIG\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+TIMEOUT}}~"{}timeout"{}
 \begin{DoxyCompactList}\small\item\em NVS klic pro timeout. \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{config__manager_8h_a2ee245346700426e01e61948da5a9f8e}{CONFIG\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+ECHO}}~"{}echo"{}
-\begin{DoxyCompactList}\small\item\em NVS klic pro echo. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em NVS klic pro echo. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{config__manager_8h_a1bb567a5bd367abf7442aec292621481}{CONFIG\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+BRIGHTNESS}}~"{}brightness"{}
+\begin{DoxyCompactList}\small\item\em NVS klic pro jas. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsubsection*{Funkce}
 \begin{DoxyCompactItemize}
 \item 
@@ -77,6 +81,20 @@ Definice v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manag
 \label{doc-define-members}
 \Hypertarget{config__manager_8h_doc-define-members}
 \doxysubsection{Dokumentace definic maker}
+\Hypertarget{config__manager_8h_ab761ad48a054d663ba21852111fdc330}\index{config\_manager.h@{config\_manager.h}!CONFIG\_DEFAULT\_BRIGHTNESS@{CONFIG\_DEFAULT\_BRIGHTNESS}}
+\index{CONFIG\_DEFAULT\_BRIGHTNESS@{CONFIG\_DEFAULT\_BRIGHTNESS}!config\_manager.h@{config\_manager.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_DEFAULT\_BRIGHTNESS}{CONFIG\_DEFAULT\_BRIGHTNESS}}
+{\footnotesize\ttfamily \label{config__manager_8h_ab761ad48a054d663ba21852111fdc330} 
+\#define CONFIG\+\_\+\+DEFAULT\+\_\+\+BRIGHTNESS~50}
+
+
+
+Vychozi jas (50\%). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00086}{86}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
+
 \Hypertarget{config__manager_8h_a738c632d7567c38a428c149e9b60c78c}\index{config\_manager.h@{config\_manager.h}!CONFIG\_DEFAULT\_COMMAND\_TIMEOUT@{CONFIG\_DEFAULT\_COMMAND\_TIMEOUT}}
 \index{CONFIG\_DEFAULT\_COMMAND\_TIMEOUT@{CONFIG\_DEFAULT\_COMMAND\_TIMEOUT}!config\_manager.h@{config\_manager.h}}
 \doxysubsubsection{\texorpdfstring{CONFIG\_DEFAULT\_COMMAND\_TIMEOUT}{CONFIG\_DEFAULT\_COMMAND\_TIMEOUT}}
@@ -147,6 +165,20 @@ Vychozi verbose mode (vypnuto).
 
 Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00076}{76}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
 
+\Hypertarget{config__manager_8h_a1bb567a5bd367abf7442aec292621481}\index{config\_manager.h@{config\_manager.h}!CONFIG\_NVS\_KEY\_BRIGHTNESS@{CONFIG\_NVS\_KEY\_BRIGHTNESS}}
+\index{CONFIG\_NVS\_KEY\_BRIGHTNESS@{CONFIG\_NVS\_KEY\_BRIGHTNESS}!config\_manager.h@{config\_manager.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_NVS\_KEY\_BRIGHTNESS}{CONFIG\_NVS\_KEY\_BRIGHTNESS}}
+{\footnotesize\ttfamily \label{config__manager_8h_a1bb567a5bd367abf7442aec292621481} 
+\#define CONFIG\+\_\+\+NVS\+\_\+\+KEY\+\_\+\+BRIGHTNESS~"{}brightness"{}}
+
+
+
+NVS klic pro jas. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00102}{102}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
+
 \Hypertarget{config__manager_8h_a2ee245346700426e01e61948da5a9f8e}\index{config\_manager.h@{config\_manager.h}!CONFIG\_NVS\_KEY\_ECHO@{CONFIG\_NVS\_KEY\_ECHO}}
 \index{CONFIG\_NVS\_KEY\_ECHO@{CONFIG\_NVS\_KEY\_ECHO}!config\_manager.h@{config\_manager.h}}
 \doxysubsubsection{\texorpdfstring{CONFIG\_NVS\_KEY\_ECHO}{CONFIG\_NVS\_KEY\_ECHO}}
@@ -159,7 +191,7 @@ NVS klic pro echo.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00098}{98}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00100}{100}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
 
 \Hypertarget{config__manager_8h_a3351759d56cb033763497863590ced96}\index{config\_manager.h@{config\_manager.h}!CONFIG\_NVS\_KEY\_LOG\_LEVEL@{CONFIG\_NVS\_KEY\_LOG\_LEVEL}}
 \index{CONFIG\_NVS\_KEY\_LOG\_LEVEL@{CONFIG\_NVS\_KEY\_LOG\_LEVEL}!config\_manager.h@{config\_manager.h}}
@@ -173,7 +205,7 @@ NVS klic pro log level.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00094}{94}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00096}{96}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
 
 \Hypertarget{config__manager_8h_ae2b5da40b2f1c4930562a5d61ce8b408}\index{config\_manager.h@{config\_manager.h}!CONFIG\_NVS\_KEY\_QUIET@{CONFIG\_NVS\_KEY\_QUIET}}
 \index{CONFIG\_NVS\_KEY\_QUIET@{CONFIG\_NVS\_KEY\_QUIET}!config\_manager.h@{config\_manager.h}}
@@ -187,7 +219,7 @@ NVS klic pro quiet mode.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00092}{92}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00094}{94}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
 
 \Hypertarget{config__manager_8h_a5e5a923fe1f235adbf87c70147123bdc}\index{config\_manager.h@{config\_manager.h}!CONFIG\_NVS\_KEY\_TIMEOUT@{CONFIG\_NVS\_KEY\_TIMEOUT}}
 \index{CONFIG\_NVS\_KEY\_TIMEOUT@{CONFIG\_NVS\_KEY\_TIMEOUT}!config\_manager.h@{config\_manager.h}}
@@ -201,7 +233,7 @@ NVS klic pro timeout.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00096}{96}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00098}{98}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
 
 \Hypertarget{config__manager_8h_a1465441aad59c8e924e7d848436e88c8}\index{config\_manager.h@{config\_manager.h}!CONFIG\_NVS\_KEY\_VERBOSE@{CONFIG\_NVS\_KEY\_VERBOSE}}
 \index{CONFIG\_NVS\_KEY\_VERBOSE@{CONFIG\_NVS\_KEY\_VERBOSE}!config\_manager.h@{config\_manager.h}}
@@ -215,7 +247,7 @@ NVS klic pro verbose mode.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00090}{90}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00092}{92}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
 
 \Hypertarget{config__manager_8h_a3ec1858d742e64d0c66dfd9631302d11}\index{config\_manager.h@{config\_manager.h}!CONFIG\_NVS\_NAMESPACE@{CONFIG\_NVS\_NAMESPACE}}
 \index{CONFIG\_NVS\_NAMESPACE@{CONFIG\_NVS\_NAMESPACE}!config\_manager.h@{config\_manager.h}}
@@ -229,7 +261,7 @@ NVS namespace pro sachovou konfiguraci.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00088}{88}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8h_source_l00090}{90}} v souboru \mbox{\hyperlink{config__manager_8h_source}{config\+\_\+manager.\+h}}.
 
 
 
@@ -253,7 +285,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00039}{39}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00038}{38}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
 
 \Hypertarget{config__manager_8h_ae3afd4faf59e0c9b138456675661de9e}\index{config\_manager.h@{config\_manager.h}!config\_reset\_to\_defaults@{config\_reset\_to\_defaults}}
 \index{config\_reset\_to\_defaults@{config\_reset\_to\_defaults}!config\_manager.h@{config\_manager.h}}
@@ -272,5 +304,5 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00202}{202}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00201}{201}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
 

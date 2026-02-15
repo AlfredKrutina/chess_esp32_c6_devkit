@@ -5,11 +5,11 @@
 ESP32-\/\+C6 Chess System v2.\+4 -\/ Spolecne definice typu.  
 
 
-{\ttfamily \#include $<$stdint.\+h$>$}\newline
-{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
 {\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
 {\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
-{\ttfamily \#include "{}esp\+\_\+err.\+h"{}}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
 Graf závislostí na vkládaných souborech pro chess\+\_\+types.\+h\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
@@ -128,7 +128,7 @@ enum \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}{move\+\
 , \newline
 \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a062f25db8c860c564d19c9e46c776fe0}{MOVE\+\_\+\+ERROR\+\_\+\+CASTLING\+\_\+\+BLOCKED}} = 12
 , \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1ac71919eb046ab42ba1e6a622b914863a}{MOVE\+\_\+\+ERROR\+\_\+\+EN\+\_\+\+PASSANT\+\_\+\+INVALID}} = 13
-, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a4dab65373947ddaa9d99838441f3fcff}{MOVE\+\_\+\+ERROR\+\_\+\+DESTINATION\+\_\+\+OCCUPIED}} = 14
+, \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a4dab65373947ddaa9d99838441f3fcff}{MOVE\+\_\+\+ERROR\+\_\+\+DESTINATION\+\_\+\+OCCUPIED}}
 , \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a0d51fa502a0284e356d4c196152a9165}{MOVE\+\_\+\+ERROR\+\_\+\+OUT\+\_\+\+OF\+\_\+\+BOUNDS}} = 15
 , \newline
 \mbox{\hyperlink{chess__types_8h_ad29cfdba222dc553f977a701312d18c1a98e7980c293506d89bac9ef4fae9e237}{MOVE\+\_\+\+ERROR\+\_\+\+GAME\+\_\+\+NOT\+\_\+\+ACTIVE}} = 16
@@ -236,57 +236,58 @@ enum \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66d}{led\+\_
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab94ae0805f7899148694194f7b562b74}{LED\+\_\+\+CMD\+\_\+\+ANIMATION}} = 7
 , \newline
 \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5}{LED\+\_\+\+CMD\+\_\+\+TEST}} = 8
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390}{LED\+\_\+\+CMD\+\_\+\+SET\+\_\+\+BRIGHTNESS}} = 9
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38}{LED\+\_\+\+CMD\+\_\+\+TEST\+\_\+\+ALL}} = 10
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221}{LED\+\_\+\+CMD\+\_\+\+MATRIX\+\_\+\+OFF}} = 11
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70}{LED\+\_\+\+CMD\+\_\+\+MATRIX\+\_\+\+ON}} = 12
 , \newline
-\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70}{LED\+\_\+\+CMD\+\_\+\+MATRIX\+\_\+\+ON}} = 12
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+13}} = 13
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+13}} = 13
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da99cc49c9086cca2b4d67e431f6f8243e}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+14}} = 14
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da01e63f99b685e64e8d0e8c356b59f9e2}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+15}} = 15
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da6f598eb95d085991a9c7210c7d9f4fbe}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+16}} = 16
 , \newline
-\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da6f598eb95d085991a9c7210c7d9f4fbe}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+16}} = 16
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da5ba99e2216abb36215c2d19fa7273c7a}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+17}} = 17
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da5ba99e2216abb36215c2d19fa7273c7a}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+17}} = 17
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daea821d2bde7f03358eecf371942fb6be}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+18}} = 18
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac0069a9eecc579e3bcc3c14d6865fe28}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+PLAYER\+\_\+\+CHANGE}} = 19
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab4580f84f360910c3c26cd55b1ecdf42}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+MOVE\+\_\+\+PATH}} = 20
 , \newline
-\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab4580f84f360910c3c26cd55b1ecdf42}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+MOVE\+\_\+\+PATH}} = 20
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac134d8980d40f9fc8a12f683b967b187}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CASTLE}} = 21
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dac134d8980d40f9fc8a12f683b967b187}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CASTLE}} = 21
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da08d8d77aeb5693180fb3c7752dccd626}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+PROMOTE}} = 22
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf8bf66ffd150099b9aed3c2e8a54d430}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+ENDGAME}} = 23
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da09320b788323ec0c6c037fbe5405fc94}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CHECK}} = 24
 , \newline
-\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da09320b788323ec0c6c037fbe5405fc94}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CHECK}} = 24
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa88ade2b1617bd7e2dbb98a0fd8f93ea}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CHECKMATE}} = 25
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa88ade2b1617bd7e2dbb98a0fd8f93ea}{LED\+\_\+\+CMD\+\_\+\+ANIM\+\_\+\+CHECKMATE}} = 25
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0a3b3480bea2aedbb8ba9ba174a97afc}{LED\+\_\+\+CMD\+\_\+\+RESERVED\+\_\+\+SLOT\+\_\+26}} = 26
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da3245bcef006f573a1e0c42e15e75ac3e}{LED\+\_\+\+CMD\+\_\+\+DISABLE}} = 25
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0d4704d7f14b5966b4d5e1e15c8effbe}{LED\+\_\+\+CMD\+\_\+\+ENABLE}} = 26
 , \newline
-\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0d4704d7f14b5966b4d5e1e15c8effbe}{LED\+\_\+\+CMD\+\_\+\+ENABLE}} = 26
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf8124758b9a58effb1393e3482358b1f}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+PROMOTION\+\_\+\+AVAILABLE}} = 27
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da441731e024d2f2a63ff838654017cb6f}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+PROMOTION\+\_\+\+UNAVAILABLE}} = 28
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf8124758b9a58effb1393e3482358b1f}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+PROMOTION\+\_\+\+AVAILABLE}}
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da441731e024d2f2a63ff838654017cb6f}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+PROMOTION\+\_\+\+UNAVAILABLE}}
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da1cd4129febc39d32125f7b63cbb1b968}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+SET\+\_\+\+PRESSED}} = 29
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da645e84d2ccec89c75209784f912340d8}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+SET\+\_\+\+RELEASED}} = 30
 , \newline
-\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da645e84d2ccec89c75209784f912340d8}{LED\+\_\+\+CMD\+\_\+\+BUTTON\+\_\+\+SET\+\_\+\+RELEASED}} = 30
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae4852702ef287c906e2ca5272c047361}{LED\+\_\+\+CMD\+\_\+\+GAME\+\_\+\+STATE\+\_\+\+UPDATE}} = 31
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae4852702ef287c906e2ca5272c047361}{LED\+\_\+\+CMD\+\_\+\+GAME\+\_\+\+STATE\+\_\+\+UPDATE}} = 31
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf0f30b49574874673f7dedf4e3ef637b}{LED\+\_\+\+CMD\+\_\+\+HIGHLIGHT\+\_\+\+PIECES}} = 32
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dad5d7870e73aceb328b67166210b27182}{LED\+\_\+\+CMD\+\_\+\+HIGHLIGHT\+\_\+\+MOVES}} = 33
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da9188b02c7998356975109115ec629b21}{LED\+\_\+\+CMD\+\_\+\+CLEAR\+\_\+\+HIGHLIGHTS}} = 34
 , \newline
-\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da9188b02c7998356975109115ec629b21}{LED\+\_\+\+CMD\+\_\+\+CLEAR\+\_\+\+HIGHLIGHTS}} = 34
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa5c435ea8239bab77cfab55550b5bee1}{LED\+\_\+\+CMD\+\_\+\+PLAYER\+\_\+\+CHANGE}} = 35
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa5c435ea8239bab77cfab55550b5bee1}{LED\+\_\+\+CMD\+\_\+\+PLAYER\+\_\+\+CHANGE}} = 35
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da61126ce66596b43a74b040d15ae4647c}{LED\+\_\+\+CMD\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+MOVE}} = 36
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dab074e02d4c9516005c3bd7d31f8e787b}{LED\+\_\+\+CMD\+\_\+\+ERROR\+\_\+\+RETURN\+\_\+\+PIECE}} = 37
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da6b00fc5d44a9d18c1cb99bb13c0f5815}{LED\+\_\+\+CMD\+\_\+\+ERROR\+\_\+\+RECOVERY}} = 38
 , \newline
-\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da6b00fc5d44a9d18c1cb99bb13c0f5815}{LED\+\_\+\+CMD\+\_\+\+ERROR\+\_\+\+RECOVERY}} = 38
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da55cf1cd112d68a2c834a4a8b83f26415}{LED\+\_\+\+CMD\+\_\+\+SHOW\+\_\+\+LEGAL\+\_\+\+MOVES}} = 39
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da58cefa5ccaee7e155c8f0ee780209e39}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+GUIDANCE}} = 40
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da55cf1cd112d68a2c834a4a8b83f26415}{LED\+\_\+\+CMD\+\_\+\+SHOW\+\_\+\+LEGAL\+\_\+\+MOVES}}
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da58cefa5ccaee7e155c8f0ee780209e39}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+GUIDANCE}}
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da279bafa5fec225b86ef70ef4ecdd2970}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+ERROR}} = 41
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da3e683c2a42a2ca7ed7a715d2492fee85}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+CELEBRATION}} = 42
 , \newline
-\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da3e683c2a42a2ca7ed7a715d2492fee85}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+CELEBRATION}} = 42
-, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0acbe04632886e7fcc679174560cac06}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+TUTORIAL}} = 43
+\mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da0acbe04632886e7fcc679174560cac06}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+TUTORIAL}} = 43
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daff455cc7d17fa43994e64e9c9b5e663f}{LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+CLEAR}} = 44
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf9dfd49be96d73059bdcf3f4e30c42dc}{LED\+\_\+\+CMD\+\_\+\+HIGHLIGHT\+\_\+\+HINT}} = 45
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69}{LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+ACTIVE}} = 97
 , \newline
 \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da79fc9577fe569938b3650e0615820b32}{LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+COMPACT}} = 98
 , \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0}{LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+DETAILED}} = 99
+, \mbox{\hyperlink{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390}{LED\+\_\+\+CMD\+\_\+\+SET\+\_\+\+BRIGHTNESS}} = 100
  \}
 \begin{DoxyCompactList}\small\item\em Typy LED prikazu. \end{DoxyCompactList}\item 
 enum \mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904b}{button\+\_\+event\+\_\+type\+\_\+t}} \{ \mbox{\hyperlink{chess__types_8h_a54c67f8a6d26165b932e66b06b5b904bac5a8f24e3beed7990f5495be58d2dc79}{BUTTON\+\_\+\+EVENT\+\_\+\+PRESS}} = 0
@@ -378,7 +379,7 @@ Pocet tlacitek v systemu (8 promotion + 1 reset = 9).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00555}{555}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00562}{562}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a6e67f103d41bb597001bdc4f58650cb3}\index{chess\_types.h@{chess\_types.h}!CHESS\_LED\_COUNT@{CHESS\_LED\_COUNT}}
 \index{CHESS\_LED\_COUNT@{CHESS\_LED\_COUNT}!chess\_types.h@{chess\_types.h}}
@@ -392,7 +393,7 @@ Celkovy pocet LED v systemu (alias pro CHESS\+\_\+\+LED\+\_\+\+COUNT\+\_\+\+TOTA
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00551}{551}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00558}{558}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a490b67efe5e74def79831ae40041f654}\index{chess\_types.h@{chess\_types.h}!CHESS\_LED\_COUNT\_BOARD@{CHESS\_LED\_COUNT\_BOARD}}
 \index{CHESS\_LED\_COUNT\_BOARD@{CHESS\_LED\_COUNT\_BOARD}!chess\_types.h@{chess\_types.h}}
@@ -406,7 +407,7 @@ Pocet LED pro sachovnici (8x8 = 64).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00545}{545}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00552}{552}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_ab7815f5333fcf26dd13f9966d6564412}\index{chess\_types.h@{chess\_types.h}!CHESS\_LED\_COUNT\_BUTTONS@{CHESS\_LED\_COUNT\_BUTTONS}}
 \index{CHESS\_LED\_COUNT\_BUTTONS@{CHESS\_LED\_COUNT\_BUTTONS}!chess\_types.h@{chess\_types.h}}
@@ -420,7 +421,7 @@ Pocet LED pro tlacitka (8 promotion + 1 reset = 9).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00547}{547}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00554}{554}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_afb4b5c24ea71da31d1fe1536f5c18728}\index{chess\_types.h@{chess\_types.h}!CHESS\_LED\_COUNT\_TOTAL@{CHESS\_LED\_COUNT\_TOTAL}}
 \index{CHESS\_LED\_COUNT\_TOTAL@{CHESS\_LED\_COUNT\_TOTAL}!chess\_types.h@{chess\_types.h}}
@@ -434,7 +435,7 @@ Celkovy pocet LED (64 sachovnice + 9 tlacitek = 73).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00549}{549}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00556}{556}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a66570ebf9fc22729e105df1e70b02db5}\index{chess\_types.h@{chess\_types.h}!CHESS\_MATRIX\_SIZE@{CHESS\_MATRIX\_SIZE}}
 \index{CHESS\_MATRIX\_SIZE@{CHESS\_MATRIX\_SIZE}!chess\_types.h@{chess\_types.h}}
@@ -448,7 +449,7 @@ Velikost matrix (8x8 = 64 poli).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00559}{559}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00566}{566}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a3b87426d2e6f6d464ec0a2df2f66dd83}\index{chess\_types.h@{chess\_types.h}!MAX\_MOVE\_HISTORY@{MAX\_MOVE\_HISTORY}}
 \index{MAX\_MOVE\_HISTORY@{MAX\_MOVE\_HISTORY}!chess\_types.h@{chess\_types.h}}
@@ -462,7 +463,7 @@ Maximalni pocet tahu v historii (200 tahu).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00563}{563}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00570}{570}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 
 
@@ -499,7 +500,7 @@ BUTTON\+\_\+\+EVENT\+\_\+\+DOUBLE\+\_\+\+PRESS&Dvojite stisknuti (do 300ms). \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00453}{453}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00468}{468}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_ade7744437207164be6ca650b128bd9e4}\index{chess\_types.h@{chess\_types.h}!game\_command\_type\_t@{game\_command\_type\_t}}
 \index{game\_command\_type\_t@{game\_command\_type\_t}!chess\_types.h@{chess\_types.h}}
@@ -695,7 +696,7 @@ GAME\+\_\+\+CMD\+\_\+\+TIMER\+\_\+\+TIMEOUT&Vyprseni casoveho limitu. \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00226}{226}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00229}{229}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502}\index{chess\_types.h@{chess\_types.h}!game\_response\_type\_t@{game\_response\_type\_t}}
 \index{game\_response\_type\_t@{game\_response\_type\_t}!chess\_types.h@{chess\_types.h}}
@@ -743,7 +744,7 @@ GAME\+\_\+\+RESPONSE\+\_\+\+LED\+\_\+\+STATUS&Odpoved obsahuje LED status. \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00322}{322}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00331}{331}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a4d48e82714c3766a44b6ae5378386b10}\index{chess\_types.h@{chess\_types.h}!game\_result\_type\_t@{game\_result\_type\_t}}
 \index{game\_result\_type\_t@{game\_result\_type\_t}!chess\_types.h@{chess\_types.h}}
@@ -783,7 +784,7 @@ RESULT\+\_\+\+DRAW\+\_\+\+INSUFFICIENT&Remiza -\/ nedostatecny material. \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00105}{105}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00106}{106}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a4edce1ca040716922b6e4a79be4e414d}\index{chess\_types.h@{chess\_types.h}!game\_state\_t@{game\_state\_t}}
 \index{game\_state\_t@{game\_state\_t}!chess\_types.h@{chess\_types.h}}
@@ -839,7 +840,7 @@ GAME\+\_\+\+STATE\+\_\+\+WAITING\+\_\+\+FOR\+\_\+\+RETURN&Ceka se na vraceni fig
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00077}{77}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00078}{78}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66d}\index{chess\_types.h@{chess\_types.h}!led\_command\_type\_t@{led\_command\_type\_t}}
 \index{led\_command\_type\_t@{led\_command\_type\_t}!chess\_types.h@{chess\_types.h}}
@@ -886,10 +887,6 @@ LED\+\_\+\+CMD\+\_\+\+ANIMATION&Spust animaci. \\
 
 \raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_TEST@{LED\_CMD\_TEST}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_TEST@{LED\_CMD\_TEST}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5} 
 LED\+\_\+\+CMD\+\_\+\+TEST&Testovaci vzor. \\
-\hline
-
-\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_SET\_BRIGHTNESS@{LED\_CMD\_SET\_BRIGHTNESS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_SET\_BRIGHTNESS@{LED\_CMD\_SET\_BRIGHTNESS}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390} 
-LED\+\_\+\+CMD\+\_\+\+SET\+\_\+\+BRIGHTNESS&Nastav jas LED. \\
 \hline
 
 \raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_TEST\_ALL@{LED\_CMD\_TEST\_ALL}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_TEST\_ALL@{LED\_CMD\_TEST\_ALL}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38} 
@@ -1040,6 +1037,10 @@ LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+TUTORIAL&Zobraz tutorial rosady. \\
 LED\+\_\+\+CMD\+\_\+\+CASTLING\+\_\+\+CLEAR&Vymaz vsechny indikace rosady. \\
 \hline
 
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_HIGHLIGHT\_HINT@{LED\_CMD\_HIGHLIGHT\_HINT}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_HIGHLIGHT\_HINT@{LED\_CMD\_HIGHLIGHT\_HINT}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf9dfd49be96d73059bdcf3f4e30c42dc}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daf9dfd49be96d73059bdcf3f4e30c42dc} 
+LED\+\_\+\+CMD\+\_\+\+HIGHLIGHT\+\_\+\+HINT&Zvyrazni napovedu (odkud/kam) -\/ led\+\_\+index=from, data=(uint8\+\_\+t\texorpdfstring{$\ast$}{*})to\+\_\+index. \\
+\hline
+
 \raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_STATUS\_ACTIVE@{LED\_CMD\_STATUS\_ACTIVE}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_STATUS\_ACTIVE@{LED\_CMD\_STATUS\_ACTIVE}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69} 
 LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+ACTIVE&Status prikaz -\/ aktivni LED. \\
 \hline
@@ -1052,10 +1053,14 @@ LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+COMPACT&Status prikaz -\/ kompaktni vystup. 
 LED\+\_\+\+CMD\+\_\+\+STATUS\+\_\+\+DETAILED&Status prikaz -\/ detailni vystup. \\
 \hline
 
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LED\_CMD\_SET\_BRIGHTNESS@{LED\_CMD\_SET\_BRIGHTNESS}!chess\_types.h@{chess\_types.h}}\index{chess\_types.h@{chess\_types.h}!LED\_CMD\_SET\_BRIGHTNESS@{LED\_CMD\_SET\_BRIGHTNESS}}}\Hypertarget{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390}\label{chess__types_8h_a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390} 
+LED\+\_\+\+CMD\+\_\+\+SET\+\_\+\+BRIGHTNESS&Nastav globalni jas (0-\/100). \\
+\hline
+
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00359}{359}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00369}{369}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a2e80d860c07cd8da638b44dbf01e447a}\index{chess\_types.h@{chess\_types.h}!matrix\_command\_type\_t@{matrix\_command\_type\_t}}
 \index{matrix\_command\_type\_t@{matrix\_command\_type\_t}!chess\_types.h@{chess\_types.h}}
@@ -1095,7 +1100,7 @@ MATRIX\+\_\+\+CMD\+\_\+\+ENABLE&Zapni skenovani matice. \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00511}{511}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00527}{527}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a86af72d7b967d33d0fade767c033320f}\index{chess\_types.h@{chess\_types.h}!matrix\_event\_type\_t@{matrix\_event\_type\_t}}
 \index{matrix\_event\_type\_t@{matrix\_event\_type\_t}!chess\_types.h@{chess\_types.h}}
@@ -1127,7 +1132,7 @@ MATRIX\+\_\+\+EVENT\+\_\+\+ERROR&Chyba pri detekovani. \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00482}{482}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00498}{498}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_ad29cfdba222dc553f977a701312d18c1}\index{chess\_types.h@{chess\_types.h}!move\_error\_t@{move\_error\_t}}
 \index{move\_error\_t@{move\_error\_t}!chess\_types.h@{chess\_types.h}}
@@ -1223,7 +1228,7 @@ MOVE\+\_\+\+ERROR\+\_\+\+ILLEGAL\+\_\+\+MOVE&Nelegalni tah. \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00120}{120}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00121}{121}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a049445f8ca6e7d0daf13a256e4375576}\index{chess\_types.h@{chess\_types.h}!move\_type\_t@{move\_type\_t}}
 \index{move\_type\_t@{move\_type\_t}!chess\_types.h@{chess\_types.h}}
@@ -1263,7 +1268,7 @@ MOVE\+\_\+\+TYPE\+\_\+\+PROMOTION&Promoce pescu. \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00186}{186}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00188}{188}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}\index{chess\_types.h@{chess\_types.h}!piece\_t@{piece\_t}}
 \index{piece\_t@{piece\_t}!chess\_types.h@{chess\_types.h}}
@@ -1331,7 +1336,7 @@ PIECE\+\_\+\+BLACK\+\_\+\+KING&Cerny kral. \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00049}{49}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00050}{50}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}\index{chess\_types.h@{chess\_types.h}!player\_t@{player\_t}}
 \index{player\_t@{player\_t}!chess\_types.h@{chess\_types.h}}
@@ -1355,7 +1360,7 @@ PLAYER\+\_\+\+BLACK&Cerny hrac. \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00095}{95}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00096}{96}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 \Hypertarget{chess__types_8h_a1b67a105371c4a0066f77f3fa12ad237}\index{chess\_types.h@{chess\_types.h}!promotion\_choice\_t@{promotion\_choice\_t}}
 \index{promotion\_choice\_t@{promotion\_choice\_t}!chess\_types.h@{chess\_types.h}}
@@ -1387,7 +1392,7 @@ PROMOTION\+\_\+\+KNIGHT&Promovat na kone. \\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00154}{154}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{chess__types_8h_source_l00156}{156}} v souboru \mbox{\hyperlink{chess__types_8h_source}{chess\+\_\+types.\+h}}.
 
 
 
@@ -1436,7 +1441,7 @@ ESP\+\_\+\+OK pri uspechu
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00050}{50}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00048}{48}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
 
 \Hypertarget{chess__types_8h_ad744426452d0ddd581a96e82f2369853}\index{chess\_types.h@{chess\_types.h}!config\_manager\_init@{config\_manager\_init}}
 \index{config\_manager\_init@{config\_manager\_init}!chess\_types.h@{chess\_types.h}}
@@ -1458,7 +1463,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00039}{39}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00038}{38}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
 
 \Hypertarget{chess__types_8h_a24aceb1224555fd605ab85c9b0842357}\index{chess\_types.h@{chess\_types.h}!config\_save\_to\_nvs@{config\_save\_to\_nvs}}
 \index{config\_save\_to\_nvs@{config\_save\_to\_nvs}!chess\_types.h@{chess\_types.h}}
@@ -1480,7 +1485,7 @@ ESP\+\_\+\+OK pri uspechu
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00119}{119}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{config__manager_8c_source_l00115}{115}} v souboru \mbox{\hyperlink{config__manager_8c_source}{config\+\_\+manager.\+c}}.
 
 \Hypertarget{chess__types_8h_a4a1fae8d66a8db2dd28a091a3b11279c}\index{chess\_types.h@{chess\_types.h}!game\_is\_enemy\_piece@{game\_is\_enemy\_piece}}
 \index{game\_is\_enemy\_piece@{game\_is\_enemy\_piece}!chess\_types.h@{chess\_types.h}}
@@ -1509,7 +1514,7 @@ true if insufficient material (draw)
 \end{DoxyReturn}
 Check if piece belongs to opponent 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08389}{8389}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09323}{9323}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{chess__types_8h_a7f31b3ea42f40399386306ba3d88cb9c}\index{chess\_types.h@{chess\_types.h}!game\_is\_own\_piece@{game\_is\_own\_piece}}
 \index{game\_is\_own\_piece@{game\_is\_own\_piece}!chess\_types.h@{chess\_types.h}}
@@ -1533,7 +1538,7 @@ true pokud je figurka vlastni
 \end{DoxyReturn}
 Overi zda je figurka vlastni (patri aktualnimu hraci). 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08943}{8943}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09920}{9920}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{chess__types_8h_ad58024344b5777da494b4a35f8250c32}\index{chess\_types.h@{chess\_types.h}!game\_is\_valid\_square@{game\_is\_valid\_square}}
 \index{game\_is\_valid\_square@{game\_is\_valid\_square}!chess\_types.h@{chess\_types.h}}
@@ -1557,7 +1562,7 @@ true pokud je pozice platna
 \end{DoxyReturn}
 Overi zda je pozice platna na sachovnici. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08936}{8936}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09913}{9913}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{chess__types_8h_a3d771c47f735ab5e75fee68915b073fc}\index{chess\_types.h@{chess\_types.h}!game\_simulate\_move\_check@{game\_simulate\_move\_check}}
 \index{game\_simulate\_move\_check@{game\_simulate\_move\_check}!chess\_types.h@{chess\_types.h}}
@@ -1581,5 +1586,5 @@ true pokud by tah nechal krale v sachu
 \end{DoxyReturn}
 Simuluje tah a overi zda by nechal krale v sachu. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09047}{9047}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10024}{10024}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 

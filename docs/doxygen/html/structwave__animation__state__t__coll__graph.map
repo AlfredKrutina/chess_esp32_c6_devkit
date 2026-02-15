@@ -1,5 +1,5 @@
 <map id="wave_animation_state_t" name="wave_animation_state_t">
-<area shape="rect" id="Node000001" title="Stav vlnové animace." alt="" coords="5,102,168,128"/>
-<area shape="rect" id="Node000002" href="$structwave__t.html" title="Stav jedné vlny." alt="" coords="55,5,118,31"/>
+<area shape="rect" id="Node000001" title="Stav vlnove animace." alt="" coords="5,102,168,128"/>
+<area shape="rect" id="Node000002" href="$structwave__t.html" title="Stav jedne vlny." alt="" coords="55,5,118,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,45,89,102,84,101,84,48"/>
 </map>

@@ -499,7 +499,7 @@ void initialize_chess_game(void) {
   if (game_command_queue != NULL) {
     chess_move_command_t cmd = {0};
     cmd.type = GAME_CMD_NEW_GAME;
-    // from_notation a to_notation nechte prázdné
+    // from_notation a to_notation nechte prazdne
 
     if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
       ESP_LOGE(TAG, "❌ Failed to send GAME_CMD_NEW_GAME");
@@ -540,6 +540,9 @@ void toggle_demo_mode(bool enabled) {
     ESP_LOGI(TAG, "🤖 SCREENSAVER MODE ENABLED");
     ESP_LOGI(TAG, "Automatic play will start with variable speed (0.7s - 4s)");
     ESP_LOGI(TAG, "Touch the board to interrupt!");
+
+    // Clear game error recovery so demo moves are accepted (e.g. after "return piece to e7")
+    game_reset_error_recovery_state();
 
     // Reset demo state
     demo_move_index = 0;
@@ -1322,9 +1325,9 @@ void app_main(void) {
   ESP_LOGI(TAG,
            "===============================================================");
 
-  // Zvýšení WDT timeout pro inicializaci
+  // Zvyseni WDT timeout pro inicializaci
   esp_task_wdt_config_t twdt_config = {
-      .timeout_ms = 10000, // 10 sekund pro init - OPTIMALIZOVÁNO pro web server
+      .timeout_ms = 10000, // 10 sekund pro init - optimalizovano pro web server
       .idle_core_mask = 0,
       .trigger_panic = true};
   // Use reconfigure instead of init to avoid "TWDT already
@@ -1388,10 +1391,10 @@ void app_main(void) {
   // CRITICAL: Reset watchdog AFTER task creation
   main_task_wdt_reset_safe();
 
-  // PŘIDAT: Vrátit normální WDT timeout po inicializaci - OPTIMALIZOVÁNO pro
+  // Navrat normalniho WDT timeoutu po inicializaci - optimalizovano pro
   // web server
-  twdt_config.timeout_ms = 8000;          // Zvýšeno na 8 sekund pro web server
-  esp_task_wdt_reconfigure(&twdt_config); // Použít reconfigure místo init
+  twdt_config.timeout_ms = 8000;          // Zvyseno na 8 sekund pro web server
+  esp_task_wdt_reconfigure(&twdt_config); // Pouzit reconfigure misto init
 
   // Main task is already registered with TWDT at the beginning of app_main()
   ESP_LOGI(TAG, "✓ Main task already registered with Task Watchdog Timer");

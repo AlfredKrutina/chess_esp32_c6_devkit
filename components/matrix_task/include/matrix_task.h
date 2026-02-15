@@ -87,7 +87,7 @@ void matrix_detect_moves(void);
 /**
  * @brief Detekuj kompletni tah
  * 
- * Detekuje kompletni tah (zvednutí + položení figurky) a posle
+ * Detekuje kompletni tah (zvednuti + polozeni figurky) a posle
  * MATRIX_EVENT_MOVE_DETECTED udalost.
  * 
  * @param from_square Zdrojove pole (0-63)
@@ -125,7 +125,7 @@ void matrix_print_state(void);
 /**
  * @brief Simuluj tah v matici
  * 
- * Pro testovani - simuluje zvednutí figurky z jednoho pole
+ * Pro testovani - simuluje zvednuti figurky z jednoho pole
  * a polozeni na jine pole.
  * 
  * @param from Zdrojova sachova notace (napr. "e2")

@@ -237,7 +237,7 @@ uint32_t visual_error_piece_blocked(uint8_t row, uint8_t col,
                                     uint8_t count);
 
 /**
- * @brief Zobraz chybu nereseného sachu
+ * @brief Zobraz chybu nereseneho sachu
  * 
  * @param king_row Radek krale
  * @param king_col Sloupec krale

@@ -1,5 +1,5 @@
 <map id="subtle_animation_state_t" name="subtle_animation_state_t">
-<area shape="rect" id="Node000001" title="Stav jemné animace." alt="" coords="5,102,172,128"/>
+<area shape="rect" id="Node000001" title="Stav jemne animace." alt="" coords="5,102,172,128"/>
 <area shape="rect" id="Node000002" href="$structrgb__color__t.html" title="RGB barva." alt="" coords="46,5,131,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,45,91,102,86,101,86,48"/>
 </map>

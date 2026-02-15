@@ -196,11 +196,11 @@ Funkce</h2></td></tr>
 <tr class="memitem:a68473225caaf82fb02dbe69dd2b0ac90" id="r_a68473225caaf82fb02dbe69dd2b0ac90"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a68473225caaf82fb02dbe69dd2b0ac90">enhanced_castling_start</a> (<a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> <a class="el" href="game__task_8c.html#ac5a8201c5f6bbce303ec36500d67b6d8">player</a>, bool is_kingside)</td></tr>
 <tr class="memdesc:a68473225caaf82fb02dbe69dd2b0ac90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spust sekvenci rosady.  <br /></td></tr>
 <tr class="memitem:a71c6334fe7eed0d589acfeb1cb6aeaaf" id="r_a71c6334fe7eed0d589acfeb1cb6aeaaf"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a71c6334fe7eed0d589acfeb1cb6aeaaf">enhanced_castling_handle_king_lift</a> (uint8_t row, uint8_t col)</td></tr>
-<tr class="memdesc:a71c6334fe7eed0d589acfeb1cb6aeaaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj udalost zvednutí krale.  <br /></td></tr>
+<tr class="memdesc:a71c6334fe7eed0d589acfeb1cb6aeaaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj udalost zvednuti krale.  <br /></td></tr>
 <tr class="memitem:ac1a783168547602db601cce5f25f5ef6" id="r_ac1a783168547602db601cce5f25f5ef6"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac1a783168547602db601cce5f25f5ef6">enhanced_castling_handle_king_drop</a> (uint8_t row, uint8_t col)</td></tr>
 <tr class="memdesc:ac1a783168547602db601cce5f25f5ef6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj udalost polozeni krale.  <br /></td></tr>
 <tr class="memitem:a1298ed566772765b083158dd04d7617e" id="r_a1298ed566772765b083158dd04d7617e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1298ed566772765b083158dd04d7617e">enhanced_castling_handle_rook_lift</a> (uint8_t row, uint8_t col)</td></tr>
-<tr class="memdesc:a1298ed566772765b083158dd04d7617e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj udalost zvednutí veze.  <br /></td></tr>
+<tr class="memdesc:a1298ed566772765b083158dd04d7617e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj udalost zvednuti veze.  <br /></td></tr>
 <tr class="memitem:ad0b372fd30752be5c2817d04115ad28d" id="r_ad0b372fd30752be5c2817d04115ad28d"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad0b372fd30752be5c2817d04115ad28d">enhanced_castling_handle_rook_drop</a> (uint8_t row, uint8_t col)</td></tr>
 <tr class="memdesc:ad0b372fd30752be5c2817d04115ad28d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj udalost polozeni veze.  <br /></td></tr>
 <tr class="memitem:a84967829c955ce40cb552af8f336c88d" id="r_a84967829c955ce40cb552af8f336c88d"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a84967829c955ce40cb552af8f336c88d">enhanced_castling_cancel</a> (void)</td></tr>
@@ -927,7 +927,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Zpracuj udalost zvednutí krale. </p>
+<p>Zpracuj udalost zvednuti krale. </p>
 <dl class="params"><dt>Parametry</dt><dd>
   <table class="params">
     <tr><td class="paramname">row</td><td>Radek krale (0-7) </td></tr>
@@ -936,7 +936,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu</dd></dl>
-<p>Zpracuj udalost zvednutí krale. </p>
+<p>Zpracuj udalost zvednuti krale. </p>
 
 <p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00167">167</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
 
@@ -995,7 +995,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Zpracuj udalost zvednutí veze. </p>
+<p>Zpracuj udalost zvednuti veze. </p>
 <dl class="params"><dt>Parametry</dt><dd>
   <table class="params">
     <tr><td class="paramname">row</td><td>Radek veze (0-7) </td></tr>
@@ -1004,7 +1004,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu</dd></dl>
-<p>Zpracuj udalost zvednutí veze. </p>
+<p>Zpracuj udalost zvednuti veze. </p>
 
 <p class="definition">Definice je uvedena na řádku <a class="el" href="enhanced__castling__system_8c_source.html#l00236">236</a> v souboru <a class="el" href="enhanced__castling__system_8c_source.html">enhanced_castling_system.c</a>.</p>
 

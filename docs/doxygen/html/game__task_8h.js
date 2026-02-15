@@ -63,6 +63,8 @@ var game__task_8h =
     [ "game_process_drop_command", "game__task_8h.html#a8de7eb2cbccf01d3c7ee792caaf9784e", null ],
     [ "game_process_matrix_events", "game__task_8h.html#a502098cd25ad56400beb2339a1bfb84c", null ],
     [ "game_process_timer_command", "game__task_8h.html#a7c1b38b6a6342df233fdcafe702b5a0f", null ],
+    [ "game_refresh_leds", "game__task_8h.html#a8b7aa3018c0775246c6fe867f3ae6af1", null ],
+    [ "game_reset_error_recovery_state", "game__task_8h.html#aa3dc2b9ee227e2a5302b2c1d908ec6d7", null ],
     [ "game_reset_game", "game__task_8h.html#ac75becc8b5888b8fa31045d7c28c085e", null ],
     [ "game_reset_timer", "game__task_8h.html#a0df29c9e5d4723c41477e530799976b0", null ],
     [ "game_resume_timer", "game__task_8h.html#aa1855cbe07e70ad38d0fbd163e7e9746", null ],

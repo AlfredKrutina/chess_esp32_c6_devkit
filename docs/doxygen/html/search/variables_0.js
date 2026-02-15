@@ -28,9 +28,10 @@ var searchData=
   ['animations_25',['animations',['../animation__task_8c.html#a3506bb72f29fcaebecde5c53bd6139f2',1,'animations:&#160;animation_task.c'],['../unified__animation__manager_8c.html#a4136accd8b976228e8391ba4c8e04879',1,'animations:&#160;unified_animation_manager.c']]],
   ['ap_5fnetif_26',['ap_netif',['../web__server__task_8c.html#a91aeff1220701b1ecdc74ab211de8243',1,'web_server_task.c']]],
   ['auto_5fflush_27',['auto_flush',['../structstreaming__output__t.html#a69827b451c4042f64dfccd148efd41b7',1,'streaming_output_t']]],
-  ['auto_5fnew_5fgame_5fin_5fstarting_5fposition_28',['auto_new_game_in_starting_position',['../game__task_8c.html#aae9a4d0a6d4c8c30d7b645eacd06716f',1,'game_task.c']]],
-  ['auto_5fnew_5fgame_5ftimer_5fstart_29',['auto_new_game_timer_start',['../game__task_8c.html#a742eef556956d6c9f4b0c3276501dabd',1,'game_task.c']]],
-  ['auto_5fnew_5fgame_5ftriggered_30',['auto_new_game_triggered',['../game__task_8c.html#a04d3ba5e73ae60bb8c57f895a51db47b',1,'game_task.c']]],
-  ['average_5fframe_5ftime_5fms_31',['average_frame_time_ms',['../structled__health__stats__t.html#a7d9e95f1afd0b1b48c7863b1d382d685',1,'led_health_stats_t']]],
-  ['avg_5fmove_5ftime_5fms_32',['avg_move_time_ms',['../structchess__timer__t.html#a9f1982f8c62719b0b75a2f0c5147c0aa',1,'chess_timer_t']]]
+  ['auto_5fnew_5fgame_5fblocked_5funtil_5fmove_28',['auto_new_game_blocked_until_move',['../game__task_8c.html#aeeb78940e65fff2e71ea41c1a8787c1c',1,'game_task.c']]],
+  ['auto_5fnew_5fgame_5fin_5fstarting_5fposition_29',['auto_new_game_in_starting_position',['../game__task_8c.html#aae9a4d0a6d4c8c30d7b645eacd06716f',1,'game_task.c']]],
+  ['auto_5fnew_5fgame_5ftimer_5fstart_30',['auto_new_game_timer_start',['../game__task_8c.html#a742eef556956d6c9f4b0c3276501dabd',1,'game_task.c']]],
+  ['auto_5fnew_5fgame_5ftriggered_31',['auto_new_game_triggered',['../game__task_8c.html#a04d3ba5e73ae60bb8c57f895a51db47b',1,'game_task.c']]],
+  ['average_5fframe_5ftime_5fms_32',['average_frame_time_ms',['../structled__health__stats__t.html#a7d9e95f1afd0b1b48c7863b1d382d685',1,'led_health_stats_t']]],
+  ['avg_5fmove_5ftime_5fms_33',['avg_move_time_ms',['../structchess__timer__t.html#a9f1982f8c62719b0b75a2f0c5147c0aa',1,'chess_timer_t']]]
 ];

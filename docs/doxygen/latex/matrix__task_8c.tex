@@ -6,13 +6,13 @@ Matrix Scanning Task -\/ Detekce fyzickych figurek na sachovnici.
 
 
 {\ttfamily \#include "{}matrix\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}../ha\+\_\+light\+\_\+task/include/ha\+\_\+light\+\_\+task.\+h"{}}\newline
 {\ttfamily \#include "{}chess\+\_\+types.\+h"{}}\newline
 {\ttfamily \#include "{}driver/gpio.\+h"{}}\newline
 {\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
 {\ttfamily \#include "{}esp\+\_\+system.\+h"{}}\newline
 {\ttfamily \#include "{}esp\+\_\+task\+\_\+wdt.\+h"{}}\newline
 {\ttfamily \#include "{}esp\+\_\+timer.\+h"{}}\newline
-{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
 {\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
 {\ttfamily \#include "{}freertos/semphr.\+h"{}}\newline
 {\ttfamily \#include "{}freertos/task.\+h"{}}\newline
@@ -45,10 +45,8 @@ void \mbox{\hyperlink{matrix__task_8c_a86518ffc745875b5c3c34d7c96f7e186}{matrix\
 \begin{DoxyCompactList}\small\item\em Oskenuj celou matici. \end{DoxyCompactList}\item 
 static void \mbox{\hyperlink{matrix__task_8c_ae622813bcd8b41c1040db3a6c8d34e13}{matrix\+\_\+send\+\_\+pickup\+\_\+command}} (uint8\+\_\+t square)
 \begin{DoxyCompactList}\small\item\em Helper function to send PICKUP command to game\+\_\+command\+\_\+queue. \end{DoxyCompactList}\item 
-static void \mbox{\hyperlink{matrix__task_8c_a0684c1516035306b49514c47a1af0fed}{matrix\+\_\+send\+\_\+drop\+\_\+command}} (uint8\+\_\+t square)
-\begin{DoxyCompactList}\small\item\em Helper function to send DROP command to game\+\_\+command\+\_\+queue. \end{DoxyCompactList}\item 
 static void \mbox{\hyperlink{matrix__task_8c_a275f664c60af320845973b221bd1db55}{matrix\+\_\+send\+\_\+drop\+\_\+command\+\_\+with\+\_\+from}} (uint8\+\_\+t from\+\_\+square, uint8\+\_\+t to\+\_\+square)
-\begin{DoxyCompactList}\small\item\em Helper function to send DROP command with from/to notation to game\+\_\+command\+\_\+queue. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Helper function to send DROP command to game\+\_\+command\+\_\+queue. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{matrix__task_8c_ad81a1142e821938e81029ad1d88f57d7}{matrix\+\_\+detect\+\_\+moves}} (void)
 \begin{DoxyCompactList}\small\item\em Detekuj tahy z matice. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{matrix__task_8c_a9f313f74d8c7d9bac02294a7f873eb75}{matrix\+\_\+detect\+\_\+complete\+\_\+move}} (uint8\+\_\+t from\+\_\+square, uint8\+\_\+t to\+\_\+square)
@@ -115,8 +113,8 @@ static uint8\+\_\+t \mbox{\hyperlink{matrix__task_8c_a859ec6ecf084e6271c6b99fb28
 \doxysubsection{Detailní popis}
 Matrix Scanning Task -\/ Detekce fyzickych figurek na sachovnici. 
 
-\hypertarget{matrix__task_8c_autotoc_md53}{}\doxysubsection{\texorpdfstring{autotoc\+\_\+md53}{autotoc\+\_\+md53}}\label{matrix__task_8c_autotoc_md53}
-\hypertarget{matrix__task_8c_autotoc_md54}{}\doxysubsection{\texorpdfstring{CO TENTO SOUBOR DELA?}{CO TENTO SOUBOR DELA?}}\label{matrix__task_8c_autotoc_md54}
+\hypertarget{matrix__task_8c_autotoc_md57}{}\doxysubsection{\texorpdfstring{autotoc\+\_\+md57}{autotoc\+\_\+md57}}\label{matrix__task_8c_autotoc_md57}
+\hypertarget{matrix__task_8c_autotoc_md58}{}\doxysubsection{\texorpdfstring{CO TENTO SOUBOR DELA?}{CO TENTO SOUBOR DELA?}}\label{matrix__task_8c_autotoc_md58}
 Tento task skenujesachovnici a detekuje pohyb figurek\+:
 \begin{DoxyEnumerate}
 \item Multiplexovany sken 8x8 matrix (Jazyckove kontakty pod kazdym polem)
@@ -127,7 +125,7 @@ Tento task skenujesachovnici a detekuje pohyb figurek\+:
 \end{DoxyEnumerate}
 
 \DoxyHorRuler{0}
- \hypertarget{matrix__task_8c_autotoc_md56}{}\doxysubsection{\texorpdfstring{JAK TO FUNGUJE?}{JAK TO FUNGUJE?}}\label{matrix__task_8c_autotoc_md56}
+ \hypertarget{matrix__task_8c_autotoc_md60}{}\doxysubsection{\texorpdfstring{JAK TO FUNGUJE?}{JAK TO FUNGUJE?}}\label{matrix__task_8c_autotoc_md60}
 MULTIPLEX SCANNING\+:
 \begin{DoxyItemize}
 \item Aktivuj radek 0 (row select GPIO)
@@ -154,7 +152,7 @@ PIECE TRACKING\+:
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
- \hypertarget{matrix__task_8c_autotoc_md58}{}\doxysubsection{\texorpdfstring{KOMUNIKACE (FIFOS)}{KOMUNIKACE (FIFOS)}}\label{matrix__task_8c_autotoc_md58}
+ \hypertarget{matrix__task_8c_autotoc_md62}{}\doxysubsection{\texorpdfstring{KOMUNIKACE (FIFOS)}{KOMUNIKACE (FIFOS)}}\label{matrix__task_8c_autotoc_md62}
 FRONTA -\/ Posilame detkovane tahy\+:
 \begin{DoxyItemize}
 \item game\+\_\+command\+\_\+queue -\/\texorpdfstring{$>$}{>} Poslani tahu typu GAME\+\_\+\+CMD\+\_\+\+MOVE\+\_\+\+DETECTED
@@ -163,7 +161,7 @@ FRONTA -\/ Posilame detkovane tahy\+:
 ZADNE MUTEXY -\/ Task je read-\/only (jen cte GPIO)
 
 \DoxyHorRuler{0}
- \hypertarget{matrix__task_8c_autotoc_md60}{}\doxysubsection{\texorpdfstring{HARDWARE (GPIO MAPPING)}{HARDWARE (GPIO MAPPING)}}\label{matrix__task_8c_autotoc_md60}
+ \hypertarget{matrix__task_8c_autotoc_md64}{}\doxysubsection{\texorpdfstring{HARDWARE (GPIO MAPPING)}{HARDWARE (GPIO MAPPING)}}\label{matrix__task_8c_autotoc_md64}
 ROW SELECT (8 pinu, aktivni LOW)\+:
 \begin{DoxyItemize}
 \item GPIO 10-\/17\+: Vyber radku sachovnice
@@ -181,7 +179,7 @@ Jazyckove kontakty\+: Detekuji magnet ve figurce
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
- \hypertarget{matrix__task_8c_autotoc_md62}{}\doxysubsection{\texorpdfstring{KRITICKA PRAVIDLA}{KRITICKA PRAVIDLA}}\label{matrix__task_8c_autotoc_md62}
+ \hypertarget{matrix__task_8c_autotoc_md66}{}\doxysubsection{\texorpdfstring{KRITICKA PRAVIDLA}{KRITICKA PRAVIDLA}}\label{matrix__task_8c_autotoc_md66}
 \begin{DoxyWarning}{Pozor}
 CO SE NESMI DELAT\+:
 \end{DoxyWarning}
@@ -194,7 +192,7 @@ CO SE NESMI DELAT\+:
 \end{DoxyEnumerate}
 
 \DoxyHorRuler{0}
- \hypertarget{matrix__task_8c_autotoc_md64}{}\doxysubsection{\texorpdfstring{TABLE OF CONTENTS}{TABLE OF CONTENTS}}\label{matrix__task_8c_autotoc_md64}
+ \hypertarget{matrix__task_8c_autotoc_md68}{}\doxysubsection{\texorpdfstring{TABLE OF CONTENTS}{TABLE OF CONTENTS}}\label{matrix__task_8c_autotoc_md68}
 Sekce 1\+: GPIO Init ............................ radek 80 Sekce 2\+: Matrix Scanning ...................... radek 200 Sekce 3\+: Debouncing Logic ..................... radek 350 Sekce 4\+: Event Detection ...................... radek 500 Sekce 5\+: Main Matrix Task ..................... radek 750
 
 \DoxyHorRuler{0}
@@ -241,7 +239,7 @@ Report activity on the board (interrupt demo mode) Called from matrix\+\_\+task 
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00532}{532}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00570}{570}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{matrix__task_8c_a8162927b4230f6777b1d42deec017797}\index{matrix\_task.c@{matrix\_task.c}!matrix\_acquire\_pins@{matrix\_acquire\_pins}}
 \index{matrix\_acquire\_pins@{matrix\_acquire\_pins}!matrix\_task.c@{matrix\_task.c}}
@@ -257,7 +255,7 @@ Obnovi normalni matrix scanning rezim po button scan window.
 
 Tato funkce je volana po button scan window. Matrix muze pokracovat v normalnim skenovani. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00846}{846}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00880}{880}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a9f313f74d8c7d9bac02294a7f873eb75}\index{matrix\_task.c@{matrix\_task.c}!matrix\_detect\_complete\_move@{matrix\_detect\_complete\_move}}
 \index{matrix\_detect\_complete\_move@{matrix\_detect\_complete\_move}!matrix\_task.c@{matrix\_task.c}}
@@ -269,7 +267,7 @@ void matrix\+\_\+detect\+\_\+complete\+\_\+move (\begin{DoxyParamCaption}\item[{
 
 Detekuj kompletni tah. 
 
-Detekuje kompletni tah (zvednutí + položení figurky) a posle MATRIX\+\_\+\+EVENT\+\_\+\+MOVE\+\_\+\+DETECTED udalost.
+Detekuje kompletni tah (zvednuti + polozeni figurky) a posle MATRIX\+\_\+\+EVENT\+\_\+\+MOVE\+\_\+\+DETECTED udalost.
 
 
 \begin{DoxyParams}{Parametry}
@@ -280,7 +278,7 @@ Detekuje kompletni tah (zvednutí + položení figurky) a posle MATRIX\+\_\+\+EV
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00596}{596}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00630}{630}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_ad81a1142e821938e81029ad1d88f57d7}\index{matrix\_task.c@{matrix\_task.c}!matrix\_detect\_moves@{matrix\_detect\_moves}}
 \index{matrix\_detect\_moves@{matrix\_detect\_moves}!matrix\_task.c@{matrix\_task.c}}
@@ -294,7 +292,7 @@ Detekuj tahy z matice.
 
 Hleda prechody 1-\/\texorpdfstring{$>$}{>}0 (figurka zvednuta) a 0-\/\texorpdfstring{$>$}{>}1 (figurka polozena) a generuje maticove udalosti. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00517}{517}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00551}{551}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a62798e0c14260b016d8d1739dedc2056}\index{matrix\_task.c@{matrix\_task.c}!matrix\_get\_state@{matrix\_get\_state}}
 \index{matrix\_get\_state@{matrix\_get\_state}!matrix\_task.c@{matrix\_task.c}}
@@ -313,7 +311,7 @@ Ziskej stav matice.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00643}{643}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00677}{677}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a7401a07900074895370aa1ba67a95c56}\index{matrix\_task.c@{matrix\_task.c}!matrix\_notation\_to\_square@{matrix\_notation\_to\_square}}
 \index{matrix\_notation\_to\_square@{matrix\_notation\_to\_square}!matrix\_task.c@{matrix\_task.c}}
@@ -335,7 +333,7 @@ Cislo pole (0-\/63)
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00626}{626}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00660}{660}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a4ffeb65e7984e50f1ad65b6a92c304cf}\index{matrix\_task.c@{matrix\_task.c}!matrix\_pins\_released@{matrix\_pins\_released}}
 \index{matrix\_pins\_released@{matrix\_pins\_released}!matrix\_task.c@{matrix\_task.c}}
@@ -354,7 +352,7 @@ true pokud jsou vsechny row piny HIGH (uvolnene)
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00859}{859}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00893}{893}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a4879f19808c12282ff427342dfea0f12}\index{matrix\_task.c@{matrix\_task.c}!matrix\_print\_state@{matrix\_print\_state}}
 \index{matrix\_print\_state@{matrix\_print\_state}!matrix\_task.c@{matrix\_task.c}}
@@ -368,7 +366,7 @@ Vypis aktualni stav matice.
 
 Vypise 8x8 matici s aktualni stav vsech poli (0 = prazdne, 1 = figurka). 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00651}{651}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00685}{685}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a60eff3fc23741f64ce1c24d5d556906b}\index{matrix\_task.c@{matrix\_task.c}!matrix\_process\_commands@{matrix\_process\_commands}}
 \index{matrix\_process\_commands@{matrix\_process\_commands}!matrix\_task.c@{matrix\_task.c}}
@@ -382,7 +380,7 @@ Zpracuj matrix prikazy z fronty.
 
 Cte prikazy z matrix\+\_\+command\+\_\+queue a vykonava je (scan, reset, test, calibrate, enable/disable). 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00748}{748}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00782}{782}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a9afd14fa75a6cfa6e37480b4935cd285}\index{matrix\_task.c@{matrix\_task.c}!matrix\_release\_pins@{matrix\_release\_pins}}
 \index{matrix\_release\_pins@{matrix\_release\_pins}!matrix\_task.c@{matrix\_task.c}}
@@ -398,7 +396,7 @@ Nastavi vsechny row piny na HIGH (neaktivni stav) aby button task mohl cist colu
 
 Tato funkce je volana pred button scan window (20-\/25ms). Vsechny row piny jsou nastaveny na HIGH (pulled up) takze column piny mohou byt bezpecne cteny pro button detection. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00827}{827}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00861}{861}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_aa7161ac2bf0076cc5ddfc91270c2bd34}\index{matrix\_task.c@{matrix\_task.c}!matrix\_reset@{matrix\_reset}}
 \index{matrix\_reset@{matrix\_reset}!matrix\_task.c@{matrix\_task.c}}
@@ -412,7 +410,7 @@ Resetuj stav matice.
 
 Vymaze vsechny vnitrni stavy matice a resetuje detekci tahu. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00792}{792}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00826}{826}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a86518ffc745875b5c3c34d7c96f7e186}\index{matrix\_task.c@{matrix\_task.c}!matrix\_scan\_all@{matrix\_scan\_all}}
 \index{matrix\_scan\_all@{matrix\_scan\_all}!matrix\_task.c@{matrix\_task.c}}
@@ -426,7 +424,7 @@ Oskenuj celou matici.
 
 Oskenuje vsech 8 radku matice a detekuje zmeny stavu. Pouziva mutex pro thread-\/safe pristup ke stavu matice. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00327}{327}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00353}{353}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a395c914a55ec3ebc25a3a3af66d6bba8}\index{matrix\_task.c@{matrix\_task.c}!matrix\_scan\_row@{matrix\_scan\_row}}
 \index{matrix\_scan\_row@{matrix\_scan\_row}!matrix\_task.c@{matrix\_task.c}}
@@ -447,7 +445,7 @@ Nastavi radkovy pin na HIGH, precte vsechny sloupcove piny a aktualizuje stav ma
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00309}{309}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00335}{335}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a2a57a5bda73ab9817a44c3c5702932f3}\index{matrix\_task.c@{matrix\_task.c}!matrix\_scan\_row\_internal@{matrix\_scan\_row\_internal}}
 \index{matrix\_scan\_row\_internal@{matrix\_scan\_row\_internal}!matrix\_task.c@{matrix\_task.c}}
@@ -483,26 +481,7 @@ Volajici musi drzet matrix\+\_\+mutex pred volanim teto funkce
 \end{DoxyNote}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00241}{241}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
-
-\Hypertarget{matrix__task_8c_a0684c1516035306b49514c47a1af0fed}\index{matrix\_task.c@{matrix\_task.c}!matrix\_send\_drop\_command@{matrix\_send\_drop\_command}}
-\index{matrix\_send\_drop\_command@{matrix\_send\_drop\_command}!matrix\_task.c@{matrix\_task.c}}
-\doxysubsubsection{\texorpdfstring{matrix\_send\_drop\_command()}{matrix\_send\_drop\_command()}}
-{\footnotesize\ttfamily \label{matrix__task_8c_a0684c1516035306b49514c47a1af0fed} 
-void matrix\+\_\+send\+\_\+drop\+\_\+command (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{square}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
-
-
-
-Helper function to send DROP command to game\+\_\+command\+\_\+queue. 
-
-
-\begin{DoxyParams}{Parametry}
-{\em square} & Square index (0-\/63) \\
-\hline
-\end{DoxyParams}
-
-
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00450}{450}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00242}{242}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a275f664c60af320845973b221bd1db55}\index{matrix\_task.c@{matrix\_task.c}!matrix\_send\_drop\_command\_with\_from@{matrix\_send\_drop\_command\_with\_from}}
 \index{matrix\_send\_drop\_command\_with\_from@{matrix\_send\_drop\_command\_with\_from}!matrix\_task.c@{matrix\_task.c}}
@@ -512,9 +491,14 @@ void matrix\+\_\+send\+\_\+drop\+\_\+command\+\_\+with\+\_\+from (\begin{DoxyPar
 
 
 
-Helper function to send DROP command with from/to notation to game\+\_\+command\+\_\+queue. 
+Helper function to send DROP command to game\+\_\+command\+\_\+queue. 
 
 
+\begin{DoxyParams}{Parametry}
+{\em square} & Square index (0-\/63)\\
+\hline
+\end{DoxyParams}
+Helper function to send DROP command with from/to notation to game\+\_\+command\+\_\+queue 
 \begin{DoxyParams}{Parametry}
 {\em from\+\_\+square} & Source square index (0-\/63) \\
 \hline
@@ -523,7 +507,7 @@ Helper function to send DROP command with from/to notation to game\+\_\+command\
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00484}{484}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00516}{516}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_ae622813bcd8b41c1040db3a6c8d34e13}\index{matrix\_task.c@{matrix\_task.c}!matrix\_send\_pickup\_command@{matrix\_send\_pickup\_command}}
 \index{matrix\_send\_pickup\_command@{matrix\_send\_pickup\_command}!matrix\_task.c@{matrix\_task.c}}
@@ -542,7 +526,7 @@ Helper function to send PICKUP command to game\+\_\+command\+\_\+queue.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00418}{418}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00444}{444}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_ac791c32154297e3ceebd47d8096cc8b9}\index{matrix\_task.c@{matrix\_task.c}!matrix\_simulate\_move@{matrix\_simulate\_move}}
 \index{matrix\_simulate\_move@{matrix\_simulate\_move}!matrix\_task.c@{matrix\_task.c}}
@@ -554,7 +538,7 @@ void matrix\+\_\+simulate\+\_\+move (\begin{DoxyParamCaption}\item[{const char \
 
 Simuluj tah v matici. 
 
-Pro testovani -\/ simuluje zvednutí figurky z jednoho pole a polozeni na jine pole.
+Pro testovani -\/ simuluje zvednuti figurky z jednoho pole a polozeni na jine pole.
 
 
 \begin{DoxyParams}{Parametry}
@@ -565,7 +549,7 @@ Pro testovani -\/ simuluje zvednutí figurky z jednoho pole a polozeni na jine p
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00721}{721}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00755}{755}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_ab2ee938ff9e39dbaeed9729d194db94a}\index{matrix\_task.c@{matrix\_task.c}!matrix\_square\_to\_notation@{matrix\_square\_to\_notation}}
 \index{matrix\_square\_to\_notation@{matrix\_square\_to\_notation}!matrix\_task.c@{matrix\_task.c}}
@@ -586,7 +570,7 @@ Prevede cislo pole na sachovou notaci.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00614}{614}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00648}{648}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a61e7f4685d87d40d712b5de9b8d22222}\index{matrix\_task.c@{matrix\_task.c}!matrix\_task\_start@{matrix\_task\_start}}
 \index{matrix\_task\_start@{matrix\_task\_start}!matrix\_task.c@{matrix\_task.c}}
@@ -607,7 +591,7 @@ Hlavni funkce matrix tasku. Bezi v nekonecne smycce a zpracovava skenovani matic
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00873}{873}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00907}{907}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_ad3ad65033f5eaaf1b607d806e212fe50}\index{matrix\_task.c@{matrix\_task.c}!matrix\_task\_wdt\_reset\_safe@{matrix\_task\_wdt\_reset\_safe}}
 \index{matrix\_task\_wdt\_reset\_safe@{matrix\_task\_wdt\_reset\_safe}!matrix\_task.c@{matrix\_task.c}}
@@ -624,7 +608,7 @@ ESP\+\_\+\+OK pokud uspesne, ESP\+\_\+\+ERR\+\_\+\+NOT\+\_\+\+FOUND pokud task n
 \end{DoxyReturn}
 Funkce je pouzivana pro bezpecny reset watchdog timeru behem matrix operaci. Zabranuje chybam pri startupu kdy task jeste neni registrovany. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00145}{145}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00146}{146}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_af455a307ac1bd0e33a3c213d3a5889e3}\index{matrix\_task.c@{matrix\_task.c}!matrix\_test\_scanning@{matrix\_test\_scanning}}
 \index{matrix\_test\_scanning@{matrix\_test\_scanning}!matrix\_task.c@{matrix\_task.c}}
@@ -634,7 +618,7 @@ void matrix\+\_\+test\+\_\+scanning (\begin{DoxyParamCaption}\item[{void}]{}{}\e
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00675}{675}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00709}{709}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 
 
@@ -649,7 +633,7 @@ uint8\+\_\+t current\+\_\+pattern = 1\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00204}{204}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00205}{205}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_aeccb1670596f160cce0ab5caec367e05}\index{matrix\_task.c@{matrix\_task.c}!current\_row@{current\_row}}
 \index{current\_row@{current\_row}!matrix\_task.c@{matrix\_task.c}}
@@ -659,7 +643,7 @@ uint8\+\_\+t current\+\_\+row = 0\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00178}{178}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00179}{179}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a25428bbb3212a5e17896b6f0de83ca2f}\index{matrix\_task.c@{matrix\_task.c}!last\_piece\_lifted@{last\_piece\_lifted}}
 \index{last\_piece\_lifted@{last\_piece\_lifted}!matrix\_task.c@{matrix\_task.c}}
@@ -669,7 +653,7 @@ uint8\+\_\+t last\+\_\+piece\+\_\+lifted = 255\hspace{0.3cm}{\ttfamily [static]}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00183}{183}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00184}{184}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a41dfccc3e986ded30a04de8de37d251f}\index{matrix\_task.c@{matrix\_task.c}!last\_piece\_placed@{last\_piece\_placed}}
 \index{last\_piece\_placed@{last\_piece\_placed}!matrix\_task.c@{matrix\_task.c}}
@@ -679,7 +663,7 @@ uint8\+\_\+t last\+\_\+piece\+\_\+placed = 255\hspace{0.3cm}{\ttfamily [static]}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00184}{184}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00185}{185}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a830cb4e3e4e340d70981f59ced6381fd}\index{matrix\_task.c@{matrix\_task.c}!last\_scan\_time@{last\_scan\_time}}
 \index{last\_scan\_time@{last\_scan\_time}!matrix\_task.c@{matrix\_task.c}}
@@ -689,7 +673,7 @@ uint32\+\_\+t last\+\_\+scan\+\_\+time = 0\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00179}{179}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00180}{180}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_aa6b75ccca141dbb71ab2e190fc56078b}\index{matrix\_task.c@{matrix\_task.c}!matrix\_changes@{matrix\_changes}}
 \index{matrix\_changes@{matrix\_changes}!matrix\_task.c@{matrix\_task.c}}
@@ -699,7 +683,7 @@ uint8\+\_\+t matrix\+\_\+changes\mbox{[}64\mbox{]} = \{0\}\hspace{0.3cm}{\ttfami
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00169}{169}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00170}{170}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_add49e624d0cc3921ffa016066be0f462}\index{matrix\_task.c@{matrix\_task.c}!matrix\_previous@{matrix\_previous}}
 \index{matrix\_previous@{matrix\_previous}!matrix\_task.c@{matrix\_task.c}}
@@ -709,7 +693,7 @@ uint8\+\_\+t matrix\+\_\+previous\mbox{[}64\mbox{]} = \{0\}\hspace{0.3cm}{\ttfam
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00168}{168}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00169}{169}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_ac4220888456a96a1308bbf06df3730b8}\index{matrix\_task.c@{matrix\_task.c}!matrix\_scanning\_enabled@{matrix\_scanning\_enabled}}
 \index{matrix\_scanning\_enabled@{matrix\_scanning\_enabled}!matrix\_task.c@{matrix\_task.c}}
@@ -719,7 +703,7 @@ bool matrix\+\_\+scanning\+\_\+enabled = true}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00174}{174}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00175}{175}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a3a1805bac344d932f67d863f671240d1}\index{matrix\_task.c@{matrix\_task.c}!matrix\_state@{matrix\_state}}
 \index{matrix\_state@{matrix\_state}!matrix\_task.c@{matrix\_task.c}}
@@ -729,7 +713,7 @@ uint8\+\_\+t matrix\+\_\+state\mbox{[}64\mbox{]} = \{0\}\hspace{0.3cm}{\ttfamily
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00167}{167}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00168}{168}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a001592c98e5a19d78635751717390918}\index{matrix\_task.c@{matrix\_task.c}!move\_detection\_timeout@{move\_detection\_timeout}}
 \index{move\_detection\_timeout@{move\_detection\_timeout}!matrix\_task.c@{matrix\_task.c}}
@@ -739,7 +723,7 @@ uint32\+\_\+t move\+\_\+detection\+\_\+timeout = 0\hspace{0.3cm}{\ttfamily [stat
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00185}{185}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00186}{186}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_aadac7bd6fb2efeee4da9a5432123db70}\index{matrix\_task.c@{matrix\_task.c}!scan\_count@{scan\_count}}
 \index{scan\_count@{scan\_count}!matrix\_task.c@{matrix\_task.c}}
@@ -749,7 +733,7 @@ uint32\+\_\+t scan\+\_\+count = 0\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00180}{180}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00181}{181}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a740a5ff73f18495856ddbc99ad099a6b}\index{matrix\_task.c@{matrix\_task.c}!simulation\_mode@{simulation\_mode}}
 \index{simulation\_mode@{simulation\_mode}!matrix\_task.c@{matrix\_task.c}}
@@ -759,7 +743,7 @@ bool simulation\+\_\+mode = false\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00173}{173}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00174}{174}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_abc6d07b73f387c902d6c85c33e923cfa}\index{matrix\_task.c@{matrix\_task.c}!simulation\_patterns@{simulation\_patterns}}
 \index{simulation\_patterns@{simulation\_patterns}!matrix\_task.c@{matrix\_task.c}}
@@ -788,7 +772,7 @@ const uint8\+\_\+t simulation\+\_\+patterns\mbox{[}$\,$\mbox{]}\mbox{[}64\mbox{]
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00188}{188}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00189}{189}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{matrix\_task.c@{matrix\_task.c}!TAG@{TAG}}
 \index{TAG@{TAG}!matrix\_task.c@{matrix\_task.c}}
@@ -798,7 +782,7 @@ const char\texorpdfstring{$\ast$}{*} TAG = "{}MATRIX\+\_\+\+TASK"{}\hspace{0.3cm
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00128}{128}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00129}{129}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 
 \Hypertarget{matrix__task_8c_a35141cb45623cb3b7b4d96da35ed1831}\index{matrix\_task.c@{matrix\_task.c}!task\_running@{task\_running}}
 \index{task\_running@{task\_running}!matrix\_task.c@{matrix\_task.c}}
@@ -808,5 +792,5 @@ bool task\+\_\+running = false\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00172}{172}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{matrix__task_8c_source_l00173}{173}} v souboru \mbox{\hyperlink{matrix__task_8c_source}{matrix\+\_\+task.\+c}}.
 

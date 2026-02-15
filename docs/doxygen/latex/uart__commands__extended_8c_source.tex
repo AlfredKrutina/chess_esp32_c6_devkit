@@ -369,13 +369,13 @@
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00392}00392\ \ \ \ \ \ \ \ \ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00393}00393\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ HSV\ -\/>\ RGB\ konverze\ (zjednodusena\ verze)}}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00394}00394\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Cervena:\ 0-\/60°\ plna,\ 60-\/120°\ klesa,\ jinak\ 0}}
-\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00395}00395\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ r\ =\ (hue\ <\ 60)\ ?\ 255\ :\ (hue\ <\ 120)\ ?\ 255\ -\/\ ((hue\ -\/\ 60)\ *\ 255)\ /\ 60\ :\ 0;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00395}00395\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\ =\ (hue\ <\ 60)\ ?\ 255\ :\ (hue\ <\ 120)\ ?\ 255\ -\/\ ((hue\ -\/\ 60)\ *\ 255)\ /\ 60\ :\ 0;}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00396}00396\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Zelena:\ 0-\/60°\ roste,\ 60-\/180°\ plna,\ 180-\/240°\ klesa,\ jinak\ 0}}
-\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00397}00397\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ g\ =\ (hue\ <\ 60)\ ?\ (hue\ *\ 255)\ /\ 60\ :\ (hue\ <\ 180)\ ?\ 255\ :\ 255\ -\/\ ((hue\ -\/\ 180)\ *\ 255)\ /\ 60;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00397}00397\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\ =\ (hue\ <\ 60)\ ?\ (hue\ *\ 255)\ /\ 60\ :\ (hue\ <\ 180)\ ?\ 255\ :\ 255\ -\/\ ((hue\ -\/\ 180)\ *\ 255)\ /\ 60;}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00398}00398\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Modra:\ 0-\/120°\ vypnuta,\ 120-\/240°\ roste,\ 240-\/360°\ plna}}
-\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00399}00399\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ b\ =\ (hue\ <\ 120)\ ?\ 0\ :\ (hue\ <\ 240)\ ?\ ((hue\ -\/\ 120)\ *\ 255)\ /\ 120\ :\ 255;}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00399}00399\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}\ =\ (hue\ <\ 120)\ ?\ 0\ :\ (hue\ <\ 240)\ ?\ ((hue\ -\/\ 120)\ *\ 255)\ /\ 120\ :\ 255;}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00400}00400\ \ \ \ \ \ \ \ \ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00401}00401\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(i,\ r,\ g,\ b);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00401}00401\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(i,\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}});}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00402}00402\ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00403}00403\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Rainbow\ pattern\ displayed\(\backslash\)r\(\backslash\)n"{}});}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00404}00404\ \ \ \ \ \}}
@@ -427,17 +427,17 @@
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00459}00459\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00460}00460\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00461}00461\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00462}00462\ \ \ \ \ \textcolor{keywordtype}{int}\ brightness\ =\ atoi(argv[1]);}
-\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00463}00463\ \ \ \ \ \textcolor{keywordflow}{if}\ (brightness\ <\ 0\ ||\ brightness\ >\ 255)\ \{}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00462}00462\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}}\ =\ atoi(argv[1]);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00463}00463\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness\ <\ 0\ ||\ brightness\ >}}\ 255)\ \{}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00464}00464\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}Brightness\ must\ be\ between\ 0\ and\ 255\(\backslash\)r\(\backslash\)n"{}});}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00465}00465\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00466}00466\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00467}00467\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00468}00468\ \ \ \ \ \textcolor{comment}{//\ Set\ brightness\ for\ all\ LEDs}}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00469}00469\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 64;\ i++)\ \{}
-\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00470}00470\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(i,\ brightness,\ brightness,\ brightness);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00470}00470\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(i,\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}},\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}},\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}});}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00471}00471\ \ \ \ \ \}}
-\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00472}00472\ \ \ \ \ printf(\textcolor{stringliteral}{"{}Brightness\ set\ to\ \%d\(\backslash\)r\(\backslash\)n"{}},\ brightness);}
+\DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00472}00472\ \ \ \ \ printf(\textcolor{stringliteral}{"{}Brightness\ set\ to\ \%d\(\backslash\)r\(\backslash\)n"{}},\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}});}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00473}00473\ \}}
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00474}00474\ }
 \DoxyCodeLine{\Hypertarget{uart__commands__extended_8c_source_l00478}\mbox{\hyperlink{uart__commands__extended_8h_aa86478fbc78b81c0beb5703735519706}{00478}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{uart__commands__extended_8c_aa86478fbc78b81c0beb5703735519706}{handle\_chess\_pos\_command}}(\textcolor{keywordtype}{char}*\ argv[],\ \textcolor{keywordtype}{int}\ argc)\ \{}

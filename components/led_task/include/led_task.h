@@ -64,6 +64,13 @@ void led_process_commands(void);
 void led_update_hardware(void);
 
 /**
+ * @brief Nastav globalni jas LED
+ *
+ * @param brightness Jas v procentech (0-100)
+ */
+void led_set_brightness_global(uint8_t brightness);
+
+/**
  * @brief Vykonaj novy LED prikaz
  *
  * @param cmd Ukazatel na LED prikaz
@@ -247,21 +254,27 @@ void led_preserve_buttons(void);
 void led_update_button_availability_from_game(void);
 
 /**
- * @brief Nastav barvu všech 64 LED desky pro HA mód
+ * @brief Nastav barvu vsech 64 LED desky pro HA mod
  *
- * @param r Červená složka (0-255)
- * @param g Zelená složka (0-255)
- * @param b Modrá složka (0-255)
+ * @param r Cervena slozka (0-255)
+ * @param g Zelena slozka (0-255)
+ * @param b Modra slozka (0-255)
  * @param brightness Jas (0-255) - aplikuje se na RGB
  */
 void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness);
 
 /**
- * @brief Obnoví šachovnici po HA módu
+ * @brief Obnovi sachovnici po HA modu
  *
- * Tato funkce obnoví normální zobrazení šachovnice (černá/bílá pole).
+ * Tato funkce obnovi normalni zobrazeni sachovnice (cerna/bila pole).
  */
 void led_restore_chess_board(void);
+
+/**
+ * @brief Obnovi zobrazeni LED vsech tlacitek podle aktualniho stavu (dostupnost/stisk)
+ * Volat po navratu z HA rezimu.
+ */
+void led_refresh_all_button_leds(void);
 
 // ============================================================================
 // ERROR HANDLING LED FUNKCE

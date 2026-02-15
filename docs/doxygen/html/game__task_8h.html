@@ -154,8 +154,12 @@ Funkce</h2></td></tr>
 <tr class="memdesc:a13909ec7cf87ce1999cd9647689e46aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj sachovy tah z UART prikazu.  <br /></td></tr>
 <tr class="memitem:a6199d3c51c2ba715c27b7be7428c61b7" id="r_a6199d3c51c2ba715c27b7be7428c61b7"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6199d3c51c2ba715c27b7be7428c61b7">game_get_board_json</a> (char *buffer, size_t size)</td></tr>
 <tr class="memdesc:a6199d3c51c2ba715c27b7be7428c61b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exportuj stav sachovnice do JSON retezce.  <br /></td></tr>
+<tr class="memitem:a2e528b3b66fe59544f28ca993c4a6143" id="r_a2e528b3b66fe59544f28ca993c4a6143"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e528b3b66fe59544f28ca993c4a6143">game_get_move_count</a> (void)</td></tr>
+<tr class="memdesc:a2e528b3b66fe59544f28ca993c4a6143"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exportuj stav hry do JSON retezce.  <br /></td></tr>
 <tr class="memitem:abdf3ba446d87db43c26b6c51275a521e" id="r_abdf3ba446d87db43c26b6c51275a521e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abdf3ba446d87db43c26b6c51275a521e">game_get_status_json</a> (char *buffer, size_t size)</td></tr>
 <tr class="memdesc:abdf3ba446d87db43c26b6c51275a521e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exportuj stav hry do JSON retezce.  <br /></td></tr>
+<tr class="memitem:a8b7aa3018c0775246c6fe867f3ae6af1" id="r_a8b7aa3018c0775246c6fe867f3ae6af1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8b7aa3018c0775246c6fe867f3ae6af1">game_refresh_leds</a> (void)</td></tr>
+<tr class="memdesc:a8b7aa3018c0775246c6fe867f3ae6af1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vynuceny refresh LED podle aktualniho stavu hry Volat po navratu z HA rezimu nebo jineho preruseni.  <br /></td></tr>
 <tr class="memitem:a5d08ec12c99532e3819abb072385a921" id="r_a5d08ec12c99532e3819abb072385a921"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5d08ec12c99532e3819abb072385a921">game_get_history_json</a> (char *buffer, size_t size)</td></tr>
 <tr class="memdesc:a5d08ec12c99532e3819abb072385a921"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exportuj historii tahu do JSON retezce.  <br /></td></tr>
 <tr class="memitem:aa442a40b76d56106f726f76bc210b84e" id="r_aa442a40b76d56106f726f76bc210b84e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa442a40b76d56106f726f76bc210b84e">game_get_captured_json</a> (char *buffer, size_t size)</td></tr>
@@ -170,6 +174,8 @@ Funkce</h2></td></tr>
 <tr class="memdesc:ac75becc8b5888b8fa31045d7c28c085e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuj hru do pocatecniho stavu.  <br /></td></tr>
 <tr class="memitem:a57e990b9360540c1ba82ea3d5a32cf44" id="r_a57e990b9360540c1ba82ea3d5a32cf44"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a57e990b9360540c1ba82ea3d5a32cf44">game_start_new_game</a> (void)</td></tr>
 <tr class="memdesc:a57e990b9360540c1ba82ea3d5a32cf44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spust novou hru.  <br /></td></tr>
+<tr class="memitem:aa3dc2b9ee227e2a5302b2c1d908ec6d7" id="r_aa3dc2b9ee227e2a5302b2c1d908ec6d7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa3dc2b9ee227e2a5302b2c1d908ec6d7">game_reset_error_recovery_state</a> (void)</td></tr>
+<tr class="memdesc:aa3dc2b9ee227e2a5302b2c1d908ec6d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vynuluje stav error recovery (vraceni figurky na blikajici pole).  <br /></td></tr>
 <tr class="memitem:a93dee8ccd518ae0092501007a420e4bb" id="r_a93dee8ccd518ae0092501007a420e4bb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a93dee8ccd518ae0092501007a420e4bb">game_is_valid_position</a> (int row, int col)</td></tr>
 <tr class="memdesc:a93dee8ccd518ae0092501007a420e4bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je pozice platna na sachovnici.  <br /></td></tr>
 <tr class="memitem:ab1f6294f23b24a27514d95c3b0ca0a4d" id="r_ab1f6294f23b24a27514d95c3b0ca0a4d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab1f6294f23b24a27514d95c3b0ca0a4d">game_get_piece</a> (int row, int col)</td></tr>
@@ -216,8 +222,6 @@ Funkce</h2></td></tr>
 <tr class="memdesc:ac8bfd19bdb7f1bbe6986c0f007713f73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej aktualni stav hry.  <br /></td></tr>
 <tr class="memitem:a98c28bfe096e1b2f5dd819da477efbe1" id="r_a98c28bfe096e1b2f5dd819da477efbe1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a98c28bfe096e1b2f5dd819da477efbe1">game_get_current_player</a> (void)</td></tr>
 <tr class="memdesc:a98c28bfe096e1b2f5dd819da477efbe1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej aktualniho hrace na tahu.  <br /></td></tr>
-<tr class="memitem:a2e528b3b66fe59544f28ca993c4a6143" id="r_a2e528b3b66fe59544f28ca993c4a6143"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e528b3b66fe59544f28ca993c4a6143">game_get_move_count</a> (void)</td></tr>
-<tr class="memdesc:a2e528b3b66fe59544f28ca993c4a6143"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej pocet provedenych tahu.  <br /></td></tr>
 <tr class="memitem:ad7894f48d6e00cfe140b99026be38b71" id="r_ad7894f48d6e00cfe140b99026be38b71"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad7894f48d6e00cfe140b99026be38b71">game_print_board</a> (void)</td></tr>
 <tr class="memdesc:ad7894f48d6e00cfe140b99026be38b71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vypis aktualni pozici sachovnice.  <br /></td></tr>
 <tr class="memitem:ae11065cb566adb8002df27fc8edc2b67" id="r_ae11065cb566adb8002df27fc8edc2b67"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae11065cb566adb8002df27fc8edc2b67">game_get_piece_name</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
@@ -247,7 +251,7 @@ Funkce</h2></td></tr>
 <tr class="memitem:a8b43b89b88ce59ea25698ac5a8280bf2" id="r_a8b43b89b88ce59ea25698ac5a8280bf2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8b43b89b88ce59ea25698ac5a8280bf2">game_clear_highlights_direct</a> (void)</td></tr>
 <tr class="memdesc:a8b43b89b88ce59ea25698ac5a8280bf2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vymaz zvyrazneni primo pres LED.  <br /></td></tr>
 <tr class="memitem:aad4c6f489504e1aace2045420bcec3d1" id="r_aad4c6f489504e1aace2045420bcec3d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad4c6f489504e1aace2045420bcec3d1">game_show_piece_lift_direct</a> (uint8_t row, uint8_t col)</td></tr>
-<tr class="memdesc:aad4c6f489504e1aace2045420bcec3d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz zvednutí figurky primo pres LED.  <br /></td></tr>
+<tr class="memdesc:aad4c6f489504e1aace2045420bcec3d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz zvednuti figurky primo pres LED.  <br /></td></tr>
 <tr class="memitem:af337fa678e02039015341d7fa45e3ccc" id="r_af337fa678e02039015341d7fa45e3ccc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af337fa678e02039015341d7fa45e3ccc">game_show_valid_moves_direct</a> (uint8_t *valid_positions, uint8_t count)</td></tr>
 <tr class="memdesc:af337fa678e02039015341d7fa45e3ccc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz platne tahy primo pres LED.  <br /></td></tr>
 <tr class="memitem:a5f2645fc55410cfe671fe6e8f2a99f2f" id="r_a5f2645fc55410cfe671fe6e8f2a99f2f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5f2645fc55410cfe671fe6e8f2a99f2f">game_show_invalid_move_error</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</td></tr>
@@ -293,7 +297,7 @@ Funkce</h2></td></tr>
 <tr class="memitem:a502098cd25ad56400beb2339a1bfb84c" id="r_a502098cd25ad56400beb2339a1bfb84c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a502098cd25ad56400beb2339a1bfb84c">game_process_matrix_events</a> (void)</td></tr>
 <tr class="memdesc:a502098cd25ad56400beb2339a1bfb84c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj matrix udalosti (tahy).  <br /></td></tr>
 <tr class="memitem:a484415c76302e466ea7b01ecb2edee09" id="r_a484415c76302e466ea7b01ecb2edee09"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a484415c76302e466ea7b01ecb2edee09">game_highlight_movable_pieces</a> (void)</td></tr>
-<tr class="memdesc:a484415c76302e466ea7b01ecb2edee09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zvyrazni vsechny pohyblivé figurky aktualniho hrace.  <br /></td></tr>
+<tr class="memdesc:a484415c76302e466ea7b01ecb2edee09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zvyrazni vsechny pohyblive figurky aktualniho hrace.  <br /></td></tr>
 <tr class="memitem:ad6aef74bc8447dabf92abcb081340931" id="r_ad6aef74bc8447dabf92abcb081340931"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad6aef74bc8447dabf92abcb081340931">game_detect_new_game_setup</a> (void)</td></tr>
 <tr class="memdesc:ad6aef74bc8447dabf92abcb081340931"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detekuj zda jsou figurky ve vychozi pozici.  <br /></td></tr>
 <tr class="memitem:a67dfb69eac8af38766e7d92cf3b4b5d0" id="r_a67dfb69eac8af38766e7d92cf3b4b5d0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a67dfb69eac8af38766e7d92cf3b4b5d0">game_is_castle_animation_active</a> (void)</td></tr>
@@ -327,11 +331,11 @@ Funkce</h2></td></tr>
 <tr class="memitem:a95937d38b6f9490371d95bd51ec8460c" id="r_a95937d38b6f9490371d95bd51ec8460c"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a95937d38b6f9490371d95bd51ec8460c">game_end_timer_move</a> (void)</td></tr>
 <tr class="memdesc:a95937d38b6f9490371d95bd51ec8460c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ukonci timer pro tah.  <br /></td></tr>
 <tr class="memitem:a25364833eb80653b4d30414376f3fe35" id="r_a25364833eb80653b4d30414376f3fe35"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a25364833eb80653b4d30414376f3fe35">game_pause_timer</a> (void)</td></tr>
-<tr class="memdesc:a25364833eb80653b4d30414376f3fe35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pozastav herní timer.  <br /></td></tr>
+<tr class="memdesc:a25364833eb80653b4d30414376f3fe35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pozastav herni timer.  <br /></td></tr>
 <tr class="memitem:aa1855cbe07e70ad38d0fbd163e7e9746" id="r_aa1855cbe07e70ad38d0fbd163e7e9746"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa1855cbe07e70ad38d0fbd163e7e9746">game_resume_timer</a> (void)</td></tr>
-<tr class="memdesc:aa1855cbe07e70ad38d0fbd163e7e9746"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obnov herní timer.  <br /></td></tr>
+<tr class="memdesc:aa1855cbe07e70ad38d0fbd163e7e9746"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obnov herni timer.  <br /></td></tr>
 <tr class="memitem:a0df29c9e5d4723c41477e530799976b0" id="r_a0df29c9e5d4723c41477e530799976b0"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0df29c9e5d4723c41477e530799976b0">game_reset_timer</a> (void)</td></tr>
-<tr class="memdesc:a0df29c9e5d4723c41477e530799976b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuj herní timer.  <br /></td></tr>
+<tr class="memdesc:a0df29c9e5d4723c41477e530799976b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuj herni timer.  <br /></td></tr>
 <tr class="memitem:a58b489e87078e33ccf75b35d892bb4fe" id="r_a58b489e87078e33ccf75b35d892bb4fe"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a58b489e87078e33ccf75b35d892bb4fe">game_get_remaining_time</a> (bool is_white_turn)</td></tr>
 <tr class="memdesc:a58b489e87078e33ccf75b35d892bb4fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej zbyvajici cas hrace.  <br /></td></tr>
 <tr class="memitem:a917f1907b236e1476e75bb033e2a3165" id="r_a917f1907b236e1476e75bb033e2a3165"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a917f1907b236e1476e75bb033e2a3165">game_init_timer_system</a> (void)</td></tr>
@@ -416,7 +420,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if conversion successful, false otherwise </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l05584">5584</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l06383">6383</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -465,7 +469,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if conversion successful, false otherwise </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l05556">5556</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l06355">6355</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -487,7 +491,7 @@ Funkce</h2></td></tr>
 <p>Pridej pozici do historie pro detekci opakovani. </p>
 <p>Pridej pozici do historie pro detekci opakovani. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00828">828</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00758">758</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -521,7 +525,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Material difference (positive = white advantage, negative = black advantage) </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00870">870</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00800">800</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -544,7 +548,7 @@ Funkce</h2></td></tr>
 <p>Vypocitej hash pozice pro detekci opakovani.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>32-bit position hash </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00759">759</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00689">689</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -588,7 +592,7 @@ Funkce</h2></td></tr>
 </ul>
 </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08511">8511</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09445">9445</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -611,7 +615,7 @@ Funkce</h2></td></tr>
 <p>Kontroluje zda je kral v sachu, matu nebo patu.</p>
 <p>Overi podminky sachu/matu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08274">8274</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09208">9208</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -691,7 +695,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if castle was completed successfully </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10839">10839</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11916">11916</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -738,7 +742,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08755">8755</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09696">9696</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -763,7 +767,7 @@ Funkce</h2></td></tr>
 <p>Detekuj zda jsou figurky ve vychozi pozici.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if pieces are in starting positions, false otherwise </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09753">9753</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10747">10747</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -785,7 +789,7 @@ Funkce</h2></td></tr>
 <p>Ukonci timer pro tah. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11329">11329</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12433">12433</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -814,7 +818,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud byl tah uspesne proveden </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02990">2990</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l03105">3105</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -856,7 +860,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11216">11216</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12320">12320</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -912,7 +916,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Number of available moves found </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02781">2781</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02829">2829</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -934,7 +938,7 @@ Funkce</h2></td></tr>
 <p>Ziskej pocet vyher cerneho. </p>
 <p>Ziskej pocet vyher cerneho. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01211">1211</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01141">1141</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -967,7 +971,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10895">10895</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11972">11972</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1000,7 +1004,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11165">11165</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12269">12269</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1022,7 +1026,7 @@ Funkce</h2></td></tr>
 <p>Ziskej aktualniho hrace na tahu. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Aktualni hrac (PLAYER_WHITE nebo PLAYER_BLACK) </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l03347">3347</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l03625">3625</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1044,7 +1048,7 @@ Funkce</h2></td></tr>
 <p>Ziskej pocet remiz. </p>
 <p>Ziskej pocet remiz. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01216">1216</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01146">1146</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1066,7 +1070,7 @@ Funkce</h2></td></tr>
 <p>Ziskej textovy retezec stavu hry. </p>
 <p>Ziskej textovy retezec stavu hry. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01226">1226</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01156">1156</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1099,7 +1103,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11120">11120</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12224">12224</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1132,7 +1136,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00901">901</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00831">831</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1151,10 +1155,24 @@ Funkce</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Ziskej pocet provedenych tahu. </p>
+<p>Exportuj stav hry do JSON retezce. </p>
+<p>Ziskej pocet provedenych tahu.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer</td><td>Vystupni buffer pro JSON retezec </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">size</td><td>Velikost bufferu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani</dd></dl>
+<p>Vrati aktualni pocet tahu (thread-safe) </p><dl class="section return"><dt>Návratová hodnota</dt><dd>Aktualni pocet tahu od zacatku hry</dd>
+<dd>
+Pocet tahu od zacatku hry</dd></dl>
+<p>Exportuj stav hry do JSON retezce.</p>
+<p>Ziskej pocet provedenych tahu.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Pocet tahu od zacatku hry </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l03349">3349</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12018">12018</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1187,7 +1205,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Typ figurky na pozici </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01675">1675</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01659">1659</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1223,7 +1241,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Piece name string </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02641">2641</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02689">2689</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1251,7 +1269,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Zbyvajici cas v milisekundach </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11367">11367</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12471">12471</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1273,7 +1291,7 @@ Funkce</h2></td></tr>
 <p>Ziskej aktualni stav hry. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Aktualni stav hry (GAME_STATE_IDLE, GAME_STATE_PLAYING, atd.) </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l03345">3345</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l03623">3623</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1306,7 +1324,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10938">10938</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12027">12027</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1339,7 +1357,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11278">11278</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12382">12382</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1361,7 +1379,7 @@ Funkce</h2></td></tr>
 <p>Ziskej celkovy pocet her. </p>
 <p>Ziskej celkovy pocet her. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01221">1221</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01151">1151</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1383,7 +1401,7 @@ Funkce</h2></td></tr>
 <p>Ziskej pocet vyher bileho. </p>
 <p>Ziskej pocet vyher bileho. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01206">1206</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01136">1136</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1417,7 +1435,7 @@ Funkce</h2></td></tr>
 </dl>
 <p>Zpracuj neplatny tah. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l07598">7598</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08510">8510</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1439,7 +1457,7 @@ Funkce</h2></td></tr>
 <p>Zpracuj vyprseni casu. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11458">11458</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12562">12562</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1468,7 +1486,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if player has legal moves </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08375">8375</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09309">9309</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1508,7 +1526,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l07552">7552</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08464">8464</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1527,11 +1545,11 @@ Funkce</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Zvyrazni vsechny pohyblivé figurky aktualniho hrace. </p>
+<p>Zvyrazni vsechny pohyblive figurky aktualniho hrace. </p>
 <p>Zobrazi jemnou zlutou animaci na vsech figurkach ktere se mohou hybat.</p>
-<p>Zvyrazni vsechny pohyblivé figurky aktualniho hrace. </p>
+<p>Zvyrazni vsechny pohyblive figurky aktualniho hrace. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10400">10400</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11437">11437</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1571,7 +1589,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l07572">7572</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08484">8484</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1593,7 +1611,7 @@ Funkce</h2></td></tr>
 <p>Inicializuj timer system v game tasku. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11380">11380</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12484">12484</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1623,7 +1641,7 @@ Funkce</h2></td></tr>
 <li>Resetuje vsechny stavy hry </li>
 </ul>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01416">1416</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01352">1352</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1651,7 +1669,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je figurka cerna </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01697">1697</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01681">1681</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1675,7 +1693,7 @@ Funkce</h2></td></tr>
 <p>Overi zda je aktivni animace rosady.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if castle animation is waiting for rook move </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10809">10809</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11885">11885</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1699,7 +1717,7 @@ Funkce</h2></td></tr>
 <p>Overi zda se ocekava rosada.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if castling is expected </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10816">10816</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11892">11892</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1732,7 +1750,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je pozice prazdna </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01689">1689</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01673">1673</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1774,7 +1792,7 @@ Funkce</h2></td></tr>
 <li>Cilove pole je uprostred mezi start a cil pozici protivnikova pesce </li>
 </ol>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02226">2226</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02255">2255</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1796,7 +1814,7 @@ Funkce</h2></td></tr>
 <p>Overi nedostatecny material pro mat. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je nedostatecny material (automaticka remiza) </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08396">8396</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09330">9330</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1825,7 +1843,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if king is in check </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08318">8318</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09252">9252</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1848,7 +1866,7 @@ Funkce</h2></td></tr>
 <p>Overi zda byla pozice opakovana.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if position is repeated 3+ times (draw by repetition) </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00808">808</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00738">738</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1907,7 +1925,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud jsou figurky stejne barvy </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01701">1701</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01685">1685</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1929,7 +1947,7 @@ Funkce</h2></td></tr>
 <p>Overi zda je timer aktivni. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je timer aktivni </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11541">11541</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12642">12642</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1958,7 +1976,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01725">1725</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01709">1709</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1991,7 +2009,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je pozice platna </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01671">1671</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01655">1655</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2019,7 +2037,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je figurka bila </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01693">1693</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01677">1677</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2038,10 +2056,10 @@ Funkce</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Pozastav herní timer. </p>
+<p>Pozastav herni timer. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11338">11338</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12442">12442</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2063,7 +2081,7 @@ Funkce</h2></td></tr>
 <p>Vypis aktualni pozici sachovnice. </p>
 <p>Zobrazi sachovnici v ASCII formatu s popisky. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l03351">3351</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l03627">3627</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2085,7 +2103,7 @@ Funkce</h2></td></tr>
 <p>Vypis statistiky hry. </p>
 <p>Vypis statistiky hry. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01246">1246</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01176">1176</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2107,7 +2125,7 @@ Funkce</h2></td></tr>
 <p>Vypis stav hry. </p>
 <p>Zobrazi detailni informace o stavu hry (hrac na tahu, pocet tahu, atd.). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08768">8768</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09709">9709</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2141,7 +2159,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l06891">6891</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l07724">7724</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2163,7 +2181,7 @@ Funkce</h2></td></tr>
 <p>Zpracuj game prikazy z fronty. </p>
 <p>Cte prikazy z game_command_queue a vykonava je. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l07211">7211</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08105">8105</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2212,7 +2230,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l04144">4144</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l04560">4560</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2236,7 +2254,7 @@ Funkce</h2></td></tr>
 <p>Zpracuj matrix udalosti (tahy).</p>
 <dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000001">Zastaralé</a></b></dt><dd>Matrix events are now sent as <a class="el" href="structchess__move__command__t.html" title="Struktura prikazu pro sachovy tah pres UART.">chess_move_command_t</a> to game_command_queue and processed by <a class="el" href="game__task_8c.html#a0216d9328bf82ee185835194077f1e33" title="Process pickup command (UP).">game_process_pickup_command()</a> / <a class="el" href="#a8de7eb2cbccf01d3c7ee792caaf9784e" title="Zpracuj DROP prikaz (DN).">game_process_drop_command()</a>. This function is kept for compatibility but does nothing. </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08892">8892</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09869">9869</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2264,7 +2282,52 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11394">11394</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12498">12498</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8b7aa3018c0775246c6fe867f3ae6af1" name="a8b7aa3018c0775246c6fe867f3ae6af1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b7aa3018c0775246c6fe867f3ae6af1">&#9670;&#160;</a></span>game_refresh_leds()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_refresh_leds </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vynuceny refresh LED podle aktualniho stavu hry Volat po navratu z HA rezimu nebo jineho preruseni. </p>
+<p>Vynuceny refresh LED podle aktualniho stavu hry Volat po navratu z HA rezimu nebo jineho preruseni. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12652">12652</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa3dc2b9ee227e2a5302b2c1d908ec6d7" name="aa3dc2b9ee227e2a5302b2c1d908ec6d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3dc2b9ee227e2a5302b2c1d908ec6d7">&#9670;&#160;</a></span>game_reset_error_recovery_state()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_reset_error_recovery_state </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vynuluje stav error recovery (vraceni figurky na blikajici pole). </p>
+<p>Volat napr. pri zapnuti demo modu, aby demo mohlo hrat i po predchozim chybnem tahu uzivatele.</p>
+<p>Vynuluje stav error recovery (vraceni figurky na blikajici pole). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l05524">5524</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2297,7 +2360,7 @@ Funkce</h2></td></tr>
 <li>Error recovery stav </li>
 </ul>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01501">1501</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01440">1440</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2316,10 +2379,10 @@ Funkce</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Resetuj herní timer. </p>
+<p>Resetuj herni timer. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11356">11356</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12460">12460</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2338,10 +2401,10 @@ Funkce</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Obnov herní timer. </p>
+<p>Obnov herni timer. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11347">11347</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12451">12451</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2444,7 +2507,7 @@ Funkce</h2></td></tr>
 <p>Zobraz LED navod pro tah veze pri rosade. </p>
 <p>Zobraz LED navod pro tah veze pri rosade. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10488">10488</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11543">11543</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2565,7 +2628,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l04734">4734</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l05408">5408</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2652,7 +2715,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02709">2709</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02757">2757</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2675,9 +2738,9 @@ Funkce</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Zobraz zvednutí figurky primo pres LED. </p>
-<p>Zobraz zvednutí figurky primo pres LED.</p>
-<p>Zobraz zvednutí figurky s primymi LED volanimi.</p>
+<p>Zobraz zvednuti figurky primo pres LED. </p>
+<p>Zobraz zvednuti figurky primo pres LED.</p>
+<p>Zobraz zvednuti figurky s primymi LED volanimi.</p>
 <dl class="params"><dt>Parametry</dt><dd>
   <table class="params">
     <tr><td class="paramname">row</td><td>Řádek pole </td></tr>
@@ -2727,7 +2790,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l07987">7987</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08919">8919</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2823,7 +2886,7 @@ Funkce</h2></td></tr>
 <li>Zvysi pocet her </li>
 </ul>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01603">1603</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01562">1562</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2845,7 +2908,7 @@ Funkce</h2></td></tr>
 <p>Spust opakovani animace veze pro rosadu. </p>
 <p>Spust opakovani animace veze pro rosadu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10767">10767</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11843">11843</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2873,7 +2936,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11311">11311</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12415">12415</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2895,7 +2958,7 @@ Funkce</h2></td></tr>
 <p>Zastav opakovanou animaci veze. </p>
 <p>Zastav opakovanou animaci veze. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10797">10797</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11873">11873</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2923,7 +2986,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08785">8785</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09726">9726</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2945,7 +3008,7 @@ Funkce</h2></td></tr>
 <p>Testuj animaci rosady. </p>
 <p>Testuj animaci rosady. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08190">8190</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09124">9124</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2967,7 +3030,7 @@ Funkce</h2></td></tr>
 <p>Testuj animaci konce hry. </p>
 <p>Testuj animaci konce hry. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08251">8251</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09185">9185</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2989,7 +3052,7 @@ Funkce</h2></td></tr>
 <p>Testuj animaci tahu. </p>
 <p>Testuj animaci tahu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08150">8150</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09084">9084</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3011,7 +3074,7 @@ Funkce</h2></td></tr>
 <p>Testuj animaci zmeny hrace. </p>
 <p>Testuj animaci zmeny hrace. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08182">8182</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09116">9116</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3033,7 +3096,7 @@ Funkce</h2></td></tr>
 <p>Testuj animaci promoci. </p>
 <p>Testuj animaci promoci. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08227">8227</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09161">9161</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3055,7 +3118,7 @@ Funkce</h2></td></tr>
 <p>Aktualizuj zobrazeni timeru a overi varovani. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11506">11506</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12607">12607</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3102,7 +3165,7 @@ Funkce</h2></td></tr>
 </ul>
 </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01990">1990</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02009">2009</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3152,7 +3215,7 @@ Funkce</h2></td></tr>
 <li>Queenside (O-O-O): kral e1-&gt;c1, vez a1-&gt;d1 </li>
 </ul>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02314">2314</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02342">2342</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3194,7 +3257,7 @@ Funkce</h2></td></tr>
 </ul>
 <p>Pro rosadu deleguje validaci na <a class="el" href="#a7169001872522d780e6e67a15d86a47e" title="Validuj rosadu.">game_validate_castling()</a>. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02120">2120</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02139">2139</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3222,7 +3285,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01952">1952</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01971">1971</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3281,7 +3344,7 @@ Funkce</h2></td></tr>
 </ul>
 </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01866">1866</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01886">1886</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3314,7 +3377,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01800">1800</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l01820">1820</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3342,7 +3405,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02081">2081</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02100">2100</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3370,7 +3433,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pri uspechu, jinak kod chyby </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02039">2039</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02058">2058</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3413,7 +3476,7 @@ Funkce</h2></td></tr>
 <li>Obnovi puvodni stav desky </li>
 </ol>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02164">2164</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l02183">2183</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3447,7 +3510,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10731">10731</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11807">11807</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3469,7 +3532,7 @@ Funkce</h2></td></tr>
 <p>Zobraz animaci dokonceni rosady. </p>
 <p>Zobraz animaci dokonceni rosady. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10659">10659</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11735">11735</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>

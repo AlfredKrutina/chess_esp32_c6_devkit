@@ -13,7 +13,8 @@ ESP32-\/\+C6 Chess System -\/ Rozsirene UART prikazy pro LED animace.
 {\ttfamily \#include $<$string.\+h$>$}\newline
 {\ttfamily \#include $<$stdio.\+h$>$}\newline
 {\ttfamily \#include $<$stdlib.\+h$>$}\newline
-Graf závislostí na vkládaných souborech pro uart\+\_\+commands\+\_\+extended.\+c\+:\nopagebreak
+Graf závislostí na vkládaných souborech pro uart\+\_\+commands\+\_\+extended.\+c\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -28,21 +29,21 @@ static uint8\+\_\+t \mbox{\hyperlink{uart__commands__extended_8c_a077345de50407d
 static void \mbox{\hyperlink{uart__commands__extended_8c_a2a78e4f624df8fcd55e57d48360a10e0}{position\+\_\+to\+\_\+string}} (uint8\+\_\+t pos, char \texorpdfstring{$\ast$}{*}out\+\_\+str)
 \begin{DoxyCompactList}\small\item\em Vrátí string reprezentaci pozice (např. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{uart__commands__extended_8c_ace118ff57c1728a13e4660df6234a4a8}{cmd\+\_\+endgame\+\_\+animations}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv, char \texorpdfstring{$\ast$}{*}response, size\+\_\+t response\+\_\+size)
-\begin{DoxyCompactList}\small\item\em Obsluha příkazu "{}endgame animations"{} Zobrazí seznam všech dostupných endgame animací \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Obsluha prikazu "{}endgame animations"{} Zobrazi seznam vsech dostupnych endgame animaci. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{uart__commands__extended_8c_aa1c75de10ba908b20b3384fc09d857e4}{cmd\+\_\+endgame\+\_\+animation}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv, char \texorpdfstring{$\ast$}{*}response, size\+\_\+t response\+\_\+size)
-\begin{DoxyCompactList}\small\item\em Obsluha příkazu "{}endgame animation X \mbox{[}pozice\mbox{]}"{} Spustí konkrétní endgame animaci. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Obsluha prikazu "{}endgame animation X \mbox{[}pozice\mbox{]}"{} Spusti konkretni endgame animaci. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{uart__commands__extended_8c_a77618cd8f49e406c505e2c0f8110efd2}{cmd\+\_\+stop\+\_\+animations}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv, char \texorpdfstring{$\ast$}{*}response, size\+\_\+t response\+\_\+size)
-\begin{DoxyCompactList}\small\item\em Obsluha příkazu "{}stop animations"{} Zastaví všechny běžící animace. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Obsluha prikazu "{}stop animations"{} Zastavi vsechny bezici animace. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{uart__commands__extended_8c_a7aea8ea2734d3e76a9cb31e39f8ecaa7}{cmd\+\_\+animation\+\_\+status}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv, char \texorpdfstring{$\ast$}{*}response, size\+\_\+t response\+\_\+size)
-\begin{DoxyCompactList}\small\item\em Obsluha příkazu "{}animation status"{} Zobrazí stav animačního systému. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Obsluha prikazu "{}animation status"{} Zobrazi stav animacniho systemu. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{uart__commands__extended_8c_a91f740ce224db3050d1f85890fdbbdce}{register\+\_\+extended\+\_\+uart\+\_\+commands}} (void)
-\begin{DoxyCompactList}\small\item\em Registruje všechny rozšířené UART příkazy. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Registruje vsechny rozsirene UART prikazy. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{uart__commands__extended_8c_a2c1f034f2745aa000fda3e70da59ccea}{uart\+\_\+endgame\+\_\+command\+\_\+dispatcher}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv)
-\begin{DoxyCompactList}\small\item\em Dispatcher pro příkaz "{}endgame"{} Směruje na cmd\+\_\+endgame\+\_\+animations nebo cmd\+\_\+endgame\+\_\+animation. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Dispatcher pro prikaz "{}endgame"{} Smeruje na cmd\+\_\+endgame\+\_\+animations nebo cmd\+\_\+endgame\+\_\+animation. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{uart__commands__extended_8c_ae57225727889bb7bd8541d02660e33a6}{uart\+\_\+stop\+\_\+command\+\_\+dispatcher}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv)
-\begin{DoxyCompactList}\small\item\em Dispatcher pro příkaz "{}stop"{} Směruje na cmd\+\_\+stop\+\_\+animations. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Dispatcher pro prikaz "{}stop"{} Smeruje na cmd\+\_\+stop\+\_\+animations. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{uart__commands__extended_8c_a6bd963956e3a304abd305b05f126b5fc}{uart\+\_\+animation\+\_\+command\+\_\+dispatcher}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv)
-\begin{DoxyCompactList}\small\item\em Dispatcher pro příkaz "{}animation"{} Směruje na cmd\+\_\+animation\+\_\+status. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Dispatcher pro prikaz "{}animation"{} Smeruje na cmd\+\_\+animation\+\_\+status. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{uart__commands__extended_8c_a25a982b28768b290cb56ecde22bf1560}{handle\+\_\+led\+\_\+test\+\_\+command}} (char \texorpdfstring{$\ast$}{*}argv\mbox{[}$\,$\mbox{]}, int argc)
 \begin{DoxyCompactList}\small\item\em Simple wrapper for LED test command. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{uart__commands__extended_8c_a294aca3ab988c08ae29b5f13fe09d05a}{handle\+\_\+led\+\_\+pattern\+\_\+command}} (char \texorpdfstring{$\ast$}{*}argv\mbox{[}$\,$\mbox{]}, int argc)
@@ -95,21 +96,21 @@ esp\+\_\+err\+\_\+t cmd\+\_\+animation\+\_\+status (\begin{DoxyParamCaption}\ite
 
 
 
-Obsluha příkazu "{}animation status"{} Zobrazí stav animačního systému. 
+Obsluha prikazu "{}animation status"{} Zobrazi stav animacniho systemu. 
 
 
 \begin{DoxyParams}{Parametry}
-{\em argc} & Počet argumentů \\
+{\em argc} & Pocet argumentu \\
 \hline
-{\em argv} & Pole argumentů \\
+{\em argv} & Pole argumentu \\
 \hline
-{\em response} & Buffer pro odpověď \\
+{\em response} & Buffer pro odpoved \\
 \hline
-{\em response\+\_\+size} & Velikost bufferu pro odpověď \\
+{\em response\+\_\+size} & Velikost bufferu pro odpoved \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Návratová hodnota}
-ESP\+\_\+\+OK při úspěchu 
+ESP\+\_\+\+OK pri uspechu 
 \end{DoxyReturn}
 
 
@@ -123,21 +124,21 @@ esp\+\_\+err\+\_\+t cmd\+\_\+endgame\+\_\+animation (\begin{DoxyParamCaption}\it
 
 
 
-Obsluha příkazu "{}endgame animation X \mbox{[}pozice\mbox{]}"{} Spustí konkrétní endgame animaci. 
+Obsluha prikazu "{}endgame animation X \mbox{[}pozice\mbox{]}"{} Spusti konkretni endgame animaci. 
 
 
 \begin{DoxyParams}{Parametry}
-{\em argc} & Počet argumentů \\
+{\em argc} & Pocet argumentu \\
 \hline
-{\em argv} & Pole argumentů (argv\mbox{[}0\mbox{]} = číslo animace, argv\mbox{[}1\mbox{]} = pozice krále) \\
+{\em argv} & Pole argumentu (argv\mbox{[}0\mbox{]} = cislo animace, argv\mbox{[}1\mbox{]} = pozice krale) \\
 \hline
-{\em response} & Buffer pro odpověď \\
+{\em response} & Buffer pro odpoved \\
 \hline
-{\em response\+\_\+size} & Velikost bufferu pro odpověď \\
+{\em response\+\_\+size} & Velikost bufferu pro odpoved \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Návratová hodnota}
-ESP\+\_\+\+OK při úspěchu 
+ESP\+\_\+\+OK pri uspechu 
 \end{DoxyReturn}
 
 
@@ -151,21 +152,21 @@ esp\+\_\+err\+\_\+t cmd\+\_\+endgame\+\_\+animations (\begin{DoxyParamCaption}\i
 
 
 
-Obsluha příkazu "{}endgame animations"{} Zobrazí seznam všech dostupných endgame animací 
+Obsluha prikazu "{}endgame animations"{} Zobrazi seznam vsech dostupnych endgame animaci. 
 
 
 \begin{DoxyParams}{Parametry}
-{\em argc} & Počet argumentů \\
+{\em argc} & Pocet argumentu \\
 \hline
-{\em argv} & Pole argumentů \\
+{\em argv} & Pole argumentu \\
 \hline
-{\em response} & Buffer pro odpověď \\
+{\em response} & Buffer pro odpoved \\
 \hline
-{\em response\+\_\+size} & Velikost bufferu pro odpověď \\
+{\em response\+\_\+size} & Velikost bufferu pro odpoved \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Návratová hodnota}
-ESP\+\_\+\+OK při úspěchu 
+ESP\+\_\+\+OK pri uspechu 
 \end{DoxyReturn}
 
 
@@ -179,21 +180,21 @@ esp\+\_\+err\+\_\+t cmd\+\_\+stop\+\_\+animations (\begin{DoxyParamCaption}\item
 
 
 
-Obsluha příkazu "{}stop animations"{} Zastaví všechny běžící animace. 
+Obsluha prikazu "{}stop animations"{} Zastavi vsechny bezici animace. 
 
 
 \begin{DoxyParams}{Parametry}
-{\em argc} & Počet argumentů \\
+{\em argc} & Pocet argumentu \\
 \hline
-{\em argv} & Pole argumentů \\
+{\em argv} & Pole argumentu \\
 \hline
-{\em response} & Buffer pro odpověď \\
+{\em response} & Buffer pro odpoved \\
 \hline
-{\em response\+\_\+size} & Velikost bufferu pro odpověď \\
+{\em response\+\_\+size} & Velikost bufferu pro odpoved \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Návratová hodnota}
-ESP\+\_\+\+OK při úspěchu 
+ESP\+\_\+\+OK pri uspechu 
 \end{DoxyReturn}
 
 
@@ -333,10 +334,10 @@ esp\+\_\+err\+\_\+t register\+\_\+extended\+\_\+uart\+\_\+commands (\begin{DoxyP
 
 
 
-Registruje všechny rozšířené UART příkazy. 
+Registruje vsechny rozsirene UART prikazy. 
 
 \begin{DoxyReturn}{Návratová hodnota}
-ESP\+\_\+\+OK při úspěchu, jinak error kód 
+ESP\+\_\+\+OK pri uspechu, jinak error kod 
 \end{DoxyReturn}
 
 
@@ -350,7 +351,7 @@ int uart\+\_\+animation\+\_\+command\+\_\+dispatcher (\begin{DoxyParamCaption}\i
 
 
 
-Dispatcher pro příkaz "{}animation"{} Směruje na cmd\+\_\+animation\+\_\+status. 
+Dispatcher pro prikaz "{}animation"{} Smeruje na cmd\+\_\+animation\+\_\+status. 
 
 
 
@@ -364,7 +365,7 @@ int uart\+\_\+endgame\+\_\+command\+\_\+dispatcher (\begin{DoxyParamCaption}\ite
 
 
 
-Dispatcher pro příkaz "{}endgame"{} Směruje na cmd\+\_\+endgame\+\_\+animations nebo cmd\+\_\+endgame\+\_\+animation. 
+Dispatcher pro prikaz "{}endgame"{} Smeruje na cmd\+\_\+endgame\+\_\+animations nebo cmd\+\_\+endgame\+\_\+animation. 
 
 
 
@@ -378,7 +379,7 @@ int uart\+\_\+stop\+\_\+command\+\_\+dispatcher (\begin{DoxyParamCaption}\item[{
 
 
 
-Dispatcher pro příkaz "{}stop"{} Směruje na cmd\+\_\+stop\+\_\+animations. 
+Dispatcher pro prikaz "{}stop"{} Smeruje na cmd\+\_\+stop\+\_\+animations. 
 
 
 

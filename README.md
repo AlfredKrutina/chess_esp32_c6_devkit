@@ -1,4 +1,4 @@
-# CZECHMATE v2.4
+# CZECHMATE v2.5
 
 **Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením a webovým rozhraním**
 
@@ -29,8 +29,12 @@ CZECHMATE je pokročilý šachový systém, který umožňuje hrát šachy na fy
 - **Kompletní šachová logika** - Všechna pravidla včetně rošády, en passant, promoce, šach, mat
 - **Webové rozhraní** - HTTP server pro vzdálenou hru přes prohlížeč s real-time aktualizací
 - **UART konzole** - Textové příkazy pro ovládání, ladění a testování
-- **LED animace** - Vizuální feedback pro tahy, šach, mat, remízu
-- **FreeRTOS multitasking** - 8 paralelních tasků pro plynulý chod systému
+- **LED animace** - Vizuální feedback pro tahy, šach, mat, remízu a konec hry (sjednocená vítězná animace)
+- **FreeRTOS multitasking** - Paralelní tasky pro plynulý chod systému (LED, matice, hra, web, MQTT, časovače)
+- **Integrace s Home Assistant** - MQTT světlo přes `ha_light_task` (dynamické LED scény řízené z HA)
+- **Automatický start nové hry** - Pokud jsou všechny figurky fyzicky v počáteční pozici po ~2 sekundách, spustí se nová hra
+- **Hra proti Botovi (Stockfish)** - Možnost hrát proti AI enginu s nastavitelnou obtížností (ELO) a volbou strany
+- **Výukový režim a Nápověda** - Integrovaná nápověda tahů s vysvětlením, hodnocení kvality tahů a systém odměn za dobré tahy
 
 ---
 
@@ -126,8 +130,9 @@ components/
 │   └── streaming_output.c      # Streamování výstupu
 │
 ├── game_task/                   # Šachová logika a pravidla
-│   ├── game_task.c              # Hlavní šachová logika (11,572 řádků!)
-│   └── game_led_direct.c         # Přímé LED funkce
+│   ├── game_task.c              # Hlavní šachová logika (11k+ řádků)
+│   ├── game_led_direct.c        # Přímé LED funkce
+│   └── demo_mode_helpers.c      # Pomocné funkce pro demo mód
 │
 ├── matrix_task/                 # Skenování 8x8 matice
 │   └── matrix_task.c             # Reed switch skenování
@@ -142,8 +147,8 @@ components/
 │   └── uart_task.c              # Textové příkazy
 │
 ├── web_server_task/             # HTTP web server
-│   ├── web_server_task.c        # HTTP server implementace
-│   └── chess_app_js_*.c         # Embedded JavaScript
+│   ├── web_server_task.c        # HTTP server implementace + embed JS
+│   └── chess_app.js             # Zdroj embedded JavaScriptu (nekompiluje se)
 │
 ├── animation_task/              # LED animace
 │   └── animation_task.c          # Animation system
@@ -154,11 +159,23 @@ components/
 ├── led_state_manager/           # Správa LED stavů
 │   └── led_state_manager.c
 │
+├── game_led_animations/         # Vysokoúrovňové animace (tahy, endgame, změna hráče)
+│   └── game_led_animations.c
+│
 ├── config_manager/              # Správa konfigurace
 │   └── config_manager.c
 │
 ├── timer_system/                # Timer utilities
 │   └── timer_system.c
+│
+├── ha_light_task/               # MQTT/HA integrace pro světlo
+│   └── ha_light_task.c
+│
+├── promotion_button_task/       # Tlačítka pro promoci (fyzická tlačítka)
+│   └── promotion_button_task.c
+│
+├── reset_button_task/           # Reset tlačítko
+│   └── reset_button_task.c
 │
 └── visual_error_system/         # Vizuální error handling
     └── visual_error_system.c
@@ -204,6 +221,27 @@ Hlavní konfigurační možnosti v `menuconfig`:
 - **Matrix scan rate** - Rychlost skenování matice (ms)
 - **Debug level** - Úroveň logování (ERROR, WARN, INFO, DEBUG, VERBOSE)
 
+#### Home Assistant / MQTT integrace
+
+Integrace s Home Assistant je řešená přes komponentu `ha_light_task` jako **MQTT RGB light**:
+
+- MQTT broker výchozí host: `homeassistant.local` (TCP port `1883`), lze změnit v NVS.
+- Konfigurace MQTT (host, port, username, password) se ukládá do NVS namespace `mqtt_config` (`broker_host`, `broker_port`, `broker_username`, `broker_password`).
+- Po úspěšném připojení k MQTT klient publikuje **Home Assistant auto-discovery**:
+  - discovery topic ve tvaru `homeassistant/light/esp32_chess_light_<MAC>/config`
+  - entita typu `light` se jménem `CzechMate`
+  - JSON schema, podpora `brightness`, `rgb` color mode a efektů (`rainbow`, `pulse`, `static`).
+- Používané MQTT topicy:
+  - `HA_TOPIC_LIGHT_COMMAND` – příkazy z HA (zapnutí/vypnutí, barva, jas, efekt)
+  - `HA_TOPIC_LIGHT_STATE` – publikovaný stav světla (on/off, jas, RGB, efekt)
+  - `HA_TOPIC_LIGHT_AVAILABILITY` – dostupnost (`online` / `offline`)
+
+Režimy provozu:
+
+- **GAME MODE** – výchozí režim, LED zobrazují stav šachovnice a herní animace.
+- **HA MODE** – po cca 5 minutách neaktivity se všechny LED chovají jako jedno RGB světlo řízené z HA.
+- Přepínání zpět do GAME MODE proběhne automaticky při detekci aktivity (pohyb figurky, tah přes web/UART).
+
 ---
 
 ## 📖 Použití
@@ -237,6 +275,39 @@ Webové rozhraní umožňuje:
 - **Sandbox mód** - Zkoušení tahů bez ovlivnění hry
 - **Review mód** - Procházení historie tahů
 
+- **Integrace s Home Assistant a stav systému** - Web vrstvu doplňuje MQTT integrace (`ha_light_task`) pro ovládání RGB světla z Home Assistant.
+- **Stav hry, error stavy a konec hry** - Jsou zobrazovány konzistentně na webu i na fyzických LED (zvednutá figurka, nevalidní tah, error recovery).
+
+### ⚙️ Nastavení a Přizpůsobení (Web UI)
+
+Webové rozhraní obsahuje záložku **Nastavení**, kde můžete konfigurovat:
+
+- **Jas LED:** Slider pro nastavení globálního jasu LED (0-100%). Změna se projeví okamžitě.
+- **Obtížnost Bota:** Nastavení ELO síly pro hru proti počítači (Level 1-8).
+- **Zhodnocení tahů:** Zapnutí/vypnutí automatické analýzy tahů po každém tahu.
+- **Výukový přehled:** Zobrazení panelu s počtem zbývajících nápověd a průměrnou kvalitou hry.
+- **WiFi Manager:** Připojení k domácí WiFi síti (skenování, zadání hesla).
+
+### 🤖 Hra proti Botovi a Výuka (Novinka v2.5)
+
+Webové rozhraní nově integruje **Stockfish engine** (přes chess-api.com) pro pokročilé funkce:
+
+#### Hra proti Botovi
+- **Nastavitelná síla (ELO):** Od začátečníka po velmistra.
+- **Fyzická interakce:** Botův tah je zobrazen na šachovnici pomocí LED navigace (odkud-kam). Hráč musí fyzicky provést tah za bota.
+- **Volba strany:** Můžete hrát za bílé i černé.
+
+#### Nápověda a Analýza (Hint System)
+- **Tlačítko Nápověda:** Zobrazí nejlepší tah doporučený Stockfishem.
+- **Vysvětlení tahu:** Stručné vysvětlení, proč je tah dobrý (např. "Získáš výhodu", "Mat za 3 tahy").
+- **Hodnocení tahů:** Po každém tahu systém (volitelně) zhodnotí vaši hru slovně i barevně:
+    - 🟢 **Best / Good** - Výborný nebo dobrý tah.
+    - 🟡 **Inaccuracy** - Menší nepřesnost.
+    - 🟠 **Mistake** - Chyba, zhoršení pozice.
+    - 🔴 **Blunder** - Hrubá chyba (např. ztráta figury).
+- **Výukový systém:** Počet nápověd může být omezen. Za dobré tahy ("Best" nebo "Good") a sebrání figur získává hráč nápovědy navíc jako odměnu.
+- **Statistiky:** Sledování průměrné kvality tahů pro oba hráče (hodnocení 1.0 - 5.0).
+
 ### Fyzická hra
 
 1. **Umístěte figurky** na šachovnici do výchozí pozice
@@ -248,6 +319,7 @@ Webové rozhraní umožňuje:
    - Červená = neplatný tah
    - Modrá = šach
    - Červená blikání = mat
+6. **Automatický start nové hry** - pokud po skončení hry ručně vrátíte všechny figurky do počáteční pozice (řady 0,1,6,7 obsazené, 2–5 prázdné) a tato pozice je stabilní ~2 s, systém spustí novou hru sám
 
 ---
 
@@ -367,12 +439,6 @@ Interaktivní dokumentace s vyhledáváním a navigací:
 open docs/doxygen/html/index.html  # Otevře dokumentaci v prohlížeči
 ```
 
-**Online verze na GitHub Pages:**
-- 🌐 Dostupné na: https://alfredkrutina.github.io/chess_esp32_c6_devkit/
-- 🚀 Nasazení na GitHub Pages: 
-  - **S git repozitářem**: `./deploy_to_gh_pages.sh` (automatické)
-  - **Bez git repozitáře**: `./prepare_gh_pages.sh` (připraví dokumentaci k ručnímu nahrání)
-- 📖 Kompletní návod na nastavení: [docs/GITHUB_PAGES_SETUP.md](docs/GITHUB_PAGES_SETUP.md)
 
 ### RTF dokumentace (jeden soubor)
 
@@ -405,7 +471,7 @@ Více informací o dokumentaci: [docs/README.md](docs/README.md)
 ## 📁 Struktura projektu
 
 ```
-free_chess_v1/
+free_chess_v1_mqtt_HA/
 ├── main/                          # Hlavní aplikace
 │   ├── main.c                     # Startup, inicializace, task creation
 │   └── CMakeLists.txt
@@ -419,7 +485,14 @@ free_chess_v1/
 │   ├── uart_task/                 # UART konzole
 │   ├── web_server_task/           # HTTP web server
 │   ├── animation_task/            # LED animace
-│   └── ...                        # Další komponenty
+│   ├── game_led_animations/       # Animace tahů / konců her
+│   ├── unified_animation_manager/ # Společný systém animací
+│   ├── led_state_manager/         # Správa barev/stavů LED
+│   ├── timer_system/              # Časovače a chess clock
+│   ├── ha_light_task/             # MQTT/HA integrace
+│   ├── promotion_button_task/     # Tlačítka pro promoci
+│   ├── reset_button_task/         # Reset tlačítko
+│   └── ...                        # Další pomocné komponenty
 │
 ├── docs/                          # Dokumentace
 │   ├── doxygen/                   # Doxygen výstup
@@ -433,7 +506,7 @@ free_chess_v1/
 │   ├── web_server/                # Web server dokumentace
 │   └── ...
 │
-├── build/                         # Build výstup (generovaný)
+├── build/                         # Build výstup (generovaný, ignorovaný v .gitignore)
 ├── CMakeLists.txt                 # Build konfigurace
 ├── Doxyfile                       # Doxygen konfigurace
 ├── generate_docs.sh              # Skript pro generování dokumentace
@@ -538,7 +611,13 @@ A: Máme spoustu nápadů - viz sekce "Budoucí vylepšení". Hlavně bychom cht
 
 ## 📝 Historie verzí
 
-### v2.4.0 (aktuální)
+### v2.5.0 (aktuální)
+- ✅ **Hra proti Botovi** (Stockfish integrace)
+- ✅ **Chytrá nápověda** a analýza tahů
+- ✅ **Výukový systém** s odměnami
+- ✅ Vylepšené webové rozhraní (nové nastavení, statistiky)
+
+### v2.4.0
 - ✅ Kompletní šachová logika včetně všech pravidel
 - ✅ Webové rozhraní s real-time aktualizací
 - ✅ LED animace pro všechny stavy hry
@@ -558,7 +637,7 @@ A: Máme spoustu nápadů - viz sekce "Budoucí vylepšení". Hlavně bychom cht
 - Základní tahy
 - LED feedback
 
-**Poznámka:** V této historii verzí není uvedeno mnoho backupů a špatných slepých uliček, které vznikly během vývoje. Reálně existuje 12 verzí programu a ještě mnohem více backupů, které dokumentují proces učení a experimentování.
+**Poznámka:** V této historii verzí není uvedeno mnoho backupů a špatných slepých uliček, které vznikly během vývoje. Reálně existuje přes 15 verzí programu a nespočet commitů.
 
 ---
 
@@ -572,9 +651,9 @@ Tento projekt byl výsledkem spolupráce mezi hardware a software částí. Mat�
 
 Máme spoustu nápadů, co bychom chtěli přidat:
 
-- **Chess AI** - Základní AI pro hraní proti počítači
-- **Move history** - Ukládání historie her do flash paměti
-- **Statistics** - Statistiky her, nejlepší tahy
+- **Move history** - Ukládání historie her do flash paměti (trvalé úložiště)
+- **Offline AI** - Implementace vlastního šachového enginu přímo na ESP32 (bez nutnosti internetu)
+- **Statistics** - Pokročilejší statistiky her
 - **Opening book** - Databáze zahájení
 - **Endgame database** - Databáze koncovek
 - **WebSocket** - Real-time komunikace pro webové rozhraní
@@ -700,8 +779,8 @@ Pokud máte jakékoli otázky nebo připomínky k projektu, neváhejte se ozvat.
 
 **Poznámka:** Tento projekt je aktivně vyvíjen. Pro nejnovější informace, bug reporty a technické detaily se podívejte do [docs/](docs/) složky.
 
-**Verze dokumentace:** 2.4.0  
-**Poslední aktualizace:** 2025-01-05
+**Verze dokumentace:** 2.5.0
+**Poslední aktualizace:** 2026-02-14
 
 ---
 

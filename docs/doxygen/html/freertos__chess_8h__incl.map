@@ -1,28 +1,28 @@
 <map id="freertos_chess.h" name="freertos_chess.h">
-<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="361,5,479,31"/>
-<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="200,79,307,105"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="394,31,297,75,295,70,389,32"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="5,153,70,178"/>
-<area shape="poly" id="edge15_Node000001_Node000003" title=" " alt="" coords="358,27,264,47,210,62,159,81,106,112,63,145,60,140,103,107,156,77,209,57,263,42,363,25"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="94,153,168,178"/>
-<area shape="poly" id="edge14_Node000001_Node000004" title=" " alt="" coords="358,24,320,32,276,42,231,58,190,81,163,109,144,140,140,137,159,106,187,77,229,53,274,37,319,26,363,22"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="192,153,336,178"/>
-<area shape="poly" id="edge9_Node000001_Node000005" title=" " alt="" coords="410,31,290,144,287,140,405,32"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="360,153,475,178"/>
-<area shape="poly" id="edge10_Node000001_Node000006" title=" " alt="" coords="422,30,420,139,416,136,418,33"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="499,153,573,178"/>
-<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="427,29,446,64,473,103,511,143,506,142,469,106,442,67,425,34"/>
-<area shape="rect" id="Node000008" title=" " alt="" coords="483,79,576,105"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="439,29,501,70,496,70,438,34"/>
-<area shape="rect" id="Node000009" title=" " alt="" coords="600,79,723,105"/>
-<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="461,29,609,74,603,75,461,34"/>
-<area shape="rect" id="Node000010" title=" " alt="" coords="746,79,852,105"/>
-<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="480,28,733,77,728,78,480,33"/>
-<area shape="rect" id="Node000011" title=" " alt="" coords="875,79,992,105"/>
-<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="480,24,862,77,858,80,480,30"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="218,108,85,151,84,146,216,103"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="235,105,166,147,163,142,230,106"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="257,103,262,139,258,136,254,107"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="282,103,379,146,373,146,281,108"/>
-<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="302,103,486,150,481,152,301,108"/>
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="403,5,522,31"/>
+<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="243,79,349,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="437,31,339,75,337,70,432,32"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,153,80,178"/>
+<area shape="poly" id="edge8_Node000001_Node000003" title=" " alt="" coords="400,29,307,50,201,81,132,113,75,146,72,142,130,108,199,77,306,45,405,27"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="104,153,248,178"/>
+<area shape="poly" id="edge9_Node000001_Node000004" title=" " alt="" coords="401,24,363,31,318,42,273,58,232,81,206,109,188,140,184,137,202,106,229,77,271,53,316,37,362,26,406,22"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="272,153,387,178"/>
+<area shape="poly" id="edge10_Node000001_Node000005" title=" " alt="" coords="454,31,352,143,349,139,449,32"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="411,153,485,178"/>
+<area shape="poly" id="edge14_Node000001_Node000006" title=" " alt="" coords="463,30,453,139,448,136,459,33"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="509,153,573,178"/>
+<area shape="poly" id="edge15_Node000001_Node000007" title=" " alt="" coords="470,29,530,140,525,138,467,34"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="526,79,618,105"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="482,29,543,71,538,70,480,34"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="643,79,765,105"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="504,29,651,74,646,74,503,34"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="788,79,894,105"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="522,28,776,77,770,78,522,33"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="918,79,1034,105"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="522,24,905,77,900,80,522,30"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="254,108,95,152,94,147,252,103"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="278,105,210,147,208,142,273,106"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="303,103,320,139,315,137,300,107"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="322,103,411,146,405,146,321,108"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="338,103,497,150,491,151,337,108"/>
 </map>

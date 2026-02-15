@@ -1,7 +1,24 @@
 var searchData=
 [
-  ['game_5fqueue_5fsize_0',['GAME_QUEUE_SIZE',['../freertos__chess_8h.html#a28eeb53d2d0b05fd6f19dd85f101b40e',1,'freertos_chess.h']]],
-  ['game_5ftask_5fpriority_1',['GAME_TASK_PRIORITY',['../freertos__chess_8h.html#a006aed1ec383676054e95d995acd427b',1,'freertos_chess.h']]],
-  ['game_5ftask_5fstack_5fsize_2',['GAME_TASK_STACK_SIZE',['../freertos__chess_8h.html#a3742ac4e005f9654c81dac1b035e8a14',1,'freertos_chess.h']]],
-  ['get_5fshared_5fbuffer_3',['get_shared_buffer',['../shared__buffer__pool_8h.html#a70318c0bb964a91191f81e8b06a264eb',1,'shared_buffer_pool.h']]]
+  ['ha_5factivity_5ftimeout_5fauto_5fms_0',['HA_ACTIVITY_TIMEOUT_AUTO_MS',['../ha__light__task_8h.html#a59a4f99e5382fed36fc539ce0b1b79c5',1,'ha_light_task.h']]],
+  ['ha_5factivity_5ftimeout_5fcommand_5fms_1',['HA_ACTIVITY_TIMEOUT_COMMAND_MS',['../ha__light__task_8h.html#a59e49211d6a9fc9ca8c1481be531753d',1,'ha_light_task.h']]],
+  ['ha_5fcomponent_5flight_2',['HA_COMPONENT_LIGHT',['../ha__light__task_8h.html#a88f6ce72b1c205860c6f824cf2b23d8e',1,'ha_light_task.h']]],
+  ['ha_5fdevice_5fmanufacturer_3',['HA_DEVICE_MANUFACTURER',['../ha__light__task_8h.html#a2d3c04b509cf1d7315195a4cbcdd20a3',1,'ha_light_task.h']]],
+  ['ha_5fdevice_5fmodel_4',['HA_DEVICE_MODEL',['../ha__light__task_8h.html#a166cbf522b7a67a3c366f928e06d66c3',1,'ha_light_task.h']]],
+  ['ha_5fdevice_5fsw_5fversion_5',['HA_DEVICE_SW_VERSION',['../ha__light__task_8h.html#a5303289f6afee06f476293223b01b8bb',1,'ha_light_task.h']]],
+  ['ha_5fdiscovery_5fprefix_6',['HA_DISCOVERY_PREFIX',['../ha__light__task_8h.html#accaea9ff6b9f1de5ca1c5625eab21cf4',1,'ha_light_task.h']]],
+  ['ha_5flight_5ftask_5fpriority_7',['HA_LIGHT_TASK_PRIORITY',['../freertos__chess_8h.html#ad420cbd4164a1c35acf8ef56810955ab',1,'freertos_chess.h']]],
+  ['ha_5flight_5ftask_5fstack_5fsize_8',['HA_LIGHT_TASK_STACK_SIZE',['../freertos__chess_8h.html#ad527fcf9ba093641832abb9056b25774',1,'freertos_chess.h']]],
+  ['ha_5fmqtt_5fbroker_5fport_9',['HA_MQTT_BROKER_PORT',['../ha__light__task_8h.html#a5b297c2591120ddece81447ffd44844f',1,'ha_light_task.h']]],
+  ['ha_5fmqtt_5fclient_5fid_10',['HA_MQTT_CLIENT_ID',['../ha__light__task_8h.html#a3e86bf68640eb01f845f67eb32fbc9d6',1,'ha_light_task.h']]],
+  ['ha_5fmqtt_5fpayload_5foffline_11',['HA_MQTT_PAYLOAD_OFFLINE',['../ha__light__task_8h.html#a6842398162d1d365ca5d5c711ecb6145',1,'ha_light_task.h']]],
+  ['ha_5fmqtt_5fpayload_5fonline_12',['HA_MQTT_PAYLOAD_ONLINE',['../ha__light__task_8h.html#a6e17c7afd5219d2aad45fa7d87822f3b',1,'ha_light_task.h']]],
+  ['ha_5ftopic_5fgame_5factivity_13',['HA_TOPIC_GAME_ACTIVITY',['../ha__light__task_8h.html#ab8a6d62c662a157b70d0fabc6c03e6fc',1,'ha_light_task.h']]],
+  ['ha_5ftopic_5flight_5favailability_14',['HA_TOPIC_LIGHT_AVAILABILITY',['../ha__light__task_8h.html#ac2d5de1749d4171f82324a7276f6fb14',1,'ha_light_task.h']]],
+  ['ha_5ftopic_5flight_5fcommand_15',['HA_TOPIC_LIGHT_COMMAND',['../ha__light__task_8h.html#a8252c914f758fbce0485c28d94e84b0c',1,'ha_light_task.h']]],
+  ['ha_5ftopic_5flight_5fstate_16',['HA_TOPIC_LIGHT_STATE',['../ha__light__task_8h.html#ac8d834caaa63c1dfab5bfbdaf442f78f',1,'ha_light_task.h']]],
+  ['http_5fserver_5fmax_5fclients_17',['HTTP_SERVER_MAX_CLIENTS',['../web__server__task_8c.html#a8fed04375198615d8723433210c7861a',1,'web_server_task.c']]],
+  ['http_5fserver_5fmax_5fheaders_18',['HTTP_SERVER_MAX_HEADERS',['../web__server__task_8c.html#aa471f425e7c4a8154dd0a6aef7b1c151',1,'web_server_task.c']]],
+  ['http_5fserver_5fmax_5furi_5flen_19',['HTTP_SERVER_MAX_URI_LEN',['../web__server__task_8c.html#ac6dafba2315f7dd8ef7954d67c1c58ef',1,'web_server_task.c']]],
+  ['http_5fserver_5fport_20',['HTTP_SERVER_PORT',['../web__server__task_8c.html#a4f905ddd4da1a3e205a8935f4babb25b',1,'web_server_task.c']]]
 ];

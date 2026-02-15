@@ -23,6 +23,7 @@ UART Terminal Task -\/ Interaktivni prikazovy radek pro ovladani sachu.
 {\ttfamily \#include $<$stdlib.\+h$>$}\newline
 {\ttfamily \#include $<$string.\+h$>$}\newline
 {\ttfamily \#include "{}../freertos\+\_\+chess/include/chess\+\_\+types.\+h"{}}\newline
+{\ttfamily \#include "{}../ha\+\_\+light\+\_\+task/include/ha\+\_\+light\+\_\+task.\+h"{}}\newline
 {\ttfamily \#include "{}../matrix\+\_\+task/include/matrix\+\_\+task.\+h"{}}\newline
 {\ttfamily \#include "{}../timer\+\_\+system/include/timer\+\_\+system.\+h"{}}\newline
 {\ttfamily \#include "{}../uart\+\_\+commands\+\_\+extended/include/uart\+\_\+commands\+\_\+extended.\+h"{}}\newline
@@ -36,7 +37,8 @@ UART Terminal Task -\/ Interaktivni prikazovy radek pro ovladani sachu.
 {\ttfamily \#include "{}uart\+\_\+task.\+h"{}}\newline
 {\ttfamily \#include $<$inttypes.\+h$>$}\newline
 {\ttfamily \#include $<$math.\+h$>$}\newline
-Graf závislostí na vkládaných souborech pro uart\+\_\+task.\+c\+:\nopagebreak
+Graf závislostí na vkládaných souborech pro uart\+\_\+task.\+c\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -270,6 +272,12 @@ static void \mbox{\hyperlink{uart__task_8c_a77d973ce96a8003680dbbcdc89c58a93}{ha
 \begin{DoxyCompactList}\small\item\em Nastavi lock/unlock web rozhrani. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8c_aa9f2f59b642c88983b3335005fa13d04}{uart\+\_\+cmd\+\_\+web\+\_\+status}} (const char \texorpdfstring{$\ast$}{*}args)
 \begin{DoxyCompactList}\small\item\em Zobrazi status web rozhrani. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8c_a4cf583b305279172da15e67506989102}{uart\+\_\+cmd\+\_\+mqtt\+\_\+config}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Nastaví MQTT konfiguraci. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8c_a8a67f06fc8ba00682d61c5c380ce612b}{uart\+\_\+cmd\+\_\+mqtt\+\_\+status}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Zobrazí MQTT status. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8c_a0eaf4451977618b26df3ef6c207edfb1}{uart\+\_\+cmd\+\_\+mqtt\+\_\+test}} (const char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Otestuje MQTT připojení \end{DoxyCompactList}\item 
 \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8c_ae3e1d270bce963f46ae25884ff307b33}{uart\+\_\+cmd\+\_\+demo}} (const char \texorpdfstring{$\ast$}{*}args)
 \begin{DoxyCompactList}\small\item\em Toggle demo/screensaver mode. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} \mbox{\hyperlink{uart__task_8c_a741b46c24c6a12f798156859a8dcf1a6}{uart\+\_\+cmd\+\_\+demo\+\_\+status}} (const char \texorpdfstring{$\ast$}{*}args)
@@ -474,8 +482,8 @@ static const \mbox{\hyperlink{structuart__command__t}{uart\+\_\+command\+\_\+t}}
 \doxysubsection{Detailní popis}
 UART Terminal Task -\/ Interaktivni prikazovy radek pro ovladani sachu. 
 
-\hypertarget{uart__task_8c_autotoc_md66}{}\doxysubsection{\texorpdfstring{autotoc\+\_\+md66}{autotoc\+\_\+md66}}\label{uart__task_8c_autotoc_md66}
-\hypertarget{uart__task_8c_autotoc_md67}{}\doxysubsection{\texorpdfstring{CO TENTO SOUBOR DELA?}{CO TENTO SOUBOR DELA?}}\label{uart__task_8c_autotoc_md67}
+\hypertarget{uart__task_8c_autotoc_md70}{}\doxysubsection{\texorpdfstring{autotoc\+\_\+md70}{autotoc\+\_\+md70}}\label{uart__task_8c_autotoc_md70}
+\hypertarget{uart__task_8c_autotoc_md71}{}\doxysubsection{\texorpdfstring{CO TENTO SOUBOR DELA?}{CO TENTO SOUBOR DELA?}}\label{uart__task_8c_autotoc_md71}
 Tento task je "{}terminal"{} sachovnice. Umoznuje ovladani pres UART\+:
 \begin{DoxyEnumerate}
 \item Prikazovy radek s editaci (backspace, historie prikazu)
@@ -487,7 +495,7 @@ Tento task je "{}terminal"{} sachovnice. Umoznuje ovladani pres UART\+:
 \end{DoxyEnumerate}
 
 \DoxyHorRuler{0}
- \hypertarget{uart__task_8c_autotoc_md69}{}\doxysubsection{\texorpdfstring{JAK TO FUNGUJE?}{JAK TO FUNGUJE?}}\label{uart__task_8c_autotoc_md69}
+ \hypertarget{uart__task_8c_autotoc_md73}{}\doxysubsection{\texorpdfstring{JAK TO FUNGUJE?}{JAK TO FUNGUJE?}}\label{uart__task_8c_autotoc_md73}
 STARTUP\+:
 \begin{DoxyItemize}
 \item Inicializace UART (115200 baud)
@@ -511,7 +519,7 @@ HLAVNI SMYCKA\+: while (1) \{
 \end{DoxyEnumerate}
 
 \DoxyHorRuler{0}
- \hypertarget{uart__task_8c_autotoc_md71}{}\doxysubsection{\texorpdfstring{KOMUNIKACE (FIFOS \& MUTEXY)}{KOMUNIKACE (FIFOS \& MUTEXY)}}\label{uart__task_8c_autotoc_md71}
+ \hypertarget{uart__task_8c_autotoc_md75}{}\doxysubsection{\texorpdfstring{KOMUNIKACE (FIFOS \& MUTEXY)}{KOMUNIKACE (FIFOS \& MUTEXY)}}\label{uart__task_8c_autotoc_md75}
 FRONTY (QUEUES) -\/ Poslani prikazu jinym taskum\+:
 \begin{DoxyItemize}
 \item game\+\_\+command\+\_\+queue -\/\texorpdfstring{$>$}{>} Prikazy pro game\+\_\+task (move, reset...)
@@ -534,7 +542,7 @@ PRISTUP\+:
 
 
 \DoxyHorRuler{0}
- \hypertarget{uart__task_8c_autotoc_md73}{}\doxysubsection{\texorpdfstring{TABULKA PRIKAZU (COMMAND TABLE)}{TABULKA PRIKAZU (COMMAND TABLE)}}\label{uart__task_8c_autotoc_md73}
+ \hypertarget{uart__task_8c_autotoc_md77}{}\doxysubsection{\texorpdfstring{TABULKA PRIKAZU (COMMAND TABLE)}{TABULKA PRIKAZU (COMMAND TABLE)}}\label{uart__task_8c_autotoc_md77}
 Prikazy jsou organizovane v tabulce s function pointery\+:
 \begin{DoxyItemize}
 \item cmd\+\_\+name\+: Jmeno prikazu (napr. "{}move"{})
@@ -554,13 +562,13 @@ Kategorie prikazu\+:
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
- \hypertarget{uart__task_8c_autotoc_md75}{}\doxysubsection{\texorpdfstring{TABLE OF CONTENTS (NAVIGACE)}{TABLE OF CONTENTS (NAVIGACE)}}\label{uart__task_8c_autotoc_md75}
+ \hypertarget{uart__task_8c_autotoc_md79}{}\doxysubsection{\texorpdfstring{TABLE OF CONTENTS (NAVIGACE)}{TABLE OF CONTENTS (NAVIGACE)}}\label{uart__task_8c_autotoc_md79}
 Sekce 1\+: WDT Wrapper Functions ................... radek 70 Sekce 2\+: UART Driver Functions ................... radek 160 Sekce 3\+: Input Buffer \& History .................. radek 250 Sekce 4\+: Command Table Definition ................ radek 760 Sekce 5\+: Command Handlers (50+ funkci) .......... radek 1800 Sekce 6\+: Formatting \& Output Functions ........... radek 350 Sekce 7\+: Main UART Task .......................... radek 6200
 
 TIP\+: Ctrl+G pro skok na radek
 
 \DoxyHorRuler{0}
- \hypertarget{uart__task_8c_autotoc_md77}{}\doxysubsection{\texorpdfstring{DEPENDENCIES}{DEPENDENCIES}}\label{uart__task_8c_autotoc_md77}
+ \hypertarget{uart__task_8c_autotoc_md81}{}\doxysubsection{\texorpdfstring{DEPENDENCIES}{DEPENDENCIES}}\label{uart__task_8c_autotoc_md81}
 
 \begin{DoxyItemize}
 \item game\+\_\+task\+: Posilame prikazy (move, reset...)
@@ -571,7 +579,7 @@ TIP\+: Ctrl+G pro skok na radek
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
- \hypertarget{uart__task_8c_autotoc_md79}{}\doxysubsection{\texorpdfstring{KRITICKA PRAVIDLA}{KRITICKA PRAVIDLA}}\label{uart__task_8c_autotoc_md79}
+ \hypertarget{uart__task_8c_autotoc_md83}{}\doxysubsection{\texorpdfstring{KRITICKA PRAVIDLA}{KRITICKA PRAVIDLA}}\label{uart__task_8c_autotoc_md83}
 \begin{DoxyWarning}{Pozor}
 CO SE NESMI DELAT\+:
 \end{DoxyWarning}
@@ -627,7 +635,7 @@ Definice v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00389}{389}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00390}{390}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a54bbc18dc1f760f32f69ac714dc6ff88}\index{uart\_task.c@{uart\_task.c}!ANSI\_CLEAR\_TO\_END@{ANSI\_CLEAR\_TO\_END}}
 \index{ANSI\_CLEAR\_TO\_END@{ANSI\_CLEAR\_TO\_END}!uart\_task.c@{uart\_task.c}}
@@ -637,7 +645,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00389}{389
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00392}{392}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00393}{393}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ab4fc8f34cc7e3b4b32035605f6fcedf9}\index{uart\_task.c@{uart\_task.c}!ANSI\_CURSOR\_LEFT@{ANSI\_CURSOR\_LEFT}}
 \index{ANSI\_CURSOR\_LEFT@{ANSI\_CURSOR\_LEFT}!uart\_task.c@{uart\_task.c}}
@@ -647,7 +655,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00392}{392
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00390}{390}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00391}{391}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a552e4dda434cca9e6e4c4ce6caa8765e}\index{uart\_task.c@{uart\_task.c}!ANSI\_CURSOR\_RIGHT@{ANSI\_CURSOR\_RIGHT}}
 \index{ANSI\_CURSOR\_RIGHT@{ANSI\_CURSOR\_RIGHT}!uart\_task.c@{uart\_task.c}}
@@ -657,7 +665,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00390}{390
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00391}{391}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00392}{392}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8517f7179ead44a22ff3b74051146ec5}\index{uart\_task.c@{uart\_task.c}!CHAR\_BACKSPACE@{CHAR\_BACKSPACE}}
 \index{CHAR\_BACKSPACE@{CHAR\_BACKSPACE}!uart\_task.c@{uart\_task.c}}
@@ -667,7 +675,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00391}{391
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00380}{380}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00381}{381}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a5307e51b79c48d5bfc3853ea6df98a32}\index{uart\_task.c@{uart\_task.c}!CHAR\_CTRL\_C@{CHAR\_CTRL\_C}}
 \index{CHAR\_CTRL\_C@{CHAR\_CTRL\_C}!uart\_task.c@{uart\_task.c}}
@@ -677,7 +685,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00380}{380
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00385}{385}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00386}{386}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a777f5bfc806d6ffe1d2b22b5615b9f46}\index{uart\_task.c@{uart\_task.c}!CHAR\_CTRL\_D@{CHAR\_CTRL\_D}}
 \index{CHAR\_CTRL\_D@{CHAR\_CTRL\_D}!uart\_task.c@{uart\_task.c}}
@@ -687,7 +695,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00385}{385
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00386}{386}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00387}{387}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a5f2ce9e9cba7370bacc763ede5150d5b}\index{uart\_task.c@{uart\_task.c}!CHAR\_DELETE@{CHAR\_DELETE}}
 \index{CHAR\_DELETE@{CHAR\_DELETE}!uart\_task.c@{uart\_task.c}}
@@ -697,7 +705,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00386}{386
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00381}{381}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00382}{382}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a1c1ac78fc6a82e6daa73b04926db7dd5}\index{uart\_task.c@{uart\_task.c}!CHAR\_ENTER@{CHAR\_ENTER}}
 \index{CHAR\_ENTER@{CHAR\_ENTER}!uart\_task.c@{uart\_task.c}}
@@ -707,7 +715,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00381}{381
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00382}{382}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00383}{383}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ac763d1de8ee96951064bd7dbb649dfc5}\index{uart\_task.c@{uart\_task.c}!CHAR\_ESC@{CHAR\_ESC}}
 \index{CHAR\_ESC@{CHAR\_ESC}!uart\_task.c@{uart\_task.c}}
@@ -717,7 +725,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00382}{382
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00384}{384}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00385}{385}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a44b71e8b06af27307dca69e34049f38f}\index{uart\_task.c@{uart\_task.c}!CHAR\_NEWLINE@{CHAR\_NEWLINE}}
 \index{CHAR\_NEWLINE@{CHAR\_NEWLINE}!uart\_task.c@{uart\_task.c}}
@@ -727,7 +735,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00384}{384
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00383}{383}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00384}{384}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aa992fb45f0b110c77fb61ee14f43012f}\index{uart\_task.c@{uart\_task.c}!CHUNK\_DELAY\_MS@{CHUNK\_DELAY\_MS}}
 \index{CHUNK\_DELAY\_MS@{CHUNK\_DELAY\_MS}!uart\_task.c@{uart\_task.c}}
@@ -737,7 +745,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00383}{383
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00264}{264}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00265}{265}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a48bf3d6d00a12d5a505d4e9a2241b2df}\index{uart\_task.c@{uart\_task.c}!CHUNKED\_PRINTF@{CHUNKED\_PRINTF}}
 \index{CHUNKED\_PRINTF@{CHUNKED\_PRINTF}!uart\_task.c@{uart\_task.c}}
@@ -757,7 +765,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00264}{264
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00255}{255}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00256}{256}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8000e32f660a001ae0eade53a5285f68}\index{uart\_task.c@{uart\_task.c}!COLOR\_BLUE@{COLOR\_BLUE}}
 \index{COLOR\_BLUE@{COLOR\_BLUE}!uart\_task.c@{uart\_task.c}}
@@ -767,7 +775,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00255}{255
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00399}{399}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00400}{400}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a23c70d699a5a775bc2e1ebeb8603f630}\index{uart\_task.c@{uart\_task.c}!COLOR\_BLUE@{COLOR\_BLUE}}
 \index{COLOR\_BLUE@{COLOR\_BLUE}!uart\_task.c@{uart\_task.c}}
@@ -777,7 +785,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00399}{399
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00399}{399}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00400}{400}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a3dc61083272e4a370f281baf2bebeb61}\index{uart\_task.c@{uart\_task.c}!COLOR\_BOLD@{COLOR\_BOLD}}
 \index{COLOR\_BOLD@{COLOR\_BOLD}!uart\_task.c@{uart\_task.c}}
@@ -787,7 +795,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00399}{399
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00401}{401}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00402}{402}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a302607d6f585b7e9ba1c3eab8d2199d5}\index{uart\_task.c@{uart\_task.c}!COLOR\_BOLD@{COLOR\_BOLD}}
 \index{COLOR\_BOLD@{COLOR\_BOLD}!uart\_task.c@{uart\_task.c}}
@@ -797,7 +805,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00401}{401
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00401}{401}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00402}{402}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a20f02c77b7d167ee80a1569801e12183}\index{uart\_task.c@{uart\_task.c}!COLOR\_CYAN@{COLOR\_CYAN}}
 \index{COLOR\_CYAN@{COLOR\_CYAN}!uart\_task.c@{uart\_task.c}}
@@ -807,7 +815,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00401}{401
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00400}{400}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00401}{401}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a82573859711fce56f1aa0a76b18a9b18}\index{uart\_task.c@{uart\_task.c}!COLOR\_CYAN@{COLOR\_CYAN}}
 \index{COLOR\_CYAN@{COLOR\_CYAN}!uart\_task.c@{uart\_task.c}}
@@ -817,7 +825,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00400}{400
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00400}{400}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00401}{401}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a2799f0e4fea941044c782585431e22cb}\index{uart\_task.c@{uart\_task.c}!COLOR\_DEBUG@{COLOR\_DEBUG}}
 \index{COLOR\_DEBUG@{COLOR\_DEBUG}!uart\_task.c@{uart\_task.c}}
@@ -827,7 +835,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00400}{400
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00477}{477}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00478}{478}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a82f3830461d1f2f3a8384936fb926920}\index{uart\_task.c@{uart\_task.c}!COLOR\_DIM@{COLOR\_DIM}}
 \index{COLOR\_DIM@{COLOR\_DIM}!uart\_task.c@{uart\_task.c}}
@@ -837,7 +845,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00477}{477
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00468}{468}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00469}{469}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ac7bab6591a09366d23b86d710ecc54af}\index{uart\_task.c@{uart\_task.c}!COLOR\_ERROR@{COLOR\_ERROR}}
 \index{COLOR\_ERROR@{COLOR\_ERROR}!uart\_task.c@{uart\_task.c}}
@@ -847,7 +855,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00468}{468
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00471}{471}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00472}{472}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a02d07b5153af9e6675e1c075be4c389a}\index{uart\_task.c@{uart\_task.c}!COLOR\_GREEN@{COLOR\_GREEN}}
 \index{COLOR\_GREEN@{COLOR\_GREEN}!uart\_task.c@{uart\_task.c}}
@@ -857,7 +865,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00471}{471
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00396}{396}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00397}{397}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_afc9149f5de51bd9ac4f5ebbfa153f018}\index{uart\_task.c@{uart\_task.c}!COLOR\_GREEN@{COLOR\_GREEN}}
 \index{COLOR\_GREEN@{COLOR\_GREEN}!uart\_task.c@{uart\_task.c}}
@@ -867,7 +875,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00396}{396
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00396}{396}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00397}{397}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a412791c6c0d86fbfe8ca2c05b9b4b020}\index{uart\_task.c@{uart\_task.c}!COLOR\_HELP@{COLOR\_HELP}}
 \index{COLOR\_HELP@{COLOR\_HELP}!uart\_task.c@{uart\_task.c}}
@@ -877,7 +885,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00396}{396
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00478}{478}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00479}{479}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a0d4d3a685f9501631d1feed1f4ba7577}\index{uart\_task.c@{uart\_task.c}!COLOR\_INFO@{COLOR\_INFO}}
 \index{COLOR\_INFO@{COLOR\_INFO}!uart\_task.c@{uart\_task.c}}
@@ -887,7 +895,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00478}{478
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00474}{474}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00475}{475}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8deb0beccea721b35bdb1b4f7264fe75}\index{uart\_task.c@{uart\_task.c}!COLOR\_MAGENTA@{COLOR\_MAGENTA}}
 \index{COLOR\_MAGENTA@{COLOR\_MAGENTA}!uart\_task.c@{uart\_task.c}}
@@ -897,7 +905,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00474}{474
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00464}{464}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00465}{465}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a22cb5d80da7468ab7c7060864119724a}\index{uart\_task.c@{uart\_task.c}!COLOR\_MOVE@{COLOR\_MOVE}}
 \index{COLOR\_MOVE@{COLOR\_MOVE}!uart\_task.c@{uart\_task.c}}
@@ -907,7 +915,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00464}{464
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00475}{475}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00476}{476}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a85d729dfbd398f62fba5def79d54027d}\index{uart\_task.c@{uart\_task.c}!COLOR\_RED@{COLOR\_RED}}
 \index{COLOR\_RED@{COLOR\_RED}!uart\_task.c@{uart\_task.c}}
@@ -917,7 +925,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00475}{475
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00397}{397}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00398}{398}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ad86358bf19927183dd7b4ae215a29731}\index{uart\_task.c@{uart\_task.c}!COLOR\_RED@{COLOR\_RED}}
 \index{COLOR\_RED@{COLOR\_RED}!uart\_task.c@{uart\_task.c}}
@@ -927,7 +935,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00397}{397
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00397}{397}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00398}{398}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a277f8b5333f79ffa0bdb99a8c330a128}\index{uart\_task.c@{uart\_task.c}!COLOR\_RESET@{COLOR\_RESET}}
 \index{COLOR\_RESET@{COLOR\_RESET}!uart\_task.c@{uart\_task.c}}
@@ -937,7 +945,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00397}{397
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00395}{395}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00396}{396}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a17f760256046df23dd0ab46602f04d02}\index{uart\_task.c@{uart\_task.c}!COLOR\_RESET@{COLOR\_RESET}}
 \index{COLOR\_RESET@{COLOR\_RESET}!uart\_task.c@{uart\_task.c}}
@@ -947,7 +955,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00395}{395
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00395}{395}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00396}{396}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a42bae9393fad14add16d8fe270fb084f}\index{uart\_task.c@{uart\_task.c}!COLOR\_STATUS@{COLOR\_STATUS}}
 \index{COLOR\_STATUS@{COLOR\_STATUS}!uart\_task.c@{uart\_task.c}}
@@ -957,7 +965,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00395}{395
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00476}{476}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00477}{477}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a49ad0d2196700c1fa0a3a2a60dad41d3}\index{uart\_task.c@{uart\_task.c}!COLOR\_SUCCESS@{COLOR\_SUCCESS}}
 \index{COLOR\_SUCCESS@{COLOR\_SUCCESS}!uart\_task.c@{uart\_task.c}}
@@ -967,7 +975,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00476}{476
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00472}{472}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00473}{473}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a4d79f3f59a4d19b93eaf106105bddc90}\index{uart\_task.c@{uart\_task.c}!COLOR\_WARNING@{COLOR\_WARNING}}
 \index{COLOR\_WARNING@{COLOR\_WARNING}!uart\_task.c@{uart\_task.c}}
@@ -977,7 +985,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00472}{472
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00473}{473}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00474}{474}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a9b44987ffdc2af19b635206b94334b69}\index{uart\_task.c@{uart\_task.c}!COLOR\_WHITE@{COLOR\_WHITE}}
 \index{COLOR\_WHITE@{COLOR\_WHITE}!uart\_task.c@{uart\_task.c}}
@@ -987,7 +995,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00473}{473
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00466}{466}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00467}{467}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ab126f96b0c5e120f2880f3cf1a4d912e}\index{uart\_task.c@{uart\_task.c}!COLOR\_YELLOW@{COLOR\_YELLOW}}
 \index{COLOR\_YELLOW@{COLOR\_YELLOW}!uart\_task.c@{uart\_task.c}}
@@ -997,7 +1005,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00466}{466
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00398}{398}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00399}{399}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a4534b577b74a58b0f4b7be027af664e0}\index{uart\_task.c@{uart\_task.c}!COLOR\_YELLOW@{COLOR\_YELLOW}}
 \index{COLOR\_YELLOW@{COLOR\_YELLOW}!uart\_task.c@{uart\_task.c}}
@@ -1007,7 +1015,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00398}{398
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00398}{398}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00399}{399}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aeac6e5795cef1c6971bde245d54de5d5}\index{uart\_task.c@{uart\_task.c}!INPUT\_TIMEOUT\_MS@{INPUT\_TIMEOUT\_MS}}
 \index{INPUT\_TIMEOUT\_MS@{INPUT\_TIMEOUT\_MS}!uart\_task.c@{uart\_task.c}}
@@ -1017,7 +1025,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00398}{398
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00377}{377}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00378}{378}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a523eaf5b650f38c307a6aab7f957fa2b}\index{uart\_task.c@{uart\_task.c}!MAX\_CHUNK\_SIZE@{MAX\_CHUNK\_SIZE}}
 \index{MAX\_CHUNK\_SIZE@{MAX\_CHUNK\_SIZE}!uart\_task.c@{uart\_task.c}}
@@ -1027,7 +1035,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00377}{377
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00265}{265}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00266}{266}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a817d1b9d4253b32aa883d9bf92aae705}\index{uart\_task.c@{uart\_task.c}!SAFE\_WDT\_RESET@{SAFE\_WDT\_RESET}}
 \index{SAFE\_WDT\_RESET@{SAFE\_WDT\_RESET}!uart\_task.c@{uart\_task.c}}
@@ -1047,7 +1055,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00265}{265
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00246}{246}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00247}{247}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_afaa4f2205de94aa018ae84d9968d3a09}\index{uart\_task.c@{uart\_task.c}!STACK\_SAFETY\_LIMIT@{STACK\_SAFETY\_LIMIT}}
 \index{STACK\_SAFETY\_LIMIT@{STACK\_SAFETY\_LIMIT}!uart\_task.c@{uart\_task.c}}
@@ -1057,7 +1065,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00246}{246
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00266}{266}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00267}{267}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a615aed21aa6825462b7c17b0c238ffe2}\index{uart\_task.c@{uart\_task.c}!UART\_BAUD\_RATE@{UART\_BAUD\_RATE}}
 \index{UART\_BAUD\_RATE@{UART\_BAUD\_RATE}!uart\_task.c@{uart\_task.c}}
@@ -1067,7 +1075,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00266}{266
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00276}{276}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00277}{277}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ab0249d81dd53336b7810ebcf29511210}\index{uart\_task.c@{uart\_task.c}!UART\_BUF\_SIZE@{UART\_BUF\_SIZE}}
 \index{UART\_BUF\_SIZE@{UART\_BUF\_SIZE}!uart\_task.c@{uart\_task.c}}
@@ -1077,7 +1085,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00276}{276
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00277}{277}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00278}{278}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a97e69bb8611929b4aeb9173738c7822e}\index{uart\_task.c@{uart\_task.c}!UART\_CMD\_BUFFER\_SIZE@{UART\_CMD\_BUFFER\_SIZE}}
 \index{UART\_CMD\_BUFFER\_SIZE@{UART\_CMD\_BUFFER\_SIZE}!uart\_task.c@{uart\_task.c}}
@@ -1087,7 +1095,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00277}{277
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00374}{374}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00375}{375}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aab0e9d8131e646f5ed7caff255394865}\index{uart\_task.c@{uart\_task.c}!UART\_CMD\_HISTORY\_SIZE@{UART\_CMD\_HISTORY\_SIZE}}
 \index{UART\_CMD\_HISTORY\_SIZE@{UART\_CMD\_HISTORY\_SIZE}!uart\_task.c@{uart\_task.c}}
@@ -1097,7 +1105,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00374}{374
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00375}{375}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00376}{376}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_add7b6c4234d476bd8bb529019b9f48e9}\index{uart\_task.c@{uart\_task.c}!UART\_ENABLED@{UART\_ENABLED}}
 \index{UART\_ENABLED@{UART\_ENABLED}!uart\_task.c@{uart\_task.c}}
@@ -1107,7 +1115,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00375}{375
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00271}{271}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00272}{272}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a92730fc97f7b604391b5b3f913ad824e}\index{uart\_task.c@{uart\_task.c}!UART\_MAX\_ARGS@{UART\_MAX\_ARGS}}
 \index{UART\_MAX\_ARGS@{UART\_MAX\_ARGS}!uart\_task.c@{uart\_task.c}}
@@ -1117,7 +1125,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00271}{271
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00376}{376}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00377}{377}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ab74ec82c9f5211b716c017e6f4b26c4d}\index{uart\_task.c@{uart\_task.c}!UART\_PORT\_NUM@{UART\_PORT\_NUM}}
 \index{UART\_PORT\_NUM@{UART\_PORT\_NUM}!uart\_task.c@{uart\_task.c}}
@@ -1127,7 +1135,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00376}{376
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00270}{270}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00271}{271}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 
 
@@ -1156,7 +1164,7 @@ ESC\+\_\+\+STATE\+\_\+\+BRACKET&\\
 \end{DoxyEnumFields}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00437}{437}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00438}{438}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 
 
@@ -1171,7 +1179,7 @@ void command\+\_\+history\+\_\+add (\begin{DoxyParamCaption}\item[{\mbox{\hyperl
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01186}{1186}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01187}{1187}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a66144e793ae8758d91e06b8559639464}\index{uart\_task.c@{uart\_task.c}!command\_history\_get\_next@{command\_history\_get\_next}}
 \index{command\_history\_get\_next@{command\_history\_get\_next}!uart\_task.c@{uart\_task.c}}
@@ -1181,7 +1189,7 @@ const char \texorpdfstring{$\ast$}{*} command\+\_\+history\+\_\+get\+\_\+next (\
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01218}{1218}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01219}{1219}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_afb0a5da76f96fc4b5d90bba3f72b5253}\index{uart\_task.c@{uart\_task.c}!command\_history\_get\_previous@{command\_history\_get\_previous}}
 \index{command\_history\_get\_previous@{command\_history\_get\_previous}!uart\_task.c@{uart\_task.c}}
@@ -1191,7 +1199,7 @@ const char \texorpdfstring{$\ast$}{*} command\+\_\+history\+\_\+get\+\_\+previou
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01210}{1210}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01211}{1211}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a0e4cb2a6e4b052fbab611501a057bd1d}\index{uart\_task.c@{uart\_task.c}!command\_history\_init@{command\_history\_init}}
 \index{command\_history\_init@{command\_history\_init}!uart\_task.c@{uart\_task.c}}
@@ -1201,7 +1209,7 @@ void command\+\_\+history\+\_\+init (\begin{DoxyParamCaption}\item[{\mbox{\hyper
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01179}{1179}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01180}{1180}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_af876cff135244df2d98dc26153dffeff}\index{uart\_task.c@{uart\_task.c}!command\_history\_show@{command\_history\_show}}
 \index{command\_history\_show@{command\_history\_show}!uart\_task.c@{uart\_task.c}}
@@ -1211,7 +1219,7 @@ void command\+\_\+history\+\_\+show (\begin{DoxyParamCaption}\item[{\mbox{\hyper
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01226}{1226}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01227}{1227}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a20b79ef4675f25cd3f39ddcdaf65243c}\index{uart\_task.c@{uart\_task.c}!convert\_notation\_to\_coords@{convert\_notation\_to\_coords}}
 \index{convert\_notation\_to\_coords@{convert\_notation\_to\_coords}!uart\_task.c@{uart\_task.c}}
@@ -1239,7 +1247,7 @@ true if conversion successful, false otherwise
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l05556}{5556}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l06355}{6355}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a423d6521216e84e883b8ef6b3c8d535b}\index{uart\_task.c@{uart\_task.c}!display\_queue\_status@{display\_queue\_status}}
 \index{display\_queue\_status@{display\_queue\_status}!uart\_task.c@{uart\_task.c}}
@@ -1249,7 +1257,7 @@ void display\+\_\+queue\+\_\+status (\begin{DoxyParamCaption}\item[{const char \
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06712}{6712}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06971}{6971}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a015b3be04ff0b73780f9c39e0197a98f}\index{uart\_task.c@{uart\_task.c}!execute\_command@{execute\_command}}
 \index{execute\_command@{execute\_command}!uart\_task.c@{uart\_task.c}}
@@ -1259,7 +1267,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06712}{671
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04647}{4647}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04906}{4906}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a35d6750b6e64838fc7397da5f65c0056}\index{uart\_task.c@{uart\_task.c}!find\_command@{find\_command}}
 \index{find\_command@{find\_command}!uart\_task.c@{uart\_task.c}}
@@ -1269,7 +1277,7 @@ const \mbox{\hyperlink{structuart__command__t}{uart\+\_\+command\+\_\+t}} \texor
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04618}{4618}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04877}{4877}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_abc07526e4d22deb256e3182b5f6857b8}\index{uart\_task.c@{uart\_task.c}!format\_time\_mmss@{format\_time\_mmss}}
 \index{format\_time\_mmss@{format\_time\_mmss}!uart\_task.c@{uart\_task.c}}
@@ -1283,7 +1291,7 @@ Format time in milliseconds to MM\+:SS format.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03221}{3221}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03264}{3264}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a23cdba6f3e9cde28600d5540afcc0531}\index{uart\_task.c@{uart\_task.c}!get\_ascii\_piece\_symbol@{get\_ascii\_piece\_symbol}}
 \index{get\_ascii\_piece\_symbol@{get\_ascii\_piece\_symbol}!uart\_task.c@{uart\_task.c}}
@@ -1305,7 +1313,7 @@ ASCII symbol string
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04991}{4991}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05250}{5250}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a343dbfc6b59f2de2fc9d42645d52dda9}\index{uart\_task.c@{uart\_task.c}!get\_unicode\_piece\_symbol@{get\_unicode\_piece\_symbol}}
 \index{get\_unicode\_piece\_symbol@{get\_unicode\_piece\_symbol}!uart\_task.c@{uart\_task.c}}
@@ -1327,7 +1335,7 @@ Unicode symbol string
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04955}{4955}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05214}{5214}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a77d973ce96a8003680dbbcdc89c58a93}\index{uart\_task.c@{uart\_task.c}!handle\_arrow\_down@{handle\_arrow\_down}}
 \index{handle\_arrow\_down@{handle\_arrow\_down}!uart\_task.c@{uart\_task.c}}
@@ -1341,7 +1349,7 @@ Handle Arrow Down -\/ show next command from history.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01318}{1318}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01320}{1320}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ad4eba791e9c70bcdc5084bda677d813e}\index{uart\_task.c@{uart\_task.c}!handle\_arrow\_up@{handle\_arrow\_up}}
 \index{handle\_arrow\_up@{handle\_arrow\_up}!uart\_task.c@{uart\_task.c}}
@@ -1355,7 +1363,7 @@ Handle Arrow Up -\/ show previous command from history.
 
 Simple compatibility -\/ no complex response system needed All responses are handled directly via printf in game\+\_\+task. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01280}{1280}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01281}{1281}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8c1834a32f3797bf298c2940eb5ba7e6}\index{uart\_task.c@{uart\_task.c}!input\_buffer\_add\_char@{input\_buffer\_add\_char}}
 \index{input\_buffer\_add\_char@{input\_buffer\_add\_char}!uart\_task.c@{uart\_task.c}}
@@ -1365,7 +1373,7 @@ void input\+\_\+buffer\+\_\+add\+\_\+char (\begin{DoxyParamCaption}\item[{\mbox{
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01124}{1124}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01125}{1125}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a26c0e92edbcb05f59a70a602c07715dc}\index{uart\_task.c@{uart\_task.c}!input\_buffer\_backspace@{input\_buffer\_backspace}}
 \index{input\_buffer\_backspace@{input\_buffer\_backspace}!uart\_task.c@{uart\_task.c}}
@@ -1375,7 +1383,7 @@ void input\+\_\+buffer\+\_\+backspace (\begin{DoxyParamCaption}\item[{\mbox{\hyp
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01132}{1132}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01133}{1133}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a1cc51f2f4fea08ccfc228ca497cd34ae}\index{uart\_task.c@{uart\_task.c}!input\_buffer\_clear@{input\_buffer\_clear}}
 \index{input\_buffer\_clear@{input\_buffer\_clear}!uart\_task.c@{uart\_task.c}}
@@ -1385,7 +1393,7 @@ void input\+\_\+buffer\+\_\+clear (\begin{DoxyParamCaption}\item[{\mbox{\hyperli
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01118}{1118}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01119}{1119}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a555be973048afe2bebf55398cd905f63}\index{uart\_task.c@{uart\_task.c}!input\_buffer\_init@{input\_buffer\_init}}
 \index{input\_buffer\_init@{input\_buffer\_init}!uart\_task.c@{uart\_task.c}}
@@ -1395,7 +1403,7 @@ void input\+\_\+buffer\+\_\+init (\begin{DoxyParamCaption}\item[{\mbox{\hyperlin
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01111}{1111}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01112}{1112}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a72e6311faaf01353872e8bc49484390c}\index{uart\_task.c@{uart\_task.c}!input\_buffer\_set\_cursor@{input\_buffer\_set\_cursor}}
 \index{input\_buffer\_set\_cursor@{input\_buffer\_set\_cursor}!uart\_task.c@{uart\_task.c}}
@@ -1405,7 +1413,7 @@ void input\+\_\+buffer\+\_\+set\+\_\+cursor (\begin{DoxyParamCaption}\item[{\mbo
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01142}{1142}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01143}{1143}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a19705a349c243f2fcaca1d209b11aa26}\index{uart\_task.c@{uart\_task.c}!is\_valid\_move\_notation@{is\_valid\_move\_notation}}
 \index{is\_valid\_move\_notation@{is\_valid\_move\_notation}!uart\_task.c@{uart\_task.c}}
@@ -1419,7 +1427,7 @@ Validate chess move notation (e.\+g., "{}e2e4"{}).
 
 Overi platnost notace tahu. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04574}{4574}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04833}{4833}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a27eda0257802e0a1d44cbe8b91e3feba}\index{uart\_task.c@{uart\_task.c}!is\_valid\_square\_notation@{is\_valid\_square\_notation}}
 \index{is\_valid\_square\_notation@{is\_valid\_square\_notation}!uart\_task.c@{uart\_task.c}}
@@ -1433,7 +1441,7 @@ Validate chess square notation (e.\+g., "{}e2"{}).
 
 Overi platnost notace pole. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04594}{4594}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04853}{4853}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a5375af563f4375b03e16cb5516f3e06f}\index{uart\_task.c@{uart\_task.c}!parse\_move\_notation@{parse\_move\_notation}}
 \index{parse\_move\_notation@{parse\_move\_notation}!uart\_task.c@{uart\_task.c}}
@@ -1447,7 +1455,7 @@ List all saved games.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04403}{4403}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04662}{4662}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ad1780c902a974c1328d45972b588d593}\index{uart\_task.c@{uart\_task.c}!refresh\_input\_display@{refresh\_input\_display}}
 \index{refresh\_input\_display@{refresh\_input\_display}!uart\_task.c@{uart\_task.c}}
@@ -1461,7 +1469,7 @@ Refresh input display in terminal.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01245}{1245}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01246}{1246}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a557b6aeba60814f680be2e1cc9dd8164}\index{uart\_task.c@{uart\_task.c}!send\_to\_game\_task@{send\_to\_game\_task}}
 \index{send\_to\_game\_task@{send\_to\_game\_task}!uart\_task.c@{uart\_task.c}}
@@ -1471,7 +1479,7 @@ bool send\+\_\+to\+\_\+game\+\_\+task (\begin{DoxyParamCaption}\item[{const \mbo
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04502}{4502}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04761}{4761}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a3e794219ce8f13265cbb99ff00780a1b}\index{uart\_task.c@{uart\_task.c}!send\_to\_game\_task\_with\_response@{send\_to\_game\_task\_with\_response}}
 \index{send\_to\_game\_task\_with\_response@{send\_to\_game\_task\_with\_response}!uart\_task.c@{uart\_task.c}}
@@ -1499,7 +1507,7 @@ true if command sent and response received successfully
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04531}{4531}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04790}{4790}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a7221e5806cd35fd8640c4f3ef239f9cc}\index{uart\_task.c@{uart\_task.c}!uart\_check\_memory\_health@{uart\_check\_memory\_health}}
 \index{uart\_check\_memory\_health@{uart\_check\_memory\_health}!uart\_task.c@{uart\_task.c}}
@@ -1516,7 +1524,7 @@ ESP\+\_\+\+OK if memory is healthy, ESP\+\_\+\+ERR\+\_\+\+NO\+\_\+\+MEM if low
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04755}{4755}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05014}{5014}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a5208e133190e19aad814c5a69dbb93e5}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_benchmark@{uart\_cmd\_benchmark}}
 \index{uart\_cmd\_benchmark@{uart\_cmd\_benchmark}!uart\_task.c@{uart\_task.c}}
@@ -1530,7 +1538,7 @@ Prikaz benchmark.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06313}{6313}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06572}{6572}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ae06c8535f9c7efcb9bf76c0949b0b4cc}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_board@{uart\_cmd\_board}}
 \index{uart\_cmd\_board@{uart\_cmd\_board}!uart\_task.c@{uart\_task.c}}
@@ -1544,7 +1552,7 @@ Prikaz board.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05253}{5253}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05512}{5512}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ad61d8dbd1ef7a5922ef37a348adf68d8}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_castle@{uart\_cmd\_castle}}
 \index{uart\_cmd\_castle@{uart\_cmd\_castle}!uart\_task.c@{uart\_task.c}}
@@ -1558,7 +1566,7 @@ Castle (kingside/queenside).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03878}{3878}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04114}{4114}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_adbe2f7e4f05f1b0c256c81eefb34e95a}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_clear@{uart\_cmd\_clear}}
 \index{uart\_cmd\_clear@{uart\_cmd\_clear}!uart\_task.c@{uart\_task.c}}
@@ -1572,7 +1580,7 @@ Prikaz clear.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02224}{2224}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02247}{2247}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a5aba3dc71e5eb5272b490fe7990161d2}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_component\_off@{uart\_cmd\_component\_off}}
 \index{uart\_cmd\_component\_off@{uart\_cmd\_component\_off}!uart\_task.c@{uart\_task.c}}
@@ -1586,7 +1594,7 @@ Turn off component.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04098}{4098}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04357}{4357}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a117b20f2d5162f335afe54a4175762c1}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_component\_on@{uart\_cmd\_component\_on}}
 \index{uart\_cmd\_component\_on@{uart\_cmd\_component\_on}!uart\_task.c@{uart\_task.c}}
@@ -1600,7 +1608,7 @@ Turn on component.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04176}{4176}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04435}{4435}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a2514d071160fb4579a28e402990700c2}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_config@{uart\_cmd\_config}}
 \index{uart\_cmd\_config@{uart\_cmd\_config}!uart\_task.c@{uart\_task.c}}
@@ -1647,7 +1655,7 @@ Verbose a quiet mode jsou vzajemne exkluzivni -\/ zapnuti jednoho automaticky vy
 \end{DoxyNote}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02985}{2985}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03028}{3028}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8def6eb3ad5e05f605577170ea53085f}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_debug\_board@{uart\_cmd\_debug\_board}}
 \index{uart\_cmd\_debug\_board@{uart\_cmd\_debug\_board}!uart\_task.c@{uart\_task.c}}
@@ -1661,7 +1669,7 @@ Prikaz debug\+\_\+board.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06265}{6265}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06524}{6524}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_afed806feda00e8b2e6122fbba6a0800d}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_debug\_game@{uart\_cmd\_debug\_game}}
 \index{uart\_cmd\_debug\_game@{uart\_cmd\_debug\_game}!uart\_task.c@{uart\_task.c}}
@@ -1675,7 +1683,7 @@ Prikaz debug\+\_\+game.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06140}{6140}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06399}{6399}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a925e6e86c81a91f4d6af38c6106833bc}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_debug\_status@{uart\_cmd\_debug\_status}}
 \index{uart\_cmd\_debug\_status@{uart\_cmd\_debug\_status}!uart\_task.c@{uart\_task.c}}
@@ -1689,7 +1697,7 @@ Prikaz debug\+\_\+status.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06039}{6039}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06298}{6298}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ae3e1d270bce963f46ae25884ff307b33}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_demo@{uart\_cmd\_demo}}
 \index{uart\_cmd\_demo@{uart\_cmd\_demo}!uart\_task.c@{uart\_task.c}}
@@ -1703,7 +1711,7 @@ Toggle demo/screensaver mode.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02248}{2248}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02271}{2271}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a741b46c24c6a12f798156859a8dcf1a6}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_demo\_status@{uart\_cmd\_demo\_status}}
 \index{uart\_cmd\_demo\_status@{uart\_cmd\_demo\_status}!uart\_task.c@{uart\_task.c}}
@@ -1717,7 +1725,7 @@ Show demo mode status.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02293}{2293}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02316}{2316}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aa9bf90400c3b2ccf18c98442645b8b14}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_dn@{uart\_cmd\_dn}}
 \index{uart\_cmd\_dn@{uart\_cmd\_dn}!uart\_task.c@{uart\_task.c}}
@@ -1731,7 +1739,7 @@ Prikaz dn (poloz figurku).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05183}{5183}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05442}{5442}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a9ac40dded30f0a4876a7598759eec102}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_endgame\_black@{uart\_cmd\_endgame\_black}}
 \index{uart\_cmd\_endgame\_black@{uart\_cmd\_endgame\_black}!uart\_task.c@{uart\_task.c}}
@@ -1745,7 +1753,7 @@ Endgame -\/ Black wins.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04326}{4326}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04585}{4585}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a9c4117773dc018eb25b4024ce6928bf4}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_endgame\_cascade@{uart\_cmd\_endgame\_cascade}}
 \index{uart\_cmd\_endgame\_cascade@{uart\_cmd\_endgame\_cascade}!uart\_task.c@{uart\_task.c}}
@@ -1755,7 +1763,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04326}{432
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07561}{7561}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07820}{7820}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a031f5b4e479714bafc64d1ff08e8ad6c}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_endgame\_circles@{uart\_cmd\_endgame\_circles}}
 \index{uart\_cmd\_endgame\_circles@{uart\_cmd\_endgame\_circles}!uart\_task.c@{uart\_task.c}}
@@ -1765,7 +1773,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07561}{756
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07534}{7534}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07793}{7793}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aa6bf2d9f00a64480e5888c5802d7b9b3}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_endgame\_draw\_pulse@{uart\_cmd\_endgame\_draw\_pulse}}
 \index{uart\_cmd\_endgame\_draw\_pulse@{uart\_cmd\_endgame\_draw\_pulse}!uart\_task.c@{uart\_task.c}}
@@ -1775,7 +1783,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07534}{753
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07641}{7641}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07900}{7900}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ab19ad9d65d0a70888ec3bb3e1bd98cc2}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_endgame\_draw\_spiral@{uart\_cmd\_endgame\_draw\_spiral}}
 \index{uart\_cmd\_endgame\_draw\_spiral@{uart\_cmd\_endgame\_draw\_spiral}!uart\_task.c@{uart\_task.c}}
@@ -1785,7 +1793,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07641}{764
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07615}{7615}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07874}{7874}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a0614376ec50c99cf0d057f1d7f8eb15c}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_endgame\_fireworks@{uart\_cmd\_endgame\_fireworks}}
 \index{uart\_cmd\_endgame\_fireworks@{uart\_cmd\_endgame\_fireworks}!uart\_task.c@{uart\_task.c}}
@@ -1795,7 +1803,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07615}{761
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07588}{7588}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07847}{7847}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8dd59eef94833568e925c91f4ec2d49e}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_endgame\_wave@{uart\_cmd\_endgame\_wave}}
 \index{uart\_cmd\_endgame\_wave@{uart\_cmd\_endgame\_wave}!uart\_task.c@{uart\_task.c}}
@@ -1805,7 +1813,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07588}{758
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07508}{7508}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07767}{7767}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a4e7fb6cbbcd52c91f5888a37233bc724}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_endgame\_white@{uart\_cmd\_endgame\_white}}
 \index{uart\_cmd\_endgame\_white@{uart\_cmd\_endgame\_white}!uart\_task.c@{uart\_task.c}}
@@ -1819,7 +1827,7 @@ Endgame -\/ White wins.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04257}{4257}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04516}{4516}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a537655f93f38edf63de5af06fd0aeb09}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_eval@{uart\_cmd\_eval}}
 \index{uart\_cmd\_eval@{uart\_cmd\_eval}!uart\_task.c@{uart\_task.c}}
@@ -1833,7 +1841,7 @@ Zobrazi vyhodnoceni pozice.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02789}{2789}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02832}{2832}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a45e7ff8cb362715634eba2642afae063}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_game\_history@{uart\_cmd\_game\_history}}
 \index{uart\_cmd\_game\_history@{uart\_cmd\_game\_history}!uart\_task.c@{uart\_task.c}}
@@ -1847,7 +1855,7 @@ Prikaz game\+\_\+history.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05841}{5841}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06100}{6100}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aec33730164148a5ef9df45f1e1ae706b}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_game\_new@{uart\_cmd\_game\_new}}
 \index{uart\_cmd\_game\_new@{uart\_cmd\_game\_new}!uart\_task.c@{uart\_task.c}}
@@ -1861,7 +1869,7 @@ Prikaz game\+\_\+new.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05497}{5497}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05756}{5756}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a820002ffc256bb584099e401f1b07e9c}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_game\_reset@{uart\_cmd\_game\_reset}}
 \index{uart\_cmd\_game\_reset@{uart\_cmd\_game\_reset}!uart\_task.c@{uart\_task.c}}
@@ -1875,7 +1883,7 @@ Prikaz game\+\_\+reset.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05521}{5521}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05780}{5780}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a25d0a7a7a3f253ef4ba5f55e6764f879}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_help@{uart\_cmd\_help}}
 \index{uart\_cmd\_help@{uart\_cmd\_help}!uart\_task.c@{uart\_task.c}}
@@ -1889,7 +1897,7 @@ Prikaz help.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01451}{1451}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01459}{1459}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ae225cfb5aecbfa679ca067a2e4dc6833}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_help\_beginner@{uart\_cmd\_help\_beginner}}
 \index{uart\_cmd\_help\_beginner@{uart\_cmd\_help\_beginner}!uart\_task.c@{uart\_task.c}}
@@ -1903,7 +1911,7 @@ Zobrazi help pro zacatecniky.
 
 Help pro zacatecniky. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01777}{1777}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01785}{1785}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aada1de37a1e46c05acb740016334d649}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_help\_debug@{uart\_cmd\_help\_debug}}
 \index{uart\_cmd\_help\_debug@{uart\_cmd\_help\_debug}!uart\_task.c@{uart\_task.c}}
@@ -1917,7 +1925,7 @@ Zobrazi help pro debug a testovani.
 
 Help pro debug prikazy. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01957}{1957}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01980}{1980}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8173679d73f567977d5b63259363383c}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_help\_game@{uart\_cmd\_help\_game}}
 \index{uart\_cmd\_help\_game@{uart\_cmd\_help\_game}!uart\_task.c@{uart\_task.c}}
@@ -1931,7 +1939,7 @@ Zobrazi help specificky pro hru.
 
 Help pro game prikazy. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01555}{1555}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01563}{1563}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a966ff272c2023dd69fee0aec745c949e}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_help\_system@{uart\_cmd\_help\_system}}
 \index{uart\_cmd\_help\_system@{uart\_cmd\_help\_system}!uart\_task.c@{uart\_task.c}}
@@ -1945,7 +1953,7 @@ Zobrazi help specificky pro system.
 
 Help pro systemove prikazy. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01671}{1671}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01679}{1679}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a96698e984b9b078213389d0961ccb82c}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_help\_web@{uart\_cmd\_help\_web}}
 \index{uart\_cmd\_help\_web@{uart\_cmd\_help\_web}!uart\_task.c@{uart\_task.c}}
@@ -1959,7 +1967,7 @@ Zobrazi help pro web rozhrani.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01865}{1865}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01873}{1873}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ac75af37c48ea155d265417cfc6db8c95}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_history@{uart\_cmd\_history}}
 \index{uart\_cmd\_history@{uart\_cmd\_history}!uart\_task.c@{uart\_task.c}}
@@ -1973,7 +1981,7 @@ Prikaz history.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02217}{2217}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02240}{2240}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a31e18c5d57fbf73693ba15d6041bd080}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_led\_board@{uart\_cmd\_led\_board}}
 \index{uart\_cmd\_led\_board@{uart\_cmd\_led\_board}!uart\_task.c@{uart\_task.c}}
@@ -1987,7 +1995,7 @@ Show current LED states and colors.
 
 Prikaz led\+\_\+board. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05367}{5367}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05626}{5626}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ac0b5541aa713dea4c61168ad9bb49118}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_ledtest@{uart\_cmd\_ledtest}}
 \index{uart\_cmd\_ledtest@{uart\_cmd\_ledtest}!uart\_task.c@{uart\_task.c}}
@@ -2001,7 +2009,7 @@ Test all LEDs.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02871}{2871}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02914}{2914}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a4ba7a32bbded6ac3f4190f09c402cd84}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_matrixtest@{uart\_cmd\_matrixtest}}
 \index{uart\_cmd\_matrixtest@{uart\_cmd\_matrixtest}!uart\_task.c@{uart\_task.c}}
@@ -2015,7 +2023,7 @@ Test matrix scanning.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04023}{4023}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04282}{4282}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8b0cefcf29f3dea4338fdd3475476f1a}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_memcheck@{uart\_cmd\_memcheck}}
 \index{uart\_cmd\_memcheck@{uart\_cmd\_memcheck}!uart\_task.c@{uart\_task.c}}
@@ -2029,7 +2037,7 @@ Prikaz memcheck.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06394}{6394}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06653}{6653}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_adeb40a444cec7562b4c9eae46fb5f905}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_memory@{uart\_cmd\_memory}}
 \index{uart\_cmd\_memory@{uart\_cmd\_memory}!uart\_task.c@{uart\_task.c}}
@@ -2043,7 +2051,7 @@ Prikaz memory.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02190}{2190}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02213}{2213}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a1fcb0efaeb8e64908c667d9a68a497e7}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_move@{uart\_cmd\_move}}
 \index{uart\_cmd\_move@{uart\_cmd\_move}!uart\_task.c@{uart\_task.c}}
@@ -2057,7 +2065,73 @@ Prikaz move.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05026}{5026}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05285}{5285}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8c_a4cf583b305279172da15e67506989102}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_mqtt\_config@{uart\_cmd\_mqtt\_config}}
+\index{uart\_cmd\_mqtt\_config@{uart\_cmd\_mqtt\_config}!uart\_task.c@{uart\_task.c}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_mqtt\_config()}{uart\_cmd\_mqtt\_config()}}
+{\footnotesize\ttfamily \label{uart__task_8c_a4cf583b305279172da15e67506989102} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+mqtt\+\_\+config (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Nastaví MQTT konfiguraci. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em args} & Parametry\+: $<$host$>$ \mbox{[}port\mbox{]} \mbox{[}username\mbox{]} \mbox{[}password\mbox{]} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+\doxylink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t} 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03896}{3896}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8c_a8a67f06fc8ba00682d61c5c380ce612b}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_mqtt\_status@{uart\_cmd\_mqtt\_status}}
+\index{uart\_cmd\_mqtt\_status@{uart\_cmd\_mqtt\_status}!uart\_task.c@{uart\_task.c}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_mqtt\_status()}{uart\_cmd\_mqtt\_status()}}
+{\footnotesize\ttfamily \label{uart__task_8c_a8a67f06fc8ba00682d61c5c380ce612b} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+mqtt\+\_\+status (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Zobrazí MQTT status. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em args} & Nepoužitý \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+\doxylink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t} 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03976}{3976}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+
+\Hypertarget{uart__task_8c_a0eaf4451977618b26df3ef6c207edfb1}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_mqtt\_test@{uart\_cmd\_mqtt\_test}}
+\index{uart\_cmd\_mqtt\_test@{uart\_cmd\_mqtt\_test}!uart\_task.c@{uart\_task.c}}
+\doxysubsubsection{\texorpdfstring{uart\_cmd\_mqtt\_test()}{uart\_cmd\_mqtt\_test()}}
+{\footnotesize\ttfamily \label{uart__task_8c_a0eaf4451977618b26df3ef6c207edfb1} 
+\mbox{\hyperlink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t}} uart\+\_\+cmd\+\_\+mqtt\+\_\+test (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Otestuje MQTT připojení 
+
+
+\begin{DoxyParams}{Parametry}
+{\em args} & Nepoužitý \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+\doxylink{uart__task_8h_ad67e3977ebd069018cc01fb52b551c63}{command\+\_\+result\+\_\+t} 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04038}{4038}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a2892ffc572084d804341dfb6817c3bdd}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_performance@{uart\_cmd\_performance}}
 \index{uart\_cmd\_performance@{uart\_cmd\_performance}!uart\_task.c@{uart\_task.c}}
@@ -2071,7 +2145,7 @@ Zobrazi systemove metrik výkonu.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02902}{2902}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02945}{2945}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ae81c2f84dfde570afff3a8a6958fd1f5}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_promote@{uart\_cmd\_promote}}
 \index{uart\_cmd\_promote@{uart\_cmd\_promote}!uart\_task.c@{uart\_task.c}}
@@ -2085,7 +2159,7 @@ Promote pawn.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03967}{3967}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04203}{4203}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8bfc523766c1984380217c78bd865d93}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_quiet@{uart\_cmd\_quiet}}
 \index{uart\_cmd\_quiet@{uart\_cmd\_quiet}!uart\_task.c@{uart\_task.c}}
@@ -2099,7 +2173,7 @@ Prikaz quiet.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02084}{2084}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02107}{2107}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_af305f126d46460f209547def7ade998f}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_reset@{uart\_cmd\_reset}}
 \index{uart\_cmd\_reset@{uart\_cmd\_reset}!uart\_task.c@{uart\_task.c}}
@@ -2113,7 +2187,7 @@ Prikaz reset.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02321}{2321}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02344}{2344}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_af34a40710b1a30f20f8be55971986884}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_self\_test@{uart\_cmd\_self\_test}}
 \index{uart\_cmd\_self\_test@{uart\_cmd\_self\_test}!uart\_task.c@{uart\_task.c}}
@@ -2127,7 +2201,7 @@ Prikaz self\+\_\+test.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05867}{5867}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06126}{6126}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a260841cc4caf0ecd44bc45719f3a6e6a}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_show\_fifos@{uart\_cmd\_show\_fifos}}
 \index{uart\_cmd\_show\_fifos@{uart\_cmd\_show\_fifos}!uart\_task.c@{uart\_task.c}}
@@ -2141,7 +2215,7 @@ Prikaz show\+\_\+fifos.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06737}{6737}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06996}{6996}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a221e0e7d3b8aaa2836b099cb13e57168}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_show\_moves@{uart\_cmd\_show\_moves}}
 \index{uart\_cmd\_show\_moves@{uart\_cmd\_show\_moves}!uart\_task.c@{uart\_task.c}}
@@ -2155,7 +2229,7 @@ Prikaz show\+\_\+moves.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05541}{5541}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05800}{5800}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a2e7e839a6c40f74905836d7d5d4fd69b}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_show\_mutexes@{uart\_cmd\_show\_mutexes}}
 \index{uart\_cmd\_show\_mutexes@{uart\_cmd\_show\_mutexes}!uart\_task.c@{uart\_task.c}}
@@ -2169,7 +2243,7 @@ Prikaz show\+\_\+mutexes.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06615}{6615}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06874}{6874}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ad71e3397b99aa15ed45f6b5fe3f070d1}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_show\_tasks@{uart\_cmd\_show\_tasks}}
 \index{uart\_cmd\_show\_tasks@{uart\_cmd\_show\_tasks}!uart\_task.c@{uart\_task.c}}
@@ -2183,7 +2257,7 @@ Prikaz show\+\_\+tasks.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06475}{6475}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06734}{6734}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a21313e7215e44d82c987a6e19ec0dbf3}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_status@{uart\_cmd\_status}}
 \index{uart\_cmd\_status@{uart\_cmd\_status}!uart\_task.c@{uart\_task.c}}
@@ -2197,7 +2271,7 @@ Prikaz status.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02106}{2106}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02129}{2129}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a29ce1ca9c76f9d6c2c36839d10be5d31}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_stop\_endgame@{uart\_cmd\_stop\_endgame}}
 \index{uart\_cmd\_stop\_endgame@{uart\_cmd\_stop\_endgame}!uart\_task.c@{uart\_task.c}}
@@ -2207,7 +2281,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02106}{210
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07669}{7669}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07928}{7928}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a838bac457de362abcdb9e05926aaa3d6}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_test\_castle\_anim@{uart\_cmd\_test\_castle\_anim}}
 \index{uart\_cmd\_test\_castle\_anim@{uart\_cmd\_test\_castle\_anim}!uart\_task.c@{uart\_task.c}}
@@ -2217,7 +2291,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07669}{766
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07438}{7438}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07697}{7697}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aa5d62cda824f52c80201790ad65f6b70}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_test\_endgame\_anim@{uart\_cmd\_test\_endgame\_anim}}
 \index{uart\_cmd\_test\_endgame\_anim@{uart\_cmd\_test\_endgame\_anim}!uart\_task.c@{uart\_task.c}}
@@ -2227,7 +2301,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07438}{743
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07484}{7484}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07743}{7743}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ab237e12799096414a354e1023a69b98d}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_test\_game@{uart\_cmd\_test\_game}}
 \index{uart\_cmd\_test\_game@{uart\_cmd\_test\_game}!uart\_task.c@{uart\_task.c}}
@@ -2241,7 +2315,7 @@ Prikaz test\+\_\+game.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06025}{6025}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06284}{6284}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a61e57d14da346b1c1274575582f37555}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_test\_move\_anim@{uart\_cmd\_test\_move\_anim}}
 \index{uart\_cmd\_test\_move\_anim@{uart\_cmd\_test\_move\_anim}!uart\_task.c@{uart\_task.c}}
@@ -2251,7 +2325,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06025}{602
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07392}{7392}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07651}{7651}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aa22b03cae44e7d502a86a2914142fb58}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_test\_player\_anim@{uart\_cmd\_test\_player\_anim}}
 \index{uart\_cmd\_test\_player\_anim@{uart\_cmd\_test\_player\_anim}!uart\_task.c@{uart\_task.c}}
@@ -2261,7 +2335,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07392}{739
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07415}{7415}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07674}{7674}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a01f571b03ab2582d70eba7d43025e204}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_test\_promote\_anim@{uart\_cmd\_test\_promote\_anim}}
 \index{uart\_cmd\_test\_promote\_anim@{uart\_cmd\_test\_promote\_anim}!uart\_task.c@{uart\_task.c}}
@@ -2271,7 +2345,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07415}{741
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07461}{7461}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07720}{7720}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a475b0f6db66e3d1b412220cf21179f73}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_timer@{uart\_cmd\_timer}}
 \index{uart\_cmd\_timer@{uart\_cmd\_timer}!uart\_task.c@{uart\_task.c}}
@@ -2285,7 +2359,7 @@ Zobrazi stav timeru (lidsky citelny format).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03232}{3232}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03275}{3275}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ae137c42e9c2b523702668600a4126f53}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_timer\_config@{uart\_cmd\_timer\_config}}
 \index{uart\_cmd\_timer\_config@{uart\_cmd\_timer\_config}!uart\_task.c@{uart\_task.c}}
@@ -2299,7 +2373,7 @@ Nastavi casovy limit nebo zobrazi dostupne moznosti.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03325}{3325}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03368}{3368}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a749364e3a9de6bde7c09d339c88a1440}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_timer\_pause@{uart\_cmd\_timer\_pause}}
 \index{uart\_cmd\_timer\_pause@{uart\_cmd\_timer\_pause}!uart\_task.c@{uart\_task.c}}
@@ -2313,7 +2387,7 @@ Pause timer.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03458}{3458}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03501}{3501}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aae8ad10d8170f6fc652c11ff484ff48a}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_timer\_reset@{uart\_cmd\_timer\_reset}}
 \index{uart\_cmd\_timer\_reset@{uart\_cmd\_timer\_reset}!uart\_task.c@{uart\_task.c}}
@@ -2327,7 +2401,7 @@ Reset timer.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03506}{3506}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03549}{3549}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_af7a0ee931e10dbc1d27d1cbea7fee4ec}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_timer\_resume@{uart\_cmd\_timer\_resume}}
 \index{uart\_cmd\_timer\_resume@{uart\_cmd\_timer\_resume}!uart\_task.c@{uart\_task.c}}
@@ -2341,7 +2415,7 @@ Resume timer.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03482}{3482}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03525}{3525}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ad5f1031b571a80d5b86af97d1f95c57c}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_undo@{uart\_cmd\_undo}}
 \index{uart\_cmd\_undo@{uart\_cmd\_undo}!uart\_task.c@{uart\_task.c}}
@@ -2355,7 +2429,7 @@ Prikaz undo.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05821}{5821}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06080}{6080}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_afa32b7335ecf868e1ad3f62ea110f1a7}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_up@{uart\_cmd\_up}}
 \index{uart\_cmd\_up@{uart\_cmd\_up}!uart\_task.c@{uart\_task.c}}
@@ -2369,7 +2443,7 @@ Prikaz up (zvedni figurku).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05113}{5113}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05372}{5372}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a771457bbb5dea20a3c8848f56ff30fb5}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_verbose@{uart\_cmd\_verbose}}
 \index{uart\_cmd\_verbose@{uart\_cmd\_verbose}!uart\_task.c@{uart\_task.c}}
@@ -2383,7 +2457,7 @@ Prikaz verbose.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02043}{2043}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02066}{2066}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a3d57139f7c4ab4244218b1c6151f48fc}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_version@{uart\_cmd\_version}}
 \index{uart\_cmd\_version@{uart\_cmd\_version}!uart\_task.c@{uart\_task.c}}
@@ -2397,7 +2471,7 @@ Prikaz version.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02172}{2172}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02195}{2195}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a7f1538a5485ed6e27c22829f066d3a87}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_web\_lock@{uart\_cmd\_web\_lock}}
 \index{uart\_cmd\_web\_lock@{uart\_cmd\_web\_lock}!uart\_task.c@{uart\_task.c}}
@@ -2419,7 +2493,7 @@ Nastavi lock/unlock web rozhrani.
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03750}{3750}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03793}{3793}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aa9f2f59b642c88983b3335005fa13d04}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_web\_status@{uart\_cmd\_web\_status}}
 \index{uart\_cmd\_web\_status@{uart\_cmd\_web\_status}!uart\_task.c@{uart\_task.c}}
@@ -2441,7 +2515,7 @@ Zobrazi status web rozhrani.
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03798}{3798}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03841}{3841}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a5b73406393efc0efe0786fc87e571a22}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_wifi@{uart\_cmd\_wifi}}
 \index{uart\_cmd\_wifi@{uart\_cmd\_wifi}!uart\_task.c@{uart\_task.c}}
@@ -2463,7 +2537,7 @@ Konfiguruje Wi\+Fi STA (SSID a heslo).
 \end{DoxyReturn}
 Parsuje argumenty\+: WIFI $<$ssid$>$ $<$password$>$ Podporuje uvozovky pro SSID/heslo s mezerami\+: WIFI "{}\+My Home Wi\+Fi"{} "{}\+My \+Password"{} 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03542}{3542}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03585}{3585}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a703be1161dc49f25dd0e476c596443f9}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_wifi\_clear@{uart\_cmd\_wifi\_clear}}
 \index{uart\_cmd\_wifi\_clear@{uart\_cmd\_wifi\_clear}!uart\_task.c@{uart\_task.c}}
@@ -2485,7 +2559,7 @@ Vymaze Wi\+Fi konfiguraci z NVS.
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03853}{3853}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04089}{4089}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_adbf3e3944f1845925bd08459c6b7cb89}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_wifi\_connect@{uart\_cmd\_wifi\_connect}}
 \index{uart\_cmd\_wifi\_connect@{uart\_cmd\_wifi\_connect}!uart\_task.c@{uart\_task.c}}
@@ -2507,7 +2581,7 @@ Pripoji ESP32 k Wi\+Fi site.
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03649}{3649}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03692}{3692}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a1eebbc47571699c8bb5c8da5ce40cd6a}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_wifi\_disconnect@{uart\_cmd\_wifi\_disconnect}}
 \index{uart\_cmd\_wifi\_disconnect@{uart\_cmd\_wifi\_disconnect}!uart\_task.c@{uart\_task.c}}
@@ -2529,7 +2603,7 @@ Odpoji ESP32 od Wi\+Fi site.
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03673}{3673}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03716}{3716}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a011169e6aa5d6b3f141448e2864decbf}\index{uart\_task.c@{uart\_task.c}!uart\_cmd\_wifi\_status@{uart\_cmd\_wifi\_status}}
 \index{uart\_cmd\_wifi\_status@{uart\_cmd\_wifi\_status}!uart\_task.c@{uart\_task.c}}
@@ -2551,7 +2625,7 @@ Zobrazi Wi\+Fi status (AP i STA).
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03697}{3697}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l03740}{3740}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a631518fef77433c1a07e8226a1bcf0dc}\index{uart\_task.c@{uart\_task.c}!uart\_display\_advantage\_graph@{uart\_display\_advantage\_graph}}
 \index{uart\_display\_advantage\_graph@{uart\_display\_advantage\_graph}!uart\_task.c@{uart\_task.c}}
@@ -2572,7 +2646,7 @@ Display chess.\+com style advantage graph.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07217}{7217}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07476}{7476}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ab33165e3f027da22b5695d323a262466}\index{uart\_task.c@{uart\_task.c}!uart\_display\_enhanced\_board@{uart\_display\_enhanced\_board}}
 \index{uart\_display\_enhanced\_board@{uart\_display\_enhanced\_board}!uart\_task.c@{uart\_task.c}}
@@ -2586,7 +2660,7 @@ Display enhanced chess board with animations and visual effects.
 
 Zobraz rozsirenou sachovnici. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05399}{5399}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05658}{5658}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_abc55b8a694daa72d150b869d5e4e0a7d}\index{uart\_task.c@{uart\_task.c}!uart\_display\_led\_board@{uart\_display\_led\_board}}
 \index{uart\_display\_led\_board@{uart\_display\_led\_board}!uart\_task.c@{uart\_task.c}}
@@ -2600,7 +2674,7 @@ Display LED board states in terminal.
 
 Zobraz LED sachovnici. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07060}{7060}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07319}{7319}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a751f514352196d75fcb5afef4a54bc76}\index{uart\_task.c@{uart\_task.c}!uart\_display\_main\_help@{uart\_display\_main\_help}}
 \index{uart\_display\_main\_help@{uart\_display\_main\_help}!uart\_task.c@{uart\_task.c}}
@@ -2614,7 +2688,7 @@ Zobrazi hlavni help menu s kategoriemi.
 
 Zobraz hlavni help. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01490}{1490}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01498}{1498}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a0ef783ccf8a8c6f104f5ad95dc7c0faf}\index{uart\_task.c@{uart\_task.c}!uart\_display\_move\_animation@{uart\_display\_move\_animation}}
 \index{uart\_display\_move\_animation@{uart\_display\_move\_animation}!uart\_task.c@{uart\_task.c}}
@@ -2637,7 +2711,7 @@ Zobraz animaci tahu.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05108}{5108}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05367}{5367}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a40999291ae23f6ab62823ec1a1595e73}\index{uart\_task.c@{uart\_task.c}!uart\_fputs@{uart\_fputs}}
 \index{uart\_fputs@{uart\_fputs}!uart\_task.c@{uart\_task.c}}
@@ -2658,7 +2732,7 @@ Tato funkce posila string pres UART. Pouziva ESP-\/\+IDF UART driver nebo USB Se
 \end{DoxyParams}
 Funkce automaticky detekuje zda je UART povolen a pouzije odpovidajici metodu pro poslani dat. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00302}{302}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00303}{303}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_abd86b6f2266678ad987dbac5f16f055d}\index{uart\_task.c@{uart\_task.c}!uart\_parse\_command@{uart\_parse\_command}}
 \index{uart\_parse\_command@{uart\_parse\_command}!uart\_task.c@{uart\_task.c}}
@@ -2668,7 +2742,7 @@ void uart\+\_\+parse\+\_\+command (\begin{DoxyParamCaption}\item[{const char \te
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04713}{4713}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04972}{4972}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a9a071144fffaabac5718c2b216dfcf21}\index{uart\_task.c@{uart\_task.c}!uart\_process\_input@{uart\_process\_input}}
 \index{uart\_process\_input@{uart\_process\_input}!uart\_task.c@{uart\_task.c}}
@@ -2678,7 +2752,7 @@ void uart\+\_\+process\+\_\+input (\begin{DoxyParamCaption}\item[{char}]{c}{}\en
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04852}{4852}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05111}{5111}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a18b6871f5839ec673f8d865a6e90c56b}\index{uart\_task.c@{uart\_task.c}!uart\_process\_output\_queue@{uart\_process\_output\_queue}}
 \index{uart\_process\_output\_queue@{uart\_process\_output\_queue}!uart\_task.c@{uart\_task.c}}
@@ -2692,7 +2766,7 @@ Process UART output messages from queue.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01040}{1040}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l01041}{1041}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_af1ca9bbdbbd1329b9bade0cc31634ba7}\index{uart\_task.c@{uart\_task.c}!uart\_queue\_message@{uart\_queue\_message}}
 \index{uart\_queue\_message@{uart\_queue\_message}!uart\_task.c@{uart\_task.c}}
@@ -2717,7 +2791,7 @@ Posle zpravu do UART vystupni fronty (bezpecne z vice vlaken).
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00992}{992}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00993}{993}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a39a36d85fdb280e813cc1844f95af68d}\index{uart\_task.c@{uart\_task.c}!uart\_send\_colored@{uart\_send\_colored}}
 \index{uart\_send\_colored@{uart\_send\_colored}!uart\_task.c@{uart\_task.c}}
@@ -2740,7 +2814,7 @@ Tato funkce posle text s barevnym formatovanim pres UART. Pouziva ANSI escape se
 \end{DoxyParams}
 Funkce automaticky pridava reset barvy na konec textu a pouziva mutex pro thread-\/safe operace. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00754}{754}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00755}{755}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a24fe1d895d08ee05b18db4ebe08f7aa4}\index{uart\_task.c@{uart\_task.c}!uart\_send\_colored\_line@{uart\_send\_colored\_line}}
 \index{uart\_send\_colored\_line@{uart\_send\_colored\_line}!uart\_task.c@{uart\_task.c}}
@@ -2763,7 +2837,7 @@ Tato funkce posle text s barevnym formatovanim a novym radkem pres UART. Pouziva
 \end{DoxyParams}
 Funkce automaticky pridava novy radek a reset barvy na konec textu a pouziva mutex pro thread-\/safe operace. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00787}{787}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00788}{788}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_abc487589c7d53fb643128b9d692fd095}\index{uart\_task.c@{uart\_task.c}!uart\_send\_debug@{uart\_send\_debug}}
 \index{uart\_send\_debug@{uart\_send\_debug}!uart\_task.c@{uart\_task.c}}
@@ -2784,7 +2858,7 @@ Tato funkce posle debug zpravu s specialni barvou pres UART.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00880}{880}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00881}{881}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a997485823479f84fcbc9b5121128fb8b}\index{uart\_task.c@{uart\_task.c}!uart\_send\_error@{uart\_send\_error}}
 \index{uart\_send\_error@{uart\_send\_error}!uart\_task.c@{uart\_task.c}}
@@ -2805,7 +2879,7 @@ Tato funkce posle chybovou zpravu s cervenou barvou pres UART.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00814}{814}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00815}{815}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a3fe9e611dc4f252d5c7cb8cc26ecb232}\index{uart\_task.c@{uart\_task.c}!uart\_send\_formatted@{uart\_send\_formatted}}
 \index{uart\_send\_formatted@{uart\_send\_formatted}!uart\_task.c@{uart\_task.c}}
@@ -2828,7 +2902,7 @@ Tato funkce posle formatovanou zpravu s printf-\/style formatovanim pres UART.
 \end{DoxyParams}
 Funkce pouziva vsnprintf pro bezpecne formatovani a automaticky pridava novy radek na konec zpravy. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00907}{907}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00908}{908}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aceeac1cd0533d37dd67318c4133e6845}\index{uart\_task.c@{uart\_task.c}!uart\_send\_help@{uart\_send\_help}}
 \index{uart\_send\_help@{uart\_send\_help}!uart\_task.c@{uart\_task.c}}
@@ -2849,7 +2923,7 @@ Tato funkce posle help zpravu s specialni barvou pres UART.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00891}{891}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00892}{892}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_af239b46472032f467e2a14bd6fb11109}\index{uart\_task.c@{uart\_task.c}!uart\_send\_info@{uart\_send\_info}}
 \index{uart\_send\_info@{uart\_send\_info}!uart\_task.c@{uart\_task.c}}
@@ -2870,7 +2944,7 @@ Tato funkce posle informacni zpravu s modrou barvou pres UART.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00847}{847}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00848}{848}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a5e73cb389b8160054b07da47410b12da}\index{uart\_task.c@{uart\_task.c}!uart\_send\_line@{uart\_send\_line}}
 \index{uart\_send\_line@{uart\_send\_line}!uart\_task.c@{uart\_task.c}}
@@ -2891,7 +2965,7 @@ Tato funkce posle radek textu s novym radkem pres UART. Pouziva mutex pro thread
 \end{DoxyParams}
 Funkce automaticky pridava novy radek na konec textu a pouziva kratky timeout pro mutex aby se zabranilo WDT problemum. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00930}{930}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00931}{931}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a415daeebd03dc489051a6019ab57d86c}\index{uart\_task.c@{uart\_task.c}!uart\_send\_move@{uart\_send\_move}}
 \index{uart\_send\_move@{uart\_send\_move}!uart\_task.c@{uart\_task.c}}
@@ -2912,7 +2986,7 @@ Tato funkce posle zpravu o tahu s specialni barvou pres UART.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00858}{858}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00859}{859}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a014e7bd605b6ca9b3d4236077de47aee}\index{uart\_task.c@{uart\_task.c}!uart\_send\_status@{uart\_send\_status}}
 \index{uart\_send\_status@{uart\_send\_status}!uart\_task.c@{uart\_task.c}}
@@ -2933,7 +3007,7 @@ Tato funkce posle status zpravu s specialni barvou pres UART.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00869}{869}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00870}{870}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_adc5ab09aa19841e18a039de4b3250da4}\index{uart\_task.c@{uart\_task.c}!uart\_send\_string@{uart\_send\_string}}
 \index{uart\_send\_string@{uart\_send\_string}!uart\_task.c@{uart\_task.c}}
@@ -2943,7 +3017,7 @@ void uart\+\_\+send\+\_\+string (\begin{DoxyParamCaption}\item[{const char \texo
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00959}{959}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00960}{960}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aadc15ad30b458f1f25f63c2400ed3e4e}\index{uart\_task.c@{uart\_task.c}!uart\_send\_success@{uart\_send\_success}}
 \index{uart\_send\_success@{uart\_send\_success}!uart\_task.c@{uart\_task.c}}
@@ -2964,7 +3038,7 @@ Tato funkce posle uspesnou zpravu se zelenou barvou pres UART.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00825}{825}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00826}{826}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_afeb7b780595651e1cd61ff63516ebf09}\index{uart\_task.c@{uart\_task.c}!uart\_send\_warning@{uart\_send\_warning}}
 \index{uart\_send\_warning@{uart\_send\_warning}!uart\_task.c@{uart\_task.c}}
@@ -2985,7 +3059,7 @@ Tato funkce posle varovnou zpravu se zlutou barvou pres UART.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00836}{836}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00837}{837}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a1d46d56c2561b7b6cc93324464713296}\index{uart\_task.c@{uart\_task.c}!uart\_send\_welcome\_logo@{uart\_send\_welcome\_logo}}
 \index{uart\_send\_welcome\_logo@{uart\_send\_welcome\_logo}!uart\_task.c@{uart\_task.c}}
@@ -3003,7 +3077,7 @@ Tato funkce posle pekny ASCII logo systemu pres UART. Logo obsahuje nazev system
 
 Funkce pouziva mutex pro thread-\/safe operace a posila ASCII art logo s barevnym formatovanim pro lepsi vzhled. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00497}{497}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00498}{498}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a10ae51d97bb118f2350314fa36455bd9}\index{uart\_task.c@{uart\_task.c}!uart\_show\_progress\_bar@{uart\_show\_progress\_bar}}
 \index{uart\_show\_progress\_bar@{uart\_show\_progress\_bar}!uart\_task.c@{uart\_task.c}}
@@ -3028,7 +3102,7 @@ Tato funkce zobrazi animovany progress bar s labelem a procenty. Progress bar je
 \end{DoxyParams}
 Funkce vytvori pekny animovany progress bar s barevnym formatovanim. Pouziva mutex pro thread-\/safe operace a plynule animuje progress. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00670}{670}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00671}{671}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a80e3cf486dec37b0b9430b78bcb253be}\index{uart\_task.c@{uart\_task.c}!uart\_task\_health\_check@{uart\_task\_health\_check}}
 \index{uart\_task\_health\_check@{uart\_task\_health\_check}!uart\_task.c@{uart\_task.c}}
@@ -3042,7 +3116,7 @@ Check if UART task is healthy and recover if needed.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04826}{4826}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05085}{5085}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a85c2fc30eea2313aa471e3124760be42}\index{uart\_task.c@{uart\_task.c}!uart\_task\_legacy\_loop@{uart\_task\_legacy\_loop}}
 \index{uart\_task\_legacy\_loop@{uart\_task\_legacy\_loop}!uart\_task.c@{uart\_task.c}}
@@ -3052,7 +3126,7 @@ void uart\+\_\+task\+\_\+legacy\+\_\+loop (\begin{DoxyParamCaption}\item[{void}]
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06912}{6912}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07171}{7171}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a2ac3869f9cbee04268f1aa147aa4eee7}\index{uart\_task.c@{uart\_task.c}!uart\_task\_recover\_from\_error@{uart\_task\_recover\_from\_error}}
 \index{uart\_task\_recover\_from\_error@{uart\_task\_recover\_from\_error}!uart\_task.c@{uart\_task.c}}
@@ -3066,7 +3140,7 @@ Recover UART task from errors and system crashes This function ensures UART cont
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04785}{4785}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l05044}{5044}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a6e26b6d6ae554bd6bc478ccba6b1b763}\index{uart\_task.c@{uart\_task.c}!uart\_task\_start@{uart\_task\_start}}
 \index{uart\_task\_start@{uart\_task\_start}!uart\_task.c@{uart\_task.c}}
@@ -3085,7 +3159,7 @@ Hlavni funkce UART tasku.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l06806}{6806}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l07065}{7065}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ad5177f32635cd71c67857da386ce56a1}\index{uart\_task.c@{uart\_task.c}!uart\_task\_wdt\_reset\_safe@{uart\_task\_wdt\_reset\_safe}}
 \index{uart\_task\_wdt\_reset\_safe@{uart\_task\_wdt\_reset\_safe}!uart\_task.c@{uart\_task.c}}
@@ -3104,7 +3178,7 @@ ESP\+\_\+\+OK pokud uspesne, ESP\+\_\+\+ERR\+\_\+\+NOT\+\_\+\+FOUND pokud task n
 \end{DoxyReturn}
 Funkce je pouzivana pro bezpecny reset watchdog timeru behem UART operaci. Zabranuje chybam pri startupu kdy task jeste neni registrovany. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00201}{201}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00202}{202}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a91fd98a1d105024cd8e69edeaed85870}\index{uart\_task.c@{uart\_task.c}!uart\_write\_char\_immediate@{uart\_write\_char\_immediate}}
 \index{uart\_write\_char\_immediate@{uart\_write\_char\_immediate}!uart\_task.c@{uart\_task.c}}
@@ -3127,7 +3201,7 @@ Tato funkce zapise jeden znak do UART s okamzitym flush. Pouziva ESP-\/\+IDF UAR
 \end{DoxyParams}
 Funkce pouziva mutex pro bezpecne operace z vice vlaken a automaticky detekuje zda je UART povolen. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00323}{323}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00324}{324}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a417def5a37edadff4f93cf9e8824f082}\index{uart\_task.c@{uart\_task.c}!uart\_write\_string\_immediate@{uart\_write\_string\_immediate}}
 \index{uart\_write\_string\_immediate@{uart\_write\_string\_immediate}!uart\_task.c@{uart\_task.c}}
@@ -3150,7 +3224,7 @@ Tato funkce zapise cely string do UART s okamzitym flush. Pouziva ESP-\/\+IDF UA
 \end{DoxyParams}
 Funkce pouziva mutex pro bezpecne operace z vice vlaken a automaticky detekuje zda je UART povolen. Je optimalizovana pro rychle zapisovani. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00352}{352}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00353}{353}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a86e9ed02bc7633c27662831ea262f799}\index{uart\_task.c@{uart\_task.c}!validate\_chess\_squares@{validate\_chess\_squares}}
 \index{validate\_chess\_squares@{validate\_chess\_squares}!uart\_task.c@{uart\_task.c}}
@@ -3160,7 +3234,7 @@ bool validate\+\_\+chess\+\_\+squares (\begin{DoxyParamCaption}\item[{const char
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04475}{4475}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l04734}{4734}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 
 
@@ -3179,7 +3253,7 @@ Handle pro Button task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00234}{234}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00267}{267}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{uart__task_8c_ab6377eecee38b3e695c2d63d181d3ed2}\index{uart\_task.c@{uart\_task.c}!color\_enabled@{color\_enabled}}
 \index{color\_enabled@{color\_enabled}!uart\_task.c@{uart\_task.c}}
@@ -3189,7 +3263,7 @@ bool color\+\_\+enabled = true\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00431}{431}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00432}{432}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a45227fd9b16b7d96747cb21a06822165}\index{uart\_task.c@{uart\_task.c}!command\_count@{command\_count}}
 \index{command\_count@{command\_count}!uart\_task.c@{uart\_task.c}}
@@ -3199,7 +3273,7 @@ uint32\+\_\+t command\+\_\+count = 0\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00450}{450}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00451}{451}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a61191483532939b033d38260bf51a471}\index{uart\_task.c@{uart\_task.c}!command\_history@{command\_history}}
 \index{command\_history@{command\_history}!uart\_task.c@{uart\_task.c}}
@@ -3209,7 +3283,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00450}{450
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00433}{433}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00434}{434}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a537f725e34a30bac0d5b26630bf7ecda}\index{uart\_task.c@{uart\_task.c}!commands@{commands}}
 \index{commands@{commands}!uart\_task.c@{uart\_task.c}}
@@ -3219,7 +3293,7 @@ const \mbox{\hyperlink{structuart__command__t}{uart\+\_\+command\+\_\+t}} comman
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02343}{2343}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l02366}{2366}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_aedd33235b875180b4a57e5bd210cadd3}\index{uart\_task.c@{uart\_task.c}!error\_count@{error\_count}}
 \index{error\_count@{error\_count}!uart\_task.c@{uart\_task.c}}
@@ -3229,7 +3303,7 @@ uint32\+\_\+t error\+\_\+count = 0\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00451}{451}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00452}{452}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ad769b94f8ae1483e3b5018b93c19fe3b}\index{uart\_task.c@{uart\_task.c}!esc\_state@{esc\_state}}
 \index{esc\_state@{esc\_state}!uart\_task.c@{uart\_task.c}}
@@ -3239,7 +3313,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00451}{451
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00443}{443}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00444}{444}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a4ed770cbe46604586e494bae84b62304}\index{uart\_task.c@{uart\_task.c}!game\_command\_queue@{game\_command\_queue}}
 \index{game\_command\_queue@{game\_command\_queue}!uart\_task.c@{uart\_task.c}}
@@ -3267,7 +3341,7 @@ Handle pro Game task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00238}{238}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00271}{271}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{uart__task_8c_af64b20d5ad64044c58134e0b9a19d398}\index{uart\_task.c@{uart\_task.c}!history\_navigation\_index@{history\_navigation\_index}}
 \index{history\_navigation\_index@{history\_navigation\_index}!uart\_task.c@{uart\_task.c}}
@@ -3277,7 +3351,7 @@ int history\+\_\+navigation\+\_\+index = -\/1\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00444}{444}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00445}{445}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_ad70cd585173babaab9affd32c7f8abee}\index{uart\_task.c@{uart\_task.c}!input\_buffer@{input\_buffer}}
 \index{input\_buffer@{input\_buffer}!uart\_task.c@{uart\_task.c}}
@@ -3287,7 +3361,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00444}{444
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00432}{432}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00433}{433}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8c4e957de70c57192735974adca4c520}\index{uart\_task.c@{uart\_task.c}!last\_command\_time@{last\_command\_time}}
 \index{last\_command\_time@{last\_command\_time}!uart\_task.c@{uart\_task.c}}
@@ -3297,7 +3371,7 @@ uint32\+\_\+t last\+\_\+command\+\_\+time = 0\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00452}{452}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00453}{453}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8bfc7db202490dafea98d0ede64bc881}\index{uart\_task.c@{uart\_task.c}!led\_component\_enabled@{led\_component\_enabled}}
 \index{led\_component\_enabled@{led\_component\_enabled}!uart\_task.c@{uart\_task.c}}
@@ -3307,7 +3381,7 @@ bool led\+\_\+component\+\_\+enabled = true\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00228}{228}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00229}{229}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a6cf81c896b094e20ff5752ee1133a8f2}\index{uart\_task.c@{uart\_task.c}!led\_task\_handle@{led\_task\_handle}}
 \index{led\_task\_handle@{led\_task\_handle}!uart\_task.c@{uart\_task.c}}
@@ -3321,7 +3395,7 @@ Handle pro LED task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00230}{230}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00263}{263}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{uart__task_8c_add7c22b0e6811989af669309caa12fe8}\index{uart\_task.c@{uart\_task.c}!matrix\_component\_enabled@{matrix\_component\_enabled}}
 \index{matrix\_component\_enabled@{matrix\_component\_enabled}!uart\_task.c@{uart\_task.c}}
@@ -3331,7 +3405,7 @@ bool matrix\+\_\+component\+\_\+enabled = true\hspace{0.3cm}{\ttfamily [static]}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00227}{227}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00228}{228}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a9de1b87e0b6692c90f1c5cfd9e13d444}\index{uart\_task.c@{uart\_task.c}!matrix\_task\_handle@{matrix\_task\_handle}}
 \index{matrix\_task\_handle@{matrix\_task\_handle}!uart\_task.c@{uart\_task.c}}
@@ -3345,7 +3419,7 @@ Handle pro Matrix task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00232}{232}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00265}{265}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{uart__task_8c_a6f2695a4ef01bcb7a046b88a8688c6ae}\index{uart\_task.c@{uart\_task.c}!system\_config@{system\_config}}
 \index{system\_config@{system\_config}!uart\_task.c@{uart\_task.c}}
@@ -3355,7 +3429,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00232}{232}} v s
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00434}{434}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00435}{435}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{uart\_task.c@{uart\_task.c}!TAG@{TAG}}
 \index{TAG@{TAG}!uart\_task.c@{uart\_task.c}}
@@ -3365,7 +3439,7 @@ const char\texorpdfstring{$\ast$}{*} TAG = "{}UART\+\_\+\+TASK"{}\hspace{0.3cm}{
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00239}{239}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00240}{240}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a35141cb45623cb3b7b4d96da35ed1831}\index{uart\_task.c@{uart\_task.c}!task\_running@{task\_running}}
 \index{task\_running@{task\_running}!uart\_task.c@{uart\_task.c}}
@@ -3375,7 +3449,7 @@ bool task\+\_\+running = false\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00430}{430}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00431}{431}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a8eca84d3e2c7c0adf364819e74b1bd9b}\index{uart\_task.c@{uart\_task.c}!uart\_mutex@{uart\_mutex}}
 \index{uart\_mutex@{uart\_mutex}!uart\_task.c@{uart\_task.c}}
@@ -3389,7 +3463,7 @@ Globalni UART mutex pro cisty vystup.
 
 Mutex pro UART operace (ochrana UART vystupu). 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00227}{227}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00260}{260}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{uart__task_8c_a6e06eb5d048532e903f597094c601c4c}\index{uart\_task.c@{uart\_task.c}!uart\_output\_queue@{uart\_output\_queue}}
 \index{uart\_output\_queue@{uart\_output\_queue}!uart\_task.c@{uart\_task.c}}
@@ -3403,7 +3477,7 @@ Fronta pro UART vystup.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00447}{447}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00448}{448}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 
 \Hypertarget{uart__task_8c_a6196f7e1db4cb31f634fb82f481f1965}\index{uart\_task.c@{uart\_task.c}!wifi\_component\_enabled@{wifi\_component\_enabled}}
 \index{wifi\_component\_enabled@{wifi\_component\_enabled}!uart\_task.c@{uart\_task.c}}
@@ -3413,5 +3487,5 @@ bool wifi\+\_\+component\+\_\+enabled = false\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00229}{229}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{uart__task_8c_source_l00230}{230}} v souboru \mbox{\hyperlink{uart__task_8c_source}{uart\+\_\+task.\+c}}.
 

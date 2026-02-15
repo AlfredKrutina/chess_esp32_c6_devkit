@@ -23,7 +23,7 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00035}00035\ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00036}00036\ \textcolor{comment}{//\ Forward\ declarations}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00037}00037\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{led__state__manager_8c_ab0e2cf384e338253fa57595534da19e5}{led\_composite\_pixel}}(uint8\_t\ led\_index);}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00038}00038\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20}{led\_apply\_brightness}}(uint8\_t\ led\_index,\ uint8\_t*\ r,\ uint8\_t*\ g,\ uint8\_t*\ b);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00038}00038\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20}{led\_apply\_brightness}}(uint8\_t\ led\_index,\ uint8\_t*\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ uint8\_t*\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ uint8\_t*\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}});}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00039}00039\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{led__state__manager_8c_af99a3c5e617122fc1975cb7516f67cb7}{led\_mark\_dirty}}(uint8\_t\ led\_index);}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00040}00040\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{led__state__manager_8c_a6f1add3d4b49d1580292fa88b8a33d29}{led\_clear\_dirty}}(uint8\_t\ led\_index);}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00041}00041\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{led__state__manager_8c_aa543c3e91a16b3fdde64309d7c1742a7}{led\_is\_layer\_enabled}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\_layer\_t}}\ layer);}
@@ -96,7 +96,7 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00108}00108\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00109}00109\ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00110}\mbox{\hyperlink{led__state__manager_8h_abe61cff6332fff6f402834c6aaf32ca7}{00110}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}{led\_set\_pixel\_layer}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\_layer\_t}}\ layer,\ uint8\_t\ led\_index,\ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ r,\ uint8\_t\ g,\ uint8\_t\ b)\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00112}00112\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{led__state__manager_8c_a056b36df10f165cd5a6b993fc63fa152}{manager\_initialized}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00113}00113\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00114}00114\ \ \ \ \ \}}
@@ -112,14 +112,14 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00124}00124\ \ \ \ \ \mbox{\hyperlink{structled__pixel__t}{led\_pixel\_t}}*\ pixel\ =\ \&\mbox{\hyperlink{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922}{layers}}[layer].pixels[led\_index];}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00125}00125\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00126}00126\ \ \ \ \ \textcolor{comment}{//\ Check\ if\ pixel\ actually\ changed}}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00127}00127\ \ \ \ \ \textcolor{keywordflow}{if}\ (pixel-\/>\mbox{\hyperlink{structled__pixel__t_afd559e1dbe5d5b0e95df5c1a71ac673e}{r}}\ ==\ r\ \&\&\ pixel-\/>\mbox{\hyperlink{structled__pixel__t_aacb643b10ce86ae94cbecf21bc9b9b4c}{g}}\ ==\ g\ \&\&\ pixel-\/>\mbox{\hyperlink{structled__pixel__t_a45671018a6c9259bb3986ff7fdd75453}{b}}\ ==\ b)\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00127}00127\ \ \ \ \ \textcolor{keywordflow}{if}\ (pixel-\/>\mbox{\hyperlink{structled__pixel__t_afd559e1dbe5d5b0e95df5c1a71ac673e}{r}}\ ==\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\ \&\&\ pixel-\/>\mbox{\hyperlink{structled__pixel__t_aacb643b10ce86ae94cbecf21bc9b9b4c}{g}}\ ==\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\ \&\&\ pixel-\/>\mbox{\hyperlink{structled__pixel__t_a45671018a6c9259bb3986ff7fdd75453}{b}}\ ==\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00128}00128\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;\ \textcolor{comment}{//\ No\ change\ needed}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00129}00129\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00130}00130\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00131}00131\ \ \ \ \ \textcolor{comment}{//\ Update\ pixel}}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00132}00132\ \ \ \ \ pixel-\/>\mbox{\hyperlink{structled__pixel__t_afd559e1dbe5d5b0e95df5c1a71ac673e}{r}}\ =\ r;}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00133}00133\ \ \ \ \ pixel-\/>\mbox{\hyperlink{structled__pixel__t_aacb643b10ce86ae94cbecf21bc9b9b4c}{g}}\ =\ g;}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00134}00134\ \ \ \ \ pixel-\/>\mbox{\hyperlink{structled__pixel__t_a45671018a6c9259bb3986ff7fdd75453}{b}}\ =\ b;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00132}00132\ \ \ \ \ pixel-\/>\mbox{\hyperlink{structled__pixel__t_afd559e1dbe5d5b0e95df5c1a71ac673e}{r}}\ =\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}};}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00133}00133\ \ \ \ \ pixel-\/>\mbox{\hyperlink{structled__pixel__t_aacb643b10ce86ae94cbecf21bc9b9b4c}{g}}\ =\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}};}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00134}00134\ \ \ \ \ pixel-\/>\mbox{\hyperlink{structled__pixel__t_a45671018a6c9259bb3986ff7fdd75453}{b}}\ =\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}};}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00135}00135\ \ \ \ \ pixel-\/>\mbox{\hyperlink{structled__pixel__t_a007c8afc62dec2058eb60610a89fbdce}{last\_update}}\ =\ esp\_timer\_get\_time()\ /\ 1000;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00136}00136\ \ \ \ \ pixel-\/>\mbox{\hyperlink{structled__pixel__t_a43b55b0c8710014028abd706ff815082}{dirty}}\ =\ \textcolor{keyword}{true};}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00137}00137\ \ \ \ \ }
@@ -130,7 +130,7 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00142}00142\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_af99a3c5e617122fc1975cb7516f67cb7}{led\_mark\_dirty}}(led\_index);}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00143}00143\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00144}00144\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Set\ pixel\ \%d\ on\ layer\ \%d:\ RGB(\%d,\%d,\%d)"{}},\ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00145}00145\ \ \ \ \ \ \ \ \ \ \ \ \ \ led\_index,\ layer,\ r,\ g,\ b);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00145}00145\ \ \ \ \ \ \ \ \ \ \ \ \ \ led\_index,\ layer,\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}});}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00146}00146\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00147}00147\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00148}00148\ \}}
@@ -206,7 +206,7 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00218}00218\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00219}00219\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00220}00220\ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00221}\mbox{\hyperlink{led__state__manager_8c_a40289bfb1bef83bce9cd41e4a5306545}{00221}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a40289bfb1bef83bce9cd41e4a5306545}{led\_set\_layer\_brightness}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\_layer\_t}}\ layer,\ uint8\_t\ brightness)\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00221}\mbox{\hyperlink{led__state__manager_8c_a40289bfb1bef83bce9cd41e4a5306545}{00221}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a40289bfb1bef83bce9cd41e4a5306545}{led\_set\_layer\_brightness}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\_layer\_t}}\ layer,\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00222}00222\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{led__state__manager_8c_a056b36df10f165cd5a6b993fc63fa152}{manager\_initialized}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00223}00223\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00224}00224\ \ \ \ \ \}}
@@ -217,13 +217,13 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00229}00229\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00230}00230\ \ \ \ \ \textcolor{comment}{//\ Update\ brightness\ for\ all\ pixels\ in\ this\ layer}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00231}00231\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 73;\ i++)\ \{}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00232}00232\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922}{layers}}[layer].pixels[i].brightness\ =\ brightness;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00232}00232\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922}{layers}}[layer].pixels[i].brightness\ =\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}};}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00233}00233\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922}{layers}}[layer].pixels[i].dirty\ =\ \textcolor{keyword}{true};}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00234}00234\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_af99a3c5e617122fc1975cb7516f67cb7}{led\_mark\_dirty}}(i);}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00235}00235\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00236}00236\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00237}00237\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922}{layers}}[layer].needs\_composite\ =\ \textcolor{keyword}{true};}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00238}00238\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Set\ layer\ \%d\ brightness\ to\ \%d"{}},\ layer,\ brightness);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00238}00238\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Set\ layer\ \%d\ brightness\ to\ \%d"{}},\ layer,\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}});}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00239}00239\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00240}00240\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00241}00241\ \}}
@@ -311,7 +311,7 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00323}00323\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}{led\_set\_pixel\_layer}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231baf40b6e6b5b1261fb2c325fd71a9b20ad}{LED\_LAYER\_ANIMATION}},\ led\_index,\ target\_r,\ target\_g,\ target\_b);}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00324}00324\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00325}00325\ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00326}\mbox{\hyperlink{led__state__manager_8c_aba0f2c2275e342c31ec8ac161299b0ef}{00326}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_aba0f2c2275e342c31ec8ac161299b0ef}{led\_pulse\_pixel}}(uint8\_t\ led\_index,\ uint8\_t\ r,\ uint8\_t\ g,\ uint8\_t\ b,}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00326}\mbox{\hyperlink{led__state__manager_8c_aba0f2c2275e342c31ec8ac161299b0ef}{00326}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_aba0f2c2275e342c31ec8ac161299b0ef}{led\_pulse\_pixel}}(uint8\_t\ led\_index,\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}},}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00327}00327\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ period\_ms,\ uint8\_t\ pulse\_count)\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00328}00328\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{led__state__manager_8c_a056b36df10f165cd5a6b993fc63fa152}{manager\_initialized}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00329}00329\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
@@ -325,9 +325,9 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00337}00337\ \ \ \ \ uint32\_t\ current\_time\ =\ esp\_timer\_get\_time()\ /\ 1000;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00338}00338\ \ \ \ \ \textcolor{keywordtype}{float}\ pulse\ =\ (sinf((current\_time\ \%\ period\_ms)\ *\ 2.0f\ *\ \mbox{\hyperlink{led__task_8c_ae71449b1cc6e6250b91f539153a7a0d3}{M\_PI}}\ /\ period\_ms)\ +\ 1.0f)\ /\ 2.0f;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00339}00339\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00340}00340\ \ \ \ \ uint8\_t\ pulse\_r\ =\ (uint8\_t)(r\ *\ pulse);}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00341}00341\ \ \ \ \ uint8\_t\ pulse\_g\ =\ (uint8\_t)(g\ *\ pulse);}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00342}00342\ \ \ \ \ uint8\_t\ pulse\_b\ =\ (uint8\_t)(b\ *\ pulse);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00340}00340\ \ \ \ \ uint8\_t\ pulse\_r\ =\ (uint8\_t)(\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\ *\ pulse);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00341}00341\ \ \ \ \ uint8\_t\ pulse\_g\ =\ (uint8\_t)(\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\ *\ pulse);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00342}00342\ \ \ \ \ uint8\_t\ pulse\_b\ =\ (uint8\_t)(\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}\ *\ pulse);}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00343}00343\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00344}00344\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}{led\_set\_pixel\_layer}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231baf40b6e6b5b1261fb2c325fd71a9b20ad}{LED\_LAYER\_ANIMATION}},\ led\_index,\ pulse\_r,\ pulse\_g,\ pulse\_b);}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00345}00345\ \}}
@@ -345,14 +345,14 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00357}00357\ \ \ \ \ uint32\_t\ current\_time\ =\ esp\_timer\_get\_time()\ /\ 1000;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00358}00358\ \ \ \ \ \textcolor{keywordtype}{float}\ hue\ =\ (current\_time\ \%\ duration\_ms)\ *\ 360.0f\ /\ duration\_ms;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00359}00359\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00360}00360\ \ \ \ \ uint8\_t\ r,\ g,\ b;}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00361}00361\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a1123bf9a4fa107a05fc3251ae1c7d009}{led\_hsv\_to\_rgb}}(hue,\ 1.0f,\ 1.0f,\ \&r,\ \&g,\ \&b);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00360}00360\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}};}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00361}00361\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a1123bf9a4fa107a05fc3251ae1c7d009}{led\_hsv\_to\_rgb}}(hue,\ 1.0f,\ 1.0f,\ \&\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ \&\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ \&\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}});}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00362}00362\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00363}00363\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}{led\_set\_pixel\_layer}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231baf40b6e6b5b1261fb2c325fd71a9b20ad}{LED\_LAYER\_ANIMATION}},\ led\_index,\ r,\ g,\ b);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00363}00363\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}{led\_set\_pixel\_layer}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231baf40b6e6b5b1261fb2c325fd71a9b20ad}{LED\_LAYER\_ANIMATION}},\ led\_index,\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}});}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00364}00364\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00365}00365\ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00366}\mbox{\hyperlink{led__state__manager_8c_a9814a093e435d1f453c7ecbd64817d5f}{00366}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a9814a093e435d1f453c7ecbd64817d5f}{led\_set\_multiple\_pixels}}(\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\_layer\_t}}\ layer,\ uint8\_t*\ led\_indices,\ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00367}00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ count,\ uint8\_t\ r,\ uint8\_t\ g,\ uint8\_t\ b)\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00367}00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ count,\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00368}00368\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{led__state__manager_8c_a056b36df10f165cd5a6b993fc63fa152}{manager\_initialized}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00369}00369\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00370}00370\ \ \ \ \ \}}
@@ -363,7 +363,7 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00375}00375\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00376}00376\ \ \ \ \ esp\_err\_t\ result\ =\ ESP\_OK;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00377}00377\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ i\ =\ 0;\ i\ <\ count;\ i++)\ \{}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00378}00378\ \ \ \ \ \ \ \ \ esp\_err\_t\ pixel\_result\ =\ \mbox{\hyperlink{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}{led\_set\_pixel\_layer}}(layer,\ led\_indices[i],\ r,\ g,\ b);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00378}00378\ \ \ \ \ \ \ \ \ esp\_err\_t\ pixel\_result\ =\ \mbox{\hyperlink{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}{led\_set\_pixel\_layer}}(layer,\ led\_indices[i],\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}});}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00379}00379\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pixel\_result\ !=\ ESP\_OK)\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00380}00380\ \ \ \ \ \ \ \ \ \ \ \ \ result\ =\ pixel\_result;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00381}00381\ \ \ \ \ \ \ \ \ \}}
@@ -398,24 +398,24 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00410}00410\ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00411}00411\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00412}00412\ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00413}\mbox{\hyperlink{led__state__manager_8c_a79a1e941945444641da26f81f396a0ea}{00413}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a79a1e941945444641da26f81f396a0ea}{led\_set\_global\_brightness}}(uint8\_t\ brightness)\ \{}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00414}00414\ \ \ \ \ \textcolor{keywordflow}{if}\ (brightness\ >\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.max\_brightness)\ \{}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00415}00415\ \ \ \ \ \ \ \ \ brightness\ =\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.max\_brightness;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00413}\mbox{\hyperlink{led__state__manager_8c_a79a1e941945444641da26f81f396a0ea}{00413}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a79a1e941945444641da26f81f396a0ea}{led\_set\_global\_brightness}}(uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}})\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00414}00414\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}}\ >\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.max\_brightness)\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00415}00415\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}}\ =\ \mbox{\hyperlink{led__state__manager_8c_a68b7b8603078ea293af759db43776975}{current\_config}}.max\_brightness;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00416}00416\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00417}00417\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00418}00418\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1}{global\_brightness}}\ =\ brightness;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00418}00418\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1}{global\_brightness}}\ =\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}};}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00419}00419\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00420}00420\ \ \ \ \ \textcolor{comment}{//\ Mark\ all\ pixels\ as\ dirty\ to\ apply\ new\ brightness}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00421}00421\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 73;\ i++)\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00422}00422\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_af99a3c5e617122fc1975cb7516f67cb7}{led\_mark\_dirty}}(i);}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00423}00423\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00424}00424\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00425}00425\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Global\ brightness\ set\ to\ \%d"{}},\ brightness);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00425}00425\ \ \ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Global\ brightness\ set\ to\ \%d"{}},\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}});}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00426}00426\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00427}00427\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00428}00428\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00429}00429\ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00430}\mbox{\hyperlink{led__state__manager_8c_a09ad253b4572afc82ba7b977fb8be163}{00430}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a09ad253b4572afc82ba7b977fb8be163}{led\_set\_pixel\_brightness}}(uint8\_t\ led\_index,\ uint8\_t\ brightness)\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00430}\mbox{\hyperlink{led__state__manager_8c_a09ad253b4572afc82ba7b977fb8be163}{00430}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a09ad253b4572afc82ba7b977fb8be163}{led\_set\_pixel\_brightness}}(uint8\_t\ led\_index,\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00431}00431\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{led__state__manager_8c_a056b36df10f165cd5a6b993fc63fa152}{manager\_initialized}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00432}00432\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00433}00433\ \ \ \ \ \}}
@@ -426,7 +426,7 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00438}00438\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00439}00439\ \ \ \ \ \textcolor{comment}{//\ Update\ brightness\ for\ all\ layers}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00440}00440\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ layer\ =\ 0;\ layer\ <\ \mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231ba0d615861daf40238f3c436677a7a581b}{LED\_LAYER\_COUNT}};\ layer++)\ \{}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00441}00441\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922}{layers}}[layer].pixels[led\_index].brightness\ =\ brightness;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00441}00441\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922}{layers}}[layer].pixels[led\_index].brightness\ =\ \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}};}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00442}00442\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a0ce524f4e46479bfbd62b2da84ed3922}{layers}}[layer].pixels[led\_index].dirty\ =\ \textcolor{keyword}{true};}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00443}00443\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00444}00444\ \ \ \ \ }
@@ -455,8 +455,8 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00467}00467\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00468}00468\ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00469}00469\ \textcolor{comment}{//\ Color\ utility\ functions}}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00470}\mbox{\hyperlink{led__state__manager_8h_a1123bf9a4fa107a05fc3251ae1c7d009}{00470}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a1123bf9a4fa107a05fc3251ae1c7d009}{led\_hsv\_to\_rgb}}(\textcolor{keywordtype}{float}\ h,\ \textcolor{keywordtype}{float}\ s,\ \textcolor{keywordtype}{float}\ v,\ uint8\_t*\ r,\ uint8\_t*\ g,\ uint8\_t*\ b)\ \{}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00471}00471\ \ \ \ \ \textcolor{keywordflow}{if}\ (!r\ ||\ !g\ ||\ !b)\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00470}\mbox{\hyperlink{led__state__manager_8h_a1123bf9a4fa107a05fc3251ae1c7d009}{00470}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a1123bf9a4fa107a05fc3251ae1c7d009}{led\_hsv\_to\_rgb}}(\textcolor{keywordtype}{float}\ h,\ \textcolor{keywordtype}{float}\ s,\ \textcolor{keywordtype}{float}\ v,\ uint8\_t*\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ uint8\_t*\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ uint8\_t*\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00471}00471\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\ ||\ !\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\ ||\ !\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00472}00472\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00473}00473\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00474}00474\ \ \ \ \ }
@@ -478,21 +478,21 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00490}00490\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (h\ <\ 300)\ \{\ r\_f\ =\ x;\ g\_f\ =\ 0;\ b\_f\ =\ c;\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00491}00491\ \ \ \ \ \textcolor{keywordflow}{else}\ \{\ r\_f\ =\ c;\ g\_f\ =\ 0;\ b\_f\ =\ x;\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00492}00492\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00493}00493\ \ \ \ \ *r\ =\ (uint8\_t)((r\_f\ +\ m)\ *\ 255);}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00494}00494\ \ \ \ \ *g\ =\ (uint8\_t)((g\_f\ +\ m)\ *\ 255);}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00495}00495\ \ \ \ \ *b\ =\ (uint8\_t)((b\_f\ +\ m)\ *\ 255);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00493}00493\ \ \ \ \ *\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\ =\ (uint8\_t)((r\_f\ +\ m)\ *\ 255);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00494}00494\ \ \ \ \ *\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\ =\ (uint8\_t)((g\_f\ +\ m)\ *\ 255);}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00495}00495\ \ \ \ \ *\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}\ =\ (uint8\_t)((b\_f\ +\ m)\ *\ 255);}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00496}00496\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00497}00497\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00498}00498\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00499}00499\ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00500}\mbox{\hyperlink{led__state__manager_8c_a6bf9d2280f7e13b64c909142e7158fd4}{00500}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a6bf9d2280f7e13b64c909142e7158fd4}{led\_rgb\_to\_hsv}}(uint8\_t\ r,\ uint8\_t\ g,\ uint8\_t\ b,\ \textcolor{keywordtype}{float}*\ h,\ \textcolor{keywordtype}{float}*\ s,\ \textcolor{keywordtype}{float}*\ v)\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00500}\mbox{\hyperlink{led__state__manager_8c_a6bf9d2280f7e13b64c909142e7158fd4}{00500}}\ esp\_err\_t\ \mbox{\hyperlink{led__state__manager_8c_a6bf9d2280f7e13b64c909142e7158fd4}{led\_rgb\_to\_hsv}}(uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ uint8\_t\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}},\ \textcolor{keywordtype}{float}*\ h,\ \textcolor{keywordtype}{float}*\ s,\ \textcolor{keywordtype}{float}*\ v)\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00501}00501\ \ \ \ \ \textcolor{keywordflow}{if}\ (!h\ ||\ !s\ ||\ !v)\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00502}00502\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00503}00503\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00504}00504\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00505}00505\ \ \ \ \ \textcolor{keywordtype}{float}\ r\_f\ =\ r\ /\ 255.0f;}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00506}00506\ \ \ \ \ \textcolor{keywordtype}{float}\ g\_f\ =\ g\ /\ 255.0f;}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00507}00507\ \ \ \ \ \textcolor{keywordtype}{float}\ b\_f\ =\ b\ /\ 255.0f;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00505}00505\ \ \ \ \ \textcolor{keywordtype}{float}\ r\_f\ =\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\ /\ 255.0f;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00506}00506\ \ \ \ \ \textcolor{keywordtype}{float}\ g\_f\ =\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\ /\ 255.0f;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00507}00507\ \ \ \ \ \textcolor{keywordtype}{float}\ b\_f\ =\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}\ /\ 255.0f;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00508}00508\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00509}00509\ \ \ \ \ \textcolor{keywordtype}{float}\ max\_val\ =\ fmaxf(r\_f,\ fmaxf(g\_f,\ b\_f));}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00510}00510\ \ \ \ \ \textcolor{keywordtype}{float}\ min\_val\ =\ fminf(r\_f,\ fminf(g\_f,\ b\_f));}
@@ -720,14 +720,14 @@
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00740}00740\ \ \ \ \ \mbox{\hyperlink{led__state__manager_8c_a6f1add3d4b49d1580292fa88b8a33d29}{led\_clear\_dirty}}(led\_index);}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00741}00741\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00742}00742\ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00754}\mbox{\hyperlink{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20}{00754}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20}{led\_apply\_brightness}}(uint8\_t\ led\_index,\ uint8\_t*\ r,\ uint8\_t*\ g,\ uint8\_t*\ b)\ \{}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00755}00755\ \ \ \ \ \textcolor{keywordflow}{if}\ (!r\ ||\ !g\ ||\ !b)\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00754}\mbox{\hyperlink{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20}{00754}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20}{led\_apply\_brightness}}(uint8\_t\ led\_index,\ uint8\_t*\ \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}},\ uint8\_t*\ \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}},\ uint8\_t*\ \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})\ \{}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00755}00755\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\ ||\ !\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\ ||\ !\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})\ \{}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00756}00756\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00757}00757\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00758}00758\ \ \ \ \ }
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00759}00759\ \ \ \ \ *r\ =\ (*r\ *\ \mbox{\hyperlink{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1}{global\_brightness}})\ /\ 255;}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00760}00760\ \ \ \ \ *g\ =\ (*g\ *\ \mbox{\hyperlink{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1}{global\_brightness}})\ /\ 255;}
-\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00761}00761\ \ \ \ \ *b\ =\ (*b\ *\ \mbox{\hyperlink{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1}{global\_brightness}})\ /\ 255;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00759}00759\ \ \ \ \ *\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\ =\ (*\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}\ *\ \mbox{\hyperlink{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1}{global\_brightness}})\ /\ 255;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00760}00760\ \ \ \ \ *\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\ =\ (*\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}\ *\ \mbox{\hyperlink{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1}{global\_brightness}})\ /\ 255;}
+\DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00761}00761\ \ \ \ \ *\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}\ =\ (*\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}\ *\ \mbox{\hyperlink{led__state__manager_8c_ac96aaee8c56d42372878aa20a24362c1}{global\_brightness}})\ /\ 255;}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00762}00762\ \}}
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00763}00763\ }
 \DoxyCodeLine{\Hypertarget{led__state__manager_8c_source_l00769}\mbox{\hyperlink{led__state__manager_8c_af99a3c5e617122fc1975cb7516f67cb7}{00769}}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{led__state__manager_8c_af99a3c5e617122fc1975cb7516f67cb7}{led\_mark\_dirty}}(uint8\_t\ led\_index)\ \{}

@@ -95,27 +95,27 @@ $(function(){initNavTree('chess__types_8h.html','',''); });
 
 <p>ESP32-C6 Chess System v2.4 - Spolecne definice typu.  
 <a href="#details">...</a></p>
-<div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
-<code>#include &lt;stdbool.h&gt;</code><br />
+<div class="textblock"><code>#include &quot;esp_err.h&quot;</code><br />
 <code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
 <code>#include &quot;freertos/queue.h&quot;</code><br />
-<code>#include &quot;esp_err.h&quot;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Graf závislostí na vkládaných souborech pro chess_types.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="chess__types_8h__incl.png" border="0" usemap="#achess__types_8h" loading="lazy" alt=""/></div>
 <map name="achess__types_8h" id="achess__types_8h">
-<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="211,5,317,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,70,105"/>
-<area shape="poly" title=" " alt="" coords="226,34,86,78,84,73,225,29"/>
-<area shape="rect" title=" " alt="" coords="94,79,168,105"/>
-<area shape="poly" title=" " alt="" coords="244,31,168,74,166,69,239,32"/>
-<area shape="rect" title=" " alt="" coords="192,79,336,105"/>
-<area shape="poly" title=" " alt="" coords="266,29,266,65,262,62,262,33"/>
-<area shape="rect" title=" " alt="" coords="360,79,475,105"/>
-<area shape="poly" title=" " alt="" coords="291,29,380,72,375,72,290,34"/>
-<area shape="rect" title=" " alt="" coords="499,79,573,105"/>
-<area shape="poly" title=" " alt="" coords="311,29,486,76,481,77,310,34"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="276,5,382,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,80,105"/>
+<area shape="poly" title=" " alt="" coords="281,34,95,80,94,75,280,29"/>
+<area shape="rect" title=" " alt="" coords="104,79,248,105"/>
+<area shape="poly" title=" " alt="" coords="306,31,216,75,215,70,301,32"/>
+<area shape="rect" title=" " alt="" coords="272,79,387,105"/>
+<area shape="poly" title=" " alt="" coords="331,29,331,65,327,62,327,33"/>
+<area shape="rect" title=" " alt="" coords="411,79,485,105"/>
+<area shape="poly" title=" " alt="" coords="350,29,417,71,412,70,349,34"/>
+<area shape="rect" title=" " alt="" coords="509,79,573,105"/>
+<area shape="poly" title=" " alt="" coords="366,29,497,75,492,75,365,34"/>
 </map>
 </div>
 </div>
@@ -234,7 +234,7 @@ Výčty</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="#ad29cfdba222dc553f977a701312d18c1a062f25db8c860c564d19c9e46c776fe0">MOVE_ERROR_CASTLING_BLOCKED</a> = 12
 , <a class="el" href="#ad29cfdba222dc553f977a701312d18c1ac71919eb046ab42ba1e6a622b914863a">MOVE_ERROR_EN_PASSANT_INVALID</a> = 13
-, <a class="el" href="#ad29cfdba222dc553f977a701312d18c1a4dab65373947ddaa9d99838441f3fcff">MOVE_ERROR_DESTINATION_OCCUPIED</a> = 14
+, <a class="el" href="#ad29cfdba222dc553f977a701312d18c1a4dab65373947ddaa9d99838441f3fcff">MOVE_ERROR_DESTINATION_OCCUPIED</a>
 , <a class="el" href="#ad29cfdba222dc553f977a701312d18c1a0d51fa502a0284e356d4c196152a9165">MOVE_ERROR_OUT_OF_BOUNDS</a> = 15
 , <br />
 &#160;&#160;<a class="el" href="#ad29cfdba222dc553f977a701312d18c1a98e7980c293506d89bac9ef4fae9e237">MOVE_ERROR_GAME_NOT_ACTIVE</a> = 16
@@ -346,57 +346,58 @@ Výčty</h2></td></tr>
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dab94ae0805f7899148694194f7b562b74">LED_CMD_ANIMATION</a> = 7
 , <br />
 &#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5">LED_CMD_TEST</a> = 8
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390">LED_CMD_SET_BRIGHTNESS</a> = 9
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38">LED_CMD_TEST_ALL</a> = 10
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221">LED_CMD_MATRIX_OFF</a> = 11
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70">LED_CMD_MATRIX_ON</a> = 12
 , <br />
-&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70">LED_CMD_MATRIX_ON</a> = 12
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f">LED_CMD_RESERVED_SLOT_13</a> = 13
+&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f">LED_CMD_RESERVED_SLOT_13</a> = 13
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da99cc49c9086cca2b4d67e431f6f8243e">LED_CMD_RESERVED_SLOT_14</a> = 14
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da01e63f99b685e64e8d0e8c356b59f9e2">LED_CMD_RESERVED_SLOT_15</a> = 15
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da6f598eb95d085991a9c7210c7d9f4fbe">LED_CMD_RESERVED_SLOT_16</a> = 16
 , <br />
-&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da6f598eb95d085991a9c7210c7d9f4fbe">LED_CMD_RESERVED_SLOT_16</a> = 16
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da5ba99e2216abb36215c2d19fa7273c7a">LED_CMD_RESERVED_SLOT_17</a> = 17
+&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da5ba99e2216abb36215c2d19fa7273c7a">LED_CMD_RESERVED_SLOT_17</a> = 17
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daea821d2bde7f03358eecf371942fb6be">LED_CMD_RESERVED_SLOT_18</a> = 18
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dac0069a9eecc579e3bcc3c14d6865fe28">LED_CMD_ANIM_PLAYER_CHANGE</a> = 19
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dab4580f84f360910c3c26cd55b1ecdf42">LED_CMD_ANIM_MOVE_PATH</a> = 20
 , <br />
-&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dab4580f84f360910c3c26cd55b1ecdf42">LED_CMD_ANIM_MOVE_PATH</a> = 20
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dac134d8980d40f9fc8a12f683b967b187">LED_CMD_ANIM_CASTLE</a> = 21
+&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dac134d8980d40f9fc8a12f683b967b187">LED_CMD_ANIM_CASTLE</a> = 21
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da08d8d77aeb5693180fb3c7752dccd626">LED_CMD_ANIM_PROMOTE</a> = 22
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daf8bf66ffd150099b9aed3c2e8a54d430">LED_CMD_ANIM_ENDGAME</a> = 23
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da09320b788323ec0c6c037fbe5405fc94">LED_CMD_ANIM_CHECK</a> = 24
 , <br />
-&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da09320b788323ec0c6c037fbe5405fc94">LED_CMD_ANIM_CHECK</a> = 24
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daa88ade2b1617bd7e2dbb98a0fd8f93ea">LED_CMD_ANIM_CHECKMATE</a> = 25
+&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daa88ade2b1617bd7e2dbb98a0fd8f93ea">LED_CMD_ANIM_CHECKMATE</a> = 25
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da0a3b3480bea2aedbb8ba9ba174a97afc">LED_CMD_RESERVED_SLOT_26</a> = 26
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da3245bcef006f573a1e0c42e15e75ac3e">LED_CMD_DISABLE</a> = 25
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da0d4704d7f14b5966b4d5e1e15c8effbe">LED_CMD_ENABLE</a> = 26
 , <br />
-&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da0d4704d7f14b5966b4d5e1e15c8effbe">LED_CMD_ENABLE</a> = 26
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daf8124758b9a58effb1393e3482358b1f">LED_CMD_BUTTON_PROMOTION_AVAILABLE</a> = 27
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da441731e024d2f2a63ff838654017cb6f">LED_CMD_BUTTON_PROMOTION_UNAVAILABLE</a> = 28
+&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daf8124758b9a58effb1393e3482358b1f">LED_CMD_BUTTON_PROMOTION_AVAILABLE</a>
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da441731e024d2f2a63ff838654017cb6f">LED_CMD_BUTTON_PROMOTION_UNAVAILABLE</a>
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da1cd4129febc39d32125f7b63cbb1b968">LED_CMD_BUTTON_SET_PRESSED</a> = 29
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da645e84d2ccec89c75209784f912340d8">LED_CMD_BUTTON_SET_RELEASED</a> = 30
 , <br />
-&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da645e84d2ccec89c75209784f912340d8">LED_CMD_BUTTON_SET_RELEASED</a> = 30
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dae4852702ef287c906e2ca5272c047361">LED_CMD_GAME_STATE_UPDATE</a> = 31
+&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dae4852702ef287c906e2ca5272c047361">LED_CMD_GAME_STATE_UPDATE</a> = 31
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daf0f30b49574874673f7dedf4e3ef637b">LED_CMD_HIGHLIGHT_PIECES</a> = 32
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dad5d7870e73aceb328b67166210b27182">LED_CMD_HIGHLIGHT_MOVES</a> = 33
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da9188b02c7998356975109115ec629b21">LED_CMD_CLEAR_HIGHLIGHTS</a> = 34
 , <br />
-&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da9188b02c7998356975109115ec629b21">LED_CMD_CLEAR_HIGHLIGHTS</a> = 34
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daa5c435ea8239bab77cfab55550b5bee1">LED_CMD_PLAYER_CHANGE</a> = 35
+&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daa5c435ea8239bab77cfab55550b5bee1">LED_CMD_PLAYER_CHANGE</a> = 35
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da61126ce66596b43a74b040d15ae4647c">LED_CMD_ERROR_INVALID_MOVE</a> = 36
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dab074e02d4c9516005c3bd7d31f8e787b">LED_CMD_ERROR_RETURN_PIECE</a> = 37
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da6b00fc5d44a9d18c1cb99bb13c0f5815">LED_CMD_ERROR_RECOVERY</a> = 38
 , <br />
-&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da6b00fc5d44a9d18c1cb99bb13c0f5815">LED_CMD_ERROR_RECOVERY</a> = 38
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da55cf1cd112d68a2c834a4a8b83f26415">LED_CMD_SHOW_LEGAL_MOVES</a> = 39
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da58cefa5ccaee7e155c8f0ee780209e39">LED_CMD_CASTLING_GUIDANCE</a> = 40
+&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da55cf1cd112d68a2c834a4a8b83f26415">LED_CMD_SHOW_LEGAL_MOVES</a>
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da58cefa5ccaee7e155c8f0ee780209e39">LED_CMD_CASTLING_GUIDANCE</a>
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da279bafa5fec225b86ef70ef4ecdd2970">LED_CMD_CASTLING_ERROR</a> = 41
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da3e683c2a42a2ca7ed7a715d2492fee85">LED_CMD_CASTLING_CELEBRATION</a> = 42
 , <br />
-&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da3e683c2a42a2ca7ed7a715d2492fee85">LED_CMD_CASTLING_CELEBRATION</a> = 42
-, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da0acbe04632886e7fcc679174560cac06">LED_CMD_CASTLING_TUTORIAL</a> = 43
+&#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da0acbe04632886e7fcc679174560cac06">LED_CMD_CASTLING_TUTORIAL</a> = 43
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daff455cc7d17fa43994e64e9c9b5e663f">LED_CMD_CASTLING_CLEAR</a> = 44
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daf9dfd49be96d73059bdcf3f4e30c42dc">LED_CMD_HIGHLIGHT_HINT</a> = 45
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69">LED_CMD_STATUS_ACTIVE</a> = 97
 , <br />
 &#160;&#160;<a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da79fc9577fe569938b3650e0615820b32">LED_CMD_STATUS_COMPACT</a> = 98
 , <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0">LED_CMD_STATUS_DETAILED</a> = 99
+, <a class="el" href="#a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390">LED_CMD_SET_BRIGHTNESS</a> = 100
 <br />
  }</td></tr>
 <tr class="memdesc:a4b9c35d83af38787d5601d9c2443a66d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typy LED prikazu.  <a href="#a4b9c35d83af38787d5601d9c2443a66d">...</a><br /></td></tr>
@@ -477,7 +478,7 @@ Funkce</h2></td></tr>
 
 <p>Pocet tlacitek v systemu (8 promotion + 1 reset = 9). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00555">555</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00562">562</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -495,7 +496,7 @@ Funkce</h2></td></tr>
 
 <p>Celkovy pocet LED v systemu (alias pro CHESS_LED_COUNT_TOTAL). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00551">551</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00558">558</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -513,7 +514,7 @@ Funkce</h2></td></tr>
 
 <p>Pocet LED pro sachovnici (8x8 = 64). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00545">545</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00552">552</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -531,7 +532,7 @@ Funkce</h2></td></tr>
 
 <p>Pocet LED pro tlacitka (8 promotion + 1 reset = 9). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00547">547</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00554">554</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -549,7 +550,7 @@ Funkce</h2></td></tr>
 
 <p>Celkovy pocet LED (64 sachovnice + 9 tlacitek = 73). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00549">549</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00556">556</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -567,7 +568,7 @@ Funkce</h2></td></tr>
 
 <p>Velikost matrix (8x8 = 64 poli). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00559">559</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00566">566</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -585,7 +586,7 @@ Funkce</h2></td></tr>
 
 <p>Maximalni pocet tahu v historii (200 tahu). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00563">563</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00570">570</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -615,7 +616,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00453">453</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00468">468</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -726,7 +727,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00226">226</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00229">229</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -763,7 +764,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00322">322</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00331">331</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -796,7 +797,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00105">105</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00106">106</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -837,7 +838,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00077">77</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00078">78</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -873,8 +874,6 @@ Funkce</h2></td></tr>
 <tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66dab94ae0805f7899148694194f7b562b74" name="a4b9c35d83af38787d5601d9c2443a66dab94ae0805f7899148694194f7b562b74"></a>LED_CMD_ANIMATION&#160;</td><td class="fielddoc"><p>Spust animaci. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5" name="a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5"></a>LED_CMD_TEST&#160;</td><td class="fielddoc"><p>Testovaci vzor. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390" name="a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390"></a>LED_CMD_SET_BRIGHTNESS&#160;</td><td class="fielddoc"><p>Nastav jas LED. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38" name="a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38"></a>LED_CMD_TEST_ALL&#160;</td><td class="fielddoc"><p>Testuj vsechny LED (postupne sviceni). </p>
 </td></tr>
@@ -950,15 +949,19 @@ Funkce</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66daff455cc7d17fa43994e64e9c9b5e663f" name="a4b9c35d83af38787d5601d9c2443a66daff455cc7d17fa43994e64e9c9b5e663f"></a>LED_CMD_CASTLING_CLEAR&#160;</td><td class="fielddoc"><p>Vymaz vsechny indikace rosady. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66daf9dfd49be96d73059bdcf3f4e30c42dc" name="a4b9c35d83af38787d5601d9c2443a66daf9dfd49be96d73059bdcf3f4e30c42dc"></a>LED_CMD_HIGHLIGHT_HINT&#160;</td><td class="fielddoc"><p>Zvyrazni napovedu (odkud/kam) - led_index=from, data=(uint8_t*)to_index. </p>
+</td></tr>
 <tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69" name="a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69"></a>LED_CMD_STATUS_ACTIVE&#160;</td><td class="fielddoc"><p>Status prikaz - aktivni LED. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66da79fc9577fe569938b3650e0615820b32" name="a4b9c35d83af38787d5601d9c2443a66da79fc9577fe569938b3650e0615820b32"></a>LED_CMD_STATUS_COMPACT&#160;</td><td class="fielddoc"><p>Status prikaz - kompaktni vystup. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0" name="a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0"></a>LED_CMD_STATUS_DETAILED&#160;</td><td class="fielddoc"><p>Status prikaz - detailni vystup. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390" name="a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390"></a>LED_CMD_SET_BRIGHTNESS&#160;</td><td class="fielddoc"><p>Nastav globalni jas (0-100). </p>
+</td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00359">359</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00369">369</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -991,7 +994,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00511">511</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00527">527</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1020,7 +1023,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00482">482</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00498">498</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1081,7 +1084,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00120">120</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00121">121</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1114,7 +1117,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00186">186</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00188">188</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1161,7 +1164,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00049">49</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00050">50</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1186,7 +1189,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00095">95</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00096">96</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1215,7 +1218,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00154">154</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00156">156</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1272,7 +1275,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00050">50</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00048">48</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -1296,7 +1299,7 @@ Funkce</h2></td></tr>
 <p>Inicializuje NVS flash pro ukladani konfigurace. NVS flash je jiz inicializovan v <a class="el" href="main_8c.html" title="ESP32-C6 Chess System - Hlavni inicializace a startup.">main.c</a> <a class="el" href="main_8c.html#ae52825df5837e0f8f5e814f48cafb722" title="Inicializuje konzoli a UART.">init_console()</a>, takze tato funkce pouze overi dostupnost.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00039">39</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00038">38</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -1324,7 +1327,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00119">119</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00115">115</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -1360,7 +1363,7 @@ Funkce</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if insufficient material (draw)</dd></dl>
 <p>Check if piece belongs to opponent </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08389">8389</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09323">9323</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1394,7 +1397,7 @@ Funkce</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je figurka vlastni</dd></dl>
 <p>Overi zda je figurka vlastni (patri aktualnimu hraci). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08943">8943</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09920">9920</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1428,7 +1431,7 @@ Funkce</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je pozice platna</dd></dl>
 <p>Overi zda je pozice platna na sachovnici. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l08936">8936</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09913">9913</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1462,7 +1465,7 @@ Funkce</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud by tah nechal krale v sachu</dd></dl>
 <p>Simuluje tah a overi zda by nechal krale v sachu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l09047">9047</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l10024">10024</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>

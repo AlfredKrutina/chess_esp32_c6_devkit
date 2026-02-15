@@ -1,4 +1,31 @@
 var searchData=
 [
-  ['json_5fbuffer_5fsize_0',['JSON_BUFFER_SIZE',['../web__server__task_8c.html#a2e4ba70a12e464d5b5278c18d28355f8',1,'web_server_task.c']]]
+  ['led_5fbatch_5fcommit_5finterval_5fms_0',['LED_BATCH_COMMIT_INTERVAL_MS',['../led__task_8c.html#a2e7aa4b575605ebe8928ddc7f944c4b5',1,'led_task.c']]],
+  ['led_5fcolor_5fblue_1',['LED_COLOR_BLUE',['../led__unified__api_8h.html#a3de6c5690933de9d62c0897ef611cb19',1,'led_unified_api.h']]],
+  ['led_5fcolor_5fcyan_2',['LED_COLOR_CYAN',['../led__unified__api_8h.html#a8985352a22885bbb847bca6e772e98bc',1,'led_unified_api.h']]],
+  ['led_5fcolor_5fgreen_3',['LED_COLOR_GREEN',['../led__unified__api_8h.html#a913f289eb3203c4e3043b1ecb4047032',1,'led_unified_api.h']]],
+  ['led_5fcolor_5fmagenta_4',['LED_COLOR_MAGENTA',['../led__unified__api_8h.html#a6518de5003bcf7e4853f4dc29e372988',1,'led_unified_api.h']]],
+  ['led_5fcolor_5foff_5',['LED_COLOR_OFF',['../led__unified__api_8h.html#a2b90b815358f1c78e36a5f4c56308449',1,'led_unified_api.h']]],
+  ['led_5fcolor_5fred_6',['LED_COLOR_RED',['../led__unified__api_8h.html#a8987a69d33df1353af6077ff67dfea28',1,'led_unified_api.h']]],
+  ['led_5fcolor_5fwhite_7',['LED_COLOR_WHITE',['../led__unified__api_8h.html#aa9bb2e0662b7efddf1e12bfaa241b8a8',1,'led_unified_api.h']]],
+  ['led_5fcolor_5fyellow_8',['LED_COLOR_YELLOW',['../led__unified__api_8h.html#a97348e8acf253232595a481314f8a396',1,'led_unified_api.h']]],
+  ['led_5fcommand_5ftimeout_5fms_9',['LED_COMMAND_TIMEOUT_MS',['../freertos__chess_8h.html#afe966dccff7e1c439146a85369c623f7',1,'freertos_chess.h']]],
+  ['led_5fcritical_5fsection_5ftimeout_5fms_10',['LED_CRITICAL_SECTION_TIMEOUT_MS',['../led__task_8c.html#adc1b5df15af7552352dad465c61cfac7',1,'led_task.c']]],
+  ['led_5fdata_5fpin_11',['LED_DATA_PIN',['../freertos__chess_8h.html#a5f55b07707df2f2cf371f707207ed508',1,'LED_DATA_PIN:&#160;freertos_chess.h'],['../led__task_8c.html#a5f55b07707df2f2cf371f707207ed508',1,'LED_DATA_PIN:&#160;led_task.c']]],
+  ['led_5ferror_5frecovery_5fthreshold_12',['LED_ERROR_RECOVERY_THRESHOLD',['../led__task_8c.html#a038bfe7aea2d3849e2ee6a6635b318bc',1,'led_task.c']]],
+  ['led_5fframe_5fbuffer_5fsize_13',['LED_FRAME_BUFFER_SIZE',['../led__task_8c.html#af505353c4adf955dea4a330d4177d46c',1,'led_task.c']]],
+  ['led_5fframe_5fspacing_5fms_14',['LED_FRAME_SPACING_MS',['../freertos__chess_8h.html#ad3df373183a99f0161894012e3c251b1',1,'freertos_chess.h']]],
+  ['led_5fhardware_5fupdate_5fms_15',['LED_HARDWARE_UPDATE_MS',['../freertos__chess_8h.html#a4791d2b56447d04ed38f856604ed53ad',1,'freertos_chess.h']]],
+  ['led_5fhealth_5fcheck_5finterval_5fms_16',['LED_HEALTH_CHECK_INTERVAL_MS',['../led__task_8c.html#a9d3a3936c730816cea250929a3ff185a',1,'led_task.c']]],
+  ['led_5fmax_5fretry_5fcount_17',['LED_MAX_RETRY_COUNT',['../led__task_8c.html#afb5d542d83382d217381d437d8c1fc73',1,'led_task.c']]],
+  ['led_5fmutex_5fsafe_5ftimeout_18',['LED_MUTEX_SAFE_TIMEOUT',['../freertos__chess_8h.html#a1c080ccbe5c2b8e9c7229f3c10f74a8f',1,'freertos_chess.h']]],
+  ['led_5fmutex_5ftimeout_5fms_19',['LED_MUTEX_TIMEOUT_MS',['../freertos__chess_8h.html#aa31a93cf587ac835b9458a02582a2ff4',1,'freertos_chess.h']]],
+  ['led_5fqueue_5fsize_20',['LED_QUEUE_SIZE',['../freertos__chess_8h.html#a60c0e1e27fef536d95040e98b856975a',1,'freertos_chess.h']]],
+  ['led_5freset_5ftime_5fus_21',['LED_RESET_TIME_US',['../freertos__chess_8h.html#a5e46e8f15b9ba2ac3ac0935d11a778fc',1,'freertos_chess.h']]],
+  ['led_5fsafe_5ftimeout_22',['LED_SAFE_TIMEOUT',['../freertos__chess_8h.html#a683981e7f037dd43d22e1e337db287bd',1,'freertos_chess.h']]],
+  ['led_5ftask_5fmutex_5ftimeout_5fms_23',['LED_TASK_MUTEX_TIMEOUT_MS',['../led__task_8c.html#a0256c8c9fa0cc7b33ef3d2ceb0abb010',1,'led_task.c']]],
+  ['led_5ftask_5fmutex_5ftimeout_5fticks_24',['LED_TASK_MUTEX_TIMEOUT_TICKS',['../led__task_8c.html#acd37c9dc96b5ed1245631969b5daa3f2',1,'led_task.c']]],
+  ['led_5ftask_5fpriority_25',['LED_TASK_PRIORITY',['../freertos__chess_8h.html#a929063c46e63eb78271df5b5fd5819e9',1,'freertos_chess.h']]],
+  ['led_5ftask_5fstack_5fsize_26',['LED_TASK_STACK_SIZE',['../freertos__chess_8h.html#a7b127f4562618fb23c61f79d2a6a2201',1,'freertos_chess.h']]],
+  ['led_5fwatchdog_5freset_5finterval_27',['LED_WATCHDOG_RESET_INTERVAL',['../led__task_8c.html#a1971e04ffd5581d8847ad715204854d7',1,'led_task.c']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['rgb_5fcolor_5ft_0',['rgb_color_t',['../structrgb__color__t.html',1,'']]]
+  ['non_5fblocking_5fblink_5fstate_5ft_0',['non_blocking_blink_state_t',['../structnon__blocking__blink__state__t.html',1,'']]]
 ];

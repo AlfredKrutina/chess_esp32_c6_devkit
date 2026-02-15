@@ -191,7 +191,7 @@ esp_err_t enhanced_castling_init(void);
 esp_err_t enhanced_castling_start(player_t player, bool is_kingside);
 
 /**
- * @brief Zpracuj udalost zvednutí krale
+ * @brief Zpracuj udalost zvednuti krale
  * 
  * @param row Radek krale (0-7)
  * @param col Sloupec krale (0-7)
@@ -209,7 +209,7 @@ esp_err_t enhanced_castling_handle_king_lift(uint8_t row, uint8_t col);
 esp_err_t enhanced_castling_handle_king_drop(uint8_t row, uint8_t col);
 
 /**
- * @brief Zpracuj udalost zvednutí veze
+ * @brief Zpracuj udalost zvednuti veze
  * 
  * @param row Radek veze (0-7)
  * @param col Sloupec veze (0-7)

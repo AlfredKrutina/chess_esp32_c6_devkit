@@ -96,13 +96,14 @@ $(function(){initNavTree('game__led__animations_8c.html','',''); });
 <p>ESP32-C6 Chess System - Pokrocile LED animace.  
 <a href="#details">...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="led__task__simple_8h_source.html">led_task_simple.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
+<code>#include &quot;../../game_task/include/game_task.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_timer.h&quot;</code><br />
 <code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
 <code>#include &quot;freertos/task.h&quot;</code><br />
 <code>#include &quot;freertos/timers.h&quot;</code><br />
-<code>#include &quot;esp_log.h&quot;</code><br />
-<code>#include &quot;esp_timer.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__task__simple_8h_source.html">led_task_simple.h</a>&quot;</code><br />
 <code>#include &lt;math.h&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -110,41 +111,43 @@ Graf závislostí na vkládaných souborech pro game_led_animations.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__led__animations_8c__incl.png" border="0" usemap="#agame__led__animations_8c" loading="lazy" alt=""/></div>
 <map name="agame__led__animations_8c" id="agame__led__animations_8c">
-<area shape="rect" title="ESP32&#45;C6 Chess System &#45; Pokrocile LED animace." alt="" coords="547,5,705,31"/>
-<area shape="rect" href="game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="195,79,353,105"/>
-<area shape="poly" title=" " alt="" coords="564,32,350,78,348,73,569,31"/>
-<area shape="rect" title=" " alt="" coords="145,153,288,178"/>
-<area shape="poly" title=" " alt="" coords="544,19,448,23,340,31,289,39,244,50,209,64,186,81,180,94,181,109,198,142,193,140,176,110,174,93,181,77,206,59,243,45,288,34,339,26,448,18,549,18"/>
-<area shape="rect" title=" " alt="" coords="5,153,122,178"/>
-<area shape="poly" title=" " alt="" coords="544,26,342,47,243,63,173,81,124,110,86,144,83,140,121,106,170,77,242,57,342,42,549,24"/>
-<area shape="rect" href="led__task__simple_8h.html" title="Jednoduchy LED system &#45; Bezpecne rozhrani z vice vlaken." alt="" coords="378,79,504,105"/>
-<area shape="poly" title=" " alt="" coords="597,31,487,76,486,70,592,32"/>
-<area shape="rect" title=" " alt="" coords="612,153,718,178"/>
-<area shape="poly" title=" " alt="" coords="632,29,649,78,662,139,658,136,644,80,629,33"/>
-<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapovani funkce." alt="" coords="528,79,634,105"/>
-<area shape="poly" title=" " alt="" coords="621,30,598,68,595,64,616,33"/>
-<area shape="rect" title=" " alt="" coords="709,79,786,105"/>
-<area shape="poly" title=" " alt="" coords="647,29,716,71,711,70,646,34"/>
-<area shape="rect" title=" " alt="" coords="810,79,898,105"/>
-<area shape="poly" title=" " alt="" coords="665,29,803,74,798,74,665,34"/>
-<area shape="rect" title=" " alt="" coords="922,79,984,105"/>
-<area shape="poly" title=" " alt="" coords="689,29,910,78,904,79,689,34"/>
-<area shape="rect" title=" " alt="" coords="1007,79,1072,105"/>
-<area shape="poly" title=" " alt="" coords="706,27,837,47,995,78,989,79,836,52,706,33"/>
-<area shape="rect" title=" " alt="" coords="313,153,387,178"/>
-<area shape="poly" title=" " alt="" coords="288,103,329,142,324,142,286,108"/>
-<area shape="poly" title=" " alt="" coords="267,104,238,142,235,138,262,106"/>
-<area shape="poly" title=" " alt="" coords="240,108,115,150,113,145,237,103"/>
-<area shape="rect" title=" " alt="" coords="510,153,574,178"/>
-<area shape="poly" title=" " alt="" coords="320,103,498,151,493,152,319,108"/>
-<area shape="rect" title=" " alt="" coords="412,153,486,178"/>
-<area shape="poly" title=" " alt="" coords="304,103,408,146,402,146,303,108"/>
-<area shape="poly" title=" " alt="" coords="428,104,378,146,376,141,423,106"/>
-<area shape="poly" title=" " alt="" coords="405,105,270,150,269,145,400,106"/>
-<area shape="poly" title=" " alt="" coords="459,103,515,144,510,143,457,108"/>
-<area shape="poly" title=" " alt="" coords="444,103,448,139,444,136,440,107"/>
-<area shape="poly" title=" " alt="" coords="479,103,615,147,610,148,478,108"/>
-<area shape="poly" title=" " alt="" coords="577,104,558,141,554,137,572,106"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System &#45; Pokrocile LED animace." alt="" coords="571,5,729,31"/>
+<area shape="rect" href="game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="144,86,303,112"/>
+<area shape="poly" title=" " alt="" coords="576,33,315,82,296,85,294,80,314,76,580,30"/>
+<area shape="rect" title=" " alt="" coords="152,168,295,193"/>
+<area shape="poly" title=" " alt="" coords="568,24,448,33,311,44,194,60,155,70,135,81,129,90,128,98,135,118,154,141,180,160,174,160,150,145,131,121,122,99,124,88,131,77,153,65,193,55,310,39,448,27,573,22"/>
+<area shape="rect" title=" " alt="" coords="5,168,122,193"/>
+<area shape="poly" title=" " alt="" coords="568,20,456,26,324,35,203,52,155,65,121,81,104,96,91,115,73,154,68,151,86,112,100,93,118,77,153,60,202,47,323,29,455,20,573,19"/>
+<area shape="rect" title=" " alt="" coords="326,79,481,120"/>
+<area shape="poly" title=" " alt="" coords="615,31,480,76,479,71,610,32"/>
+<area shape="rect" title=" " alt="" coords="505,86,582,112"/>
+<area shape="poly" title=" " alt="" coords="636,30,573,80,571,75,631,32"/>
+<area shape="rect" title=" " alt="" coords="606,86,694,112"/>
+<area shape="poly" title=" " alt="" coords="652,29,652,72,648,69,648,33"/>
+<area shape="rect" title=" " alt="" coords="899,168,1004,193"/>
+<area shape="poly" title=" " alt="" coords="730,19,803,25,880,35,947,52,972,63,990,77,998,97,995,118,986,139,973,158,970,154,982,136,990,117,993,98,985,81,969,68,945,57,879,41,803,30,730,25"/>
+<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapovani funkce." alt="" coords="870,86,975,112"/>
+<area shape="poly" title=" " alt="" coords="693,29,858,76,869,82,863,81,856,82,692,34"/>
+<area shape="rect" href="led__task__simple_8h.html" title="Jednoduchy LED system &#45; Bezpecne rozhrani z vice vlaken." alt="" coords="719,86,845,112"/>
+<area shape="poly" title=" " alt="" coords="671,29,751,78,746,78,670,34"/>
+<area shape="rect" title=" " alt="" coords="1050,86,1112,112"/>
+<area shape="poly" title=" " alt="" coords="730,24,872,43,953,58,1032,76,1041,81,1035,81,1031,82,952,63,871,48,730,30"/>
+<area shape="rect" title=" " alt="" coords="1135,86,1200,112"/>
+<area shape="poly" title=" " alt="" coords="730,20,912,36,1019,53,1124,76,1132,81,1126,80,1123,82,1018,58,911,42,730,25"/>
+<area shape="rect" title=" " alt="" coords="593,168,667,193"/>
+<area shape="poly" title=" " alt="" coords="281,110,315,117,580,168,575,171,314,122,281,115"/>
+<area shape="poly" title=" " alt="" coords="225,111,226,153,221,150,222,114"/>
+<area shape="poly" title=" " alt="" coords="201,114,102,163,100,158,197,111"/>
+<area shape="rect" title=" " alt="" coords="750,168,814,193"/>
+<area shape="poly" title=" " alt="" coords="278,110,315,117,517,145,737,173,732,174,516,150,314,122,278,115"/>
+<area shape="rect" title=" " alt="" coords="378,168,453,193"/>
+<area shape="poly" title=" " alt="" coords="254,110,375,161,369,162,253,115"/>
+<area shape="poly" title=" " alt="" coords="903,112,818,162,816,157,898,113"/>
+<area shape="poly" title=" " alt="" coords="762,112,668,163,666,158,756,113"/>
+<area shape="poly" title=" " alt="" coords="740,112,707,122,494,154,311,174,310,169,493,149,706,117,735,113"/>
+<area shape="poly" title=" " alt="" coords="784,111,784,154,780,150,780,114"/>
+<area shape="poly" title=" " alt="" coords="738,112,707,122,469,172,468,166,706,117,733,113"/>
+<area shape="poly" title=" " alt="" coords="809,110,915,161,909,160,808,115"/>
 </map>
 </div>
 </div>
@@ -179,24 +182,24 @@ Funkce</h2></td></tr>
 <tr class="memitem:af4170c2454c1c13a7c40fecb32c032d3" id="r_af4170c2454c1c13a7c40fecb32c032d3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af4170c2454c1c13a7c40fecb32c032d3">animation_timer_callback</a> (TimerHandle_t timer)</td></tr>
 <tr class="memdesc:af4170c2454c1c13a7c40fecb32c032d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timer callback pro endgame animace.  <br /></td></tr>
 <tr class="memitem:a9c35ac742c83bf78240d93599dd54556" id="r_a9c35ac742c83bf78240d93599dd54556"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9c35ac742c83bf78240d93599dd54556">game_led_animations_init</a> (void)</td></tr>
-<tr class="memdesc:a9c35ac742c83bf78240d93599dd54556"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializace animačního systému.  <br /></td></tr>
+<tr class="memdesc:a9c35ac742c83bf78240d93599dd54556"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializace animacniho systemu.  <br /></td></tr>
 <tr class="memitem:a512b0ba5745a638b00545a16423c4e17" id="r_a512b0ba5745a638b00545a16423c4e17"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a512b0ba5745a638b00545a16423c4e17">start_endgame_animation</a> (<a class="el" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a> animation_type, uint8_t king_position)</td></tr>
-<tr class="memdesc:a512b0ba5745a638b00545a16423c4e17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spuštění endgame animace.  <br /></td></tr>
+<tr class="memdesc:a512b0ba5745a638b00545a16423c4e17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spusteni endgame animace.  <br /></td></tr>
 <tr class="memitem:ad8316144bc70b897342c47d341b52b5b" id="r_ad8316144bc70b897342c47d341b52b5b"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad8316144bc70b897342c47d341b52b5b">stop_endgame_animation</a> (void)</td></tr>
-<tr class="memdesc:ad8316144bc70b897342c47d341b52b5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastavení endgame animace.  <br /></td></tr>
+<tr class="memdesc:ad8316144bc70b897342c47d341b52b5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastaveni endgame animace.  <br /></td></tr>
 <tr class="memitem:abc332d95d86dbce7893f640161167edb" id="r_abc332d95d86dbce7893f640161167edb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abc332d95d86dbce7893f640161167edb">is_endgame_animation_running</a> (void)</td></tr>
-<tr class="memdesc:abc332d95d86dbce7893f640161167edb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kontrola zda běží endgame animace.  <br /></td></tr>
+<tr class="memdesc:abc332d95d86dbce7893f640161167edb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kontrola zda bezi endgame animace.  <br /></td></tr>
 <tr class="memitem:a657e1bb5d40ff05278f1fd817295a34b" id="r_a657e1bb5d40ff05278f1fd817295a34b"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a657e1bb5d40ff05278f1fd817295a34b">get_endgame_animation_name</a> (<a class="el" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a> animation_type)</td></tr>
-<tr class="memdesc:a657e1bb5d40ff05278f1fd817295a34b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Získání názvu animace.  <br /></td></tr>
+<tr class="memdesc:a657e1bb5d40ff05278f1fd817295a34b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskani nazvu animace.  <br /></td></tr>
 <tr class="memitem:a7d2e178a6334fe293dd266e15b194ceb" id="r_a7d2e178a6334fe293dd266e15b194ceb"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7d2e178a6334fe293dd266e15b194ceb">stop_all_subtle_animations</a> (void)</td></tr>
-<tr class="memdesc:a7d2e178a6334fe293dd266e15b194ceb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastavení všech jemných animací  <br /></td></tr>
+<tr class="memdesc:a7d2e178a6334fe293dd266e15b194ceb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastaveni vsech jemnych animaci.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
 Proměnné</h2></td></tr>
 <tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;GAME_LED_ANIMATIONS&quot;</td></tr>
 <tr class="memitem:a613683b2a29d20556b1ad11c52bdfdb9" id="r_a613683b2a29d20556b1ad11c52bdfdb9"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a613683b2a29d20556b1ad11c52bdfdb9">animation_system_active</a> = false</td></tr>
 <tr class="memitem:a0ff12f065a2e5fbd5d81bff9fd425cbf" id="r_a0ff12f065a2e5fbd5d81bff9fd425cbf"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ff12f065a2e5fbd5d81bff9fd425cbf">endgame_animation_running</a> = false</td></tr>
-<tr class="memitem:a76483b95c5cbeaec7b68b61fdba3e1b0" id="r_a76483b95c5cbeaec7b68b61fdba3e1b0"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a76483b95c5cbeaec7b68b61fdba3e1b0">current_endgame_animation</a> = <a class="el" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757">ENDGAME_ANIM_VICTORY_WAVE</a></td></tr>
+<tr class="memitem:a76483b95c5cbeaec7b68b61fdba3e1b0" id="r_a76483b95c5cbeaec7b68b61fdba3e1b0"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a76483b95c5cbeaec7b68b61fdba3e1b0">current_endgame_animation</a></td></tr>
 <tr class="memitem:abb6170c1df734838bc417eff360db75a" id="r_abb6170c1df734838bc417eff360db75a"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abb6170c1df734838bc417eff360db75a">winning_king_position</a> = 0</td></tr>
 <tr class="memitem:a43f6b3d51a255773c25e705a8df30eb2" id="r_a43f6b3d51a255773c25e705a8df30eb2"><td class="memItemLeft" align="right" valign="top">static TimerHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a43f6b3d51a255773c25e705a8df30eb2">animation_timer</a> = NULL</td></tr>
 <tr class="memitem:ace720982d876787deb18d63449924dce" id="r_ace720982d876787deb18d63449924dce"><td class="memItemLeft" align="right" valign="top">static TimerHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ace720982d876787deb18d63449924dce">subtle_animation_timer</a> = NULL</td></tr>
@@ -218,8 +221,7 @@ Proměnné</h2></td></tr>
 <div class="textblock"><p>ESP32-C6 Chess System - Pokrocile LED animace. </p>
 <p>Kompletni implementace pokrocilych LED animaci pro sachovy system:</p><ul>
 <li>5 endgame animaci vcetne vlnove animace</li>
-<li>Jemne animace pro figurky a tlacitka <br  />
-</li>
+<li>Jemne animace pro figurky a tlacitka</li>
 <li>Plny error handling</li>
 <li>RGB optimalizace pro hezke barevne prechody</li>
 </ul>
@@ -257,7 +259,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Interpolovana barva </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00101">101</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00103">103</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -286,7 +288,7 @@ Proměnné</h2></td></tr>
 
 <p>Timer callback pro endgame animace. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00571">571</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00644">644</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -319,7 +321,7 @@ Proměnné</h2></td></tr>
 
 <p>Aplikuje barvu na LED s error handlingem. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00112">112</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00115">115</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -352,7 +354,7 @@ Proměnné</h2></td></tr>
 
 <p>Aplikuje jemnou animaci na LED. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00482">482</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00553">553</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -382,7 +384,7 @@ Proměnné</h2></td></tr>
 <p>3. </p>
 <p>Victory Cascade - Kaskádové padání </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00275">275</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00309">309</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -412,7 +414,7 @@ Proměnné</h2></td></tr>
 <p>2. </p>
 <p>Victory Circles - Expandující kruhy </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00226">226</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00253">253</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -442,7 +444,7 @@ Proměnné</h2></td></tr>
 <p>5. </p>
 <p>Victory Crown - Korunka pro vítěze </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00389">389</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00437">437</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -472,7 +474,7 @@ Proměnné</h2></td></tr>
 <p>4. </p>
 <p>Victory Fireworks - Ohňostroj </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00308">308</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00348">348</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -502,7 +504,7 @@ Proměnné</h2></td></tr>
 <p>1. </p>
 <p>Victory Wave - Vlna vítězství od krále </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00141">141</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00144">144</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -521,10 +523,10 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Inicializace animačního systému. </p>
-<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, error kód při selhání </dd></dl>
+<p>Inicializace animacniho systemu. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, error kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00609">609</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00684">684</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -557,7 +559,7 @@ Proměnné</h2></td></tr>
 
 <p>Získá vzdálenost mezi dvěma pozicemi na šachovnici. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00124">124</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00127">127</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -576,16 +578,16 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Získání názvu animace. </p>
+<p>Ziskani nazvu animace. </p>
 <dl class="params"><dt>Parametry</dt><dd>
   <table class="params">
     <tr><td class="paramname">animation_type</td><td>Typ animace </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Návratová hodnota</dt><dd>Název animace jako string </dd></dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Nazev animace jako string </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00709">709</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00780">780</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -604,10 +606,10 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Kontrola zda běží endgame animace. </p>
-<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud běží animace </dd></dl>
+<p>Kontrola zda bezi endgame animace. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud bezi animace </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00705">705</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00777">777</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -630,17 +632,17 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Spuštění endgame animace. </p>
+<p>Spusteni endgame animace. </p>
 <dl class="params"><dt>Parametry</dt><dd>
   <table class="params">
     <tr><td class="paramname">animation_type</td><td>Typ animace (1-5) </td></tr>
-    <tr><td class="paramname">king_position</td><td>Pozice vítězného krále (0-63) </td></tr>
+    <tr><td class="paramname">king_position</td><td>Pozice vitezneho krale (0-63) </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, error kód při selhání </dd></dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, error kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00653">653</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00723">723</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -664,16 +666,9 @@ Proměnné</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Spuštění jemné animace pro tlačítko. </p>
-<dl class="params"><dt>Parametry</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">button_id</td><td>ID tlačítka (0-8) </td></tr>
-    <tr><td class="paramname">anim_type</td><td>Typ jemné animace </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, error kód při selhání </dd></dl>
+<p>Spusteni jemne animace pro tlacitko. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00465">465</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00533">533</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -697,16 +692,9 @@ Proměnné</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Spuštění jemné animace pro figurku. </p>
-<dl class="params"><dt>Parametry</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">piece_position</td><td>Pozice figurky (0-63) </td></tr>
-    <tr><td class="paramname">anim_type</td><td>Typ jemné animace </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, error kód při selhání </dd></dl>
+<p>Spusteni jemne animace pro figurku. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00448">448</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00513">513</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -725,10 +713,10 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Zastavení všech jemných animací </p>
-<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+<p>Zastaveni vsech jemnych animaci. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00720">720</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00797">797</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -747,10 +735,10 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Zastavení endgame animace. </p>
-<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+<p>Zastaveni endgame animace. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00689">689</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00761">761</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -779,7 +767,7 @@ Proměnné</h2></td></tr>
 
 <p>Timer callback pro jemné animace. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00548">548</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00621">621</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -804,7 +792,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00039">39</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00040">40</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -828,7 +816,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00045">45</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00047">47</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -852,7 +840,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00062">62</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00064">64</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -876,7 +864,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00067">67</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00069">69</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -900,7 +888,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00061">61</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00063">63</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -924,7 +912,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00064">64</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00066">66</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -948,7 +936,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00065">65</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00067">67</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -972,7 +960,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00060">60</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00062">62</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -996,7 +984,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00066">66</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00068">68</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1020,7 +1008,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00063">63</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00065">65</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1034,7 +1022,7 @@ Proměnné</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a> current_endgame_animation = <a class="el" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757">ENDGAME_ANIM_VICTORY_WAVE</a></td>
+          <td class="memname"><a class="el" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a> current_endgame_animation</td>
         </tr>
       </table>
   </td>
@@ -1043,8 +1031,11 @@ Proměnné</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00041">41</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    <a class="code hl_enumvalue" href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757">ENDGAME_ANIM_VICTORY_WAVE</a></div>
+<div class="ttc" id="agame__led__animations_8h_html_a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757"><div class="ttname"><a href="game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757">ENDGAME_ANIM_VICTORY_WAVE</a></div><div class="ttdeci">@ ENDGAME_ANIM_VICTORY_WAVE</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8h_source.html#l00040">game_led_animations.h:40</a></div></div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00042">42</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1068,7 +1059,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00040">40</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00041">41</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1092,14 +1083,14 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
-<div class="line">    {255, 0, 0},      </div>
-<div class="line">    {255, 50, 0},     </div>
-<div class="line">    {255, 100, 0},    </div>
-<div class="line">    {255, 150, 0},    </div>
-<div class="line">    {255, 200, 100}   </div>
+<div class="line">    {255, 0, 0},    </div>
+<div class="line">    {255, 50, 0},   </div>
+<div class="line">    {255, 100, 0},  </div>
+<div class="line">    {255, 150, 0},  </div>
+<div class="line">    {255, 200, 100} </div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00078">78</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00080">80</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1123,7 +1114,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00046">46</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00048">48</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1147,7 +1138,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00053">53</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00055">55</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1171,7 +1162,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00052">52</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00054">54</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1195,7 +1186,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00032">32</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00033">33</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1219,14 +1210,14 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
-<div class="line">    {0, 100, 255},    </div>
-<div class="line">    {0, 150, 255},    </div>
-<div class="line">    {0, 200, 255},    </div>
-<div class="line">    {100, 220, 255},  </div>
-<div class="line">    {0, 255, 255}     </div>
+<div class="line">    {0, 100, 255},   </div>
+<div class="line">    {0, 150, 255},   </div>
+<div class="line">    {0, 200, 255},   </div>
+<div class="line">    {100, 220, 255}, </div>
+<div class="line">    {0, 255, 255}    </div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00070">70</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00072">72</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1250,7 +1241,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00049">49</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00051">51</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>
@@ -1274,7 +1265,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00042">42</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00044">44</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
 
 </div>
 </div>

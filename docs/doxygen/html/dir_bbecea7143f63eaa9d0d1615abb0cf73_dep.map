@@ -1,7 +1,7 @@
 <map id="include" name="include">
 <area shape="rect" id="node1" href="dir_bbecea7143f63eaa9d0d1615abb0cf73.html" title="include" alt="" coords="72,52,134,78"/>
 <area shape="rect" id="node2" href="dir_1181698f7cc37b6be6aee502a0a15bc1.html" title="game_led_animations" alt="" coords="29,126,176,152"/>
-<area shape="poly" id="edge1" href="dir_000022_000006.html" alt="" coords="104,76,105,111,100,109,101,80"/>
-<area shape="rect" id="edge1-headlabel" href="dir_000022_000006.html" title="1" alt="" coords="108,100,115,115"/>
+<area shape="poly" id="edge1" href="dir_000024_000006.html" alt="" coords="104,76,105,111,100,109,101,80"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000024_000006.html" title="1" alt="" coords="108,100,115,115"/>
 <area shape="rect" id="clust1" href="dir_01cfb48b9a719d4c3c7a5fd96745a96a.html" title="uart_commands_extended" alt="" coords="16,16,191,89"/>
 </map>

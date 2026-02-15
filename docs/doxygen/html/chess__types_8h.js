@@ -111,7 +111,6 @@ var chess__types_8h =
       [ "LED_CMD_BUTTON_RELEASE", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da71b61e2de4e8d597a55d95f3ab6f81ed", null ],
       [ "LED_CMD_ANIMATION", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dab94ae0805f7899148694194f7b562b74", null ],
       [ "LED_CMD_TEST", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5", null ],
-      [ "LED_CMD_SET_BRIGHTNESS", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390", null ],
       [ "LED_CMD_TEST_ALL", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38", null ],
       [ "LED_CMD_MATRIX_OFF", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221", null ],
       [ "LED_CMD_MATRIX_ON", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70", null ],
@@ -149,9 +148,11 @@ var chess__types_8h =
       [ "LED_CMD_CASTLING_CELEBRATION", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da3e683c2a42a2ca7ed7a715d2492fee85", null ],
       [ "LED_CMD_CASTLING_TUTORIAL", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da0acbe04632886e7fcc679174560cac06", null ],
       [ "LED_CMD_CASTLING_CLEAR", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66daff455cc7d17fa43994e64e9c9b5e663f", null ],
+      [ "LED_CMD_HIGHLIGHT_HINT", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66daf9dfd49be96d73059bdcf3f4e30c42dc", null ],
       [ "LED_CMD_STATUS_ACTIVE", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66daa1b0d419ef172adea7e5d1c4f93b4c69", null ],
       [ "LED_CMD_STATUS_COMPACT", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da79fc9577fe569938b3650e0615820b32", null ],
-      [ "LED_CMD_STATUS_DETAILED", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0", null ]
+      [ "LED_CMD_STATUS_DETAILED", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0", null ],
+      [ "LED_CMD_SET_BRIGHTNESS", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390", null ]
     ] ],
     [ "matrix_command_type_t", "chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447a", [
       [ "MATRIX_CMD_SCAN", "chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa41ace29c9ff45d2dfb21f28e298c7943", null ],

@@ -3,6 +3,7 @@ var structchess__move__command__t =
     [ "custom_increment", "structchess__move__command__t.html#aa66efcd3b24e2c130ede000aca79466d", null ],
     [ "custom_minutes", "structchess__move__command__t.html#ab1469d3613ac521e6521da4c7fabad75", null ],
     [ "from_notation", "structchess__move__command__t.html#a51b8eb6617ef0642c722008827f2d3d1", null ],
+    [ "is_demo_mode", "structchess__move__command__t.html#a43bd07ae3571e5c911bb94292a4cf6b3", null ],
     [ "is_white_turn", "structchess__move__command__t.html#a7ee2cb22f123d144e42a6a0a6eb6d05a", null ],
     [ "player", "structchess__move__command__t.html#a431384d6ef7f4db67d9a0946a7211ef1", null ],
     [ "promotion_choice", "structchess__move__command__t.html#ae6e4449e8345fed34c9c685eba9f1363", null ],

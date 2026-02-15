@@ -1,16 +1,16 @@
 /**
  * @file config_manager.h
  * @brief ESP32-C6 Chess System v2.4 - Config Manager Hlavicka
- * 
+ *
  * Tato hlavicka definuje rozhrani pro spravu konfigurace:
  * - Struktura systemove konfigurace
  * - Funkce pro spravu konfigurace
  * - Chybove kody a konstanty
- * 
+ *
  * @author Alfred Krutina
  * @version 2.4
  * @date 2025-08-24
- * 
+ *
  * @details
  * Config Manager spravuje systemovou konfiguraci ulozeno v NVS flash.
  * Umoznuje nacitat, ukladat a aplikovat nastaveni systemu (verbose mode,
@@ -40,11 +40,11 @@ extern "C" {
 
 /**
  * @brief Inicializuje config manager
- * 
+ *
  * Inicializuje NVS flash pro ukladani konfigurace.
  * NVS flash je jiz inicializovan v main.c init_console(),
  * takze tato funkce pouze overi dostupnost.
- * 
+ *
  * @return ESP_OK pri uspechu, chybovy kod pri selhani
  */
 esp_err_t config_manager_init(void);
@@ -57,10 +57,10 @@ esp_err_t config_manager_init(void);
 
 /**
  * @brief Resetuj konfiguraci na vychozi hodnoty
- * 
+ *
  * Obnovi vychozi nastaveni systemu a ulozi je do NVS flash.
  * Pote aplikuje vychozi nastaveni na system.
- * 
+ *
  * @return ESP_OK pri uspechu, chybovy kod pri selhani
  */
 esp_err_t config_reset_to_defaults(void);
@@ -73,29 +73,33 @@ esp_err_t config_reset_to_defaults(void);
 
 // Vychozi hodnoty konfigurace
 /** @brief Vychozi verbose mode (vypnuto) */
-#define CONFIG_DEFAULT_VERBOSE_MODE      false
+#define CONFIG_DEFAULT_VERBOSE_MODE false
 /** @brief Vychozi quiet mode (vypnuto) */
-#define CONFIG_DEFAULT_QUIET_MODE        false
+#define CONFIG_DEFAULT_QUIET_MODE false
 /** @brief Vychozi log level (pouze chyby) */
-#define CONFIG_DEFAULT_LOG_LEVEL         ESP_LOG_ERROR
+#define CONFIG_DEFAULT_LOG_LEVEL ESP_LOG_ERROR
 /** @brief Vychozi timeout prikazu (5 sekund) */
-#define CONFIG_DEFAULT_COMMAND_TIMEOUT   5000
+#define CONFIG_DEFAULT_COMMAND_TIMEOUT 5000
 /** @brief Vychozi echo (zapnuto) */
-#define CONFIG_DEFAULT_ECHO_ENABLED      true
+#define CONFIG_DEFAULT_ECHO_ENABLED true
+/** @brief Vychozi jas (50%) */
+#define CONFIG_DEFAULT_BRIGHTNESS 50
 
 // Konfiguracni klice pro NVS
 /** @brief NVS namespace pro sachovou konfiguraci */
-#define CONFIG_NVS_NAMESPACE             "chess_config"
+#define CONFIG_NVS_NAMESPACE "chess_config"
 /** @brief NVS klic pro verbose mode */
-#define CONFIG_NVS_KEY_VERBOSE           "verbose"
+#define CONFIG_NVS_KEY_VERBOSE "verbose"
 /** @brief NVS klic pro quiet mode */
-#define CONFIG_NVS_KEY_QUIET             "quiet"
+#define CONFIG_NVS_KEY_QUIET "quiet"
 /** @brief NVS klic pro log level */
-#define CONFIG_NVS_KEY_LOG_LEVEL         "log_level"
+#define CONFIG_NVS_KEY_LOG_LEVEL "log_level"
 /** @brief NVS klic pro timeout */
-#define CONFIG_NVS_KEY_TIMEOUT           "timeout"
+#define CONFIG_NVS_KEY_TIMEOUT "timeout"
 /** @brief NVS klic pro echo */
-#define CONFIG_NVS_KEY_ECHO              "echo"
+#define CONFIG_NVS_KEY_ECHO "echo"
+/** @brief NVS klic pro jas */
+#define CONFIG_NVS_KEY_BRIGHTNESS "brightness"
 
 #ifdef __cplusplus
 }

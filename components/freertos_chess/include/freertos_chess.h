@@ -122,11 +122,11 @@ extern "C" {
 // ============================================================================
 // NEPOUZIVANA MAKRA - ZAKOMENTOVANO
 // ============================================================================
-// POZOR: Následující makra se NEPOUŽÍVAJÍ v kódu!
-// Byly původně navržena pro druhou sadu promotion tlačítek, ale systém
-// používá pouze 4 sdílená tlačítka (BUTTON_QUEEN, BUTTON_ROOK, BUTTON_BISHOP,
-// BUTTON_KNIGHT) která jsou společná pro oba hráče. Pole
-// promotion_button_pins_b také není použito.
+// POZOR: Nasledujici makra se NEPOUZIVAJI v kodu!
+// Byly puvodne navrzena pro druhou sadu promotion tlacitek, ale system
+// pouziva pouze 4 sdilena tlacitka (BUTTON_QUEEN, BUTTON_ROOK, BUTTON_BISHOP,
+// BUTTON_KNIGHT) ktera jsou spolecna pro oba hrace. Pole
+// promotion_button_pins_b take neni pouzito.
 //
 // /** @brief Tlacitko pro promoci na damu B (sdileno s MATRIX_COL_4) */
 // #define BUTTON_PROMOTION_QUEEN MATRIX_COL_4 // E1 square + Promotion Queen
@@ -159,18 +159,18 @@ extern "C" {
 // WS2812B optimalni casove konstanty
 /** @brief Bezpecny timeout pro LED prikazy v milisekundach (500ms misto
  * 10-100ms) */
-#define LED_COMMAND_TIMEOUT_MS 500 // Bezpečný timeout pro příkazy
+#define LED_COMMAND_TIMEOUT_MS 500 // Bezpecny timeout pro prikazy
 /** @brief Timeout pro LED mutex v milisekundach (200ms) */
 #define LED_MUTEX_TIMEOUT_MS 200 // Timeout pro mutex
 /** @brief Bezpecny interval LED aktualizace v milisekundach (300ms = 3.3Hz pro
  * lidske oko) */
 #define LED_HARDWARE_UPDATE_MS                                                 \
-  300 // Bezpečný interval - 300ms (3.3Hz) pro lidské oko
+  300 // Bezpecny interval - 300ms (3.3Hz) pro lidske oko
 /** @brief Bezpecna mezera mezi LED framy v milisekundach (200ms) */
-#define LED_FRAME_SPACING_MS 200 // Bezpečná mezera - 200ms mezi frames
+#define LED_FRAME_SPACING_MS 200 // Bezpecna mezera - 200ms mezi frames
 /** @brief Bezpecny reset cas pro WS2812B v mikrosekundach (500μs = 10x vice nez
  * minimum) */
-#define LED_RESET_TIME_US 500 // Bezpečný reset - 500μs (10x více než minimum)
+#define LED_RESET_TIME_US 500 // Bezpecny reset - 500us (10x vice nez minimum)
 
 // LED synchronizacni konstanty
 /** @brief Bezpecny timeout pro LED operace v FreeRTOS tickach */
@@ -185,7 +185,7 @@ extern "C" {
 // PAMETI OPTIMALIZOVANE VELIKOSTI FRONT - Faze 1
 // Celkova pamet front: 8KB → 5KB = 3KB uspora
 /** @brief Velikost LED fronty (50 prvku, zvetseno z 15 na 50 pro stabilitu) */
-#define LED_QUEUE_SIZE 50 // Velikost LED fronty (50 prvků pro stabilitu)
+#define LED_QUEUE_SIZE 50 // Velikost LED fronty (50 prvku pro stabilitu)
 /** @brief Velikost matrix fronty (8 prvku, snizeno z 15 na 8, dostatecne pro
  * skenovani) */
 #define MATRIX_QUEUE_SIZE 8 // Reduced from 15 to 8 (sufficient for scanning)
@@ -262,28 +262,28 @@ extern "C" {
 
 // Priority tasku
 /** @brief Priorita LED tasku (7 - nejvyssi priorita pro LED timing) */
-#define LED_TASK_PRIORITY 7 // Nejvyšší priorita pro LED timing
+#define LED_TASK_PRIORITY 7 // Nejvyssi priorita pro LED timing
 /** @brief Priorita Matrix tasku (6 - hardware vstup) */
 #define MATRIX_TASK_PRIORITY 6 // Hardware vstup
 /** @brief Priorita Button tasku (5 - uzivatelsky vstup) */
-#define BUTTON_TASK_PRIORITY 5 // Uživatelský vstup
+#define BUTTON_TASK_PRIORITY 5 // Uzivatelsky vstup
 /** @brief Priorita UART tasku (3 - komunikace) */
 #define UART_TASK_PRIORITY 3 // Komunikace
 /** @brief Priorita Game tasku (4) */
 #define GAME_TASK_PRIORITY 4 // Priorita game tasku
 /** @brief Priorita Animation tasku (3 - vizualni efekty) */
-#define ANIMATION_TASK_PRIORITY 3 // Vizuální efekty
+#define ANIMATION_TASK_PRIORITY 3 // Vizualni efekty
 /** @brief Priorita Screen Saver tasku (2 - pozadi) */
-#define SCREEN_SAVER_TASK_PRIORITY 2 // Pozadí
+#define SCREEN_SAVER_TASK_PRIORITY 2 // Pozadi
 /** @brief Priorita Test tasku (1 - pouze pro debug) */
 #define TEST_TASK_PRIORITY 1 // Pouze pro debug
 // #define MATTER_TASK_PRIORITY 4       // DISABLED - Matter not needed
 /** @brief Priorita Web Server tasku (3 - komunikace) */
 #define WEB_SERVER_TASK_PRIORITY 3 // Komunikace
 /** @brief Priorita Reset Button tasku (3 - uzivatelsky vstup) */
-#define RESET_BUTTON_TASK_PRIORITY 3 // Uživatelský vstup
+#define RESET_BUTTON_TASK_PRIORITY 3 // Uzivatelsky vstup
 /** @brief Priorita Promotion Button tasku (3 - uzivatelsky vstup) */
-#define PROMOTION_BUTTON_TASK_PRIORITY 3 // Uživatelský vstup
+#define PROMOTION_BUTTON_TASK_PRIORITY 3 // Uzivatelsky vstup
 /** @brief Priorita HA Light tasku (3 - komunikace) */
 #define HA_LIGHT_TASK_PRIORITY 3 // Komunikace
 
@@ -372,7 +372,7 @@ extern const gpio_num_t matrix_row_pins[8];
 extern const gpio_num_t matrix_col_pins[8];
 /** @brief Pole GPIO pinu pro promotion tlacitka A (4 tlacitka) */
 extern const gpio_num_t promotion_button_pins_a[4];
-// NEPOUZIVANO: Toto pole se nikde v kódu nepoužívá!
+// NEPOUZIVANO: Toto pole se nikde v kodu nepouziva!
 // /** @brief Pole GPIO pinu pro promotion tlacitka B (4 tlacitka) */
 // extern const gpio_num_t promotion_button_pins_b[4];
 

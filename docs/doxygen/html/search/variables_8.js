@@ -17,9 +17,10 @@ var searchData=
   ['is_5fcheck_14',['is_check',['../structchess__move__extended__t.html#ab73d86e56bd5ce7bae6cc0029f8ab1e4',1,'chess_move_extended_t::is_check'],['../structmove__suggestion__t.html#a39763b8b278db010f5dfff7a4beb264a',1,'move_suggestion_t::is_check']]],
   ['is_5fcheckmate_15',['is_checkmate',['../structchess__move__extended__t.html#a888c1191497c06e0485a65c7a5b8223a',1,'chess_move_extended_t']]],
   ['is_5fcomplete_5fframe_16',['is_complete_frame',['../structled__frame__buffer__t.html#a8da6dbd33973ef157754bfa2640f30ff',1,'led_frame_buffer_t']]],
-  ['is_5fen_5fpassant_17',['is_en_passant',['../structmove__suggestion__t.html#a77114011b2edb38b0218c36ce67cf0e6',1,'move_suggestion_t']]],
-  ['is_5ffast_18',['is_fast',['../structtime__control__config__t.html#aa9d8d8cc9914cded99bb765fa6e6be3f',1,'time_control_config_t']]],
-  ['is_5fkingside_19',['is_kingside',['../structenhanced__castling__system__t.html#aed1696fbc7c2f7f72e5b8488abc901fd',1,'enhanced_castling_system_t::is_kingside'],['../structcastling__state__t.html#aae2796ad5c3e40911c0c4002c77190ff',1,'castling_state_t::is_kingside']]],
-  ['is_5fstalemate_20',['is_stalemate',['../structchess__move__extended__t.html#a64548a3d3b994e79cfddb1ff7ec47680',1,'chess_move_extended_t']]],
-  ['is_5fwhite_5fturn_21',['is_white_turn',['../structchess__move__command__t.html#a7ee2cb22f123d144e42a6a0a6eb6d05a',1,'chess_move_command_t::is_white_turn'],['../structchess__timer__t.html#a5fbbe88e66de5ea14c6570f5526a39ae',1,'chess_timer_t::is_white_turn']]]
+  ['is_5fdemo_5fmode_17',['is_demo_mode',['../structchess__move__command__t.html#a43bd07ae3571e5c911bb94292a4cf6b3',1,'chess_move_command_t']]],
+  ['is_5fen_5fpassant_18',['is_en_passant',['../structmove__suggestion__t.html#a77114011b2edb38b0218c36ce67cf0e6',1,'move_suggestion_t']]],
+  ['is_5ffast_19',['is_fast',['../structtime__control__config__t.html#aa9d8d8cc9914cded99bb765fa6e6be3f',1,'time_control_config_t']]],
+  ['is_5fkingside_20',['is_kingside',['../structenhanced__castling__system__t.html#aed1696fbc7c2f7f72e5b8488abc901fd',1,'enhanced_castling_system_t::is_kingside'],['../structcastling__state__t.html#aae2796ad5c3e40911c0c4002c77190ff',1,'castling_state_t::is_kingside']]],
+  ['is_5fstalemate_21',['is_stalemate',['../structchess__move__extended__t.html#a64548a3d3b994e79cfddb1ff7ec47680',1,'chess_move_extended_t']]],
+  ['is_5fwhite_5fturn_22',['is_white_turn',['../structchess__move__command__t.html#a7ee2cb22f123d144e42a6a0a6eb6d05a',1,'chess_move_command_t::is_white_turn'],['../structchess__timer__t.html#a5fbbe88e66de5ea14c6570f5526a39ae',1,'chess_timer_t::is_white_turn']]]
 ];

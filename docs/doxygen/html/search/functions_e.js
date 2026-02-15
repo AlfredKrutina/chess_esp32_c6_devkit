@@ -7,10 +7,13 @@ var searchData=
   ['reset_5fbutton_5fis_5finitialized_4',['reset_button_is_initialized',['../reset__button__task_8h.html#a9c119f00a30675bdd20fd69a03775b71',1,'reset_button_is_initialized(void):&#160;reset_button_task.c'],['../reset__button__task_8c.html#a9c119f00a30675bdd20fd69a03775b71',1,'reset_button_is_initialized(void):&#160;reset_button_task.c']]],
   ['reset_5fbutton_5ftask_5',['reset_button_task',['../reset__button__task_8h.html#a2b2018c335a91336642118cc74af7b4a',1,'reset_button_task(void *pvParameters):&#160;reset_button_task.c'],['../reset__button__task_8c.html#a2b2018c335a91336642118cc74af7b4a',1,'reset_button_task(void *pvParameters):&#160;reset_button_task.c']]],
   ['reset_5fbutton_5ftask_5finit_6',['reset_button_task_init',['../reset__button__task_8h.html#adf092b27f7d985c1b6e1f5980a1ec99e',1,'reset_button_task_init(void):&#160;reset_button_task.c'],['../reset__button__task_8c.html#adf092b27f7d985c1b6e1f5980a1ec99e',1,'reset_button_task_init(void):&#160;reset_button_task.c']]],
-  ['resignation_5fanimation_5ftimer_5fcallback_7',['resignation_animation_timer_callback',['../game__task_8c.html#a71085e0827522509e5791df1cfa9f129',1,'game_task.c']]],
-  ['resignation_5fmain_5ftimer_5fcallback_8',['resignation_main_timer_callback',['../game__task_8c.html#a40374b39b8cbe6fecea219144af3b3dd',1,'game_task.c']]],
-  ['resignation_5fstart_9',['resignation_start',['../game__task_8c.html#a2e8b9adc46a3a41117d46e39001f5e60',1,'game_task.c']]],
-  ['resignation_5fstop_10',['resignation_stop',['../game__task_8c.html#ae8b81fb2e3d4835fe8a0b74ac97abd53',1,'game_task.c']]],
-  ['resignation_5fupdate_5fbutton_5fleds_11',['resignation_update_button_leds',['../game__task_8c.html#a6b536ba6f8bb5ebf7a76124fbb8d9b10',1,'game_task.c']]],
-  ['rook_5fanimation_5ftimer_5fcallback_12',['rook_animation_timer_callback',['../game__task_8c.html#af26d73c4a9e269473827e4d4497b21b3',1,'rook_animation_timer_callback(TimerHandle_t xTimer):&#160;game_task.c'],['../game__task_8h.html#af26d73c4a9e269473827e4d4497b21b3',1,'rook_animation_timer_callback(TimerHandle_t xTimer):&#160;game_task.c']]]
+  ['reset_5freason_5fto_5fstr_7',['reset_reason_to_str',['../main_8c.html#abb182517d44ccd021b3dac9355989c7b',1,'main.c']]],
+  ['resignation_5fanimation_5ftimer_5fcallback_8',['resignation_animation_timer_callback',['../game__task_8c.html#a71085e0827522509e5791df1cfa9f129',1,'game_task.c']]],
+  ['resignation_5ffinalize_5ftimeout_9',['resignation_finalize_timeout',['../game__task_8c.html#a5e2939300449fca26ad46d2a04e6ec08',1,'game_task.c']]],
+  ['resignation_5fmain_5ftimer_5fcallback_10',['resignation_main_timer_callback',['../game__task_8c.html#a40374b39b8cbe6fecea219144af3b3dd',1,'game_task.c']]],
+  ['resignation_5fstart_11',['resignation_start',['../game__task_8c.html#a2e8b9adc46a3a41117d46e39001f5e60',1,'game_task.c']]],
+  ['resignation_5fstop_12',['resignation_stop',['../game__task_8c.html#ae8b81fb2e3d4835fe8a0b74ac97abd53',1,'game_task.c']]],
+  ['resignation_5ftick_13',['resignation_tick',['../game__task_8c.html#a3bf81752bb1e6c0587cfdb9804f883be',1,'game_task.c']]],
+  ['resignation_5fupdate_5fbutton_5fleds_14',['resignation_update_button_leds',['../game__task_8c.html#a6b536ba6f8bb5ebf7a76124fbb8d9b10',1,'game_task.c']]],
+  ['rook_5fanimation_5ftimer_5fcallback_15',['rook_animation_timer_callback',['../game__task_8c.html#af26d73c4a9e269473827e4d4497b21b3',1,'rook_animation_timer_callback(TimerHandle_t xTimer):&#160;game_task.c'],['../game__task_8h.html#af26d73c4a9e269473827e4d4497b21b3',1,'rook_animation_timer_callback(TimerHandle_t xTimer):&#160;game_task.c']]]
 ];

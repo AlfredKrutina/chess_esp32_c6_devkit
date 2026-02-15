@@ -95,46 +95,46 @@ $(function(){initNavTree('led__task_8h.html','',''); });
 
 <p>ESP32-C6 Chess System v2.4 - LED Task Hlavicka.  
 <a href="#details">...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
-<code>#include &lt;stdint.h&gt;</code><br />
+<div class="textblock"><code>#include &quot;esp_err.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
-<code>#include &quot;esp_err.h&quot;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Graf závislostí na vkládaných souborech pro led_task.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="led__task_8h__incl.png" border="0" usemap="#aled__task_8h" loading="lazy" alt=""/></div>
 <map name="aled__task_8h" id="aled__task_8h">
-<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; LED Task Hlavicka." alt="" coords="688,5,769,31"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="441,79,559,105"/>
-<area shape="poly" title=" " alt="" coords="687,32,554,76,553,71,692,31"/>
-<area shape="rect" title=" " alt="" coords="5,226,70,252"/>
-<area shape="poly" title=" " alt="" coords="684,22,541,33,345,54,247,71,159,94,88,121,61,137,42,154,35,167,32,181,33,211,28,211,26,181,30,165,38,151,58,133,86,116,157,88,246,66,344,49,540,27,689,20"/>
-<area shape="rect" title=" " alt="" coords="868,226,943,252"/>
-<area shape="poly" title=" " alt="" coords="769,25,824,43,851,58,875,77,896,108,907,144,911,180,910,213,906,209,906,180,902,145,892,110,872,81,848,62,822,48,769,30"/>
-<area shape="rect" title=" " alt="" coords="596,226,671,252"/>
-<area shape="poly" title=" " alt="" coords="756,29,807,55,858,90,878,111,891,133,893,157,882,180,869,191,850,201,799,217,687,235,686,230,798,211,848,196,866,187,878,177,888,156,886,135,874,114,855,94,804,59,756,34"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="447,153,553,178"/>
-<area shape="poly" title=" " alt="" coords="502,103,502,138,498,135,498,107"/>
-<area shape="poly" title=" " alt="" coords="438,94,345,100,233,109,131,126,92,139,65,155,54,167,48,181,41,212,36,210,42,179,50,164,61,151,90,134,130,121,232,103,344,94,443,93"/>
-<area shape="poly" title=" " alt="" coords="560,92,643,97,738,107,824,124,858,136,882,151,893,164,900,179,907,212,903,209,895,181,888,167,878,155,856,141,823,130,738,113,643,103,560,98"/>
-<area shape="rect" title=" " alt="" coords="428,226,572,252"/>
-<area shape="poly" title=" " alt="" coords="482,104,462,121,446,138,436,157,437,177,451,198,470,218,465,216,447,202,432,179,430,156,441,135,459,117,477,106"/>
-<area shape="rect" title=" " alt="" coords="289,226,404,252"/>
-<area shape="poly" title=" " alt="" coords="487,104,429,155,369,217,366,212,425,151,482,106"/>
-<area shape="poly" title=" " alt="" coords="516,103,567,151,618,215,613,213,564,154,514,108"/>
-<area shape="rect" title=" " alt="" coords="629,153,721,178"/>
-<area shape="poly" title=" " alt="" coords="530,103,634,146,628,146,529,108"/>
-<area shape="rect" title=" " alt="" coords="746,153,868,178"/>
-<area shape="poly" title=" " alt="" coords="553,103,742,148,737,149,552,108"/>
-<area shape="rect" title=" " alt="" coords="76,153,181,178"/>
-<area shape="poly" title=" " alt="" coords="440,107,197,154,195,149,441,102"/>
-<area shape="rect" title=" " alt="" coords="205,153,321,178"/>
-<area shape="poly" title=" " alt="" coords="457,106,319,150,317,145,462,104"/>
-<area shape="poly" title=" " alt="" coords="447,178,85,233,84,228,446,172"/>
-<area shape="poly" title=" " alt="" coords="554,174,855,228,850,229,554,179"/>
-<area shape="poly" title=" " alt="" coords="502,177,502,212,498,209,498,180"/>
-<area shape="poly" title=" " alt="" coords="477,178,387,222,386,217,472,179"/>
-<area shape="poly" title=" " alt="" coords="523,176,600,219,595,218,522,181"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; LED Task Hlavicka." alt="" coords="692,5,774,31"/>
+<area shape="rect" title=" " alt="" coords="587,226,661,252"/>
+<area shape="poly" title=" " alt="" coords="762,29,812,55,863,90,883,111,896,133,898,157,887,180,873,192,852,202,798,218,735,229,677,236,676,231,734,224,796,213,850,197,870,187,883,177,893,156,891,135,879,114,860,95,809,59,761,34"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="446,79,564,105"/>
+<area shape="poly" title=" " alt="" coords="692,32,559,76,558,71,697,31"/>
+<area shape="rect" title=" " alt="" coords="5,226,80,252"/>
+<area shape="poly" title=" " alt="" coords="689,22,546,33,350,54,252,71,164,94,93,121,66,137,47,154,40,167,37,181,38,212,33,211,31,181,35,165,43,151,63,133,91,116,162,88,251,66,349,49,545,27,694,20"/>
+<area shape="rect" title=" " alt="" coords="878,226,943,252"/>
+<area shape="poly" title=" " alt="" coords="774,24,829,43,857,58,882,77,903,108,913,144,917,180,916,213,912,209,912,180,908,145,898,111,878,81,854,62,827,48,774,30"/>
+<area shape="poly" title=" " alt="" coords="521,102,547,124,573,151,613,214,608,212,568,154,543,128,520,107"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="452,153,558,178"/>
+<area shape="poly" title=" " alt="" coords="507,103,507,138,503,135,503,107"/>
+<area shape="rect" title=" " alt="" coords="280,226,424,252"/>
+<area shape="poly" title=" " alt="" coords="492,104,434,155,374,217,371,212,430,151,487,106"/>
+<area shape="rect" title=" " alt="" coords="448,226,563,252"/>
+<area shape="poly" title=" " alt="" coords="487,104,467,121,451,138,441,157,442,177,456,198,475,218,470,216,452,202,437,179,435,156,446,135,464,117,482,106"/>
+<area shape="poly" title=" " alt="" coords="443,94,350,100,238,109,136,126,97,139,70,155,59,167,53,181,46,212,41,210,47,179,55,164,66,151,95,134,135,121,237,103,349,94,448,93"/>
+<area shape="poly" title=" " alt="" coords="565,92,648,97,743,107,829,124,863,136,887,151,898,164,905,179,912,212,908,209,900,181,893,167,883,155,861,141,828,130,743,113,648,103,565,98"/>
+<area shape="rect" title=" " alt="" coords="634,153,726,178"/>
+<area shape="poly" title=" " alt="" coords="535,103,639,146,633,146,534,108"/>
+<area shape="rect" title=" " alt="" coords="751,153,873,178"/>
+<area shape="poly" title=" " alt="" coords="558,103,747,148,742,149,557,108"/>
+<area shape="rect" title=" " alt="" coords="80,153,186,178"/>
+<area shape="poly" title=" " alt="" coords="445,107,202,154,200,149,446,102"/>
+<area shape="rect" title=" " alt="" coords="210,153,326,178"/>
+<area shape="poly" title=" " alt="" coords="462,106,324,150,322,145,467,104"/>
+<area shape="poly" title=" " alt="" coords="526,176,593,218,588,218,525,181"/>
+<area shape="poly" title=" " alt="" coords="482,178,392,222,391,217,477,179"/>
+<area shape="poly" title=" " alt="" coords="507,177,507,212,503,209,503,180"/>
+<area shape="poly" title=" " alt="" coords="452,178,96,232,95,227,451,172"/>
+<area shape="poly" title=" " alt="" coords="559,174,865,229,860,230,559,179"/>
 </map>
 </div>
 </div>
@@ -150,6 +150,8 @@ Funkce</h2></td></tr>
 <tr class="memdesc:a07ea6d48b1deb7fd8ecb18cf6d7753be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj LED prikazy z fronty.  <br /></td></tr>
 <tr class="memitem:ae35498b645fad1892ac45a425bf78cce" id="r_ae35498b645fad1892ac45a425bf78cce"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae35498b645fad1892ac45a425bf78cce">led_update_hardware</a> (void)</td></tr>
 <tr class="memdesc:ae35498b645fad1892ac45a425bf78cce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualizuj LED hardware.  <br /></td></tr>
+<tr class="memitem:aba7d182926787e311733fb41353c196e" id="r_aba7d182926787e311733fb41353c196e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aba7d182926787e311733fb41353c196e">led_set_brightness_global</a> (uint8_t <a class="el" href="ha__light__task_8c.html#a837c871f200f8c3d19d0c7f2e031ffc4">brightness</a>)</td></tr>
+<tr class="memdesc:aba7d182926787e311733fb41353c196e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav globalni jas LED.  <br /></td></tr>
 <tr class="memitem:a85578cf6b1c0acb68c6278c9cd1a4f26" id="r_a85578cf6b1c0acb68c6278c9cd1a4f26"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a85578cf6b1c0acb68c6278c9cd1a4f26">led_execute_command_new</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
 <tr class="memdesc:a85578cf6b1c0acb68c6278c9cd1a4f26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vykonaj novy LED prikaz.  <br /></td></tr>
 <tr class="memitem:a7cb7bb0774dead39c3607d19de9f9d34" id="r_a7cb7bb0774dead39c3607d19de9f9d34"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7cb7bb0774dead39c3607d19de9f9d34">led_set_pixel_internal</a> (uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue)</td></tr>
@@ -198,6 +200,12 @@ Funkce</h2></td></tr>
 <tr class="memdesc:a4653a6179cbaf07289307ce6c1871858"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zachovej stavy tlacitek behem operaci.  <br /></td></tr>
 <tr class="memitem:a31b820a4bfe33d0cf54a107c339d6d07" id="r_a31b820a4bfe33d0cf54a107c339d6d07"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a31b820a4bfe33d0cf54a107c339d6d07">led_update_button_availability_from_game</a> (void)</td></tr>
 <tr class="memdesc:a31b820a4bfe33d0cf54a107c339d6d07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualizuj dostupnost tlacitek podle stavu hry.  <br /></td></tr>
+<tr class="memitem:acd139d9f40454ed76aa1f080f2299d07" id="r_acd139d9f40454ed76aa1f080f2299d07"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acd139d9f40454ed76aa1f080f2299d07">led_set_ha_color</a> (uint8_t <a class="el" href="ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a">r</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60">g</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a4313c9563516f94387762ab05763456b">b</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a837c871f200f8c3d19d0c7f2e031ffc4">brightness</a>)</td></tr>
+<tr class="memdesc:acd139d9f40454ed76aa1f080f2299d07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav barvu vsech 64 LED desky pro HA mod.  <br /></td></tr>
+<tr class="memitem:aed864c4fd31d53e8498014ffda17dcc6" id="r_aed864c4fd31d53e8498014ffda17dcc6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aed864c4fd31d53e8498014ffda17dcc6">led_restore_chess_board</a> (void)</td></tr>
+<tr class="memdesc:aed864c4fd31d53e8498014ffda17dcc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obnovi sachovnici po HA modu.  <br /></td></tr>
+<tr class="memitem:acffe67fadfe40ddc4c14618edebeedf8" id="r_acffe67fadfe40ddc4c14618edebeedf8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acffe67fadfe40ddc4c14618edebeedf8">led_refresh_all_button_leds</a> (void)</td></tr>
+<tr class="memdesc:acffe67fadfe40ddc4c14618edebeedf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obnovi zobrazeni LED vsech tlacitek podle aktualniho stavu (dostupnost/stisk) Volat po navratu z HA rezimu.  <br /></td></tr>
 <tr class="memitem:a1a82f432b46c4990df10c3c8c4d697b4" id="r_a1a82f432b46c4990df10c3c8c4d697b4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1a82f432b46c4990df10c3c8c4d697b4">led_error_invalid_move</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
 <tr class="memdesc:a1a82f432b46c4990df10c3c8c4d697b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED chyba - neplatny tah.  <br /></td></tr>
 <tr class="memitem:a5fed0119b12c12bf3cee449144e40d43" id="r_a5fed0119b12c12bf3cee449144e40d43"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5fed0119b12c12bf3cee449144e40d43">led_error_return_piece</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
@@ -228,6 +236,10 @@ Funkce</h2></td></tr>
 <tr class="memdesc:a38353130f2210565c3c71c96f05ecf04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav animaci po endgame.  <br /></td></tr>
 <tr class="memitem:a081382ca7f7a773156291851fdbe6f5f" id="r_a081382ca7f7a773156291851fdbe6f5f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a081382ca7f7a773156291851fdbe6f5f">led_stop_endgame_animation</a> (void)</td></tr>
 <tr class="memdesc:a081382ca7f7a773156291851fdbe6f5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastav endgame animaci.  <br /></td></tr>
+<tr class="memitem:a533dfd80b93f0821af12a5f929dcc40b" id="r_a533dfd80b93f0821af12a5f929dcc40b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a533dfd80b93f0821af12a5f929dcc40b">led_booting_animation</a> (void)</td></tr>
+<tr class="memdesc:a533dfd80b93f0821af12a5f929dcc40b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spusti boot animaci (progresivni rozsviceni).  <br /></td></tr>
+<tr class="memitem:a006a24ec8e7f302c4a6f8481675803d1" id="r_a006a24ec8e7f302c4a6f8481675803d1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a006a24ec8e7f302c4a6f8481675803d1">led_is_booting</a> (void)</td></tr>
+<tr class="memdesc:a006a24ec8e7f302c4a6f8481675803d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zjisti zda probiha boot animace.  <br /></td></tr>
 <tr class="memitem:ad9333c97e3a0d22851f18f91e890e3dc" id="r_ad9333c97e3a0d22851f18f91e890e3dc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad9333c97e3a0d22851f18f91e890e3dc">led_boot_animation_step</a> (uint8_t progress_percent)</td></tr>
 <tr class="memdesc:ad9333c97e3a0d22851f18f91e890e3dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED boot animation step - rozsviti LED podle progress.  <br /></td></tr>
 <tr class="memitem:a51cc23ac460421224cfaf847669ab1d9" id="r_a51cc23ac460421224cfaf847669ab1d9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a51cc23ac460421224cfaf847669ab1d9">led_boot_animation_fade_out</a> (void)</td></tr>
@@ -279,7 +291,7 @@ Funkce</h2></td></tr>
 </dl>
 <p>LED animace endgame. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02384">2384</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02568">2568</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -302,7 +314,7 @@ Funkce</h2></td></tr>
 <p>Postupne ztlumi vsechny board LED z brightness 128 na 0. Pouziva se na konci boot procesu pro plynule ztlumeni.</p>
 <p>Postupne ztlumi vsechny board LED z brightness 128 na 0. Pouziva se na konci boot procesu pro plynule ztlumeni. </p><dl class="section note"><dt>Poznámka</dt><dd>Funkce je bezpecna - kontroluje inicializaci a simulation mode </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03387">3387</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03608">3608</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -337,7 +349,29 @@ Funkce</h2></td></tr>
 </dl>
 <p>Rozsviti LED podle progress boot procesu. Pouziva se pro zobrazeni postupu inicializace systemu. Rozsviti LED svetle zelenou barvou. </p><dl class="section note"><dt>Poznámka</dt><dd>Funkce je bezpecna - kontroluje inicializaci a simulation mode </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03354">3354</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03572">3572</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a533dfd80b93f0821af12a5f929dcc40b" name="a533dfd80b93f0821af12a5f929dcc40b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a533dfd80b93f0821af12a5f929dcc40b">&#9670;&#160;</a></span>led_booting_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_booting_animation </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spusti boot animaci (progresivni rozsviceni). </p>
+<p>Spusti boot animaci (progresivni rozsviceni). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02457">2457</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -379,7 +413,7 @@ Funkce</h2></td></tr>
 <p>Vymaz vsechna zvyrazneni. </p>
 <p>Vymaz vsechna zvyrazneni. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01556">1556</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01720">1720</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -400,7 +434,7 @@ Funkce</h2></td></tr>
 
 <p>Vymaz vsechny LED (interni funkce bez mutex). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00568">568</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00618">618</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -421,7 +455,7 @@ Funkce</h2></td></tr>
 
 <p>Vymaz vsechny LED (thread-safe s mutex). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02670">2670</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02849">2849</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -442,7 +476,7 @@ Funkce</h2></td></tr>
 
 <p>Vymaz pouze sachovnicove LED (0-63), zachovej tlacitka. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02682">2682</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02861">2861</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -463,7 +497,7 @@ Funkce</h2></td></tr>
 
 <p>Vymaz pouze tlacitkove LED (64-72), zachovej sachovnici. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02689">2689</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02868">2868</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -490,7 +524,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02713">2713</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02892">2892</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -517,7 +551,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02749">2749</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02928">2928</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -544,7 +578,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02731">2731</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02910">2910</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -573,7 +607,7 @@ Funkce</h2></td></tr>
 </dl>
 <p>Vykonaj novy LED prikaz. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00885">885</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01003">1003</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -596,7 +630,7 @@ Funkce</h2></td></tr>
 <p>Force immediate LED update for critical operations Use this only for startup tests or critical visual feedback.</p>
 <p>Vynuceni okamzita LED aktualizace pro kriticke operace. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03004">3004</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03190">3190</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -636,7 +670,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00755">755</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00873">873</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -664,7 +698,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Barva jako uint32_t RGB </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00709">709</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00827">827</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -700,7 +734,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>RGB color value (0xRRGGBB) </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00726">726</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00844">844</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -723,7 +757,7 @@ Funkce</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud jsou vyznamne zmeny</dd></dl>
 <p>Overi zda ma LED vyznamne zmeny. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01788">1788</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01927">1927</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -745,7 +779,7 @@ Funkce</h2></td></tr>
 <p>Zvyrazni figurky ktere se mohou hybat. </p>
 <p>Zvyrazni figurky ktere se mohou hybat. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01504">1504</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01662">1662</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -779,7 +813,29 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01523">1523</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01687">1687</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a006a24ec8e7f302c4a6f8481675803d1" name="a006a24ec8e7f302c4a6f8481675803d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a006a24ec8e7f302c4a6f8481675803d1">&#9670;&#160;</a></span>led_is_booting()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_is_booting </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zjisti zda probiha boot animace. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud probiha boot animace </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02452">2452</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -801,7 +857,7 @@ Funkce</h2></td></tr>
 <p>Animace zmeny hrace. </p>
 <p>Animace zmeny hrace. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01570">1570</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01734">1734</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -822,7 +878,7 @@ Funkce</h2></td></tr>
 
 <p>Zachovej stavy tlacitek behem operaci. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02696">2696</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02875">2875</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -844,7 +900,7 @@ Funkce</h2></td></tr>
 <p>Vypis pouze zmeny LED. </p>
 <p>Vypis pouze zmeny LED. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01725">1725</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01864">1864</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -866,7 +922,7 @@ Funkce</h2></td></tr>
 <p>Vypis kompaktni status LED. </p>
 <p>Vypis kompaktni status LED. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01193">1193</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01351">1351</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -888,7 +944,7 @@ Funkce</h2></td></tr>
 <p>Vypis detailni status LED. </p>
 <p>Vypis detailni status LED. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01319">1319</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01477">1477</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -909,7 +965,53 @@ Funkce</h2></td></tr>
 
 <p>Zpracuj LED prikazy z fronty. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00860">860</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00978">978</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="acffe67fadfe40ddc4c14618edebeedf8" name="acffe67fadfe40ddc4c14618edebeedf8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acffe67fadfe40ddc4c14618edebeedf8">&#9670;&#160;</a></span>led_refresh_all_button_leds()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_refresh_all_button_leds </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Obnovi zobrazeni LED vsech tlacitek podle aktualniho stavu (dostupnost/stisk) Volat po navratu z HA rezimu. </p>
+<p>Obnovi zobrazeni LED vsech tlacitek podle aktualniho stavu (dostupnost/stisk) Volat po navratu z HA rezimu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00760">760</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aed864c4fd31d53e8498014ffda17dcc6" name="aed864c4fd31d53e8498014ffda17dcc6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed864c4fd31d53e8498014ffda17dcc6">&#9670;&#160;</a></span>led_restore_chess_board()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_restore_chess_board </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Obnovi sachovnici po HA modu. </p>
+<p>Tato funkce obnovi normalni zobrazeni sachovnice (cerna/bila pole).</p>
+<p>Obnovi sachovnici po HA modu.</p>
+<p>Tato funkce obnoví normální zobrazení šachovnice (černá/bílá pole). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00751">751</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -947,7 +1049,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00542">542</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00592">592</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -985,7 +1087,34 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02676">2676</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02855">2855</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aba7d182926787e311733fb41353c196e" name="aba7d182926787e311733fb41353c196e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba7d182926787e311733fb41353c196e">&#9670;&#160;</a></span>led_set_brightness_global()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_brightness_global </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>brightness</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav globalni jas LED. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">brightness</td><td>Jas v procentech (0-100) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00474">474</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1017,7 +1146,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00649">649</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00767">767</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1044,7 +1173,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00668">668</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00786">786</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1076,7 +1205,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02767">2767</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02946">2946</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1103,7 +1232,61 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00687">687</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00805">805</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="acd139d9f40454ed76aa1f080f2299d07" name="acd139d9f40454ed76aa1f080f2299d07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd139d9f40454ed76aa1f080f2299d07">&#9670;&#160;</a></span>led_set_ha_color()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_ha_color </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>brightness</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav barvu vsech 64 LED desky pro HA mod. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">r</td><td>Cervena slozka (0-255) </td></tr>
+    <tr><td class="paramname">g</td><td>Zelena slozka (0-255) </td></tr>
+    <tr><td class="paramname">b</td><td>Modra slozka (0-255) </td></tr>
+    <tr><td class="paramname">brightness</td><td>Jas (0-255) - aplikuje se na RGB</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Nastav barvu vsech 64 LED desky pro HA mod.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">r</td><td>Červená složka (0-255) </td></tr>
+    <tr><td class="paramname">g</td><td>Zelená složka (0-255) </td></tr>
+    <tr><td class="paramname">b</td><td>Modrá složka (0-255) </td></tr>
+    <tr><td class="paramname">brightness</td><td>Jas (0-255) - aplikuje se na RGB </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00707">707</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1147,7 +1330,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00481">481</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00531">531</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1191,7 +1374,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02662">2662</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02841">2841</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1213,7 +1396,7 @@ Funkce</h2></td></tr>
 <p>Nastav animaci po endgame. </p>
 <p>Nastav animaci po endgame. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02558">2558</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02741">2741</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1234,7 +1417,7 @@ Funkce</h2></td></tr>
 
 <p>Zobraz sachovnici na LED. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00591">591</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00641">641</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1261,7 +1444,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02701">2701</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02880">2880</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1288,7 +1471,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00780">780</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00898">898</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1316,7 +1499,7 @@ Funkce</h2></td></tr>
 </dl>
 <p>Spust periodu ticheho vystupu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01778">1778</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01917">1917</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1338,7 +1521,7 @@ Funkce</h2></td></tr>
 <p>Zastav endgame animaci. </p>
 <p>Zastav endgame animaci. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02542">2542</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02725">2725</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1365,7 +1548,7 @@ Funkce</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01808">1808</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01947">1947</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1386,7 +1569,7 @@ Funkce</h2></td></tr>
 
 <p>Zobraz testovaci vzor. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00791">791</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l00909">909</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1407,7 +1590,7 @@ Funkce</h2></td></tr>
 
 <p>Aktualizuj dostupnost tlacitek podle stavu hry. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02779">2779</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02958">2958</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1429,7 +1612,7 @@ Funkce</h2></td></tr>
 <p>Aktualizuj LED podle stavu hry. </p>
 <p>Aktualizuj LED podle stavu hry. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01489">1489</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01647">1647</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1451,7 +1634,7 @@ Funkce</h2></td></tr>
 <p>Aktualizuj LED hardware. </p>
 <p>Posle aktualni LED data do WS2812B LED pasku. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01099">1099</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l01257">1257</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>

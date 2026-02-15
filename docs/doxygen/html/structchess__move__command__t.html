@@ -103,9 +103,9 @@ Datové položky</h2></td></tr>
 <tr class="memitem:a87f810beeb0b0322d2b99c87d5a7c91c" id="r_a87f810beeb0b0322d2b99c87d5a7c91c"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a87f810beeb0b0322d2b99c87d5a7c91c">type</a></td></tr>
 <tr class="memdesc:a87f810beeb0b0322d2b99c87d5a7c91c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typ prikazu (<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4" title="Typy game prikazu pro UART komunikaci.">game_command_type_t</a>).  <br /></td></tr>
 <tr class="memitem:a51b8eb6617ef0642c722008827f2d3d1" id="r_a51b8eb6617ef0642c722008827f2d3d1"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a51b8eb6617ef0642c722008827f2d3d1">from_notation</a> [8]</td></tr>
-<tr class="memdesc:a51b8eb6617ef0642c722008827f2d3d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zdrojova notace (napr. "e2") - zvetseno z 4 na 8 pro bezpecnost.  <br /></td></tr>
+<tr class="memdesc:a51b8eb6617ef0642c722008827f2d3d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zdrojova notace (napr.  <br /></td></tr>
 <tr class="memitem:a3396c5f2d92b68852cb9fcf6e79500fc" id="r_a3396c5f2d92b68852cb9fcf6e79500fc"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3396c5f2d92b68852cb9fcf6e79500fc">to_notation</a> [8]</td></tr>
-<tr class="memdesc:a3396c5f2d92b68852cb9fcf6e79500fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cilova notace (napr. "e4") - zvetseno z 4 na 8 pro bezpecnost.  <br /></td></tr>
+<tr class="memdesc:a3396c5f2d92b68852cb9fcf6e79500fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cilova notace (napr.  <br /></td></tr>
 <tr class="memitem:a431384d6ef7f4db67d9a0946a7211ef1" id="r_a431384d6ef7f4db67d9a0946a7211ef1"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a431384d6ef7f4db67d9a0946a7211ef1">player</a></td></tr>
 <tr class="memdesc:a431384d6ef7f4db67d9a0946a7211ef1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hrac provadejici prikaz (PLAYER_WHITE nebo PLAYER_BLACK).  <br /></td></tr>
 <tr class="memitem:a750e92bc6c9a40c005e3e48947dd10b5" id="r_a750e92bc6c9a40c005e3e48947dd10b5"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a750e92bc6c9a40c005e3e48947dd10b5">response_queue</a></td></tr>
@@ -129,12 +129,14 @@ Datové položky</h2></td></tr>
 <tr class="memdesc:a927fdf150a8e6d92db9ffe74151e9609"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stav timeru.  <a href="#af494be6080aeefa370736fedfe0eb0c5">...</a><br /></td></tr>
 <tr class="memitem:a2e078f65d1fab8a9ebd51547cd733fd9" id="r_a2e078f65d1fab8a9ebd51547cd733fd9"><td class="memItemLeft anonEnd" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e078f65d1fab8a9ebd51547cd733fd9">timer_data</a></td></tr>
 <tr class="memdesc:a2e078f65d1fab8a9ebd51547cd733fd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Union pro timer data.  <br /></td></tr>
+<tr class="memitem:a43bd07ae3571e5c911bb94292a4cf6b3" id="r_a43bd07ae3571e5c911bb94292a4cf6b3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a43bd07ae3571e5c911bb94292a4cf6b3">is_demo_mode</a></td></tr>
+<tr class="memdesc:a43bd07ae3571e5c911bb94292a4cf6b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag pro demo mode (skip resignation timer).  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
 <div class="textblock"><p>Struktura prikazu pro sachovy tah pres UART. </p>
 <p>Tato struktura se pouziva pro poslani prikazu game tasku pres frontu. Obsahuje vsechny potrebne informace pro provedeni tahu a zpracovani odpovedi. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00296">296</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00299">299</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 </div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Dokumentace položek</h2>
 <a id="aa66efcd3b24e2c130ede000aca79466d" name="aa66efcd3b24e2c130ede000aca79466d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa66efcd3b24e2c130ede000aca79466d">&#9670;&#160;</a></span>custom_increment</h2>
@@ -150,7 +152,7 @@ Datové položky</h2></td></tr>
 
 <p>Vlastni increment (pro vlastni casovou kontrolu). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00309">309</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00316">316</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -168,7 +170,7 @@ Datové položky</h2></td></tr>
 
 <p>Vlastni minuty (pro vlastni casovou kontrolu). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00308">308</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00315">315</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -184,9 +186,28 @@ Datové položky</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Zdrojova notace (napr. "e2") - zvetseno z 4 na 8 pro bezpecnost. </p>
+<p>Zdrojova notace (napr. </p>
+<p>"e2") - zvetseno z 4 na 8 pro bezpecnost </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00298">298</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00301">301</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a43bd07ae3571e5c911bb94292a4cf6b3" name="a43bd07ae3571e5c911bb94292a4cf6b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a43bd07ae3571e5c911bb94292a4cf6b3">&#9670;&#160;</a></span>is_demo_mode</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_move_command_t::is_demo_mode</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Flag pro demo mode (skip resignation timer). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00323">323</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -204,7 +225,7 @@ Datové položky</h2></td></tr>
 
 <p>Je na tahu bily? (pro timer operace). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00312">312</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00320">320</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -222,7 +243,7 @@ Datové položky</h2></td></tr>
 
 <p>Hrac provadejici prikaz (PLAYER_WHITE nebo PLAYER_BLACK). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00300">300</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00305">305</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -240,7 +261,7 @@ Datové položky</h2></td></tr>
 
 <p>Volba promoci (pro promotion prikazy). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00302">302</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00307">307</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -258,7 +279,7 @@ Datové položky</h2></td></tr>
 
 <p>Fronta pro poslani odpovedi. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00301">301</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00306">306</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -276,7 +297,7 @@ Datové položky</h2></td></tr>
 
 <p>Typ casove kontroly (pro GAME_CMD_SET_TIME_CONTROL). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00307">307</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00312">312</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -340,9 +361,10 @@ Datové položky</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Cilova notace (napr. "e4") - zvetseno z 4 na 8 pro bezpecnost. </p>
+<p>Cilova notace (napr. </p>
+<p>"e4") - zvetseno z 4 na 8 pro bezpecnost </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00299">299</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00303">303</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -360,7 +382,7 @@ Datové položky</h2></td></tr>
 
 <p>Typ prikazu (<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4" title="Typy game prikazu pro UART komunikaci.">game_command_type_t</a>). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00297">297</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00300">300</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>

@@ -23,7 +23,7 @@ Graf závislostí na vkládaných souborech pro led\+\_\+state\+\_\+manager.\+c\
 \item 
 static void \mbox{\hyperlink{led__state__manager_8c_ab0e2cf384e338253fa57595534da19e5}{led\+\_\+composite\+\_\+pixel}} (uint8\+\_\+t led\+\_\+index)
 \begin{DoxyCompactList}\small\item\em Provede kompozici vsech vrstev pro jeden LED pixel. \end{DoxyCompactList}\item 
-static void \mbox{\hyperlink{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20}{led\+\_\+apply\+\_\+brightness}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t \texorpdfstring{$\ast$}{*}r, uint8\+\_\+t \texorpdfstring{$\ast$}{*}g, uint8\+\_\+t \texorpdfstring{$\ast$}{*}b)
+static void \mbox{\hyperlink{led__state__manager_8c_a0f4e2e8c4d259c4be234a5369001db20}{led\+\_\+apply\+\_\+brightness}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})
 \begin{DoxyCompactList}\small\item\em Aplikuje jas na RGB hodnoty. \end{DoxyCompactList}\item 
 static void \mbox{\hyperlink{led__state__manager_8c_af99a3c5e617122fc1975cb7516f67cb7}{led\+\_\+mark\+\_\+dirty}} (uint8\+\_\+t led\+\_\+index)
 \begin{DoxyCompactList}\small\item\em Oznaci pixel jako dirty (potrebuje update). \end{DoxyCompactList}\item 
@@ -37,7 +37,7 @@ esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ad6abb4aadf5a51d12bd
 \begin{DoxyCompactList}\small\item\em Inicializuj LED manager s konfiguraci. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a0e1288bada603c6fa05e27c504043639}{led\+\_\+manager\+\_\+deinit}} (void)
 \begin{DoxyCompactList}\small\item\em Deinicializuj LED manager. \end{DoxyCompactList}\item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}{led\+\_\+set\+\_\+pixel\+\_\+layer}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t led\+\_\+index, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_abe61cff6332fff6f402834c6aaf32ca7}{led\+\_\+set\+\_\+pixel\+\_\+layer}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t led\+\_\+index, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})
 \begin{DoxyCompactList}\small\item\em Nastav pixel ve vrstve primo podle LED indexu. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a710d786eed5ca03bce7a093daf527041}{led\+\_\+clear\+\_\+layer}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer)
 \begin{DoxyCompactList}\small\item\em Vymaz vrstvu (alias pro led\+\_\+state\+\_\+clear\+\_\+layer). \end{DoxyCompactList}\item 
@@ -45,7 +45,7 @@ esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a80147ffbd0f8c6fe9e9
 \item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a393b301ba78a74e2768530ee7b86573f}{led\+\_\+enable\+\_\+layer}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, bool enable)
 \item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a40289bfb1bef83bce9cd41e4a5306545}{led\+\_\+set\+\_\+layer\+\_\+brightness}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t brightness)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a40289bfb1bef83bce9cd41e4a5306545}{led\+\_\+set\+\_\+layer\+\_\+brightness}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}})
 \item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_aeff6d8517fb4956b1d4df351544c57bb}{led\+\_\+composite\+\_\+and\+\_\+update}} (void)
 \item 
@@ -57,27 +57,27 @@ uint8\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a23eaaf20c7e72afecbdcb21bb9
 \item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ac2f041e67d008f43c140ba461a346e0a}{led\+\_\+fade\+\_\+pixel}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t target\+\_\+r, uint8\+\_\+t target\+\_\+g, uint8\+\_\+t target\+\_\+b, uint32\+\_\+t duration\+\_\+ms)
 \item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_aba0f2c2275e342c31ec8ac161299b0ef}{led\+\_\+pulse\+\_\+pixel}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b, uint32\+\_\+t period\+\_\+ms, uint8\+\_\+t pulse\+\_\+count)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_aba0f2c2275e342c31ec8ac161299b0ef}{led\+\_\+pulse\+\_\+pixel}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}, uint32\+\_\+t period\+\_\+ms, uint8\+\_\+t pulse\+\_\+count)
 \item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ad5f296e945ac223050cba2e4264701ba}{led\+\_\+rainbow\+\_\+pixel}} (uint8\+\_\+t led\+\_\+index, uint32\+\_\+t duration\+\_\+ms)
 \item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a9814a093e435d1f453c7ecbd64817d5f}{led\+\_\+set\+\_\+multiple\+\_\+pixels}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+indices, uint8\+\_\+t count, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a9814a093e435d1f453c7ecbd64817d5f}{led\+\_\+set\+\_\+multiple\+\_\+pixels}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+indices, uint8\+\_\+t count, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})
 \item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ad188631e97fc317e2376f2b4c65ef62e}{led\+\_\+clear\+\_\+multiple\+\_\+pixels}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+indices, uint8\+\_\+t count)
 \item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_af8241d26504ce9a50bd8f1d05d29aaa9}{led\+\_\+fade\+\_\+multiple\+\_\+pixels}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}led\+\_\+indices, uint8\+\_\+t count, uint8\+\_\+t target\+\_\+r, uint8\+\_\+t target\+\_\+g, uint8\+\_\+t target\+\_\+b, uint32\+\_\+t duration\+\_\+ms)
 \item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a79a1e941945444641da26f81f396a0ea}{led\+\_\+set\+\_\+global\+\_\+brightness}} (uint8\+\_\+t brightness)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a79a1e941945444641da26f81f396a0ea}{led\+\_\+set\+\_\+global\+\_\+brightness}} (uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}})
 \item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a09ad253b4572afc82ba7b977fb8be163}{led\+\_\+set\+\_\+pixel\+\_\+brightness}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t brightness)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a09ad253b4572afc82ba7b977fb8be163}{led\+\_\+set\+\_\+pixel\+\_\+brightness}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}})
 \item 
 uint8\+\_\+t \mbox{\hyperlink{led__state__manager_8c_af3727770a26c0a0e796cab4969fcd909}{led\+\_\+get\+\_\+global\+\_\+brightness}} (void)
 \item 
 uint8\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a560bcb09877849b8df1bce3f370dfa50}{led\+\_\+get\+\_\+pixel\+\_\+brightness}} (uint8\+\_\+t led\+\_\+index)
 \item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a1123bf9a4fa107a05fc3251ae1c7d009}{led\+\_\+hsv\+\_\+to\+\_\+rgb}} (float h, float s, float v, uint8\+\_\+t \texorpdfstring{$\ast$}{*}r, uint8\+\_\+t \texorpdfstring{$\ast$}{*}g, uint8\+\_\+t \texorpdfstring{$\ast$}{*}b)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a1123bf9a4fa107a05fc3251ae1c7d009}{led\+\_\+hsv\+\_\+to\+\_\+rgb}} (float h, float s, float v, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})
 \begin{DoxyCompactList}\small\item\em HSV to RGB konverze. \end{DoxyCompactList}\item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a6bf9d2280f7e13b64c909142e7158fd4}{led\+\_\+rgb\+\_\+to\+\_\+hsv}} (uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b, float \texorpdfstring{$\ast$}{*}h, float \texorpdfstring{$\ast$}{*}s, float \texorpdfstring{$\ast$}{*}v)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_a6bf9d2280f7e13b64c909142e7158fd4}{led\+\_\+rgb\+\_\+to\+\_\+hsv}} (uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}, float \texorpdfstring{$\ast$}{*}h, float \texorpdfstring{$\ast$}{*}s, float \texorpdfstring{$\ast$}{*}v)
 \item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8c_ae6932cf91967f91c556ac275b48ec9fb}{led\+\_\+interpolate\+\_\+color}} (uint8\+\_\+t r1, uint8\+\_\+t g1, uint8\+\_\+t b1, uint8\+\_\+t r2, uint8\+\_\+t g2, uint8\+\_\+t b2, float progress, uint8\+\_\+t \texorpdfstring{$\ast$}{*}out\+\_\+r, uint8\+\_\+t \texorpdfstring{$\ast$}{*}out\+\_\+g, uint8\+\_\+t \texorpdfstring{$\ast$}{*}out\+\_\+b)
 \item 

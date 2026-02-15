@@ -47,10 +47,10 @@ extern "C" {
 // KONSTANTY
 // ============================================================================
 
-// 10 minut necinosti = automaticky přepne do HA módu
+// 10 minut necinosti = automaticky prepne do HA modu
 #define HA_ACTIVITY_TIMEOUT_AUTO_MS (600000)
 
-// 2 minuty necinosti = umožní HA command přepnout do HA módu
+// 2 minuty necinosti = umozni HA command prepnout do HA modu
 #define HA_ACTIVITY_TIMEOUT_COMMAND_MS (120000)
 
 // MQTT topics
@@ -130,19 +130,19 @@ bool ha_light_is_available(void);
 void ha_light_report_activity(const char *activity_type);
 
 /**
- * @brief Uloží MQTT konfiguraci do NVS
+ * @brief Ulozi MQTT konfiguraci do NVS
  *
- * @param host Broker hostname/IP (max 127 znaků)
+ * @param host Broker hostname/IP (max 127 znaku)
  * @param port Broker port (1-65535)
- * @param username MQTT username (NULL nebo prázdné = bez auth)
- * @param password MQTT password (NULL nebo prázdné = bez auth)
- * @return ESP_OK při úspěchu, chybový kód při chybě
+ * @param username MQTT username (NULL nebo prazdne = bez auth)
+ * @param password MQTT password (NULL nebo prazdne = bez auth)
+ * @return ESP_OK pri uspechu, chybovy kod pri chybe
  */
 esp_err_t mqtt_save_config_to_nvs(const char *host, uint16_t port,
                                   const char *username, const char *password);
 
 /**
- * @brief Získá MQTT konfiguraci (načte z NVS pokud ještě nebyla načtena)
+ * @brief Ziska MQTT konfiguraci (nacte z NVS pokud jeste nebyla nactena)
  *
  * @param host Buffer pro broker host (min 128 bytes)
  * @param host_len Velikost host bufferu
@@ -151,16 +151,16 @@ esp_err_t mqtt_save_config_to_nvs(const char *host, uint16_t port,
  * @param username_len Velikost username bufferu
  * @param password Buffer pro password (min 64 bytes)
  * @param password_len Velikost password bufferu
- * @return ESP_OK při úspěchu
+ * @return ESP_OK pri uspechu
  */
 esp_err_t mqtt_get_config(char *host, size_t host_len, uint16_t *port,
                           char *username, size_t username_len, char *password,
                           size_t password_len);
 
 /**
- * @brief Zjistí zda je MQTT klient připojen
+ * @brief Zjisti zda je MQTT klient pripojen
  *
- * @return true pokud je MQTT připojen, false jinak
+ * @return true pokud je MQTT pripojen, false jinak
  */
 bool ha_light_is_mqtt_connected(void);
 
@@ -170,9 +170,9 @@ bool ha_light_is_mqtt_connected(void);
  * @return ESP_OK při úspěchu, chybový kód při chybě
  *
  * @details
- * Tato funkce se používá při změně MQTT konfigurace za běhu.
- * Zastaví stávajícího klienta, znovu načte konfiguraci z NVS a inicializuje
- * nového klienta. Pokud není WiFi STA připojeno, vrátí chybu.
+ * Tato funkce se pouziva pri zmene MQTT konfigurace za behu.
+ * Zastavi stavajiciho klienta, znovu nacte konfiguraci z NVS a inicializuje
+ * noveho klienta. Pokud neni WiFi STA pripojeno, vrati chybu.
  */
 esp_err_t ha_light_reinit_mqtt(void);
 

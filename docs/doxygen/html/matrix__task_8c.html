@@ -96,13 +96,13 @@ $(function(){initNavTree('matrix__task_8c.html','',''); });
 <p>Matrix Scanning Task - Detekce fyzickych figurek na sachovnici.  
 <a href="#details">...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="matrix__task_8h_source.html">matrix_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ha__light__task_8h_source.html">../ha_light_task/include/ha_light_task.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
 <code>#include &quot;driver/gpio.h&quot;</code><br />
 <code>#include &quot;esp_log.h&quot;</code><br />
 <code>#include &quot;esp_system.h&quot;</code><br />
 <code>#include &quot;esp_task_wdt.h&quot;</code><br />
 <code>#include &quot;esp_timer.h&quot;</code><br />
-<code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
 <code>#include &quot;freertos/queue.h&quot;</code><br />
 <code>#include &quot;freertos/semphr.h&quot;</code><br />
 <code>#include &quot;freertos/task.h&quot;</code><br />
@@ -118,63 +118,70 @@ Graf závislostí na vkládaných souborech pro matrix_task.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="matrix__task_8c__incl.png" border="0" usemap="#amatrix__task_8c" loading="lazy" alt=""/></div>
 <map name="amatrix__task_8c" id="amatrix__task_8c">
-<area shape="rect" title="Matrix Scanning Task &#45; Detekce fyzickych figurek na sachovnici." alt="" coords="961,5,1061,31"/>
-<area shape="rect" href="matrix__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Matrix Task Hlavicka." alt="" coords="114,79,214,105"/>
-<area shape="poly" title=" " alt="" coords="960,26,230,88,229,82,961,21"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="422,153,541,178"/>
-<area shape="poly" title=" " alt="" coords="958,23,757,45,652,61,610,71,579,81,535,110,502,143,499,139,532,106,576,77,608,65,651,56,757,39,963,22"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="252,226,359,252"/>
-<area shape="poly" title=" " alt="" coords="958,20,877,24,770,33,651,51,592,64,534,81,472,110,415,147,366,185,330,217,327,213,363,181,412,142,470,105,533,77,590,59,650,45,769,27,877,19,963,18"/>
-<area shape="rect" title=" " alt="" coords="5,300,70,326"/>
-<area shape="poly" title=" " alt="" coords="958,20,754,23,476,29,339,37,220,47,130,62,100,71,82,81,63,102,50,127,40,155,35,183,32,239,36,285,30,284,27,239,30,183,35,153,45,125,59,99,78,77,98,66,129,57,219,42,339,31,476,24,754,17,963,18"/>
-<area shape="rect" title=" " alt="" coords="98,300,172,326"/>
-<area shape="poly" title=" " alt="" coords="958,20,758,21,485,27,351,35,235,45,149,61,120,70,103,81,88,104,81,129,80,157,83,186,101,241,123,287,117,287,96,243,78,187,74,158,75,129,83,101,100,77,118,66,147,56,235,40,351,29,485,22,758,16,963,18"/>
-<area shape="rect" title=" " alt="" coords="371,300,514,326"/>
-<area shape="poly" title=" " alt="" coords="1020,29,1046,72,1072,131,1080,163,1082,196,1075,226,1058,254,1046,262,1028,268,973,279,817,292,530,303,529,298,817,286,972,273,1026,263,1044,257,1054,250,1070,225,1076,195,1075,164,1067,133,1042,74,1018,34"/>
-<area shape="rect" title=" " alt="" coords="538,300,654,326"/>
-<area shape="poly" title=" " alt="" coords="1024,29,1061,70,1100,128,1115,161,1122,193,1118,225,1102,254,1080,266,1040,276,924,292,789,304,669,311,669,305,789,298,924,287,1039,271,1078,261,1098,250,1113,223,1116,194,1110,162,1096,131,1057,73,1022,34"/>
-<area shape="rect" title=" " alt="" coords="535,226,628,252"/>
-<area shape="poly" title=" " alt="" coords="990,31,620,221,618,216,984,32"/>
-<area shape="rect" title=" " alt="" coords="652,226,775,252"/>
-<area shape="poly" title=" " alt="" coords="997,31,743,219,741,215,992,32"/>
-<area shape="rect" title=" " alt="" coords="798,226,904,252"/>
-<area shape="poly" title=" " alt="" coords="1005,30,870,216,867,212,1000,32"/>
-<area shape="rect" title=" " alt="" coords="927,226,1044,252"/>
-<area shape="poly" title=" " alt="" coords="1012,30,991,212,986,209,1007,33"/>
-<area shape="rect" title=" " alt="" coords="1124,79,1202,105"/>
-<area shape="poly" title=" " alt="" coords="1037,29,1126,72,1120,72,1036,34"/>
-<area shape="rect" title=" " alt="" coords="1226,79,1329,105"/>
-<area shape="poly" title=" " alt="" coords="1056,29,1220,74,1215,75,1056,34"/>
-<area shape="rect" title=" " alt="" coords="1353,79,1466,105"/>
-<area shape="poly" title=" " alt="" coords="1061,26,1340,77,1335,78,1061,31"/>
-<area shape="rect" title=" " alt="" coords="1491,79,1579,105"/>
-<area shape="poly" title=" " alt="" coords="1061,22,1241,43,1478,78,1473,79,1240,48,1062,27"/>
-<area shape="rect" title=" " alt="" coords="1603,79,1667,105"/>
-<area shape="poly" title=" " alt="" coords="1061,19,1286,37,1434,53,1590,79,1585,79,1434,58,1286,42,1062,25"/>
-<area shape="rect" title=" " alt="" coords="1691,79,1752,105"/>
-<area shape="poly" title=" " alt="" coords="1061,18,1321,33,1496,50,1679,79,1673,79,1495,56,1321,39,1062,24"/>
-<area shape="rect" title=" " alt="" coords="1776,79,1840,105"/>
-<area shape="poly" title=" " alt="" coords="1061,18,1183,22,1355,31,1555,49,1763,79,1758,79,1554,54,1355,37,1183,27,1062,23"/>
-<area shape="poly" title=" " alt="" coords="215,102,414,147,410,150,215,107"/>
-<area shape="poly" title=" " alt="" coords="160,106,54,288,49,286,155,104"/>
-<area shape="poly" title=" " alt="" coords="161,103,148,153,140,224,137,285,132,283,134,223,143,152,158,108"/>
-<area shape="rect" title=" " alt="" coords="268,300,343,326"/>
-<area shape="poly" title=" " alt="" coords="169,103,196,169,217,211,242,250,280,291,275,290,238,254,212,213,192,172,167,108"/>
-<area shape="poly" title=" " alt="" coords="454,178,350,223,348,218,449,180"/>
-<area shape="poly" title=" " alt="" coords="419,175,317,196,257,210,198,229,128,260,70,294,67,289,126,256,197,224,255,205,315,191,424,173"/>
-<area shape="poly" title=" " alt="" coords="419,175,335,195,287,210,241,229,195,259,158,292,155,287,192,254,239,224,285,205,333,190,424,173"/>
-<area shape="poly" title=" " alt="" coords="481,177,452,287,448,283,476,180"/>
-<area shape="poly" title=" " alt="" coords="487,176,502,212,525,250,545,271,568,292,563,290,541,275,521,254,497,214,484,181"/>
-<area shape="poly" title=" " alt="" coords="470,178,333,292,330,288,464,179"/>
-<area shape="poly" title=" " alt="" coords="499,176,555,217,549,217,498,181"/>
-<area shape="poly" title=" " alt="" coords="521,176,662,221,657,222,521,182"/>
-<area shape="poly" title=" " alt="" coords="541,176,785,224,780,225,541,181"/>
-<area shape="poly" title=" " alt="" coords="541,172,915,225,910,227,541,177"/>
-<area shape="poly" title=" " alt="" coords="261,255,85,302,84,296,259,250"/>
-<area shape="poly" title=" " alt="" coords="279,252,179,296,177,291,274,253"/>
-<area shape="poly" title=" " alt="" coords="329,250,409,292,403,292,328,255"/>
-<area shape="poly" title=" " alt="" coords="355,250,534,295,529,296,354,255"/>
-<area shape="poly" title=" " alt="" coords="307,250,308,286,303,283,304,254"/>
+<area shape="rect" title="Matrix Scanning Task &#45; Detekce fyzickych figurek na sachovnici." alt="" coords="994,5,1094,31"/>
+<area shape="rect" href="matrix__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Matrix Task Hlavicka." alt="" coords="190,86,290,112"/>
+<area shape="poly" title=" " alt="" coords="991,22,708,40,517,57,323,82,304,85,301,80,322,76,516,52,707,35,996,20"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="688,168,806,193"/>
+<area shape="poly" title=" " alt="" coords="991,25,911,43,867,59,826,81,806,97,788,117,762,156,758,152,784,113,802,94,823,77,865,54,910,38,996,23"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="598,241,704,267"/>
+<area shape="poly" title=" " alt="" coords="1034,31,947,108,885,154,819,196,765,220,712,239,710,234,763,215,816,191,882,150,944,104,1029,33"/>
+<area shape="rect" title=" " alt="" coords="836,315,951,341"/>
+<area shape="poly" title=" " alt="" coords="1057,29,1147,118,1182,139,1221,157,1299,186,1329,200,1349,218,1353,229,1353,241,1337,269,1311,287,1274,302,1228,312,1176,320,1066,329,967,330,967,325,1065,323,1175,315,1227,307,1273,297,1309,283,1333,265,1348,240,1348,230,1344,221,1326,205,1297,191,1219,162,1179,144,1144,122,1055,34"/>
+<area shape="rect" title=" " alt="" coords="254,315,328,341"/>
+<area shape="poly" title=" " alt="" coords="991,20,800,22,540,29,414,36,304,47,222,62,195,71,179,81,161,108,157,125,157,144,161,167,171,195,210,265,230,287,255,307,249,306,226,291,206,269,166,197,156,169,152,145,152,124,157,106,176,77,193,66,221,57,303,42,414,31,540,24,800,17,996,18"/>
+<area shape="rect" title=" " alt="" coords="5,315,70,341"/>
+<area shape="poly" title=" " alt="" coords="992,23,535,42,291,59,202,70,152,82,97,110,58,142,32,184,11,242,9,257,11,272,23,301,18,303,6,274,4,257,6,241,27,181,54,138,94,105,150,76,202,65,290,54,535,37,996,19"/>
+<area shape="rect" title=" " alt="" coords="329,241,421,267"/>
+<area shape="poly" title=" " alt="" coords="991,22,891,31,766,42,646,59,598,69,563,81,509,114,462,154,423,196,394,231,391,227,419,192,458,150,506,109,560,77,597,64,645,53,765,37,891,25,996,21"/>
+<area shape="rect" title=" " alt="" coords="931,241,1053,267"/>
+<area shape="poly" title=" " alt="" coords="1034,30,1017,54,1003,80,993,118,989,158,991,227,987,224,984,158,988,117,998,78,1012,51,1030,33"/>
+<area shape="rect" title=" " alt="" coords="1077,241,1182,267"/>
+<area shape="poly" title=" " alt="" coords="1043,29,1039,62,1036,103,1039,149,1053,192,1070,214,1093,234,1088,232,1066,218,1048,195,1034,150,1030,103,1034,61,1040,33"/>
+<area shape="rect" title=" " alt="" coords="1206,241,1322,267"/>
+<area shape="poly" title=" " alt="" coords="1050,29,1072,71,1104,118,1135,151,1170,182,1235,233,1230,232,1167,186,1132,155,1099,121,1067,74,1048,34"/>
+<area shape="rect" href="ha__light__task_8h.html" title="HA Light Task &#45; Home Assistant RGB Light Integration." alt="" coords="573,79,728,120"/>
+<area shape="poly" title=" " alt="" coords="991,30,744,82,743,77,996,29"/>
+<area shape="rect" title=" " alt="" coords="1158,86,1235,112"/>
+<area shape="poly" title=" " alt="" coords="1068,29,1162,79,1157,79,1067,34"/>
+<area shape="rect" title=" " alt="" coords="1259,86,1362,112"/>
+<area shape="poly" title=" " alt="" coords="1086,29,1248,76,1258,82,1253,81,1246,82,1086,34"/>
+<area shape="rect" title=" " alt="" coords="1386,86,1500,112"/>
+<area shape="poly" title=" " alt="" coords="1095,24,1223,46,1375,76,1390,82,1385,82,1374,82,1222,51,1095,30"/>
+<area shape="rect" title=" " alt="" coords="1524,86,1612,112"/>
+<area shape="poly" title=" " alt="" coords="1095,20,1280,37,1397,54,1513,76,1525,82,1519,81,1512,82,1396,59,1280,43,1095,25"/>
+<area shape="rect" title=" " alt="" coords="1636,86,1700,112"/>
+<area shape="poly" title=" " alt="" coords="1094,17,1194,20,1326,28,1476,46,1551,60,1625,76,1632,81,1627,80,1623,82,1550,65,1475,52,1326,34,1193,25,1095,22"/>
+<area shape="rect" title=" " alt="" coords="1725,86,1785,112"/>
+<area shape="poly" title=" " alt="" coords="1095,16,1208,16,1362,24,1537,42,1626,57,1713,76,1720,81,1715,80,1711,82,1625,62,1537,47,1362,29,1207,22,1095,21"/>
+<area shape="rect" title=" " alt="" coords="1809,86,1874,112"/>
+<area shape="poly" title=" " alt="" coords="1095,19,1451,37,1652,54,1735,65,1798,76,1806,81,1800,80,1797,82,1734,70,1652,59,1451,42,1095,24"/>
+<area shape="poly" title=" " alt="" coords="291,106,674,166,671,170,291,111"/>
+<area shape="rect" title=" " alt="" coords="498,315,572,341"/>
+<area shape="poly" title=" " alt="" coords="243,110,252,143,265,185,287,228,301,248,318,265,356,290,399,306,443,317,485,325,480,324,442,322,398,312,354,295,314,269,297,251,282,231,260,187,246,145,241,115"/>
+<area shape="poly" title=" " alt="" coords="236,110,227,142,217,181,214,224,217,246,224,266,238,287,259,306,253,305,234,290,219,268,212,247,209,224,212,180,222,140,233,115"/>
+<area shape="poly" title=" " alt="" coords="198,114,156,133,106,160,58,196,38,218,21,242,17,257,17,271,26,301,21,302,12,272,11,256,16,240,33,215,54,192,103,155,154,128,202,111"/>
+<area shape="poly" title=" " alt="" coords="733,193,680,235,678,230,728,195"/>
+<area shape="poly" title=" " alt="" coords="690,193,636,214,610,227,587,243,563,271,546,303,543,299,559,268,584,239,608,223,634,209,684,194"/>
+<area shape="rect" title=" " alt="" coords="668,315,812,341"/>
+<area shape="poly" title=" " alt="" coords="753,192,762,227,763,267,753,302,749,298,758,267,757,227,750,196"/>
+<area shape="poly" title=" " alt="" coords="760,191,873,304,868,303,758,196"/>
+<area shape="poly" title=" " alt="" coords="711,193,560,244,344,313,342,307,558,239,706,194"/>
+<area shape="poly" title=" " alt="" coords="684,188,520,209,418,224,317,244,191,278,85,312,84,307,189,273,316,239,417,219,519,204,690,186"/>
+<area shape="poly" title=" " alt="" coords="684,194,437,244,436,238,690,193"/>
+<area shape="poly" title=" " alt="" coords="789,191,938,237,933,237,788,197"/>
+<area shape="poly" title=" " alt="" coords="807,190,1064,240,1059,240,806,196"/>
+<area shape="poly" title=" " alt="" coords="806,186,1193,240,1188,241,806,192"/>
+<area shape="poly" title=" " alt="" coords="634,267,568,309,566,304,629,268"/>
+<area shape="poly" title=" " alt="" coords="667,265,716,306,711,304,665,270"/>
+<area shape="poly" title=" " alt="" coords="692,265,840,310,835,310,692,270"/>
+<area shape="poly" title=" " alt="" coords="600,266,344,319,343,313,595,266"/>
+<area shape="poly" title=" " alt="" coords="598,264,85,324,85,318,597,259"/>
+<area shape="poly" title=" " alt="" coords="675,117,723,158,718,157,674,123"/>
+<area shape="poly" title=" " alt="" coords="638,119,600,174,561,242,542,302,538,298,556,240,595,172,633,121"/>
+<area shape="poly" title=" " alt="" coords="655,118,664,154,679,192,688,206,698,215,708,225,719,240,731,270,738,301,733,298,726,272,714,243,704,229,694,219,684,209,674,195,659,156,652,122"/>
+<area shape="poly" title=" " alt="" coords="729,116,777,136,819,166,846,197,866,233,889,301,885,298,861,235,841,200,816,170,774,141,729,122"/>
+<area shape="poly" title=" " alt="" coords="570,115,511,133,442,158,375,194,345,217,318,243,303,271,295,301,291,298,298,269,314,240,342,213,372,190,440,153,509,128,575,113"/>
+<area shape="poly" title=" " alt="" coords="570,116,475,139,370,170,285,204,202,242,73,309,71,305,199,238,283,199,369,165,474,134,575,114"/>
 </map>
 </div>
 </div>
@@ -194,10 +201,8 @@ Funkce</h2></td></tr>
 <tr class="memdesc:a86518ffc745875b5c3c34d7c96f7e186"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oskenuj celou matici.  <br /></td></tr>
 <tr class="memitem:ae622813bcd8b41c1040db3a6c8d34e13" id="r_ae622813bcd8b41c1040db3a6c8d34e13"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae622813bcd8b41c1040db3a6c8d34e13">matrix_send_pickup_command</a> (uint8_t square)</td></tr>
 <tr class="memdesc:ae622813bcd8b41c1040db3a6c8d34e13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to send PICKUP command to game_command_queue.  <br /></td></tr>
-<tr class="memitem:a0684c1516035306b49514c47a1af0fed" id="r_a0684c1516035306b49514c47a1af0fed"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0684c1516035306b49514c47a1af0fed">matrix_send_drop_command</a> (uint8_t square)</td></tr>
-<tr class="memdesc:a0684c1516035306b49514c47a1af0fed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to send DROP command to game_command_queue.  <br /></td></tr>
 <tr class="memitem:a275f664c60af320845973b221bd1db55" id="r_a275f664c60af320845973b221bd1db55"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a275f664c60af320845973b221bd1db55">matrix_send_drop_command_with_from</a> (uint8_t from_square, uint8_t to_square)</td></tr>
-<tr class="memdesc:a275f664c60af320845973b221bd1db55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to send DROP command with from/to notation to game_command_queue.  <br /></td></tr>
+<tr class="memdesc:a275f664c60af320845973b221bd1db55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to send DROP command to game_command_queue.  <br /></td></tr>
 <tr class="memitem:ad81a1142e821938e81029ad1d88f57d7" id="r_ad81a1142e821938e81029ad1d88f57d7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad81a1142e821938e81029ad1d88f57d7">matrix_detect_moves</a> (void)</td></tr>
 <tr class="memdesc:ad81a1142e821938e81029ad1d88f57d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detekuj tahy z matice.  <br /></td></tr>
 <tr class="memitem:a9f313f74d8c7d9bac02294a7f873eb75" id="r_a9f313f74d8c7d9bac02294a7f873eb75"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9f313f74d8c7d9bac02294a7f873eb75">matrix_detect_complete_move</a> (uint8_t from_square, uint8_t to_square)</td></tr>
@@ -246,9 +251,9 @@ Proměnné</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
 <div class="textblock"><p>Matrix Scanning Task - Detekce fyzickych figurek na sachovnici. </p>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md53"></a>
-autotoc_md53</h1>
-<h1 class="doxsection"><a class="anchor" id="autotoc_md54"></a>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md57"></a>
+autotoc_md57</h1>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md58"></a>
 CO TENTO SOUBOR DELA?</h1>
 <p>Tento task skenujesachovnici a detekuje pohyb figurek:</p><ol type="1">
 <li>Multiplexovany sken 8x8 matrix (Jazyckove kontakty pod kazdym polem)</li>
@@ -258,7 +263,7 @@ CO TENTO SOUBOR DELA?</h1>
 <li>Error detection (spatny sled eventu)</li>
 </ol>
 <hr  />
- <h1 class="doxsection"><a class="anchor" id="autotoc_md56"></a>
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md60"></a>
 JAK TO FUNGUJE?</h1>
 <p>MULTIPLEX SCANNING:</p><ul>
 <li>Aktivuj radek 0 (row select GPIO)</li>
@@ -280,14 +285,14 @@ JAK TO FUNGUJE?</h1>
 <li>Posli do game_command_queue</li>
 </ul>
 <hr  />
- <h1 class="doxsection"><a class="anchor" id="autotoc_md58"></a>
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md62"></a>
 KOMUNIKACE (FIFOS)</h1>
 <p>FRONTA - Posilame detkovane tahy:</p><ul>
 <li>game_command_queue -&gt; Poslani tahu typu GAME_CMD_MOVE_DETECTED</li>
 </ul>
 <p>ZADNE MUTEXY - Task je read-only (jen cte GPIO)</p>
 <hr  />
- <h1 class="doxsection"><a class="anchor" id="autotoc_md60"></a>
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md64"></a>
 HARDWARE (GPIO MAPPING)</h1>
 <p>ROW SELECT (8 pinu, aktivni LOW):</p><ul>
 <li>GPIO 10-17: Vyber radku sachovnice</li>
@@ -300,7 +305,7 @@ HARDWARE (GPIO MAPPING)</h1>
 <li>HIGH = Prazdne pole</li>
 </ul>
 <hr  />
- <h1 class="doxsection"><a class="anchor" id="autotoc_md62"></a>
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md66"></a>
 KRITICKA PRAVIDLA</h1>
 <dl class="section warning"><dt>Pozor</dt><dd>CO SE NESMI DELAT:</dd></dl>
 <ol type="1">
@@ -310,7 +315,7 @@ KRITICKA PRAVIDLA</h1>
 <li>VZDY kontroluj queue overflow! Pokud game_task je zahlcen, fronta se muze naplnit</li>
 </ol>
 <hr  />
- <h1 class="doxsection"><a class="anchor" id="autotoc_md64"></a>
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md68"></a>
 TABLE OF CONTENTS</h1>
 <p>Sekce 1: GPIO Init ............................ radek 80 Sekce 2: Matrix Scanning ...................... radek 200 Sekce 3: Debouncing Logic ..................... radek 350 Sekce 4: Event Detection ...................... radek 500 Sekce 5: Main Matrix Task ..................... radek 750</p>
 <hr  />
@@ -352,7 +357,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Report activity on the board (interrupt demo mode) Called from matrix_task when any change is detected. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00532">532</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00570">570</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -375,7 +380,7 @@ TABLE OF CONTENTS</h1>
 <p>Obnovi normalni matrix scanning rezim po button scan window.</p>
 <p>Tato funkce je volana po button scan window. Matrix muze pokracovat v normalnim skenovani. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00846">846</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00880">880</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -399,7 +404,7 @@ TABLE OF CONTENTS</h1>
 </div><div class="memdoc">
 
 <p>Detekuj kompletni tah. </p>
-<p>Detekuje kompletni tah (zvednutí + položení figurky) a posle MATRIX_EVENT_MOVE_DETECTED udalost.</p>
+<p>Detekuje kompletni tah (zvednuti + polozeni figurky) a posle MATRIX_EVENT_MOVE_DETECTED udalost.</p>
 <dl class="params"><dt>Parametry</dt><dd>
   <table class="params">
     <tr><td class="paramname">from_square</td><td>Zdrojove pole (0-63) </td></tr>
@@ -408,7 +413,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00596">596</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00630">630</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -430,7 +435,7 @@ TABLE OF CONTENTS</h1>
 <p>Detekuj tahy z matice. </p>
 <p>Hleda prechody 1-&gt;0 (figurka zvednuta) a 0-&gt;1 (figurka polozena) a generuje maticove udalosti. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00517">517</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00551">551</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -457,7 +462,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00643">643</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00677">677</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -485,7 +490,7 @@ TABLE OF CONTENTS</h1>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Cislo pole (0-63) </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00626">626</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00660">660</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -508,7 +513,7 @@ TABLE OF CONTENTS</h1>
 <p>Overi zda jsou matrix piny uvolnene pro button scan.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud jsou vsechny row piny HIGH (uvolnene) </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00859">859</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00893">893</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -530,7 +535,7 @@ TABLE OF CONTENTS</h1>
 <p>Vypis aktualni stav matice. </p>
 <p>Vypise 8x8 matici s aktualni stav vsech poli (0 = prazdne, 1 = figurka). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00651">651</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00685">685</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -552,7 +557,7 @@ TABLE OF CONTENTS</h1>
 <p>Zpracuj matrix prikazy z fronty. </p>
 <p>Cte prikazy z matrix_command_queue a vykonava je (scan, reset, test, calibrate, enable/disable). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00748">748</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00782">782</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -575,7 +580,7 @@ TABLE OF CONTENTS</h1>
 <p>Nastavi vsechny row piny na HIGH (neaktivni stav) aby button task mohl cist column piny bez interference.</p>
 <p>Tato funkce je volana pred button scan window (20-25ms). Vsechny row piny jsou nastaveny na HIGH (pulled up) takze column piny mohou byt bezpecne cteny pro button detection. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00827">827</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00861">861</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -597,7 +602,7 @@ TABLE OF CONTENTS</h1>
 <p>Resetuj stav matice. </p>
 <p>Vymaze vsechny vnitrni stavy matice a resetuje detekci tahu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00792">792</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00826">826</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -619,7 +624,7 @@ TABLE OF CONTENTS</h1>
 <p>Oskenuj celou matici. </p>
 <p>Oskenuje vsech 8 radku matice a detekuje zmeny stavu. Pouziva mutex pro thread-safe pristup ke stavu matice. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00327">327</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00353">353</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -647,7 +652,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00309">309</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00335">335</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -692,42 +697,7 @@ TABLE OF CONTENTS</h1>
 <p>Stabilizacni cekani: Po aktivaci row pinu na LOW se ceka 5 ms pro spravne ustaleni napetoveho stavu. Bez tohoto cekani by mohlo dochazet k nespravnemu cteni stavu column pinu kvuli elektromagnetickym interferencim a kapacitnim efektum.</p>
 <dl class="section note"><dt>Poznámka</dt><dd>Volajici musi drzet matrix_mutex pred volanim teto funkce </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00241">241</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a0684c1516035306b49514c47a1af0fed" name="a0684c1516035306b49514c47a1af0fed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0684c1516035306b49514c47a1af0fed">&#9670;&#160;</a></span>matrix_send_drop_command()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void matrix_send_drop_command </td>
-          <td>(</td>
-          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>square</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Helper function to send DROP command to game_command_queue. </p>
-<dl class="params"><dt>Parametry</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">square</td><td>Square index (0-63) </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00450">450</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00242">242</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -758,8 +728,14 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p>Helper function to send DROP command with from/to notation to game_command_queue. </p>
+<p>Helper function to send DROP command to game_command_queue. </p>
 <dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">square</td><td>Square index (0-63)</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Helper function to send DROP command with from/to notation to game_command_queue </p><dl class="params"><dt>Parametry</dt><dd>
   <table class="params">
     <tr><td class="paramname">from_square</td><td>Source square index (0-63) </td></tr>
     <tr><td class="paramname">to_square</td><td>Destination square index (0-63) </td></tr>
@@ -767,7 +743,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00484">484</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00516">516</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -802,7 +778,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00418">418</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00444">444</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -826,7 +802,7 @@ TABLE OF CONTENTS</h1>
 </div><div class="memdoc">
 
 <p>Simuluj tah v matici. </p>
-<p>Pro testovani - simuluje zvednutí figurky z jednoho pole a polozeni na jine pole.</p>
+<p>Pro testovani - simuluje zvednuti figurky z jednoho pole a polozeni na jine pole.</p>
 <dl class="params"><dt>Parametry</dt><dd>
   <table class="params">
     <tr><td class="paramname">from</td><td>Zdrojova sachova notace (napr. "e2") </td></tr>
@@ -835,7 +811,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00721">721</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00755">755</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -867,7 +843,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00614">614</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00648">648</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -895,7 +871,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00873">873</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00907">907</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -926,7 +902,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze)</dd></dl>
 <p>Funkce je pouzivana pro bezpecny reset watchdog timeru behem matrix operaci. Zabranuje chybam pri startupu kdy task jeste neni registrovany. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00145">145</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00146">146</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -945,7 +921,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00675">675</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00709">709</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -970,7 +946,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00204">204</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00205">205</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -994,7 +970,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00178">178</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00179">179</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1018,7 +994,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00183">183</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00184">184</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1042,7 +1018,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00184">184</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00185">185</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1066,7 +1042,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00179">179</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00180">180</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1090,7 +1066,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00169">169</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00170">170</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1114,7 +1090,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00168">168</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00169">169</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1130,7 +1106,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00174">174</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00175">175</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1154,7 +1130,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00167">167</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00168">168</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1178,7 +1154,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00185">185</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00186">186</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1202,7 +1178,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00180">180</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00181">181</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1226,7 +1202,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00173">173</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00174">174</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1265,7 +1241,7 @@ TABLE OF CONTENTS</h1>
 <div class="line">     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,</div>
 <div class="line">     0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}}</div>
 </div><!-- fragment -->
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00188">188</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00189">189</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1289,7 +1265,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00128">128</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00129">129</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1313,7 +1289,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00172">172</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00173">173</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>

@@ -15,7 +15,7 @@
  * 
  * @details
  * Tento task obsahuje vsechny testy pro overeni funkcnosti systemu.
- * Umožnuje testovani jednotlivych komponent i celeho systemu.
+ * Umoznuje testovani jednotlivych komponent i celeho systemu.
  * Poskytuje detailni metriky a diagnostiku problemu.
  * 
  * Funkce:

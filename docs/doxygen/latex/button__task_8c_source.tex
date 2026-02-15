@@ -368,7 +368,7 @@
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00470}00470\ \textcolor{comment}{//\ ============================================================================}}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00471}00471\ }
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00472}\mbox{\hyperlink{button__task_8c_a558352d2b9df8e61bfada7d422249e64}{00472}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8c_a558352d2b9df8e61bfada7d422249e64}{button\_update\_led\_feedback}}(uint8\_t\ button\_id,\ \textcolor{keywordtype}{bool}\ pressed)\ \{}
-\DoxyCodeLine{\Hypertarget{button__task_8c_source_l00473}00473\ \ \ \textcolor{comment}{//\ ✅\ LED\ feedback\ is\ now\ controlled\ by\ game\_check\_promotion\_needed()}}
+\DoxyCodeLine{\Hypertarget{button__task_8c_source_l00473}00473\ \ \ \textcolor{comment}{//\ LED\ feedback\ is\ now\ controlled\ by\ game\_check\_promotion\_needed()}}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00474}00474\ \ \ \textcolor{comment}{//\ LED\ indications\ are:}}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00475}00475\ \ \ \textcolor{comment}{//\ -\/\ Green\ (0,255,0):\ Promotion\ is\ possible\ /\ button\ is\ active}}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00476}00476\ \ \ \textcolor{comment}{//\ -\/\ Blue\ (0,0,255):\ Promotion\ not\ possible\ /\ button\ is\ inactive}}
@@ -383,7 +383,7 @@
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00485}00485\ }
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00486}\mbox{\hyperlink{button__task_8c_ad004f184d705cb6e12a079c8105867bc}{00486}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8c_ad004f184d705cb6e12a079c8105867bc}{button\_set\_led\_color}}(uint8\_t\ led\_index,\ uint8\_t\ red,\ uint8\_t\ green,}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00487}00487\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ blue)\ \{}
-\DoxyCodeLine{\Hypertarget{button__task_8c_source_l00488}00488\ \ \ \textcolor{comment}{//\ ✅\ DIRECT\ LED\ CALL\ -\/\ No\ queue\ hell}}
+\DoxyCodeLine{\Hypertarget{button__task_8c_source_l00488}00488\ \ \ \textcolor{comment}{//\ DIRECT\ LED\ CALL\ -\/\ No\ queue\ hell}}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00489}00489\ \ \ \mbox{\hyperlink{led__task_8h_ad4b7ef962f86de71ef5f934f2a92544a}{led\_set\_pixel\_safe}}(led\_index,\ red,\ green,\ blue);}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00490}00490\ \ \ ESP\_LOGD(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Button\ LED\ \%d\ set\ to\ RGB(\%d,\%d,\%d)"{}},\ led\_index,\ red,\ green,}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00491}00491\ \ \ \ \ \ \ \ \ \ \ \ blue);}
@@ -476,7 +476,7 @@
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00578}\mbox{\hyperlink{button__task_8c_af93b7fa55287e83f6caf447e756de6d2}{00578}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{button__task_8c_af93b7fa55287e83f6caf447e756de6d2}{button\_task\_start}}(\textcolor{keywordtype}{void}\ *pvParameters)\ \{}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00579}00579\ \ \ ESP\_LOGI(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Button\ task\ started\ successfully"{}});}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00580}00580\ }
-\DoxyCodeLine{\Hypertarget{button__task_8c_source_l00581}00581\ \ \ \textcolor{comment}{//\ ✅\ CRITICAL:\ Register\ with\ TWDT\ from\ within\ task}}
+\DoxyCodeLine{\Hypertarget{button__task_8c_source_l00581}00581\ \ \ \textcolor{comment}{//\ CRITICAL:\ Register\ with\ TWDT\ from\ within\ task}}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00582}00582\ \ \ esp\_err\_t\ wdt\_ret\ =\ esp\_task\_wdt\_add(NULL);}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00583}00583\ \ \ \textcolor{keywordflow}{if}\ (wdt\_ret\ !=\ ESP\_OK\ \&\&\ wdt\_ret\ !=\ ESP\_ERR\_INVALID\_ARG)\ \{}
 \DoxyCodeLine{\Hypertarget{button__task_8c_source_l00584}00584\ \ \ \ \ ESP\_LOGE(\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}},\ \textcolor{stringliteral}{"{}Failed\ to\ register\ Button\ task\ with\ TWDT:\ \%s"{}},}

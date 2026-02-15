@@ -1,8 +1,8 @@
 /**
  * @file uart_commands_extended.h
- * @brief ESP32-C6 Chess System - Header pro rozšířené UART příkazy
+ * @brief ESP32-C6 Chess System - Header pro rozsirene UART prikazy
  * 
- * Deklarace funkcí pro ovládání endgame animací přes UART
+ * Deklarace funkci pro ovladani endgame animaci pres UART
  * 
  * Author: Alfred Krutina
  * Version: 2.5 - COMPLETE ANIMATIONS  
@@ -21,64 +21,64 @@ extern "C" {
 #endif
 
 // ============================================================================
-// HLAVNÍ API PRO UART PŘÍKAZY
+// HLAVNI API PRO UART PRIKAZY
 // ============================================================================
 
 /**
- * @brief Registruje všechny rozšířené UART příkazy
- * @return ESP_OK při úspěchu, jinak error kód
+ * @brief Registruje vsechny rozsirene UART prikazy
+ * @return ESP_OK pri uspechu, jinak error kod
  */
 esp_err_t register_extended_uart_commands(void);
 
 // ============================================================================
-// IMPLEMENTACE JEDNOTLIVÝCH PŘÍKAZŮ
+// IMPLEMENTACE JEDNOTLIVYCH PRIKAZU
 // ============================================================================
 
 /**
- * @brief Obsluha příkazu "endgame animations"
- * Zobrazí seznam všech dostupných endgame animací
- * 
- * @param argc Počet argumentů
- * @param argv Pole argumentů
- * @param response Buffer pro odpověď
- * @param response_size Velikost bufferu pro odpověď
- * @return ESP_OK při úspěchu
+ * @brief Obsluha prikazu "endgame animations"
+ * Zobrazi seznam vsech dostupnych endgame animaci
+ *
+ * @param argc Pocet argumentu
+ * @param argv Pole argumentu
+ * @param response Buffer pro odpoved
+ * @param response_size Velikost bufferu pro odpoved
+ * @return ESP_OK pri uspechu
  */
 esp_err_t cmd_endgame_animations(int argc, char **argv, char *response, size_t response_size);
 
 /**
- * @brief Obsluha příkazu "endgame animation X [pozice]"
- * Spustí konkrétní endgame animaci
- * 
- * @param argc Počet argumentů
- * @param argv Pole argumentů (argv[0] = číslo animace, argv[1] = pozice krále)
- * @param response Buffer pro odpověď
- * @param response_size Velikost bufferu pro odpověď
- * @return ESP_OK při úspěchu
+ * @brief Obsluha prikazu "endgame animation X [pozice]"
+ * Spusti konkretni endgame animaci
+ *
+ * @param argc Pocet argumentu
+ * @param argv Pole argumentu (argv[0] = cislo animace, argv[1] = pozice krale)
+ * @param response Buffer pro odpoved
+ * @param response_size Velikost bufferu pro odpoved
+ * @return ESP_OK pri uspechu
  */
 esp_err_t cmd_endgame_animation(int argc, char **argv, char *response, size_t response_size);
 
 /**
- * @brief Obsluha příkazu "stop animations"
- * Zastaví všechny běžící animace
- * 
- * @param argc Počet argumentů
- * @param argv Pole argumentů
- * @param response Buffer pro odpověď
- * @param response_size Velikost bufferu pro odpověď
- * @return ESP_OK při úspěchu
+ * @brief Obsluha prikazu "stop animations"
+ * Zastavi vsechny bezici animace
+ *
+ * @param argc Pocet argumentu
+ * @param argv Pole argumentu
+ * @param response Buffer pro odpoved
+ * @param response_size Velikost bufferu pro odpoved
+ * @return ESP_OK pri uspechu
  */
 esp_err_t cmd_stop_animations(int argc, char **argv, char *response, size_t response_size);
 
 /**
- * @brief Obsluha příkazu "animation status"
- * Zobrazí stav animačního systému
- * 
- * @param argc Počet argumentů
- * @param argv Pole argumentů
- * @param response Buffer pro odpověď
- * @param response_size Velikost bufferu pro odpověď
- * @return ESP_OK při úspěchu
+ * @brief Obsluha prikazu "animation status"
+ * Zobrazi stav animacniho systemu
+ *
+ * @param argc Pocet argumentu
+ * @param argv Pole argumentu
+ * @param response Buffer pro odpoved
+ * @param response_size Velikost bufferu pro odpoved
+ * @return ESP_OK pri uspechu
  */
 esp_err_t cmd_animation_status(int argc, char **argv, char *response, size_t response_size);
 
@@ -87,20 +87,20 @@ esp_err_t cmd_animation_status(int argc, char **argv, char *response, size_t res
 // ============================================================================
 
 /**
- * @brief Dispatcher pro příkaz "endgame"
- * Směruje na cmd_endgame_animations nebo cmd_endgame_animation
+ * @brief Dispatcher pro prikaz "endgame"
+ * Smeruje na cmd_endgame_animations nebo cmd_endgame_animation
  */
 int uart_endgame_command_dispatcher(int argc, char **argv);
 
 /**
- * @brief Dispatcher pro příkaz "stop" 
- * Směruje na cmd_stop_animations
+ * @brief Dispatcher pro prikaz "stop"
+ * Smeruje na cmd_stop_animations
  */
 int uart_stop_command_dispatcher(int argc, char **argv);
 
 /**
- * @brief Dispatcher pro příkaz "animation"
- * Směruje na cmd_animation_status
+ * @brief Dispatcher pro prikaz "animation"
+ * Smeruje na cmd_animation_status
  */
 int uart_animation_command_dispatcher(int argc, char **argv);
 

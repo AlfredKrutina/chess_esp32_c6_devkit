@@ -17,7 +17,7 @@
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00031}00031\ \textcolor{preprocessor}{\#include\ <string.h>}}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00032}00032\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{streaming__output_8h}{streaming\_output.h}}"{}}}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00033}00033\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{chess__types_8h}{chess\_types.h}}"{}}}
-\DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00034}00034\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__mapping_8h}{led\_mapping.h}}"{}}\ \ \textcolor{comment}{//\ ✅\ FIX:\ Include\ LED\ mapping\ functions}}
+\DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00034}00034\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{led__mapping_8h}{led\_mapping.h}}"{}}\ \ \textcolor{comment}{//\ Include\ LED\ mapping\ functions}}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00035}00035\ }
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00036}\mbox{\hyperlink{streaming__output_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00036}}\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{TAG}}\ =\ \textcolor{stringliteral}{"{}STREAMING\_OUT"{}};}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00037}00037\ }
@@ -285,7 +285,7 @@
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00331}00331\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00332}00332\ \ \ \ \ \}}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00333}00333\ }
-\DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00334}00334\ \ \ \ \ \textcolor{comment}{//\ CRITICAL\ FIX:\ Actually\ send\ data\ to\ queue\ instead\ of\ just\ logging}}
+\DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00334}00334\ \ \ \ \ \textcolor{comment}{//\ Actually\ send\ data\ to\ queue\ instead\ of\ just\ logging}}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00335}00335\ \ \ \ \ \textcolor{comment}{//\ Create\ a\ proper\ game\_response\_t\ message\ for\ the\ queue}}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00336}00336\ \ \ \ \ \mbox{\hyperlink{structgame__response__t}{game\_response\_t}}\ response\ =\ \{}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00337}00337\ \ \ \ \ \ \ \ \ .type\ =\ \mbox{\hyperlink{chess__types_8h_a03211d5ca1b7406c1cb6ab6851e79502a422f73724b8ecc76f312621fb868805d}{GAME\_RESPONSE\_SUCCESS}},}
@@ -296,10 +296,10 @@
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00342}00342\ \ \ \ \ \};}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00343}00343\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00344}00344\ \ \ \ \ \textcolor{comment}{//\ Copy\ data\ to\ response\ buffer\ (truncate\ if\ too\ long)}}
-\DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00345}00345\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ max\_data\_size\ =\ \textcolor{keyword}{sizeof}(response.\mbox{\hyperlink{structgame__response__t_ae9f24fd59c3cda6c038d6099efe5ec03}{data}})\ -\/\ 1;}
+\DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00345}00345\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ max\_data\_size\ =\ \textcolor{keyword}{sizeof}(response.\mbox{\hyperlink{structgame__response__t_a1b9907db84187372f7e5df9135e8d522}{data}})\ -\/\ 1;}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00346}00346\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ copy\_len\ =\ (len\ >\ max\_data\_size)\ ?\ max\_data\_size\ :\ len;}
-\DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00347}00347\ \ \ \ \ memcpy(response.\mbox{\hyperlink{structgame__response__t_ae9f24fd59c3cda6c038d6099efe5ec03}{data}},\ data,\ copy\_len);}
-\DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00348}00348\ \ \ \ \ response.\mbox{\hyperlink{structgame__response__t_ae9f24fd59c3cda6c038d6099efe5ec03}{data}}[copy\_len]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};\ \ \textcolor{comment}{//\ Null\ terminate}}
+\DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00347}00347\ \ \ \ \ memcpy(response.\mbox{\hyperlink{structgame__response__t_a1b9907db84187372f7e5df9135e8d522}{data}},\ data,\ copy\_len);}
+\DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00348}00348\ \ \ \ \ response.\mbox{\hyperlink{structgame__response__t_a1b9907db84187372f7e5df9135e8d522}{data}}[copy\_len]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};\ \ \textcolor{comment}{//\ Null\ terminate}}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00349}00349\ \ \ \ \ }
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00350}00350\ \ \ \ \ \textcolor{comment}{//\ Send\ to\ queue\ with\ timeout}}
 \DoxyCodeLine{\Hypertarget{streaming__output_8c_source_l00351}00351\ \ \ \ \ BaseType\_t\ result\ =\ xQueueSend(\mbox{\hyperlink{streaming__output_8c_af1926ad29634d13b1230a971167e3277}{current\_output}}.queue,\ \&response,\ pdMS\_TO\_TICKS(100));}

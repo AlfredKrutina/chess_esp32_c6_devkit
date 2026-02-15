@@ -47,7 +47,7 @@ extern "C" {
 void game_show_move_direct(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col);
 
 /**
- * @brief Zobraz zvednutí figurky s primymi LED volanimi
+ * @brief Zobraz zvednuti figurky s primymi LED volanimi
  * 
  * Zobrazi jemnou pulzujici zluto-oranzovou animaci na pozici zvednute figurky.
  * 

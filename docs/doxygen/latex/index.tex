@@ -9,7 +9,7 @@
 {\itshape Šachmat, udělaný v Česku}
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md96}{}\doxysection{\texorpdfstring{🎓 O projektu}{🎓 O projektu}}\label{index_autotoc_md96}
+\hypertarget{index_autotoc_md100}{}\doxysection{\texorpdfstring{🎓 O projektu}{🎓 O projektu}}\label{index_autotoc_md100}
 {\bfseries{CZECHMATE}} -\/ to je název našeho projektu. Hra se slovem "{}checkmate"{} (šachmat) a "{}\+Czech"{} (český), protože je to šachový systém udělaný v Česku. Původní nápad byl "{}\+CZECHMADE"{}, ale to se nám zdálo příliš abstraktní. CZECHMATE lépe vystihuje, o co jde -\/ šachmat, ale český.
 
 Tento projekt představuje náš největší a nejkomplexnější projekt, na kterém jsme pracovali. Je to šachový systém postavený na ESP32-\/\+C6 mikrokontroléru, který kombinuje hardware, software, embedded systémy, webové technologie a samozřejmě šachovou logiku. Když jsme začínali, netušili jsme, kolik se toho naučíme a kolik výzev nás čeká.
@@ -19,8 +19,8 @@ Projekt vznikal postupně -\/ od jednoduché myšlenky "{}udělat šachy s LED"{
 {\bfseries{Spolupráce\+:}} Projekt je výsledkem týmové práce -\/ Matěj se zaměřil na hardware design, zapojení a fyzickou realizaci šachovnice, zatímco já jsem pracoval na software, firmware a šachové logice.
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md98}{}\doxysection{\texorpdfstring{📋 Přehled projektu}{📋 Přehled projektu}}\label{index_autotoc_md98}
-CZECHMATE je pokročilý šachový systém, který umožňuje hrát šachy na fyzické šachovnici s automatickou detekcí figurek pomocí Reed Switch matice. Systém obsahuje 73 WS2812B LED diod (64 na šachovnici + 9 na tlačítkách), které poskytují vizuální feedback pro každý tah. Kromě fyzické hry je možné hrát i přes webové rozhraní nebo UART konzoli.\hypertarget{index_autotoc_md99}{}\doxysubsection{\texorpdfstring{🎯 Hlavní funkce}{🎯 Hlavní funkce}}\label{index_autotoc_md99}
+\hypertarget{index_autotoc_md102}{}\doxysection{\texorpdfstring{📋 Přehled projektu}{📋 Přehled projektu}}\label{index_autotoc_md102}
+CZECHMATE je pokročilý šachový systém, který umožňuje hrát šachy na fyzické šachovnici s automatickou detekcí figurek pomocí Reed Switch matice. Systém obsahuje 73 WS2812B LED diod (64 na šachovnici + 9 na tlačítkách), které poskytují vizuální feedback pro každý tah. Kromě fyzické hry je možné hrát i přes webové rozhraní nebo UART konzoli.\hypertarget{index_autotoc_md103}{}\doxysubsection{\texorpdfstring{🎯 Hlavní funkce}{🎯 Hlavní funkce}}\label{index_autotoc_md103}
 
 \begin{DoxyItemize}
 \item {\bfseries{Fyzická šachovnice}} -\/ 8x8 Reed Switch matice pro automatickou detekci figurek
@@ -28,13 +28,15 @@ CZECHMATE je pokročilý šachový systém, který umožňuje hrát šachy na fy
 \item {\bfseries{Kompletní šachová logika}} -\/ Všechna pravidla včetně rošády, en passant, promoce, šach, mat
 \item {\bfseries{Webové rozhraní}} -\/ HTTP server pro vzdálenou hru přes prohlížeč s real-\/time aktualizací
 \item {\bfseries{UART konzole}} -\/ Textové příkazy pro ovládání, ladění a testování
-\item {\bfseries{LED animace}} -\/ Vizuální feedback pro tahy, šach, mat, remízu
-\item {\bfseries{Free\+RTOS multitasking}} -\/ 8 paralelních tasků pro plynulý chod systému
+\item {\bfseries{LED animace}} -\/ Vizuální feedback pro tahy, šach, mat, remízu a konec hry (sjednocená vítězná animace)
+\item {\bfseries{Free\+RTOS multitasking}} -\/ Paralelní tasky pro plynulý chod systému (LED, matice, hra, web, MQTT, časovače)
+\item {\bfseries{Integrace s Home Assistant}} -\/ MQTT světlo přes {\ttfamily ha\+\_\+light\+\_\+task} (dynamické LED scény řízené z HA)
+\item {\bfseries{Automatický start nové hry}} -\/ Pokud jsou všechny figurky fyzicky v počáteční pozici po \texorpdfstring{$\sim$}{\string~}2 sekundách, spustí se nová hra
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md101}{}\doxysection{\texorpdfstring{🛠️ Hardware}{🛠️ Hardware}}\label{index_autotoc_md101}
-{\itshape Hardware design a realizace\+: Matěj Jager}\hypertarget{index_autotoc_md102}{}\doxysubsection{\texorpdfstring{Komponenty}{Komponenty}}\label{index_autotoc_md102}
+\hypertarget{index_autotoc_md105}{}\doxysection{\texorpdfstring{🛠️ Hardware}{🛠️ Hardware}}\label{index_autotoc_md105}
+{\itshape Hardware design a realizace\+: Matěj Jager}\hypertarget{index_autotoc_md106}{}\doxysubsection{\texorpdfstring{Komponenty}{Komponenty}}\label{index_autotoc_md106}
 Projekt používá následující hardware komponenty, které Matěj pečlivě navrhl a zapojil\+:
 
 
@@ -46,7 +48,7 @@ Projekt používá následující hardware komponenty, které Matěj pečlivě n
 \item {\bfseries{1x Reset tlačítko}} -\/ Pro reset hry
 \item {\bfseries{USB Serial JTAG}} -\/ Pro konzoli, programování a ladění
 \item {\bfseries{Externí 5V/5A zdroj}} -\/ Pro napájení LED pásu (WS2812B potřebují hodně proudu)
-\end{DoxyItemize}\hypertarget{index_autotoc_md103}{}\doxysubsection{\texorpdfstring{GPIO mapování}{GPIO mapování}}\label{index_autotoc_md103}
+\end{DoxyItemize}\hypertarget{index_autotoc_md107}{}\doxysubsection{\texorpdfstring{GPIO mapování}{GPIO mapování}}\label{index_autotoc_md107}
 Jedna z prvních výzev bylo správně namapovat všechny GPIO piny. ESP32-\/\+C6 má omezený počet bezpečných pinů, takže Matěj musel pečlivě naplánovat, co kam připojit, a já jsem musel zajistit, aby software toto mapování respektoval\+:
 
 
@@ -58,7 +60,7 @@ Jedna z prvních výzev bylo správně namapovat všechny GPIO piny. ESP32-\/\+C
 \DoxyCodeLine{Reset\ Button:\ \ \ \ GPIO15\ (samostatný\ pin\ s\ pull-\/up)}
 
 \end{DoxyCode}
-\hypertarget{index_autotoc_md104}{}\doxysubsection{\texorpdfstring{Time-\/\+Multiplexing}{Time-\/\+Multiplexing}}\label{index_autotoc_md104}
+\hypertarget{index_autotoc_md108}{}\doxysubsection{\texorpdfstring{Time-\/\+Multiplexing}{Time-\/\+Multiplexing}}\label{index_autotoc_md108}
 Protože ESP32-\/\+C6 má omezený počet GPIO pinů, museli jsme použít time-\/multiplexing pro sdílení pinů mezi maticí a tlačítky. Matěj navrhl hardware zapojení s diodami, které umožňují sdílení pinů, a já jsem implementoval software časování. To byla jedna z technicky nejnáročnějších částí projektu\+:
 
 {\bfseries{25ms cyklus\+:}}
@@ -71,8 +73,8 @@ Protože ESP32-\/\+C6 má omezený počet GPIO pinů, museli jsme použít time-
 Toto řešení mi umožnilo použít stejné piny pro matici i tlačítka, což bylo kritické pro úsporu GPIO pinů.
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md106}{}\doxysection{\texorpdfstring{🏗️ Architektura}{🏗️ Architektura}}\label{index_autotoc_md106}
-\hypertarget{index_autotoc_md107}{}\doxysubsection{\texorpdfstring{Free\+RTOS Tasky}{Free\+RTOS Tasky}}\label{index_autotoc_md107}
+\hypertarget{index_autotoc_md110}{}\doxysection{\texorpdfstring{🏗️ Architektura}{🏗️ Architektura}}\label{index_autotoc_md110}
+\hypertarget{index_autotoc_md111}{}\doxysubsection{\texorpdfstring{Free\+RTOS Tasky}{Free\+RTOS Tasky}}\label{index_autotoc_md111}
 Systém používá Free\+RTOS pro multitasking. To byla pro mě úplně nová oblast -\/ před tím jsem programoval hlavně sekvenční kód. Naučil jsem se, jak správně navrhnout tasky, jak používat fronty pro komunikaci a jak synchronizovat přístup ke sdíleným zdrojům pomocí mutexů.
 
 Systém má 8 hlavních Free\+RTOS tasků s různými prioritami\+:
@@ -93,7 +95,7 @@ Systém má 8 hlavních Free\+RTOS tasků s různými prioritami\+:
 
 {\bfseries{Proč jsou priority takto nastavené?}}
 
-To jsem se naučil tvrdě -\/ když jsem měl špatně nastavené priority, systém se choval divně. LED task má nejvyšší prioritu (7), protože WS2812B LED vyžadují přesný timing a nesmí být přerušeny. Matrix task má prioritu 6 pro real-\/time detekci pohybu figurek. Button task má prioritu 5 pro rychlou odezvu na uživatelský vstup. Game task musí být rychlý (priorita 4), aby hra reagovala okamžitě. Web server a test task mohou čekat -\/ nejsou real-\/time.\hypertarget{index_autotoc_md108}{}\doxysubsection{\texorpdfstring{Komunikace mezi tasky}{Komunikace mezi tasky}}\label{index_autotoc_md108}
+To jsem se naučil tvrdě -\/ když jsem měl špatně nastavené priority, systém se choval divně. LED task má nejvyšší prioritu (7), protože WS2812B LED vyžadují přesný timing a nesmí být přerušeny. Matrix task má prioritu 6 pro real-\/time detekci pohybu figurek. Button task má prioritu 5 pro rychlou odezvu na uživatelský vstup. Game task musí být rychlý (priorita 4), aby hra reagovala okamžitě. Web server a test task mohou čekat -\/ nejsou real-\/time.\hypertarget{index_autotoc_md112}{}\doxysubsection{\texorpdfstring{Komunikace mezi tasky}{Komunikace mezi tasky}}\label{index_autotoc_md112}
 Jedna z nejdůležitějších věcí, kterou jsem se naučil, je správná komunikace mezi tasky\+:
 
 
@@ -110,7 +112,7 @@ Jedna z nejdůležitějších věcí, kterou jsem se naučil, je správná komun
 \item {\ttfamily led\+\_\+state\+\_\+mutex} -\/ Ochrana LED bufferu
 \end{DoxyItemize}
 \item {\bfseries{Timers}} -\/ Pro periodické úlohy
-\end{DoxyItemize}\hypertarget{index_autotoc_md109}{}\doxysubsection{\texorpdfstring{Struktura komponent}{Struktura komponent}}\label{index_autotoc_md109}
+\end{DoxyItemize}\hypertarget{index_autotoc_md113}{}\doxysubsection{\texorpdfstring{Struktura komponent}{Struktura komponent}}\label{index_autotoc_md113}
 Projekt je rozdělen do logických komponent, každá má svou vlastní složku\+:
 
 
@@ -123,8 +125,9 @@ Projekt je rozdělen do logických komponent, každá má svou vlastní složku\
 \DoxyCodeLine{│\ \ \ └──\ streaming\_output.c\ \ \ \ \ \ \#\ Streamování\ výstupu}
 \DoxyCodeLine{│}
 \DoxyCodeLine{├──\ game\_task/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Šachová\ logika\ a\ pravidla}
-\DoxyCodeLine{│\ \ \ ├──\ game\_task.c\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Hlavní\ šachová\ logika\ (11,572\ řádků!)}
-\DoxyCodeLine{│\ \ \ └──\ game\_led\_direct.c\ \ \ \ \ \ \ \ \ \#\ Přímé\ LED\ funkce}
+\DoxyCodeLine{│\ \ \ ├──\ game\_task.c\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Hlavní\ šachová\ logika\ (11k+\ řádků)}
+\DoxyCodeLine{│\ \ \ ├──\ game\_led\_direct.c\ \ \ \ \ \ \ \ \#\ Přímé\ LED\ funkce}
+\DoxyCodeLine{│\ \ \ └──\ demo\_mode\_helpers.c\ \ \ \ \ \ \#\ Pomocné\ funkce\ pro\ demo\ mód}
 \DoxyCodeLine{│}
 \DoxyCodeLine{├──\ matrix\_task/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Skenování\ 8x8\ matice}
 \DoxyCodeLine{│\ \ \ └──\ matrix\_task.c\ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Reed\ switch\ skenování}
@@ -139,8 +142,8 @@ Projekt je rozdělen do logických komponent, každá má svou vlastní složku\
 \DoxyCodeLine{│\ \ \ └──\ uart\_task.c\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Textové\ příkazy}
 \DoxyCodeLine{│}
 \DoxyCodeLine{├──\ web\_server\_task/\ \ \ \ \ \ \ \ \ \ \ \ \ \#\ HTTP\ web\ server}
-\DoxyCodeLine{│\ \ \ ├──\ web\_server\_task.c\ \ \ \ \ \ \ \ \#\ HTTP\ server\ implementace}
-\DoxyCodeLine{│\ \ \ └──\ chess\_app\_js\_*.c\ \ \ \ \ \ \ \ \ \#\ Embedded\ JavaScript}
+\DoxyCodeLine{│\ \ \ ├──\ web\_server\_task.c\ \ \ \ \ \ \ \ \#\ HTTP\ server\ implementace\ +\ embed\ JS}
+\DoxyCodeLine{│\ \ \ └──\ chess\_app.js\ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Zdroj\ embedded\ JavaScriptu\ (nekompiluje\ se)}
 \DoxyCodeLine{│}
 \DoxyCodeLine{├──\ animation\_task/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ LED\ animace}
 \DoxyCodeLine{│\ \ \ └──\ animation\_task.c\ \ \ \ \ \ \ \ \ \ \#\ Animation\ system}
@@ -151,11 +154,23 @@ Projekt je rozdělen do logických komponent, každá má svou vlastní složku\
 \DoxyCodeLine{├──\ led\_state\_manager/\ \ \ \ \ \ \ \ \ \ \ \#\ Správa\ LED\ stavů}
 \DoxyCodeLine{│\ \ \ └──\ led\_state\_manager.c}
 \DoxyCodeLine{│}
+\DoxyCodeLine{├──\ game\_led\_animations/\ \ \ \ \ \ \ \ \ \#\ Vysokoúrovňové\ animace\ (tahy,\ endgame,\ změna\ hráče)}
+\DoxyCodeLine{│\ \ \ └──\ game\_led\_animations.c}
+\DoxyCodeLine{│}
 \DoxyCodeLine{├──\ config\_manager/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Správa\ konfigurace}
 \DoxyCodeLine{│\ \ \ └──\ config\_manager.c}
 \DoxyCodeLine{│}
 \DoxyCodeLine{├──\ timer\_system/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Timer\ utilities}
 \DoxyCodeLine{│\ \ \ └──\ timer\_system.c}
+\DoxyCodeLine{│}
+\DoxyCodeLine{├──\ ha\_light\_task/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ MQTT/HA\ integrace\ pro\ světlo}
+\DoxyCodeLine{│\ \ \ └──\ ha\_light\_task.c}
+\DoxyCodeLine{│}
+\DoxyCodeLine{├──\ promotion\_button\_task/\ \ \ \ \ \ \ \#\ Tlačítka\ pro\ promoci\ (fyzická\ tlačítka)}
+\DoxyCodeLine{│\ \ \ └──\ promotion\_button\_task.c}
+\DoxyCodeLine{│}
+\DoxyCodeLine{├──\ reset\_button\_task/\ \ \ \ \ \ \ \ \ \ \ \#\ Reset\ tlačítko}
+\DoxyCodeLine{│\ \ \ └──\ reset\_button\_task.c}
 \DoxyCodeLine{│}
 \DoxyCodeLine{└──\ visual\_error\_system/\ \ \ \ \ \ \ \ \ \#\ Vizuální\ error\ handling}
 \DoxyCodeLine{\ \ \ \ └──\ visual\_error\_system.c}
@@ -164,8 +179,8 @@ Projekt je rozdělen do logických komponent, každá má svou vlastní složku\
 
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md111}{}\doxysection{\texorpdfstring{🚀 Instalace a Build}{🚀 Instalace a Build}}\label{index_autotoc_md111}
-\hypertarget{index_autotoc_md112}{}\doxysubsection{\texorpdfstring{Požadavky}{Požadavky}}\label{index_autotoc_md112}
+\hypertarget{index_autotoc_md115}{}\doxysection{\texorpdfstring{🚀 Instalace a Build}{🚀 Instalace a Build}}\label{index_autotoc_md115}
+\hypertarget{index_autotoc_md116}{}\doxysubsection{\texorpdfstring{Požadavky}{Požadavky}}\label{index_autotoc_md116}
 
 \begin{DoxyItemize}
 \item {\bfseries{ESP-\/\+IDF}} v5.\+1 nebo novější
@@ -173,7 +188,7 @@ Projekt je rozdělen do logických komponent, každá má svou vlastní složku\
 \item {\bfseries{CMake 3.\+16+}}
 \item {\bfseries{ESP32-\/\+C6 Dev\+Kit}} nebo kompatibilní hardware
 \item {\bfseries{USB kabel}} pro programování
-\end{DoxyItemize}\hypertarget{index_autotoc_md113}{}\doxysubsection{\texorpdfstring{Build proces}{Build proces}}\label{index_autotoc_md113}
+\end{DoxyItemize}\hypertarget{index_autotoc_md117}{}\doxysubsection{\texorpdfstring{Build proces}{Build proces}}\label{index_autotoc_md117}
 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{\#\ 1.\ Nastavit\ ESP-\/IDF\ prostředí}
@@ -192,7 +207,7 @@ Projekt je rozdělen do logických komponent, každá má svou vlastní složku\
 \DoxyCodeLine{idf.py\ -\/p\ /dev/ttyUSB0\ monitor}
 
 \end{DoxyCode}
-\hypertarget{index_autotoc_md114}{}\doxysubsection{\texorpdfstring{Konfigurace}{Konfigurace}}\label{index_autotoc_md114}
+\hypertarget{index_autotoc_md118}{}\doxysubsection{\texorpdfstring{Konfigurace}{Konfigurace}}\label{index_autotoc_md118}
 Hlavní konfigurační možnosti v {\ttfamily menuconfig}\+:
 
 
@@ -201,11 +216,39 @@ Hlavní konfigurační možnosti v {\ttfamily menuconfig}\+:
 \item {\bfseries{LED brightness}} -\/ Jas LED diod (0-\/255)
 \item {\bfseries{Matrix scan rate}} -\/ Rychlost skenování matice (ms)
 \item {\bfseries{Debug level}} -\/ Úroveň logování (ERROR, WARN, INFO, DEBUG, VERBOSE)
+\end{DoxyItemize}\hypertarget{index_autotoc_md119}{}\doxysubsubsection{\texorpdfstring{Home Assistant / MQTT integrace}{Home Assistant / MQTT integrace}}\label{index_autotoc_md119}
+Integrace s Home Assistant je řešená přes komponentu {\ttfamily ha\+\_\+light\+\_\+task} jako {\bfseries{MQTT RGB light}}\+:
+
+
+\begin{DoxyItemize}
+\item MQTT broker výchozí host\+: {\ttfamily homeassistant.\+local} (TCP port {\ttfamily 1883}), lze změnit v NVS.
+\item Konfigurace MQTT (host, port, username, password) se ukládá do NVS namespace {\ttfamily \doxylink{ha__light__task_8c_acceb8828f50bb72cef2187d48db6b461}{mqtt\+\_\+config}} ({\ttfamily broker\+\_\+host}, {\ttfamily broker\+\_\+port}, {\ttfamily broker\+\_\+username}, {\ttfamily broker\+\_\+password}).
+\item Po úspěšném připojení k MQTT klient publikuje {\bfseries{Home Assistant auto-\/discovery}}\+:
+\begin{DoxyItemize}
+\item discovery topic ve tvaru {\ttfamily homeassistant/light/esp32\+\_\+chess\+\_\+light\+\_\+\texorpdfstring{$<$}{<}MAC\texorpdfstring{$>$}{>}/config}
+\item entita typu {\ttfamily light} se jménem {\ttfamily Czech\+Mate}
+\item JSON schema, podpora {\ttfamily \doxylink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}}, {\ttfamily rgb} color mode a efektů ({\ttfamily rainbow}, {\ttfamily pulse}, {\ttfamily static}).
+\end{DoxyItemize}
+\item Používané MQTT topicy\+:
+\begin{DoxyItemize}
+\item {\ttfamily \doxylink{ha__light__task_8h_a8252c914f758fbce0485c28d94e84b0c}{HA\+\_\+\+TOPIC\+\_\+\+LIGHT\+\_\+\+COMMAND}} – příkazy z HA (zapnutí/vypnutí, barva, jas, efekt)
+\item {\ttfamily \doxylink{ha__light__task_8h_ac8d834caaa63c1dfab5bfbdaf442f78f}{HA\+\_\+\+TOPIC\+\_\+\+LIGHT\+\_\+\+STATE}} – publikovaný stav světla (on/off, jas, RGB, efekt)
+\item {\ttfamily \doxylink{ha__light__task_8h_ac2d5de1749d4171f82324a7276f6fb14}{HA\+\_\+\+TOPIC\+\_\+\+LIGHT\+\_\+\+AVAILABILITY}} – dostupnost ({\ttfamily online} / {\ttfamily offline})
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+Režimy provozu\+:
+
+
+\begin{DoxyItemize}
+\item {\bfseries{GAME MODE}} – výchozí režim, LED zobrazují stav šachovnice a herní animace.
+\item {\bfseries{HA MODE}} – po cca 5 minutách neaktivity se všechny LED chovají jako jedno RGB světlo řízené z HA.
+\item Přepínání zpět do GAME MODE proběhne automaticky při detekci aktivity (pohyb figurky, tah přes web/\+UART).
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md116}{}\doxysection{\texorpdfstring{📖 Použití}{📖 Použití}}\label{index_autotoc_md116}
-\hypertarget{index_autotoc_md117}{}\doxysubsection{\texorpdfstring{UART Konzole}{UART Konzole}}\label{index_autotoc_md117}
+\hypertarget{index_autotoc_md121}{}\doxysection{\texorpdfstring{📖 Použití}{📖 Použití}}\label{index_autotoc_md121}
+\hypertarget{index_autotoc_md122}{}\doxysubsection{\texorpdfstring{UART Konzole}{UART Konzole}}\label{index_autotoc_md122}
 Připojte se přes USB Serial JTAG (115200 baud) a použijte textové příkazy\+:
 
 
@@ -218,7 +261,7 @@ Připojte se přes USB Serial JTAG (115200 baud) a použijte textové příkazy\
 \DoxyCodeLine{test\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/\ Spustit\ testovací\ funkce}
 
 \end{DoxyCode}
-\hypertarget{index_autotoc_md118}{}\doxysubsection{\texorpdfstring{Webové rozhraní}{Webové rozhraní}}\label{index_autotoc_md118}
+\hypertarget{index_autotoc_md123}{}\doxysubsection{\texorpdfstring{Webové rozhraní}{Webové rozhraní}}\label{index_autotoc_md123}
 Po připojení k Wi\+Fi se systém automaticky spustí jako HTTP server. Najděte IP adresu v UART konzoli a otevřete v prohlížeči\+:
 
 
@@ -236,7 +279,12 @@ Webové rozhraní umožňuje\+:
 \item {\bfseries{Reset hry}} -\/ Tlačítko pro restart
 \item {\bfseries{Sandbox mód}} -\/ Zkoušení tahů bez ovlivnění hry
 \item {\bfseries{Review mód}} -\/ Procházení historie tahů
-\end{DoxyItemize}\hypertarget{index_autotoc_md119}{}\doxysubsection{\texorpdfstring{Fyzická hra}{Fyzická hra}}\label{index_autotoc_md119}
+\end{DoxyItemize}\hypertarget{index_autotoc_md124}{}\doxysubsubsection{\texorpdfstring{Integrace s Home Assistant a stav systému}{Integrace s Home Assistant a stav systému}}\label{index_autotoc_md124}
+
+\begin{DoxyItemize}
+\item Web vrstvu doplňuje MQTT integrace ({\ttfamily ha\+\_\+light\+\_\+task}) pro ovládání RGB světla z Home Assistant.
+\item Stav hry, error stavy a konec hry jsou zobrazovány konzistentně na webu i na fyzických LED (zvednutá figurka, nevalidní tah, error recovery).
+\end{DoxyItemize}\hypertarget{index_autotoc_md125}{}\doxysubsection{\texorpdfstring{Fyzická hra}{Fyzická hra}}\label{index_autotoc_md125}
 
 \begin{DoxyEnumerate}
 \item {\bfseries{Umístěte figurky}} na šachovnici do výchozí pozice
@@ -250,11 +298,12 @@ Webové rozhraní umožňuje\+:
 \item Modrá = šach
 \item Červená blikání = mat
 \end{DoxyItemize}
+\item {\bfseries{Automatický start nové hry}} -\/ pokud po skončení hry ručně vrátíte všechny figurky do počáteční pozice (řady 0,1,6,7 obsazené, 2–5 prázdné) a tato pozice je stabilní \texorpdfstring{$\sim$}{\string~}2 s, systém spustí novou hru sám
 \end{DoxyEnumerate}
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md121}{}\doxysection{\texorpdfstring{🎓 Co jsme se naučili}{🎓 Co jsme se naučili}}\label{index_autotoc_md121}
-Tento projekt nás naučil neuvěřitelně moc věcí. Když jsme začínali, znali jsme jen základy. Teď rozumíme\+:\hypertarget{index_autotoc_md122}{}\doxysubsection{\texorpdfstring{Embedded programování}{Embedded programování}}\label{index_autotoc_md122}
+\hypertarget{index_autotoc_md127}{}\doxysection{\texorpdfstring{🎓 Co jsme se naučili}{🎓 Co jsme se naučili}}\label{index_autotoc_md127}
+Tento projekt nás naučil neuvěřitelně moc věcí. Když jsme začínali, znali jsme jen základy. Teď rozumíme\+:\hypertarget{index_autotoc_md128}{}\doxysubsection{\texorpdfstring{Embedded programování}{Embedded programování}}\label{index_autotoc_md128}
 
 \begin{DoxyItemize}
 \item {\bfseries{Free\+RTOS}} -\/ Real-\/time operační systém pro embedded zařízení
@@ -262,35 +311,35 @@ Tento projekt nás naučil neuvěřitelně moc věcí. Když jsme začínali, zn
 \item {\bfseries{Interrupt handling}} -\/ Práce s hardware přerušeními
 \item {\bfseries{Memory management}} -\/ Stack vs heap, optimalizace paměti
 \item {\bfseries{Watchdog timers}} -\/ Ochrana před zaseknutím systému
-\end{DoxyItemize}\hypertarget{index_autotoc_md123}{}\doxysubsection{\texorpdfstring{Šachová logika}{Šachová logika}}\label{index_autotoc_md123}
+\end{DoxyItemize}\hypertarget{index_autotoc_md129}{}\doxysubsection{\texorpdfstring{Šachová logika}{Šachová logika}}\label{index_autotoc_md129}
 
 \begin{DoxyItemize}
 \item {\bfseries{Chess rules}} -\/ Všechna pravidla včetně těch složitých (en passant, rošáda, promoce)
 \item {\bfseries{Move validation}} -\/ Jak správně validovat tahy
 \item {\bfseries{Check detection}} -\/ Detekce šachu a matu
 \item {\bfseries{Board representation}} -\/ Efektivní reprezentace šachovnice v paměti
-\end{DoxyItemize}\hypertarget{index_autotoc_md124}{}\doxysubsection{\texorpdfstring{Webové technologie}{Webové technologie}}\label{index_autotoc_md124}
+\end{DoxyItemize}\hypertarget{index_autotoc_md130}{}\doxysubsection{\texorpdfstring{Webové technologie}{Webové technologie}}\label{index_autotoc_md130}
 
 \begin{DoxyItemize}
 \item {\bfseries{HTTP server}} -\/ Implementace HTTP serveru na embedded zařízení
 \item {\bfseries{Web\+Socket}} -\/ Real-\/time komunikace (plánováno)
 \item {\bfseries{Java\+Script}} -\/ Embedded Java\+Script pro webové rozhraní
 \item {\bfseries{REST API}} -\/ API pro komunikaci s webovým rozhraním
-\end{DoxyItemize}\hypertarget{index_autotoc_md125}{}\doxysubsection{\texorpdfstring{Software architektura}{Software architektura}}\label{index_autotoc_md125}
+\end{DoxyItemize}\hypertarget{index_autotoc_md131}{}\doxysubsection{\texorpdfstring{Software architektura}{Software architektura}}\label{index_autotoc_md131}
 
 \begin{DoxyItemize}
 \item {\bfseries{Modular design}} -\/ Rozdělení kódu do logických modulů
 \item {\bfseries{Task communication}} -\/ Komunikace mezi paralelními tasky
 \item {\bfseries{Error handling}} -\/ Správné ošetření chyb
 \item {\bfseries{Code organization}} -\/ Jak organizovat velký projekt
-\end{DoxyItemize}\hypertarget{index_autotoc_md126}{}\doxysubsection{\texorpdfstring{Hardware}{Hardware}}\label{index_autotoc_md126}
+\end{DoxyItemize}\hypertarget{index_autotoc_md132}{}\doxysubsection{\texorpdfstring{Hardware}{Hardware}}\label{index_autotoc_md132}
 
 \begin{DoxyItemize}
 \item {\bfseries{Reed switches}} -\/ Jak fungují a jak je použít
 \item {\bfseries{WS2812B LED}} -\/ Adresovatelné LED diody, protokol, timing
 \item {\bfseries{Time-\/multiplexing}} -\/ Sdílení pinů mezi komponentami
 \item {\bfseries{Power management}} -\/ Optimalizace spotřeby
-\end{DoxyItemize}\hypertarget{index_autotoc_md127}{}\doxysubsection{\texorpdfstring{Debugging}{Debugging}}\label{index_autotoc_md127}
+\end{DoxyItemize}\hypertarget{index_autotoc_md133}{}\doxysubsection{\texorpdfstring{Debugging}{Debugging}}\label{index_autotoc_md133}
 
 \begin{DoxyItemize}
 \item {\bfseries{UART logging}} -\/ Logování pro debugging
@@ -299,8 +348,8 @@ Tento projekt nás naučil neuvěřitelně moc věcí. Když jsme začínali, zn
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md129}{}\doxysection{\texorpdfstring{🐛 Výzvy, které jsme řešili}{🐛 Výzvy, které jsme řešili}}\label{index_autotoc_md129}
-\hypertarget{index_autotoc_md130}{}\doxysubsection{\texorpdfstring{Hardware výzvy (Matěj)}{Hardware výzvy (Matěj)}}\label{index_autotoc_md130}
+\hypertarget{index_autotoc_md135}{}\doxysection{\texorpdfstring{🐛 Výzvy, které jsme řešili}{🐛 Výzvy, které jsme řešili}}\label{index_autotoc_md135}
+\hypertarget{index_autotoc_md136}{}\doxysubsection{\texorpdfstring{Hardware výzvy (Matěj)}{Hardware výzvy (Matěj)}}\label{index_autotoc_md136}
 Matěj řešil především hardware problémy\+:
 
 {\bfseries{Reed Switch zapojení\+:}} Jedna z největších výzev bylo správně zapojit 64 Reed Switchů do matice. Každý switch musel být připojený mezi správný row a column pin, a všechny musely být spolehlivě připojené.
@@ -309,27 +358,27 @@ Matěj řešil především hardware problémy\+:
 
 {\bfseries{Napájení LED\+:}} 73 WS2812B LED potřebují hodně proudu (až 4.\+5A při plném jasu). Matěj musel zajistit externí 5V zdroj a správné zapojení GND, aby nedocházelo k problémům s napájením.
 
-{\bfseries{Fyzická realizace\+:}} Nejenže navrhl zapojení, ale také fyzicky realizoval šachovnici -\/ umístil Reed Switchy, zapojil LED, vytvořil PCB nebo použil breadboard, a zajistil, aby vše fungovalo spolehlivě.\hypertarget{index_autotoc_md131}{}\doxysubsection{\texorpdfstring{Software výzvy (Alfred)}{Software výzvy (Alfred)}}\label{index_autotoc_md131}
-\hypertarget{index_autotoc_md132}{}\doxysubsection{\texorpdfstring{1. Time-\/\+Multiplexing GPIO pinů}{1. Time-\/\+Multiplexing GPIO pinů}}\label{index_autotoc_md132}
+{\bfseries{Fyzická realizace\+:}} Nejenže navrhl zapojení, ale také fyzicky realizoval šachovnici -\/ umístil Reed Switchy, zapojil LED, vytvořil PCB nebo použil breadboard, a zajistil, aby vše fungovalo spolehlivě.\hypertarget{index_autotoc_md137}{}\doxysubsection{\texorpdfstring{Software výzvy (Alfred)}{Software výzvy (Alfred)}}\label{index_autotoc_md137}
+\hypertarget{index_autotoc_md138}{}\doxysubsection{\texorpdfstring{1. Time-\/\+Multiplexing GPIO pinů}{1. Time-\/\+Multiplexing GPIO pinů}}\label{index_autotoc_md138}
 {\bfseries{Problém\+:}} ESP32-\/\+C6 má omezený počet GPIO pinů, ale potřebujeme 8 výstupů pro matici řádků, 8 vstupů pro sloupce, a ještě 4 tlačítka pro promoci.
 
 {\bfseries{Hardware řešení (Matěj)\+:}} Matěj navrhl zapojení s diodami 1N4148, které umožňují sdílení pinů. Každé tlačítko je připojené přes diody ke všem řádkům matice, což umožňuje detekci tlačítka během button scan fáze.
 
-{\bfseries{Software řešení (Alfred)\+:}} Implementoval jsem time-\/multiplexing -\/ během 30ms cyklu se střídá skenování matice a tlačítek. To bylo technicky náročné, protože jsem musel zajistit, aby se stavy neovlivňovaly a aby diody správně izolovaly signály.\hypertarget{index_autotoc_md133}{}\doxysubsection{\texorpdfstring{2. Šachová logika}{2. Šachová logika}}\label{index_autotoc_md133}
+{\bfseries{Software řešení (Alfred)\+:}} Implementoval jsem time-\/multiplexing -\/ během 30ms cyklu se střídá skenování matice a tlačítek. To bylo technicky náročné, protože jsem musel zajistit, aby se stavy neovlivňovaly a aby diody správně izolovaly signály.\hypertarget{index_autotoc_md139}{}\doxysubsection{\texorpdfstring{2. Šachová logika}{2. Šachová logika}}\label{index_autotoc_md139}
 {\bfseries{Problém\+:}} Implementovat všechna šachová pravidla správně. En passant, rošáda, promoce -\/ to všechno má spoustu edge cases.
 
-{\bfseries{Řešení\+:}} Strávil jsem hodiny studiem šachových pravidel a implementací každého pravidla zvlášť. Musel jsem opravit spoustu bugů -\/ například en passant validace byla velmi složitá. Matěj mi pomáhal testovat edge cases na fyzické šachovnici.\hypertarget{index_autotoc_md134}{}\doxysubsection{\texorpdfstring{3. Free\+RTOS multitasking}{3. Free\+RTOS multitasking}}\label{index_autotoc_md134}
+{\bfseries{Řešení\+:}} Strávil jsem hodiny studiem šachových pravidel a implementací každého pravidla zvlášť. Musel jsem opravit spoustu bugů -\/ například en passant validace byla velmi složitá. Matěj mi pomáhal testovat edge cases na fyzické šachovnici.\hypertarget{index_autotoc_md140}{}\doxysubsection{\texorpdfstring{3. Free\+RTOS multitasking}{3. Free\+RTOS multitasking}}\label{index_autotoc_md140}
 {\bfseries{Problém\+:}} Když jsem začínal, nevěděl jsem, jak správně navrhnout tasky a jejich komunikaci. Měl jsem race conditions, deadlocky, a systém se občas zasekl.
 
-{\bfseries{Řešení\+:}} Naučil jsem se správně používat fronty, mutexy a semafory. Musel jsem přepracovat architekturu několikrát, než jsem to dostal správně. Matěj mi pomáhal testovat na hardwaru a identifikovat problémy s timingem.\hypertarget{index_autotoc_md135}{}\doxysubsection{\texorpdfstring{4. LED animace}{4. LED animace}}\label{index_autotoc_md135}
+{\bfseries{Řešení\+:}} Naučil jsem se správně používat fronty, mutexy a semafory. Musel jsem přepracovat architekturu několikrát, než jsem to dostal správně. Matěj mi pomáhal testovat na hardwaru a identifikovat problémy s timingem.\hypertarget{index_autotoc_md141}{}\doxysubsection{\texorpdfstring{4. LED animace}{4. LED animace}}\label{index_autotoc_md141}
 {\bfseries{Problém\+:}} WS2812B LED vyžadují přesný timing. Když jsem aktualizoval LED příliš často, animace trhaly. Když příliš zřídka, byly pomalé. Navíc Matěj měl problémy s napájením -\/ 73 LED potřebují hodně proudu.
 
 {\bfseries{Hardware řešení (Matěj)\+:}} Matěj zajistil externí 5V/5A zdroj a správné zapojení GND, aby nedocházelo k problémům s napájením.
 
-{\bfseries{Software řešení (Alfred)\+:}} Implementoval jsem unified animation manager, který spravuje všechny animace centralizovaně a zajišťuje plynulý chod.\hypertarget{index_autotoc_md136}{}\doxysubsection{\texorpdfstring{5. Webový server}{5. Webový server}}\label{index_autotoc_md136}
+{\bfseries{Software řešení (Alfred)\+:}} Implementoval jsem unified animation manager, který spravuje všechny animace centralizovaně a zajišťuje plynulý chod.\hypertarget{index_autotoc_md142}{}\doxysubsection{\texorpdfstring{5. Webový server}{5. Webový server}}\label{index_autotoc_md142}
 {\bfseries{Problém\+:}} Implementovat HTTP server na embedded zařízení s omezenou pamětí bylo výzvou. Musel jsem optimalizovat každý byte.
 
-{\bfseries{Řešení\+:}} Použil jsem embedded HTTP server z ESP-\/\+IDF a optimalizoval jsem Java\+Script kód. Také jsem implementoval kompresi a caching. Matěj testoval webové rozhraní na různých zařízeních a pomáhal identifikovat problémy s responsivitou.\hypertarget{index_autotoc_md137}{}\doxysubsection{\texorpdfstring{6. Debugging}{6. Debugging}}\label{index_autotoc_md137}
+{\bfseries{Řešení\+:}} Použil jsem embedded HTTP server z ESP-\/\+IDF a optimalizoval jsem Java\+Script kód. Také jsem implementoval kompresi a caching. Matěj testoval webové rozhraní na různých zařízeních a pomáhal identifikovat problémy s responsivitou.\hypertarget{index_autotoc_md143}{}\doxysubsection{\texorpdfstring{6. Debugging}{6. Debugging}}\label{index_autotoc_md143}
 {\bfseries{Problém\+:}} Když něco nefungovalo, bylo těžké zjistit proč. UART logy pomáhaly, ale někdy to nestačilo. Navíc když hardware nefungoval správně, bylo těžké zjistit, jestli je problém v softwaru nebo hardwaru.
 
 {\bfseries{Hardware debugging (Matěj)\+:}} Matěj používal multimetr a osciloskop pro testování signálů a identifikaci problémů s hardware.
@@ -337,30 +386,17 @@ Matěj řešil především hardware problémy\+:
 {\bfseries{Software debugging (Alfred)\+:}} Implementoval jsem vizuální error systém -\/ když dojde k chybě, LED se rozsvítí červeně na konkrétní pozici, což nám pomohlo rychle identifikovat problém. Také jsme implementovali detailní UART logy pro každou komponentu.
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md139}{}\doxysection{\texorpdfstring{📚 Dokumentace}{📚 Dokumentace}}\label{index_autotoc_md139}
-Vytvořili jsme kompletní dokumentaci pomocí Doxygen. Dokumentace je dostupná v několika formátech\+:\hypertarget{index_autotoc_md140}{}\doxysubsection{\texorpdfstring{HTML dokumentace (doporučeno)}{HTML dokumentace (doporučeno)}}\label{index_autotoc_md140}
+\hypertarget{index_autotoc_md145}{}\doxysection{\texorpdfstring{📚 Dokumentace}{📚 Dokumentace}}\label{index_autotoc_md145}
+Vytvořili jsme kompletní dokumentaci pomocí Doxygen. Dokumentace je dostupná v několika formátech\+:\hypertarget{index_autotoc_md146}{}\doxysubsection{\texorpdfstring{HTML dokumentace (doporučeno)}{HTML dokumentace (doporučeno)}}\label{index_autotoc_md146}
 Interaktivní dokumentace s vyhledáváním a navigací\+:
 
-
+{\bfseries{Lokální zobrazení\+:}} 
 \begin{DoxyCode}{0}
 \DoxyCodeLine{./generate\_docs.sh}
-\DoxyCodeLine{open\ docs/public\_doxygen/html/index.html\ \ \#\ Viditelné\ na\ GitHubu\ (plná\ verze)}
-\DoxyCodeLine{\#\ nebo}
-\DoxyCodeLine{open\ docs/public\_doxygen/rtf/refman.rtf\ \ \#\ RTF\ dokumentace\ pro\ Word}
+\DoxyCodeLine{open\ docs/doxygen/html/index.html\ \ \#\ Otevře\ dokumentaci\ v\ prohlížeči}
 
 \end{DoxyCode}
-
-
-{\bfseries{Nasdílení HTML dokumentace\+:}}
-\begin{DoxyItemize}
-\item 🚀 Rychlé nasdílení na Git\+Hub Pages\+:
-\begin{DoxyItemize}
-\item {\bfseries{S git repozitářem}}\+: {\ttfamily ./update\+\_\+gh\+\_\+pages.sh} (automatické)
-\item {\bfseries{Bez git repozitáře}}\+: {\ttfamily ./prepare\+\_\+gh\+\_\+pages.sh} (připraví dokumentaci k ručnímu nahrání)
-\end{DoxyItemize}
-\item 📁 Dokumentace je automaticky zkopírována do {\ttfamily docs/public\+\_\+doxygen/} při generování (viditelná na Git\+Hubu)
-\item 📖 Kompletní návod na nastavení\+: docs/\+GITHUB\+\_\+\+PAGES\+\_\+\+SETUP.md
-\end{DoxyItemize}\hypertarget{index_autotoc_md141}{}\doxysubsection{\texorpdfstring{RTF dokumentace (jeden soubor)}{RTF dokumentace (jeden soubor)}}\label{index_autotoc_md141}
+\hypertarget{index_autotoc_md147}{}\doxysubsection{\texorpdfstring{RTF dokumentace (jeden soubor)}{RTF dokumentace (jeden soubor)}}\label{index_autotoc_md147}
 Kompletní dokumentace v jednom souboru pro Microsoft Word\+:
 
 
@@ -369,7 +405,7 @@ Kompletní dokumentace v jednom souboru pro Microsoft Word\+:
 \DoxyCodeLine{open\ docs/doxygen/rtf/refman.rtf}
 
 \end{DoxyCode}
-\hypertarget{index_autotoc_md142}{}\doxysubsection{\texorpdfstring{PDF dokumentace}{PDF dokumentace}}\label{index_autotoc_md142}
+\hypertarget{index_autotoc_md148}{}\doxysubsection{\texorpdfstring{PDF dokumentace}{PDF dokumentace}}\label{index_autotoc_md148}
 Pro tisk a sdílení\+:
 
 
@@ -378,7 +414,7 @@ Pro tisk a sdílení\+:
 \DoxyCodeLine{./create\_pdf\_simple.sh}
 
 \end{DoxyCode}
-\hypertarget{index_autotoc_md143}{}\doxysubsection{\texorpdfstring{Mermaid Sequence Diagramy}{Mermaid Sequence Diagramy}}\label{index_autotoc_md143}
+\hypertarget{index_autotoc_md149}{}\doxysubsection{\texorpdfstring{Mermaid Sequence Diagramy}{Mermaid Sequence Diagramy}}\label{index_autotoc_md149}
 Kompletní diagramy všech flow v programu\+: komunikace mezi tasky, zpracování příkazů, speciální tahy, error handling a další.
 
 \href{diagrams_mermaid.html}{\texttt{Mermaid Sequence Diagramy}} -\/ Kompletní sekvenční diagramy všech programových flow
@@ -386,10 +422,10 @@ Kompletní diagramy všech flow v programu\+: komunikace mezi tasky, zpracován�
 Více informací o dokumentaci\+: docs/\+README.md
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md145}{}\doxysection{\texorpdfstring{📁 Struktura projektu}{📁 Struktura projektu}}\label{index_autotoc_md145}
+\hypertarget{index_autotoc_md151}{}\doxysection{\texorpdfstring{📁 Struktura projektu}{📁 Struktura projektu}}\label{index_autotoc_md151}
 
 \begin{DoxyCode}{0}
-\DoxyCodeLine{free\_chess\_v1/}
+\DoxyCodeLine{free\_chess\_v1\_mqtt\_HA/}
 \DoxyCodeLine{├──\ main/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Hlavní\ aplikace}
 \DoxyCodeLine{│\ \ \ ├──\ main.c\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Startup,\ inicializace,\ task\ creation}
 \DoxyCodeLine{│\ \ \ └──\ CMakeLists.txt}
@@ -403,10 +439,20 @@ Více informací o dokumentaci\+: docs/\+README.md
 \DoxyCodeLine{│\ \ \ ├──\ uart\_task/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ UART\ konzole}
 \DoxyCodeLine{│\ \ \ ├──\ web\_server\_task/\ \ \ \ \ \ \ \ \ \ \ \#\ HTTP\ web\ server}
 \DoxyCodeLine{│\ \ \ ├──\ animation\_task/\ \ \ \ \ \ \ \ \ \ \ \ \#\ LED\ animace}
-\DoxyCodeLine{│\ \ \ └──\ ...\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Další\ komponenty}
+\DoxyCodeLine{│\ \ \ ├──\ game\_led\_animations/\ \ \ \ \ \ \ \#\ Animace\ tahů\ /\ konců\ her}
+\DoxyCodeLine{│\ \ \ ├──\ unified\_animation\_manager/\ \#\ Společný\ systém\ animací}
+\DoxyCodeLine{│\ \ \ ├──\ led\_state\_manager/\ \ \ \ \ \ \ \ \ \#\ Správa\ barev/stavů\ LED}
+\DoxyCodeLine{│\ \ \ ├──\ timer\_system/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Časovače\ a\ chess\ clock}
+\DoxyCodeLine{│\ \ \ ├──\ ha\_light\_task/\ \ \ \ \ \ \ \ \ \ \ \ \ \#\ MQTT/HA\ integrace}
+\DoxyCodeLine{│\ \ \ ├──\ promotion\_button\_task/\ \ \ \ \ \#\ Tlačítka\ pro\ promoci}
+\DoxyCodeLine{│\ \ \ ├──\ reset\_button\_task/\ \ \ \ \ \ \ \ \ \#\ Reset\ tlačítko}
+\DoxyCodeLine{│\ \ \ └──\ ...\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Další\ pomocné\ komponenty}
 \DoxyCodeLine{│}
 \DoxyCodeLine{├──\ docs/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Dokumentace}
 \DoxyCodeLine{│\ \ \ ├──\ doxygen/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Doxygen\ výstup}
+\DoxyCodeLine{│\ \ \ │\ \ \ ├──\ html/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ HTML\ dokumentace\ (lokální\ zobrazení)}
+\DoxyCodeLine{│\ \ \ │\ \ \ └──\ rtf/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ RTF\ dokumentace\ (Word)}
+\DoxyCodeLine{│\ \ \ ├──\ diagrams\_mermaid.html\ \ \ \ \ \ \#\ Mermaid\ diagramy}
 \DoxyCodeLine{│\ \ \ ├──\ bugs/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Bug\ reporty\ a\ opravy}
 \DoxyCodeLine{│\ \ \ ├──\ analysis/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Technické\ analýzy}
 \DoxyCodeLine{│\ \ \ ├──\ planning/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Plány\ a\ návrhy}
@@ -414,7 +460,7 @@ Více informací o dokumentaci\+: docs/\+README.md
 \DoxyCodeLine{│\ \ \ ├──\ web\_server/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Web\ server\ dokumentace}
 \DoxyCodeLine{│\ \ \ └──\ ...}
 \DoxyCodeLine{│}
-\DoxyCodeLine{├──\ build/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Build\ výstup\ (generovaný)}
+\DoxyCodeLine{├──\ build/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Build\ výstup\ (generovaný,\ ignorovaný\ v\ .gitignore)}
 \DoxyCodeLine{├──\ CMakeLists.txt\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Build\ konfigurace}
 \DoxyCodeLine{├──\ Doxyfile\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Doxygen\ konfigurace}
 \DoxyCodeLine{├──\ generate\_docs.sh\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Skript\ pro\ generování\ dokumentace}
@@ -425,8 +471,8 @@ Více informací o dokumentaci\+: docs/\+README.md
 
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md147}{}\doxysection{\texorpdfstring{🔧 Vývoj}{🔧 Vývoj}}\label{index_autotoc_md147}
-\hypertarget{index_autotoc_md148}{}\doxysubsection{\texorpdfstring{Debug mód}{Debug mód}}\label{index_autotoc_md148}
+\hypertarget{index_autotoc_md153}{}\doxysection{\texorpdfstring{🔧 Vývoj}{🔧 Vývoj}}\label{index_autotoc_md153}
+\hypertarget{index_autotoc_md154}{}\doxysubsection{\texorpdfstring{Debug mód}{Debug mód}}\label{index_autotoc_md154}
 Pro zapnutí debug módu upravte {\ttfamily \doxylink{CMakeLists_8txt}{CMake\+Lists.\+txt}} nebo použijte {\ttfamily menuconfig}\+:
 
 
@@ -449,7 +495,7 @@ Debug mód zobrazuje\+:
 \item Stav všech tasků
 \item Memory usage
 \item Performance metriky
-\end{DoxyItemize}\hypertarget{index_autotoc_md149}{}\doxysubsection{\texorpdfstring{Testování}{Testování}}\label{index_autotoc_md149}
+\end{DoxyItemize}\hypertarget{index_autotoc_md155}{}\doxysubsection{\texorpdfstring{Testování}{Testování}}\label{index_autotoc_md155}
 Systém obsahuje testovací funkce\+:
 
 
@@ -462,7 +508,7 @@ Systém obsahuje testovací funkce\+:
 
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md151}{}\doxysection{\texorpdfstring{🐛 Známé problémy a omezení}{🐛 Známé problémy a omezení}}\label{index_autotoc_md151}
+\hypertarget{index_autotoc_md157}{}\doxysection{\texorpdfstring{🐛 Známé problémy a omezení}{🐛 Známé problémy a omezení}}\label{index_autotoc_md157}
 
 \begin{DoxyItemize}
 \item {\bfseries{RTF dokumentace}} může být velká (\texorpdfstring{$\sim$}{\string~}10\+MB) -\/ doporučujeme použít HTML nebo PDF
@@ -473,8 +519,8 @@ Systém obsahuje testovací funkce\+:
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md153}{}\doxysection{\texorpdfstring{🔧 Troubleshooting}{🔧 Troubleshooting}}\label{index_autotoc_md153}
-\hypertarget{index_autotoc_md154}{}\doxysubsection{\texorpdfstring{Hardware problémy}{Hardware problémy}}\label{index_autotoc_md154}
+\hypertarget{index_autotoc_md159}{}\doxysection{\texorpdfstring{🔧 Troubleshooting}{🔧 Troubleshooting}}\label{index_autotoc_md159}
+\hypertarget{index_autotoc_md160}{}\doxysubsection{\texorpdfstring{Hardware problémy}{Hardware problémy}}\label{index_autotoc_md160}
 {\bfseries{LED nesvítí\+:}}
 \begin{DoxyItemize}
 \item Zkontrolujte napájení -\/ WS2812B potřebují externí 5V zdroj
@@ -493,7 +539,7 @@ Systém obsahuje testovací funkce\+:
 \begin{DoxyItemize}
 \item Zkontrolujte diody -\/ každé tlačítko musí mít diody ke všem row pinům
 \item Zkontrolujte, že diody jsou správně orientované (anode k rows)
-\end{DoxyItemize}\hypertarget{index_autotoc_md155}{}\doxysubsection{\texorpdfstring{Software problémy}{Software problémy}}\label{index_autotoc_md155}
+\end{DoxyItemize}\hypertarget{index_autotoc_md161}{}\doxysubsection{\texorpdfstring{Software problémy}{Software problémy}}\label{index_autotoc_md161}
 {\bfseries{Systém se zasekne\+:}}
 \begin{DoxyItemize}
 \item Zkontrolujte watchdog -\/ měl by resetovat systém po 5 sekundách
@@ -516,7 +562,7 @@ Systém obsahuje testovací funkce\+:
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md157}{}\doxysection{\texorpdfstring{❓ FAQ (Často kladené otázky)}{❓ FAQ (Často kladené otázky)}}\label{index_autotoc_md157}
+\hypertarget{index_autotoc_md163}{}\doxysection{\texorpdfstring{❓ FAQ (Často kladené otázky)}{❓ FAQ (Často kladené otázky)}}\label{index_autotoc_md163}
 {\bfseries{Q\+: Jak dlouho trval vývoj?}} ~\newline
  A\+: Projekt vznikal postupně několik měsíců -\/ od prvních nápadů až po finální verzi.
 
@@ -527,8 +573,8 @@ Systém obsahuje testovací funkce\+:
  A\+: Máme spoustu nápadů -\/ viz sekce "{}\+Budoucí vylepšení"{}. Hlavně bychom chtěli přidat Chess AI a vylepšit webové rozhraní.
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md159}{}\doxysection{\texorpdfstring{📝 Historie verzí}{📝 Historie verzí}}\label{index_autotoc_md159}
-\hypertarget{index_autotoc_md160}{}\doxysubsection{\texorpdfstring{v2.\+4.\+0 (aktuální)}{v2.\+4.\+0 (aktuální)}}\label{index_autotoc_md160}
+\hypertarget{index_autotoc_md165}{}\doxysection{\texorpdfstring{📝 Historie verzí}{📝 Historie verzí}}\label{index_autotoc_md165}
+\hypertarget{index_autotoc_md166}{}\doxysubsection{\texorpdfstring{v2.\+4.\+0 (aktuální)}{v2.\+4.\+0 (aktuální)}}\label{index_autotoc_md166}
 
 \begin{DoxyItemize}
 \item ✅ Kompletní šachová logika včetně všech pravidel
@@ -539,13 +585,13 @@ Systém obsahuje testovací funkce\+:
 \item ✅ Kompletní Doxygen dokumentace
 \item ✅ Unified animation manager
 \item ✅ Vizuální error systém
-\end{DoxyItemize}\hypertarget{index_autotoc_md161}{}\doxysubsection{\texorpdfstring{v2.\+3.\+0}{v2.\+3.\+0}}\label{index_autotoc_md161}
+\end{DoxyItemize}\hypertarget{index_autotoc_md167}{}\doxysubsection{\texorpdfstring{v2.\+3.\+0}{v2.\+3.\+0}}\label{index_autotoc_md167}
 
 \begin{DoxyItemize}
 \item Základní šachová logika
 \item LED osvětlení
 \item Matrix skenování
-\end{DoxyItemize}\hypertarget{index_autotoc_md162}{}\doxysubsection{\texorpdfstring{v2.\+0.\+0}{v2.\+0.\+0}}\label{index_autotoc_md162}
+\end{DoxyItemize}\hypertarget{index_autotoc_md168}{}\doxysubsection{\texorpdfstring{v2.\+0.\+0}{v2.\+0.\+0}}\label{index_autotoc_md168}
 
 \begin{DoxyItemize}
 \item První funkční verze
@@ -556,11 +602,11 @@ Systém obsahuje testovací funkce\+:
 {\bfseries{Poznámka\+:}} V této historii verzí není uvedeno mnoho backupů a špatných slepých uliček, které vznikly během vývoje. Reálně existuje 12 verzí programu a ještě mnohem více backupů, které dokumentují proces učení a experimentování.
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md164}{}\doxysection{\texorpdfstring{🤝 Jak jsme spolupracovali}{🤝 Jak jsme spolupracovali}}\label{index_autotoc_md164}
+\hypertarget{index_autotoc_md170}{}\doxysection{\texorpdfstring{🤝 Jak jsme spolupracovali}{🤝 Jak jsme spolupracovali}}\label{index_autotoc_md170}
 Tento projekt byl výsledkem spolupráce mezi hardware a software částí. Matěj navrhl hardware a já jsem napsal software. Pracovali jsme na svých částech a pravidelně jsme se setkávali pro testování a koordinaci.
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md166}{}\doxysection{\texorpdfstring{🔮 Budoucí vylepšení}{🔮 Budoucí vylepšení}}\label{index_autotoc_md166}
+\hypertarget{index_autotoc_md172}{}\doxysection{\texorpdfstring{🔮 Budoucí vylepšení}{🔮 Budoucí vylepšení}}\label{index_autotoc_md172}
 Máme spoustu nápadů, co bychom chtěli přidat\+:
 
 
@@ -577,8 +623,8 @@ Máme spoustu nápadů, co bychom chtěli přidat\+:
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md168}{}\doxysection{\texorpdfstring{👥 Autoři}{👥 Autoři}}\label{index_autotoc_md168}
-\hypertarget{index_autotoc_md169}{}\doxysubsection{\texorpdfstring{Alfred Krutina -\/ Software \& Firmware}{Alfred Krutina -\/ Software \& Firmware}}\label{index_autotoc_md169}
+\hypertarget{index_autotoc_md174}{}\doxysection{\texorpdfstring{👥 Autoři}{👥 Autoři}}\label{index_autotoc_md174}
+\hypertarget{index_autotoc_md175}{}\doxysubsection{\texorpdfstring{Alfred Krutina -\/ Software \& Firmware}{Alfred Krutina -\/ Software \& Firmware}}\label{index_autotoc_md175}
 {\bfseries{Role\+:}} Software development, firmware, šachová logika, webový server, dokumentace
 
 Zodpovídal jsem za celý software stack -\/ od Free\+RTOS tasků přes šachovou logiku až po webové rozhraní. Strávil jsem stovky hodin programováním, debugováním a vylepšováním. Každá část projektu mě něco naučila -\/ od základů embedded programování přes real-\/time systémy až po webové technologie.
@@ -591,7 +637,7 @@ Zodpovídal jsem za celý software stack -\/ od Free\+RTOS tasků přes šachovo
 \item LED animace a unified animation manager
 \item UART konzole a debugging systém
 \item Kompletní Doxygen dokumentace
-\end{DoxyItemize}\hypertarget{index_autotoc_md170}{}\doxysubsection{\texorpdfstring{Matěj Jager -\/ Hardware}{Matěj Jager -\/ Hardware}}\label{index_autotoc_md170}
+\end{DoxyItemize}\hypertarget{index_autotoc_md176}{}\doxysubsection{\texorpdfstring{Matěj Jager -\/ Hardware}{Matěj Jager -\/ Hardware}}\label{index_autotoc_md176}
 {\bfseries{Role\+:}} Hardware design, zapojení, fyzická realizace, testování
 
 Matěj navrhl a realizoval celý hardware -\/ od Reed Switch matice přes LED zapojení až po time-\/multiplexing s diodami. Bez jeho pečlivé práce na hardwaru by software neměl na čem běžet. Matěj také testoval všechny funkce na fyzickém hardwaru a pomáhal identifikovat problémy s timingem a napájením.
@@ -604,15 +650,15 @@ Matěj navrhl a realizoval celý hardware -\/ od Reed Switch matice přes LED za
 \item Napájecí systém pro WS2812B LED
 \item Fyzická realizace šachovnice
 \item Hardware debugging a testování
-\end{DoxyItemize}\hypertarget{index_autotoc_md171}{}\doxysubsection{\texorpdfstring{Spolupráce}{Spolupráce}}\label{index_autotoc_md171}
+\end{DoxyItemize}\hypertarget{index_autotoc_md177}{}\doxysubsection{\texorpdfstring{Spolupráce}{Spolupráce}}\label{index_autotoc_md177}
 Tento projekt je výsledkem spolupráce -\/ Matěj navrhl hardware a já jsem napsal software. Pracovali jsme na svých částech a pravidelně jsme se setkávali pro testování a koordinaci.
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md173}{}\doxysection{\texorpdfstring{📄 Licence}{📄 Licence}}\label{index_autotoc_md173}
+\hypertarget{index_autotoc_md179}{}\doxysection{\texorpdfstring{📄 Licence}{📄 Licence}}\label{index_autotoc_md179}
 Tento projekt je soukromý projekt pro osobní použití a vzdělávací účely.
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md175}{}\doxysection{\texorpdfstring{🔗 Užitečné odkazy}{🔗 Užitečné odkazy}}\label{index_autotoc_md175}
+\hypertarget{index_autotoc_md181}{}\doxysection{\texorpdfstring{🔗 Užitečné odkazy}{🔗 Užitečné odkazy}}\label{index_autotoc_md181}
 
 \begin{DoxyItemize}
 \item \href{https://docs.espressif.com/projects/esp-idf/}{\texttt{ESP-\/\+IDF Dokumentace}} -\/ Oficiální dokumentace ESP-\/\+IDF
@@ -622,23 +668,23 @@ Tento projekt je soukromý projekt pro osobní použití a vzdělávací účely
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md177}{}\doxysection{\texorpdfstring{🙏 Poděkování}{🙏 Poděkování}}\label{index_autotoc_md177}
-Tento projekt by nevznikl bez pomoci a podpory mnoha lidí\+:\hypertarget{index_autotoc_md178}{}\doxysubsection{\texorpdfstring{Učitelé}{Učitelé}}\label{index_autotoc_md178}
-Děkujeme našim učitelům za to, že nás naučili základy programování a elektroniky a ukázali nám, jak tyto znalosti použít v praxi. Bez jejich pomoci bychom tento projekt nedokázali vytvořit.\hypertarget{index_autotoc_md179}{}\doxysubsection{\texorpdfstring{ESP-\/\+IDF tým}{ESP-\/\+IDF tým}}\label{index_autotoc_md179}
-Děkuji týmu ESP-\/\+IDF za výborný framework a dokumentaci. ESP-\/\+IDF je neuvěřitelně dobře navržený a dokumentovaný, což mi velmi usnadnilo práci.\hypertarget{index_autotoc_md180}{}\doxysubsection{\texorpdfstring{Shawn Hymel (You\+Tube)}{Shawn Hymel (You\+Tube)}}\label{index_autotoc_md180}
+\hypertarget{index_autotoc_md183}{}\doxysection{\texorpdfstring{🙏 Poděkování}{🙏 Poděkování}}\label{index_autotoc_md183}
+Tento projekt by nevznikl bez pomoci a podpory mnoha lidí\+:\hypertarget{index_autotoc_md184}{}\doxysubsection{\texorpdfstring{Učitelé}{Učitelé}}\label{index_autotoc_md184}
+Děkujeme našim učitelům za to, že nás naučili základy programování a elektroniky a ukázali nám, jak tyto znalosti použít v praxi. Bez jejich pomoci bychom tento projekt nedokázali vytvořit.\hypertarget{index_autotoc_md185}{}\doxysubsection{\texorpdfstring{ESP-\/\+IDF tým}{ESP-\/\+IDF tým}}\label{index_autotoc_md185}
+Děkuji týmu ESP-\/\+IDF za výborný framework a dokumentaci. ESP-\/\+IDF je neuvěřitelně dobře navržený a dokumentovaný, což mi velmi usnadnilo práci.\hypertarget{index_autotoc_md186}{}\doxysubsection{\texorpdfstring{Shawn Hymel (You\+Tube)}{Shawn Hymel (You\+Tube)}}\label{index_autotoc_md186}
 Děkuji Shawn Hymel za jeho You\+Tube kanál, ze kterého jsem se naučil ESP-\/\+IDF, Free\+RTOS a mnoho dalších embedded programovacích technik. Jeho tutoriály byly neocenitelné při učení se embedded systémům.
 
 
 \begin{DoxyItemize}
 \item \href{https://youtu.be/j1ve8mYjUoU?si=iETnCguVFkBee_yP}{\texttt{Wi-\/\+Fi tutoriál}} -\/ Tutoriál o Wi-\/\+Fi pro ESP32, který jsem použil při implementaci webového serveru
-\end{DoxyItemize}\hypertarget{index_autotoc_md181}{}\doxysubsection{\texorpdfstring{Perplexity AI}{Perplexity AI}}\label{index_autotoc_md181}
-Děkuji Perplexity AI za pomoc při hledání nápadů a návrhů pro firmware a software architekturu. Používal jsem ho jako nástroj pro inspiraci a prozkoumávání různých přístupů k řešení problémů během vývoje.\hypertarget{index_autotoc_md182}{}\doxysubsection{\texorpdfstring{Free\+RTOS}{Free\+RTOS}}\label{index_autotoc_md182}
-Děkuji za Free\+RTOS -\/ robustní a dobře zdokumentovaný real-\/time operační systém, který je zdarma a open-\/source.\hypertarget{index_autotoc_md183}{}\doxysubsection{\texorpdfstring{Komunita ESP32}{Komunita ESP32}}\label{index_autotoc_md183}
-Děkuji celé komunitě ESP32 za pomoc na fórech, za sdílení zkušeností a za všechny ty skvělé projekty, které mě inspirovaly.\hypertarget{index_autotoc_md184}{}\doxysubsection{\texorpdfstring{Open Source komunita}{Open Source komunita}}\label{index_autotoc_md184}
+\end{DoxyItemize}\hypertarget{index_autotoc_md187}{}\doxysubsection{\texorpdfstring{Perplexity AI}{Perplexity AI}}\label{index_autotoc_md187}
+Děkuji Perplexity AI za pomoc při hledání nápadů a návrhů pro firmware a software architekturu. Používal jsem ho jako nástroj pro inspiraci a prozkoumávání různých přístupů k řešení problémů během vývoje.\hypertarget{index_autotoc_md188}{}\doxysubsection{\texorpdfstring{Free\+RTOS}{Free\+RTOS}}\label{index_autotoc_md188}
+Děkuji za Free\+RTOS -\/ robustní a dobře zdokumentovaný real-\/time operační systém, který je zdarma a open-\/source.\hypertarget{index_autotoc_md189}{}\doxysubsection{\texorpdfstring{Komunita ESP32}{Komunita ESP32}}\label{index_autotoc_md189}
+Děkuji celé komunitě ESP32 za pomoc na fórech, za sdílení zkušeností a za všechny ty skvělé projekty, které mě inspirovaly.\hypertarget{index_autotoc_md190}{}\doxysubsection{\texorpdfstring{Open Source komunita}{Open Source komunita}}\label{index_autotoc_md190}
 Děkuji všem, kteří vytvářejí open source nástroje a knihovny, které jsem mohl použít v tomto projektu.
 
 \DoxyHorRuler{0}
-\hypertarget{index_autotoc_md186}{}\doxysection{\texorpdfstring{💭 Závěrečné myšlenky}{💭 Závěrečné myšlenky}}\label{index_autotoc_md186}
+\hypertarget{index_autotoc_md192}{}\doxysection{\texorpdfstring{💭 Závěrečné myšlenky}{💭 Závěrečné myšlenky}}\label{index_autotoc_md192}
 Když jsme začínali tento projekt, netušili jsme, kolik se toho naučíme. Od základů programování v C přes embedded systémy, real-\/time programování, webové technologie, hardware design až po šachovou logiku -\/ každá část projektu byla výzvou a každá nás něco naučila.
 
 Nejvíc nás bavilo, když jsme viděli, jak se všechny části skládají dohromady -\/ když jsme poprvé viděli, jak LED reagují na pohyb figurek, když jsme poprvé zahráli kompletní hru přes webové rozhraní, nebo když jsme poprvé viděli, jak systém správně detekuje šach a mat.
@@ -671,7 +717,7 @@ Pokud máte jakékoli otázky nebo připomínky k projektu, neváhejte se ozvat.
 {\bfseries{Poznámka\+:}} Tento projekt je aktivně vyvíjen. Pro nejnovější informace, bug reporty a technické detaily se podívejte do \href{docs/}{\texttt{docs/}} složky.
 
 {\bfseries{Verze dokumentace\+:}} 2.\+4.\+0 ~\newline
- {\bfseries{Poslední aktualizace\+:}} 2025-\/01-\/05
+ {\bfseries{Poslední aktualizace\+:}} 2026-\/01-\/28
 
 \DoxyHorRuler{0}
 

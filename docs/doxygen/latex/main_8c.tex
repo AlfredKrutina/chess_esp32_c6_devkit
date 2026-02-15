@@ -8,17 +8,11 @@ ESP32-\/\+C6 Chess System -\/ Hlavni inicializace a startup.
 {\ttfamily \#include "{}animation\+\_\+task.\+h"{}}\newline
 {\ttfamily \#include "{}button\+\_\+task.\+h"{}}\newline
 {\ttfamily \#include "{}chess\+\_\+types.\+h"{}}\newline
-{\ttfamily \#include "{}driver/uart.\+h"{}}\newline
-{\ttfamily \#include "{}driver/uart\+\_\+vfs.\+h"{}}\newline
 {\ttfamily \#include "{}esp\+\_\+console.\+h"{}}\newline
 {\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
-{\ttfamily \#include "{}esp\+\_\+random.\+h"{}}\newline
-{\ttfamily \#include "{}esp\+\_\+sleep.\+h"{}}\newline
 {\ttfamily \#include "{}esp\+\_\+system.\+h"{}}\newline
 {\ttfamily \#include "{}esp\+\_\+task\+\_\+wdt.\+h"{}}\newline
 {\ttfamily \#include "{}esp\+\_\+timer.\+h"{}}\newline
-{\ttfamily \#include "{}esp\+\_\+vfs\+\_\+dev.\+h"{}}\newline
-{\ttfamily \#include "{}freertos/\+Free\+RTOS.\+h"{}}\newline
 {\ttfamily \#include "{}freertos/queue.\+h"{}}\newline
 {\ttfamily \#include "{}freertos/semphr.\+h"{}}\newline
 {\ttfamily \#include "{}freertos/task.\+h"{}}\newline
@@ -30,15 +24,15 @@ ESP32-\/\+C6 Chess System -\/ Hlavni inicializace a startup.
 {\ttfamily \#include "{}nvs\+\_\+flash.\+h"{}}\newline
 {\ttfamily \#include "{}test\+\_\+task.\+h"{}}\newline
 {\ttfamily \#include "{}uart\+\_\+task.\+h"{}}\newline
-{\ttfamily \#include $<$inttypes.\+h$>$}\newline
 {\ttfamily \#include $<$stdio.\+h$>$}\newline
 {\ttfamily \#include $<$stdlib.\+h$>$}\newline
 {\ttfamily \#include $<$string.\+h$>$}\newline
-{\ttfamily \#include "{}config\+\_\+manager.\+h"{}}\newline
 {\ttfamily \#include "{}game\+\_\+led\+\_\+animations.\+h"{}}\newline
+{\ttfamily \#include "{}ha\+\_\+light\+\_\+task.\+h"{}}\newline
 {\ttfamily \#include "{}uart\+\_\+commands\+\_\+extended.\+h"{}}\newline
 {\ttfamily \#include "{}web\+\_\+server\+\_\+task.\+h"{}}\newline
-Graf závislostí na vkládaných souborech pro main.\+c\+:\nopagebreak
+Graf závislostí na vkládaných souborech pro main.\+c\+:
+\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -47,6 +41,8 @@ Graf závislostí na vkládaných souborech pro main.\+c\+:\nopagebreak
 \end{figure}
 \doxysubsubsection*{Funkce}
 \begin{DoxyCompactItemize}
+\item 
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{main_8c_abb182517d44ccd021b3dac9355989c7b}{reset\+\_\+reason\+\_\+to\+\_\+str}} (esp\+\_\+reset\+\_\+reason\+\_\+t reason)
 \item 
 void \mbox{\hyperlink{main_8c_a4894ad0ac4d99cffa56d58649a1850fb}{show\+\_\+boot\+\_\+animation\+\_\+and\+\_\+board}} (void)
 \begin{DoxyCompactList}\small\item\em Zobrazi centralizovanou boot animaci a sachovnici. \end{DoxyCompactList}\item 
@@ -62,6 +58,8 @@ void \mbox{\hyperlink{main_8c_a6e05201e522856e3cd984bade768be7e}{toggle\+\_\+dem
 \begin{DoxyCompactList}\small\item\em Prepina demo mod zapnuto/vypnuto. \end{DoxyCompactList}\item 
 bool \mbox{\hyperlink{main_8c_ad190bb08e29e63b6f04a3715dae88706}{is\+\_\+demo\+\_\+mode\+\_\+enabled}} (void)
 \begin{DoxyCompactList}\small\item\em Get demo mode status. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_a570c98f23cd91c36ce62964733732cdf}{set\+\_\+demo\+\_\+speed\+\_\+ms}} (uint32\+\_\+t speed\+\_\+ms)
+\begin{DoxyCompactList}\small\item\em Set demo mode speed. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{main_8c_a47be0f08c5acbba3a901be7d65e4cb8a}{execute\+\_\+demo\+\_\+move}} (void)
 \begin{DoxyCompactList}\small\item\em Vykona jeden demo tah. \end{DoxyCompactList}\item 
 static void \mbox{\hyperlink{main_8c_ae52825df5837e0f8f5e814f48cafb722}{init\+\_\+console}} (void)
@@ -93,6 +91,8 @@ Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_abafefd1ba465b609ca39fd6fc502095b}{
 \begin{DoxyCompactList}\small\item\em Handle pro Test task. \end{DoxyCompactList}\item 
 Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_a36e9302901a63037025cd7970fa8adbe}{web\+\_\+server\+\_\+task\+\_\+handle}} = NULL
 \begin{DoxyCompactList}\small\item\em Handle pro Web Server task. \end{DoxyCompactList}\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_a5c597bf4c3d1fff34c3ef12254f0efc4}{ha\+\_\+light\+\_\+task\+\_\+handle}} = NULL
+\begin{DoxyCompactList}\small\item\em Handle pro HA Light task. \end{DoxyCompactList}\item 
 Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_aeb8dd1b563b914d04c90f377454ad032}{reset\+\_\+button\+\_\+task\+\_\+handle}} = NULL
 \begin{DoxyCompactList}\small\item\em Handle pro Reset Button task. \end{DoxyCompactList}\item 
 Task\+Handle\+\_\+t \mbox{\hyperlink{main_8c_a2cf065fd2e74d6ad91b3da384a96c60b}{promotion\+\_\+button\+\_\+task\+\_\+handle}} = NULL
@@ -318,7 +318,7 @@ Hlavni smycka\+:
 \item Ceka 1 sekundu mezi iteracemi 
 \end{DoxyItemize}
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l01228}{1228}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l01320}{1320}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a2dbcd7c01e5197da615bb4fe6c5b29b0}\index{main.c@{main.c}!create\_system\_tasks@{create\_system\_tasks}}
 \index{create\_system\_tasks@{create\_system\_tasks}!main.c@{main.c}}
@@ -349,7 +349,7 @@ Funkce vytvori 8 hlavnich tasku\+:
 
 Po vytvoreni vsech tasku se zobrazi boot animace a inicializuje hra. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00755}{755}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00828}{828}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a768b8bf362b42a4e04ac58639035a938}\index{main.c@{main.c}!demo\_report\_activity@{demo\_report\_activity}}
 \index{demo\_report\_activity@{demo\_report\_activity}!main.c@{main.c}}
@@ -363,7 +363,7 @@ Report activity on the board (interrupt demo mode) Called from matrix\+\_\+task 
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00532}{532}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00570}{570}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a47be0f08c5acbba3a901be7d65e4cb8a}\index{main.c@{main.c}!execute\_demo\_move@{execute\_demo\_move}}
 \index{execute\_demo\_move@{execute\_demo\_move}!main.c@{main.c}}
@@ -379,7 +379,7 @@ Tato funkce vykona jeden tah z preddefinovane sekvence demo tahu. Tahy jsou uloz
 
 Funkce vezme aktualni tah z pole DEMO\+\_\+\+MOVES a posle ho do game tasku. Tahy jsou ve formatu "{}e2e4"{} (z pozice e2 na pozici e4). Po dokonceni vsech tahu se index resetuje na 0. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00558}{558}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00609}{609}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_ae52825df5837e0f8f5e814f48cafb722}\index{main.c@{main.c}!init\_console@{init\_console}}
 \index{init\_console@{init\_console}!main.c@{main.c}}
@@ -395,7 +395,7 @@ Tato funkce inicializuje NVS flash, konzoli a UART pro komunikaci. Pouziva USB S
 
 Funkce inicializuje NVS flash pamet pro ulozeni konfigurace, nastavi konzoli pro prijimani prikazu a registruje help prikaz. Vsechna komunikace probiha pres USB Serial JTAG. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00704}{704}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00777}{777}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_acf3129796410e265806bde4edacf4d85}\index{main.c@{main.c}!initialize\_chess\_game@{initialize\_chess\_game}}
 \index{initialize\_chess\_game@{initialize\_chess\_game}!main.c@{main.c}}
@@ -411,7 +411,7 @@ Tato funkce spusti novou sachovou hru odeslanim prikazu GAME\+\_\+\+CMD\+\_\+\+N
 
 Funkce vytvori novou sachovou hru odeslanim prikazu do game tasku. Po uspesnem spusteni hry aktualizuje LED feedback pro tlacitka, aby uzivatel vedel ktera tlacitka jsou dostupna. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00460}{460}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00495}{495}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_ad190bb08e29e63b6f04a3715dae88706}\index{main.c@{main.c}!is\_demo\_mode\_enabled@{is\_demo\_mode\_enabled}}
 \index{is\_demo\_mode\_enabled@{is\_demo\_mode\_enabled}!main.c@{main.c}}
@@ -430,7 +430,7 @@ true if enabled, false otherwise
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00544}{544}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00582}{582}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_ae27993c1756124d9fa6e8af4958409ef}\index{main.c@{main.c}!main\_system\_init@{main\_system\_init}}
 \index{main\_system\_init@{main\_system\_init}!main.c@{main.c}}
@@ -449,7 +449,7 @@ ESP\+\_\+\+OK pri uspechu, ESP\+\_\+\+FAIL pri chybe
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00336}{336}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00371}{371}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a16454398c460e4d7161a90c808248ec2}\index{main.c@{main.c}!main\_task\_wdt\_reset\_safe@{main\_task\_wdt\_reset\_safe}}
 \index{main\_task\_wdt\_reset\_safe@{main\_task\_wdt\_reset\_safe}!main.c@{main.c}}
@@ -468,7 +468,36 @@ ESP\+\_\+\+OK pokud uspesne, ESP\+\_\+\+ERR\+\_\+\+NOT\+\_\+\+FOUND pokud task n
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00209}{209}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00242}{242}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_abb182517d44ccd021b3dac9355989c7b}\index{main.c@{main.c}!reset\_reason\_to\_str@{reset\_reason\_to\_str}}
+\index{reset\_reason\_to\_str@{reset\_reason\_to\_str}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{reset\_reason\_to\_str()}{reset\_reason\_to\_str()}}
+{\footnotesize\ttfamily \label{main_8c_abb182517d44ccd021b3dac9355989c7b} 
+const char \texorpdfstring{$\ast$}{*} reset\+\_\+reason\+\_\+to\+\_\+str (\begin{DoxyParamCaption}\item[{esp\+\_\+reset\+\_\+reason\+\_\+t}]{reason}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00193}{193}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a570c98f23cd91c36ce62964733732cdf}\index{main.c@{main.c}!set\_demo\_speed\_ms@{set\_demo\_speed\_ms}}
+\index{set\_demo\_speed\_ms@{set\_demo\_speed\_ms}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{set\_demo\_speed\_ms()}{set\_demo\_speed\_ms()}}
+{\footnotesize\ttfamily \label{main_8c_a570c98f23cd91c36ce62964733732cdf} 
+void set\+\_\+demo\+\_\+speed\+\_\+ms (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{speed\+\_\+ms}{}\end{DoxyParamCaption})}
+
+
+
+Set demo mode speed. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em speed\+\_\+ms} & Delay between moves in milliseconds \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00588}{588}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a4894ad0ac4d99cffa56d58649a1850fb}\index{main.c@{main.c}!show\_boot\_animation\_and\_board@{show\_boot\_animation\_and\_board}}
 \index{show\_boot\_animation\_and\_board@{show\_boot\_animation\_and\_board}!main.c@{main.c}}
@@ -484,7 +513,7 @@ Tato funkce je volana po inicializaci vsech tasku, aby se zabranilo duplicitnimu
 
 Funkce zobrazi pekny ASCII banner s nazvem systemu, progress bar s animaci nacitani a navod k pouziti systemu. Vsechno je barevne a plynule animovane pro lepsi uzivatelsky zazitek. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00944}{944}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l01036}{1036}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a6e05201e522856e3cd984bade768be7e}\index{main.c@{main.c}!toggle\_demo\_mode@{toggle\_demo\_mode}}
 \index{toggle\_demo\_mode@{toggle\_demo\_mode}!main.c@{main.c}}
@@ -505,7 +534,7 @@ Tato funkce umoznuje zapnout nebo vypnout demo mod, ktery automaticky hraje pred
 \end{DoxyParams}
 Demo mod umoznuje automaticke hrani preddefinovanych tahu. Kdyz je zapnuty, system automaticky hraje tahy z pole DEMO\+\_\+\+MOVES. Kdyz je vypnuty, uzivatel muze hrat manualne. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00501}{501}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00536}{536}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 
 
@@ -524,7 +553,7 @@ Handle pro Animation task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00240}{240}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00273}{273}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_aba5c2db71f9fa5cd9f3e506e91ffe6d3}\index{main.c@{main.c}!button\_task\_handle@{button\_task\_handle}}
 \index{button\_task\_handle@{button\_task\_handle}!main.c@{main.c}}
@@ -538,7 +567,7 @@ Handle pro Button task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00234}{234}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00267}{267}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_aa999d9fce86efd55be4fb1bce525e69e}\index{main.c@{main.c}!current\_demo\_delay\_ms@{current\_demo\_delay\_ms}}
 \index{current\_demo\_delay\_ms@{current\_demo\_delay\_ms}!main.c@{main.c}}
@@ -552,7 +581,7 @@ Zpozdeni mezi demo tahy v milisekundach -\/ dynamicky meneno.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00255}{255}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00290}{290}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a19159754c1693faa54833d370834e343}\index{main.c@{main.c}!current\_demo\_game@{current\_demo\_game}}
 \index{current\_demo\_game@{current\_demo\_game}!main.c@{main.c}}
@@ -566,7 +595,7 @@ Current demo game being played (0-\/2).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00311}{311}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00346}{346}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a9cd35e669cb2fd803a99504ba0da1aaa}\index{main.c@{main.c}!current\_demo\_moves@{current\_demo\_moves}}
 \index{current\_demo\_moves@{current\_demo\_moves}!main.c@{main.c}}
@@ -580,7 +609,7 @@ Current game\textquotesingle{}s move array (pointer to active game).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00317}{317}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00352}{352}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_abcaca94aeee21681707035e985a0c843}\index{main.c@{main.c}!DEMO\_GAME\_LENGTHS@{DEMO\_GAME\_LENGTHS}}
 \index{DEMO\_GAME\_LENGTHS@{DEMO\_GAME\_LENGTHS}!main.c@{main.c}}
@@ -601,7 +630,7 @@ Number of moves in each demo game.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00299}{299}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00334}{334}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a167e2d80b3314581d6120d1b2e48ee51}\index{main.c@{main.c}!DEMO\_GAME\_NAMES@{DEMO\_GAME\_NAMES}}
 \index{DEMO\_GAME\_NAMES@{DEMO\_GAME\_NAMES}!main.c@{main.c}}
@@ -621,7 +650,7 @@ Game type names for logging.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00304}{304}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00339}{339}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a22d3cef2fa6060633fc71190b5d6df3b}\index{main.c@{main.c}!DEMO\_GAME\_OPERA@{DEMO\_GAME\_OPERA}}
 \index{DEMO\_GAME\_OPERA@{DEMO\_GAME\_OPERA}!main.c@{main.c}}
@@ -658,7 +687,7 @@ Demo game 4\+: Opera Game -\/ Morphy\textquotesingle{}s Masterpiece (Paris 1858,
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00275}{275}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00310}{310}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_acc98f8280521aceb9893120eba837382}\index{main.c@{main.c}!DEMO\_GAME\_WHITE\_WIN@{DEMO\_GAME\_WHITE\_WIN}}
 \index{DEMO\_GAME\_WHITE\_WIN@{DEMO\_GAME\_WHITE\_WIN}!main.c@{main.c}}
@@ -682,7 +711,7 @@ Demo game 1\+: Scholar\textquotesingle{}s Mate -\/ White wins in 4 moves (fast c
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00262}{262}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00297}{297}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_ac2614434acc93da191dda0a8a445e651}\index{main.c@{main.c}!DEMO\_GAMES@{DEMO\_GAMES}}
 \index{DEMO\_GAMES@{DEMO\_GAMES}!main.c@{main.c}}
@@ -696,7 +725,7 @@ Array of all demo games.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00296}{296}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00331}{331}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a66025d47b9e143dea05d41ea2a76d46b}\index{main.c@{main.c}!DEMO\_GAMES\_COUNT@{DEMO\_GAMES\_COUNT}}
 \index{DEMO\_GAMES\_COUNT@{DEMO\_GAMES\_COUNT}!main.c@{main.c}}
@@ -710,7 +739,7 @@ Total number of demo games.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00308}{308}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00343}{343}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_af252e203098e091d068b85d637b1083d}\index{main.c@{main.c}!demo\_mode\_enabled@{demo\_mode\_enabled}}
 \index{demo\_mode\_enabled@{demo\_mode\_enabled}!main.c@{main.c}}
@@ -724,7 +753,7 @@ Konfigurace demo modu -\/ je demo mod zapnuty.
 
 Konfigurace demo modu -\/ je demo mod zapnuty 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00253}{253}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00288}{288}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_aebfac3059b619dc182e9ad6011fe1c7b}\index{main.c@{main.c}!demo\_move\_index@{demo\_move\_index}}
 \index{demo\_move\_index@{demo\_move\_index}!main.c@{main.c}}
@@ -738,7 +767,7 @@ Current move index within the current game.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00314}{314}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00349}{349}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a4973ab5b9a06d7ed486bc100be691f42}\index{main.c@{main.c}!demo\_moves\_count@{demo\_moves\_count}}
 \index{demo\_moves\_count@{demo\_moves\_count}!main.c@{main.c}}
@@ -758,7 +787,7 @@ Current game\textquotesingle{}s move count.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00320}{320}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00355}{355}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_acb49a688d90460dc48f7e0b976ace62d}\index{main.c@{main.c}!game\_task\_handle@{game\_task\_handle}}
 \index{game\_task\_handle@{game\_task\_handle}!main.c@{main.c}}
@@ -772,7 +801,21 @@ Handle pro Game task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00238}{238}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00271}{271}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a5c597bf4c3d1fff34c3ef12254f0efc4}\index{main.c@{main.c}!ha\_light\_task\_handle@{ha\_light\_task\_handle}}
+\index{ha\_light\_task\_handle@{ha\_light\_task\_handle}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{ha\_light\_task\_handle}{ha\_light\_task\_handle}}
+{\footnotesize\ttfamily \label{main_8c_a5c597bf4c3d1fff34c3ef12254f0efc4} 
+Task\+Handle\+\_\+t ha\+\_\+light\+\_\+task\+\_\+handle = NULL}
+
+
+
+Handle pro HA Light task. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00280}{280}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a6cf81c896b094e20ff5752ee1133a8f2}\index{main.c@{main.c}!led\_task\_handle@{led\_task\_handle}}
 \index{led\_task\_handle@{led\_task\_handle}!main.c@{main.c}}
@@ -786,7 +829,7 @@ Handle pro LED task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00230}{230}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00263}{263}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a9de1b87e0b6692c90f1c5cfd9e13d444}\index{main.c@{main.c}!matrix\_task\_handle@{matrix\_task\_handle}}
 \index{matrix\_task\_handle@{matrix\_task\_handle}!main.c@{main.c}}
@@ -800,7 +843,7 @@ Handle pro Matrix task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00232}{232}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00265}{265}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a2cf065fd2e74d6ad91b3da384a96c60b}\index{main.c@{main.c}!promotion\_button\_task\_handle@{promotion\_button\_task\_handle}}
 \index{promotion\_button\_task\_handle@{promotion\_button\_task\_handle}!main.c@{main.c}}
@@ -814,7 +857,7 @@ Handle pro Promotion Button task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00249}{249}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00284}{284}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_aeb8dd1b563b914d04c90f377454ad032}\index{main.c@{main.c}!reset\_button\_task\_handle@{reset\_button\_task\_handle}}
 \index{reset\_button\_task\_handle@{reset\_button\_task\_handle}!main.c@{main.c}}
@@ -828,7 +871,7 @@ Handle pro Reset Button task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00247}{247}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00282}{282}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{main.c@{main.c}!TAG@{TAG}}
 \index{TAG@{TAG}!main.c@{main.c}}
@@ -838,7 +881,7 @@ const char\texorpdfstring{$\ast$}{*} TAG = "{}MAIN"{}\hspace{0.3cm}{\ttfamily [s
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00193}{193}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00226}{226}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_abafefd1ba465b609ca39fd6fc502095b}\index{main.c@{main.c}!test\_task\_handle@{test\_task\_handle}}
 \index{test\_task\_handle@{test\_task\_handle}!main.c@{main.c}}
@@ -852,7 +895,7 @@ Handle pro Test task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00242}{242}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00275}{275}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a8eca84d3e2c7c0adf364819e74b1bd9b}\index{main.c@{main.c}!uart\_mutex@{uart\_mutex}}
 \index{uart\_mutex@{uart\_mutex}!main.c@{main.c}}
@@ -866,7 +909,7 @@ Globalni UART mutex pro cisty vystup.
 
 Mutex pro UART operace (ochrana UART vystupu). 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00227}{227}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00260}{260}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a4e4967ac70f1e8a89b2fea62027a968c}\index{main.c@{main.c}!uart\_task\_handle@{uart\_task\_handle}}
 \index{uart\_task\_handle@{uart\_task\_handle}!main.c@{main.c}}
@@ -880,7 +923,7 @@ Handle pro UART task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00236}{236}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00269}{269}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{main_8c_a36e9302901a63037025cd7970fa8adbe}\index{main.c@{main.c}!web\_server\_task\_handle@{web\_server\_task\_handle}}
 \index{web\_server\_task\_handle@{web\_server\_task\_handle}!main.c@{main.c}}
@@ -894,5 +937,5 @@ Handle pro Web Server task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00245}{245}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00278}{278}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 

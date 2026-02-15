@@ -6,6 +6,7 @@ LED Task -\/ Ovladani WS2812B LED a animace.
 
 
 {\ttfamily \#include "{}led\+\_\+task.\+h"{}}\newline
+{\ttfamily \#include "{}../config\+\_\+manager/include/config\+\_\+manager.\+h"{}}\newline
 {\ttfamily \#include "{}../freertos\+\_\+chess/include/chess\+\_\+types.\+h"{}}\newline
 {\ttfamily \#include "{}../freertos\+\_\+chess/include/streaming\+\_\+output.\+h"{}}\newline
 {\ttfamily \#include "{}../game\+\_\+task/include/game\+\_\+task.\+h"{}}\newline
@@ -50,7 +51,7 @@ struct \mbox{\hyperlink{structendgame__wave__state__t}{endgame\+\_\+wave\+\_\+st
 \doxysubsubsection*{Definice maker}
 \begin{DoxyCompactItemize}
 \item 
-\#define \mbox{\hyperlink{led__task_8c_ac6afabdc09a49a433ee19d8a9486056d}{min}}(a,  b)
+\#define \mbox{\hyperlink{led__task_8c_ac6afabdc09a49a433ee19d8a9486056d}{min}}(a,  \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})
 \item 
 \#define \mbox{\hyperlink{led__task_8c_ae71449b1cc6e6250b91f539153a7a0d3}{M\+\_\+\+PI}}~3.\+14159265358979323846
 \item 
@@ -99,13 +100,13 @@ void \mbox{\hyperlink{led__task_8c_a4f7ff7068535f3818fb37654f5bffdad}{led\+\_\+c
 \begin{DoxyCompactList}\small\item\em Vymaz pouze tlacitkove LED (64-\/72), zachovej sachovnici. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{led__task_8c_a4653a6179cbaf07289307ce6c1871858}{led\+\_\+preserve\+\_\+buttons}} (void)
 \begin{DoxyCompactList}\small\item\em Zachovej stavy tlacitek behem operaci. \end{DoxyCompactList}\item 
-static void \mbox{\hyperlink{led__task_8c_a8920462d21f5bbd3198dc4cc485d1e82}{led\+\_\+set\+\_\+pixel\+\_\+with\+\_\+duration}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b, uint32\+\_\+t duration\+\_\+ms)
+static void \mbox{\hyperlink{led__task_8c_a8920462d21f5bbd3198dc4cc485d1e82}{led\+\_\+set\+\_\+pixel\+\_\+with\+\_\+duration}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}, uint32\+\_\+t duration\+\_\+ms)
 \begin{DoxyCompactList}\small\item\em Set LED pixel with duration support. \end{DoxyCompactList}\item 
-static void \mbox{\hyperlink{led__task_8c_af91e40f2e2bc7274cb04cfe498622aee}{led\+\_\+duration\+\_\+timer\+\_\+callback}} (Timer\+Handle\+\_\+t x\+Timer)
-\begin{DoxyCompactList}\small\item\em Duration timer callback -\/ zkontroluje expired durations. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{led__task_8c_adb4079e18c88be33df2ed464c968fad7}{led\+\_\+process\+\_\+duration\+\_\+expirations}} (void)
+\begin{DoxyCompactList}\small\item\em Process expired durations (runs in LED task context). \end{DoxyCompactList}\item 
 static void \mbox{\hyperlink{led__task_8c_a11714f15d535467c7c6011b5510197f5}{led\+\_\+init\+\_\+duration\+\_\+system}} (void)
 \begin{DoxyCompactList}\small\item\em Initialize duration management system. \end{DoxyCompactList}\item 
-static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{led__task_8c_adab4e0aa5871161ca4d0f13c4c2e9f63}{get\+\_\+ansi\+\_\+color\+\_\+from\+\_\+rgb}} (uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b)
+static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{led__task_8c_adab4e0aa5871161ca4d0f13c4c2e9f63}{get\+\_\+ansi\+\_\+color\+\_\+from\+\_\+rgb}} (uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})
 \begin{DoxyCompactList}\small\item\em Get ANSI color code from RGB values. \end{DoxyCompactList}\item 
 static void \mbox{\hyperlink{led__task_8c_ab1c29de873addfa75777d115ab4f8438}{led\+\_\+update\+\_\+button\+\_\+led\+\_\+state}} (uint8\+\_\+t button\+\_\+id)
 \begin{DoxyCompactList}\small\item\em Update button LED state based on current conditions. \end{DoxyCompactList}\item 
@@ -113,6 +114,8 @@ static void \mbox{\hyperlink{led__task_8c_a2d9017d1898113d1763fea0e43cc3bd9}{led
 \begin{DoxyCompactList}\small\item\em Set button pressed state. \end{DoxyCompactList}\item 
 static void \mbox{\hyperlink{led__task_8c_a2135e4b3d98992bec7601350d477abc9}{led\+\_\+process\+\_\+button\+\_\+blink\+\_\+timers}} (void)
 \begin{DoxyCompactList}\small\item\em Process button blink timers (call from main loop). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{led__task_8c_aba7d182926787e311733fb41353c196e}{led\+\_\+set\+\_\+brightness\+\_\+global}} (uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}})
+\begin{DoxyCompactList}\small\item\em Nastav globalni jas LED. \end{DoxyCompactList}\item 
 static uint8\+\_\+t \mbox{\hyperlink{led__task_8c_abd19bd00f68dac2956a019c2981912e3}{led\+\_\+get\+\_\+button\+\_\+led\+\_\+index}} (uint8\+\_\+t button\+\_\+id)
 \begin{DoxyCompactList}\small\item\em Map button ID to correct LED index. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{led__task_8c_a7cb7bb0774dead39c3607d19de9f9d34}{led\+\_\+set\+\_\+pixel\+\_\+internal}} (uint8\+\_\+t led\+\_\+index, uint8\+\_\+t red, uint8\+\_\+t green, uint8\+\_\+t blue)
@@ -123,6 +126,12 @@ void \mbox{\hyperlink{led__task_8c_a50360691268da244abb2711dc712bd54}{led\+\_\+c
 \begin{DoxyCompactList}\small\item\em Vymaz vsechny LED (interni funkce bez mutex). \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{led__task_8c_a13da231e8e3dc956e4c3415a89409670}{led\+\_\+show\+\_\+chess\+\_\+board}} (void)
 \begin{DoxyCompactList}\small\item\em Zobraz sachovnici na LED. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{led__task_8c_acd139d9f40454ed76aa1f080f2299d07}{led\+\_\+set\+\_\+ha\+\_\+color}} (uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}})
+\begin{DoxyCompactList}\small\item\em Nastav barvu všech 64 LED desky pro HA mód. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{led__task_8c_aed864c4fd31d53e8498014ffda17dcc6}{led\+\_\+restore\+\_\+chess\+\_\+board}} (void)
+\begin{DoxyCompactList}\small\item\em Obnoví šachovnici po HA módu. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{led__task_8c_acffe67fadfe40ddc4c14618edebeedf8}{led\+\_\+refresh\+\_\+all\+\_\+button\+\_\+leds}} (void)
+\begin{DoxyCompactList}\small\item\em Obnoví zobrazení všech tlačítek podle aktuálního stavu (available/pressed) Volá se po návratu z HA režimu, aby tlačítka zobrazovala správné barvy. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{led__task_8c_aa74e5b3b49114f8e7f69f346beaf5cd3}{led\+\_\+set\+\_\+button\+\_\+feedback}} (uint8\+\_\+t button\+\_\+id, bool available)
 \begin{DoxyCompactList}\small\item\em Nastav button feedback LED. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{led__task_8c_a8a31606dca399a00351e3ef16cc3a737}{led\+\_\+set\+\_\+button\+\_\+press}} (uint8\+\_\+t button\+\_\+id)
@@ -195,6 +204,8 @@ bool \mbox{\hyperlink{led__task_8c_a13a1293f8ac28cbf7cd0d7b08cb58c5c}{led\+\_\+h
 \begin{DoxyCompactList}\small\item\em Check if LED states have changed significantly. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{led__task_8c_a5c2b466a04fcadba97ca90ee811927d8}{led\+\_\+task\+\_\+start}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
 \begin{DoxyCompactList}\small\item\em Spusti LED task. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{led__task_8c_a006a24ec8e7f302c4a6f8481675803d1}{led\+\_\+is\+\_\+booting}} (void)
+\begin{DoxyCompactList}\small\item\em Zjisti zda probiha boot animace. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{led__task_8c_a533dfd80b93f0821af12a5f929dcc40b}{led\+\_\+booting\+\_\+animation}} (void)
 \begin{DoxyCompactList}\small\item\em Booting animation -\/ progressive LED illumination. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{led__task_8c_a081382ca7f7a773156291851fdbe6f5f}{led\+\_\+stop\+\_\+endgame\+\_\+animation}} (void)
@@ -258,7 +269,7 @@ static led\+\_\+strip\+\_\+handle\+\_\+t \mbox{\hyperlink{led__task_8c_abbc5a11f
 \item 
 static bool \mbox{\hyperlink{led__task_8c_aa059cb143b37ad593835d4042adf415b}{led\+\_\+initialized}} = false
 \item 
-static Semaphore\+Handle\+\_\+t \mbox{\hyperlink{led__task_8c_abf08412fd7527bf3e406512943ab8ec7}{led\+\_\+unified\+\_\+mutex}}
+static Semaphore\+Handle\+\_\+t \mbox{\hyperlink{led__task_8c_abf08412fd7527bf3e406512943ab8ec7}{led\+\_\+unified\+\_\+mutex}} = NULL
 \item 
 static bool \mbox{\hyperlink{led__task_8c_ad291c3f82f7856c496990a2ecfe5da23}{led\+\_\+changes\+\_\+pending}} = false
 \item 
@@ -270,7 +281,7 @@ static \mbox{\hyperlink{structled__duration__state__t}{led\+\_\+duration\+\_\+st
 \item 
 static bool \mbox{\hyperlink{led__task_8c_ab5eca3f51d48f047dfa62384299a1b6f}{led\+\_\+duration\+\_\+system\+\_\+enabled}} = true
 \item 
-static Timer\+Handle\+\_\+t \mbox{\hyperlink{led__task_8c_a2fcc158530262c3bb8a09287f5d1cb3e}{led\+\_\+duration\+\_\+timer}} = NULL
+static uint8\+\_\+t \mbox{\hyperlink{led__task_8c_ac96aaee8c56d42372878aa20a24362c1}{global\+\_\+brightness}} = 50
 \item 
 static const uint32\+\_\+t \mbox{\hyperlink{led__task_8c_a7ae8f1d599ba588ecd3a3709345bb7ee}{chess\+\_\+board\+\_\+pattern}} \mbox{[}64\mbox{]}
 \item 
@@ -296,6 +307,8 @@ static const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{led__task_8c_a5a84
 \item 
 static bool \mbox{\hyperlink{led__task_8c_a7c488b223b05495652330bf542a90669}{endgame\+\_\+animation\+\_\+active}} = false
 \item 
+static bool \mbox{\hyperlink{led__task_8c_a7005076d8f4d04f878fd4c8e3efdcce5}{led\+\_\+booting\+\_\+active}} = true
+\begin{DoxyCompactList}\small\item\em Booting animation -\/ progressive LED illumination. \end{DoxyCompactList}\item 
 static \mbox{\hyperlink{structendgame__wave__state__t}{endgame\+\_\+wave\+\_\+state\+\_\+t}} \mbox{\hyperlink{led__task_8c_a1ed1a514affa226ab201a5e7334e32a7}{endgame\+\_\+wave}} = \{0\}
 \end{DoxyCompactItemize}
 
@@ -303,8 +316,8 @@ static \mbox{\hyperlink{structendgame__wave__state__t}{endgame\+\_\+wave\+\_\+st
 \doxysubsection{Detailní popis}
 LED Task -\/ Ovladani WS2812B LED a animace. 
 
-\hypertarget{led__task_8c_autotoc_md36}{}\doxysubsection{\texorpdfstring{autotoc\+\_\+md36}{autotoc\+\_\+md36}}\label{led__task_8c_autotoc_md36}
-\hypertarget{led__task_8c_autotoc_md37}{}\doxysubsection{\texorpdfstring{CO TENTO SOUBOR DELA?}{CO TENTO SOUBOR DELA?}}\label{led__task_8c_autotoc_md37}
+\hypertarget{led__task_8c_autotoc_md40}{}\doxysubsection{\texorpdfstring{autotoc\+\_\+md40}{autotoc\+\_\+md40}}\label{led__task_8c_autotoc_md40}
+\hypertarget{led__task_8c_autotoc_md41}{}\doxysubsection{\texorpdfstring{CO TENTO SOUBOR DELA?}{CO TENTO SOUBOR DELA?}}\label{led__task_8c_autotoc_md41}
 Tento task ovlada VSECHNY LED v systemu\+:
 \begin{DoxyEnumerate}
 \item 64 LED pro sachovnici (8x8 grid)
@@ -316,7 +329,7 @@ Tento task ovlada VSECHNY LED v systemu\+:
 \end{DoxyEnumerate}
 
 \DoxyHorRuler{0}
- \hypertarget{led__task_8c_autotoc_md39}{}\doxysubsection{\texorpdfstring{JAK TO FUNGUJE?}{JAK TO FUNGUJE?}}\label{led__task_8c_autotoc_md39}
+ \hypertarget{led__task_8c_autotoc_md43}{}\doxysubsection{\texorpdfstring{JAK TO FUNGUJE?}{JAK TO FUNGUJE?}}\label{led__task_8c_autotoc_md43}
 HARDWARE\+:
 \begin{DoxyItemize}
 \item WS2812B LED paska na GPIO7
@@ -351,7 +364,7 @@ BATCH UPDATE SYSTEM\+:
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
- \hypertarget{led__task_8c_autotoc_md41}{}\doxysubsection{\texorpdfstring{KOMUNIKACE (FIFOS \& MUTEXY)}{KOMUNIKACE (FIFOS \& MUTEXY)}}\label{led__task_8c_autotoc_md41}
+ \hypertarget{led__task_8c_autotoc_md45}{}\doxysubsection{\texorpdfstring{KOMUNIKACE (FIFOS \& MUTEXY)}{KOMUNIKACE (FIFOS \& MUTEXY)}}\label{led__task_8c_autotoc_md45}
 PRIMO VOLANI (BEZ FRONTY)\+:
 \begin{DoxyItemize}
 \item \doxylink{led__task_8c_a7cb7bb0774dead39c3607d19de9f9d34}{led\+\_\+set\+\_\+pixel\+\_\+internal()} -\/\texorpdfstring{$>$}{>} Nastav 1 LED
@@ -376,7 +389,7 @@ PRISTUP\+:
 
 
 \DoxyHorRuler{0}
- \hypertarget{led__task_8c_autotoc_md43}{}\doxysubsection{\texorpdfstring{LED ANIMACE}{LED ANIMACE}}\label{led__task_8c_autotoc_md43}
+ \hypertarget{led__task_8c_autotoc_md47}{}\doxysubsection{\texorpdfstring{LED ANIMACE}{LED ANIMACE}}\label{led__task_8c_autotoc_md47}
 ZAKLADNI ANIMACE\+:
 \begin{DoxyItemize}
 \item Player change -\/ Zbarveni okraje sachovnice podle hrace
@@ -401,7 +414,7 @@ ENDGAME WAVE\+:
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
- \hypertarget{led__task_8c_autotoc_md45}{}\doxysubsection{\texorpdfstring{BUTTON LED LOGIKA}{BUTTON LED LOGIKA}}\label{led__task_8c_autotoc_md45}
+ \hypertarget{led__task_8c_autotoc_md49}{}\doxysubsection{\texorpdfstring{BUTTON LED LOGIKA}{BUTTON LED LOGIKA}}\label{led__task_8c_autotoc_md49}
 STAVY BUTTON LED\+:
 \begin{DoxyItemize}
 \item ZELENA\+: Tlacitko dostupne (lze pouzit)
@@ -419,13 +432,13 @@ PŘÍ\+KLAD\+:
 \end{DoxyEnumerate}
 
 \DoxyHorRuler{0}
- \hypertarget{led__task_8c_autotoc_md47}{}\doxysubsection{\texorpdfstring{TABLE OF CONTENTS (NAVIGACE)}{TABLE OF CONTENTS (NAVIGACE)}}\label{led__task_8c_autotoc_md47}
+ \hypertarget{led__task_8c_autotoc_md51}{}\doxysubsection{\texorpdfstring{TABLE OF CONTENTS (NAVIGACE)}{TABLE OF CONTENTS (NAVIGACE)}}\label{led__task_8c_autotoc_md51}
 Sekce 1\+: Hardware Init \& WDT ..................... radek 70 Sekce 2\+: Global Variables ........................ radek 183 Sekce 3\+: LED Control Functions ................... radek 292 Sekce 4\+: Batch Update System ..................... radek 600 Sekce 5\+: Button LED Logic ........................ radek 1200 Sekce 6\+: Animation Functions ..................... radek 1500 Sekce 7\+: Main LED Task Loop ...................... radek 2800
 
 TIP\+: Ctrl+G pro skok na radek
 
 \DoxyHorRuler{0}
- \hypertarget{led__task_8c_autotoc_md49}{}\doxysubsection{\texorpdfstring{DEPENDENCIES}{DEPENDENCIES}}\label{led__task_8c_autotoc_md49}
+ \hypertarget{led__task_8c_autotoc_md53}{}\doxysubsection{\texorpdfstring{DEPENDENCIES}{DEPENDENCIES}}\label{led__task_8c_autotoc_md53}
 
 \begin{DoxyItemize}
 \item ESP-\/\+IDF led\+\_\+strip driver\+: WS2812B ovladani
@@ -435,7 +448,7 @@ TIP\+: Ctrl+G pro skok na radek
 \end{DoxyItemize}
 
 \DoxyHorRuler{0}
- \hypertarget{led__task_8c_autotoc_md51}{}\doxysubsection{\texorpdfstring{KRITICKA PRAVIDLA}{KRITICKA PRAVIDLA}}\label{led__task_8c_autotoc_md51}
+ \hypertarget{led__task_8c_autotoc_md55}{}\doxysubsection{\texorpdfstring{KRITICKA PRAVIDLA}{KRITICKA PRAVIDLA}}\label{led__task_8c_autotoc_md55}
 \begin{DoxyWarning}{Pozor}
 CO SE NESMI DELAT\+:
 \end{DoxyWarning}
@@ -494,7 +507,7 @@ Definice v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00253}{253}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00260}{260}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_adc1b5df15af7552352dad465c61cfac7}\index{led\_task.c@{led\_task.c}!LED\_CRITICAL\_SECTION\_TIMEOUT\_MS@{LED\_CRITICAL\_SECTION\_TIMEOUT\_MS}}
 \index{LED\_CRITICAL\_SECTION\_TIMEOUT\_MS@{LED\_CRITICAL\_SECTION\_TIMEOUT\_MS}!led\_task.c@{led\_task.c}}
@@ -504,7 +517,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00253}{253}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00245}{245}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00252}{252}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a5f55b07707df2f2cf371f707207ed508}\index{led\_task.c@{led\_task.c}!LED\_DATA\_PIN@{LED\_DATA\_PIN}}
 \index{LED\_DATA\_PIN@{LED\_DATA\_PIN}!led\_task.c@{led\_task.c}}
@@ -514,7 +527,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00245}{245}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00304}{304}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00311}{311}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a038bfe7aea2d3849e2ee6a6635b318bc}\index{led\_task.c@{led\_task.c}!LED\_ERROR\_RECOVERY\_THRESHOLD@{LED\_ERROR\_RECOVERY\_THRESHOLD}}
 \index{LED\_ERROR\_RECOVERY\_THRESHOLD@{LED\_ERROR\_RECOVERY\_THRESHOLD}!led\_task.c@{led\_task.c}}
@@ -524,7 +537,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00304}{304}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00251}{251}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00258}{258}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_af505353c4adf955dea4a330d4177d46c}\index{led\_task.c@{led\_task.c}!LED\_FRAME\_BUFFER\_SIZE@{LED\_FRAME\_BUFFER\_SIZE}}
 \index{LED\_FRAME\_BUFFER\_SIZE@{LED\_FRAME\_BUFFER\_SIZE}!led\_task.c@{led\_task.c}}
@@ -534,7 +547,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00251}{251}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00249}{249}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00256}{256}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a9d3a3936c730816cea250929a3ff185a}\index{led\_task.c@{led\_task.c}!LED\_HEALTH\_CHECK\_INTERVAL\_MS@{LED\_HEALTH\_CHECK\_INTERVAL\_MS}}
 \index{LED\_HEALTH\_CHECK\_INTERVAL\_MS@{LED\_HEALTH\_CHECK\_INTERVAL\_MS}!led\_task.c@{led\_task.c}}
@@ -544,7 +557,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00249}{249}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00252}{252}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00259}{259}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_afb5d542d83382d217381d437d8c1fc73}\index{led\_task.c@{led\_task.c}!LED\_MAX\_RETRY\_COUNT@{LED\_MAX\_RETRY\_COUNT}}
 \index{LED\_MAX\_RETRY\_COUNT@{LED\_MAX\_RETRY\_COUNT}!led\_task.c@{led\_task.c}}
@@ -554,7 +567,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00252}{252}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00250}{250}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00257}{257}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a0256c8c9fa0cc7b33ef3d2ceb0abb010}\index{led\_task.c@{led\_task.c}!LED\_TASK\_MUTEX\_TIMEOUT\_MS@{LED\_TASK\_MUTEX\_TIMEOUT\_MS}}
 \index{LED\_TASK\_MUTEX\_TIMEOUT\_MS@{LED\_TASK\_MUTEX\_TIMEOUT\_MS}!led\_task.c@{led\_task.c}}
@@ -564,7 +577,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00250}{250}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00246}{246}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00253}{253}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_acd37c9dc96b5ed1245631969b5daa3f2}\index{led\_task.c@{led\_task.c}!LED\_TASK\_MUTEX\_TIMEOUT\_TICKS@{LED\_TASK\_MUTEX\_TIMEOUT\_TICKS}}
 \index{LED\_TASK\_MUTEX\_TIMEOUT\_TICKS@{LED\_TASK\_MUTEX\_TIMEOUT\_TICKS}!led\_task.c@{led\_task.c}}
@@ -574,7 +587,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00246}{246}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00247}{247}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00254}{254}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a1971e04ffd5581d8847ad715204854d7}\index{led\_task.c@{led\_task.c}!LED\_WATCHDOG\_RESET\_INTERVAL@{LED\_WATCHDOG\_RESET\_INTERVAL}}
 \index{LED\_WATCHDOG\_RESET\_INTERVAL@{LED\_WATCHDOG\_RESET\_INTERVAL}!led\_task.c@{led\_task.c}}
@@ -584,7 +597,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00247}{247}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00255}{255}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00262}{262}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ae71449b1cc6e6250b91f539153a7a0d3}\index{led\_task.c@{led\_task.c}!M\_PI@{M\_PI}}
 \index{M\_PI@{M\_PI}!led\_task.c@{led\_task.c}}
@@ -594,22 +607,22 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00255}{255}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00208}{208}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00209}{209}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ac6afabdc09a49a433ee19d8a9486056d}\index{led\_task.c@{led\_task.c}!min@{min}}
 \index{min@{min}!led\_task.c@{led\_task.c}}
 \doxysubsubsection{\texorpdfstring{min}{min}}
 {\footnotesize\ttfamily \label{led__task_8c_ac6afabdc09a49a433ee19d8a9486056d} 
-\#define min(\begin{DoxyParamCaption}\item[{}]{a}{, }\item[{}]{b}{}\end{DoxyParamCaption})}
+\#define min(\begin{DoxyParamCaption}\item[{}]{a}{, }\item[{}]{\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}}{}\end{DoxyParamCaption})}
 
 {\bfseries Hodnota\+:}
 \begin{DoxyCode}{0}
-\DoxyCodeLine{((a)\ <\ (b)\ ?\ (a)\ :\ (b))}
+\DoxyCodeLine{((a)\ <\ (\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})\ ?\ (a)\ :\ (\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}))}
 
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00185}{185}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00186}{186}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 
 
@@ -640,7 +653,7 @@ ANSI color escape sequence
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02816}{2816}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02995}{2995}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a4c6b6336fa1a5b5e4b11287573e29445}\index{led\_task.c@{led\_task.c}!led\_anim\_castle@{led\_anim\_castle}}
 \index{led\_anim\_castle@{led\_anim\_castle}!led\_task.c@{led\_task.c}}
@@ -650,7 +663,7 @@ void led\+\_\+anim\+\_\+castle (\begin{DoxyParamCaption}\item[{const \mbox{\hype
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02160}{2160}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02316}{2316}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a0eaa8914041f19a17236659faf64f3b9}\index{led\_task.c@{led\_task.c}!led\_anim\_check@{led\_anim\_check}}
 \index{led\_anim\_check@{led\_anim\_check}!led\_task.c@{led\_task.c}}
@@ -660,7 +673,7 @@ void led\+\_\+anim\+\_\+check (\begin{DoxyParamCaption}\item[{const \mbox{\hyper
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02618}{2618}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02801}{2801}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_acf6193320f934a4b77f6e295d2cc946a}\index{led\_task.c@{led\_task.c}!led\_anim\_checkmate@{led\_anim\_checkmate}}
 \index{led\_anim\_checkmate@{led\_anim\_checkmate}!led\_task.c@{led\_task.c}}
@@ -670,7 +683,7 @@ void led\+\_\+anim\+\_\+checkmate (\begin{DoxyParamCaption}\item[{const \mbox{\h
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02636}{2636}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02815}{2815}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a69379eed351dd045d9d23cda7ec86a69}\index{led\_task.c@{led\_task.c}!led\_anim\_endgame@{led\_anim\_endgame}}
 \index{led\_anim\_endgame@{led\_anim\_endgame}!led\_task.c@{led\_task.c}}
@@ -684,7 +697,7 @@ Initialize AVR-\/style wave endgame animation (podle starého projektu).
 
 LED animace endgame. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02384}{2384}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02568}{2568}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a70ca9a0461dd8a73f47f0da3e9d6cc6f}\index{led\_task.c@{led\_task.c}!led\_anim\_move\_path@{led\_anim\_move\_path}}
 \index{led\_anim\_move\_path@{led\_anim\_move\_path}!led\_task.c@{led\_task.c}}
@@ -694,7 +707,7 @@ void led\+\_\+anim\+\_\+move\+\_\+path (\begin{DoxyParamCaption}\item[{const \mb
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02056}{2056}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02212}{2212}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a93931e2c6d0f52d99011f95372bdc495}\index{led\_task.c@{led\_task.c}!led\_anim\_player\_change@{led\_anim\_player\_change}}
 \index{led\_anim\_player\_change@{led\_anim\_player\_change}!led\_task.c@{led\_task.c}}
@@ -715,7 +728,7 @@ Profesionální wave animace s Gaussian distribucí, která prochází přes ša
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01953}{1953}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02109}{2109}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ae9ca69874a3fd0ef1b1aea542f0ce0cf}\index{led\_task.c@{led\_task.c}!led\_anim\_promote@{led\_anim\_promote}}
 \index{led\_anim\_promote@{led\_anim\_promote}!led\_task.c@{led\_task.c}}
@@ -725,7 +738,7 @@ void led\+\_\+anim\+\_\+promote (\begin{DoxyParamCaption}\item[{const \mbox{\hyp
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02266}{2266}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02422}{2422}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a51cc23ac460421224cfaf847669ab1d9}\index{led\_task.c@{led\_task.c}!led\_boot\_animation\_fade\_out@{led\_boot\_animation\_fade\_out}}
 \index{led\_boot\_animation\_fade\_out@{led\_boot\_animation\_fade\_out}!led\_task.c@{led\_task.c}}
@@ -742,7 +755,7 @@ Funkce je bezpecna -\/ kontroluje inicializaci a simulation mode
 \end{DoxyNote}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03387}{3387}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03608}{3608}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ad9333c97e3a0d22851f18f91e890e3dc}\index{led\_task.c@{led\_task.c}!led\_boot\_animation\_step@{led\_boot\_animation\_step}}
 \index{led\_boot\_animation\_step@{led\_boot\_animation\_step}!led\_task.c@{led\_task.c}}
@@ -764,7 +777,7 @@ Funkce je bezpecna -\/ kontroluje inicializaci a simulation mode
 \end{DoxyNote}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03354}{3354}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03572}{3572}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a533dfd80b93f0821af12a5f929dcc40b}\index{led\_task.c@{led\_task.c}!led\_booting\_animation@{led\_booting\_animation}}
 \index{led\_booting\_animation@{led\_booting\_animation}!led\_task.c@{led\_task.c}}
@@ -776,9 +789,9 @@ void led\+\_\+booting\+\_\+animation (\begin{DoxyParamCaption}\item[{void}]{}{}\
 
 Booting animation -\/ progressive LED illumination. 
 
+Spusti boot animaci (progresivni rozsviceni). 
 
-
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02294}{2294}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02457}{2457}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a3f8208e54db356a3a750b566d5bd763f}\index{led\_task.c@{led\_task.c}!led\_clear\_all\_highlights@{led\_clear\_all\_highlights}}
 \index{led\_clear\_all\_highlights@{led\_clear\_all\_highlights}!led\_task.c@{led\_task.c}}
@@ -792,7 +805,7 @@ Clear all board highlights and return to chess board pattern.
 
 Vymaz vsechna zvyrazneni. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01556}{1556}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01720}{1720}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a50360691268da244abb2711dc712bd54}\index{led\_task.c@{led\_task.c}!led\_clear\_all\_internal@{led\_clear\_all\_internal}}
 \index{led\_clear\_all\_internal@{led\_clear\_all\_internal}!led\_task.c@{led\_task.c}}
@@ -806,7 +819,7 @@ Vymaz vsechny LED (interni funkce bez mutex).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00568}{568}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00618}{618}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_afff280b4c9b7261d1a086e0cfa356604}\index{led\_task.c@{led\_task.c}!led\_clear\_all\_safe@{led\_clear\_all\_safe}}
 \index{led\_clear\_all\_safe@{led\_clear\_all\_safe}!led\_task.c@{led\_task.c}}
@@ -820,7 +833,7 @@ Vymaz vsechny LED (thread-\/safe s mutex).
 
 Bezpecne vymazani vsech LED z vice vlaken. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02670}{2670}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02849}{2849}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ab245ceabb580934b6117f59343c6d9a2}\index{led\_task.c@{led\_task.c}!led\_clear\_board\_only@{led\_clear\_board\_only}}
 \index{led\_clear\_board\_only@{led\_clear\_board\_only}!led\_task.c@{led\_task.c}}
@@ -834,7 +847,7 @@ Vymaz pouze sachovnicove LED (0-\/63), zachovej tlacitka.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02682}{2682}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02861}{2861}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a4f7ff7068535f3818fb37654f5bffdad}\index{led\_task.c@{led\_task.c}!led\_clear\_buttons\_only@{led\_clear\_buttons\_only}}
 \index{led\_clear\_buttons\_only@{led\_clear\_buttons\_only}!led\_task.c@{led\_task.c}}
@@ -848,7 +861,7 @@ Vymaz pouze tlacitkove LED (64-\/72), zachovej sachovnici.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02689}{2689}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02868}{2868}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_af39bda75c597894d99ae8a5a35542fe9}\index{led\_task.c@{led\_task.c}!led\_commit\_pending\_changes@{led\_commit\_pending\_changes}}
 \index{led\_commit\_pending\_changes@{led\_commit\_pending\_changes}!led\_task.c@{led\_task.c}}
@@ -862,26 +875,7 @@ Commit all pending LED changes atomically with watchdog safety This function ens
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02926}{2926}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
-
-\Hypertarget{led__task_8c_af91e40f2e2bc7274cb04cfe498622aee}\index{led\_task.c@{led\_task.c}!led\_duration\_timer\_callback@{led\_duration\_timer\_callback}}
-\index{led\_duration\_timer\_callback@{led\_duration\_timer\_callback}!led\_task.c@{led\_task.c}}
-\doxysubsubsection{\texorpdfstring{led\_duration\_timer\_callback()}{led\_duration\_timer\_callback()}}
-{\footnotesize\ttfamily \label{led__task_8c_af91e40f2e2bc7274cb04cfe498622aee} 
-void led\+\_\+duration\+\_\+timer\+\_\+callback (\begin{DoxyParamCaption}\item[{Timer\+Handle\+\_\+t}]{x\+Timer}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
-
-
-
-Duration timer callback -\/ zkontroluje expired durations. 
-
-
-\begin{DoxyParams}{Parametry}
-{\em x\+Timer} & Timer handle \\
-\hline
-\end{DoxyParams}
-
-
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03156}{3156}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03105}{3105}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ab3b1b195cc27c98b66f82c0887cc425b}\index{led\_task.c@{led\_task.c}!led\_enhanced\_castling\_celebration@{led\_enhanced\_castling\_celebration}}
 \index{led\_enhanced\_castling\_celebration@{led\_enhanced\_castling\_celebration}!led\_task.c@{led\_task.c}}
@@ -895,7 +889,7 @@ Enhanced castling celebration LED function.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03270}{3270}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03488}{3488}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a419b696d044d30102e185f17071d5594}\index{led\_task.c@{led\_task.c}!led\_enhanced\_castling\_clear@{led\_enhanced\_castling\_clear}}
 \index{led\_enhanced\_castling\_clear@{led\_enhanced\_castling\_clear}!led\_task.c@{led\_task.c}}
@@ -909,7 +903,7 @@ Clear enhanced castling indications.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03337}{3337}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03555}{3555}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_af3edc8a3c773252ef88840e95dafe1b6}\index{led\_task.c@{led\_task.c}!led\_enhanced\_castling\_error@{led\_enhanced\_castling\_error}}
 \index{led\_enhanced\_castling\_error@{led\_enhanced\_castling\_error}!led\_task.c@{led\_task.c}}
@@ -923,7 +917,7 @@ Enhanced castling error LED function.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03249}{3249}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03467}{3467}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ae1107d12af4474cf714958ea8078de67}\index{led\_task.c@{led\_task.c}!led\_enhanced\_castling\_guidance@{led\_enhanced\_castling\_guidance}}
 \index{led\_enhanced\_castling\_guidance@{led\_enhanced\_castling\_guidance}!led\_task.c@{led\_task.c}}
@@ -937,7 +931,7 @@ Enhanced castling guidance LED function.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03225}{3225}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03443}{3443}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a16442a4b2c22fe558767b11e5252beae}\index{led\_task.c@{led\_task.c}!led\_enhanced\_castling\_tutorial@{led\_enhanced\_castling\_tutorial}}
 \index{led\_enhanced\_castling\_tutorial@{led\_enhanced\_castling\_tutorial}!led\_task.c@{led\_task.c}}
@@ -951,7 +945,7 @@ Enhanced castling tutorial LED function.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03303}{3303}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03521}{3521}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a1a82f432b46c4990df10c3c8c4d697b4}\index{led\_task.c@{led\_task.c}!led\_error\_invalid\_move@{led\_error\_invalid\_move}}
 \index{led\_error\_invalid\_move@{led\_error\_invalid\_move}!led\_task.c@{led\_task.c}}
@@ -970,7 +964,7 @@ LED chyba -\/ neplatny tah.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02713}{2713}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02892}{2892}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a8811aae10a60d7851edfc7af2ef69771}\index{led\_task.c@{led\_task.c}!led\_error\_recovery@{led\_error\_recovery}}
 \index{led\_error\_recovery@{led\_error\_recovery}!led\_task.c@{led\_task.c}}
@@ -989,7 +983,7 @@ LED error recovery.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02749}{2749}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02928}{2928}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a5fed0119b12c12bf3cee449144e40d43}\index{led\_task.c@{led\_task.c}!led\_error\_return\_piece@{led\_error\_return\_piece}}
 \index{led\_error\_return\_piece@{led\_error\_return\_piece}!led\_task.c@{led\_task.c}}
@@ -1008,7 +1002,7 @@ LED chyba -\/ vrat figurku.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02731}{2731}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02910}{2910}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a85578cf6b1c0acb68c6278c9cd1a4f26}\index{led\_task.c@{led\_task.c}!led\_execute\_command\_new@{led\_execute\_command\_new}}
 \index{led\_execute\_command\_new@{led\_execute\_command\_new}!led\_task.c@{led\_task.c}}
@@ -1022,7 +1016,7 @@ Execute LED command with full command structure.
 
 Vykonaj novy LED prikaz. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00885}{885}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01003}{1003}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a35ed753e036a2372ea57df822d92f154}\index{led\_task.c@{led\_task.c}!led\_force\_immediate\_update@{led\_force\_immediate\_update}}
 \index{led\_force\_immediate\_update@{led\_force\_immediate\_update}!led\_task.c@{led\_task.c}}
@@ -1036,7 +1030,7 @@ Force immediate LED update for critical operations Use this only for startup tes
 
 Vynuceni okamzita LED aktualizace pro kriticke operace. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03004}{3004}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03190}{3190}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ab7562384ca3de074cd4f13eb8e96c790}\index{led\_task.c@{led\_task.c}!led\_get\_all\_states@{led\_get\_all\_states}}
 \index{led\_get\_all\_states@{led\_get\_all\_states}!led\_task.c@{led\_task.c}}
@@ -1059,7 +1053,7 @@ Ziskej vsechny stavy LED.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00755}{755}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00873}{873}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a949ef87b771a33a9998649a33db6848d}\index{led\_task.c@{led\_task.c}!led\_get\_button\_color@{led\_get\_button\_color}}
 \index{led\_get\_button\_color@{led\_get\_button\_color}!led\_task.c@{led\_task.c}}
@@ -1081,7 +1075,7 @@ Barva jako uint32\+\_\+t RGB
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00709}{709}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00827}{827}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_abd19bd00f68dac2956a019c2981912e3}\index{led\_task.c@{led\_task.c}!led\_get\_button\_led\_index@{led\_get\_button\_led\_index}}
 \index{led\_get\_button\_led\_index@{led\_get\_button\_led\_index}!led\_task.c@{led\_task.c}}
@@ -1103,7 +1097,7 @@ LED index (64-\/72)
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00471}{471}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00521}{521}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a444a170336ec287da201e2899805812b}\index{led\_task.c@{led\_task.c}!led\_get\_led\_state@{led\_get\_led\_state}}
 \index{led\_get\_led\_state@{led\_get\_led\_state}!led\_task.c@{led\_task.c}}
@@ -1127,7 +1121,7 @@ RGB color value (0x\+RRGGBB)
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00726}{726}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00844}{844}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a8aad97d4a7c8e1ab13920b16a6397283}\index{led\_task.c@{led\_task.c}!led\_hardware\_cleanup@{led\_hardware\_cleanup}}
 \index{led\_hardware\_cleanup@{led\_hardware\_cleanup}!led\_task.c@{led\_task.c}}
@@ -1141,7 +1135,7 @@ OBSOLETE\+: Hardware update function no longer needed All LED updates now happen
 
 Cleanup hardware resources 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01711}{1711}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01850}{1850}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a7287362da29fee32e79da1689bca9e31}\index{led\_task.c@{led\_task.c}!led\_hardware\_init@{led\_hardware\_init}}
 \index{led\_hardware\_init@{led\_hardware\_init}!led\_task.c@{led\_task.c}}
@@ -1158,7 +1152,7 @@ ESP\+\_\+\+OK on success, error code on failure
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01607}{1607}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01771}{1771}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a13a1293f8ac28cbf7cd0d7b08cb58c5c}\index{led\_task.c@{led\_task.c}!led\_has\_significant\_changes@{led\_has\_significant\_changes}}
 \index{led\_has\_significant\_changes@{led\_has\_significant\_changes}!led\_task.c@{led\_task.c}}
@@ -1172,7 +1166,7 @@ Check if LED states have changed significantly.
 
 Overi zda ma LED vyznamne zmeny. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01788}{1788}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01927}{1927}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a320f9c61a3b7d32d1244558bc94affd4}\index{led\_task.c@{led\_task.c}!led\_highlight\_pieces\_that\_can\_move@{led\_highlight\_pieces\_that\_can\_move}}
 \index{led\_highlight\_pieces\_that\_can\_move@{led\_highlight\_pieces\_that\_can\_move}!led\_task.c@{led\_task.c}}
@@ -1186,7 +1180,7 @@ Highlight pieces that can move for current player.
 
 Zvyrazni figurky ktere se mohou hybat. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01504}{1504}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01662}{1662}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a54ef8b8e4b3a77b63a1968de1f488759}\index{led\_task.c@{led\_task.c}!led\_highlight\_possible\_moves@{led\_highlight\_possible\_moves}}
 \index{led\_highlight\_possible\_moves@{led\_highlight\_possible\_moves}!led\_task.c@{led\_task.c}}
@@ -1207,7 +1201,7 @@ Zvyrazni mozne tahy pro pole.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01523}{1523}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01687}{1687}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a11714f15d535467c7c6011b5510197f5}\index{led\_task.c@{led\_task.c}!led\_init\_duration\_system@{led\_init\_duration\_system}}
 \index{led\_init\_duration\_system@{led\_init\_duration\_system}!led\_task.c@{led\_task.c}}
@@ -1221,7 +1215,24 @@ Initialize duration management system.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03198}{3198}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03425}{3425}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task_8c_a006a24ec8e7f302c4a6f8481675803d1}\index{led\_task.c@{led\_task.c}!led\_is\_booting@{led\_is\_booting}}
+\index{led\_is\_booting@{led\_is\_booting}!led\_task.c@{led\_task.c}}
+\doxysubsubsection{\texorpdfstring{led\_is\_booting()}{led\_is\_booting()}}
+{\footnotesize\ttfamily \label{led__task_8c_a006a24ec8e7f302c4a6f8481675803d1} 
+bool led\+\_\+is\+\_\+booting (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Zjisti zda probiha boot animace. 
+
+\begin{DoxyReturn}{Návratová hodnota}
+true pokud probiha boot animace 
+\end{DoxyReturn}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02452}{2452}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a7e000dafeeac5016d70d5d182b89c10f}\index{led\_task.c@{led\_task.c}!led\_player\_change\_animation@{led\_player\_change\_animation}}
 \index{led\_player\_change\_animation@{led\_player\_change\_animation}!led\_task.c@{led\_task.c}}
@@ -1235,7 +1246,7 @@ Player change animation.
 
 Animace zmeny hrace. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01570}{1570}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01734}{1734}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a4653a6179cbaf07289307ce6c1871858}\index{led\_task.c@{led\_task.c}!led\_preserve\_buttons@{led\_preserve\_buttons}}
 \index{led\_preserve\_buttons@{led\_preserve\_buttons}!led\_task.c@{led\_task.c}}
@@ -1249,7 +1260,7 @@ Zachovej stavy tlacitek behem operaci.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02696}{2696}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02875}{2875}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a39e8c14550a437ae7b94b56d8583b27a}\index{led\_task.c@{led\_task.c}!led\_print\_changes\_only@{led\_print\_changes\_only}}
 \index{led\_print\_changes\_only@{led\_print\_changes\_only}!led\_task.c@{led\_task.c}}
@@ -1263,7 +1274,7 @@ Print only LED changes since last status.
 
 Vypis pouze zmeny LED. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01725}{1725}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01864}{1864}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a4f270f2071fdb90dc6da3d8d6d0e7fe2}\index{led\_task.c@{led\_task.c}!led\_print\_compact\_status@{led\_print\_compact\_status}}
 \index{led\_print\_compact\_status@{led\_print\_compact\_status}!led\_task.c@{led\_task.c}}
@@ -1277,7 +1288,7 @@ Print compact LED status showing only lit LEDs.
 
 Vypis kompaktni status LED. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01193}{1193}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01351}{1351}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a57338ebc4262ba916e9a68acdc8634fa}\index{led\_task.c@{led\_task.c}!led\_print\_detailed\_status@{led\_print\_detailed\_status}}
 \index{led\_print\_detailed\_status@{led\_print\_detailed\_status}!led\_task.c@{led\_task.c}}
@@ -1291,7 +1302,7 @@ Print detailed LED status showing all LED states.
 
 Vypis detailni status LED. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01319}{1319}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01477}{1477}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_aec926993bbb0b624462704e37829a5ab}\index{led\_task.c@{led\_task.c}!led\_privileged\_batch\_commit@{led\_privileged\_batch\_commit}}
 \index{led\_privileged\_batch\_commit@{led\_privileged\_batch\_commit}!led\_task.c@{led\_task.c}}
@@ -1305,7 +1316,7 @@ Optimized batch commit with privileged mutex synchronization This function provi
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03017}{3017}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03219}{3219}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a2135e4b3d98992bec7601350d477abc9}\index{led\_task.c@{led\_task.c}!led\_process\_button\_blink\_timers@{led\_process\_button\_blink\_timers}}
 \index{led\_process\_button\_blink\_timers@{led\_process\_button\_blink\_timers}!led\_task.c@{led\_task.c}}
@@ -1319,7 +1330,7 @@ Process button blink timers (call from main loop).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02909}{2909}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03088}{3088}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a07ea6d48b1deb7fd8ecb18cf6d7753be}\index{led\_task.c@{led\_task.c}!led\_process\_commands@{led\_process\_commands}}
 \index{led\_process\_commands@{led\_process\_commands}!led\_task.c@{led\_task.c}}
@@ -1333,7 +1344,55 @@ Zpracuj LED prikazy z fronty.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00860}{860}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00978}{978}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task_8c_adb4079e18c88be33df2ed464c968fad7}\index{led\_task.c@{led\_task.c}!led\_process\_duration\_expirations@{led\_process\_duration\_expirations}}
+\index{led\_process\_duration\_expirations@{led\_process\_duration\_expirations}!led\_task.c@{led\_task.c}}
+\doxysubsubsection{\texorpdfstring{led\_process\_duration\_expirations()}{led\_process\_duration\_expirations()}}
+{\footnotesize\ttfamily \label{led__task_8c_adb4079e18c88be33df2ed464c968fad7} 
+void led\+\_\+process\+\_\+duration\+\_\+expirations (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Process expired durations (runs in LED task context). 
+
+IMPORTANT\+:
+\begin{DoxyItemize}
+\item Do NOT run duration logic from Free\+RTOS timer callbacks ("{}\+Tmr Svc"{}). Timer callbacks have small stacks and must not block on mutexes.
+\item We process expirations in the main LED task loop (33ms), then commit via the existing batch system. 
+\end{DoxyItemize}
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03370}{3370}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task_8c_acffe67fadfe40ddc4c14618edebeedf8}\index{led\_task.c@{led\_task.c}!led\_refresh\_all\_button\_leds@{led\_refresh\_all\_button\_leds}}
+\index{led\_refresh\_all\_button\_leds@{led\_refresh\_all\_button\_leds}!led\_task.c@{led\_task.c}}
+\doxysubsubsection{\texorpdfstring{led\_refresh\_all\_button\_leds()}{led\_refresh\_all\_button\_leds()}}
+{\footnotesize\ttfamily \label{led__task_8c_acffe67fadfe40ddc4c14618edebeedf8} 
+void led\+\_\+refresh\+\_\+all\+\_\+button\+\_\+leds (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Obnoví zobrazení všech tlačítek podle aktuálního stavu (available/pressed) Volá se po návratu z HA režimu, aby tlačítka zobrazovala správné barvy. 
+
+Obnovi zobrazeni LED vsech tlacitek podle aktualniho stavu (dostupnost/stisk) Volat po navratu z HA rezimu. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00760}{760}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task_8c_aed864c4fd31d53e8498014ffda17dcc6}\index{led\_task.c@{led\_task.c}!led\_restore\_chess\_board@{led\_restore\_chess\_board}}
+\index{led\_restore\_chess\_board@{led\_restore\_chess\_board}!led\_task.c@{led\_task.c}}
+\doxysubsubsection{\texorpdfstring{led\_restore\_chess\_board()}{led\_restore\_chess\_board()}}
+{\footnotesize\ttfamily \label{led__task_8c_aed864c4fd31d53e8498014ffda17dcc6} 
+void led\+\_\+restore\+\_\+chess\+\_\+board (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Obnoví šachovnici po HA módu. 
+
+Obnovi sachovnici po HA modu.
+
+Tato funkce obnoví normální zobrazení šachovnice (černá/bílá pole). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00751}{751}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a330c04b492b83fd0e7c5d7e85d6d845d}\index{led\_task.c@{led\_task.c}!led\_send\_status\_to\_uart\_immediate@{led\_send\_status\_to\_uart\_immediate}}
 \index{led\_send\_status\_to\_uart\_immediate@{led\_send\_status\_to\_uart\_immediate}!led\_task.c@{led\_task.c}}
@@ -1347,7 +1406,7 @@ Send LED status to UART task immediately without delays (for real-\/time respons
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01364}{1364}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01522}{1522}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a6d5be6d6368f979daf99dea8b1685f55}\index{led\_task.c@{led\_task.c}!led\_set\_all\_internal@{led\_set\_all\_internal}}
 \index{led\_set\_all\_internal@{led\_set\_all\_internal}!led\_task.c@{led\_task.c}}
@@ -1370,7 +1429,7 @@ Nastav vsechny LED (interni funkce bez mutex).
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00542}{542}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00592}{592}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a67410e7a666d076402f2eaf116716a2b}\index{led\_task.c@{led\_task.c}!led\_set\_all\_safe@{led\_set\_all\_safe}}
 \index{led\_set\_all\_safe@{led\_set\_all\_safe}!led\_task.c@{led\_task.c}}
@@ -1395,7 +1454,26 @@ Bezpecne nastaveni vsech LED na stejnou barvu z vice vlaken.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02676}{2676}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02855}{2855}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task_8c_aba7d182926787e311733fb41353c196e}\index{led\_task.c@{led\_task.c}!led\_set\_brightness\_global@{led\_set\_brightness\_global}}
+\index{led\_set\_brightness\_global@{led\_set\_brightness\_global}!led\_task.c@{led\_task.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_brightness\_global()}{led\_set\_brightness\_global()}}
+{\footnotesize\ttfamily \label{led__task_8c_aba7d182926787e311733fb41353c196e} 
+void led\+\_\+set\+\_\+brightness\+\_\+global (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{brightness}{}\end{DoxyParamCaption})}
+
+
+
+Nastav globalni jas LED. 
+
+
+\begin{DoxyParams}{Parametry}
+{\em brightness} & Jas v procentech (0-\/100) \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00474}{474}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_aa74e5b3b49114f8e7f69f346beaf5cd3}\index{led\_task.c@{led\_task.c}!led\_set\_button\_feedback@{led\_set\_button\_feedback}}
 \index{led\_set\_button\_feedback@{led\_set\_button\_feedback}!led\_task.c@{led\_task.c}}
@@ -1416,7 +1494,7 @@ Nastav button feedback LED.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00649}{649}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00767}{767}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a8a31606dca399a00351e3ef16cc3a737}\index{led\_task.c@{led\_task.c}!led\_set\_button\_press@{led\_set\_button\_press}}
 \index{led\_set\_button\_press@{led\_set\_button\_press}!led\_task.c@{led\_task.c}}
@@ -1435,7 +1513,7 @@ Nastav tlacitko jako stisknute.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00668}{668}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00786}{786}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a2d9017d1898113d1763fea0e43cc3bd9}\index{led\_task.c@{led\_task.c}!led\_set\_button\_pressed@{led\_set\_button\_pressed}}
 \index{led\_set\_button\_pressed@{led\_set\_button\_pressed}!led\_task.c@{led\_task.c}}
@@ -1456,7 +1534,7 @@ Set button pressed state.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02885}{2885}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03064}{3064}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ac30980ab24cfbd6fe5684d6ade1c1f7a}\index{led\_task.c@{led\_task.c}!led\_set\_button\_promotion\_available@{led\_set\_button\_promotion\_available}}
 \index{led\_set\_button\_promotion\_available@{led\_set\_button\_promotion\_available}!led\_task.c@{led\_task.c}}
@@ -1477,7 +1555,7 @@ Nastav dostupnost promocniho tlacitka.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02767}{2767}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02946}{2946}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a8c05ca5afd0c6a5184c88ee8e05f37b0}\index{led\_task.c@{led\_task.c}!led\_set\_button\_release@{led\_set\_button\_release}}
 \index{led\_set\_button\_release@{led\_set\_button\_release}!led\_task.c@{led\_task.c}}
@@ -1496,7 +1574,34 @@ Nastav tlacitko jako uvolnene.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00687}{687}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00805}{805}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task_8c_acd139d9f40454ed76aa1f080f2299d07}\index{led\_task.c@{led\_task.c}!led\_set\_ha\_color@{led\_set\_ha\_color}}
+\index{led\_set\_ha\_color@{led\_set\_ha\_color}!led\_task.c@{led\_task.c}}
+\doxysubsubsection{\texorpdfstring{led\_set\_ha\_color()}{led\_set\_ha\_color()}}
+{\footnotesize\ttfamily \label{led__task_8c_acd139d9f40454ed76aa1f080f2299d07} 
+void led\+\_\+set\+\_\+ha\+\_\+color (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{r}{, }\item[{uint8\+\_\+t}]{g}{, }\item[{uint8\+\_\+t}]{b}{, }\item[{uint8\+\_\+t}]{brightness}{}\end{DoxyParamCaption})}
+
+
+
+Nastav barvu všech 64 LED desky pro HA mód. 
+
+Nastav barvu vsech 64 LED desky pro HA mod.
+
+
+\begin{DoxyParams}{Parametry}
+{\em r} & Červená složka (0-\/255) \\
+\hline
+{\em g} & Zelená složka (0-\/255) \\
+\hline
+{\em b} & Modrá složka (0-\/255) \\
+\hline
+{\em brightness} & Jas (0-\/255) -\/ aplikuje se na RGB \\
+\hline
+\end{DoxyParams}
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00707}{707}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a7cb7bb0774dead39c3607d19de9f9d34}\index{led\_task.c@{led\_task.c}!led\_set\_pixel\_internal@{led\_set\_pixel\_internal}}
 \index{led\_set\_pixel\_internal@{led\_set\_pixel\_internal}!led\_task.c@{led\_task.c}}
@@ -1521,7 +1626,7 @@ Nastav LED pixel (interni funkce bez mutex).
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00481}{481}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00531}{531}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ad4b7ef962f86de71ef5f934f2a92544a}\index{led\_task.c@{led\_task.c}!led\_set\_pixel\_safe@{led\_set\_pixel\_safe}}
 \index{led\_set\_pixel\_safe@{led\_set\_pixel\_safe}!led\_task.c@{led\_task.c}}
@@ -1548,7 +1653,7 @@ Bezpecne nastaveni LED pixelu z vice vlaken.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02662}{2662}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02841}{2841}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a8920462d21f5bbd3198dc4cc485d1e82}\index{led\_task.c@{led\_task.c}!led\_set\_pixel\_with\_duration@{led\_set\_pixel\_with\_duration}}
 \index{led\_set\_pixel\_with\_duration@{led\_set\_pixel\_with\_duration}!led\_task.c@{led\_task.c}}
@@ -1575,7 +1680,7 @@ Set LED pixel with duration support.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03113}{3113}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03322}{3322}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a38353130f2210565c3c71c96f05ecf04}\index{led\_task.c@{led\_task.c}!led\_setup\_animation\_after\_endgame@{led\_setup\_animation\_after\_endgame}}
 \index{led\_setup\_animation\_after\_endgame@{led\_setup\_animation\_after\_endgame}!led\_task.c@{led\_task.c}}
@@ -1589,7 +1694,7 @@ Setup animation after endgame -\/ reset pieces to starting positions.
 
 Nastav animaci po endgame. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02558}{2558}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02741}{2741}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a13da231e8e3dc956e4c3415a89409670}\index{led\_task.c@{led\_task.c}!led\_show\_chess\_board@{led\_show\_chess\_board}}
 \index{led\_show\_chess\_board@{led\_show\_chess\_board}!led\_task.c@{led\_task.c}}
@@ -1603,7 +1708,7 @@ Zobraz sachovnici na LED.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00591}{591}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00641}{641}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a473fe800a9a37ba1caee73edd0398505}\index{led\_task.c@{led\_task.c}!led\_show\_legal\_moves@{led\_show\_legal\_moves}}
 \index{led\_show\_legal\_moves@{led\_show\_legal\_moves}!led\_task.c@{led\_task.c}}
@@ -1622,7 +1727,7 @@ Zobraz legalni tahy.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02701}{2701}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02880}{2880}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a571ae664c39755862a8b153447841fe3}\index{led\_task.c@{led\_task.c}!led\_start\_animation@{led\_start\_animation}}
 \index{led\_start\_animation@{led\_start\_animation}!led\_task.c@{led\_task.c}}
@@ -1641,7 +1746,7 @@ Spust animaci.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00780}{780}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00898}{898}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ad7200d35f2087aa4d23aa18fb79e87a5}\index{led\_task.c@{led\_task.c}!led\_start\_quiet\_period@{led\_start\_quiet\_period}}
 \index{led\_start\_quiet\_period@{led\_start\_quiet\_period}!led\_task.c@{led\_task.c}}
@@ -1655,7 +1760,7 @@ Start quiet period (suppress LED status reports).
 
 Spust periodu ticheho vystupu. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01778}{1778}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01917}{1917}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a081382ca7f7a773156291851fdbe6f5f}\index{led\_task.c@{led\_task.c}!led\_stop\_endgame\_animation@{led\_stop\_endgame\_animation}}
 \index{led\_stop\_endgame\_animation@{led\_stop\_endgame\_animation}!led\_task.c@{led\_task.c}}
@@ -1669,7 +1774,7 @@ Stop endless endgame animation.
 
 Zastav endgame animaci. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02542}{2542}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02725}{2725}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a5c2b466a04fcadba97ca90ee811927d8}\index{led\_task.c@{led\_task.c}!led\_task\_start@{led\_task\_start}}
 \index{led\_task\_start@{led\_task\_start}!led\_task.c@{led\_task.c}}
@@ -1690,7 +1795,7 @@ Spust jednoduchy LED task.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01808}{1808}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01947}{1947}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a3aea89dfd9371256c48be13c636f86e2}\index{led\_task.c@{led\_task.c}!led\_task\_wdt\_reset\_safe@{led\_task\_wdt\_reset\_safe}}
 \index{led\_task\_wdt\_reset\_safe@{led\_task\_wdt\_reset\_safe}!led\_task.c@{led\_task.c}}
@@ -1707,7 +1812,7 @@ ESP\+\_\+\+OK if successful, ESP\+\_\+\+ERR\+\_\+\+NOT\+\_\+\+FOUND if task not 
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00223}{223}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00224}{224}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a0ceea2caca51dbc9f19df054f157a6ce}\index{led\_task.c@{led\_task.c}!led\_test\_all\_pattern@{led\_test\_all\_pattern}}
 \index{led\_test\_all\_pattern@{led\_test\_all\_pattern}!led\_task.c@{led\_task.c}}
@@ -1717,7 +1822,7 @@ void led\+\_\+test\+\_\+all\+\_\+pattern (\begin{DoxyParamCaption}\item[{void}]{
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00809}{809}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00927}{927}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a909c49ae2d15c636755d044ad2380a74}\index{led\_task.c@{led\_task.c}!led\_test\_pattern@{led\_test\_pattern}}
 \index{led\_test\_pattern@{led\_test\_pattern}!led\_task.c@{led\_task.c}}
@@ -1731,7 +1836,7 @@ Zobraz testovaci vzor.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00791}{791}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00909}{909}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a44d83bc10edfd5ea26219455ee937489}\index{led\_task.c@{led\_task.c}!led\_update\_animation@{led\_update\_animation}}
 \index{led\_update\_animation@{led\_update\_animation}!led\_task.c@{led\_task.c}}
@@ -1741,7 +1846,7 @@ void led\+\_\+update\+\_\+animation (\begin{DoxyParamCaption}\item[{void}]{}{}\e
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01112}{1112}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01270}{1270}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a31b820a4bfe33d0cf54a107c339d6d07}\index{led\_task.c@{led\_task.c}!led\_update\_button\_availability\_from\_game@{led\_update\_button\_availability\_from\_game}}
 \index{led\_update\_button\_availability\_from\_game@{led\_update\_button\_availability\_from\_game}!led\_task.c@{led\_task.c}}
@@ -1755,7 +1860,7 @@ Aktualizuj dostupnost tlacitek podle stavu hry.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02779}{2779}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02958}{2958}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ab1c29de873addfa75777d115ab4f8438}\index{led\_task.c@{led\_task.c}!led\_update\_button\_led\_state@{led\_update\_button\_led\_state}}
 \index{led\_update\_button\_led\_state@{led\_update\_button\_led\_state}!led\_task.c@{led\_task.c}}
@@ -1774,7 +1879,7 @@ Update button LED state based on current conditions.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02841}{2841}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l03020}{3020}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a0d7ed5f284182a8b0bf27f9fc2537445}\index{led\_task.c@{led\_task.c}!led\_update\_endgame\_wave@{led\_update\_endgame\_wave}}
 \index{led\_update\_endgame\_wave@{led\_update\_endgame\_wave}!led\_task.c@{led\_task.c}}
@@ -1788,7 +1893,7 @@ Update enhanced wave endgame animation with improved colors, faster animation an
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02428}{2428}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02612}{2612}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_af7a7e8b554370642f118c98fd1015e86}\index{led\_task.c@{led\_task.c}!led\_update\_game\_state@{led\_update\_game\_state}}
 \index{led\_update\_game\_state@{led\_update\_game\_state}!led\_task.c@{led\_task.c}}
@@ -1802,7 +1907,7 @@ Update LEDs based on current game state.
 
 Aktualizuj LED podle stavu hry. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01489}{1489}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01647}{1647}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ae35498b645fad1892ac45a425bf78cce}\index{led\_task.c@{led\_task.c}!led\_update\_hardware@{led\_update\_hardware}}
 \index{led\_update\_hardware@{led\_update\_hardware}!led\_task.c@{led\_task.c}}
@@ -1816,7 +1921,7 @@ Aktualizuj LED hardware.
 
 Posle aktualni LED data do WS2812B LED pasku. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01099}{1099}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01257}{1257}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 
 
@@ -1831,7 +1936,7 @@ bool animation\+\_\+active = false\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00360}{360}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00367}{367}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a0d754cbffa8c8c66e7dec18f65474c99}\index{led\_task.c@{led\_task.c}!animation\_duration@{animation\_duration}}
 \index{animation\_duration@{animation\_duration}!led\_task.c@{led\_task.c}}
@@ -1841,7 +1946,7 @@ uint32\+\_\+t animation\+\_\+duration = 0\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00362}{362}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00369}{369}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ae7807e34a9e000cf160c7cbdea67089b}\index{led\_task.c@{led\_task.c}!animation\_pattern@{animation\_pattern}}
 \index{animation\_pattern@{animation\_pattern}!led\_task.c@{led\_task.c}}
@@ -1851,7 +1956,7 @@ uint8\+\_\+t animation\+\_\+pattern = 0\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00363}{363}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00370}{370}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a381f77567d8c6cc3dcc0cadc9b3ad5ca}\index{led\_task.c@{led\_task.c}!animation\_start\_time@{animation\_start\_time}}
 \index{animation\_start\_time@{animation\_start\_time}!led\_task.c@{led\_task.c}}
@@ -1861,7 +1966,7 @@ uint32\+\_\+t animation\+\_\+start\+\_\+time = 0\hspace{0.3cm}{\ttfamily [static
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00361}{361}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00368}{368}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ab1b272f31f77f519b306256237a53f62}\index{led\_task.c@{led\_task.c}!button\_available@{button\_available}}
 \index{button\_available@{button\_available}!led\_task.c@{led\_task.c}}
@@ -1878,7 +1983,7 @@ bool button\+\_\+available\mbox{[}9\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00351}{351}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00358}{358}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a5b29e2f7276c89b3c3dd9d870dbc0245}\index{led\_task.c@{led\_task.c}!button\_blinking@{button\_blinking}}
 \index{button\_blinking@{button\_blinking}!led\_task.c@{led\_task.c}}
@@ -1888,7 +1993,7 @@ bool button\+\_\+blinking\mbox{[}9\mbox{]} = \{false\}\hspace{0.3cm}{\ttfamily [
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00357}{357}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00364}{364}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a5a8451e4ed607d6e653e39c1122ae600}\index{led\_task.c@{led\_task.c}!button\_names@{button\_names}}
 \index{button\_names@{button\_names}!led\_task.c@{led\_task.c}}
@@ -1907,7 +2012,7 @@ const char\texorpdfstring{$\ast$}{*} button\+\_\+names\mbox{[}$\,$\mbox{]}\hspac
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00456}{456}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00464}{464}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ad46716f57f8840bf466f5182b422923d}\index{led\_task.c@{led\_task.c}!button\_pressed@{button\_pressed}}
 \index{button\_pressed@{button\_pressed}!led\_task.c@{led\_task.c}}
@@ -1917,7 +2022,7 @@ bool button\+\_\+pressed\mbox{[}9\mbox{]} = \{false\}\hspace{0.3cm}{\ttfamily [s
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00350}{350}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00357}{357}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a4d326bc74da8f9d9728f85a85bb098b6}\index{led\_task.c@{led\_task.c}!button\_release\_time@{button\_release\_time}}
 \index{button\_release\_time@{button\_release\_time}!led\_task.c@{led\_task.c}}
@@ -1933,7 +2038,7 @@ uint32\+\_\+t button\+\_\+release\+\_\+time\mbox{[}9\mbox{]}\hspace{0.3cm}{\ttfa
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00355}{355}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00362}{362}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a7ae8f1d599ba588ecd3a3709345bb7ee}\index{led\_task.c@{led\_task.c}!chess\_board\_pattern@{chess\_board\_pattern}}
 \index{chess\_board\_pattern@{chess\_board\_pattern}!led\_task.c@{led\_task.c}}
@@ -1959,7 +2064,7 @@ const uint32\+\_\+t chess\+\_\+board\+\_\+pattern\mbox{[}64\mbox{]}\hspace{0.3cm
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00398}{398}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00406}{406}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a95fe2d6cbd671926e57533891a3b8cac}\index{led\_task.c@{led\_task.c}!color\_names@{color\_names}}
 \index{color\_names@{color\_names}!led\_task.c@{led\_task.c}}
@@ -1975,7 +2080,7 @@ const char\texorpdfstring{$\ast$}{*} color\+\_\+names\mbox{[}$\,$\mbox{]}\hspace
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00452}{452}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00460}{460}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a7c488b223b05495652330bf542a90669}\index{led\_task.c@{led\_task.c}!endgame\_animation\_active@{endgame\_animation\_active}}
 \index{endgame\_animation\_active@{endgame\_animation\_active}!led\_task.c@{led\_task.c}}
@@ -1985,7 +2090,7 @@ bool endgame\+\_\+animation\+\_\+active = false\hspace{0.3cm}{\ttfamily [static]
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01939}{1939}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02095}{2095}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a1ed1a514affa226ab201a5e7334e32a7}\index{led\_task.c@{led\_task.c}!endgame\_wave@{endgame\_wave}}
 \index{endgame\_wave@{endgame\_wave}!led\_task.c@{led\_task.c}}
@@ -1995,7 +2100,17 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l01939}{1939
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02379}{2379}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02563}{2563}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task_8c_ac96aaee8c56d42372878aa20a24362c1}\index{led\_task.c@{led\_task.c}!global\_brightness@{global\_brightness}}
+\index{global\_brightness@{global\_brightness}!led\_task.c@{led\_task.c}}
+\doxysubsubsection{\texorpdfstring{global\_brightness}{global\_brightness}}
+{\footnotesize\ttfamily \label{led__task_8c_ac96aaee8c56d42372878aa20a24362c1} 
+uint8\+\_\+t global\+\_\+brightness = 50\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00403}{403}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ab30ee6f7006cc4b6a64187bcc4271dec}\index{led\_task.c@{led\_task.c}!last\_status\_report\_time@{last\_status\_report\_time}}
 \index{last\_status\_report\_time@{last\_status\_report\_time}!led\_task.c@{led\_task.c}}
@@ -2005,7 +2120,21 @@ uint32\+\_\+t last\+\_\+status\+\_\+report\+\_\+time = 0\hspace{0.3cm}{\ttfamily
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00444}{444}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00452}{452}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+\Hypertarget{led__task_8c_a7005076d8f4d04f878fd4c8e3efdcce5}\index{led\_task.c@{led\_task.c}!led\_booting\_active@{led\_booting\_active}}
+\index{led\_booting\_active@{led\_booting\_active}!led\_task.c@{led\_task.c}}
+\doxysubsubsection{\texorpdfstring{led\_booting\_active}{led\_booting\_active}}
+{\footnotesize\ttfamily \label{led__task_8c_a7005076d8f4d04f878fd4c8e3efdcce5} 
+bool led\+\_\+booting\+\_\+active = true\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Booting animation -\/ progressive LED illumination. 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l02450}{2450}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ac1c48ef4ad2c752b3812d8e4e3e5324c}\index{led\_task.c@{led\_task.c}!led\_changed\_flags@{led\_changed\_flags}}
 \index{led\_changed\_flags@{led\_changed\_flags}!led\_task.c@{led\_task.c}}
@@ -2015,7 +2144,7 @@ bool led\+\_\+changed\+\_\+flags\mbox{[}(64+9)\mbox{]}\hspace{0.3cm}{\ttfamily [
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00389}{389}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00395}{395}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a10bd2320bc021e09d3a1e6f889617725}\index{led\_task.c@{led\_task.c}!led\_changes\_count@{led\_changes\_count}}
 \index{led\_changes\_count@{led\_changes\_count}!led\_task.c@{led\_task.c}}
@@ -2025,7 +2154,7 @@ uint32\+\_\+t led\+\_\+changes\+\_\+count = 0\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00445}{445}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00453}{453}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ad291c3f82f7856c496990a2ecfe5da23}\index{led\_task.c@{led\_task.c}!led\_changes\_pending@{led\_changes\_pending}}
 \index{led\_changes\_pending@{led\_changes\_pending}!led\_task.c@{led\_task.c}}
@@ -2035,7 +2164,7 @@ bool led\+\_\+changes\+\_\+pending = false\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00386}{386}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00392}{392}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a8bfc7db202490dafea98d0ede64bc881}\index{led\_task.c@{led\_task.c}!led\_component\_enabled@{led\_component\_enabled}}
 \index{led\_component\_enabled@{led\_component\_enabled}!led\_task.c@{led\_task.c}}
@@ -2045,7 +2174,7 @@ bool led\+\_\+component\+\_\+enabled = true\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00368}{368}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00375}{375}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ab5eca3f51d48f047dfa62384299a1b6f}\index{led\_task.c@{led\_task.c}!led\_duration\_system\_enabled@{led\_duration\_system\_enabled}}
 \index{led\_duration\_system\_enabled@{led\_duration\_system\_enabled}!led\_task.c@{led\_task.c}}
@@ -2055,17 +2184,7 @@ bool led\+\_\+duration\+\_\+system\+\_\+enabled = true\hspace{0.3cm}{\ttfamily [
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00394}{394}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
-
-\Hypertarget{led__task_8c_a2fcc158530262c3bb8a09287f5d1cb3e}\index{led\_task.c@{led\_task.c}!led\_duration\_timer@{led\_duration\_timer}}
-\index{led\_duration\_timer@{led\_duration\_timer}!led\_task.c@{led\_task.c}}
-\doxysubsubsection{\texorpdfstring{led\_duration\_timer}{led\_duration\_timer}}
-{\footnotesize\ttfamily \label{led__task_8c_a2fcc158530262c3bb8a09287f5d1cb3e} 
-Timer\+Handle\+\_\+t led\+\_\+duration\+\_\+timer = NULL\hspace{0.3cm}{\ttfamily [static]}}
-
-
-
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00395}{395}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00400}{400}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a0e1b74e72cc66b31800fb54c57a08fb3}\index{led\_task.c@{led\_task.c}!led\_durations@{led\_durations}}
 \index{led\_durations@{led\_durations}!led\_task.c@{led\_task.c}}
@@ -2075,7 +2194,7 @@ Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00395}{395}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00393}{393}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00399}{399}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_aa059cb143b37ad593835d4042adf415b}\index{led\_task.c@{led\_task.c}!led\_initialized@{led\_initialized}}
 \index{led\_initialized@{led\_initialized}!led\_task.c@{led\_task.c}}
@@ -2085,7 +2204,7 @@ bool led\+\_\+initialized = false\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00374}{374}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00381}{381}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a42d3ab57814906b861bdbdba7063e20b}\index{led\_task.c@{led\_task.c}!led\_pending\_changes@{led\_pending\_changes}}
 \index{led\_pending\_changes@{led\_pending\_changes}!led\_task.c@{led\_task.c}}
@@ -2095,7 +2214,7 @@ uint32\+\_\+t led\+\_\+pending\+\_\+changes\mbox{[}(64+9)\mbox{]}\hspace{0.3cm}{
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00388}{388}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00394}{394}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a3a21d6fc11052b5e1badc86408a5f3b2}\index{led\_task.c@{led\_task.c}!led\_states@{led\_states}}
 \index{led\_states@{led\_states}!led\_task.c@{led\_task.c}}
@@ -2111,7 +2230,7 @@ uint32\+\_\+t led\+\_\+states\mbox{[}(64+9)\mbox{]}\hspace{0.3cm}{\ttfamily [sta
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00346}{346}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00353}{353}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a0b78e63c2dfab80c964d3d5fe1453985}\index{led\_task.c@{led\_task.c}!led\_states\_initialized@{led\_states\_initialized}}
 \index{led\_states\_initialized@{led\_states\_initialized}!led\_task.c@{led\_task.c}}
@@ -2121,7 +2240,7 @@ bool led\+\_\+states\+\_\+initialized = false\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00443}{443}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00451}{451}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_abbc5a11f432a69a8fc4d2798e9302d6f}\index{led\_task.c@{led\_task.c}!led\_strip@{led\_strip}}
 \index{led\_strip@{led\_strip}!led\_task.c@{led\_task.c}}
@@ -2131,23 +2250,17 @@ led\+\_\+strip\+\_\+handle\+\_\+t led\+\_\+strip = NULL\hspace{0.3cm}{\ttfamily 
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00373}{373}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00380}{380}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_abf08412fd7527bf3e406512943ab8ec7}\index{led\_task.c@{led\_task.c}!led\_unified\_mutex@{led\_unified\_mutex}}
 \index{led\_unified\_mutex@{led\_unified\_mutex}!led\_task.c@{led\_task.c}}
 \doxysubsubsection{\texorpdfstring{led\_unified\_mutex}{led\_unified\_mutex}}
 {\footnotesize\ttfamily \label{led__task_8c_abf08412fd7527bf3e406512943ab8ec7} 
-Semaphore\+Handle\+\_\+t led\+\_\+unified\+\_\+mutex\hspace{0.3cm}{\ttfamily [static]}}
-
-{\bfseries Inicializační hodnota\+:}
-\begin{DoxyCode}{0}
-\DoxyCodeLine{=}
-\DoxyCodeLine{\ \ \ \ NULL}
-
-\end{DoxyCode}
+Semaphore\+Handle\+\_\+t led\+\_\+unified\+\_\+mutex = NULL\hspace{0.3cm}{\ttfamily [static]}}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00382}{382}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00389}{389}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ac4220888456a96a1308bbf06df3730b8}\index{led\_task.c@{led\_task.c}!matrix\_scanning\_enabled@{matrix\_scanning\_enabled}}
 \index{matrix\_scanning\_enabled@{matrix\_scanning\_enabled}!led\_task.c@{led\_task.c}}
@@ -2157,7 +2270,7 @@ bool matrix\+\_\+scanning\+\_\+enabled = true\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00367}{367}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00374}{374}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a167c892c66569d146d1f3aebabf1cabb}\index{led\_task.c@{led\_task.c}!previous\_led\_states@{previous\_led\_states}}
 \index{previous\_led\_states@{previous\_led\_states}!led\_task.c@{led\_task.c}}
@@ -2167,7 +2280,7 @@ uint32\+\_\+t previous\+\_\+led\+\_\+states\mbox{[}(64+9)\mbox{]}\hspace{0.3cm}{
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00442}{442}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00450}{450}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a97a595620422ca75117a4de4f2bc0b99}\index{led\_task.c@{led\_task.c}!quiet\_period\_active@{quiet\_period\_active}}
 \index{quiet\_period\_active@{quiet\_period\_active}!led\_task.c@{led\_task.c}}
@@ -2177,7 +2290,7 @@ bool quiet\+\_\+period\+\_\+active = false\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00446}{446}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00454}{454}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a5c2607d09b8412f0a6484a21095b260f}\index{led\_task.c@{led\_task.c}!quiet\_period\_duration@{quiet\_period\_duration}}
 \index{quiet\_period\_duration@{quiet\_period\_duration}!led\_task.c@{led\_task.c}}
@@ -2193,7 +2306,7 @@ uint32\+\_\+t quiet\+\_\+period\+\_\+duration\hspace{0.3cm}{\ttfamily [static]}}
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00448}{448}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00456}{456}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ac888595342bcfbaf64cb95f8c4272045}\index{led\_task.c@{led\_task.c}!quiet\_period\_start@{quiet\_period\_start}}
 \index{quiet\_period\_start@{quiet\_period\_start}!led\_task.c@{led\_task.c}}
@@ -2203,7 +2316,7 @@ uint32\+\_\+t quiet\+\_\+period\+\_\+start = 0\hspace{0.3cm}{\ttfamily [static]}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00447}{447}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00455}{455}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a740a5ff73f18495856ddbc99ad099a6b}\index{led\_task.c@{led\_task.c}!simulation\_mode@{simulation\_mode}}
 \index{simulation\_mode@{simulation\_mode}!led\_task.c@{led\_task.c}}
@@ -2219,7 +2332,7 @@ bool simulation\+\_\+mode\hspace{0.3cm}{\ttfamily [static]}}
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00369}{369}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00376}{376}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\index{led\_task.c@{led\_task.c}!TAG@{TAG}}
 \index{TAG@{TAG}!led\_task.c@{led\_task.c}}
@@ -2229,7 +2342,7 @@ const char\texorpdfstring{$\ast$}{*} TAG = "{}LED\+\_\+\+TASK"{}\hspace{0.3cm}{\
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00211}{211}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00212}{212}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_a35141cb45623cb3b7b4d96da35ed1831}\index{led\_task.c@{led\_task.c}!task\_running@{task\_running}}
 \index{task\_running@{task\_running}!led\_task.c@{led\_task.c}}
@@ -2239,7 +2352,7 @@ bool task\+\_\+running = false\hspace{0.3cm}{\ttfamily [static]}}
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00366}{366}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00373}{373}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 
 \Hypertarget{led__task_8c_ad0b9fb10f5bbede6ffb70c90f0b283cd}\index{led\_task.c@{led\_task.c}!test\_pattern\_colors@{test\_pattern\_colors}}
 \index{test\_pattern\_colors@{test\_pattern\_colors}!led\_task.c@{led\_task.c}}
@@ -2263,5 +2376,5 @@ const uint32\+\_\+t test\+\_\+pattern\+\_\+colors\mbox{[}$\,$\mbox{]}\hspace{0.3
 \end{DoxyCode}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00425}{425}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{led__task_8c_source_l00433}{433}} v souboru \mbox{\hyperlink{led__task_8c_source}{led\+\_\+task.\+c}}.
 

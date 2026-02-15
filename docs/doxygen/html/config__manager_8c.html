@@ -98,30 +98,27 @@ $(function(){initNavTree('config__manager_8c.html','',''); });
 <div class="textblock"><code>#include &quot;<a class="el" href="config__manager_8h_source.html">config_manager.h</a>&quot;</code><br />
 <code>#include &quot;esp_log.h&quot;</code><br />
 <code>#include &quot;esp_system.h&quot;</code><br />
-<code>#include &quot;esp_task_wdt.h&quot;</code><br />
-<code>#include &quot;nvs_flash.h&quot;</code><br />
 <code>#include &quot;nvs.h&quot;</code><br />
+<code>#include &quot;nvs_flash.h&quot;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Graf závislostí na vkládaných souborech pro config_manager.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="config__manager_8c__incl.png" border="0" usemap="#aconfig__manager_8c" loading="lazy" alt=""/></div>
 <map name="aconfig__manager_8c" id="aconfig__manager_8c">
-<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; Sprava konfigurace." alt="" coords="634,5,758,31"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; Sprava konfigurace." alt="" coords="553,5,676,31"/>
 <area shape="rect" href="config__manager_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Config Manager Hlavicka." alt="" coords="309,79,432,105"/>
-<area shape="poly" title=" " alt="" coords="638,33,441,78,440,73,643,30"/>
+<area shape="poly" title=" " alt="" coords="571,33,427,77,426,72,575,30"/>
 <area shape="rect" title=" " alt="" coords="442,153,520,178"/>
-<area shape="poly" title=" " alt="" coords="631,23,600,31,564,41,530,58,502,81,493,93,488,107,483,138,478,135,482,106,489,91,498,77,528,53,562,36,599,26,636,22"/>
+<area shape="poly" title=" " alt="" coords="570,33,535,52,517,65,502,81,489,108,483,139,479,136,484,107,498,77,513,61,532,48,574,30"/>
 <area shape="rect" title=" " alt="" coords="512,79,616,105"/>
-<area shape="poly" title=" " alt="" coords="676,30,601,74,598,69,671,33"/>
-<area shape="rect" title=" " alt="" coords="639,79,752,105"/>
-<area shape="poly" title=" " alt="" coords="697,29,698,65,694,62,694,33"/>
-<area shape="rect" title=" " alt="" coords="777,79,865,105"/>
-<area shape="poly" title=" " alt="" coords="717,29,790,71,784,71,717,34"/>
-<area shape="rect" title=" " alt="" coords="889,79,942,105"/>
-<area shape="poly" title=" " alt="" coords="733,29,877,77,872,77,733,34"/>
-<area shape="rect" title=" " alt="" coords="966,79,1031,105"/>
-<area shape="poly" title=" " alt="" coords="751,29,954,78,948,79,750,34"/>
+<area shape="poly" title=" " alt="" coords="608,30,583,68,579,64,604,33"/>
+<area shape="rect" title=" " alt="" coords="640,79,693,105"/>
+<area shape="poly" title=" " alt="" coords="624,29,651,67,646,66,622,34"/>
+<area shape="rect" title=" " alt="" coords="717,79,805,105"/>
+<area shape="poly" title=" " alt="" coords="640,29,725,72,720,72,639,34"/>
+<area shape="rect" title=" " alt="" coords="829,79,893,105"/>
+<area shape="poly" title=" " alt="" coords="656,29,817,77,811,77,656,34"/>
 <area shape="rect" title=" " alt="" coords="5,300,80,326"/>
 <area shape="poly" title=" " alt="" coords="313,107,261,124,199,149,136,183,107,204,81,228,62,256,51,286,46,284,57,254,76,225,103,200,133,179,196,144,260,119,318,104"/>
 <area shape="poly" title=" " alt="" coords="390,103,452,144,447,144,389,108"/>
@@ -130,14 +127,14 @@ Graf závislostí na vkládaných souborech pro config_manager.c:</div>
 <area shape="poly" title=" " alt="" coords="298,172,258,179,209,190,160,206,115,229,83,257,59,289,55,285,79,253,112,224,158,201,208,185,257,174,303,170"/>
 <area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="715,226,821,252"/>
 <area shape="poly" title=" " alt="" coords="419,174,702,225,697,227,419,180"/>
-<area shape="rect" title=" " alt="" coords="206,300,271,326"/>
-<area shape="poly" title=" " alt="" coords="298,175,198,196,154,210,138,219,127,228,122,238,122,248,136,266,162,282,195,297,189,297,160,287,132,270,117,249,117,237,123,225,135,214,152,205,197,190,302,172"/>
-<area shape="rect" title=" " alt="" coords="493,300,568,326"/>
-<area shape="poly" title=" " alt="" coords="298,174,245,185,194,200,176,210,165,222,163,235,171,250,191,265,222,278,304,295,397,304,480,311,475,311,396,310,303,300,220,283,189,270,167,254,158,236,160,219,173,206,192,195,244,180,303,172"/>
-<area shape="rect" title=" " alt="" coords="692,300,836,326"/>
-<area shape="poly" title=" " alt="" coords="419,174,431,176,523,179,643,179,703,182,758,190,803,203,821,213,835,225,842,243,835,262,819,279,800,294,798,289,816,275,831,259,837,243,831,228,818,217,801,208,757,195,703,188,643,184,523,184,430,181,420,179"/>
-<area shape="rect" title=" " alt="" coords="860,300,975,326"/>
-<area shape="poly" title=" " alt="" coords="419,174,431,176,525,182,647,187,767,198,817,209,856,224,873,237,887,252,908,287,903,285,883,256,869,241,853,229,816,214,766,203,647,192,525,187,430,181,420,179"/>
+<area shape="rect" title=" " alt="" coords="196,300,340,326"/>
+<area shape="poly" title=" " alt="" coords="298,175,198,196,154,210,138,219,127,228,122,239,121,248,126,257,134,266,161,281,197,295,192,296,159,286,131,270,121,260,116,250,116,237,123,225,135,214,152,205,197,190,302,172"/>
+<area shape="rect" title=" " alt="" coords="524,300,639,326"/>
+<area shape="poly" title=" " alt="" coords="298,174,245,185,194,201,176,211,165,222,163,235,171,250,186,259,216,267,305,282,511,305,505,307,304,288,215,272,184,264,167,254,157,236,160,220,172,206,192,196,244,180,303,172"/>
+<area shape="rect" title=" " alt="" coords="743,300,817,326"/>
+<area shape="poly" title=" " alt="" coords="419,174,431,176,523,179,643,179,703,182,758,190,803,203,821,213,835,225,842,242,838,260,826,277,810,292,808,287,822,273,833,257,837,242,831,228,818,217,801,208,757,195,703,188,643,184,523,184,430,181,420,179"/>
+<area shape="rect" title=" " alt="" coords="865,300,929,326"/>
+<area shape="poly" title=" " alt="" coords="419,174,431,176,526,181,649,184,711,188,769,195,819,207,856,224,870,237,880,252,893,287,889,284,876,255,866,240,853,229,817,212,768,200,711,193,648,189,525,186,430,181,420,179"/>
 <area shape="rect" title=" " alt="" coords="182,226,274,252"/>
 <area shape="poly" title=" " alt="" coords="340,178,265,221,262,216,335,180"/>
 <area shape="rect" title=" " alt="" coords="299,226,421,252"/>
@@ -146,11 +143,11 @@ Graf závislostí na vkládaných souborech pro config_manager.c:</div>
 <area shape="poly" title=" " alt="" coords="384,176,463,219,458,219,383,182"/>
 <area shape="rect" title=" " alt="" coords="574,226,690,252"/>
 <area shape="poly" title=" " alt="" coords="406,176,573,221,568,222,406,182"/>
-<area shape="poly" title=" " alt="" coords="717,250,703,255,406,284,95,310,95,305,405,279,702,249,711,251"/>
-<area shape="poly" title=" " alt="" coords="717,250,703,255,469,287,287,309,286,303,469,281,702,249,711,251"/>
-<area shape="poly" title=" " alt="" coords="730,252,583,298,582,293,725,253"/>
-<area shape="poly" title=" " alt="" coords="769,250,767,286,763,283,765,254"/>
-<area shape="poly" title=" " alt="" coords="794,250,881,293,875,293,793,255"/>
+<area shape="poly" title=" " alt="" coords="717,250,703,255,95,310,95,304,702,249,711,251"/>
+<area shape="poly" title=" " alt="" coords="717,250,703,255,355,303,354,298,702,249,711,250"/>
+<area shape="poly" title=" " alt="" coords="739,252,628,297,627,291,734,253"/>
+<area shape="poly" title=" " alt="" coords="772,250,777,286,773,283,768,254"/>
+<area shape="poly" title=" " alt="" coords="790,250,864,293,859,292,789,255"/>
 </map>
 </div>
 </div>
@@ -233,7 +230,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00215">215</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00213">213</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -261,7 +258,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00050">50</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00048">48</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -284,7 +281,7 @@ Proměnné</h2></td></tr>
 <p>Inicializuje NVS flash pro ukladani konfigurace. NVS flash je jiz inicializovan v <a class="el" href="main_8c.html" title="ESP32-C6 Chess System - Hlavni inicializace a startup.">main.c</a> <a class="el" href="main_8c.html#ae52825df5837e0f8f5e814f48cafb722" title="Inicializuje konzoli a UART.">init_console()</a>, takze tato funkce pouze overi dostupnost.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00039">39</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00038">38</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -307,7 +304,7 @@ Proměnné</h2></td></tr>
 <p>Obnovi vychozi nastaveni systemu a ulozi je do NVS flash. Pote aplikuje vychozi nastaveni na system.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00202">202</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00201">201</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -335,7 +332,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00119">119</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00115">115</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -359,14 +356,14 @@ Proměnné</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
-<div class="line">    .verbose_mode = <span class="keyword">false</span>,</div>
-<div class="line">    .quiet_mode = <span class="keyword">false</span>,</div>
-<div class="line">    .log_level = ESP_LOG_ERROR,</div>
-<div class="line">    .command_timeout_ms = 5000</div>
-<div class="line">}</div>
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {.verbose_mode = <span class="keyword">false</span>,</div>
+<div class="line">                                               .quiet_mode = <span class="keyword">false</span>,</div>
+<div class="line">                                               .log_level = ESP_LOG_ERROR,</div>
+<div class="line">                                               .command_timeout_ms = 5000,</div>
+<div class="line">                                               .brightness_level =</div>
+<div class="line">                                                   50 }</div>
 </div><!-- fragment -->
-<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00032">32</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00031">31</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -390,7 +387,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00029">29</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00028">28</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>

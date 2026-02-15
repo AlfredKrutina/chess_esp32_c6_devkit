@@ -33,8 +33,12 @@ void \mbox{\hyperlink{game__task_8h_a13909ec7cf87ce1999cd9647689e46aa}{game\+\_\
 \begin{DoxyCompactList}\small\item\em Zpracuj sachovy tah z UART prikazu. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a6199d3c51c2ba715c27b7be7428c61b7}{game\+\_\+get\+\_\+board\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
 \begin{DoxyCompactList}\small\item\em Exportuj stav sachovnice do JSON retezce. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{game__task_8h_a2e528b3b66fe59544f28ca993c4a6143}{game\+\_\+get\+\_\+move\+\_\+count}} (void)
+\begin{DoxyCompactList}\small\item\em Exportuj stav hry do JSON retezce. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_abdf3ba446d87db43c26b6c51275a521e}{game\+\_\+get\+\_\+status\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
 \begin{DoxyCompactList}\small\item\em Exportuj stav hry do JSON retezce. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_a8b7aa3018c0775246c6fe867f3ae6af1}{game\+\_\+refresh\+\_\+leds}} (void)
+\begin{DoxyCompactList}\small\item\em Vynuceny refresh LED podle aktualniho stavu hry Volat po navratu z HA rezimu nebo jineho preruseni. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a5d08ec12c99532e3819abb072385a921}{game\+\_\+get\+\_\+history\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
 \begin{DoxyCompactList}\small\item\em Exportuj historii tahu do JSON retezce. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_aa442a40b76d56106f726f76bc210b84e}{game\+\_\+get\+\_\+captured\+\_\+json}} (char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
@@ -49,6 +53,8 @@ void \mbox{\hyperlink{game__task_8h_ac75becc8b5888b8fa31045d7c28c085e}{game\+\_\
 \begin{DoxyCompactList}\small\item\em Resetuj hru do pocatecniho stavu. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{game__task_8h_a57e990b9360540c1ba82ea3d5a32cf44}{game\+\_\+start\+\_\+new\+\_\+game}} (void)
 \begin{DoxyCompactList}\small\item\em Spust novou hru. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{game__task_8h_aa3dc2b9ee227e2a5302b2c1d908ec6d7}{game\+\_\+reset\+\_\+error\+\_\+recovery\+\_\+state}} (void)
+\begin{DoxyCompactList}\small\item\em Vynuluje stav error recovery (vraceni figurky na blikajici pole). \end{DoxyCompactList}\item 
 bool \mbox{\hyperlink{game__task_8h_a93dee8ccd518ae0092501007a420e4bb}{game\+\_\+is\+\_\+valid\+\_\+position}} (int row, int col)
 \begin{DoxyCompactList}\small\item\em Overi zda je pozice platna na sachovnici. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} \mbox{\hyperlink{game__task_8h_ab1f6294f23b24a27514d95c3b0ca0a4d}{game\+\_\+get\+\_\+piece}} (int row, int col)
@@ -95,8 +101,6 @@ bool \mbox{\hyperlink{game__task_8h_a4ec624bee837dfc3ef8429dd6edfc961}{game\+\_\
 \begin{DoxyCompactList}\small\item\em Ziskej aktualni stav hry. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{chess__types_8h_a49ff5e2d7800ecd3792c990f4445c3f1}{player\+\_\+t}} \mbox{\hyperlink{game__task_8h_a98c28bfe096e1b2f5dd819da477efbe1}{game\+\_\+get\+\_\+current\+\_\+player}} (void)
 \begin{DoxyCompactList}\small\item\em Ziskej aktualniho hrace na tahu. \end{DoxyCompactList}\item 
-uint32\+\_\+t \mbox{\hyperlink{game__task_8h_a2e528b3b66fe59544f28ca993c4a6143}{game\+\_\+get\+\_\+move\+\_\+count}} (void)
-\begin{DoxyCompactList}\small\item\em Ziskej pocet provedenych tahu. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{game__task_8h_ad7894f48d6e00cfe140b99026be38b71}{game\+\_\+print\+\_\+board}} (void)
 \begin{DoxyCompactList}\small\item\em Vypis aktualni pozici sachovnice. \end{DoxyCompactList}\item 
 const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{game__task_8h_ae11065cb566adb8002df27fc8edc2b67}{game\+\_\+get\+\_\+piece\+\_\+name}} (\mbox{\hyperlink{chess__types_8h_ab9be55f539b97c45fb9f57efded733c2}{piece\+\_\+t}} piece)
@@ -126,7 +130,7 @@ void \mbox{\hyperlink{game__task_8h_abc7c8755788427711faa337e69d53e19}{game\+\_\
 void \mbox{\hyperlink{game__task_8h_a8b43b89b88ce59ea25698ac5a8280bf2}{game\+\_\+clear\+\_\+highlights\+\_\+direct}} (void)
 \begin{DoxyCompactList}\small\item\em Vymaz zvyrazneni primo pres LED. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{game__task_8h_aad4c6f489504e1aace2045420bcec3d1}{game\+\_\+show\+\_\+piece\+\_\+lift\+\_\+direct}} (uint8\+\_\+t row, uint8\+\_\+t col)
-\begin{DoxyCompactList}\small\item\em Zobraz zvednutí figurky primo pres LED. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Zobraz zvednuti figurky primo pres LED. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{game__task_8h_af337fa678e02039015341d7fa45e3ccc}{game\+\_\+show\+\_\+valid\+\_\+moves\+\_\+direct}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}valid\+\_\+positions, uint8\+\_\+t count)
 \begin{DoxyCompactList}\small\item\em Zobraz platne tahy primo pres LED. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{game__task_8h_a5f2645fc55410cfe671fe6e8f2a99f2f}{game\+\_\+show\+\_\+invalid\+\_\+move\+\_\+error}} (uint8\+\_\+t from\+\_\+row, uint8\+\_\+t from\+\_\+col, uint8\+\_\+t to\+\_\+row, uint8\+\_\+t to\+\_\+col)
@@ -172,7 +176,7 @@ bool \mbox{\hyperlink{game__task_8h_a90e272f6928e9145d30671ce523ff35e}{game\+\_\
 void \mbox{\hyperlink{game__task_8h_a502098cd25ad56400beb2339a1bfb84c}{game\+\_\+process\+\_\+matrix\+\_\+events}} (void)
 \begin{DoxyCompactList}\small\item\em Zpracuj matrix udalosti (tahy). \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{game__task_8h_a484415c76302e466ea7b01ecb2edee09}{game\+\_\+highlight\+\_\+movable\+\_\+pieces}} (void)
-\begin{DoxyCompactList}\small\item\em Zvyrazni vsechny pohyblivé figurky aktualniho hrace. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Zvyrazni vsechny pohyblive figurky aktualniho hrace. \end{DoxyCompactList}\item 
 bool \mbox{\hyperlink{game__task_8h_ad6aef74bc8447dabf92abcb081340931}{game\+\_\+detect\+\_\+new\+\_\+game\+\_\+setup}} (void)
 \begin{DoxyCompactList}\small\item\em Detekuj zda jsou figurky ve vychozi pozici. \end{DoxyCompactList}\item 
 bool \mbox{\hyperlink{game__task_8h_a67dfb69eac8af38766e7d92cf3b4b5d0}{game\+\_\+is\+\_\+castle\+\_\+animation\+\_\+active}} (void)
@@ -206,11 +210,11 @@ esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a76220c211d4e21aa36ac90a00761
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a95937d38b6f9490371d95bd51ec8460c}{game\+\_\+end\+\_\+timer\+\_\+move}} (void)
 \begin{DoxyCompactList}\small\item\em Ukonci timer pro tah. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a25364833eb80653b4d30414376f3fe35}{game\+\_\+pause\+\_\+timer}} (void)
-\begin{DoxyCompactList}\small\item\em Pozastav herní timer. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Pozastav herni timer. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_aa1855cbe07e70ad38d0fbd163e7e9746}{game\+\_\+resume\+\_\+timer}} (void)
-\begin{DoxyCompactList}\small\item\em Obnov herní timer. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Obnov herni timer. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a0df29c9e5d4723c41477e530799976b0}{game\+\_\+reset\+\_\+timer}} (void)
-\begin{DoxyCompactList}\small\item\em Resetuj herní timer. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Resetuj herni timer. \end{DoxyCompactList}\item 
 uint32\+\_\+t \mbox{\hyperlink{game__task_8h_a58b489e87078e33ccf75b35d892bb4fe}{game\+\_\+get\+\_\+remaining\+\_\+time}} (bool is\+\_\+white\+\_\+turn)
 \begin{DoxyCompactList}\small\item\em Ziskej zbyvajici cas hrace. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{game__task_8h_a917f1907b236e1476e75bb033e2a3165}{game\+\_\+init\+\_\+timer\+\_\+system}} (void)
@@ -305,7 +309,7 @@ true if conversion successful, false otherwise
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l05584}{5584}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l06383}{6383}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a20b79ef4675f25cd3f39ddcdaf65243c}\index{game\_task.h@{game\_task.h}!convert\_notation\_to\_coords@{convert\_notation\_to\_coords}}
 \index{convert\_notation\_to\_coords@{convert\_notation\_to\_coords}!game\_task.h@{game\_task.h}}
@@ -345,7 +349,7 @@ true if conversion successful, false otherwise
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l05556}{5556}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l06355}{6355}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a7d059ee1bbc8427968feaf95af032112}\index{game\_task.h@{game\_task.h}!game\_add\_position\_to\_history@{game\_add\_position\_to\_history}}
 \index{game\_add\_position\_to\_history@{game\_add\_position\_to\_history}!game\_task.h@{game\_task.h}}
@@ -359,7 +363,7 @@ Pridej pozici do historie pro detekci opakovani.
 
 Pridej pozici do historie pro detekci opakovani. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00828}{828}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00758}{758}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a715422f9b34ce3aff72a852b7951ebba}\index{game\_task.h@{game\_task.h}!game\_calculate\_material\_balance@{game\_calculate\_material\_balance}}
 \index{game\_calculate\_material\_balance@{game\_calculate\_material\_balance}!game\_task.h@{game\_task.h}}
@@ -385,7 +389,7 @@ Material difference (positive = white advantage, negative = black advantage)
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00870}{870}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00800}{800}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a2e80d005401f27a295b3f2b440d4bb88}\index{game\_task.h@{game\_task.h}!game\_calculate\_position\_hash@{game\_calculate\_position\_hash}}
 \index{game\_calculate\_position\_hash@{game\_calculate\_position\_hash}!game\_task.h@{game\_task.h}}
@@ -404,7 +408,7 @@ Vypocitej hash pozice pro detekci opakovani.
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00759}{759}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00689}{689}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a3cd556600affcd7945ded58e0a05c9c3}\index{game\_task.h@{game\_task.h}!game\_check\_end\_game\_conditions@{game\_check\_end\_game\_conditions}}
 \index{game\_check\_end\_game\_conditions@{game\_check\_end\_game\_conditions}!game\_task.h@{game\_task.h}}
@@ -453,7 +457,7 @@ Opraveno v2.\+4.\+1\+:
 \end{DoxyNote}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08511}{8511}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09445}{9445}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ad50b0c62b7700e4422eba52d68e2a938}\index{game\_task.h@{game\_task.h}!game\_check\_game\_conditions@{game\_check\_game\_conditions}}
 \index{game\_check\_game\_conditions@{game\_check\_game\_conditions}!game\_task.h@{game\_task.h}}
@@ -469,7 +473,7 @@ Kontroluje zda je kral v sachu, matu nebo patu.
 
 Overi podminky sachu/matu. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08274}{8274}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09208}{9208}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a8b43b89b88ce59ea25698ac5a8280bf2}\index{game\_task.h@{game\_task.h}!game\_clear\_highlights\_direct@{game\_clear\_highlights\_direct}}
 \index{game\_clear\_highlights\_direct@{game\_clear\_highlights\_direct}!game\_task.h@{game\_task.h}}
@@ -531,7 +535,7 @@ true if castle was completed successfully
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10839}{10839}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11916}{11916}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a36549782eb3387a93e25c7d73325bd9f}\index{game\_task.h@{game\_task.h}!game\_coords\_to\_square@{game\_coords\_to\_square}}
 \index{game\_coords\_to\_square@{game\_coords\_to\_square}!game\_task.h@{game\_task.h}}
@@ -565,7 +569,7 @@ Prevede souradnice sachovnice na retezec pole.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08755}{8755}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09696}{9696}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ad6aef74bc8447dabf92abcb081340931}\index{game\_task.h@{game\_task.h}!game\_detect\_new\_game\_setup@{game\_detect\_new\_game\_setup}}
 \index{game\_detect\_new\_game\_setup@{game\_detect\_new\_game\_setup}!game\_task.h@{game\_task.h}}
@@ -589,7 +593,7 @@ true if pieces are in starting positions, false otherwise
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09753}{9753}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10747}{10747}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a95937d38b6f9490371d95bd51ec8460c}\index{game\_task.h@{game\_task.h}!game\_end\_timer\_move@{game\_end\_timer\_move}}
 \index{game\_end\_timer\_move@{game\_end\_timer\_move}!game\_task.h@{game\_task.h}}
@@ -606,7 +610,7 @@ ESP\+\_\+\+OK pri uspechu
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11329}{11329}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12433}{12433}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a4ec624bee837dfc3ef8429dd6edfc961}\index{game\_task.h@{game\_task.h}!game\_execute\_move@{game\_execute\_move}}
 \index{game\_execute\_move@{game\_execute\_move}!game\_task.h@{game\_task.h}}
@@ -630,7 +634,7 @@ true pokud byl tah uspesne proveden
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02990}{2990}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03105}{3105}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a8aacf784d572f6de13c441c564d8037e}\index{game\_task.h@{game\_task.h}!game\_get\_advantage\_json@{game\_get\_advantage\_json}}
 \index{game\_get\_advantage\_json@{game\_get\_advantage\_json}!game\_task.h@{game\_task.h}}
@@ -666,7 +670,7 @@ ESP\+\_\+\+OK on success, error code on failure
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11216}{11216}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12320}{12320}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a7feffd0ac688b65213940c59e6414b5a}\index{game\_task.h@{game\_task.h}!game\_get\_available\_moves@{game\_get\_available\_moves}}
 \index{game\_get\_available\_moves@{game\_get\_available\_moves}!game\_task.h@{game\_task.h}}
@@ -710,7 +714,7 @@ Number of available moves found
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02781}{2781}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02829}{2829}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a4c5423c283319ea94779b79682ca9b98}\index{game\_task.h@{game\_task.h}!game\_get\_black\_wins@{game\_get\_black\_wins}}
 \index{game\_get\_black\_wins@{game\_get\_black\_wins}!game\_task.h@{game\_task.h}}
@@ -724,7 +728,7 @@ Ziskej pocet vyher cerneho.
 
 Ziskej pocet vyher cerneho. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01211}{1211}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01141}{1141}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a6199d3c51c2ba715c27b7be7428c61b7}\index{game\_task.h@{game\_task.h}!game\_get\_board\_json@{game\_get\_board\_json}}
 \index{game\_get\_board\_json@{game\_get\_board\_json}!game\_task.h@{game\_task.h}}
@@ -748,7 +752,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10895}{10895}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11972}{11972}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_aa442a40b76d56106f726f76bc210b84e}\index{game\_task.h@{game\_task.h}!game\_get\_captured\_json@{game\_get\_captured\_json}}
 \index{game\_get\_captured\_json@{game\_get\_captured\_json}!game\_task.h@{game\_task.h}}
@@ -772,7 +776,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11165}{11165}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12269}{12269}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a98c28bfe096e1b2f5dd819da477efbe1}\index{game\_task.h@{game\_task.h}!game\_get\_current\_player@{game\_get\_current\_player}}
 \index{game\_get\_current\_player@{game\_get\_current\_player}!game\_task.h@{game\_task.h}}
@@ -789,7 +793,7 @@ Aktualni hrac (PLAYER\+\_\+\+WHITE nebo PLAYER\+\_\+\+BLACK)
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03347}{3347}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03625}{3625}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a49a6874590b30a62f04f7ca6d3efcf05}\index{game\_task.h@{game\_task.h}!game\_get\_draws@{game\_get\_draws}}
 \index{game\_get\_draws@{game\_get\_draws}!game\_task.h@{game\_task.h}}
@@ -803,7 +807,7 @@ Ziskej pocet remiz.
 
 Ziskej pocet remiz. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01216}{1216}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01146}{1146}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a870a53ed0d150a3c293bcbcb76986fb2}\index{game\_task.h@{game\_task.h}!game\_get\_game\_state\_string@{game\_get\_game\_state\_string}}
 \index{game\_get\_game\_state\_string@{game\_get\_game\_state\_string}!game\_task.h@{game\_task.h}}
@@ -817,7 +821,7 @@ Ziskej textovy retezec stavu hry.
 
 Ziskej textovy retezec stavu hry. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01226}{1226}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01156}{1156}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a5d08ec12c99532e3819abb072385a921}\index{game\_task.h@{game\_task.h}!game\_get\_history\_json@{game\_get\_history\_json}}
 \index{game\_get\_history\_json@{game\_get\_history\_json}!game\_task.h@{game\_task.h}}
@@ -841,7 +845,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11120}{11120}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12224}{12224}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a13f42aca89279614ea9159dec44ae36c}\index{game\_task.h@{game\_task.h}!game\_get\_material\_string@{game\_get\_material\_string}}
 \index{game\_get\_material\_string@{game\_get\_material\_string}!game\_task.h@{game\_task.h}}
@@ -864,7 +868,7 @@ Ziskej textovy retezec material balance.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00901}{901}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00831}{831}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a2e528b3b66fe59544f28ca993c4a6143}\index{game\_task.h@{game\_task.h}!game\_get\_move\_count@{game\_get\_move\_count}}
 \index{game\_get\_move\_count@{game\_get\_move\_count}!game\_task.h@{game\_task.h}}
@@ -874,14 +878,35 @@ uint32\+\_\+t game\+\_\+get\+\_\+move\+\_\+count (\begin{DoxyParamCaption}\item[
 
 
 
-Ziskej pocet provedenych tahu. 
+Exportuj stav hry do JSON retezce. 
+
+Ziskej pocet provedenych tahu.
+
+
+\begin{DoxyParams}[1]{Parametry}
+\mbox{\texttt{out}}  & {\em buffer} & Vystupni buffer pro JSON retezec \\
+\hline
+ & {\em size} & Velikost bufferu \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Návratová hodnota}
+ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
+\end{DoxyReturn}
+Vrati aktualni pocet tahu (thread-\/safe) \begin{DoxyReturn}{Návratová hodnota}
+Aktualni pocet tahu od zacatku hry
+
+Pocet tahu od zacatku hry
+\end{DoxyReturn}
+Exportuj stav hry do JSON retezce.
+
+Ziskej pocet provedenych tahu.
 
 \begin{DoxyReturn}{Návratová hodnota}
 Pocet tahu od zacatku hry 
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03349}{3349}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12018}{12018}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ab1f6294f23b24a27514d95c3b0ca0a4d}\index{game\_task.h@{game\_task.h}!game\_get\_piece@{game\_get\_piece}}
 \index{game\_get\_piece@{game\_get\_piece}!game\_task.h@{game\_task.h}}
@@ -905,7 +930,7 @@ Typ figurky na pozici
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01675}{1675}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01659}{1659}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ae11065cb566adb8002df27fc8edc2b67}\index{game\_task.h@{game\_task.h}!game\_get\_piece\_name@{game\_get\_piece\_name}}
 \index{game\_get\_piece\_name@{game\_get\_piece\_name}!game\_task.h@{game\_task.h}}
@@ -937,7 +962,7 @@ Piece name string
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02641}{2641}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02689}{2689}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a58b489e87078e33ccf75b35d892bb4fe}\index{game\_task.h@{game\_task.h}!game\_get\_remaining\_time@{game\_get\_remaining\_time}}
 \index{game\_get\_remaining\_time@{game\_get\_remaining\_time}!game\_task.h@{game\_task.h}}
@@ -959,7 +984,7 @@ Zbyvajici cas v milisekundach
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11367}{11367}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12471}{12471}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ac8bfd19bdb7f1bbe6986c0f007713f73}\index{game\_task.h@{game\_task.h}!game\_get\_state@{game\_get\_state}}
 \index{game\_get\_state@{game\_get\_state}!game\_task.h@{game\_task.h}}
@@ -976,7 +1001,7 @@ Aktualni stav hry (GAME\+\_\+\+STATE\+\_\+\+IDLE, GAME\+\_\+\+STATE\+\_\+\+PLAYI
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03345}{3345}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03623}{3623}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_abdf3ba446d87db43c26b6c51275a521e}\index{game\_task.h@{game\_task.h}!game\_get\_status\_json@{game\_get\_status\_json}}
 \index{game\_get\_status\_json@{game\_get\_status\_json}!game\_task.h@{game\_task.h}}
@@ -1000,7 +1025,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10938}{10938}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12027}{12027}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a4373558ca8d873f8a649ab8436720807}\index{game\_task.h@{game\_task.h}!game\_get\_timer\_json@{game\_get\_timer\_json}}
 \index{game\_get\_timer\_json@{game\_get\_timer\_json}!game\_task.h@{game\_task.h}}
@@ -1024,7 +1049,7 @@ ESP\+\_\+\+OK pri uspechu
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11278}{11278}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12382}{12382}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_aed140b5d1ea696aa8fcd53aacc2303a9}\index{game\_task.h@{game\_task.h}!game\_get\_total\_games@{game\_get\_total\_games}}
 \index{game\_get\_total\_games@{game\_get\_total\_games}!game\_task.h@{game\_task.h}}
@@ -1038,7 +1063,7 @@ Ziskej celkovy pocet her.
 
 Ziskej celkovy pocet her. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01221}{1221}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01151}{1151}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ac06b42b52fc2abf90b66dcbd73ecd4a0}\index{game\_task.h@{game\_task.h}!game\_get\_white\_wins@{game\_get\_white\_wins}}
 \index{game\_get\_white\_wins@{game\_get\_white\_wins}!game\_task.h@{game\_task.h}}
@@ -1052,7 +1077,7 @@ Ziskej pocet vyher bileho.
 
 Ziskej pocet vyher bileho. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01206}{1206}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01136}{1136}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_accc9ce251093d9ee6c29aea32234ad53}\index{game\_task.h@{game\_task.h}!game\_handle\_invalid\_move@{game\_handle\_invalid\_move}}
 \index{game\_handle\_invalid\_move@{game\_handle\_invalid\_move}!game\_task.h@{game\_task.h}}
@@ -1075,7 +1100,7 @@ Zobrazi chybovou zpravu a LED feedback pro neplatny tah.
 \end{DoxyParams}
 Zpracuj neplatny tah. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07598}{7598}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08510}{8510}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a3b6831d8d640dff74119ccdb4f9ff9d2}\index{game\_task.h@{game\_task.h}!game\_handle\_time\_expiration@{game\_handle\_time\_expiration}}
 \index{game\_handle\_time\_expiration@{game\_handle\_time\_expiration}!game\_task.h@{game\_task.h}}
@@ -1092,7 +1117,7 @@ ESP\+\_\+\+OK pri uspechu
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11458}{11458}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12562}{12562}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a90e272f6928e9145d30671ce523ff35e}\index{game\_task.h@{game\_task.h}!game\_has\_legal\_moves@{game\_has\_legal\_moves}}
 \index{game\_has\_legal\_moves@{game\_has\_legal\_moves}!game\_task.h@{game\_task.h}}
@@ -1116,7 +1141,7 @@ true if player has legal moves
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08375}{8375}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09309}{9309}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_acd21a8521c05d2746643f0a674e9ee5d}\index{game\_task.h@{game\_task.h}!game\_highlight\_invalid\_target\_area@{game\_highlight\_invalid\_target\_area}}
 \index{game\_highlight\_invalid\_target\_area@{game\_highlight\_invalid\_target\_area}!game\_task.h@{game\_task.h}}
@@ -1146,7 +1171,7 @@ Zvyrazni neplatnou cilovou oblast cervenou LED.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07552}{7552}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08464}{8464}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a484415c76302e466ea7b01ecb2edee09}\index{game\_task.h@{game\_task.h}!game\_highlight\_movable\_pieces@{game\_highlight\_movable\_pieces}}
 \index{game\_highlight\_movable\_pieces@{game\_highlight\_movable\_pieces}!game\_task.h@{game\_task.h}}
@@ -1156,13 +1181,13 @@ void game\+\_\+highlight\+\_\+movable\+\_\+pieces (\begin{DoxyParamCaption}\item
 
 
 
-Zvyrazni vsechny pohyblivé figurky aktualniho hrace. 
+Zvyrazni vsechny pohyblive figurky aktualniho hrace. 
 
 Zobrazi jemnou zlutou animaci na vsech figurkach ktere se mohou hybat.
 
-Zvyrazni vsechny pohyblivé figurky aktualniho hrace. 
+Zvyrazni vsechny pohyblive figurky aktualniho hrace. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10400}{10400}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11437}{11437}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ac0310521f54ddea6598d78bf6e009713}\index{game\_task.h@{game\_task.h}!game\_highlight\_valid\_moves\_for\_piece@{game\_highlight\_valid\_moves\_for\_piece}}
 \index{game\_highlight\_valid\_moves\_for\_piece@{game\_highlight\_valid\_moves\_for\_piece}!game\_task.h@{game\_task.h}}
@@ -1192,7 +1217,7 @@ Zvyrazni platne tahy pro specifickou figurku.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07572}{7572}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08484}{8484}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a917f1907b236e1476e75bb033e2a3165}\index{game\_task.h@{game\_task.h}!game\_init\_timer\_system@{game\_init\_timer\_system}}
 \index{game\_init\_timer\_system@{game\_init\_timer\_system}!game\_task.h@{game\_task.h}}
@@ -1209,7 +1234,7 @@ ESP\+\_\+\+OK pri uspechu
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11380}{11380}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12484}{12484}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a9b4b4ef6ba4260c09a59192fc68be834}\index{game\_task.h@{game\_task.h}!game\_initialize\_board@{game\_initialize\_board}}
 \index{game\_initialize\_board@{game\_initialize\_board}!game\_task.h@{game\_task.h}}
@@ -1235,7 +1260,7 @@ Funkce nastavi\+:
 \item Resetuje vsechny stavy hry 
 \end{DoxyItemize}
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01416}{1416}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01352}{1352}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a304560a99cb8733e12bdcd9461b66926}\index{game\_task.h@{game\_task.h}!game\_is\_black\_piece@{game\_is\_black\_piece}}
 \index{game\_is\_black\_piece@{game\_is\_black\_piece}!game\_task.h@{game\_task.h}}
@@ -1257,7 +1282,7 @@ true pokud je figurka cerna
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01697}{1697}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01681}{1681}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a67dfb69eac8af38766e7d92cf3b4b5d0}\index{game\_task.h@{game\_task.h}!game\_is\_castle\_animation\_active@{game\_is\_castle\_animation\_active}}
 \index{game\_is\_castle\_animation\_active@{game\_is\_castle\_animation\_active}!game\_task.h@{game\_task.h}}
@@ -1279,7 +1304,7 @@ true if castle animation is waiting for rook move
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10809}{10809}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11885}{11885}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_aa407236aeb356b0929ab54581fe041bb}\index{game\_task.h@{game\_task.h}!game\_is\_castling\_expected@{game\_is\_castling\_expected}}
 \index{game\_is\_castling\_expected@{game\_is\_castling\_expected}!game\_task.h@{game\_task.h}}
@@ -1301,7 +1326,7 @@ true if castling is expected
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10816}{10816}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11892}{11892}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a2f77ab43a39a2a3ebc640df092f9cdc1}\index{game\_task.h@{game\_task.h}!game\_is\_empty@{game\_is\_empty}}
 \index{game\_is\_empty@{game\_is\_empty}!game\_task.h@{game\_task.h}}
@@ -1325,7 +1350,7 @@ true pokud je pozice prazdna
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01689}{1689}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01673}{1673}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a175e65acc9f386834730a86b25d6190a}\index{game\_task.h@{game\_task.h}!game\_is\_en\_passant\_possible@{game\_is\_en\_passant\_possible}}
 \index{game\_is\_en\_passant\_possible@{game\_is\_en\_passant\_possible}!game\_task.h@{game\_task.h}}
@@ -1363,7 +1388,7 @@ En passant (brani mimochodem) je mozne pouze pokud\+:
 \item Cilove pole je uprostred mezi start a cil pozici protivnikova pesce 
 \end{DoxyEnumerate}
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02226}{2226}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02255}{2255}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a93a1f0d6a82af5e13f78ebecc8a5ed8c}\index{game\_task.h@{game\_task.h}!game\_is\_insufficient\_material@{game\_is\_insufficient\_material}}
 \index{game\_is\_insufficient\_material@{game\_is\_insufficient\_material}!game\_task.h@{game\_task.h}}
@@ -1380,7 +1405,7 @@ true pokud je nedostatecny material (automaticka remiza)
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08396}{8396}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09330}{9330}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a737d8907ff7e0ea86e3c46e70f3c3614}\index{game\_task.h@{game\_task.h}!game\_is\_king\_in\_check@{game\_is\_king\_in\_check}}
 \index{game\_is\_king\_in\_check@{game\_is\_king\_in\_check}!game\_task.h@{game\_task.h}}
@@ -1404,7 +1429,7 @@ true if king is in check
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08318}{8318}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09252}{9252}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a009d7069912fb2689b7443575d3def38}\index{game\_task.h@{game\_task.h}!game\_is\_position\_repeated@{game\_is\_position\_repeated}}
 \index{game\_is\_position\_repeated@{game\_is\_position\_repeated}!game\_task.h@{game\_task.h}}
@@ -1423,7 +1448,7 @@ true if position is repeated 3+ times (draw by repetition)
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00808}{808}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l00738}{738}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a303099e83402e02cace5235656259b70}\index{game\_task.h@{game\_task.h}!game\_is\_promotion\_available@{game\_is\_promotion\_available}}
 \index{game\_is\_promotion\_available@{game\_is\_promotion\_available}!game\_task.h@{game\_task.h}}
@@ -1465,7 +1490,7 @@ true pokud jsou figurky stejne barvy
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01701}{1701}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01685}{1685}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a2f01e5a8d282157e3cd8bd5a03b9c8b5}\index{game\_task.h@{game\_task.h}!game\_is\_timer\_active@{game\_is\_timer\_active}}
 \index{game\_is\_timer\_active@{game\_is\_timer\_active}!game\_task.h@{game\_task.h}}
@@ -1482,7 +1507,7 @@ true pokud je timer aktivni
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11541}{11541}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12642}{12642}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a20c746cc968a038cbdf28e01a9dd8307}\index{game\_task.h@{game\_task.h}!game\_is\_valid\_move@{game\_is\_valid\_move}}
 \index{game\_is\_valid\_move@{game\_is\_valid\_move}!game\_task.h@{game\_task.h}}
@@ -1506,7 +1531,7 @@ MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01725}{1725}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01709}{1709}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a93dee8ccd518ae0092501007a420e4bb}\index{game\_task.h@{game\_task.h}!game\_is\_valid\_position@{game\_is\_valid\_position}}
 \index{game\_is\_valid\_position@{game\_is\_valid\_position}!game\_task.h@{game\_task.h}}
@@ -1530,7 +1555,7 @@ true pokud je pozice platna
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01671}{1671}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01655}{1655}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a8f69768eebdeba16538566a535f25351}\index{game\_task.h@{game\_task.h}!game\_is\_white\_piece@{game\_is\_white\_piece}}
 \index{game\_is\_white\_piece@{game\_is\_white\_piece}!game\_task.h@{game\_task.h}}
@@ -1552,7 +1577,7 @@ true pokud je figurka bila
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01693}{1693}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01677}{1677}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a25364833eb80653b4d30414376f3fe35}\index{game\_task.h@{game\_task.h}!game\_pause\_timer@{game\_pause\_timer}}
 \index{game\_pause\_timer@{game\_pause\_timer}!game\_task.h@{game\_task.h}}
@@ -1562,14 +1587,14 @@ esp\+\_\+err\+\_\+t game\+\_\+pause\+\_\+timer (\begin{DoxyParamCaption}\item[{v
 
 
 
-Pozastav herní timer. 
+Pozastav herni timer. 
 
 \begin{DoxyReturn}{Návratová hodnota}
 ESP\+\_\+\+OK pri uspechu 
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11338}{11338}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12442}{12442}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ad7894f48d6e00cfe140b99026be38b71}\index{game\_task.h@{game\_task.h}!game\_print\_board@{game\_print\_board}}
 \index{game\_print\_board@{game\_print\_board}!game\_task.h@{game\_task.h}}
@@ -1583,7 +1608,7 @@ Vypis aktualni pozici sachovnice.
 
 Zobrazi sachovnici v ASCII formatu s popisky. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03351}{3351}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l03627}{3627}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a605e2e1374b4e7090941389e6a581a24}\index{game\_task.h@{game\_task.h}!game\_print\_game\_stats@{game\_print\_game\_stats}}
 \index{game\_print\_game\_stats@{game\_print\_game\_stats}!game\_task.h@{game\_task.h}}
@@ -1597,7 +1622,7 @@ Vypis statistiky hry.
 
 Vypis statistiky hry. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01246}{1246}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01176}{1176}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a138dd79d240e644870a7d53580720206}\index{game\_task.h@{game\_task.h}!game\_print\_status@{game\_print\_status}}
 \index{game\_print\_status@{game\_print\_status}!game\_task.h@{game\_task.h}}
@@ -1611,7 +1636,7 @@ Vypis stav hry.
 
 Zobrazi detailni informace o stavu hry (hrac na tahu, pocet tahu, atd.). 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08768}{8768}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09709}{9709}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a13909ec7cf87ce1999cd9647689e46aa}\index{game\_task.h@{game\_task.h}!game\_process\_chess\_move@{game\_process\_chess\_move}}
 \index{game\_process\_chess\_move@{game\_process\_chess\_move}!game\_task.h@{game\_task.h}}
@@ -1637,7 +1662,7 @@ Zpracuj sachovy tah z UART prikazu.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l06891}{6891}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07724}{7724}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ac4ac5416414272fb1942f0269ea572c7}\index{game\_task.h@{game\_task.h}!game\_process\_commands@{game\_process\_commands}}
 \index{game\_process\_commands@{game\_process\_commands}!game\_task.h@{game\_task.h}}
@@ -1651,7 +1676,7 @@ Zpracuj game prikazy z fronty.
 
 Cte prikazy z game\+\_\+command\+\_\+queue a vykonava je. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07211}{7211}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08105}{8105}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a8de7eb2cbccf01d3c7ee792caaf9784e}\index{game\_task.h@{game\_task.h}!game\_process\_drop\_command@{game\_process\_drop\_command}}
 \index{game\_process\_drop\_command@{game\_process\_drop\_command}!game\_task.h@{game\_task.h}}
@@ -1693,7 +1718,7 @@ Process drop command (DN) -\/ Legacy function
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l04144}{4144}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l04560}{4560}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a502098cd25ad56400beb2339a1bfb84c}\index{game\_task.h@{game\_task.h}!game\_process\_matrix\_events@{game\_process\_matrix\_events}}
 \index{game\_process\_matrix\_events@{game\_process\_matrix\_events}!game\_task.h@{game\_task.h}}
@@ -1713,7 +1738,7 @@ Zpracuj matrix udalosti (tahy).
 \item[\mbox{\hyperlink{deprecated__deprecated000001}{Zastaralé}}]Matrix events are now sent as \doxylink{structchess__move__command__t}{chess\+\_\+move\+\_\+command\+\_\+t} to game\+\_\+command\+\_\+queue and processed by \doxylink{game__task_8c_a0216d9328bf82ee185835194077f1e33}{game\+\_\+process\+\_\+pickup\+\_\+command()} / \doxylink{game__task_8h_a8de7eb2cbccf01d3c7ee792caaf9784e}{game\+\_\+process\+\_\+drop\+\_\+command()}. This function is kept for compatibility but does nothing. \end{DoxyRefDesc}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08892}{8892}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09869}{9869}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a7c1b38b6a6342df233fdcafe702b5a0f}\index{game\_task.h@{game\_task.h}!game\_process\_timer\_command@{game\_process\_timer\_command}}
 \index{game\_process\_timer\_command@{game\_process\_timer\_command}!game\_task.h@{game\_task.h}}
@@ -1735,7 +1760,37 @@ ESP\+\_\+\+OK pri uspechu
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11394}{11394}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12498}{12498}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_a8b7aa3018c0775246c6fe867f3ae6af1}\index{game\_task.h@{game\_task.h}!game\_refresh\_leds@{game\_refresh\_leds}}
+\index{game\_refresh\_leds@{game\_refresh\_leds}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_refresh\_leds()}{game\_refresh\_leds()}}
+{\footnotesize\ttfamily \label{game__task_8h_a8b7aa3018c0775246c6fe867f3ae6af1} 
+void game\+\_\+refresh\+\_\+leds (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vynuceny refresh LED podle aktualniho stavu hry Volat po navratu z HA rezimu nebo jineho preruseni. 
+
+Vynuceny refresh LED podle aktualniho stavu hry Volat po navratu z HA rezimu nebo jineho preruseni. 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12652}{12652}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+
+\Hypertarget{game__task_8h_aa3dc2b9ee227e2a5302b2c1d908ec6d7}\index{game\_task.h@{game\_task.h}!game\_reset\_error\_recovery\_state@{game\_reset\_error\_recovery\_state}}
+\index{game\_reset\_error\_recovery\_state@{game\_reset\_error\_recovery\_state}!game\_task.h@{game\_task.h}}
+\doxysubsubsection{\texorpdfstring{game\_reset\_error\_recovery\_state()}{game\_reset\_error\_recovery\_state()}}
+{\footnotesize\ttfamily \label{game__task_8h_aa3dc2b9ee227e2a5302b2c1d908ec6d7} 
+void game\+\_\+reset\+\_\+error\+\_\+recovery\+\_\+state (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Vynuluje stav error recovery (vraceni figurky na blikajici pole). 
+
+Volat napr. pri zapnuti demo modu, aby demo mohlo hrat i po predchozim chybnem tahu uzivatele.
+
+Vynuluje stav error recovery (vraceni figurky na blikajici pole). 
+
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l05524}{5524}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ac75becc8b5888b8fa31045d7c28c085e}\index{game\_task.h@{game\_task.h}!game\_reset\_game@{game\_reset\_game}}
 \index{game\_reset\_game@{game\_reset\_game}!game\_task.h@{game\_task.h}}
@@ -1764,7 +1819,7 @@ Funkce resetuje\+:
 \item Error recovery stav 
 \end{DoxyItemize}
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01501}{1501}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01440}{1440}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a0df29c9e5d4723c41477e530799976b0}\index{game\_task.h@{game\_task.h}!game\_reset\_timer@{game\_reset\_timer}}
 \index{game\_reset\_timer@{game\_reset\_timer}!game\_task.h@{game\_task.h}}
@@ -1774,14 +1829,14 @@ esp\+\_\+err\+\_\+t game\+\_\+reset\+\_\+timer (\begin{DoxyParamCaption}\item[{v
 
 
 
-Resetuj herní timer. 
+Resetuj herni timer. 
 
 \begin{DoxyReturn}{Návratová hodnota}
 ESP\+\_\+\+OK pri uspechu 
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11356}{11356}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12460}{12460}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_aa1855cbe07e70ad38d0fbd163e7e9746}\index{game\_task.h@{game\_task.h}!game\_resume\_timer@{game\_resume\_timer}}
 \index{game\_resume\_timer@{game\_resume\_timer}!game\_task.h@{game\_task.h}}
@@ -1791,14 +1846,14 @@ esp\+\_\+err\+\_\+t game\+\_\+resume\+\_\+timer (\begin{DoxyParamCaption}\item[{
 
 
 
-Obnov herní timer. 
+Obnov herni timer. 
 
 \begin{DoxyReturn}{Návratová hodnota}
 ESP\+\_\+\+OK pri uspechu 
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11347}{11347}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12451}{12451}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a94723cd4e9d7f319e96c1d7aaa67fcf8}\index{game\_task.h@{game\_task.h}!game\_show\_button\_error@{game\_show\_button\_error}}
 \index{game\_show\_button\_error@{game\_show\_button\_error}!game\_task.h@{game\_task.h}}
@@ -1862,7 +1917,7 @@ Zobraz LED navod pro tah veze pri rosade.
 
 Zobraz LED navod pro tah veze pri rosade. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10488}{10488}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11543}{11543}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a0ace822d82e2da6de18559787be957d0}\index{game\_task.h@{game\_task.h}!game\_show\_check\_direct@{game\_show\_check\_direct}}
 \index{game\_show\_check\_direct@{game\_show\_check\_direct}!game\_task.h@{game\_task.h}}
@@ -1944,7 +1999,7 @@ Zobraz blikajici cervenou LED pro chybu neplatneho tahu.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l04734}{4734}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l05408}{5408}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a65d45d8068e75012a3bf91d813a86993}\index{game\_task.h@{game\_task.h}!game\_show\_move\_direct@{game\_show\_move\_direct}}
 \index{game\_show\_move\_direct@{game\_show\_move\_direct}!game\_task.h@{game\_task.h}}
@@ -2003,7 +2058,7 @@ Zobraz navrzene tahy pro figurku.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02709}{2709}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02757}{2757}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_aad4c6f489504e1aace2045420bcec3d1}\index{game\_task.h@{game\_task.h}!game\_show\_piece\_lift\_direct@{game\_show\_piece\_lift\_direct}}
 \index{game\_show\_piece\_lift\_direct@{game\_show\_piece\_lift\_direct}!game\_task.h@{game\_task.h}}
@@ -2013,11 +2068,11 @@ void game\+\_\+show\+\_\+piece\+\_\+lift\+\_\+direct (\begin{DoxyParamCaption}\i
 
 
 
-Zobraz zvednutí figurky primo pres LED. 
+Zobraz zvednuti figurky primo pres LED. 
 
-Zobraz zvednutí figurky primo pres LED.
+Zobraz zvednuti figurky primo pres LED.
 
-Zobraz zvednutí figurky s primymi LED volanimi.
+Zobraz zvednuti figurky s primymi LED volanimi.
 
 
 \begin{DoxyParams}{Parametry}
@@ -2058,7 +2113,7 @@ Zobraz animaci zmeny hrace.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l07987}{7987}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08919}{8919}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_abc7c8755788427711faa337e69d53e19}\index{game\_task.h@{game\_task.h}!game\_show\_player\_change\_direct@{game\_show\_player\_change\_direct}}
 \index{game\_show\_player\_change\_direct@{game\_show\_player\_change\_direct}!game\_task.h@{game\_task.h}}
@@ -2132,7 +2187,7 @@ Funkce\+:
 \item Zvysi pocet her 
 \end{DoxyItemize}
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01603}{1603}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01562}{1562}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_afbd09cfaddffe4661015d92975561bd2}\index{game\_task.h@{game\_task.h}!game\_start\_repeating\_rook\_animation@{game\_start\_repeating\_rook\_animation}}
 \index{game\_start\_repeating\_rook\_animation@{game\_start\_repeating\_rook\_animation}!game\_task.h@{game\_task.h}}
@@ -2146,7 +2201,7 @@ Spust opakovani animace veze pro rosadu.
 
 Spust opakovani animace veze pro rosadu. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10767}{10767}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11843}{11843}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a76220c211d4e21aa36ac90a00761f698}\index{game\_task.h@{game\_task.h}!game\_start\_timer\_move@{game\_start\_timer\_move}}
 \index{game\_start\_timer\_move@{game\_start\_timer\_move}!game\_task.h@{game\_task.h}}
@@ -2168,7 +2223,7 @@ ESP\+\_\+\+OK pri uspechu
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11311}{11311}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12415}{12415}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a400c845a7ea99010ffc662d32fc20147}\index{game\_task.h@{game\_task.h}!game\_stop\_repeating\_rook\_animation@{game\_stop\_repeating\_rook\_animation}}
 \index{game\_stop\_repeating\_rook\_animation@{game\_stop\_repeating\_rook\_animation}!game\_task.h@{game\_task.h}}
@@ -2182,7 +2237,7 @@ Zastav opakovanou animaci veze.
 
 Zastav opakovanou animaci veze. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10797}{10797}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11873}{11873}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ab26d022ec766e04addd46d9b6da9768a}\index{game\_task.h@{game\_task.h}!game\_task\_start@{game\_task\_start}}
 \index{game\_task\_start@{game\_task\_start}!game\_task.h@{game\_task.h}}
@@ -2203,7 +2258,7 @@ Hlavni funkce game tasku. Inicializuje sachovnici a bezi v nekonecne smycce zpra
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08785}{8785}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09726}{9726}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a38bb9a0b5b3cd868021ba1f05be228d6}\index{game\_task.h@{game\_task.h}!game\_test\_castle\_animation@{game\_test\_castle\_animation}}
 \index{game\_test\_castle\_animation@{game\_test\_castle\_animation}!game\_task.h@{game\_task.h}}
@@ -2217,7 +2272,7 @@ Testuj animaci rosady.
 
 Testuj animaci rosady. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08190}{8190}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09124}{9124}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ac06cb22933b494c00b27ecb35160eeaa}\index{game\_task.h@{game\_task.h}!game\_test\_endgame\_animation@{game\_test\_endgame\_animation}}
 \index{game\_test\_endgame\_animation@{game\_test\_endgame\_animation}!game\_task.h@{game\_task.h}}
@@ -2231,7 +2286,7 @@ Testuj animaci konce hry.
 
 Testuj animaci konce hry. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08251}{8251}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09185}{9185}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_ad58e853637de174a1bc4f6ad9556bbaa}\index{game\_task.h@{game\_task.h}!game\_test\_move\_animation@{game\_test\_move\_animation}}
 \index{game\_test\_move\_animation@{game\_test\_move\_animation}!game\_task.h@{game\_task.h}}
@@ -2245,7 +2300,7 @@ Testuj animaci tahu.
 
 Testuj animaci tahu. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08150}{8150}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09084}{9084}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a0054718644880d12b2f8ccb352644a2b}\index{game\_task.h@{game\_task.h}!game\_test\_player\_change\_animation@{game\_test\_player\_change\_animation}}
 \index{game\_test\_player\_change\_animation@{game\_test\_player\_change\_animation}!game\_task.h@{game\_task.h}}
@@ -2259,7 +2314,7 @@ Testuj animaci zmeny hrace.
 
 Testuj animaci zmeny hrace. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08182}{8182}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09116}{9116}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a54c0942839659e43c97af3b1c7aca7e9}\index{game\_task.h@{game\_task.h}!game\_test\_promote\_animation@{game\_test\_promote\_animation}}
 \index{game\_test\_promote\_animation@{game\_test\_promote\_animation}!game\_task.h@{game\_task.h}}
@@ -2273,7 +2328,7 @@ Testuj animaci promoci.
 
 Testuj animaci promoci. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l08227}{8227}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l09161}{9161}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_aab2504466c50dfa9455e1414810bc073}\index{game\_task.h@{game\_task.h}!game\_update\_timer\_display@{game\_update\_timer\_display}}
 \index{game\_update\_timer\_display@{game\_update\_timer\_display}!game\_task.h@{game\_task.h}}
@@ -2290,7 +2345,7 @@ ESP\+\_\+\+OK pri uspechu
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11506}{11506}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l12607}{12607}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a94bb4afd94650885459c130f6c3a811d}\index{game\_task.h@{game\_task.h}!game\_validate\_bishop\_move\_enhanced@{game\_validate\_bishop\_move\_enhanced}}
 \index{game\_validate\_bishop\_move\_enhanced@{game\_validate\_bishop\_move\_enhanced}!game\_task.h@{game\_task.h}}
@@ -2337,7 +2392,7 @@ Opraveno v2.\+4.\+1\+:
 \end{DoxyNote}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01990}{1990}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02009}{2009}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a7169001872522d780e6e67a15d86a47e}\index{game\_task.h@{game\_task.h}!game\_validate\_castling@{game\_validate\_castling}}
 \index{game\_validate\_castling@{game\_validate\_castling}!game\_task.h@{game\_task.h}}
@@ -2385,7 +2440,7 @@ Rosada je mozna\+:
 \item Queenside (O-\/\+O-\/O)\+: kral e1-\/\texorpdfstring{$>$}{>}c1, vez a1-\/\texorpdfstring{$>$}{>}d1 
 \end{DoxyItemize}
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02314}{2314}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02342}{2342}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a210042709363b26c91b23a04ccac022a}\index{game\_task.h@{game\_task.h}!game\_validate\_king\_move\_enhanced@{game\_validate\_king\_move\_enhanced}}
 \index{game\_validate\_king\_move\_enhanced@{game\_validate\_king\_move\_enhanced}!game\_task.h@{game\_task.h}}
@@ -2424,7 +2479,7 @@ Kral se muze pohybovat o 1 pole libovolnym smerem nebo delat rosadu. Funkce kont
 
 Pro rosadu deleguje validaci na \doxylink{game__task_8h_a7169001872522d780e6e67a15d86a47e}{game\+\_\+validate\+\_\+castling()}. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02120}{2120}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02139}{2139}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a530c17b05f532aeaaa64d8bdb77ca665}\index{game\_task.h@{game\_task.h}!game\_validate\_knight\_move\_enhanced@{game\_validate\_knight\_move\_enhanced}}
 \index{game\_validate\_knight\_move\_enhanced@{game\_validate\_knight\_move\_enhanced}!game\_task.h@{game\_task.h}}
@@ -2446,7 +2501,7 @@ MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01952}{1952}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01971}{1971}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a9fd338ce879b00b98ddb9d6b6988e5a1}\index{game\_task.h@{game\_task.h}!game\_validate\_pawn\_move\_enhanced@{game\_validate\_pawn\_move\_enhanced}}
 \index{game\_validate\_pawn\_move\_enhanced@{game\_validate\_pawn\_move\_enhanced}!game\_task.h@{game\_task.h}}
@@ -2505,7 +2560,7 @@ Opraveno v2.\+4.\+1\+:
 \end{DoxyNote}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01866}{1866}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01886}{1886}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a2c589b4bfa6cd43ea3582050e37c1cc4}\index{game\_task.h@{game\_task.h}!game\_validate\_piece\_move\_enhanced@{game\_validate\_piece\_move\_enhanced}}
 \index{game\_validate\_piece\_move\_enhanced@{game\_validate\_piece\_move\_enhanced}!game\_task.h@{game\_task.h}}
@@ -2529,7 +2584,7 @@ MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01800}{1800}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l01820}{1820}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_acb3d6c97b1ab4160a2ed398cfa3b5b52}\index{game\_task.h@{game\_task.h}!game\_validate\_queen\_move\_enhanced@{game\_validate\_queen\_move\_enhanced}}
 \index{game\_validate\_queen\_move\_enhanced@{game\_validate\_queen\_move\_enhanced}!game\_task.h@{game\_task.h}}
@@ -2551,7 +2606,7 @@ MOVE\+\_\+\+ERROR\+\_\+\+NONE pri platnem tahu, jinak kod chyby
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02081}{2081}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02100}{2100}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_a4b858d85c199815887890cf595969c75}\index{game\_task.h@{game\_task.h}!game\_validate\_rook\_move\_enhanced@{game\_validate\_rook\_move\_enhanced}}
 \index{game\_validate\_rook\_move\_enhanced@{game\_validate\_rook\_move\_enhanced}!game\_task.h@{game\_task.h}}
@@ -2573,7 +2628,7 @@ MOVE\+\_\+\+ERROR\+\_\+\+NONE pri uspechu, jinak kod chyby
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02039}{2039}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02058}{2058}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_af6d73d7ab8a4c7b188d690a5177a0072}\index{game\_task.h@{game\_task.h}!game\_would\_move\_leave\_king\_in\_check@{game\_would\_move\_leave\_king\_in\_check}}
 \index{game\_would\_move\_leave\_king\_in\_check@{game\_would\_move\_leave\_king\_in\_check}!game\_task.h@{game\_task.h}}
@@ -2613,7 +2668,7 @@ Proces\+:
 \item Obnovi puvodni stav desky 
 \end{DoxyEnumerate}
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02164}{2164}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l02183}{2183}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_af26d73c4a9e269473827e4d4497b21b3}\index{game\_task.h@{game\_task.h}!rook\_animation\_timer\_callback@{rook\_animation\_timer\_callback}}
 \index{rook\_animation\_timer\_callback@{rook\_animation\_timer\_callback}!game\_task.h@{game\_task.h}}
@@ -2639,7 +2694,7 @@ Timer callback pro opakovanou animaci veze.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10731}{10731}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11807}{11807}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 
 \Hypertarget{game__task_8h_acf17b5ac5ef3ff609422be26351370df}\index{game\_task.h@{game\_task.h}!show\_castling\_completion\_animation@{show\_castling\_completion\_animation}}
 \index{show\_castling\_completion\_animation@{show\_castling\_completion\_animation}!game\_task.h@{game\_task.h}}
@@ -2653,5 +2708,5 @@ Zobraz animaci dokonceni rosady.
 
 Zobraz animaci dokonceni rosady. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l10659}{10659}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{game__task_8c_source_l11735}{11735}} v souboru \mbox{\hyperlink{game__task_8c_source}{game\+\_\+task.\+c}}.
 

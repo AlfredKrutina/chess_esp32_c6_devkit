@@ -14,7 +14,6 @@ var matrix__task_8c =
     [ "matrix_scan_all", "matrix__task_8c.html#a86518ffc745875b5c3c34d7c96f7e186", null ],
     [ "matrix_scan_row", "matrix__task_8c.html#a395c914a55ec3ebc25a3a3af66d6bba8", null ],
     [ "matrix_scan_row_internal", "matrix__task_8c.html#a2a57a5bda73ab9817a44c3c5702932f3", null ],
-    [ "matrix_send_drop_command", "matrix__task_8c.html#a0684c1516035306b49514c47a1af0fed", null ],
     [ "matrix_send_drop_command_with_from", "matrix__task_8c.html#a275f664c60af320845973b221bd1db55", null ],
     [ "matrix_send_pickup_command", "matrix__task_8c.html#ae622813bcd8b41c1040db3a6c8d34e13", null ],
     [ "matrix_simulate_move", "matrix__task_8c.html#ac791c32154297e3ceebd47d8096cc8b9", null ],

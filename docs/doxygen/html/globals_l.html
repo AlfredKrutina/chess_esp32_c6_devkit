@@ -92,6 +92,7 @@ $(function(){initNavTree('globals_l.html','',''); });
 <div class="textblock">Zde naleznete seznam všech funkcí, proměnných, maker, výčtů a definic typů (typedef) s odkazy na soubory, ke kterým příslušejí:</div>
 
 <h3 class="doxsection"><a id="index_l" name="index_l"></a>- l -</h3><ul>
+<li>last_activity_time_ms&#160;:&#160;<a class="el" href="ha__light__task_8c.html#a841339184f4dba27c769216e9b7e8a6f">ha_light_task.c</a></li>
 <li>last_command_time&#160;:&#160;<a class="el" href="uart__task_8c.html#a8c4e957de70c57192735974adca4c520">uart_task.c</a></li>
 <li>last_disconnect_reason&#160;:&#160;<a class="el" href="web__server__task_8c.html#ae6a105bb6087d94dc1dff9c49c17a3d8">web_server_task.c</a></li>
 <li>last_error&#160;:&#160;<a class="el" href="visual__error__system_8c.html#a6f820630feb824600d909cbb27937851">visual_error_system.c</a></li>
@@ -126,7 +127,8 @@ $(function(){initNavTree('globals_l.html','',''); });
 <li>LED_BATCH_COMMIT_INTERVAL_MS&#160;:&#160;<a class="el" href="led__task_8c.html#a2e7aa4b575605ebe8928ddc7f944c4b5">led_task.c</a></li>
 <li>led_boot_animation_fade_out()&#160;:&#160;<a class="el" href="led__task_8h.html#a51cc23ac460421224cfaf847669ab1d9">led_task.h</a>, <a class="el" href="led__task_8c.html#a51cc23ac460421224cfaf847669ab1d9">led_task.c</a></li>
 <li>led_boot_animation_step()&#160;:&#160;<a class="el" href="led__task_8h.html#ad9333c97e3a0d22851f18f91e890e3dc">led_task.h</a>, <a class="el" href="led__task_8c.html#ad9333c97e3a0d22851f18f91e890e3dc">led_task.c</a></li>
-<li>led_booting_animation()&#160;:&#160;<a class="el" href="led__task_8c.html#a533dfd80b93f0821af12a5f929dcc40b">led_task.c</a></li>
+<li>led_booting_active&#160;:&#160;<a class="el" href="led__task_8c.html#a7005076d8f4d04f878fd4c8e3efdcce5">led_task.c</a></li>
+<li>led_booting_animation()&#160;:&#160;<a class="el" href="led__task_8h.html#a533dfd80b93f0821af12a5f929dcc40b">led_task.h</a>, <a class="el" href="led__task_8c.html#a533dfd80b93f0821af12a5f929dcc40b">led_task.c</a></li>
 <li>led_changed_flags&#160;:&#160;<a class="el" href="led__task_8c.html#ac1c48ef4ad2c752b3812d8e4e3e5324c">led_task.c</a></li>
 <li>led_changes_count&#160;:&#160;<a class="el" href="led__task_8c.html#a10bd2320bc021e09d3a1e6f889617725">led_task.c</a></li>
 <li>led_changes_pending&#160;:&#160;<a class="el" href="led__task_8c.html#ad291c3f82f7856c496990a2ecfe5da23">led_task.c</a></li>
@@ -169,6 +171,7 @@ $(function(){initNavTree('globals_l.html','',''); });
 <li>LED_CMD_ERROR_RECOVERY&#160;:&#160;<a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da6b00fc5d44a9d18c1cb99bb13c0f5815">chess_types.h</a></li>
 <li>LED_CMD_ERROR_RETURN_PIECE&#160;:&#160;<a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dab074e02d4c9516005c3bd7d31f8e787b">chess_types.h</a></li>
 <li>LED_CMD_GAME_STATE_UPDATE&#160;:&#160;<a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dae4852702ef287c906e2ca5272c047361">chess_types.h</a></li>
+<li>LED_CMD_HIGHLIGHT_HINT&#160;:&#160;<a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66daf9dfd49be96d73059bdcf3f4e30c42dc">chess_types.h</a></li>
 <li>LED_CMD_HIGHLIGHT_MOVES&#160;:&#160;<a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dad5d7870e73aceb328b67166210b27182">chess_types.h</a></li>
 <li>LED_CMD_HIGHLIGHT_PIECES&#160;:&#160;<a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66daf0f30b49574874673f7dedf4e3ef637b">chess_types.h</a></li>
 <li>LED_CMD_MATRIX_OFF&#160;:&#160;<a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221">chess_types.h</a></li>
@@ -209,8 +212,6 @@ $(function(){initNavTree('globals_l.html','',''); });
 <li>LED_CRITICAL_SECTION_TIMEOUT_MS&#160;:&#160;<a class="el" href="led__task_8c.html#adc1b5df15af7552352dad465c61cfac7">led_task.c</a></li>
 <li>LED_DATA_PIN&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a5f55b07707df2f2cf371f707207ed508">freertos_chess.h</a>, <a class="el" href="led__task_8c.html#a5f55b07707df2f2cf371f707207ed508">led_task.c</a></li>
 <li>led_duration_system_enabled&#160;:&#160;<a class="el" href="led__task_8c.html#ab5eca3f51d48f047dfa62384299a1b6f">led_task.c</a></li>
-<li>led_duration_timer&#160;:&#160;<a class="el" href="led__task_8c.html#a2fcc158530262c3bb8a09287f5d1cb3e">led_task.c</a></li>
-<li>led_duration_timer_callback()&#160;:&#160;<a class="el" href="led__task_8c.html#af91e40f2e2bc7274cb04cfe498622aee">led_task.c</a></li>
 <li>led_durations&#160;:&#160;<a class="el" href="led__task_8c.html#a0e1b74e72cc66b31800fb54c57a08fb3">led_task.c</a></li>
 <li>led_enable_layer()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#a393b301ba78a74e2768530ee7b86573f">led_state_manager.c</a></li>
 <li>led_enhanced_castling_celebration()&#160;:&#160;<a class="el" href="led__task_8c.html#ab3b1b195cc27c98b66f82c0887cc425b">led_task.c</a></li>
@@ -254,6 +255,7 @@ $(function(){initNavTree('globals_l.html','',''); });
 <li>led_init_duration_system()&#160;:&#160;<a class="el" href="led__task_8c.html#a11714f15d535467c7c6011b5510197f5">led_task.c</a></li>
 <li>led_initialized&#160;:&#160;<a class="el" href="led__task_8c.html#aa059cb143b37ad593835d4042adf415b">led_task.c</a></li>
 <li>led_interpolate_color()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#ae6932cf91967f91c556ac275b48ec9fb">led_state_manager.c</a></li>
+<li>led_is_booting()&#160;:&#160;<a class="el" href="led__task_8h.html#a006a24ec8e7f302c4a6f8481675803d1">led_task.h</a>, <a class="el" href="led__task_8c.html#a006a24ec8e7f302c4a6f8481675803d1">led_task.c</a></li>
 <li>led_is_layer_enabled()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#aa543c3e91a16b3fdde64309d7c1742a7">led_state_manager.c</a></li>
 <li>led_is_pixel_dirty()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#a229cf0585f4420c02ff501bf89c88471">led_state_manager.c</a></li>
 <li>LED_LAYER_ANIMATION&#160;:&#160;<a class="el" href="led__state__manager_8h.html#af4c342c31ff859428428924ca8a0231baf40b6e6b5b1261fb2c325fd71a9b20ad">led_state_manager.h</a></li>
@@ -282,10 +284,13 @@ $(function(){initNavTree('globals_l.html','',''); });
 <li>led_privileged_batch_commit()&#160;:&#160;<a class="el" href="led__task_8c.html#aec926993bbb0b624462704e37829a5ab">led_task.c</a></li>
 <li>led_process_button_blink_timers()&#160;:&#160;<a class="el" href="led__task_8c.html#a2135e4b3d98992bec7601350d477abc9">led_task.c</a></li>
 <li>led_process_commands()&#160;:&#160;<a class="el" href="led__task_8h.html#a07ea6d48b1deb7fd8ecb18cf6d7753be">led_task.h</a>, <a class="el" href="led__task_8c.html#a07ea6d48b1deb7fd8ecb18cf6d7753be">led_task.c</a></li>
+<li>led_process_duration_expirations()&#160;:&#160;<a class="el" href="led__task_8c.html#adb4079e18c88be33df2ed464c968fad7">led_task.c</a></li>
 <li>led_pulse_pixel()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#aba0f2c2275e342c31ec8ac161299b0ef">led_state_manager.c</a></li>
 <li>LED_QUEUE_SIZE&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a60c0e1e27fef536d95040e98b856975a">freertos_chess.h</a></li>
 <li>led_rainbow_pixel()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#ad5f296e945ac223050cba2e4264701ba">led_state_manager.c</a></li>
+<li>led_refresh_all_button_leds()&#160;:&#160;<a class="el" href="led__task_8h.html#acffe67fadfe40ddc4c14618edebeedf8">led_task.h</a>, <a class="el" href="led__task_8c.html#acffe67fadfe40ddc4c14618edebeedf8">led_task.c</a></li>
 <li>LED_RESET_TIME_US&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a5e46e8f15b9ba2ac3ac0935d11a778fc">freertos_chess.h</a></li>
+<li>led_restore_chess_board()&#160;:&#160;<a class="el" href="led__task_8h.html#aed864c4fd31d53e8498014ffda17dcc6">led_task.h</a>, <a class="el" href="led__task_8c.html#aed864c4fd31d53e8498014ffda17dcc6">led_task.c</a></li>
 <li>led_rgb_to_hsv()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#a6bf9d2280f7e13b64c909142e7158fd4">led_state_manager.c</a></li>
 <li>LED_SAFE_TIMEOUT&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a683981e7f037dd43d22e1e337db287bd">freertos_chess.h</a></li>
 <li>led_send_status_to_uart_immediate()&#160;:&#160;<a class="el" href="led__task_8c.html#a330c04b492b83fd0e7c5d7e85d6d845d">led_task.c</a></li>
@@ -293,6 +298,7 @@ $(function(){initNavTree('globals_l.html','',''); });
 <li>led_set_all()&#160;:&#160;<a class="el" href="led__task__simple_8h.html#a914a921ea239786c49543fce7b9fe67a">led_task_simple.h</a></li>
 <li>led_set_all_internal()&#160;:&#160;<a class="el" href="led__task_8h.html#a6d5be6d6368f979daf99dea8b1685f55">led_task.h</a>, <a class="el" href="led__task_8c.html#a6d5be6d6368f979daf99dea8b1685f55">led_task.c</a></li>
 <li>led_set_all_safe()&#160;:&#160;<a class="el" href="led__task_8h.html#a67410e7a666d076402f2eaf116716a2b">led_task.h</a>, <a class="el" href="led__task__simple_8h.html#a21ac075b956f179c2fc7559b12066d4c">led_task_simple.h</a>, <a class="el" href="led__task_8c.html#a67410e7a666d076402f2eaf116716a2b">led_task.c</a></li>
+<li>led_set_brightness_global()&#160;:&#160;<a class="el" href="led__task_8h.html#aba7d182926787e311733fb41353c196e">led_task.h</a>, <a class="el" href="led__task_8c.html#aba7d182926787e311733fb41353c196e">led_task.c</a></li>
 <li>led_set_button_feedback()&#160;:&#160;<a class="el" href="led__task_8h.html#aa74e5b3b49114f8e7f69f346beaf5cd3">led_task.h</a>, <a class="el" href="led__task_8c.html#aa74e5b3b49114f8e7f69f346beaf5cd3">led_task.c</a></li>
 <li>led_set_button_press()&#160;:&#160;<a class="el" href="led__task_8h.html#a8a31606dca399a00351e3ef16cc3a737">led_task.h</a>, <a class="el" href="led__task_8c.html#a8a31606dca399a00351e3ef16cc3a737">led_task.c</a></li>
 <li>led_set_button_pressed()&#160;:&#160;<a class="el" href="led__task_8c.html#a2d9017d1898113d1763fea0e43cc3bd9">led_task.c</a></li>
@@ -300,6 +306,7 @@ $(function(){initNavTree('globals_l.html','',''); });
 <li>led_set_button_release()&#160;:&#160;<a class="el" href="led__task_8h.html#a8c05ca5afd0c6a5184c88ee8e05f37b0">led_task.h</a>, <a class="el" href="led__task_8c.html#a8c05ca5afd0c6a5184c88ee8e05f37b0">led_task.c</a></li>
 <li>led_set_config()&#160;:&#160;<a class="el" href="led__state__manager_8h.html#a34e79246641dfad5e2ea7e2fa2129163">led_state_manager.h</a>, <a class="el" href="led__state__manager_8c.html#a34e79246641dfad5e2ea7e2fa2129163">led_state_manager.c</a></li>
 <li>led_set_global_brightness()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#a79a1e941945444641da26f81f396a0ea">led_state_manager.c</a></li>
+<li>led_set_ha_color()&#160;:&#160;<a class="el" href="led__task_8h.html#acd139d9f40454ed76aa1f080f2299d07">led_task.h</a>, <a class="el" href="led__task_8c.html#acd139d9f40454ed76aa1f080f2299d07">led_task.c</a></li>
 <li>led_set_layer_brightness()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#a40289bfb1bef83bce9cd41e4a5306545">led_state_manager.c</a></li>
 <li>led_set_layer_opacity()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#a80147ffbd0f8c6fe9e9390dd710195e3">led_state_manager.c</a></li>
 <li>led_set_multiple_pixels()&#160;:&#160;<a class="el" href="led__state__manager_8c.html#a9814a093e435d1f453c7ecbd64817d5f">led_state_manager.c</a></li>
@@ -375,6 +382,7 @@ $(function(){initNavTree('globals_l.html','',''); });
 <li>lifted_piece&#160;:&#160;<a class="el" href="game__task_8c.html#a39ddf6298a44867b27f8f0672eee5c96">game_task.c</a></li>
 <li>lifted_piece_col&#160;:&#160;<a class="el" href="game__task_8c.html#ac6b4fa04af83701dd9196051e02d67f2">game_task.c</a></li>
 <li>lifted_piece_row&#160;:&#160;<a class="el" href="game__task_8c.html#a879607e096b78cf354a1c67cd43b010a">game_task.c</a></li>
+<li>loaded&#160;:&#160;<a class="el" href="ha__light__task_8c.html#a992c70a16169035bc9e2e8f9953d91ed">ha_light_task.c</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

@@ -73,263 +73,267 @@
 \DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00122}00122\ \textcolor{comment}{//\ ============================================================================}}
 \DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00123}00123\ \textcolor{comment}{//\ NEPOUZIVANA\ MAKRA\ -\/\ ZAKOMENTOVANO}}
 \DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00124}00124\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00125}00125\ \textcolor{comment}{//\ ⚠️\ POZOR:\ Následující\ makra\ se\ NEPOUŽÍVAJÍ\ v\ kódu!}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00126}00126\ \textcolor{comment}{//\ Byly\ původně\ navržena\ pro\ druhou\ sadu\ promotion\ tlačítek,\ ale\ systém}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00127}00127\ \textcolor{comment}{//\ používá\ pouze\ 4\ sdílená\ tlačítka\ (BUTTON\_QUEEN,\ BUTTON\_ROOK,\ BUTTON\_BISHOP,\ BUTTON\_KNIGHT)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00128}00128\ \textcolor{comment}{//\ která\ jsou\ společná\ pro\ oba\ hráče.\ Pole\ promotion\_button\_pins\_b\ také\ není\ použito.}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00129}00129\ \textcolor{comment}{//}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00130}00130\ \textcolor{comment}{//\ /**\ @brief\ Tlacitko\ pro\ promoci\ na\ damu\ B\ (sdileno\ s\ MATRIX\_COL\_4)\ */}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00131}00131\ \textcolor{comment}{//\ \#define\ BUTTON\_PROMOTION\_QUEEN\ MATRIX\_COL\_4\ //\ E1\ square\ +\ Promotion\ Queen}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00132}00132\ \textcolor{comment}{//\ /**\ @brief\ Tlacitko\ pro\ promoci\ na\ vez\ B\ (sdileno\ s\ MATRIX\_COL\_5)\ */}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00133}00133\ \textcolor{comment}{//\ \#define\ BUTTON\_PROMOTION\_ROOK\ MATRIX\_COL\_5\ //\ F1\ square\ +\ Promotion\ Rook}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00134}00134\ \textcolor{comment}{//\ /**\ @brief\ Tlacitko\ pro\ promoci\ na\ strelce\ B\ (sdileno\ s\ MATRIX\_COL\_6)\ */}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00135}00135\ \textcolor{comment}{//\ \#define\ BUTTON\_PROMOTION\_BISHOP\ MATRIX\_COL\_6\ //\ G1\ square\ +\ Promotion\ Bishop}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00136}00136\ \textcolor{comment}{//\ /**\ @brief\ Tlacitko\ pro\ promoci\ na\ kone\ B\ (sdileno\ s\ MATRIX\_COL\_7)\ */}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00137}00137\ \textcolor{comment}{//\ \#define\ BUTTON\_PROMOTION\_KNIGHT\ MATRIX\_COL\_7\ //\ H1\ square\ +\ Promotion\ Knight}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00138}00138\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00139}00139\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00140}00140\ \textcolor{comment}{//\ SYSTEMOVE\ CASOVE\ KONSTANTY}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00141}00141\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00142}00142\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00143}00143\ \textcolor{comment}{//\ Konfigurace\ time-\/multiplexingu\ (25ms\ celkovy\ cyklus\ -\/\ LED\ update\ odstranen)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00145}\mbox{\hyperlink{freertos__chess_8h_ab3d042ad7a50f8a44015cc2a749d3fa4}{00145}}\ \textcolor{preprocessor}{\#define\ MATRIX\_SCAN\_TIME\_MS\ 20\ }\textcolor{comment}{//\ Matrix\ scanning\ time\ (0-\/20ms)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00147}\mbox{\hyperlink{freertos__chess_8h_a3f22d026310bf8c1f12bbed516a074ea}{00147}}\ \textcolor{preprocessor}{\#define\ BUTTON\_SCAN\_TIME\_MS\ 5\ }\textcolor{comment}{//\ Button\ scanning\ time\ (20-\/25ms)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00148}00148\ \textcolor{comment}{//\ \#define\ LED\_UPDATE\_TIME\_MS\ 5\ \ \ \ \ \ \ \ //\ ❌\ REMOVED:\ No\ longer\ needed}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00150}\mbox{\hyperlink{freertos__chess_8h_a519b0c7ea34c85b7e4c7144095820e65}{00150}}\ \textcolor{preprocessor}{\#define\ TOTAL\_CYCLE\_TIME\_MS\ 25\ }\textcolor{comment}{//\ Total\ multiplexing\ cycle\ (reduced\ from\ 30ms)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00152}\mbox{\hyperlink{freertos__chess_8h_aeb05d15370ffa97f0d3ca135ffbc3bc9}{00152}}\ \textcolor{preprocessor}{\#define\ SYSTEM\_HEALTH\_TIME\_MS\ 1000\ }\textcolor{comment}{//\ System\ health\ check\ interval}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00153}00153\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00154}00154\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00155}00155\ \textcolor{comment}{//\ LED\ TIMING\ OPTIMALIZACNI\ KONSTANTY\ -\/\ NOVE\ PRO\ OPRAVU\ BLIKANI}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00156}00156\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00157}00157\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00158}00158\ \textcolor{comment}{//\ WS2812B\ optimalni\ casove\ konstanty}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00161}\mbox{\hyperlink{freertos__chess_8h_afe966dccff7e1c439146a85369c623f7}{00161}}\ \textcolor{preprocessor}{\#define\ LED\_COMMAND\_TIMEOUT\_MS\ 500\ }\textcolor{comment}{//\ Bezpečný\ timeout\ pro\ příkazy}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00163}\mbox{\hyperlink{freertos__chess_8h_aa31a93cf587ac835b9458a02582a2ff4}{00163}}\ \textcolor{preprocessor}{\#define\ LED\_MUTEX\_TIMEOUT\_MS\ 200\ }\textcolor{comment}{//\ Timeout\ pro\ mutex}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00166}\mbox{\hyperlink{freertos__chess_8h_a4791d2b56447d04ed38f856604ed53ad}{00166}}\ \textcolor{preprocessor}{\#define\ LED\_HARDWARE\_UPDATE\_MS\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00167}00167\ \textcolor{preprocessor}{\ \ 300\ }\textcolor{comment}{//\ Bezpečný\ interval\ -\/\ 300ms\ (3.3Hz)\ pro\ lidské\ oko}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00169}\mbox{\hyperlink{freertos__chess_8h_ad3df373183a99f0161894012e3c251b1}{00169}}\ \textcolor{preprocessor}{\#define\ LED\_FRAME\_SPACING\_MS\ 200\ }\textcolor{comment}{//\ Bezpečná\ mezera\ -\/\ 200ms\ mezi\ frames}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00172}\mbox{\hyperlink{freertos__chess_8h_a5e46e8f15b9ba2ac3ac0935d11a778fc}{00172}}\ \textcolor{preprocessor}{\#define\ LED\_RESET\_TIME\_US\ 500\ }\textcolor{comment}{//\ Bezpečný\ reset\ -\/\ 500μs\ (10x\ více\ než\ minimum)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00173}00173\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00174}00174\ \textcolor{comment}{//\ LED\ synchronizacni\ konstanty}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00176}\mbox{\hyperlink{freertos__chess_8h_a683981e7f037dd43d22e1e337db287bd}{00176}}\ \textcolor{preprocessor}{\#define\ LED\_SAFE\_TIMEOUT\ pdMS\_TO\_TICKS(LED\_COMMAND\_TIMEOUT\_MS)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00178}\mbox{\hyperlink{freertos__chess_8h_a1c080ccbe5c2b8e9c7229f3c10f74a8f}{00178}}\ \textcolor{preprocessor}{\#define\ LED\_MUTEX\_SAFE\_TIMEOUT\ pdMS\_TO\_TICKS(LED\_MUTEX\_TIMEOUT\_MS)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00179}00179\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00180}00180\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00181}00181\ \textcolor{comment}{//\ VELIKOSTI\ FRONT}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00182}00182\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00183}00183\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00184}00184\ \textcolor{comment}{//\ PAMETI\ OPTIMALIZOVANE\ VELIKOSTI\ FRONT\ -\/\ Faze\ 1}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00185}00185\ \textcolor{comment}{//\ Celkova\ pamet\ front:\ 8KB\ →\ 5KB\ =\ 3KB\ uspora}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00187}\mbox{\hyperlink{freertos__chess_8h_a60c0e1e27fef536d95040e98b856975a}{00187}}\ \textcolor{preprocessor}{\#define\ LED\_QUEUE\_SIZE\ 50\ }\textcolor{comment}{//\ Velikost\ LED\ fronty\ (50\ prvků\ pro\ stabilitu)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00190}\mbox{\hyperlink{freertos__chess_8h_a579e6003d89168493306bca5848f301a}{00190}}\ \textcolor{preprocessor}{\#define\ MATRIX\_QUEUE\_SIZE\ 8\ }\textcolor{comment}{//\ Reduced\ from\ 15\ to\ 8\ (sufficient\ for\ scanning)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00193}\mbox{\hyperlink{freertos__chess_8h_a6ca45550c06013af8c3cec978a7271ab}{00193}}\ \textcolor{preprocessor}{\#define\ BUTTON\_QUEUE\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00194}00194\ \textcolor{preprocessor}{\ \ 5\ }\textcolor{comment}{//\ Reduced\ from\ 8\ to\ 5\ (button\ events\ are\ infrequent)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00197}\mbox{\hyperlink{freertos__chess_8h_a1e15a8ac2f944de5c675aa81c1c653c4}{00197}}\ \textcolor{preprocessor}{\#define\ UART\_QUEUE\_SIZE\ 10\ }\textcolor{comment}{//\ Reduced\ from\ 20\ to\ 10\ to\ save\ \string~38\ KB\ memory}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00200}\mbox{\hyperlink{freertos__chess_8h_a28eeb53d2d0b05fd6f19dd85f101b40e}{00200}}\ \textcolor{preprocessor}{\#define\ GAME\_QUEUE\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00201}00201\ \textcolor{preprocessor}{\ \ 50\ }\textcolor{comment}{//\ ✅\ STABILITY\ FIX:\ Increased\ from\ 20\ to\ 50\ for\ better\ handling\ of\ rapid\ moves\ //\ Reduced\ from\ 30\ to\ 20\ (sufficient\ for\ game\ commands)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00204}\mbox{\hyperlink{freertos__chess_8h_affde4e66cef922d3fa060b3013d10c3a}{00204}}\ \textcolor{preprocessor}{\#define\ ANIMATION\_QUEUE\_SIZE\ 5\ }\textcolor{comment}{//\ Reduced\ from\ 8\ to\ 5\ (simple\ animations)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00206}\mbox{\hyperlink{freertos__chess_8h_afd353feba5d0f1707fb7a70438c4dc1f}{00206}}\ \textcolor{preprocessor}{\#define\ SCREEN\_SAVER\_QUEUE\_SIZE\ 3\ }\textcolor{comment}{//\ Unchanged\ (already\ minimal)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00209}\mbox{\hyperlink{freertos__chess_8h_ac550726b2b0adb0539e9dc4f8a1be108}{00209}}\ \textcolor{preprocessor}{\#define\ WEB\_SERVER\_QUEUE\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00210}00210\ \textcolor{preprocessor}{\ \ 10\ }\textcolor{comment}{//\ Reduced\ from\ 15\ to\ 10\ (streaming\ reduces\ needs)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00211}00211\ \textcolor{comment}{//\ \#define\ MATTER\_QUEUE\_SIZE\ 10\ \ \ \ \ //\ DISABLED\ -\/\ Matter\ not\ needed}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00212}00212\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00213}00213\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00214}00214\ \textcolor{comment}{//\ VELIKOSTI\ STACKU\ A\ PRIORITY\ TASKU}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00125}00125\ \textcolor{comment}{//\ POZOR:\ Nasledujici\ makra\ se\ NEPOUZIVAJI\ v\ kodu!}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00126}00126\ \textcolor{comment}{//\ Byly\ puvodne\ navrzena\ pro\ druhou\ sadu\ promotion\ tlacitek,\ ale\ system}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00127}00127\ \textcolor{comment}{//\ pouziva\ pouze\ 4\ sdilena\ tlacitka\ (BUTTON\_QUEEN,\ BUTTON\_ROOK,\ BUTTON\_BISHOP,}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00128}00128\ \textcolor{comment}{//\ BUTTON\_KNIGHT)\ ktera\ jsou\ spolecna\ pro\ oba\ hrace.\ Pole}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00129}00129\ \textcolor{comment}{//\ promotion\_button\_pins\_b\ take\ neni\ pouzito.}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00130}00130\ \textcolor{comment}{//}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00131}00131\ \textcolor{comment}{//\ /**\ @brief\ Tlacitko\ pro\ promoci\ na\ damu\ B\ (sdileno\ s\ MATRIX\_COL\_4)\ */}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00132}00132\ \textcolor{comment}{//\ \#define\ BUTTON\_PROMOTION\_QUEEN\ MATRIX\_COL\_4\ //\ E1\ square\ +\ Promotion\ Queen}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00133}00133\ \textcolor{comment}{//\ /**\ @brief\ Tlacitko\ pro\ promoci\ na\ vez\ B\ (sdileno\ s\ MATRIX\_COL\_5)\ */}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00134}00134\ \textcolor{comment}{//\ \#define\ BUTTON\_PROMOTION\_ROOK\ MATRIX\_COL\_5\ //\ F1\ square\ +\ Promotion\ Rook}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00135}00135\ \textcolor{comment}{//\ /**\ @brief\ Tlacitko\ pro\ promoci\ na\ strelce\ B\ (sdileno\ s\ MATRIX\_COL\_6)\ */}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00136}00136\ \textcolor{comment}{//\ \#define\ BUTTON\_PROMOTION\_BISHOP\ MATRIX\_COL\_6\ //\ G1\ square\ +\ Promotion\ Bishop}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00137}00137\ \textcolor{comment}{//\ /**\ @brief\ Tlacitko\ pro\ promoci\ na\ kone\ B\ (sdileno\ s\ MATRIX\_COL\_7)\ */}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00138}00138\ \textcolor{comment}{//\ \#define\ BUTTON\_PROMOTION\_KNIGHT\ MATRIX\_COL\_7\ //\ H1\ square\ +\ Promotion\ Knight}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00139}00139\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00140}00140\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00141}00141\ \textcolor{comment}{//\ SYSTEMOVE\ CASOVE\ KONSTANTY}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00142}00142\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00143}00143\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00144}00144\ \textcolor{comment}{//\ Konfigurace\ time-\/multiplexingu\ (25ms\ celkovy\ cyklus\ -\/\ LED\ update\ odstranen)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00146}\mbox{\hyperlink{freertos__chess_8h_ab3d042ad7a50f8a44015cc2a749d3fa4}{00146}}\ \textcolor{preprocessor}{\#define\ MATRIX\_SCAN\_TIME\_MS\ 20\ }\textcolor{comment}{//\ Matrix\ scanning\ time\ (0-\/20ms)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00148}\mbox{\hyperlink{freertos__chess_8h_a3f22d026310bf8c1f12bbed516a074ea}{00148}}\ \textcolor{preprocessor}{\#define\ BUTTON\_SCAN\_TIME\_MS\ 5\ }\textcolor{comment}{//\ Button\ scanning\ time\ (20-\/25ms)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00149}00149\ \textcolor{comment}{//\ \#define\ LED\_UPDATE\_TIME\_MS\ 5\ \ \ \ \ \ \ \ //\ \ REMOVED:\ No\ longer\ needed}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00151}\mbox{\hyperlink{freertos__chess_8h_a519b0c7ea34c85b7e4c7144095820e65}{00151}}\ \textcolor{preprocessor}{\#define\ TOTAL\_CYCLE\_TIME\_MS\ 25\ }\textcolor{comment}{//\ Total\ multiplexing\ cycle\ (reduced\ from\ 30ms)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00153}\mbox{\hyperlink{freertos__chess_8h_aeb05d15370ffa97f0d3ca135ffbc3bc9}{00153}}\ \textcolor{preprocessor}{\#define\ SYSTEM\_HEALTH\_TIME\_MS\ 1000\ }\textcolor{comment}{//\ System\ health\ check\ interval}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00154}00154\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00155}00155\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00156}00156\ \textcolor{comment}{//\ LED\ TIMING\ OPTIMALIZACNI\ KONSTANTY\ -\/\ NOVE\ PRO\ OPRAVU\ BLIKANI}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00157}00157\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00158}00158\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00159}00159\ \textcolor{comment}{//\ WS2812B\ optimalni\ casove\ konstanty}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00162}\mbox{\hyperlink{freertos__chess_8h_afe966dccff7e1c439146a85369c623f7}{00162}}\ \textcolor{preprocessor}{\#define\ LED\_COMMAND\_TIMEOUT\_MS\ 500\ }\textcolor{comment}{//\ Bezpecny\ timeout\ pro\ prikazy}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00164}\mbox{\hyperlink{freertos__chess_8h_aa31a93cf587ac835b9458a02582a2ff4}{00164}}\ \textcolor{preprocessor}{\#define\ LED\_MUTEX\_TIMEOUT\_MS\ 200\ }\textcolor{comment}{//\ Timeout\ pro\ mutex}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00167}\mbox{\hyperlink{freertos__chess_8h_a4791d2b56447d04ed38f856604ed53ad}{00167}}\ \textcolor{preprocessor}{\#define\ LED\_HARDWARE\_UPDATE\_MS\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00168}00168\ \textcolor{preprocessor}{\ \ 300\ }\textcolor{comment}{//\ Bezpecny\ interval\ -\/\ 300ms\ (3.3Hz)\ pro\ lidske\ oko}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00170}\mbox{\hyperlink{freertos__chess_8h_ad3df373183a99f0161894012e3c251b1}{00170}}\ \textcolor{preprocessor}{\#define\ LED\_FRAME\_SPACING\_MS\ 200\ }\textcolor{comment}{//\ Bezpecna\ mezera\ -\/\ 200ms\ mezi\ frames}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00173}\mbox{\hyperlink{freertos__chess_8h_a5e46e8f15b9ba2ac3ac0935d11a778fc}{00173}}\ \textcolor{preprocessor}{\#define\ LED\_RESET\_TIME\_US\ 500\ }\textcolor{comment}{//\ Bezpecny\ reset\ -\/\ 500us\ (10x\ vice\ nez\ minimum)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00174}00174\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00175}00175\ \textcolor{comment}{//\ LED\ synchronizacni\ konstanty}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00177}\mbox{\hyperlink{freertos__chess_8h_a683981e7f037dd43d22e1e337db287bd}{00177}}\ \textcolor{preprocessor}{\#define\ LED\_SAFE\_TIMEOUT\ pdMS\_TO\_TICKS(LED\_COMMAND\_TIMEOUT\_MS)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00179}\mbox{\hyperlink{freertos__chess_8h_a1c080ccbe5c2b8e9c7229f3c10f74a8f}{00179}}\ \textcolor{preprocessor}{\#define\ LED\_MUTEX\_SAFE\_TIMEOUT\ pdMS\_TO\_TICKS(LED\_MUTEX\_TIMEOUT\_MS)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00180}00180\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00181}00181\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00182}00182\ \textcolor{comment}{//\ VELIKOSTI\ FRONT}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00183}00183\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00184}00184\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00185}00185\ \textcolor{comment}{//\ PAMETI\ OPTIMALIZOVANE\ VELIKOSTI\ FRONT\ -\/\ Faze\ 1}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00186}00186\ \textcolor{comment}{//\ Celkova\ pamet\ front:\ 8KB\ →\ 5KB\ =\ 3KB\ uspora}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00188}\mbox{\hyperlink{freertos__chess_8h_a60c0e1e27fef536d95040e98b856975a}{00188}}\ \textcolor{preprocessor}{\#define\ LED\_QUEUE\_SIZE\ 50\ }\textcolor{comment}{//\ Velikost\ LED\ fronty\ (50\ prvku\ pro\ stabilitu)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00191}\mbox{\hyperlink{freertos__chess_8h_a579e6003d89168493306bca5848f301a}{00191}}\ \textcolor{preprocessor}{\#define\ MATRIX\_QUEUE\_SIZE\ 8\ }\textcolor{comment}{//\ Reduced\ from\ 15\ to\ 8\ (sufficient\ for\ scanning)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00194}\mbox{\hyperlink{freertos__chess_8h_a6ca45550c06013af8c3cec978a7271ab}{00194}}\ \textcolor{preprocessor}{\#define\ BUTTON\_QUEUE\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00195}00195\ \textcolor{preprocessor}{\ \ 5\ }\textcolor{comment}{//\ Reduced\ from\ 8\ to\ 5\ (button\ events\ are\ infrequent)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00198}\mbox{\hyperlink{freertos__chess_8h_a1e15a8ac2f944de5c675aa81c1c653c4}{00198}}\ \textcolor{preprocessor}{\#define\ UART\_QUEUE\_SIZE\ 10\ }\textcolor{comment}{//\ Reduced\ from\ 20\ to\ 10\ to\ save\ \string~38\ KB\ memory}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00201}\mbox{\hyperlink{freertos__chess_8h_a28eeb53d2d0b05fd6f19dd85f101b40e}{00201}}\ \textcolor{preprocessor}{\#define\ GAME\_QUEUE\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00202}00202\ \textcolor{preprocessor}{\ \ 50\ }\textcolor{comment}{//\ STABILITY\ FIX:\ Increased\ from\ 20\ to\ 50\ for\ better\ handling\ of\ rapid}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00203}00203\ \ \ \ \ \ \textcolor{comment}{//\ moves\ //\ Reduced\ from\ 30\ to\ 20\ (sufficient\ for\ game\ commands)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00206}\mbox{\hyperlink{freertos__chess_8h_affde4e66cef922d3fa060b3013d10c3a}{00206}}\ \textcolor{preprocessor}{\#define\ ANIMATION\_QUEUE\_SIZE\ 5\ }\textcolor{comment}{//\ Reduced\ from\ 8\ to\ 5\ (simple\ animations)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00208}\mbox{\hyperlink{freertos__chess_8h_afd353feba5d0f1707fb7a70438c4dc1f}{00208}}\ \textcolor{preprocessor}{\#define\ SCREEN\_SAVER\_QUEUE\_SIZE\ 3\ }\textcolor{comment}{//\ Unchanged\ (already\ minimal)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00211}\mbox{\hyperlink{freertos__chess_8h_ac550726b2b0adb0539e9dc4f8a1be108}{00211}}\ \textcolor{preprocessor}{\#define\ WEB\_SERVER\_QUEUE\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00212}00212\ \textcolor{preprocessor}{\ \ 10\ }\textcolor{comment}{//\ Reduced\ from\ 15\ to\ 10\ (streaming\ reduces\ needs)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00213}00213\ \textcolor{comment}{//\ \#define\ MATTER\_QUEUE\_SIZE\ 10\ \ \ \ \ //\ DISABLED\ -\/\ Matter\ not\ needed}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00214}00214\ }
 \DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00215}00215\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00216}00216\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00217}00217\ \textcolor{comment}{//\ Velikosti\ stacku\ tasku\ (v\ bajtech)\ -\/\ PAMETI\ OPTIMALIZOVANE\ FAZE\ 1}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00218}00218\ \textcolor{comment}{//\ Celkove\ pouziti\ stacku:\ 57KB\ →\ 41KB\ =\ 16KB\ uspora\ (UART\ task\ zvysen\ na\ 10KB}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00219}00219\ \textcolor{comment}{//\ pro\ game\_response\_t\ na\ stacku)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00222}\mbox{\hyperlink{freertos__chess_8h_a7b127f4562618fb23c61f79d2a6a2201}{00222}}\ \textcolor{preprocessor}{\#define\ LED\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00223}00223\ \textcolor{preprocessor}{\ \ (16\ *\ 1024)\ }\textcolor{comment}{//\ 16KB\ (INCREASED:\ led\_strip\_new\_rmt\_device\ needs\ more\ stack)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00226}\mbox{\hyperlink{freertos__chess_8h_a71a39cddac7f169064d88214a759deb8}{00226}}\ \textcolor{preprocessor}{\#define\ MATRIX\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00227}00227\ \textcolor{preprocessor}{\ \ (8\ *\ 1024)\ }\textcolor{comment}{//\ 8KB\ (increased\ for\ game\_response\_t\ on\ stack)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00229}\mbox{\hyperlink{freertos__chess_8h_adbb9d0dfbf98763aa25c6a52814f0bf8}{00229}}\ \textcolor{preprocessor}{\#define\ BUTTON\_TASK\_STACK\_SIZE\ (3\ *\ 1024)\ }\textcolor{comment}{//\ 3KB\ (unchanged\ -\/\ already\ optimal)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00232}\mbox{\hyperlink{freertos__chess_8h_a1a9da456d063076e469758050a0a472f}{00232}}\ \textcolor{preprocessor}{\#define\ UART\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00233}00233\ \textcolor{preprocessor}{\ \ (10\ *\ 1024)\ }\textcolor{comment}{//\ 10KB\ (game\_response\_t\ je\ 3.8KB\ +\ overhead)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00235}\mbox{\hyperlink{freertos__chess_8h_a3742ac4e005f9654c81dac1b035e8a14}{00235}}\ \textcolor{preprocessor}{\#define\ GAME\_TASK\_STACK\_SIZE\ (10\ *\ 1024)\ }\textcolor{comment}{//\ 10KB\ pro\ bezpečný\ error\ handling}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00238}\mbox{\hyperlink{freertos__chess_8h_a6e9d80d372a5d67bfe61ef2373242891}{00238}}\ \textcolor{preprocessor}{\#define\ ANIMATION\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00239}00239\ \textcolor{preprocessor}{\ \ (2\ *\ 1024)\ }\textcolor{comment}{//\ 2KB\ (reduced\ from\ 3KB\ -\/\ simple\ animations)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00242}\mbox{\hyperlink{freertos__chess_8h_a203c5698d5ed09c06220f3f660867903}{00242}}\ \textcolor{preprocessor}{\#define\ SCREEN\_SAVER\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00243}00243\ \textcolor{preprocessor}{\ \ (2\ *\ 1024)\ }\textcolor{comment}{//\ 2KB\ (reduced\ from\ 3KB\ -\/\ simple\ patterns)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00246}\mbox{\hyperlink{freertos__chess_8h_a5a50c304bdd9e66032df79cfea02fb35}{00246}}\ \textcolor{preprocessor}{\#define\ TEST\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00247}00247\ \textcolor{preprocessor}{\ \ (4\ *\ 1024)\ }\textcolor{comment}{//\ 4KB\ (increased\ from\ 2KB\ to\ prevent\ stack\ overflow)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00248}00248\ \textcolor{comment}{//\ \#define\ MATTER\_TASK\_STACK\_SIZE\ (8\ *\ 1024)\ \ \ \ \ \ \ //\ DISABLED\ -\/\ Matter\ not}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00249}00249\ \textcolor{comment}{//\ needed}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00252}\mbox{\hyperlink{freertos__chess_8h_ad02ca6747c039790bae842a9574ce45b}{00252}}\ \textcolor{preprocessor}{\#define\ WEB\_SERVER\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00253}00253\ \textcolor{preprocessor}{\ \ (20\ *\ 1024)\ }\textcolor{comment}{//\ 20KB\ (increased\ for\ WiFi/HTTP\ server\ stability\ +\ HTML\ handling)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00255}\mbox{\hyperlink{freertos__chess_8h_aa89cf203c391fae0636372b71659d297}{00255}}\ \textcolor{preprocessor}{\#define\ RESET\_BUTTON\_TASK\_STACK\_SIZE\ (2\ *\ 1024)\ }\textcolor{comment}{//\ 2KB\ (unchanged)}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00257}\mbox{\hyperlink{freertos__chess_8h_a0777cbb816d50dcb813a9bf1b98dd46e}{00257}}\ \textcolor{preprocessor}{\#define\ PROMOTION\_BUTTON\_TASK\_STACK\_SIZE\ (2\ *\ 1024)\ }\textcolor{comment}{//\ 2KB\ (unchanged)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00258}00258\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00259}00259\ \textcolor{comment}{//\ Priority\ tasku}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00261}\mbox{\hyperlink{freertos__chess_8h_a929063c46e63eb78271df5b5fd5819e9}{00261}}\ \textcolor{preprocessor}{\#define\ LED\_TASK\_PRIORITY\ 7\ }\textcolor{comment}{//\ Nejvyšší\ priorita\ pro\ LED\ timing}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00263}\mbox{\hyperlink{freertos__chess_8h_ab8ed4eae602e4b2be89befb487b83d26}{00263}}\ \textcolor{preprocessor}{\#define\ MATRIX\_TASK\_PRIORITY\ 6\ }\textcolor{comment}{//\ Hardware\ vstup}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00265}\mbox{\hyperlink{freertos__chess_8h_a94dea431a1c059625b45f816ab129043}{00265}}\ \textcolor{preprocessor}{\#define\ BUTTON\_TASK\_PRIORITY\ 5\ }\textcolor{comment}{//\ Uživatelský\ vstup}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00267}\mbox{\hyperlink{freertos__chess_8h_a57dcc29bb266003c63803b06ea25b26d}{00267}}\ \textcolor{preprocessor}{\#define\ UART\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Komunikace}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00269}\mbox{\hyperlink{freertos__chess_8h_a006aed1ec383676054e95d995acd427b}{00269}}\ \textcolor{preprocessor}{\#define\ GAME\_TASK\_PRIORITY\ 4\ }\textcolor{comment}{//\ Priorita\ game\ tasku}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00271}\mbox{\hyperlink{freertos__chess_8h_aa535c253da7bfeb4f3fcba9b47fcfe4f}{00271}}\ \textcolor{preprocessor}{\#define\ ANIMATION\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Vizuální\ efekty}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00273}\mbox{\hyperlink{freertos__chess_8h_a66161fe4e247e0f129ebe3b2bf3d1d42}{00273}}\ \textcolor{preprocessor}{\#define\ SCREEN\_SAVER\_TASK\_PRIORITY\ 2\ }\textcolor{comment}{//\ Pozadí}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00275}\mbox{\hyperlink{freertos__chess_8h_a93921d3292005836714afe15fad7d078}{00275}}\ \textcolor{preprocessor}{\#define\ TEST\_TASK\_PRIORITY\ 1\ }\textcolor{comment}{//\ Pouze\ pro\ debug}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00276}00276\ \textcolor{comment}{//\ \#define\ MATTER\_TASK\_PRIORITY\ 4\ \ \ \ \ \ \ //\ DISABLED\ -\/\ Matter\ not\ needed}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00278}\mbox{\hyperlink{freertos__chess_8h_a21c1cebc5db393a9f06dfb6266a65241}{00278}}\ \textcolor{preprocessor}{\#define\ WEB\_SERVER\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Komunikace}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00280}\mbox{\hyperlink{freertos__chess_8h_a9317390fd5035b22532eaaa19884d747}{00280}}\ \textcolor{preprocessor}{\#define\ RESET\_BUTTON\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Uživatelský\ vstup}\textcolor{preprocessor}{}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00282}\mbox{\hyperlink{freertos__chess_8h_a58d022d18b73ee9efae31b39b6fd4343}{00282}}\ \textcolor{preprocessor}{\#define\ PROMOTION\_BUTTON\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Uživatelský\ vstup}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00283}00283\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00284}00284\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00285}00285\ \textcolor{comment}{//\ GLOBALNI\ QUEUE\ HANDLES}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00286}00286\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00287}00287\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00288}00288\ \textcolor{comment}{//\ LED\ control\ queues\ -\/\ ODSTRANENO:\ Pouzivaji\ se\ prime\ LED\ volani\ misto\ toho}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00289}00289\ \textcolor{comment}{//\ extern\ QueueHandle\_t\ led\_command\_queue;\ \ //\ ❌\ REMOVED:\ Queue\ hell\ eliminated}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00290}00290\ \textcolor{comment}{//\ extern\ QueueHandle\_t\ led\_status\_queue;\ \ \ //\ ❌\ REMOVED:\ Queue\ hell\ eliminated}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00292}00292\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a1b93ff1badbca8962927cb6fd837463e}{matrix\_event\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00294}00294\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_abc01112e6afa1b3e029218e52b7c2196}{matrix\_command\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00296}00296\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a9b3fea6e381f159f9e088382e4040d27}{matrix\_response\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00298}00298\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a05107bbe85fd87a92dad9efd71dbd653}{button\_event\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00300}00300\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a5f1958b9037083cf953f250fe1f364a5}{button\_command\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00302}00302\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a7e436e9dcca9a044bb9264755b4caa9e}{uart\_command\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00304}00304\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a02a776b41d5e50969e5cf68dcbbc2c69}{uart\_response\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00306}00306\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00308}00308\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a6dfc9956f36db9a85a34268c6e14b059}{game\_status\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00310}00310\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a6fa8af7d1c0b048b9f2c363a9fb2b288}{animation\_command\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00312}00312\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_ad2c6aca6dc859def2315ed1c26f11aad}{animation\_status\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00314}00314\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_ad6e2650c9733357ca904426081ccee72}{screen\_saver\_command\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00316}00316\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a494d670fc3ed5c9bf7fc74a908a92712}{screen\_saver\_status\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00318}00318\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8h_a1f265b8287aba27035f07a200c7ddfec}{matter\_command\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00320}00320\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8h_a17f6bae025bf70b7775d1dd5e880e909}{matter\_status\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00322}00322\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a642abc1652d446215a18d55b0517edba}{web\_command\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00324}00324\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_aaed4d7c5bc3e8140853498b965ec94e2}{web\_server\_command\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00326}00326\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_aa17b405ee779d94d3b6954dd83712591}{web\_server\_status\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00328}00328\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a849df7d33a2eeeb8383dab84223a7813}{test\_command\_queue}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00329}00329\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00330}00330\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00331}00331\ \textcolor{comment}{//\ GLOBALNI\ MUTEX\ HANDLES}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00332}00332\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00333}00333\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00335}00335\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a864f0cc9b1f2e30bd3c0e225e2c48552}{led\_mutex}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00337}00337\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a80a74d10dccdaa933010d0e5cf7202d8}{matrix\_mutex}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00339}00339\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a17744dc0b4a21889e7e9527835edc068}{button\_mutex}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00341}00341\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_af5298ceb88597b4b25328ac7e1af7ff0}{game\_mutex}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00343}00343\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a54b3156204f85b12fbf1a9c012730afc}{system\_mutex}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00345}00345\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{main_8c_a8eca84d3e2c7c0adf364819e74b1bd9b}{uart\_mutex}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00346}00346\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00347}00347\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00348}00348\ \textcolor{comment}{//\ GLOBALNI\ TIMER\ HANDLES}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00349}00349\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00350}00350\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00352}00352\ \textcolor{keyword}{extern}\ TimerHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_ad589ad22574a5fdb69645141759216c4}{matrix\_scan\_timer}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00354}00354\ \textcolor{keyword}{extern}\ TimerHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_af58f98e02d7d24dcc49a348ea1f22e77}{button\_scan\_timer}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00355}00355\ \textcolor{comment}{//\ extern\ TimerHandle\_t\ led\_update\_timer;\ \ //\ ❌\ REMOVED:\ No\ longer\ needed}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00357}00357\ \textcolor{keyword}{extern}\ TimerHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a2d90fd6adb05ddb54ae494a47e311309}{system\_health\_timer}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00358}00358\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00359}00359\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00360}00360\ \textcolor{comment}{//\ GPIO\ PIN\ POLE}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00361}00361\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00362}00362\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00364}00364\ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ gpio\_num\_t\ \mbox{\hyperlink{freertos__chess_8c_ad9e3ceb44aa3ff2deb6b45b6079cc7e8}{matrix\_row\_pins}}[8];}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00366}00366\ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ gpio\_num\_t\ \mbox{\hyperlink{freertos__chess_8c_a2d07c58a77430cba050b46dd496ce081}{matrix\_col\_pins}}[8];}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00368}00368\ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ gpio\_num\_t\ \mbox{\hyperlink{freertos__chess_8c_aa13f5879e99176ffada8295c49c67b6c}{promotion\_button\_pins\_a}}[4];}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00369}00369\ \textcolor{comment}{//\ ⚠️\ NEPOUZIVANO:\ Toto\ pole\ se\ nikde\ v\ kódu\ nepoužívá!}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00370}00370\ \textcolor{comment}{//\ /**\ @brief\ Pole\ GPIO\ pinu\ pro\ promotion\ tlacitka\ B\ (4\ tlacitka)\ */}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00371}00371\ \textcolor{comment}{//\ extern\ const\ gpio\_num\_t\ promotion\_button\_pins\_b[4];}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00372}00372\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00373}00373\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00374}00374\ \textcolor{comment}{//\ SYSTEMOVE\ INICIALIZACNI\ FUNKCE}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00375}00375\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00376}00376\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00385}00385\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_ae3398aa451de52fedd3ac9e5830fca76}{chess\_system\_init}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00386}00386\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00394}00394\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_ac2f54e3f77005d32b1df12eca333ed3e}{chess\_memory\_systems\_init}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00395}00395\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00403}00403\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a41db379171eabe6fccb60019e0e60549}{chess\_hardware\_init}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00404}00404\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00412}00412\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a918837616a81eb433243f2c1e109f73a}{chess\_create\_queues}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00413}00413\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00421}00421\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a9bb91e5162ab07c0d6e18df6a5a9f43e}{chess\_create\_mutexes}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00422}00422\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00430}00430\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_ad4a9b6f60cb5280918a47885121ea229}{chess\_create\_timers}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00431}00431\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00439}00439\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a315226a40faf8a392b6328ed7c26340f}{chess\_start\_timers}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00440}00440\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00448}00448\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{freertos__chess_8h_a60ba01ed8c95cf7326c889ea1b6a2bc2}{button\_scan\_timer\_callback}}(TimerHandle\_t\ xTimer);}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00449}00449\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00457}00457\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{freertos__chess_8h_a904cb90015996d3ad0532e71bc502318}{matrix\_scan\_timer\_callback}}(TimerHandle\_t\ xTimer);}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00458}00458\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00463}00463\ \textcolor{comment}{//\ void\ led\_update\_timer\_callback(TimerHandle\_t\ xTimer);\ \ //\ ❌\ REMOVED:\ No}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00464}00464\ \textcolor{comment}{//\ longer\ needed}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00465}00465\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00474}00474\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_af8e4ec2ba6554d39c4f7c9574718efdc}{chess\_gpio\_init}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00475}00475\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00476}00476\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00477}00477\ \textcolor{comment}{//\ HARDWARE\ ABSTRACTION\ FUNKCE}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00478}00478\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00479}00479\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00486}00486\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a7fb9ad5c97d8450a447d81ae4c6199fe}{chess\_uart\_send\_string}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *str);}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00487}00487\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00497}00497\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_af0a70e7b77c14224b0efc66be5c59396}{chess\_uart\_printf}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *format,\ ...);}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00498}00498\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00508}00508\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a6f66538255c01c03931e08eac42e6e8f}{chess\_led\_set\_pixel}}(uint8\_t\ led\_index,\ uint8\_t\ red,\ uint8\_t\ green,}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00509}00509\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ blue);}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00510}00510\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00519}00519\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_aba042f04f5d5fcb5bfb8f1ea039be359}{chess\_led\_set\_all}}(uint8\_t\ red,\ uint8\_t\ green,\ uint8\_t\ blue);}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00520}00520\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00528}00528\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a8472ef30fed91b8fa2c1efc57542ec33}{chess\_matrix\_get\_status}}(uint8\_t\ *status);}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00529}00529\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00530}00530\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00531}00531\ \textcolor{comment}{//\ SYSTEMOVE\ UTILITY\ FUNKCE}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00532}00532\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00533}00533\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00540}00540\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{freertos__chess_8h_acc6c5ec2b59b331d0d27ef56a9f0c462}{chess\_print\_system\_info}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00541}00541\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00549}00549\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a0321f7ecdafb014dbfb05309bf810493}{chess\_monitor\_tasks}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00550}00550\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00556}00556\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{freertos__chess_8h_ad190bb08e29e63b6f04a3715dae88706}{is\_demo\_mode\_enabled}}(\textcolor{keywordtype}{void});}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00557}00557\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00558}00558\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00559}00559\ \textcolor{comment}{//\ UTILITY\ MAKRA}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00560}00560\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00561}00561\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00573}\mbox{\hyperlink{freertos__chess_8h_a4821223bcff83669f6b0414b90542738}{00573}}\ \textcolor{preprocessor}{\#define\ SAFE\_CREATE\_QUEUE(handle,\ size,\ item\_size,\ name)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00574}00574\ \textcolor{preprocessor}{\ \ do\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00575}00575\ \textcolor{preprocessor}{\ \ \ \ handle\ =\ xQueueCreate(size,\ item\_size);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00576}00576\ \textcolor{preprocessor}{\ \ \ \ if\ (handle\ ==\ NULL)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00577}00577\ \textcolor{preprocessor}{\ \ \ \ \ \ ESP\_LOGE(TAG,\ "{}Failed\ to\ create\ queue:\ \%s"{},\ name);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00578}00578\ \textcolor{preprocessor}{\ \ \ \ \ \ return\ ESP\_ERR\_NO\_MEM;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00579}00579\ \textcolor{preprocessor}{\ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00580}00580\ \textcolor{preprocessor}{\ \ \ \ ESP\_LOGI(TAG,\ "{}✓\ Queue\ created:\ \%s"{},\ name);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00581}00581\ \textcolor{preprocessor}{\ \ \}\ while\ (0)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00582}00582\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00592}\mbox{\hyperlink{freertos__chess_8h_a9ca3a534387caddce17a0aa3afb7a332}{00592}}\ \textcolor{preprocessor}{\#define\ SAFE\_CREATE\_MUTEX(handle,\ name)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00593}00593\ \textcolor{preprocessor}{\ \ do\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00594}00594\ \textcolor{preprocessor}{\ \ \ \ handle\ =\ xSemaphoreCreateMutex();\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00595}00595\ \textcolor{preprocessor}{\ \ \ \ if\ (handle\ ==\ NULL)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00596}00596\ \textcolor{preprocessor}{\ \ \ \ \ \ ESP\_LOGE(TAG,\ "{}Failed\ to\ create\ mutex:\ \%s"{},\ name);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00597}00597\ \textcolor{preprocessor}{\ \ \ \ \ \ return\ ESP\_ERR\_NO\_MEM;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00598}00598\ \textcolor{preprocessor}{\ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00599}00599\ \textcolor{preprocessor}{\ \ \ \ ESP\_LOGI(TAG,\ "{}✓\ Mutex\ created:\ \%s"{},\ name);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00600}00600\ \textcolor{preprocessor}{\ \ \}\ while\ (0)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00601}00601\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00602}00602\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00603}00603\ \textcolor{comment}{//\ EXTERNI\ TASK\ HANDLES\ (pro\ pristup\ z\ uart\_task.c\ a\ dalsich\ modulu)}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00604}00604\ \textcolor{comment}{//\ ============================================================================}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00605}00605\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00607}00607\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a6cf81c896b094e20ff5752ee1133a8f2}{led\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00609}00609\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a9de1b87e0b6692c90f1c5cfd9e13d444}{matrix\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00611}00611\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_aba5c2db71f9fa5cd9f3e506e91ffe6d3}{button\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00613}00613\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a4e4967ac70f1e8a89b2fea62027a968c}{uart\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00615}00615\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_acb49a688d90460dc48f7e0b976ace62d}{game\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00617}00617\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a2a20898222a990efbce3e4239f2d9aee}{animation\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00619}00619\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{freertos__chess_8h_a1b8705c6542b99f74f769212463bed0a}{screen\_saver\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00621}00621\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_abafefd1ba465b609ca39fd6fc502095b}{test\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00623}00623\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{freertos__chess_8h_a3003870ab7d0f1243695d9f94cee10f9}{matter\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00625}00625\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a36e9302901a63037025cd7970fa8adbe}{web\_server\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00627}00627\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_aeb8dd1b563b914d04c90f377454ad032}{reset\_button\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00629}00629\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a2cf065fd2e74d6ad91b3da384a96c60b}{promotion\_button\_task\_handle}};}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00630}00630\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00631}00631\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00632}00632\ \}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00633}00633\ \textcolor{preprocessor}{\#endif}}
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00634}00634\ }
-\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00635}00635\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ FREERTOS\_CHESS\_H}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00216}00216\ \textcolor{comment}{//\ VELIKOSTI\ STACKU\ A\ PRIORITY\ TASKU}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00217}00217\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00218}00218\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00219}00219\ \textcolor{comment}{//\ Velikosti\ stacku\ tasku\ (v\ bajtech)\ -\/\ PAMETI\ OPTIMALIZOVANE\ FAZE\ 1}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00220}00220\ \textcolor{comment}{//\ Celkove\ pouziti\ stacku:\ 57KB\ →\ 41KB\ =\ 16KB\ uspora\ (UART\ task\ zvysen\ na\ 10KB}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00221}00221\ \textcolor{comment}{//\ pro\ game\_response\_t\ na\ stacku)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00224}\mbox{\hyperlink{freertos__chess_8h_a7b127f4562618fb23c61f79d2a6a2201}{00224}}\ \textcolor{preprocessor}{\#define\ LED\_TASK\_STACK\_SIZE\ (8\ *\ 1024)\ }\textcolor{comment}{//\ 8KB\ (Optimized:\ 16KB\ was\ excessive)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00227}\mbox{\hyperlink{freertos__chess_8h_a71a39cddac7f169064d88214a759deb8}{00227}}\ \textcolor{preprocessor}{\#define\ MATRIX\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00228}00228\ \textcolor{preprocessor}{\ \ (4\ *\ 1024)\ }\textcolor{comment}{//\ 4KB\ (Optimized:\ Reduced\ struct\ size\ allow\ smaller\ stack)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00230}\mbox{\hyperlink{freertos__chess_8h_adbb9d0dfbf98763aa25c6a52814f0bf8}{00230}}\ \textcolor{preprocessor}{\#define\ BUTTON\_TASK\_STACK\_SIZE\ (3\ *\ 1024)\ }\textcolor{comment}{//\ 3KB\ (unchanged\ -\/\ already\ optimal)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00233}\mbox{\hyperlink{freertos__chess_8h_a1a9da456d063076e469758050a0a472f}{00233}}\ \textcolor{preprocessor}{\#define\ UART\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00234}00234\ \textcolor{preprocessor}{\ \ (5\ *\ 1024)\ }\textcolor{comment}{//\ 5KB\ (Optimized:\ Reduced\ struct\ size\ allow\ smaller\ stack)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00236}\mbox{\hyperlink{freertos__chess_8h_a3742ac4e005f9654c81dac1b035e8a14}{00236}}\ \textcolor{preprocessor}{\#define\ GAME\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00237}00237\ \textcolor{preprocessor}{\ \ (6\ *\ 1024)\ }\textcolor{comment}{//\ 6KB\ (Optimized:\ Reduced\ struct\ size\ allow\ smaller\ stack)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00240}\mbox{\hyperlink{freertos__chess_8h_a6e9d80d372a5d67bfe61ef2373242891}{00240}}\ \textcolor{preprocessor}{\#define\ ANIMATION\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00241}00241\ \textcolor{preprocessor}{\ \ (2\ *\ 1024)\ }\textcolor{comment}{//\ 2KB\ (reduced\ from\ 3KB\ -\/\ simple\ animations)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00244}\mbox{\hyperlink{freertos__chess_8h_a203c5698d5ed09c06220f3f660867903}{00244}}\ \textcolor{preprocessor}{\#define\ SCREEN\_SAVER\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00245}00245\ \textcolor{preprocessor}{\ \ (2\ *\ 1024)\ }\textcolor{comment}{//\ 2KB\ (reduced\ from\ 3KB\ -\/\ simple\ patterns)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00248}\mbox{\hyperlink{freertos__chess_8h_a5a50c304bdd9e66032df79cfea02fb35}{00248}}\ \textcolor{preprocessor}{\#define\ TEST\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00249}00249\ \textcolor{preprocessor}{\ \ (4\ *\ 1024)\ }\textcolor{comment}{//\ 4KB\ (increased\ from\ 2KB\ to\ prevent\ stack\ overflow)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00250}00250\ \textcolor{comment}{//\ \#define\ MATTER\_TASK\_STACK\_SIZE\ (8\ *\ 1024)\ \ \ \ \ \ \ //\ DISABLED\ -\/\ Matter\ not}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00251}00251\ \textcolor{comment}{//\ needed}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00254}\mbox{\hyperlink{freertos__chess_8h_ad02ca6747c039790bae842a9574ce45b}{00254}}\ \textcolor{preprocessor}{\#define\ WEB\_SERVER\_TASK\_STACK\_SIZE\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00255}00255\ \textcolor{preprocessor}{\ \ (20\ *\ 1024)\ }\textcolor{comment}{//\ 20KB\ (increased\ for\ WiFi/HTTP\ server\ stability\ +\ HTML\ handling)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00257}\mbox{\hyperlink{freertos__chess_8h_aa89cf203c391fae0636372b71659d297}{00257}}\ \textcolor{preprocessor}{\#define\ RESET\_BUTTON\_TASK\_STACK\_SIZE\ (2\ *\ 1024)\ }\textcolor{comment}{//\ 2KB\ (unchanged)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00259}\mbox{\hyperlink{freertos__chess_8h_a0777cbb816d50dcb813a9bf1b98dd46e}{00259}}\ \textcolor{preprocessor}{\#define\ PROMOTION\_BUTTON\_TASK\_STACK\_SIZE\ (2\ *\ 1024)\ }\textcolor{comment}{//\ 2KB\ (unchanged)}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00261}\mbox{\hyperlink{freertos__chess_8h_ad527fcf9ba093641832abb9056b25774}{00261}}\ \textcolor{preprocessor}{\#define\ HA\_LIGHT\_TASK\_STACK\_SIZE\ (8\ *\ 1024)\ }\textcolor{comment}{//\ 8KB}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00262}00262\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00263}00263\ \textcolor{comment}{//\ Priority\ tasku}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00265}\mbox{\hyperlink{freertos__chess_8h_a929063c46e63eb78271df5b5fd5819e9}{00265}}\ \textcolor{preprocessor}{\#define\ LED\_TASK\_PRIORITY\ 7\ }\textcolor{comment}{//\ Nejvyssi\ priorita\ pro\ LED\ timing}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00267}\mbox{\hyperlink{freertos__chess_8h_ab8ed4eae602e4b2be89befb487b83d26}{00267}}\ \textcolor{preprocessor}{\#define\ MATRIX\_TASK\_PRIORITY\ 6\ }\textcolor{comment}{//\ Hardware\ vstup}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00269}\mbox{\hyperlink{freertos__chess_8h_a94dea431a1c059625b45f816ab129043}{00269}}\ \textcolor{preprocessor}{\#define\ BUTTON\_TASK\_PRIORITY\ 5\ }\textcolor{comment}{//\ Uzivatelsky\ vstup}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00271}\mbox{\hyperlink{freertos__chess_8h_a57dcc29bb266003c63803b06ea25b26d}{00271}}\ \textcolor{preprocessor}{\#define\ UART\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Komunikace}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00273}\mbox{\hyperlink{freertos__chess_8h_a006aed1ec383676054e95d995acd427b}{00273}}\ \textcolor{preprocessor}{\#define\ GAME\_TASK\_PRIORITY\ 4\ }\textcolor{comment}{//\ Priorita\ game\ tasku}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00275}\mbox{\hyperlink{freertos__chess_8h_aa535c253da7bfeb4f3fcba9b47fcfe4f}{00275}}\ \textcolor{preprocessor}{\#define\ ANIMATION\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Vizualni\ efekty}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00277}\mbox{\hyperlink{freertos__chess_8h_a66161fe4e247e0f129ebe3b2bf3d1d42}{00277}}\ \textcolor{preprocessor}{\#define\ SCREEN\_SAVER\_TASK\_PRIORITY\ 2\ }\textcolor{comment}{//\ Pozadi}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00279}\mbox{\hyperlink{freertos__chess_8h_a93921d3292005836714afe15fad7d078}{00279}}\ \textcolor{preprocessor}{\#define\ TEST\_TASK\_PRIORITY\ 1\ }\textcolor{comment}{//\ Pouze\ pro\ debug}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00280}00280\ \textcolor{comment}{//\ \#define\ MATTER\_TASK\_PRIORITY\ 4\ \ \ \ \ \ \ //\ DISABLED\ -\/\ Matter\ not\ needed}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00282}\mbox{\hyperlink{freertos__chess_8h_a21c1cebc5db393a9f06dfb6266a65241}{00282}}\ \textcolor{preprocessor}{\#define\ WEB\_SERVER\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Komunikace}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00284}\mbox{\hyperlink{freertos__chess_8h_a9317390fd5035b22532eaaa19884d747}{00284}}\ \textcolor{preprocessor}{\#define\ RESET\_BUTTON\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Uzivatelsky\ vstup}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00286}\mbox{\hyperlink{freertos__chess_8h_a58d022d18b73ee9efae31b39b6fd4343}{00286}}\ \textcolor{preprocessor}{\#define\ PROMOTION\_BUTTON\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Uzivatelsky\ vstup}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00288}\mbox{\hyperlink{freertos__chess_8h_ad420cbd4164a1c35acf8ef56810955ab}{00288}}\ \textcolor{preprocessor}{\#define\ HA\_LIGHT\_TASK\_PRIORITY\ 3\ }\textcolor{comment}{//\ Komunikace}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00289}00289\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00290}00290\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00291}00291\ \textcolor{comment}{//\ GLOBALNI\ QUEUE\ HANDLES}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00292}00292\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00293}00293\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00294}00294\ \textcolor{comment}{//\ LED\ control\ queues\ -\/\ ODSTRANENO:\ Pouzivaji\ se\ prime\ LED\ volani\ misto\ toho}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00295}00295\ \textcolor{comment}{//\ extern\ QueueHandle\_t\ led\_command\_queue;\ \ //\ \ REMOVED:\ Queue\ hell\ eliminated}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00296}00296\ \textcolor{comment}{//\ extern\ QueueHandle\_t\ led\_status\_queue;\ \ \ //\ \ REMOVED:\ Queue\ hell\ eliminated}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00298}00298\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a1b93ff1badbca8962927cb6fd837463e}{matrix\_event\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00300}00300\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_abc01112e6afa1b3e029218e52b7c2196}{matrix\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00302}00302\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a9b3fea6e381f159f9e088382e4040d27}{matrix\_response\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00304}00304\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a05107bbe85fd87a92dad9efd71dbd653}{button\_event\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00306}00306\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a5f1958b9037083cf953f250fe1f364a5}{button\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00308}00308\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a7e436e9dcca9a044bb9264755b4caa9e}{uart\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00310}00310\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a02a776b41d5e50969e5cf68dcbbc2c69}{uart\_response\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00312}00312\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a4ed770cbe46604586e494bae84b62304}{game\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00314}00314\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a6dfc9956f36db9a85a34268c6e14b059}{game\_status\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00316}00316\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a6fa8af7d1c0b048b9f2c363a9fb2b288}{animation\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00318}00318\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_ad2c6aca6dc859def2315ed1c26f11aad}{animation\_status\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00320}00320\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_ad6e2650c9733357ca904426081ccee72}{screen\_saver\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00322}00322\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a494d670fc3ed5c9bf7fc74a908a92712}{screen\_saver\_status\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00324}00324\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8h_a1f265b8287aba27035f07a200c7ddfec}{matter\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00326}00326\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8h_a17f6bae025bf70b7775d1dd5e880e909}{matter\_status\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00328}00328\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a642abc1652d446215a18d55b0517edba}{web\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00330}00330\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_aaed4d7c5bc3e8140853498b965ec94e2}{web\_server\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00332}00332\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_aa17b405ee779d94d3b6954dd83712591}{web\_server\_status\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00334}00334\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a849df7d33a2eeeb8383dab84223a7813}{test\_command\_queue}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00335}00335\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00336}00336\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00337}00337\ \textcolor{comment}{//\ GLOBALNI\ MUTEX\ HANDLES}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00338}00338\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00339}00339\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00341}00341\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a864f0cc9b1f2e30bd3c0e225e2c48552}{led\_mutex}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00343}00343\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a80a74d10dccdaa933010d0e5cf7202d8}{matrix\_mutex}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00345}00345\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a17744dc0b4a21889e7e9527835edc068}{button\_mutex}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00347}00347\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_af5298ceb88597b4b25328ac7e1af7ff0}{game\_mutex}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00349}00349\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a54b3156204f85b12fbf1a9c012730afc}{system\_mutex}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00351}00351\ \textcolor{keyword}{extern}\ SemaphoreHandle\_t\ \mbox{\hyperlink{main_8c_a8eca84d3e2c7c0adf364819e74b1bd9b}{uart\_mutex}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00352}00352\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00353}00353\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00354}00354\ \textcolor{comment}{//\ GLOBALNI\ TIMER\ HANDLES}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00355}00355\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00356}00356\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00358}00358\ \textcolor{keyword}{extern}\ TimerHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_ad589ad22574a5fdb69645141759216c4}{matrix\_scan\_timer}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00360}00360\ \textcolor{keyword}{extern}\ TimerHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_af58f98e02d7d24dcc49a348ea1f22e77}{button\_scan\_timer}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00361}00361\ \textcolor{comment}{//\ extern\ TimerHandle\_t\ led\_update\_timer;\ \ //\ \ REMOVED:\ No\ longer\ needed}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00363}00363\ \textcolor{keyword}{extern}\ TimerHandle\_t\ \mbox{\hyperlink{freertos__chess_8c_a2d90fd6adb05ddb54ae494a47e311309}{system\_health\_timer}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00364}00364\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00365}00365\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00366}00366\ \textcolor{comment}{//\ GPIO\ PIN\ POLE}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00367}00367\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00368}00368\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00370}00370\ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ gpio\_num\_t\ \mbox{\hyperlink{freertos__chess_8c_ad9e3ceb44aa3ff2deb6b45b6079cc7e8}{matrix\_row\_pins}}[8];}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00372}00372\ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ gpio\_num\_t\ \mbox{\hyperlink{freertos__chess_8c_a2d07c58a77430cba050b46dd496ce081}{matrix\_col\_pins}}[8];}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00374}00374\ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ gpio\_num\_t\ \mbox{\hyperlink{freertos__chess_8c_aa13f5879e99176ffada8295c49c67b6c}{promotion\_button\_pins\_a}}[4];}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00375}00375\ \textcolor{comment}{//\ NEPOUZIVANO:\ Toto\ pole\ se\ nikde\ v\ kodu\ nepouziva!}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00376}00376\ \textcolor{comment}{//\ /**\ @brief\ Pole\ GPIO\ pinu\ pro\ promotion\ tlacitka\ B\ (4\ tlacitka)\ */}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00377}00377\ \textcolor{comment}{//\ extern\ const\ gpio\_num\_t\ promotion\_button\_pins\_b[4];}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00378}00378\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00379}00379\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00380}00380\ \textcolor{comment}{//\ SYSTEMOVE\ INICIALIZACNI\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00381}00381\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00382}00382\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00391}00391\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_ae3398aa451de52fedd3ac9e5830fca76}{chess\_system\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00392}00392\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00400}00400\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_ac2f54e3f77005d32b1df12eca333ed3e}{chess\_memory\_systems\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00401}00401\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00409}00409\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a41db379171eabe6fccb60019e0e60549}{chess\_hardware\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00410}00410\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00418}00418\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a918837616a81eb433243f2c1e109f73a}{chess\_create\_queues}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00419}00419\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00427}00427\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a9bb91e5162ab07c0d6e18df6a5a9f43e}{chess\_create\_mutexes}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00428}00428\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00436}00436\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_ad4a9b6f60cb5280918a47885121ea229}{chess\_create\_timers}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00437}00437\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00445}00445\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a315226a40faf8a392b6328ed7c26340f}{chess\_start\_timers}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00446}00446\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00454}00454\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{freertos__chess_8h_a60ba01ed8c95cf7326c889ea1b6a2bc2}{button\_scan\_timer\_callback}}(TimerHandle\_t\ xTimer);}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00455}00455\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00463}00463\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{freertos__chess_8h_a904cb90015996d3ad0532e71bc502318}{matrix\_scan\_timer\_callback}}(TimerHandle\_t\ xTimer);}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00464}00464\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00469}00469\ \textcolor{comment}{//\ void\ led\_update\_timer\_callback(TimerHandle\_t\ xTimer);\ \ //\ \ REMOVED:\ No}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00470}00470\ \textcolor{comment}{//\ longer\ needed}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00471}00471\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00480}00480\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_af8e4ec2ba6554d39c4f7c9574718efdc}{chess\_gpio\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00481}00481\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00482}00482\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00483}00483\ \textcolor{comment}{//\ HARDWARE\ ABSTRACTION\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00484}00484\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00485}00485\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00492}00492\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a7fb9ad5c97d8450a447d81ae4c6199fe}{chess\_uart\_send\_string}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *str);}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00493}00493\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00503}00503\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_af0a70e7b77c14224b0efc66be5c59396}{chess\_uart\_printf}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *format,\ ...);}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00504}00504\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00514}00514\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a6f66538255c01c03931e08eac42e6e8f}{chess\_led\_set\_pixel}}(uint8\_t\ led\_index,\ uint8\_t\ red,\ uint8\_t\ green,}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00515}00515\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ blue);}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00516}00516\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00525}00525\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_aba042f04f5d5fcb5bfb8f1ea039be359}{chess\_led\_set\_all}}(uint8\_t\ red,\ uint8\_t\ green,\ uint8\_t\ blue);}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00526}00526\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00534}00534\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a8472ef30fed91b8fa2c1efc57542ec33}{chess\_matrix\_get\_status}}(uint8\_t\ *status);}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00535}00535\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00536}00536\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00537}00537\ \textcolor{comment}{//\ SYSTEMOVE\ UTILITY\ FUNKCE}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00538}00538\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00539}00539\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00546}00546\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{freertos__chess_8h_acc6c5ec2b59b331d0d27ef56a9f0c462}{chess\_print\_system\_info}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00547}00547\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00555}00555\ esp\_err\_t\ \mbox{\hyperlink{freertos__chess_8h_a0321f7ecdafb014dbfb05309bf810493}{chess\_monitor\_tasks}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00556}00556\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00562}00562\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{freertos__chess_8h_ad190bb08e29e63b6f04a3715dae88706}{is\_demo\_mode\_enabled}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00563}00563\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00564}00564\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00565}00565\ \textcolor{comment}{//\ UTILITY\ MAKRA}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00566}00566\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00567}00567\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00579}\mbox{\hyperlink{freertos__chess_8h_a4821223bcff83669f6b0414b90542738}{00579}}\ \textcolor{preprocessor}{\#define\ SAFE\_CREATE\_QUEUE(handle,\ size,\ item\_size,\ name)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00580}00580\ \textcolor{preprocessor}{\ \ do\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00581}00581\ \textcolor{preprocessor}{\ \ \ \ handle\ =\ xQueueCreate(size,\ item\_size);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00582}00582\ \textcolor{preprocessor}{\ \ \ \ if\ (handle\ ==\ NULL)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00583}00583\ \textcolor{preprocessor}{\ \ \ \ \ \ ESP\_LOGE(TAG,\ "{}Failed\ to\ create\ queue:\ \%s"{},\ name);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00584}00584\ \textcolor{preprocessor}{\ \ \ \ \ \ return\ ESP\_ERR\_NO\_MEM;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00585}00585\ \textcolor{preprocessor}{\ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00586}00586\ \textcolor{preprocessor}{\ \ \ \ ESP\_LOGI(TAG,\ "{}✓\ Queue\ created:\ \%s"{},\ name);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00587}00587\ \textcolor{preprocessor}{\ \ \}\ while\ (0)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00588}00588\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00598}\mbox{\hyperlink{freertos__chess_8h_a9ca3a534387caddce17a0aa3afb7a332}{00598}}\ \textcolor{preprocessor}{\#define\ SAFE\_CREATE\_MUTEX(handle,\ name)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00599}00599\ \textcolor{preprocessor}{\ \ do\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00600}00600\ \textcolor{preprocessor}{\ \ \ \ handle\ =\ xSemaphoreCreateMutex();\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00601}00601\ \textcolor{preprocessor}{\ \ \ \ if\ (handle\ ==\ NULL)\ \{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00602}00602\ \textcolor{preprocessor}{\ \ \ \ \ \ ESP\_LOGE(TAG,\ "{}Failed\ to\ create\ mutex:\ \%s"{},\ name);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00603}00603\ \textcolor{preprocessor}{\ \ \ \ \ \ return\ ESP\_ERR\_NO\_MEM;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00604}00604\ \textcolor{preprocessor}{\ \ \ \ \}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00605}00605\ \textcolor{preprocessor}{\ \ \ \ ESP\_LOGI(TAG,\ "{}✓\ Mutex\ created:\ \%s"{},\ name);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00606}00606\ \textcolor{preprocessor}{\ \ \}\ while\ (0)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00607}00607\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00608}00608\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00609}00609\ \textcolor{comment}{//\ EXTERNI\ TASK\ HANDLES\ (pro\ pristup\ z\ uart\_task.c\ a\ dalsich\ modulu)}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00610}00610\ \textcolor{comment}{//\ ============================================================================}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00611}00611\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00613}00613\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a6cf81c896b094e20ff5752ee1133a8f2}{led\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00615}00615\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a9de1b87e0b6692c90f1c5cfd9e13d444}{matrix\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00617}00617\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_aba5c2db71f9fa5cd9f3e506e91ffe6d3}{button\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00619}00619\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a4e4967ac70f1e8a89b2fea62027a968c}{uart\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00621}00621\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_acb49a688d90460dc48f7e0b976ace62d}{game\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00623}00623\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a2a20898222a990efbce3e4239f2d9aee}{animation\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00625}00625\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{freertos__chess_8h_a1b8705c6542b99f74f769212463bed0a}{screen\_saver\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00627}00627\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_abafefd1ba465b609ca39fd6fc502095b}{test\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00629}00629\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{freertos__chess_8h_a3003870ab7d0f1243695d9f94cee10f9}{matter\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00631}00631\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a36e9302901a63037025cd7970fa8adbe}{web\_server\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00633}00633\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_aeb8dd1b563b914d04c90f377454ad032}{reset\_button\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00635}00635\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{main_8c_a2cf065fd2e74d6ad91b3da384a96c60b}{promotion\_button\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00636}00636\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00637}00637\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00638}00638\ \}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00639}00639\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00640}00640\ }
+\DoxyCodeLine{\Hypertarget{freertos__chess_8h_source_l00641}00641\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ FREERTOS\_CHESS\_H}}
 
 \end{DoxyCode}

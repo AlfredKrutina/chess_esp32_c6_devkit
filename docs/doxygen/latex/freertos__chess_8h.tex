@@ -119,15 +119,15 @@ Graf závislostí na vkládaných souborech pro freertos\+\_\+chess.\+h\+:\nopag
 \begin{DoxyCompactList}\small\item\em Velikost screen saver fronty (3 prvky, nezmeneno, jiz minimalni). \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{freertos__chess_8h_ac550726b2b0adb0539e9dc4f8a1be108}{WEB\+\_\+\+SERVER\+\_\+\+QUEUE\+\_\+\+SIZE}}~  10
 \begin{DoxyCompactList}\small\item\em Velikost web server fronty (10 prvku, snizeno z 15 na 10, streaming snizuje potreby). \end{DoxyCompactList}\item 
-\#define \mbox{\hyperlink{freertos__chess_8h_a7b127f4562618fb23c61f79d2a6a2201}{LED\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~  (16 \texorpdfstring{$\ast$}{*} 1024)
+\#define \mbox{\hyperlink{freertos__chess_8h_a7b127f4562618fb23c61f79d2a6a2201}{LED\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~(8 \texorpdfstring{$\ast$}{*} 1024)
 \begin{DoxyCompactList}\small\item\em Velikost stacku LED tasku (8KB -\/ KRITICKE\+: LED task potrebuje vice stacku pro critical sections + velka pole). \end{DoxyCompactList}\item 
-\#define \mbox{\hyperlink{freertos__chess_8h_a71a39cddac7f169064d88214a759deb8}{MATRIX\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~  (8 \texorpdfstring{$\ast$}{*} 1024)
+\#define \mbox{\hyperlink{freertos__chess_8h_a71a39cddac7f169064d88214a759deb8}{MATRIX\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~  (4 \texorpdfstring{$\ast$}{*} 1024)
 \begin{DoxyCompactList}\small\item\em Velikost stacku Matrix tasku (8KB -\/ zvyseno pro \doxylink{structgame__response__t}{game\+\_\+response\+\_\+t} na stacku). \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{freertos__chess_8h_adbb9d0dfbf98763aa25c6a52814f0bf8}{BUTTON\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~(3 \texorpdfstring{$\ast$}{*} 1024)
 \begin{DoxyCompactList}\small\item\em Velikost stacku Button tasku (3KB -\/ nezmeneno, jiz optimalni). \end{DoxyCompactList}\item 
-\#define \mbox{\hyperlink{freertos__chess_8h_a1a9da456d063076e469758050a0a472f}{UART\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~  (10 \texorpdfstring{$\ast$}{*} 1024)
+\#define \mbox{\hyperlink{freertos__chess_8h_a1a9da456d063076e469758050a0a472f}{UART\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~  (5 \texorpdfstring{$\ast$}{*} 1024)
 \begin{DoxyCompactList}\small\item\em Velikost stacku UART tasku (10KB -\/ \doxylink{structgame__response__t}{game\+\_\+response\+\_\+t} je 3.\+8\+KB + overhead). \end{DoxyCompactList}\item 
-\#define \mbox{\hyperlink{freertos__chess_8h_a3742ac4e005f9654c81dac1b035e8a14}{GAME\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~(10 \texorpdfstring{$\ast$}{*} 1024)
+\#define \mbox{\hyperlink{freertos__chess_8h_a3742ac4e005f9654c81dac1b035e8a14}{GAME\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~  (6 \texorpdfstring{$\ast$}{*} 1024)
 \begin{DoxyCompactList}\small\item\em Velikost stacku Game tasku (10KB pro bezpecny error handling). \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{freertos__chess_8h_a6e9d80d372a5d67bfe61ef2373242891}{ANIMATION\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~  (2 \texorpdfstring{$\ast$}{*} 1024)
 \begin{DoxyCompactList}\small\item\em Velikost stacku Animation tasku (2KB, snizeno z 3KB, jednoduche animace). \end{DoxyCompactList}\item 
@@ -141,6 +141,8 @@ Graf závislostí na vkládaných souborech pro freertos\+\_\+chess.\+h\+:\nopag
 \begin{DoxyCompactList}\small\item\em Velikost stacku Reset Button tasku (2KB -\/ nezmeneno). \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{freertos__chess_8h_a0777cbb816d50dcb813a9bf1b98dd46e}{PROMOTION\+\_\+\+BUTTON\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~(2 \texorpdfstring{$\ast$}{*} 1024)
 \begin{DoxyCompactList}\small\item\em Velikost stacku Promotion Button tasku (2KB -\/ nezmeneno). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{freertos__chess_8h_ad527fcf9ba093641832abb9056b25774}{HA\+\_\+\+LIGHT\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE}}~(8 \texorpdfstring{$\ast$}{*} 1024)
+\begin{DoxyCompactList}\small\item\em Velikost stacku HA Light tasku (8KB). \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{freertos__chess_8h_a929063c46e63eb78271df5b5fd5819e9}{LED\+\_\+\+TASK\+\_\+\+PRIORITY}}~7
 \begin{DoxyCompactList}\small\item\em Priorita LED tasku (7 -\/ nejvyssi priorita pro LED timing). \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{freertos__chess_8h_ab8ed4eae602e4b2be89befb487b83d26}{MATRIX\+\_\+\+TASK\+\_\+\+PRIORITY}}~6
@@ -163,6 +165,8 @@ Graf závislostí na vkládaných souborech pro freertos\+\_\+chess.\+h\+:\nopag
 \begin{DoxyCompactList}\small\item\em Priorita Reset Button tasku (3 -\/ uzivatelsky vstup). \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{freertos__chess_8h_a58d022d18b73ee9efae31b39b6fd4343}{PROMOTION\+\_\+\+BUTTON\+\_\+\+TASK\+\_\+\+PRIORITY}}~3
 \begin{DoxyCompactList}\small\item\em Priorita Promotion Button tasku (3 -\/ uzivatelsky vstup). \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{freertos__chess_8h_ad420cbd4164a1c35acf8ef56810955ab}{HA\+\_\+\+LIGHT\+\_\+\+TASK\+\_\+\+PRIORITY}}~3
+\begin{DoxyCompactList}\small\item\em Priorita HA Light tasku (3 -\/ komunikace). \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{freertos__chess_8h_a4821223bcff83669f6b0414b90542738}{SAFE\+\_\+\+CREATE\+\_\+\+QUEUE}}(handle,  size,  item\+\_\+size,  name)
 \begin{DoxyCompactList}\small\item\em Bezpecne vytvoreni fronty s kontrolou chyb. \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{freertos__chess_8h_a9ca3a534387caddce17a0aa3afb7a332}{SAFE\+\_\+\+CREATE\+\_\+\+MUTEX}}(handle,  name)
@@ -342,7 +346,7 @@ Velikost animation fronty (5 prvku, snizeno z 8 na 5, jednoduche animace).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00204}{204}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00206}{206}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_aa535c253da7bfeb4f3fcba9b47fcfe4f}\index{freertos\_chess.h@{freertos\_chess.h}!ANIMATION\_TASK\_PRIORITY@{ANIMATION\_TASK\_PRIORITY}}
 \index{ANIMATION\_TASK\_PRIORITY@{ANIMATION\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -356,7 +360,7 @@ Priorita Animation tasku (3 -\/ vizualni efekty).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00271}{271}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00275}{275}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a6e9d80d372a5d67bfe61ef2373242891}\index{freertos\_chess.h@{freertos\_chess.h}!ANIMATION\_TASK\_STACK\_SIZE@{ANIMATION\_TASK\_STACK\_SIZE}}
 \index{ANIMATION\_TASK\_STACK\_SIZE@{ANIMATION\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -370,7 +374,7 @@ Velikost stacku Animation tasku (2KB, snizeno z 3KB, jednoduche animace).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00238}{238}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00240}{240}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_ac861d083f88a75aef0cb5a65ba142f97}\index{freertos\_chess.h@{freertos\_chess.h}!BUTTON\_BISHOP@{BUTTON\_BISHOP}}
 \index{BUTTON\_BISHOP@{BUTTON\_BISHOP}!freertos\_chess.h@{freertos\_chess.h}}
@@ -426,7 +430,7 @@ Velikost button fronty (5 prvku, snizeno z 8 na 5, udalosti jsou vzacne).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00193}{193}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00194}{194}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a0710f0869f3bcc7820964e85f3d59fa4}\index{freertos\_chess.h@{freertos\_chess.h}!BUTTON\_RESET@{BUTTON\_RESET}}
 \index{BUTTON\_RESET@{BUTTON\_RESET}!freertos\_chess.h@{freertos\_chess.h}}
@@ -468,7 +472,7 @@ Cas skenovani tlacitek v milisekundach (20-\/25ms).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00147}{147}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00148}{148}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a94dea431a1c059625b45f816ab129043}\index{freertos\_chess.h@{freertos\_chess.h}!BUTTON\_TASK\_PRIORITY@{BUTTON\_TASK\_PRIORITY}}
 \index{BUTTON\_TASK\_PRIORITY@{BUTTON\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -482,7 +486,7 @@ Priorita Button tasku (5 -\/ uzivatelsky vstup).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00265}{265}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00269}{269}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_adbb9d0dfbf98763aa25c6a52814f0bf8}\index{freertos\_chess.h@{freertos\_chess.h}!BUTTON\_TASK\_STACK\_SIZE@{BUTTON\_TASK\_STACK\_SIZE}}
 \index{BUTTON\_TASK\_STACK\_SIZE@{BUTTON\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -496,7 +500,7 @@ Velikost stacku Button tasku (3KB -\/ nezmeneno, jiz optimalni).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00229}{229}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00230}{230}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a8b1a270b4e32e22a214ff3ad8e670ef7}\index{freertos\_chess.h@{freertos\_chess.h}!CHESS\_BUILD\_DATE@{CHESS\_BUILD\_DATE}}
 \index{CHESS\_BUILD\_DATE@{CHESS\_BUILD\_DATE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -580,7 +584,7 @@ Velikost game fronty (20 prvku, snizeno z 30 na 20, dostatecne pro game prikazy)
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00200}{200}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00201}{201}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a006aed1ec383676054e95d995acd427b}\index{freertos\_chess.h@{freertos\_chess.h}!GAME\_TASK\_PRIORITY@{GAME\_TASK\_PRIORITY}}
 \index{GAME\_TASK\_PRIORITY@{GAME\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -594,13 +598,13 @@ Priorita Game tasku (4).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00269}{269}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00273}{273}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a3742ac4e005f9654c81dac1b035e8a14}\index{freertos\_chess.h@{freertos\_chess.h}!GAME\_TASK\_STACK\_SIZE@{GAME\_TASK\_STACK\_SIZE}}
 \index{GAME\_TASK\_STACK\_SIZE@{GAME\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
 \doxysubsubsection{\texorpdfstring{GAME\_TASK\_STACK\_SIZE}{GAME\_TASK\_STACK\_SIZE}}
 {\footnotesize\ttfamily \label{freertos__chess_8h_a3742ac4e005f9654c81dac1b035e8a14} 
-\#define GAME\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE~(10 \texorpdfstring{$\ast$}{*} 1024)}
+\#define GAME\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE~  (6 \texorpdfstring{$\ast$}{*} 1024)}
 
 
 
@@ -608,7 +612,35 @@ Velikost stacku Game tasku (10KB pro bezpecny error handling).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00235}{235}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00236}{236}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+
+\Hypertarget{freertos__chess_8h_ad420cbd4164a1c35acf8ef56810955ab}\index{freertos\_chess.h@{freertos\_chess.h}!HA\_LIGHT\_TASK\_PRIORITY@{HA\_LIGHT\_TASK\_PRIORITY}}
+\index{HA\_LIGHT\_TASK\_PRIORITY@{HA\_LIGHT\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
+\doxysubsubsection{\texorpdfstring{HA\_LIGHT\_TASK\_PRIORITY}{HA\_LIGHT\_TASK\_PRIORITY}}
+{\footnotesize\ttfamily \label{freertos__chess_8h_ad420cbd4164a1c35acf8ef56810955ab} 
+\#define HA\+\_\+\+LIGHT\+\_\+\+TASK\+\_\+\+PRIORITY~3}
+
+
+
+Priorita HA Light tasku (3 -\/ komunikace). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00288}{288}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+
+\Hypertarget{freertos__chess_8h_ad527fcf9ba093641832abb9056b25774}\index{freertos\_chess.h@{freertos\_chess.h}!HA\_LIGHT\_TASK\_STACK\_SIZE@{HA\_LIGHT\_TASK\_STACK\_SIZE}}
+\index{HA\_LIGHT\_TASK\_STACK\_SIZE@{HA\_LIGHT\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
+\doxysubsubsection{\texorpdfstring{HA\_LIGHT\_TASK\_STACK\_SIZE}{HA\_LIGHT\_TASK\_STACK\_SIZE}}
+{\footnotesize\ttfamily \label{freertos__chess_8h_ad527fcf9ba093641832abb9056b25774} 
+\#define HA\+\_\+\+LIGHT\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE~(8 \texorpdfstring{$\ast$}{*} 1024)}
+
+
+
+Velikost stacku HA Light tasku (8KB). 
+
+
+
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00261}{261}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_afe966dccff7e1c439146a85369c623f7}\index{freertos\_chess.h@{freertos\_chess.h}!LED\_COMMAND\_TIMEOUT\_MS@{LED\_COMMAND\_TIMEOUT\_MS}}
 \index{LED\_COMMAND\_TIMEOUT\_MS@{LED\_COMMAND\_TIMEOUT\_MS}!freertos\_chess.h@{freertos\_chess.h}}
@@ -622,7 +654,7 @@ Bezpecny timeout pro LED prikazy v milisekundach (500ms misto 10-\/100ms).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00161}{161}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00162}{162}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a5f55b07707df2f2cf371f707207ed508}\index{freertos\_chess.h@{freertos\_chess.h}!LED\_DATA\_PIN@{LED\_DATA\_PIN}}
 \index{LED\_DATA\_PIN@{LED\_DATA\_PIN}!freertos\_chess.h@{freertos\_chess.h}}
@@ -650,7 +682,7 @@ Bezpecna mezera mezi LED framy v milisekundach (200ms).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00169}{169}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00170}{170}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a4791d2b56447d04ed38f856604ed53ad}\index{freertos\_chess.h@{freertos\_chess.h}!LED\_HARDWARE\_UPDATE\_MS@{LED\_HARDWARE\_UPDATE\_MS}}
 \index{LED\_HARDWARE\_UPDATE\_MS@{LED\_HARDWARE\_UPDATE\_MS}!freertos\_chess.h@{freertos\_chess.h}}
@@ -664,7 +696,7 @@ Bezpecny interval LED aktualizace v milisekundach (300ms = 3.\+3\+Hz pro lidske 
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00166}{166}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00167}{167}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a1c080ccbe5c2b8e9c7229f3c10f74a8f}\index{freertos\_chess.h@{freertos\_chess.h}!LED\_MUTEX\_SAFE\_TIMEOUT@{LED\_MUTEX\_SAFE\_TIMEOUT}}
 \index{LED\_MUTEX\_SAFE\_TIMEOUT@{LED\_MUTEX\_SAFE\_TIMEOUT}!freertos\_chess.h@{freertos\_chess.h}}
@@ -678,7 +710,7 @@ Bezpecny mutex timeout v Free\+RTOS tickach.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00178}{178}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00179}{179}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_aa31a93cf587ac835b9458a02582a2ff4}\index{freertos\_chess.h@{freertos\_chess.h}!LED\_MUTEX\_TIMEOUT\_MS@{LED\_MUTEX\_TIMEOUT\_MS}}
 \index{LED\_MUTEX\_TIMEOUT\_MS@{LED\_MUTEX\_TIMEOUT\_MS}!freertos\_chess.h@{freertos\_chess.h}}
@@ -692,7 +724,7 @@ Timeout pro LED mutex v milisekundach (200ms).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00163}{163}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00164}{164}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a60c0e1e27fef536d95040e98b856975a}\index{freertos\_chess.h@{freertos\_chess.h}!LED\_QUEUE\_SIZE@{LED\_QUEUE\_SIZE}}
 \index{LED\_QUEUE\_SIZE@{LED\_QUEUE\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -706,7 +738,7 @@ Velikost LED fronty (50 prvku, zvetseno z 15 na 50 pro stabilitu).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00187}{187}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00188}{188}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a5e46e8f15b9ba2ac3ac0935d11a778fc}\index{freertos\_chess.h@{freertos\_chess.h}!LED\_RESET\_TIME\_US@{LED\_RESET\_TIME\_US}}
 \index{LED\_RESET\_TIME\_US@{LED\_RESET\_TIME\_US}!freertos\_chess.h@{freertos\_chess.h}}
@@ -720,7 +752,7 @@ Bezpecny reset cas pro WS2812B v mikrosekundach (500μs = 10x vice nez minimum).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00172}{172}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00173}{173}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a683981e7f037dd43d22e1e337db287bd}\index{freertos\_chess.h@{freertos\_chess.h}!LED\_SAFE\_TIMEOUT@{LED\_SAFE\_TIMEOUT}}
 \index{LED\_SAFE\_TIMEOUT@{LED\_SAFE\_TIMEOUT}!freertos\_chess.h@{freertos\_chess.h}}
@@ -734,7 +766,7 @@ Bezpecny timeout pro LED operace v Free\+RTOS tickach.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00176}{176}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00177}{177}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a929063c46e63eb78271df5b5fd5819e9}\index{freertos\_chess.h@{freertos\_chess.h}!LED\_TASK\_PRIORITY@{LED\_TASK\_PRIORITY}}
 \index{LED\_TASK\_PRIORITY@{LED\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -748,13 +780,13 @@ Priorita LED tasku (7 -\/ nejvyssi priorita pro LED timing).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00261}{261}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00265}{265}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a7b127f4562618fb23c61f79d2a6a2201}\index{freertos\_chess.h@{freertos\_chess.h}!LED\_TASK\_STACK\_SIZE@{LED\_TASK\_STACK\_SIZE}}
 \index{LED\_TASK\_STACK\_SIZE@{LED\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
 \doxysubsubsection{\texorpdfstring{LED\_TASK\_STACK\_SIZE}{LED\_TASK\_STACK\_SIZE}}
 {\footnotesize\ttfamily \label{freertos__chess_8h_a7b127f4562618fb23c61f79d2a6a2201} 
-\#define LED\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE~  (16 \texorpdfstring{$\ast$}{*} 1024)}
+\#define LED\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE~(8 \texorpdfstring{$\ast$}{*} 1024)}
 
 
 
@@ -762,7 +794,7 @@ Velikost stacku LED tasku (8KB -\/ KRITICKE\+: LED task potrebuje vice stacku pr
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00222}{222}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00224}{224}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a3e029f70c5d00d3e249faf7804581b0b}\index{freertos\_chess.h@{freertos\_chess.h}!MATRIX\_COL\_0@{MATRIX\_COL\_0}}
 \index{MATRIX\_COL\_0@{MATRIX\_COL\_0}!freertos\_chess.h@{freertos\_chess.h}}
@@ -888,7 +920,7 @@ Velikost matrix fronty (8 prvku, snizeno z 15 na 8, dostatecne pro skenovani).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00190}{190}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00191}{191}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a412cf595c5d992d528f572367cd382fc}\index{freertos\_chess.h@{freertos\_chess.h}!MATRIX\_ROW\_0@{MATRIX\_ROW\_0}}
 \index{MATRIX\_ROW\_0@{MATRIX\_ROW\_0}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1020,7 +1052,7 @@ Tlacitko pro promoci na kone B (sdileno s MATRIX\+\_\+\+COL\+\_\+7)
 
 Cas skenovani matice v milisekundach (0-\/20ms) 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00145}{145}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00146}{146}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_ab8ed4eae602e4b2be89befb487b83d26}\index{freertos\_chess.h@{freertos\_chess.h}!MATRIX\_TASK\_PRIORITY@{MATRIX\_TASK\_PRIORITY}}
 \index{MATRIX\_TASK\_PRIORITY@{MATRIX\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1034,13 +1066,13 @@ Priorita Matrix tasku (6 -\/ hardware vstup).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00263}{263}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00267}{267}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a71a39cddac7f169064d88214a759deb8}\index{freertos\_chess.h@{freertos\_chess.h}!MATRIX\_TASK\_STACK\_SIZE@{MATRIX\_TASK\_STACK\_SIZE}}
 \index{MATRIX\_TASK\_STACK\_SIZE@{MATRIX\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
 \doxysubsubsection{\texorpdfstring{MATRIX\_TASK\_STACK\_SIZE}{MATRIX\_TASK\_STACK\_SIZE}}
 {\footnotesize\ttfamily \label{freertos__chess_8h_a71a39cddac7f169064d88214a759deb8} 
-\#define MATRIX\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE~  (8 \texorpdfstring{$\ast$}{*} 1024)}
+\#define MATRIX\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE~  (4 \texorpdfstring{$\ast$}{*} 1024)}
 
 
 
@@ -1048,7 +1080,7 @@ Velikost stacku Matrix tasku (8KB -\/ zvyseno pro \doxylink{structgame__response
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00226}{226}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00227}{227}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a58d022d18b73ee9efae31b39b6fd4343}\index{freertos\_chess.h@{freertos\_chess.h}!PROMOTION\_BUTTON\_TASK\_PRIORITY@{PROMOTION\_BUTTON\_TASK\_PRIORITY}}
 \index{PROMOTION\_BUTTON\_TASK\_PRIORITY@{PROMOTION\_BUTTON\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1062,7 +1094,7 @@ Priorita Promotion Button tasku (3 -\/ uzivatelsky vstup).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00282}{282}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00286}{286}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a0777cbb816d50dcb813a9bf1b98dd46e}\index{freertos\_chess.h@{freertos\_chess.h}!PROMOTION\_BUTTON\_TASK\_STACK\_SIZE@{PROMOTION\_BUTTON\_TASK\_STACK\_SIZE}}
 \index{PROMOTION\_BUTTON\_TASK\_STACK\_SIZE@{PROMOTION\_BUTTON\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1076,7 +1108,7 @@ Velikost stacku Promotion Button tasku (2KB -\/ nezmeneno).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00257}{257}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00259}{259}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a9317390fd5035b22532eaaa19884d747}\index{freertos\_chess.h@{freertos\_chess.h}!RESET\_BUTTON\_TASK\_PRIORITY@{RESET\_BUTTON\_TASK\_PRIORITY}}
 \index{RESET\_BUTTON\_TASK\_PRIORITY@{RESET\_BUTTON\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1090,7 +1122,7 @@ Priorita Reset Button tasku (3 -\/ uzivatelsky vstup).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00280}{280}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00284}{284}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_aa89cf203c391fae0636372b71659d297}\index{freertos\_chess.h@{freertos\_chess.h}!RESET\_BUTTON\_TASK\_STACK\_SIZE@{RESET\_BUTTON\_TASK\_STACK\_SIZE}}
 \index{RESET\_BUTTON\_TASK\_STACK\_SIZE@{RESET\_BUTTON\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1104,7 +1136,7 @@ Velikost stacku Reset Button tasku (2KB -\/ nezmeneno).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00255}{255}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00257}{257}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a9ca3a534387caddce17a0aa3afb7a332}\index{freertos\_chess.h@{freertos\_chess.h}!SAFE\_CREATE\_MUTEX@{SAFE\_CREATE\_MUTEX}}
 \index{SAFE\_CREATE\_MUTEX@{SAFE\_CREATE\_MUTEX}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1139,7 +1171,7 @@ Toto makro vytvori Free\+RTOS mutex a automaticky kontroluje uspesnost. Pokud mu
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00592}{592}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00598}{598}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a4821223bcff83669f6b0414b90542738}\index{freertos\_chess.h@{freertos\_chess.h}!SAFE\_CREATE\_QUEUE@{SAFE\_CREATE\_QUEUE}}
 \index{SAFE\_CREATE\_QUEUE@{SAFE\_CREATE\_QUEUE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1178,7 +1210,7 @@ Toto makro vytvori Free\+RTOS frontu a automaticky kontroluje uspesnost. Pokud f
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00573}{573}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00579}{579}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_afd353feba5d0f1707fb7a70438c4dc1f}\index{freertos\_chess.h@{freertos\_chess.h}!SCREEN\_SAVER\_QUEUE\_SIZE@{SCREEN\_SAVER\_QUEUE\_SIZE}}
 \index{SCREEN\_SAVER\_QUEUE\_SIZE@{SCREEN\_SAVER\_QUEUE\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1192,7 +1224,7 @@ Velikost screen saver fronty (3 prvky, nezmeneno, jiz minimalni).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00206}{206}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00208}{208}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a66161fe4e247e0f129ebe3b2bf3d1d42}\index{freertos\_chess.h@{freertos\_chess.h}!SCREEN\_SAVER\_TASK\_PRIORITY@{SCREEN\_SAVER\_TASK\_PRIORITY}}
 \index{SCREEN\_SAVER\_TASK\_PRIORITY@{SCREEN\_SAVER\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1206,7 +1238,7 @@ Priorita Screen Saver tasku (2 -\/ pozadi).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00273}{273}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00277}{277}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a203c5698d5ed09c06220f3f660867903}\index{freertos\_chess.h@{freertos\_chess.h}!SCREEN\_SAVER\_TASK\_STACK\_SIZE@{SCREEN\_SAVER\_TASK\_STACK\_SIZE}}
 \index{SCREEN\_SAVER\_TASK\_STACK\_SIZE@{SCREEN\_SAVER\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1220,7 +1252,7 @@ Velikost stacku Screen Saver tasku (2KB, snizeno z 3KB, jednoduche vzory).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00242}{242}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00244}{244}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a089a71f836911c71b3f73fdd3b4b890b}\index{freertos\_chess.h@{freertos\_chess.h}!STATUS\_LED\_PIN@{STATUS\_LED\_PIN}}
 \index{STATUS\_LED\_PIN@{STATUS\_LED\_PIN}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1248,7 +1280,7 @@ Interval kontroly zdravi systemu v milisekundach.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00152}{152}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00153}{153}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a93921d3292005836714afe15fad7d078}\index{freertos\_chess.h@{freertos\_chess.h}!TEST\_TASK\_PRIORITY@{TEST\_TASK\_PRIORITY}}
 \index{TEST\_TASK\_PRIORITY@{TEST\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1262,7 +1294,7 @@ Priorita Test tasku (1 -\/ pouze pro debug).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00275}{275}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00279}{279}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a5a50c304bdd9e66032df79cfea02fb35}\index{freertos\_chess.h@{freertos\_chess.h}!TEST\_TASK\_STACK\_SIZE@{TEST\_TASK\_STACK\_SIZE}}
 \index{TEST\_TASK\_STACK\_SIZE@{TEST\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1276,7 +1308,7 @@ Velikost stacku Test tasku (4KB, zvyseno z 2KB pro prevenci stack overflow).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00246}{246}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00248}{248}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a519b0c7ea34c85b7e4c7144095820e65}\index{freertos\_chess.h@{freertos\_chess.h}!TOTAL\_CYCLE\_TIME\_MS@{TOTAL\_CYCLE\_TIME\_MS}}
 \index{TOTAL\_CYCLE\_TIME\_MS@{TOTAL\_CYCLE\_TIME\_MS}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1290,7 +1322,7 @@ Celkovy cas multiplexing cyklu v milisekundach (snizeno z 30ms).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00150}{150}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00151}{151}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a1e15a8ac2f944de5c675aa81c1c653c4}\index{freertos\_chess.h@{freertos\_chess.h}!UART\_QUEUE\_SIZE@{UART\_QUEUE\_SIZE}}
 \index{UART\_QUEUE\_SIZE@{UART\_QUEUE\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1304,7 +1336,7 @@ Velikost UART fronty (10 prvku, snizeno z 20 na 10, uspora \texorpdfstring{$\sim
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00197}{197}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00198}{198}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a57dcc29bb266003c63803b06ea25b26d}\index{freertos\_chess.h@{freertos\_chess.h}!UART\_TASK\_PRIORITY@{UART\_TASK\_PRIORITY}}
 \index{UART\_TASK\_PRIORITY@{UART\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1318,13 +1350,13 @@ Priorita UART tasku (3 -\/ komunikace).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00267}{267}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00271}{271}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a1a9da456d063076e469758050a0a472f}\index{freertos\_chess.h@{freertos\_chess.h}!UART\_TASK\_STACK\_SIZE@{UART\_TASK\_STACK\_SIZE}}
 \index{UART\_TASK\_STACK\_SIZE@{UART\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
 \doxysubsubsection{\texorpdfstring{UART\_TASK\_STACK\_SIZE}{UART\_TASK\_STACK\_SIZE}}
 {\footnotesize\ttfamily \label{freertos__chess_8h_a1a9da456d063076e469758050a0a472f} 
-\#define UART\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE~  (10 \texorpdfstring{$\ast$}{*} 1024)}
+\#define UART\+\_\+\+TASK\+\_\+\+STACK\+\_\+\+SIZE~  (5 \texorpdfstring{$\ast$}{*} 1024)}
 
 
 
@@ -1332,7 +1364,7 @@ Velikost stacku UART tasku (10KB -\/ \doxylink{structgame__response__t}{game\+\_
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00232}{232}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00233}{233}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_ac550726b2b0adb0539e9dc4f8a1be108}\index{freertos\_chess.h@{freertos\_chess.h}!WEB\_SERVER\_QUEUE\_SIZE@{WEB\_SERVER\_QUEUE\_SIZE}}
 \index{WEB\_SERVER\_QUEUE\_SIZE@{WEB\_SERVER\_QUEUE\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1346,7 +1378,7 @@ Velikost web server fronty (10 prvku, snizeno z 15 na 10, streaming snizuje potr
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00209}{209}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00211}{211}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_a21c1cebc5db393a9f06dfb6266a65241}\index{freertos\_chess.h@{freertos\_chess.h}!WEB\_SERVER\_TASK\_PRIORITY@{WEB\_SERVER\_TASK\_PRIORITY}}
 \index{WEB\_SERVER\_TASK\_PRIORITY@{WEB\_SERVER\_TASK\_PRIORITY}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1360,7 +1392,7 @@ Priorita Web Server tasku (3 -\/ komunikace).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00278}{278}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00282}{282}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 \Hypertarget{freertos__chess_8h_ad02ca6747c039790bae842a9574ce45b}\index{freertos\_chess.h@{freertos\_chess.h}!WEB\_SERVER\_TASK\_STACK\_SIZE@{WEB\_SERVER\_TASK\_STACK\_SIZE}}
 \index{WEB\_SERVER\_TASK\_STACK\_SIZE@{WEB\_SERVER\_TASK\_STACK\_SIZE}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1374,7 +1406,7 @@ Velikost stacku Web Server tasku (20KB, zvyseno pro Wi\+Fi/\+HTTP server stabili
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00252}{252}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8h_source_l00254}{254}} v souboru \mbox{\hyperlink{freertos__chess_8h_source}{freertos\+\_\+chess.\+h}}.
 
 
 
@@ -1407,7 +1439,7 @@ Callback funkce pro button scan timer.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00802}{802}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00856}{856}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a9bb91e5162ab07c0d6e18df6a5a9f43e}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_create\_mutexes@{chess\_create\_mutexes}}
 \index{chess\_create\_mutexes@{chess\_create\_mutexes}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1426,7 +1458,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00700}{700}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00746}{746}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a918837616a81eb433243f2c1e109f73a}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_create\_queues@{chess\_create\_queues}}
 \index{chess\_create\_queues@{chess\_create\_queues}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1445,7 +1477,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00523}{523}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00569}{569}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_ad4a9b6f60cb5280918a47885121ea229}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_create\_timers@{chess\_create\_timers}}
 \index{chess\_create\_timers@{chess\_create\_timers}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1464,7 +1496,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00836}{836}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00890}{890}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_af8e4ec2ba6554d39c4f7c9574718efdc}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_gpio\_init@{chess\_gpio\_init}}
 \index{chess\_gpio\_init@{chess\_gpio\_init}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1490,7 +1522,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00201}{201}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00207}{207}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a41db379171eabe6fccb60019e0e60549}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_hardware\_init@{chess\_hardware\_init}}
 \index{chess\_hardware\_init@{chess\_hardware\_init}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1509,7 +1541,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00466}{466}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00512}{512}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_aba042f04f5d5fcb5bfb8f1ea039be359}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_led\_set\_all@{chess\_led\_set\_all}}
 \index{chess\_led\_set\_all@{chess\_led\_set\_all}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1535,7 +1567,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01208}{1208}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01251}{1251}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a6f66538255c01c03931e08eac42e6e8f}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_led\_set\_pixel@{chess\_led\_set\_pixel}}
 \index{chess\_led\_set\_pixel@{chess\_led\_set\_pixel}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1563,7 +1595,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01191}{1191}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01234}{1234}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a8472ef30fed91b8fa2c1efc57542ec33}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_matrix\_get\_status@{chess\_matrix\_get\_status}}
 \index{chess\_matrix\_get\_status@{chess\_matrix\_get\_status}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1585,7 +1617,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01298}{1298}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01341}{1341}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_ac2f54e3f77005d32b1df12eca333ed3e}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_memory\_systems\_init@{chess\_memory\_systems\_init}}
 \index{chess\_memory\_systems\_init@{chess\_memory\_systems\_init}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1604,7 +1636,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01371}{1371}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01414}{1414}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a0321f7ecdafb014dbfb05309bf810493}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_monitor\_tasks@{chess\_monitor\_tasks}}
 \index{chess\_monitor\_tasks@{chess\_monitor\_tasks}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1623,7 +1655,7 @@ ESP\+\_\+\+OK pokud vsechny tasky bezi spravne, chybovy kod pri problemu
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01103}{1103}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01146}{1146}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_acc6c5ec2b59b331d0d27ef56a9f0c462}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_print\_system\_info@{chess\_print\_system\_info}}
 \index{chess\_print\_system\_info@{chess\_print\_system\_info}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1637,7 +1669,7 @@ Vypise systemove informace.
 
 Vypise informace o verzi systemu, konfiguraci GPIO pinu, velikostech front a priority tasku. 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01116}{1116}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01159}{1159}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a315226a40faf8a392b6328ed7c26340f}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_start\_timers@{chess\_start\_timers}}
 \index{chess\_start\_timers@{chess\_start\_timers}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1656,7 +1688,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00903}{903}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00945}{945}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_ae3398aa451de52fedd3ac9e5830fca76}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_system\_init@{chess\_system\_init}}
 \index{chess\_system\_init@{chess\_system\_init}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1677,7 +1709,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01033}{1033}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01076}{1076}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_af0a70e7b77c14224b0efc66be5c59396}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_uart\_printf@{chess\_uart\_printf}}
 \index{chess\_uart\_printf@{chess\_uart\_printf}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1703,7 +1735,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01167}{1167}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01210}{1210}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a7fb9ad5c97d8450a447d81ae4c6199fe}\index{freertos\_chess.h@{freertos\_chess.h}!chess\_uart\_send\_string@{chess\_uart\_send\_string}}
 \index{chess\_uart\_send\_string@{chess\_uart\_send\_string}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1725,7 +1757,7 @@ ESP\+\_\+\+OK pri uspechu, chybovy kod pri selhani
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01154}{1154}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l01197}{1197}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_ad190bb08e29e63b6f04a3715dae88706}\index{freertos\_chess.h@{freertos\_chess.h}!is\_demo\_mode\_enabled@{is\_demo\_mode\_enabled}}
 \index{is\_demo\_mode\_enabled@{is\_demo\_mode\_enabled}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1747,7 +1779,7 @@ true if enabled, false otherwise
 \end{DoxyReturn}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00544}{544}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00582}{582}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a904cb90015996d3ad0532e71bc502318}\index{freertos\_chess.h@{freertos\_chess.h}!matrix\_scan\_timer\_callback@{matrix\_scan\_timer\_callback}}
 \index{matrix\_scan\_timer\_callback@{matrix\_scan\_timer\_callback}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1775,7 +1807,7 @@ Callback funkce pro matrix scan timer.
 \end{DoxyParams}
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00813}{813}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00867}{867}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 
 
@@ -1822,7 +1854,7 @@ Handle pro Animation task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00240}{240}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00273}{273}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a5f1958b9037083cf953f250fe1f364a5}\index{freertos\_chess.h@{freertos\_chess.h}!button\_command\_queue@{button\_command\_queue}}
 \index{button\_command\_queue@{button\_command\_queue}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1892,7 +1924,7 @@ Handle pro Button task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00234}{234}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00267}{267}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a4ed770cbe46604586e494bae84b62304}\index{freertos\_chess.h@{freertos\_chess.h}!game\_command\_queue@{game\_command\_queue}}
 \index{game\_command\_queue@{game\_command\_queue}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1948,7 +1980,7 @@ Handle pro Game task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00238}{238}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00271}{271}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a864f0cc9b1f2e30bd3c0e225e2c48552}\index{freertos\_chess.h@{freertos\_chess.h}!led\_mutex@{led\_mutex}}
 \index{led\_mutex@{led\_mutex}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1976,7 +2008,7 @@ Handle pro LED task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00230}{230}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00263}{263}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a2d07c58a77430cba050b46dd496ce081}\index{freertos\_chess.h@{freertos\_chess.h}!matrix\_col\_pins@{matrix\_col\_pins}}
 \index{matrix\_col\_pins@{matrix\_col\_pins}!freertos\_chess.h@{freertos\_chess.h}}
@@ -1990,7 +2022,7 @@ Pole GPIO pinu pro sloupce matice (8 vstupu s pull-\/up).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00140}{140}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00146}{146}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_abc01112e6afa1b3e029218e52b7c2196}\index{freertos\_chess.h@{freertos\_chess.h}!matrix\_command\_queue@{matrix\_command\_queue}}
 \index{matrix\_command\_queue@{matrix\_command\_queue}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2060,7 +2092,7 @@ Pole GPIO pinu pro radky matice (8 vystupu).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00136}{136}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00142}{142}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_ad589ad22574a5fdb69645141759216c4}\index{freertos\_chess.h@{freertos\_chess.h}!matrix\_scan\_timer@{matrix\_scan\_timer}}
 \index{matrix\_scan\_timer@{matrix\_scan\_timer}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2088,7 +2120,7 @@ Handle pro Matrix task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00232}{232}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00265}{265}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a1f265b8287aba27035f07a200c7ddfec}\index{freertos\_chess.h@{freertos\_chess.h}!matter\_command\_queue@{matter\_command\_queue}}
 \index{matter\_command\_queue@{matter\_command\_queue}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2132,7 +2164,7 @@ Pole GPIO pinu pro promotion tlacitka A (4 tlacitka).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00144}{144}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{freertos__chess_8c_source_l00150}{150}} v souboru \mbox{\hyperlink{freertos__chess_8c_source}{freertos\+\_\+chess.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a2cf065fd2e74d6ad91b3da384a96c60b}\index{freertos\_chess.h@{freertos\_chess.h}!promotion\_button\_task\_handle@{promotion\_button\_task\_handle}}
 \index{promotion\_button\_task\_handle@{promotion\_button\_task\_handle}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2146,7 +2178,7 @@ Handle pro Promotion Button task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00249}{249}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00284}{284}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_aeb8dd1b563b914d04c90f377454ad032}\index{freertos\_chess.h@{freertos\_chess.h}!reset\_button\_task\_handle@{reset\_button\_task\_handle}}
 \index{reset\_button\_task\_handle@{reset\_button\_task\_handle}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2160,7 +2192,7 @@ Handle pro Reset Button task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00247}{247}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00282}{282}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_ad6e2650c9733357ca904426081ccee72}\index{freertos\_chess.h@{freertos\_chess.h}!screen\_saver\_command\_queue@{screen\_saver\_command\_queue}}
 \index{screen\_saver\_command\_queue@{screen\_saver\_command\_queue}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2254,7 +2286,7 @@ Handle pro Test task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00242}{242}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00275}{275}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a7e436e9dcca9a044bb9264755b4caa9e}\index{freertos\_chess.h@{freertos\_chess.h}!uart\_command\_queue@{uart\_command\_queue}}
 \index{uart\_command\_queue@{uart\_command\_queue}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2282,7 +2314,7 @@ Mutex pro UART operace (ochrana UART vystupu).
 
 Mutex pro UART operace (ochrana UART vystupu). 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00227}{227}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00260}{260}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a02a776b41d5e50969e5cf68dcbbc2c69}\index{freertos\_chess.h@{freertos\_chess.h}!uart\_response\_queue@{uart\_response\_queue}}
 \index{uart\_response\_queue@{uart\_response\_queue}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2310,7 +2342,7 @@ Handle pro UART task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00236}{236}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00269}{269}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a642abc1652d446215a18d55b0517edba}\index{freertos\_chess.h@{freertos\_chess.h}!web\_command\_queue@{web\_command\_queue}}
 \index{web\_command\_queue@{web\_command\_queue}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2338,7 +2370,7 @@ Fronta pro web server prikazy (HTTP requests).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00237}{237}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00245}{245}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
 
 \Hypertarget{freertos__chess_8h_aa17b405ee779d94d3b6954dd83712591}\index{freertos\_chess.h@{freertos\_chess.h}!web\_server\_status\_queue@{web\_server\_status\_queue}}
 \index{web\_server\_status\_queue@{web\_server\_status\_queue}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2352,7 +2384,7 @@ Fronta pro web server status (server state).
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00236}{236}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{web__server__task_8c_source_l00244}{244}} v souboru \mbox{\hyperlink{web__server__task_8c_source}{web\+\_\+server\+\_\+task.\+c}}.
 
 \Hypertarget{freertos__chess_8h_a36e9302901a63037025cd7970fa8adbe}\index{freertos\_chess.h@{freertos\_chess.h}!web\_server\_task\_handle@{web\_server\_task\_handle}}
 \index{web\_server\_task\_handle@{web\_server\_task\_handle}!freertos\_chess.h@{freertos\_chess.h}}
@@ -2366,5 +2398,5 @@ Handle pro Web Server task.
 
 
 
-Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00245}{245}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+Definice je uvedena na řádku \mbox{\hyperlink{main_8c_source_l00278}{278}} v souboru \mbox{\hyperlink{main_8c_source}{main.\+c}}.
 

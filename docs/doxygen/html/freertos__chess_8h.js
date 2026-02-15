@@ -20,6 +20,8 @@ var freertos__chess_8h =
     [ "GAME_QUEUE_SIZE", "freertos__chess_8h.html#a28eeb53d2d0b05fd6f19dd85f101b40e", null ],
     [ "GAME_TASK_PRIORITY", "freertos__chess_8h.html#a006aed1ec383676054e95d995acd427b", null ],
     [ "GAME_TASK_STACK_SIZE", "freertos__chess_8h.html#a3742ac4e005f9654c81dac1b035e8a14", null ],
+    [ "HA_LIGHT_TASK_PRIORITY", "freertos__chess_8h.html#ad420cbd4164a1c35acf8ef56810955ab", null ],
+    [ "HA_LIGHT_TASK_STACK_SIZE", "freertos__chess_8h.html#ad527fcf9ba093641832abb9056b25774", null ],
     [ "LED_COMMAND_TIMEOUT_MS", "freertos__chess_8h.html#afe966dccff7e1c439146a85369c623f7", null ],
     [ "LED_DATA_PIN", "freertos__chess_8h.html#a5f55b07707df2f2cf371f707207ed508", null ],
     [ "LED_FRAME_SPACING_MS", "freertos__chess_8h.html#ad3df373183a99f0161894012e3c251b1", null ],

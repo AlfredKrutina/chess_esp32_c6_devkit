@@ -1,5 +1,5 @@
 <map id="uart_commands_extended.h" name="uart_commands_extended.h">
-<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System &#45; Header pro rozšířené UART příkazy." alt="" coords="236,5,422,31"/>
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System &#45; Header pro rozsirene UART prikazy." alt="" coords="236,5,422,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,153,80,178"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="306,34,81,148,79,143,304,29"/>
 <area shape="rect" id="Node000003" href="$game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="250,79,408,105"/>

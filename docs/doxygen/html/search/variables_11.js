@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['r_0',['r',['../structrgb__color__t.html#a43cb2f2dc1e60fa14bf93d90f9d7015e',1,'rgb_color_t::r'],['../structled__pixel__t.html#afd559e1dbe5d5b0e95df5c1a71ac673e',1,'led_pixel_t::r'],['../structled__color__t.html#a371fbf1cdc3048a5c69fd727c2945761',1,'led_color_t::r'],['../structanimation__state__struct.html#a81ba55cfe9c438efcb2f3a01ba0c250d',1,'animation_state_struct::r']]],
+  ['r_0',['r',['../structrgb__color__t.html#a43cb2f2dc1e60fa14bf93d90f9d7015e',1,'rgb_color_t::r'],['../structled__pixel__t.html#afd559e1dbe5d5b0e95df5c1a71ac673e',1,'led_pixel_t::r'],['../structled__color__t.html#a371fbf1cdc3048a5c69fd727c2945761',1,'led_color_t::r'],['../structanimation__state__struct.html#a81ba55cfe9c438efcb2f3a01ba0c250d',1,'animation_state_struct::r'],['../ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a',1,'r:&#160;ha_light_task.c']]],
   ['radius_1',['radius',['../structwave__t.html#a1962dccb7b6f3344dd1dc371bef551fb',1,'wave_t::radius'],['../structfirework__t.html#a25ee75b0312399808b4c1aa7d36cdacb',1,'firework_t::radius'],['../structendgame__wave__state__t.html#a17e93286f25caf7283e221863bd27e85',1,'endgame_wave_state_t::radius']]],
   ['rainbow_5fcolors_2',['rainbow_colors',['../animation__task_8c.html#a58427d18cd3eb18ee8c7802c2a5a7814',1,'animation_task.c']]],
   ['recovery_5faction_3',['recovery_action',['../structcastling__error__info__t.html#a3fa688388a68b217d091d9f92a49e8bd',1,'castling_error_info_t']]],

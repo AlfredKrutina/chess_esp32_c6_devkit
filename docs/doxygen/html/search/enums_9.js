@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['test_5fcommand_5ftype_5ft_0',['test_command_type_t',['../test__task_8h.html#a113ea1691ec5f80092fe8a21515419a8',1,'test_task.h']]],
-  ['test_5fresult_5ft_1',['test_result_t',['../test__task_8h.html#a2682e047750c295771c3a6953c8393e1',1,'test_task.h']]],
-  ['test_5fstate_5ft_2',['test_state_t',['../test__task_8c.html#a771b98f001ed3e41e779472ee7cedc33',1,'test_task.c']]],
-  ['time_5fcontrol_5ftype_5ft_3',['time_control_type_t',['../timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97',1,'timer_system.h']]]
+  ['stream_5fline_5fending_5ft_0',['stream_line_ending_t',['../streaming__output_8h.html#affdaded1b69ffceddaa030802cd994a8',1,'streaming_output.h']]],
+  ['stream_5ftype_5ft_1',['stream_type_t',['../streaming__output_8h.html#aebb40016c198e3e5e1f82c86929dc454',1,'streaming_output.h']]],
+  ['subtle_5fanim_5ftype_5ft_2',['subtle_anim_type_t',['../game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08',1,'game_led_animations.h']]]
 ];

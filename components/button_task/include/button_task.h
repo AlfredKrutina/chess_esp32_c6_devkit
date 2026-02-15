@@ -75,7 +75,7 @@ void button_task_start(void *pvParameters);
  * @brief Oskenuje vsechna tlacitka pro zmenu stavu
  * 
  * Cteni stavu vsech 9 tlacitek a aktualizace interniho stavu.
- * V simulacnim rezimu simuluje postupne stisknutí tlacitek.
+ * V simulacnim rezimu simuluje postupne stisknuti tlacitek.
  */
 void button_scan_all(void);
 

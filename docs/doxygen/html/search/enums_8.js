@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['stream_5fline_5fending_5ft_0',['stream_line_ending_t',['../streaming__output_8h.html#affdaded1b69ffceddaa030802cd994a8',1,'streaming_output.h']]],
-  ['stream_5ftype_5ft_1',['stream_type_t',['../streaming__output_8h.html#aebb40016c198e3e5e1f82c86929dc454',1,'streaming_output.h']]],
-  ['subtle_5fanim_5ftype_5ft_2',['subtle_anim_type_t',['../game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08',1,'game_led_animations.h']]]
+  ['piece_5ft_0',['piece_t',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2',1,'chess_types.h']]],
+  ['player_5ft_1',['player_t',['../chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1',1,'chess_types.h']]],
+  ['promotion_5fchoice_5ft_2',['promotion_choice_t',['../chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237',1,'chess_types.h']]]
 ];

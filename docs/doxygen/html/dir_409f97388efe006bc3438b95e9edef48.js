@@ -7,6 +7,7 @@ var dir_409f97388efe006bc3438b95e9edef48 =
     [ "freertos_chess", "dir_5c6c08d104c204cc3ac851f4559ad479.html", "dir_5c6c08d104c204cc3ac851f4559ad479" ],
     [ "game_led_animations", "dir_1181698f7cc37b6be6aee502a0a15bc1.html", "dir_1181698f7cc37b6be6aee502a0a15bc1" ],
     [ "game_task", "dir_7acbcb872a2ebcf5753943ec89f39513.html", "dir_7acbcb872a2ebcf5753943ec89f39513" ],
+    [ "ha_light_task", "dir_b118a6ff7afa3dc10b5f01379f4510ce.html", "dir_b118a6ff7afa3dc10b5f01379f4510ce" ],
     [ "led_state_manager", "dir_a3cb721c9c1de213cf23ce20ac312914.html", "dir_a3cb721c9c1de213cf23ce20ac312914" ],
     [ "led_task", "dir_2c8c9ab3b152afb528f35b2c32a919e8.html", "dir_2c8c9ab3b152afb528f35b2c32a919e8" ],
     [ "matrix_task", "dir_e77e2685ff47a55cd9b2c8ffde70c90d.html", "dir_e77e2685ff47a55cd9b2c8ffde70c90d" ],

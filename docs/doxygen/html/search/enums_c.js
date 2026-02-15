@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['web_5fcommand_5ftype_5ft_0',['web_command_type_t',['../web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684',1,'web_server_task.h']]]
+  ['visual_5ferror_5ftype_5ft_0',['visual_error_type_t',['../visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380da',1,'visual_error_system.h']]]
 ];

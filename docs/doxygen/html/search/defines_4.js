@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['fmt_5fdata_0',['FMT_DATA',['../game__colors_8h.html#a4c5526bcd50bcf745bcbebcd4bc1b1e4',1,'game_colors.h']]],
-  ['fmt_5ferror_1',['FMT_ERROR',['../game__colors_8h.html#a60d4e1d55cc7102123ffe5c3539ec165',1,'game_colors.h']]],
-  ['fmt_5fhint_2',['FMT_HINT',['../game__colors_8h.html#a3bfaa4ef17d08f922b975ab28af9b499',1,'game_colors.h']]],
-  ['fmt_5finfo_3',['FMT_INFO',['../game__colors_8h.html#abd9912e75415821ab3192e7cf4542b6d',1,'game_colors.h']]],
-  ['frame_5fduration_5fms_4',['FRAME_DURATION_MS',['../animation__task_8c.html#a1d1bdfd77e8bb3d8df370e30f70dd329',1,'animation_task.c']]]
+  ['game_5fqueue_5fsize_0',['GAME_QUEUE_SIZE',['../freertos__chess_8h.html#a28eeb53d2d0b05fd6f19dd85f101b40e',1,'freertos_chess.h']]],
+  ['game_5ftask_5fpriority_1',['GAME_TASK_PRIORITY',['../freertos__chess_8h.html#a006aed1ec383676054e95d995acd427b',1,'freertos_chess.h']]],
+  ['game_5ftask_5fstack_5fsize_2',['GAME_TASK_STACK_SIZE',['../freertos__chess_8h.html#a3742ac4e005f9654c81dac1b035e8a14',1,'freertos_chess.h']]],
+  ['get_5fshared_5fbuffer_3',['get_shared_buffer',['../shared__buffer__pool_8h.html#a70318c0bb964a91191f81e8b06a264eb',1,'shared_buffer_pool.h']]]
 ];

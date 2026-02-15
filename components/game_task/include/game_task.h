@@ -104,16 +104,23 @@ esp_err_t game_get_board_json(char *buffer, size_t size);
  * @return ESP_OK pri uspechu, chybovy kod pri selhani
  */
 /**
- * @brief Get current move count safely
- * @return Current number of moves
+ * @brief Vrati aktualni pocet tahu (thread-safe)
+ * @return Aktualni pocet tahu od zacatku hry
  */
 uint32_t game_get_move_count(void);
 
+/**
+ * @brief Exportuj stav hry do JSON retezce
+ *
+ * @param[out] buffer Vystupni buffer pro JSON retezec
+ * @param size Velikost bufferu
+ * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ */
 esp_err_t game_get_status_json(char *buffer, size_t size);
 
 /**
- * @brief Force refresh of LED state based on current game status
- * Called when switching back from HA mode or other interruptions
+ * @brief Vynuceny refresh LED podle aktualniho stavu hry
+ * Volat po navratu z HA rezimu nebo jineho preruseni.
  */
 void game_refresh_leds(void);
 
@@ -182,6 +189,13 @@ void game_reset_game(void);
  * Kompletni reset hry vcetne timer systemu.
  */
 void game_start_new_game(void);
+
+/**
+ * @brief Vynuluje stav error recovery (vraceni figurky na blikajici pole).
+ * Volat napr. pri zapnuti demo modu, aby demo mohlo hrat i po predchozim
+ * chybnem tahu uzivatele.
+ */
+void game_reset_error_recovery_state(void);
 
 // ============================================================================
 // UTILITY FUNKCE PRO SACHOVNICI
@@ -486,7 +500,7 @@ void game_clear_highlights_direct(void);
 // JEMNE ANIMACNI FUNKCE - POUZIVANO V game_led_direct.c
 // ============================================================================
 
-/** @brief Zobraz zvednutí figurky primo pres LED */
+/** @brief Zobraz zvednuti figurky primo pres LED */
 void game_show_piece_lift_direct(uint8_t row, uint8_t col);
 /** @brief Zobraz platne tahy primo pres LED */
 void game_show_valid_moves_direct(uint8_t *valid_positions, uint8_t count);
@@ -573,7 +587,7 @@ game_state_t game_check_end_game_conditions(void);
 void game_process_matrix_events(void);
 
 /**
- * @brief Zvyrazni vsechny pohyblivé figurky aktualniho hrace
+ * @brief Zvyrazni vsechny pohyblive figurky aktualniho hrace
  *
  * Zobrazi jemnou zlutou animaci na vsech figurkach ktere se mohou hybat.
  */
@@ -715,21 +729,21 @@ esp_err_t game_start_timer_move(bool is_white_turn);
 esp_err_t game_end_timer_move(void);
 
 /**
- * @brief Pozastav herní timer
+ * @brief Pozastav herni timer
  *
  * @return ESP_OK pri uspechu
  */
 esp_err_t game_pause_timer(void);
 
 /**
- * @brief Obnov herní timer
+ * @brief Obnov herni timer
  *
  * @return ESP_OK pri uspechu
  */
 esp_err_t game_resume_timer(void);
 
 /**
- * @brief Resetuj herní timer
+ * @brief Resetuj herni timer
  *
  * @return ESP_OK pri uspechu
  */

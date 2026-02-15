@@ -2,7 +2,7 @@
  * @file timer_system.h
  * @brief ESP32-C6 Chess System v2.4 - Timer System komponenta
  * 
- * Tato komponenta spravuje časový systém pro sachovou hru:
+ * Tato komponenta spravuje casovy system pro sachovou hru:
  * - Ruzne typy casovych kontrol (bullet, blitz, rapid, classical)
  * - Presne mereni casu s ESP32 timer API
  * - Thread-safe operace s casem
@@ -168,7 +168,7 @@ bool timer_check_timeout(void);
 esp_err_t timer_get_state(chess_timer_t* timer_data);
 
 /**
- * @brief Ziska zbývající cas pro hrace
+ * @brief Ziska zbyvajici cas pro hrace
  * 
  * @param is_white_turn Je-li na tahu bily
  * @return Zbyvajici cas v milisekundach

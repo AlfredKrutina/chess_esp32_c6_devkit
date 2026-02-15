@@ -320,7 +320,7 @@ typedef struct {
       bool is_white_turn; ///< Je na tahu bily? (pro timer operace)
     } timer_state;        ///< Stav timeru
   } timer_data;           ///< Union pro timer data
-  bool is_demo_mode;     ///< Flag pro demo mode (skip resignation timer)
+  bool is_demo_mode;      ///< Flag pro demo mode (skip resignation timer)
 } chess_move_command_t;
 
 /**
@@ -350,8 +350,8 @@ typedef struct {
   uint8_t command_type; ///< Puvodni typ prikazu (game_command_type_t)
   uint8_t error_code;   ///< Kod chyby (move_error_t, 0 pokud neni chyba)
   char message[256];    ///< Zprava pro uzivatele (human-readable)
-  char data[64];        ///< Data odpovedi (redukováno z 3584 na 64 bytů pro
-                        ///< optimalizaci paměti)
+  char data[64];        ///< Data odpovedi (redukovano z 3584 na 64 bytu pro
+                        ///< optimalizaci pameti)
   uint32_t timestamp;   ///< Casova znamka odpovedi (v milisekundach)
 } game_response_t;
 
@@ -376,7 +376,6 @@ typedef enum {
   LED_CMD_BUTTON_RELEASE = 6,  ///< Tlacitko uvolneno
   LED_CMD_ANIMATION = 7,       ///< Spust animaci
   LED_CMD_TEST = 8,            ///< Testovaci vzor
-  LED_CMD_SET_BRIGHTNESS = 9,  ///< Nastav jas LED
   LED_CMD_TEST_ALL = 10,       ///< Testuj vsechny LED (postupne sviceni)
   LED_CMD_MATRIX_OFF = 11,     ///< Vypni LED efekty pri skenovani matice
   LED_CMD_MATRIX_ON = 12,      ///< Zapni LED efekty pri skenovani matice
@@ -432,10 +431,12 @@ typedef enum {
   LED_CMD_CASTLING_CELEBRATION = 42, ///< Zobraz oslavu dokonceni rosady
   LED_CMD_CASTLING_TUTORIAL = 43,    ///< Zobraz tutorial rosady
   LED_CMD_CASTLING_CLEAR = 44,       ///< Vymaz vsechny indikace rosady
+  LED_CMD_HIGHLIGHT_HINT = 45,       ///< Zvyrazni napovedu (odkud/kam) - led_index=from, data=(uint8_t*)to_index
 
-  LED_CMD_STATUS_ACTIVE = 97,  ///< Status prikaz - aktivni LED
-  LED_CMD_STATUS_COMPACT = 98, ///< Status prikaz - kompaktni vystup
-  LED_CMD_STATUS_DETAILED = 99 ///< Status prikaz - detailni vystup
+  LED_CMD_STATUS_ACTIVE = 97,   ///< Status prikaz - aktivni LED
+  LED_CMD_STATUS_COMPACT = 98,  ///< Status prikaz - kompaktni vystup
+  LED_CMD_STATUS_DETAILED = 99, ///< Status prikaz - detailni vystup
+  LED_CMD_SET_BRIGHTNESS = 100  ///< Nastav globalni jas (0-100)
 } led_command_type_t;
 
 /**
@@ -638,6 +639,7 @@ typedef struct {
   bool quiet_mode;   ///< Tichy rezim (minimalni vystup)
   uint8_t log_level; ///< Uroven logovania (ESP_LOG_ERROR, ESP_LOG_INFO, atd.)
   uint32_t command_timeout_ms; ///< Timeout prikazu v milisekundach
+  uint8_t brightness_level;    ///< Globalni jas LED (0-100%)
 } system_config_t;
 
 // Predni deklarace konfiguracnich funkci

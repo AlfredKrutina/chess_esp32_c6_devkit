@@ -73,11 +73,11 @@ esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_ab2f7c69ab57eff54259
 \begin{DoxyCompactList}\small\item\em Nastav frekvenci aktualizace. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_a7f2c282caa434a66a0a90e65374603a0}{led\+\_\+set\+\_\+transition\+\_\+duration}} (uint32\+\_\+t duration\+\_\+ms)
 \begin{DoxyCompactList}\small\item\em Nastav delku prechodu. \end{DoxyCompactList}\item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_a1123bf9a4fa107a05fc3251ae1c7d009}{led\+\_\+hsv\+\_\+to\+\_\+rgb}} (float h, float s, float v, uint8\+\_\+t \texorpdfstring{$\ast$}{*}r, uint8\+\_\+t \texorpdfstring{$\ast$}{*}g, uint8\+\_\+t \texorpdfstring{$\ast$}{*}b)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_a1123bf9a4fa107a05fc3251ae1c7d009}{led\+\_\+hsv\+\_\+to\+\_\+rgb}} (float h, float s, float v, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})
 \begin{DoxyCompactList}\small\item\em HSV to RGB konverze. \end{DoxyCompactList}\item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_abcecdc9fd4b3c11699c419833d88b78c}{led\+\_\+state\+\_\+set\+\_\+pixel}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t row, uint8\+\_\+t col, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b, uint8\+\_\+t alpha)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_abcecdc9fd4b3c11699c419833d88b78c}{led\+\_\+state\+\_\+set\+\_\+pixel}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t row, uint8\+\_\+t col, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}}, uint8\+\_\+t alpha)
 \begin{DoxyCompactList}\small\item\em Nastav pixel ve vrstve. \end{DoxyCompactList}\item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_abe61cff6332fff6f402834c6aaf32ca7}{led\+\_\+set\+\_\+pixel\+\_\+layer}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t led\+\_\+index, uint8\+\_\+t r, uint8\+\_\+t g, uint8\+\_\+t b)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_abe61cff6332fff6f402834c6aaf32ca7}{led\+\_\+set\+\_\+pixel\+\_\+layer}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t led\+\_\+index, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4c5c6ceb8ed33456261fa907136e0c3a}{r}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a1673907d4d89d763bb7b94ec1eeb7b60}{g}}, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a4313c9563516f94387762ab05763456b}{b}})
 \begin{DoxyCompactList}\small\item\em Nastav pixel ve vrstve primo podle LED indexu. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_a2307573e8d47caa7b85ee64ec6648b29}{led\+\_\+state\+\_\+get\+\_\+pixel}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t row, uint8\+\_\+t col, \mbox{\hyperlink{structled__pixel__t}{led\+\_\+pixel\+\_\+t}} \texorpdfstring{$\ast$}{*}pixel)
 \begin{DoxyCompactList}\small\item\em Ziskej pixel z vrstvy. \end{DoxyCompactList}\item 
@@ -115,7 +115,7 @@ esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_ad6aaf69c42e160ec0a7
 \begin{DoxyCompactList}\small\item\em Fade vrstvu in/out. \end{DoxyCompactList}\item 
 esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_a05a4f73280afa625afe196d1929a08a3}{led\+\_\+state\+\_\+apply\+\_\+gamma}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, float gamma)
 \begin{DoxyCompactList}\small\item\em Aplikuj gamma korekci na vrstvu. \end{DoxyCompactList}\item 
-esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_ae84d0eef4aee0725d2091bf704e3d6f8}{led\+\_\+state\+\_\+apply\+\_\+brightness}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t brightness)
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{led__state__manager_8h_ae84d0eef4aee0725d2091bf704e3d6f8}{led\+\_\+state\+\_\+apply\+\_\+brightness}} (\mbox{\hyperlink{led__state__manager_8h_af4c342c31ff859428428924ca8a0231b}{led\+\_\+layer\+\_\+t}} layer, uint8\+\_\+t \mbox{\hyperlink{ha__light__task_8c_a837c871f200f8c3d19d0c7f2e031ffc4}{brightness}})
 \begin{DoxyCompactList}\small\item\em Aplikuj jas na vrstvu. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{led__state__manager_8h_ad5642ff9fd0cb39d891b4170094b32d0}{led\+\_\+state\+\_\+print\+\_\+status}} (void)
 \begin{DoxyCompactList}\small\item\em Vypis stav LED manageru. \end{DoxyCompactList}\item 
@@ -151,7 +151,7 @@ LED State Manager poskytuje pokrocily system pro spravu LED stavu. Umoznuje komb
 Vyhody\+:
 \begin{DoxyItemize}
 \item Vrstvovy kompoziting (sachovnice + efekty + GUI)
-\item Prioritni systém s alpha blendingem
+\item Prioritni system s alpha blendingem
 \item Optimalizovane dirty-\/pixel updates
 \item Thread-\/safe pristup ke stavu
 \item Perzistence mezi aktualizacemi 

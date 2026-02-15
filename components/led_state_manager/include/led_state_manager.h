@@ -20,7 +20,7 @@
  * 
  * Vyhody:
  * - Vrstvovy kompoziting (sachovnice + efekty + GUI)
- * - Prioritni systém s alpha blendingem
+ * - Prioritni system s alpha blendingem
  * - Optimalizovane dirty-pixel updates
  * - Thread-safe pristup ke stavu
  * - Perzistence mezi aktualizacemi

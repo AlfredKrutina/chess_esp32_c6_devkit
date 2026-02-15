@@ -14,12 +14,12 @@
  * 
  * @details
  * Jednoduchy LED system poskytuje ciste, bezpecne rozhrani z vice vlaken pro ovladani LED
- * bez slozitych fronticek a dávkového systemu. Pouziva primo WS2812B driver
+ * bez slozitych fronticek a davkoveho systemu. Pouziva primo WS2812B driver
  * s mutex ochranou pro bezpecnost z vice vlaken.
  * 
  * Vlastnosti:
- * - Okamzite LED aktualizace bez dávkového zpozdeni
- * - Bezpecne z vice vlaken s mutexem pro prevenci soubezných pristupu
+ * - Okamzite LED aktualizace bez davkoveho zpozdeni
+ * - Bezpecne z vice vlaken s mutexem pro prevenci soubeznych pristupu
  * - Jednoduche rozhrani se 3 zakladnimi funkcemi
  * - Optimalizovane pro ESP32-C6 RMT
  * - Minimalni pametove naroky
@@ -53,7 +53,7 @@ extern "C" {
  * 
  * @details
  * Nastavi barvu jednoho LED pixelu. Funkce provadi okamzite aktualizace
- * bez dávkového systemu. Pouziva mutex pro bezpecnost z vice vlaken a je optimalizovana
+ * bez davkoveho systemu. Pouziva mutex pro bezpecnost z vice vlaken a je optimalizovana
  * pro ESP32-C6 RMT.
  * 
  * @note Tato funkce je bezpecna z vice vlaken a muze byt volana z libovolneho tasku

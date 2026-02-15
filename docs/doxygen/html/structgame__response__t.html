@@ -108,8 +108,8 @@ Datové položky</h2></td></tr>
 <tr class="memdesc:a9b46f74a2c06621c440e9cd5bfd1c04e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kod chyby (<a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1" title="Typy chyb pri tahu.">move_error_t</a>, 0 pokud neni chyba).  <br /></td></tr>
 <tr class="memitem:ae4afd8e408f8ec3943b6f8632b1333a7" id="r_ae4afd8e408f8ec3943b6f8632b1333a7"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae4afd8e408f8ec3943b6f8632b1333a7">message</a> [256]</td></tr>
 <tr class="memdesc:ae4afd8e408f8ec3943b6f8632b1333a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zprava pro uzivatele (human-readable).  <br /></td></tr>
-<tr class="memitem:ae9f24fd59c3cda6c038d6099efe5ec03" id="r_ae9f24fd59c3cda6c038d6099efe5ec03"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae9f24fd59c3cda6c038d6099efe5ec03">data</a> [3584]</td></tr>
-<tr class="memdesc:ae9f24fd59c3cda6c038d6099efe5ec03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data odpovedi (sachovnice ~3000 znaku, s bezpecnostni rezervou).  <br /></td></tr>
+<tr class="memitem:a1b9907db84187372f7e5df9135e8d522" id="r_a1b9907db84187372f7e5df9135e8d522"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1b9907db84187372f7e5df9135e8d522">data</a> [64]</td></tr>
+<tr class="memdesc:a1b9907db84187372f7e5df9135e8d522"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data odpovedi (redukovano z 3584 na 64 bytu pro optimalizaci pameti).  <br /></td></tr>
 <tr class="memitem:a6ca9b6d2062bf38fa5e6c8fb01a3ca04" id="r_a6ca9b6d2062bf38fa5e6c8fb01a3ca04"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6ca9b6d2062bf38fa5e6c8fb01a3ca04">timestamp</a></td></tr>
 <tr class="memdesc:a6ca9b6d2062bf38fa5e6c8fb01a3ca04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Casova znamka odpovedi (v milisekundach).  <br /></td></tr>
 </table>
@@ -117,7 +117,7 @@ Datové položky</h2></td></tr>
 <div class="textblock"><p>Struktura game odpovedi pro UART komunikaci. </p>
 <p>Tato struktura obsahuje odpoved game tasku na prikaz. Je poslana zpet pres UART pro zobrazeni uzivateli. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00339">339</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00348">348</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 </div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Dokumentace položek</h2>
 <a id="a94891c48651d30f6ab358f269e789130" name="a94891c48651d30f6ab358f269e789130"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a94891c48651d30f6ab358f269e789130">&#9670;&#160;</a></span>command_type</h2>
@@ -133,25 +133,25 @@ Datové položky</h2></td></tr>
 
 <p>Puvodni typ prikazu (<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4" title="Typy game prikazu pro UART komunikaci.">game_command_type_t</a>). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00341">341</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00350">350</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
-<a id="ae9f24fd59c3cda6c038d6099efe5ec03" name="ae9f24fd59c3cda6c038d6099efe5ec03"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae9f24fd59c3cda6c038d6099efe5ec03">&#9670;&#160;</a></span>data</h2>
+<a id="a1b9907db84187372f7e5df9135e8d522" name="a1b9907db84187372f7e5df9135e8d522"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b9907db84187372f7e5df9135e8d522">&#9670;&#160;</a></span>data</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">char game_response_t::data[3584]</td>
+          <td class="memname">char game_response_t::data[64]</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Data odpovedi (sachovnice ~3000 znaku, s bezpecnostni rezervou). </p>
+<p>Data odpovedi (redukovano z 3584 na 64 bytu pro optimalizaci pameti). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00344">344</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00353">353</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -169,7 +169,7 @@ Datové položky</h2></td></tr>
 
 <p>Kod chyby (<a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1" title="Typy chyb pri tahu.">move_error_t</a>, 0 pokud neni chyba). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00342">342</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00351">351</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -187,7 +187,7 @@ Datové položky</h2></td></tr>
 
 <p>Zprava pro uzivatele (human-readable). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00343">343</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00352">352</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -205,7 +205,7 @@ Datové položky</h2></td></tr>
 
 <p>Casova znamka odpovedi (v milisekundach). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00345">345</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00355">355</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -223,7 +223,7 @@ Datové položky</h2></td></tr>
 
 <p>Typ odpovedi (<a class="el" href="chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502" title="Typy game odpovedi.">game_response_type_t</a>). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00340">340</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00349">349</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>

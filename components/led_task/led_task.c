@@ -174,6 +174,7 @@
  */
 
 #include "led_task.h"
+#include "../config_manager/include/config_manager.h"
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
 #include "../game_task/include/game_task.h" // For game_get_piece() function
@@ -254,8 +255,8 @@ static esp_err_t led_task_wdt_reset_safe(void) {
   (LED_TASK_MUTEX_TIMEOUT_MS / portTICK_PERIOD_MS) // Convert to ticks
 #define LED_FRAME_BUFFER_SIZE 2                    // Double buffering
 #define LED_MAX_RETRY_COUNT 3                      // Max retry attempts
-#define LED_ERROR_RECOVERY_THRESHOLD 10   // Error recovery threshold
-#define LED_HEALTH_CHECK_INTERVAL_MS 5000 // Health check interval
+#define LED_ERROR_RECOVERY_THRESHOLD 10            // Error recovery threshold
+#define LED_HEALTH_CHECK_INTERVAL_MS 5000          // Health check interval
 #define LED_BATCH_COMMIT_INTERVAL_MS                                           \
   50 // Batch commit interval for optimal performance
 #define LED_WATCHDOG_RESET_INTERVAL                                            \
@@ -385,19 +386,21 @@ static bool led_initialized = false;
 // LED_HARDWARE_UPDATE_MS;  // REMOVED: No longer needed
 
 // LED synchronization - BATCH UPDATE SYSTEM
-static SemaphoreHandle_t led_unified_mutex =
-    NULL; // Queue synchronization only
+static SemaphoreHandle_t led_unified_mutex = NULL; // Queue synchronization only
 
 // BATCH UPDATE SYSTEM - Collect changes, then commit atomically
 static bool led_changes_pending = false; // Flag indicating pending changes
 static uint32_t
-    led_pending_changes[CHESS_LED_COUNT_TOTAL]; // Pending color changes
+    led_pending_changes[CHESS_LED_COUNT_TOTAL];       // Pending color changes
 static bool led_changed_flags[CHESS_LED_COUNT_TOTAL]; // Track which LEDs
                                                       // actually changed
 
 // NOVÝ: Duration management system
 static led_duration_state_t led_durations[CHESS_LED_COUNT_TOTAL] = {0};
 static bool led_duration_system_enabled = true;
+
+// GLOBAL BRIGHTNESS CONTROL
+static uint8_t global_brightness = 50; // Default 50%
 
 // LED patterns
 static const uint32_t chess_board_pattern[64] = {
@@ -467,6 +470,48 @@ static const char *button_names[] = {
 // ============================================================================
 // LED CONTROL FUNCTIONS
 // ============================================================================
+
+void led_set_brightness_global(uint8_t brightness) {
+  if (brightness > 100)
+    brightness = 100;
+
+  if (led_unified_mutex != NULL) {
+    if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) ==
+        pdTRUE) {
+      global_brightness = brightness;
+
+      // Force refresh logic inside mutex
+      led_changes_pending = true;
+      for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+        led_pending_changes[i] = led_states[i];
+        led_changed_flags[i] = true;
+      }
+
+      // Note: led_commit_pending_changes should NOT be called with mutex held
+      // if it takes long But here we want atomicity. However, led_strip_refresh
+      // might take time. Actually, led_commit_pending_changes does NOT take
+      // mutex itself, so we are safe from deadlock recursion. BUT it calls
+      // led_task_wdt_reset_safe -> ok. It calls led_strip_set_pixel -> ok. It
+      // calls led_strip_refresh -> RMT driver.
+
+      // CRITICAL DEEP THOUGHT: led_commit_pending_changes was designed to be
+      // called from the task loop. If we call it here (from Web Task), we are
+      // hijacking the LED strip driver. If LED task is currently sleeping
+      // (vTaskDelay), this is fine. If LED task is blocked on mutex, we hold
+      // it, so it waits. This seems correct: We hold the lock, we do the
+      // update, we release.
+      led_commit_pending_changes();
+
+      xSemaphoreGive(led_unified_mutex);
+      ESP_LOGI(TAG, "Global brightness set to %d%% (direct call)", brightness);
+    } else {
+      ESP_LOGW(TAG, "Failed to set brightness: Mutex timeout");
+    }
+  } else {
+    // No mutex (startup?), just set
+    global_brightness = brightness;
+  }
+}
 
 /**
  * @brief Map button ID to correct LED index
@@ -685,11 +730,17 @@ void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
     led_set_pixel_internal(i, r_scaled, g_scaled, b_scaled);
   }
 
+  // Apply same HA color to button LEDs (64-72) so they shine with the light
+  for (int i = 0; i < CHESS_BUTTON_COUNT; i++) {
+    uint8_t led_index = led_get_button_led_index((uint8_t)i);
+    led_set_pixel_internal(led_index, r_scaled, g_scaled, b_scaled);
+  }
+
   // Force immediate update
   led_force_immediate_update();
 
-  ESP_LOGI(TAG, "✅ HA color applied to all %d board LEDs",
-           CHESS_LED_COUNT_BOARD);
+  ESP_LOGI(TAG, "✅ HA color applied to board + %d button LEDs",
+           CHESS_LED_COUNT_BOARD + CHESS_BUTTON_COUNT);
 }
 
 /**
@@ -700,6 +751,17 @@ void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
 void led_restore_chess_board(void) {
   ESP_LOGI(TAG, "Restoring chess board pattern");
   led_show_chess_board();
+}
+
+/**
+ * @brief Obnoví zobrazení všech tlačítek podle aktuálního stavu (available/pressed)
+ * Volá se po návratu z HA režimu, aby tlačítka zobrazovala správné barvy.
+ */
+void led_refresh_all_button_leds(void) {
+  for (int i = 0; i < CHESS_BUTTON_COUNT; i++) {
+    led_update_button_led_state((uint8_t)i);
+  }
+  led_force_immediate_update();
 }
 
 void led_set_button_feedback(uint8_t button_id, bool available) {
@@ -955,6 +1017,32 @@ void led_execute_command_new(const led_command_t *cmd) {
     led_set_all_internal(cmd->red, cmd->green, cmd->blue);
     break;
 
+  case LED_CMD_SET_BRIGHTNESS:
+    // Value represents percentage 0-100
+    // Using red channel or explicit value field if available,
+    // but led_command_t doesn't have 'value', so use 'red' or 'led_index' as
+    // value carrier? Looking at struct, we can use 'red' as value carrier for
+    // single byte, or we can use 'led_index' (uint8) Let's use 'red' as the
+    // value carrier by convention for single-value commands
+    {
+      uint8_t new_brightness = cmd->red;
+      if (new_brightness > 100)
+        new_brightness = 100;
+
+      ESP_LOGI(TAG, "💡 Setting global brightness: %d%%", new_brightness);
+      global_brightness = new_brightness;
+
+      // Force refresh of current state with new brightness
+      led_changes_pending = true;
+      // Mark all LEDs as changed to re-render them
+      for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+        led_pending_changes[i] = led_states[i];
+        led_changed_flags[i] = true;
+      }
+      led_commit_pending_changes();
+    }
+    break;
+
   case LED_CMD_CLEAR:
     led_clear_all_internal();
     break;
@@ -1141,6 +1229,20 @@ void led_execute_command_new(const led_command_t *cmd) {
     ESP_LOGI(TAG, "🧹 Clear enhanced castling indications");
     led_enhanced_castling_clear();
     break;
+
+  case LED_CMD_HIGHLIGHT_HINT: {
+    uint8_t from_idx = cmd->led_index;
+    uint8_t to_idx = cmd->data ? *(uint8_t *)cmd->data : 0;
+    ESP_LOGI(TAG, "💡 Hint highlight: from LED %u -> to LED %u", (unsigned)from_idx,
+             (unsigned)to_idx);
+    if (from_idx < 64) {
+      led_set_pixel_internal(from_idx, 0, 255, 255); /* cyan = nápověda odkud */
+    }
+    if (to_idx < 64) {
+      led_set_pixel_internal(to_idx, 255, 140, 0); /* orange = nápověda kam */
+    }
+    break;
+  }
 
   default:
     ESP_LOGW(TAG, "Unknown LED command type: %d", cmd->type);
@@ -1903,6 +2005,16 @@ void led_task_start(void *pvParameters) {
   }
   ESP_LOGI(TAG, "✅ LED unified mutex created");
 
+  // Load brightness from NVS
+  system_config_t config;
+  if (config_load_from_nvs(&config) == ESP_OK) {
+    global_brightness = config.brightness_level;
+    ESP_LOGI(TAG, "Loaded global brightness from NVS: %d%%", global_brightness);
+  } else {
+    global_brightness = 50; // Default
+    ESP_LOGI(TAG, "Using default brightness: 50%%");
+  }
+
   // Initialize duration management system
   led_init_duration_system();
 
@@ -2502,8 +2614,7 @@ void led_update_endgame_wave(void) {
     return;
   }
 
-  const uint32_t WAVE_STEP_MS =
-      100; // Pomalejší animace (100ms místo 30ms)
+  const uint32_t WAVE_STEP_MS = 100; // Pomalejší animace (100ms místo 30ms)
   const uint8_t MAX_RADIUS = 14;     // Larger radius for better coverage
   const float WAVE_THICKNESS = 1.2f; // Thinner waves for more precise effect
   const int WAVE_LAYERS = 4;         // Fewer layers but with higher FPS
@@ -2729,7 +2840,7 @@ void led_anim_checkmate(const led_command_t *cmd) {
 
 void led_set_pixel_safe(uint8_t led_index, uint8_t red, uint8_t green,
                         uint8_t blue) {
-  if (led_index >= 64)
+  if (led_index >= CHESS_LED_COUNT_TOTAL)
     return;
 
   led_set_pixel_internal(led_index, red, green, blue);
@@ -3032,6 +3143,13 @@ static void led_commit_pending_changes(void) {
     uint8_t green = (color >> 8) & 0xFF;
     uint8_t blue = color & 0xFF;
 
+    // Apply global brightness scaling
+    if (global_brightness < 100) {
+      red = (red * global_brightness) / 100;
+      green = (green * global_brightness) / 100;
+      blue = (blue * global_brightness) / 100;
+    }
+
     esp_err_t ret = led_strip_set_pixel(led_strip, i, red, green, blue);
     if (ret != ESP_OK) {
       ESP_LOGE(TAG, "Failed to set LED %d: %s", i, esp_err_to_name(ret));
@@ -3147,6 +3265,13 @@ static void led_privileged_batch_commit(void) {
     uint8_t green = (color >> 8) & 0xFF;
     uint8_t blue = color & 0xFF;
 
+    // Apply global brightness scaling
+    if (global_brightness < 100) {
+      red = (red * global_brightness) / 100;
+      green = (green * global_brightness) / 100;
+      blue = (blue * global_brightness) / 100;
+    }
+
     esp_err_t ret = led_strip_set_pixel(led_strip, i, red, green, blue);
     if (ret != ESP_OK) {
       ESP_LOGE(TAG, "Failed to set LED %d: %s", i, esp_err_to_name(ret));
@@ -3239,8 +3364,8 @@ static void led_set_pixel_with_duration(uint8_t led_index, uint8_t r, uint8_t g,
  * IMPORTANT:
  * - Do NOT run duration logic from FreeRTOS timer callbacks ("Tmr Svc").
  *   Timer callbacks have small stacks and must not block on mutexes.
- * - We process expirations in the main LED task loop (33ms), then commit via the
- *   existing batch system.
+ * - We process expirations in the main LED task loop (33ms), then commit via
+ * the existing batch system.
  */
 static void led_process_duration_expirations(void) {
   if (!led_duration_system_enabled) {
@@ -3289,7 +3414,8 @@ static void led_process_duration_expirations(void) {
     xSemaphoreGive(led_unified_mutex);
   }
 
-  // No immediate refresh here — main loop already calls `led_privileged_batch_commit()`.
+  // No immediate refresh here — main loop already calls
+  // `led_privileged_batch_commit()`.
   (void)state_changed;
 }
 
@@ -3301,7 +3427,8 @@ static void led_init_duration_system(void) {
   memset(led_durations, 0, sizeof(led_durations));
 
   // PRODUCTION STABILITY:
-  // Duration expirations are processed in LED task main loop, not via FreeRTOS timers.
+  // Duration expirations are processed in LED task main loop, not via FreeRTOS
+  // timers.
   led_duration_system_enabled = true;
   ESP_LOGI(TAG, "✅ LED duration management system initialized (task-driven)");
 }

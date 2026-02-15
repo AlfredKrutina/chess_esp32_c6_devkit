@@ -1,10 +1,10 @@
 <map id="config_manager" name="config_manager">
 <area shape="rect" id="node1" href="dir_5c6c08d104c204cc3ac851f4559ad479.html" title="freertos_chess" alt="" coords="41,210,148,236"/>
 <area shape="rect" id="node3" href="dir_0d86bd69b7bd52e460c6d68e5d6c8d5e.html" title="include" alt="" coords="64,137,126,162"/>
-<area shape="poly" id="edge1" href="dir_000003_000010.html" alt="" coords="96,86,97,122,92,121,94,91"/>
-<area shape="rect" id="edge1-headlabel" href="dir_000003_000010.html" title="1" alt="" coords="100,111,107,126"/>
-<area shape="poly" id="edge2" href="dir_000010_000005.html" alt="" coords="96,160,97,195,92,194,93,165"/>
-<area shape="rect" id="edge2-headlabel" href="dir_000010_000005.html" title="1" alt="" coords="100,184,107,199"/>
+<area shape="poly" id="edge1" href="dir_000003_000011.html" alt="" coords="96,86,97,122,92,121,94,91"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000003_000011.html" title="1" alt="" coords="100,111,107,126"/>
+<area shape="poly" id="edge2" href="dir_000011_000005.html" alt="" coords="96,160,97,195,92,194,93,165"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000011_000005.html" title="1" alt="" coords="100,184,107,199"/>
 <area shape="rect" id="clust2" href="dir_8da852bb64bdd94ab698cdb4daee3f25.html" alt="" coords="27,52,163,173"/>
 <area shape="rect" id="clust1" href="dir_409f97388efe006bc3438b95e9edef48.html" title="components" alt="" coords="16,16,173,247"/>
 </map>

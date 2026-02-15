@@ -1,5 +1,7 @@
 var freertos__chess_8c =
 [
+    [ "COORDINATED_MUX_TASK_STACK_SIZE", "freertos__chess_8c.html#a53f20ff71110439851d63626a31312a5", null ],
+    [ "__attribute__", "freertos__chess_8c.html#a43c4623c2553d09a59385aabe971d75d", null ],
     [ "button_scan_timer_callback", "freertos__chess_8c.html#a60ba01ed8c95cf7326c889ea1b6a2bc2", null ],
     [ "chess_button_get_status", "freertos__chess_8c.html#a6611221bad87e54f59f9dd794145a88f", null ],
     [ "chess_button_init", "freertos__chess_8c.html#ab7324679dbbef995936d7af7aff3f086", null ],
@@ -32,7 +34,7 @@ var freertos__chess_8c =
     [ "chess_system_init", "freertos__chess_8c.html#ae3398aa451de52fedd3ac9e5830fca76", null ],
     [ "chess_uart_printf", "freertos__chess_8c.html#af0a70e7b77c14224b0efc66be5c59396", null ],
     [ "chess_uart_send_string", "freertos__chess_8c.html#a7fb9ad5c97d8450a447d81ae4c6199fe", null ],
-    [ "coordinated_multiplex_timer_callback", "freertos__chess_8c.html#adba8746d32cf898252dbb49ef2c7db1b", null ],
+    [ "coordinated_multiplex_task", "freertos__chess_8c.html#a00c0a35485fb3de6ba2a604e7eb9b566", null ],
     [ "led_update_timer_callback", "freertos__chess_8c.html#ae46cffe2b1cbbb95b41ce73ada4e7ecd", null ],
     [ "matrix_scan_timer_callback", "freertos__chess_8c.html#a904cb90015996d3ad0532e71bc502318", null ],
     [ "validate_gpio_pin", "freertos__chess_8c.html#a1ceecb2e00128b59e0224f35608eaf6c", null ],
@@ -42,6 +44,7 @@ var freertos__chess_8c =
     [ "button_event_queue", "freertos__chess_8c.html#a05107bbe85fd87a92dad9efd71dbd653", null ],
     [ "button_mutex", "freertos__chess_8c.html#a17744dc0b4a21889e7e9527835edc068", null ],
     [ "button_scan_timer", "freertos__chess_8c.html#af58f98e02d7d24dcc49a348ea1f22e77", null ],
+    [ "coordinated_multiplex_task_handle", "freertos__chess_8c.html#a5a10fe5e0bb7faf063f64958f1f7304b", null ],
     [ "coordinated_multiplex_timer", "freertos__chess_8c.html#a0042f9cdb2f225fa940e25e47b2610ec", null ],
     [ "freertos_initialized", "freertos__chess_8c.html#a32091f1b25b0412e3f75b7fb3dff4b90", null ],
     [ "game_command_queue", "freertos__chess_8c.html#a4ed770cbe46604586e494bae84b62304", null ],

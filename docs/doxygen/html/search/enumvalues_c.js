@@ -1,7 +1,9 @@
 var searchData=
 [
-  ['web_5fcmd_5fget_5fstatus_0',['WEB_CMD_GET_STATUS',['../web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0',1,'web_server_task.h']]],
-  ['web_5fcmd_5fset_5fconfig_1',['WEB_CMD_SET_CONFIG',['../web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92',1,'web_server_task.h']]],
-  ['web_5fcmd_5fstart_5fserver_2',['WEB_CMD_START_SERVER',['../web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684aad9719bd0826f4a39d8295eff4581e7f',1,'web_server_task.h']]],
-  ['web_5fcmd_5fstop_5fserver_3',['WEB_CMD_STOP_SERVER',['../web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684a7538e0d87ed15a4ba791f6b29c76ac0e',1,'web_server_task.h']]]
+  ['uart_5fmsg_5fdebug_0',['UART_MSG_DEBUG',['../uart__task_8h.html#a708a8ff292163e24f246572bc7bf1036a877a61fdb522d990e286ad329d955f04',1,'uart_task.h']]],
+  ['uart_5fmsg_5ferror_1',['UART_MSG_ERROR',['../uart__task_8h.html#a708a8ff292163e24f246572bc7bf1036abd403affd26add443eedf7089afadde4',1,'uart_task.h']]],
+  ['uart_5fmsg_5finfo_2',['UART_MSG_INFO',['../uart__task_8h.html#a708a8ff292163e24f246572bc7bf1036aeec4d640e5e10aa6c24208f817789452',1,'uart_task.h']]],
+  ['uart_5fmsg_5fnormal_3',['UART_MSG_NORMAL',['../uart__task_8h.html#a708a8ff292163e24f246572bc7bf1036a70bc53ed1d6c2d1ea1f5b8f570ab166d',1,'uart_task.h']]],
+  ['uart_5fmsg_5fsuccess_4',['UART_MSG_SUCCESS',['../uart__task_8h.html#a708a8ff292163e24f246572bc7bf1036a2483d473c9c1d73a35b38e1b35018158',1,'uart_task.h']]],
+  ['uart_5fmsg_5fwarning_5',['UART_MSG_WARNING',['../uart__task_8h.html#a708a8ff292163e24f246572bc7bf1036a85457d793a3de63c4eaa97f57bd36e18',1,'uart_task.h']]]
 ];

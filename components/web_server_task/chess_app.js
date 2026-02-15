@@ -5,6 +5,25 @@
 console.log('🚀 Chess JavaScript loading...');
 
 // ============================================================================
+// TAB SWITCHING (Hra / Nastavení)
+// ============================================================================
+
+function switchTab(tabId) {
+    const tabs = document.querySelectorAll('.tab-content');
+    const buttons = document.querySelectorAll('.tab-btn');
+    tabs.forEach(t => { t.classList.remove('active'); });
+    buttons.forEach(b => { b.classList.remove('active'); });
+    const tab = document.getElementById(tabId);
+    const btn = document.getElementById('btn-' + tabId);
+    if (tab) tab.classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (typeof console !== 'undefined' && console.log) {
+        console.log('Tab switched to:', tabId);
+    }
+}
+window.switchTab = switchTab;
+
+// ============================================================================
 // PIECE SYMBOLS AND GLOBAL VARIABLES
 // ============================================================================
 
@@ -24,10 +43,36 @@ let reviewMode = false;
 let currentReviewIndex = -1;
 let initialBoard = [];
 let sandboxMode = false;
+
 let remoteControlEnabled = false;
+// BOT MODE STATE
+let gameMode = 'pvp'; // 'pvp' or 'bot'
+let botSettings = { strength: 10, side: 'white' }; // strength: 1,3,5,8,12,15 (zobrazeno jako ELO v Nastavení)
+let botThinking = false;
+let gameGeneration = 0; // Incremented on New Game to invalidate stale bot requests
+/** FEN for which we already suggested a bot move; avoids re-triggering every poll until player moves. */
+let lastSuggestedFen = null;
+/** Last bot move we showed (from/to); re-sent to LED so game_task doesn't overwrite it. */
+let lastSuggestedMove = null;
+/** Interval ID for re-applying bot hint to LED (cleared when player moves or new game). */
+let botHintRefreshIntervalId = null;
+
 let sandboxBoard = [];
 let sandboxHistory = [];
+/** For move evaluation: FEN after last fetch; length of history after last fetch. */
+let lastFen = null;
+let lastHistoryLength = -1;
+/** Per-move evaluation when "Zhodnocení tahu" is on: index -> { grade, msg }. */
+let moveEvaluations = {};
 let endgameReportShown = false;
+
+/** Výukový režim: každý hráč má vlastní počet nápověd. */
+let hintsRemainingWhite = 999;
+let hintsRemainingBlack = 999;
+/** Počet sebraných figur po minulém pollu (pro detekci sebrání). */
+let lastCapturedCount = 0;
+/** Poslední nápověda { from, to } – odměna za výborný tah se nedává, pokud byl tah stejný. */
+var lastHintedMove = null;
 
 // ============================================================================
 // BOARD FUNCTIONS
@@ -70,50 +115,45 @@ function toggleRemoteControl() {
     const checkbox = document.getElementById('remote-control-enabled');
     remoteControlEnabled = checkbox.checked;
     console.log('Remote control:', remoteControlEnabled);
-    
     if (!remoteControlEnabled) {
         clearHighlights();
     }
 }
 
+// Remote control: one click = one action (pickup or drop), same as backup / physical board.
 async function handleRemoteControlClick(row, col) {
+    if (isWebLocked()) {
+        alert('Rozhraní je zamčeno. Odemkněte přes UART.');
+        return;
+    }
     const notation = String.fromCharCode(97 + col) + (row + 1);
-    let action = 'pickup';
-    
-    // Determine action based on currently lifted piece status
-    // Note: statusData is updated from backend
-    if (statusData && statusData.piece_lifted && statusData.piece_lifted.lifted) {
-        action = 'drop';
+    const action = (statusData && statusData.piece_lifted && statusData.piece_lifted.lifted) ? 'drop' : 'pickup';
+    const squareEl = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
+
+    if (squareEl) {
+        squareEl.style.boxShadow = action === 'pickup'
+            ? 'inset 0 0 20px rgba(255, 255, 0, 0.8)'
+            : 'inset 0 0 20px rgba(0, 255, 0, 0.8)';
+        setTimeout(function () { if (squareEl) squareEl.style.boxShadow = ''; }, 500);
     }
-    
-    console.log(`Remote control: ${action} at ${notation}`);
-    
-    // Visual feedback immediately (optimistic update)
-    const square = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
-    if (square) {
-        square.style.boxShadow = action === 'pickup' ? 
-            'inset 0 0 20px rgba(255, 255, 0, 0.8)' : 
-            'inset 0 0 20px rgba(0, 255, 0, 0.8)';
-        
-        setTimeout(() => {
-            if (square) square.style.boxShadow = '';
-        }, 500);
-    }
-    
+    console.log('Remote control:', action, 'at', notation);
+
     try {
         const response = await fetch('/api/game/virtual_action', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({action: action, square: notation})
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action, square: notation })
         });
-        const res = await response.json();
-        console.log('Remote action response:', res);
-        
-        if (!res.success) {
-            alert('Remote action failed: ' + res.message);
+        const res = await response.json().catch(function () { return {}; });
+        if (!response.ok) {
+            if (response.status === 403 && res.message) alert(res.message);
+            else console.warn('Virtual action failed:', response.status, res.message);
         }
+        await fetchData();
     } catch (e) {
-        console.error('Remote action error:', e);
+        console.error('Remote virtual_action error:', e);
+        await fetchData();
+        alert('Chyba: ' + (e.message || 'nelze odeslat příkaz'));
     }
 }
 
@@ -125,13 +165,7 @@ async function handleSquareClick(row, col) {
     const piece = sandboxMode ? sandboxBoard[row][col] : boardData[row][col];
     const index = row * 8 + col;
 
-    // REMOTE CONTROL MODE - posílat příkazy na ESP
-    if (remoteControlEnabled) {
-        handleRemoteControlClick(row, col);
-        return;
-    }
-
-    // SANDBOX MODE - vše lokálně, žádné POST requesty (včetně braní figurek)
+    // SANDBOX MODE (Zkusit tahy) - vždy jen lokálně, i když je zapnuté dálkové ovládání
     if (sandboxMode) {
         if (piece === ' ' && selectedSquare !== null) {
             // Tah na prázdné pole
@@ -169,6 +203,12 @@ async function handleSquareClick(row, col) {
                 if (square) square.classList.add('selected');
             }
         }
+        return;
+    }
+
+    // REMOTE CONTROL MODE - posílat příkazy na ESP (jen když nejsme v sandboxu)
+    if (remoteControlEnabled) {
+        handleRemoteControlClick(row, col);
         return;
     }
 
@@ -210,7 +250,7 @@ function enterReviewMode(index) {
     currentReviewIndex = index;
     const banner = document.getElementById('review-banner');
     banner.classList.add('active');
-    document.getElementById('review-move-text').textContent = `Reviewing move ${index + 1}`;
+    document.getElementById('review-move-text').textContent = `Prohlížíš tah ${index + 1}`;
     const reconstructedBoard = reconstructBoardAtMove(index);
     updateBoard(reconstructedBoard);
     document.querySelectorAll('.square').forEach(sq => {
@@ -277,11 +317,11 @@ function exitSandboxMode() {
 function makeSandboxMove(fromRow, fromCol, toRow, toCol) {
     const piece = sandboxBoard[fromRow][fromCol];
     const capturedPiece = sandboxBoard[toRow][toCol]; // Uložit captured piece (může být ' ')
-    
+
     // Provedení tahu
     sandboxBoard[toRow][toCol] = piece;
     sandboxBoard[fromRow][fromCol] = ' ';
-    
+
     // Uložit tah do historie s kompletními informacemi
     sandboxHistory.push({
         fromRow: fromRow,
@@ -291,12 +331,12 @@ function makeSandboxMove(fromRow, fromCol, toRow, toCol) {
         movingPiece: piece,
         capturedPiece: capturedPiece
     });
-    
+
     // Omezit historii na 10 tahů
     if (sandboxHistory.length > 10) {
         sandboxHistory.shift(); // Odstranit nejstarší tah
     }
-    
+
     updateBoard(sandboxBoard);
     updateUndoButton();
 }
@@ -304,11 +344,11 @@ function makeSandboxMove(fromRow, fromCol, toRow, toCol) {
 function updateUndoButton() {
     const undoBtn = document.getElementById('sandbox-undo-btn');
     if (!undoBtn) return;
-    
+
     const availableUndos = sandboxHistory.length;
     const maxUndos = 10;
-    
-    undoBtn.textContent = `↶ Undo (${availableUndos}/${maxUndos})`;
+
+    undoBtn.textContent = `Undo (${availableUndos}/${maxUndos})`;
     undoBtn.disabled = availableUndos === 0;
 }
 
@@ -316,16 +356,16 @@ function undoSandboxMove() {
     if (sandboxHistory.length === 0) {
         return; // Žádné tahy k vrácení
     }
-    
+
     // Vzít poslední tah z historie
     const lastMove = sandboxHistory.pop();
-    
+
     // Vrátit figurku zpět
     sandboxBoard[lastMove.fromRow][lastMove.fromCol] = lastMove.movingPiece;
-    
+
     // Obnovit captured piece (nebo prázdné pole)
     sandboxBoard[lastMove.toRow][lastMove.toCol] = lastMove.capturedPiece;
-    
+
     // Aktualizovat board a tlačítko
     updateBoard(sandboxBoard);
     updateUndoButton();
@@ -333,13 +373,684 @@ function undoSandboxMove() {
 }
 
 // ============================================================================
+// HINT (STOCKFISH) - FEN and best move
+// ============================================================================
+
+/**
+ * Build FEN from current board, status and history.
+ * Board: row 0 = rank 1 (white back), row 7 = rank 8 (black back). FEN ranks 8..1.
+ * Simplified: default castling KQkq, no en passant (sufficient for best-move).
+ * Returns '' if board/status invalid or board not 8x8.
+ */
+function boardAndStatusToFen(board, status, history) {
+    if (!board || !status || !Array.isArray(board) || board.length !== 8) return '';
+    const rows = [];
+    for (let r = 7; r >= 0; r--) {
+        if (!board[r] || board[r].length !== 8) return '';
+        let rank = '';
+        let empty = 0;
+        for (let c = 0; c < 8; c++) {
+            const p = board[r][c];
+            if (p === ' ' || p === '') {
+                empty++;
+            } else {
+                if (empty) { rank += empty; empty = 0; }
+                rank += p;
+            }
+        }
+        if (empty) rank += empty;
+        rows.push(rank);
+    }
+    const piecePlacement = rows.join('/');
+    const sideToMove = (status.current_player === 'White') ? 'w' : 'b';
+    const castling = 'KQkq';
+    const ep = '-';
+    const halfmove = (history && history.moves) ? history.moves.length : 0;
+    const fullmove = Math.floor(halfmove / 2) + 1;
+    const fen = piecePlacement + ' ' + sideToMove + ' ' + castling + ' ' + ep + ' 0 ' + fullmove;
+    if (fen.length < 20 || fen.length > 120) return '';
+    return fen;
+}
+
+/** Hint depth 1–18 from settings (localStorage). Used by fetchStockfishBestMove for hints. */
+function getHintDepth() {
+    try {
+        var d = parseInt(localStorage.getItem('chessHintDepth') || '10', 10);
+        d = isNaN(d) ? 10 : d;
+        return Math.min(18, Math.max(1, d));
+    } catch (e) {
+        return 10;
+    }
+}
+
+/** Depth for move evaluation (Zhodnocení tahu). Uses at least 12 so evals are meaningful; max 18. */
+function getEvaluationDepth() {
+    var hint = getHintDepth();
+    return Math.min(18, Math.max(hint, 12));
+}
+
+/** Whether to show move evaluation after each move (localStorage). */
+function getEvaluateMoveEnabled() {
+    try {
+        return localStorage.getItem('chessEvaluateMove') === 'true';
+    } catch (e) {
+        return false;
+    }
+}
+
+/** Počet nápověd na partii (0 = neomezeno). */
+function getHintLimit() {
+    try {
+        var n = parseInt(localStorage.getItem('chessHintLimit') || '0', 10);
+        return isNaN(n) || n < 0 ? 0 : n;
+    } catch (e) {
+        return 0;
+    }
+}
+
+/** Přidat nápovědu za výborný tah (localStorage). */
+function getHintAwardBest() {
+    try {
+        return localStorage.getItem('chessHintAwardBest') !== 'false';
+    } catch (e) {
+        return true;
+    }
+}
+
+/** Přidat nápovědu za dobrý tah (localStorage). */
+function getHintAwardGood() {
+    try {
+        return localStorage.getItem('chessHintAwardGood') === 'true';
+    } catch (e) {
+        return false;
+    }
+}
+
+/** Přidat nápovědu za sebrání figurky (localStorage). */
+function getHintAwardCapture() {
+    try {
+        return localStorage.getItem('chessHintAwardCapture') === 'true';
+    } catch (e) {
+        return false;
+    }
+}
+
+/** Zobrazit blok „Výukový přehled“ (nápovědy + kvalita tahů). */
+function getShowHintStats() {
+    try {
+        return localStorage.getItem('chessShowHintStats') === 'true';
+    } catch (e) {
+        return false;
+    }
+}
+
+function getCurrentPlayerHints() {
+    var p = (statusData && statusData.current_player) ? statusData.current_player : 'White';
+    return p === 'White' ? hintsRemainingWhite : hintsRemainingBlack;
+}
+
+function updateHintButtonLabel() {
+    var btn = document.getElementById('hint-btn');
+    if (!btn) return;
+    var limit = getHintLimit();
+    var onMove = (statusData && statusData.current_player) === 'Black' ? 'black' : 'white';
+    if (limit > 0) {
+        var w = hintsRemainingWhite, b = hintsRemainingBlack;
+        var first = onMove === 'white' ? 'Bílý ' + w + ' | Černý ' + b : 'Černý ' + b + ' | Bílý ' + w;
+        btn.textContent = 'Nápověda (' + first + ')';
+        btn.disabled = (onMove === 'white' ? w : b) <= 0;
+    } else {
+        btn.textContent = 'Nápověda';
+        btn.disabled = false;
+    }
+    if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
+}
+
+/** V režimu bota udělujeme odměny jen za tahy člověka (ne za tahy bota). */
+function isHumanSideInBotMode(forSide) {
+    if (gameMode !== 'bot' || !forSide) return true;
+    return (botSettings.side === 'white' && forSide === 'black') || (botSettings.side === 'black' && forSide === 'white');
+}
+
+function addHintReward(reason, forSide) {
+    var limit = getHintLimit();
+    if (limit <= 0 || !forSide) return;
+    if (gameMode === 'bot' && !isHumanSideInBotMode(forSide)) return;
+    if (forSide === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
+    updateHintButtonLabel();
+    var who = forSide === 'white' ? 'Bílý' : 'Černý';
+    var msg = reason === 'best' ? 'Výborný tah! ' + who + ' +1 nápověda.' : reason === 'good' ? 'Dobrý tah! ' + who + ' +1 nápověda.' : reason === 'capture' ? 'Sebrání figurky! ' + who + ' +1 nápověda.' : '';
+    if (!msg) return;
+    var el = document.getElementById('castling-pending-message');
+    if (el) {
+        el.textContent = msg;
+        el.style.display = 'block';
+        el.style.background = 'rgba(33, 150, 243, 0.2)';
+        el.style.borderColor = '#2196F3';
+        el.style.color = '#e0e0e0';
+        setTimeout(function () {
+            if (el.textContent === msg) el.style.display = 'none';
+        }, 2500);
+    }
+}
+
+/** Skóre kvality tahu pro průměr: best=5 … blunder=1, jinak 0. */
+function gradeToScore(grade) {
+    switch (grade) {
+        case 'best': return 5;
+        case 'good': return 4;
+        case 'inaccuracy': return 3;
+        case 'mistake': return 2;
+        case 'blunder': return 1;
+        default: return 0;
+    }
+}
+
+/** Průměrná kvalita tahů hráče (side='white'|'black') za posledních lastN tahů toho hráče. Vrací číslo 1–5 nebo null. */
+function getAverageGradeForPlayer(side, lastN) {
+    var indices = [];
+    var isWhite = (side === 'white');
+    for (var i = (historyData.length || 0) - 1; i >= 0 && indices.length < lastN; i--) {
+        if ((i % 2 === 0) === isWhite) indices.push(i);
+    }
+    if (indices.length === 0) return null;
+    var sum = 0, count = 0;
+    indices.forEach(function (idx) {
+        var ev = moveEvaluations[idx];
+        if (ev && ev.grade) {
+            var s = gradeToScore(ev.grade);
+            if (s > 0) { sum += s; count++; }
+        }
+    });
+    if (count === 0) return null;
+    return Math.round((sum / count) * 10) / 10;
+}
+
+/** Zobrazí nebo skryje blok Výukový přehled a naplní nápovědy + průměry kvality. */
+function updateTeachingStatsPanel() {
+    var panel = document.getElementById('teaching-stats-panel');
+    if (!panel) return;
+    if (!getShowHintStats()) {
+        panel.style.display = 'none';
+        return;
+    }
+    panel.style.display = 'block';
+    var limit = getHintLimit();
+    var wHints = limit > 0 ? hintsRemainingWhite : '—';
+    var bHints = limit > 0 ? hintsRemainingBlack : '—';
+    if (limit <= 0) {
+        try {
+            var elW = document.getElementById('teaching-stats-white-hints');
+            var elB = document.getElementById('teaching-stats-black-hints');
+            if (elW) elW.textContent = '—';
+            if (elB) elB.textContent = '—';
+        } catch (e) {}
+    } else {
+        var elW = document.getElementById('teaching-stats-white-hints');
+        var elB = document.getElementById('teaching-stats-black-hints');
+        if (elW) elW.textContent = String(hintsRemainingWhite);
+        if (elB) elB.textContent = String(hintsRemainingBlack);
+    }
+    function fmtAvg(v) { return v != null ? v.toFixed(1) : '—'; }
+    var w5 = getAverageGradeForPlayer('white', 5), w15 = getAverageGradeForPlayer('white', 15), wAll = getAverageGradeForPlayer('white', 9999);
+    var b5 = getAverageGradeForPlayer('black', 5), b15 = getAverageGradeForPlayer('black', 15), bAll = getAverageGradeForPlayer('black', 9999);
+    var el;
+    el = document.getElementById('teaching-stats-white-avg5'); if (el) el.textContent = fmtAvg(w5);
+    el = document.getElementById('teaching-stats-white-avg15'); if (el) el.textContent = fmtAvg(w15);
+    el = document.getElementById('teaching-stats-white-avgAll'); if (el) el.textContent = fmtAvg(wAll);
+    el = document.getElementById('teaching-stats-black-avg5'); if (el) el.textContent = fmtAvg(b5);
+    el = document.getElementById('teaching-stats-black-avg15'); if (el) el.textContent = fmtAvg(b15);
+    el = document.getElementById('teaching-stats-black-avgAll'); if (el) el.textContent = fmtAvg(bAll);
+}
+if (typeof window !== 'undefined') window.updateTeachingStatsPanel = updateTeachingStatsPanel;
+
+/**
+ * Fetch best move and explanation from Chess-API.com (POST).
+ * Returns { from, to, eval, text, san, continuationArr, mate, winChance } or null.
+ * depthOverride: optional; if number, use for API; else use getHintDepth() (for hints).
+ */
+async function fetchStockfishBestMove(fen, depthOverride) {
+    var depth = (typeof depthOverride === 'number' && depthOverride >= 1 && depthOverride <= 18)
+        ? depthOverride
+        : getHintDepth();
+    const TIMEOUT_MS = 15000;
+    const API_URL = 'https://chess-api.com/v1';
+    if (typeof console !== 'undefined' && console.log) console.log('[Hint] Stockfish request (chess-api.com), FEN length:', fen.length, 'depth:', depth);
+
+    let controller = null;
+    try {
+        controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timeoutId = controller ? setTimeout(function () { if (controller) controller.abort(); }, TIMEOUT_MS) : null;
+        const opts = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fen: fen, depth: depth })
+        };
+        if (controller) opts.signal = controller.signal;
+        const res = await fetch(API_URL, opts);
+        if (controller && timeoutId) clearTimeout(timeoutId);
+
+        if (!res.ok) {
+            if (console.warn) console.warn('[Hint] Stockfish HTTP', res.status, res.statusText);
+            return null;
+        }
+        const raw = await res.json().catch(function () { return null; });
+        if (!raw) {
+            if (console.warn) console.warn('[Hint] Stockfish invalid JSON');
+            return null;
+        }
+        var data = raw && typeof raw.data === 'object' && raw.data !== null ? raw.data : (raw && typeof raw.result === 'object' && raw.result !== null ? raw.result : raw);
+        var from = data.from;
+        var to = data.to;
+        if (typeof from !== 'string' || typeof to !== 'string' || from.length !== 2 || to.length !== 2) {
+            var move = data.move;
+            if (typeof move === 'string' && move.length >= 4) {
+                from = move.substring(0, 2).toLowerCase();
+                to = move.substring(2, 4).toLowerCase();
+            } else {
+                if (console.warn) console.warn('[Hint] Stockfish response missing from/to or move:', data);
+                return null;
+            }
+        } else {
+            from = from.toLowerCase();
+            to = to.toLowerCase();
+        }
+        if (console.log) console.log('[Hint] Best move:', from, '->', to);
+        var evalVal = null;
+        function toPawns(v) {
+            if (v == null || typeof v !== 'number' || isNaN(v)) return null;
+            if (Math.abs(v) > 10) return v / 100;
+            return v;
+        }
+        if (typeof data.eval === 'number') evalVal = toPawns(data.eval);
+        if (evalVal == null && typeof data.eval === 'string') { var p = parseFloat(data.eval); if (!isNaN(p)) evalVal = toPawns(p); }
+        if (evalVal == null && data.centipawns != null) {
+            var cp = typeof data.centipawns === 'number' ? data.centipawns : parseInt(data.centipawns, 10);
+            if (!isNaN(cp)) evalVal = cp / 100;
+        }
+        if (evalVal == null && data.cp != null) {
+            var cp2 = typeof data.cp === 'number' ? data.cp : parseInt(data.cp, 10);
+            if (!isNaN(cp2)) evalVal = cp2 / 100;
+        }
+        if (evalVal == null && data.evaluation != null) {
+            var ev = typeof data.evaluation === 'number' ? data.evaluation : parseFloat(data.evaluation);
+            if (!isNaN(ev)) evalVal = toPawns(ev);
+        }
+        if (evalVal == null && typeof data.score === 'number' && !isNaN(data.score)) evalVal = toPawns(data.score);
+        if (evalVal == null && data.result != null && typeof data.result === 'object' && typeof data.result.eval === 'number') evalVal = toPawns(data.result.eval);
+        if (typeof console !== 'undefined' && console.log) {
+            console.log('[Eval Staging] API raw data.eval:', data.eval, 'data.centipawns:', data.centipawns, 'parsed evalVal (pawns):', evalVal);
+        }
+        return {
+            from: from,
+            to: to,
+            eval: evalVal,
+            text: typeof data.text === 'string' ? data.text : '',
+            san: typeof data.san === 'string' ? data.san : (from + '-' + to),
+            continuationArr: Array.isArray(data.continuationArr) ? data.continuationArr : [],
+            mate: data.mate != null && typeof data.mate === 'number' ? data.mate : null,
+            winChance: typeof data.winChance === 'number' ? data.winChance : null
+        };
+    } catch (err) {
+        if (controller && controller.signal && controller.signal.aborted) {
+            if (console.warn) console.warn('[Hint] Stockfish timeout');
+        } else {
+            if (console.error) console.error('[Hint] Stockfish error:', err.message);
+        }
+        return null;
+    }
+}
+
+/** Show hint on board (hint-from, hint-to) and optionally send to LED. */
+function showHintOnBoard(from, to) {
+    document.querySelectorAll('.square').forEach(sq => {
+        sq.classList.remove('hint-from', 'hint-to');
+    });
+    const fromCol = from.charCodeAt(0) - 97;
+    const fromRow = parseInt(from[1], 10) - 1;
+    const toCol = to.charCodeAt(0) - 97;
+    const toRow = parseInt(to[1], 10) - 1;
+    const fromSquare = document.querySelector('[data-row="' + fromRow + '"][data-col="' + fromCol + '"]');
+    const toSquare = document.querySelector('[data-row="' + toRow + '"][data-col="' + toCol + '"]');
+    if (fromSquare) fromSquare.classList.add('hint-from');
+    if (toSquare) toSquare.classList.add('hint-to');
+}
+
+/** Replace key English phrases from API text with Czech (for hint explanation). */
+function hintTextToCzech(s) {
+    if (!s || typeof s !== 'string') return '';
+    var t = s
+        .replace(/\bWhite is winning\b/gi, 'Bílý vyhrává')
+        .replace(/\bBlack is winning\b/gi, 'Černý vyhrává')
+        .replace(/\bWhite is better\b/gi, 'Bílý je lépe')
+        .replace(/\bBlack is better\b/gi, 'Černý je lépe')
+        .replace(/\bThe game is balanced\.?\b/gi, 'Hra je vyrovnaná.')
+        .replace(/\bgame is balanced\.?\b/gi, 'hra je vyrovnaná.')
+        .replace(/\bDepth \d+\b/gi, function (m) { return 'Hloubka ' + m.replace(/\D/g, ''); })
+        .replace(/\bMove\s+/gi, 'Tah ');
+    return t;
+}
+
+/** Format UCI move (e2e4) as e2–e4. */
+function formatUciMove(uci) {
+    if (!uci || uci.length < 4) return uci || '';
+    return uci.substring(0, 2) + '–' + uci.substring(2, 4);
+}
+
+/** Build one short, child-friendly sentence for the hint (easy to read). */
+function buildHintMessage(data) {
+    var parts = [];
+    var san = (data.san || (data.from + '–' + data.to)).trim();
+    parts.push('Počítač radí: zahraj tah ' + san + '.');
+
+    var e = data.eval;
+    if (e != null && typeof e === 'number') {
+        if (e > 0.3) parts.push('Bílý má trochu výhodu.');
+        else if (e < -0.3) parts.push('Černý má trochu výhodu.');
+        else parts.push('Teď je to vyrovnané.');
+    }
+
+    if (Array.isArray(data.continuationArr) && data.continuationArr.length > 0) {
+        var first = data.continuationArr.slice(0, 4).map(formatUciMove).join(', ');
+        parts.push('Pak můžeš hrát třeba ' + first + '.');
+    }
+
+    if (data.mate != null && typeof data.mate === 'number') {
+        if (data.mate === 0) parts.push('Je mat!');
+        else if (data.mate > 0) parts.push('Za ' + data.mate + ' tahů bude mat bílého!');
+        else parts.push('Za ' + (-data.mate) + ' tahů bude mat černého!');
+    }
+
+    return parts.join(' ');
+}
+
+/** Show hint explanation block (one simple message for children). */
+function showHintExplanation(data) {
+    var el = document.getElementById('hint-explanation');
+    if (!el) return;
+    var msgEl = document.getElementById('hint-explanation-message');
+    if (!msgEl) return;
+    msgEl.textContent = buildHintMessage(data);
+    el.style.display = 'block';
+}
+
+/** Show hint block with error/info message (např. žádný internet). */
+function showHintError(message) {
+    var el = document.getElementById('hint-explanation');
+    if (!el) return;
+    var msgEl = document.getElementById('hint-explanation-message');
+    if (!msgEl) return;
+    msgEl.textContent = message;
+    el.style.display = 'block';
+}
+
+/** Hide hint explanation block (on new move / fetchData). */
+function hideHintExplanation() {
+    var el = document.getElementById('hint-explanation');
+    if (el) el.style.display = 'none';
+}
+
+/** Grade: 'best' | 'good' | 'inaccuracy' | 'mistake' | 'blunder' | 'error' */
+function showMoveEvaluation(text, grade) {
+    var el = document.getElementById('move-evaluation');
+    if (!el) return;
+    var msgEl = document.getElementById('move-evaluation-message');
+    if (msgEl) msgEl.textContent = text;
+    grade = grade || 'good';
+    el.className = 'move-evaluation move-evaluation--' + grade;
+    el.style.display = 'block';
+}
+
+/** Hide move evaluation block. */
+function hideMoveEvaluation() {
+    var el = document.getElementById('move-evaluation');
+    if (el) el.style.display = 'none';
+}
+
+/**
+ * Evaluate the last played move: call API for position before and (if needed) after,
+ * then show a short Czech message and barvu podle kvality (best=zelená, blunder=červená, …).
+ */
+/** Normalize UCI move to 4 chars (from+to) for comparison. */
+function normalizeUci(from, to) {
+    var s = ((from || '') + (to || '')).toLowerCase().replace(/[^a-h1-8]/g, '');
+    return s.length >= 4 ? s.slice(0, 4) : s;
+}
+
+/** True pokud je hodnocení pro daný počet tahů stále platné (nebyla nová hra / další tah). */
+function isEvaluationStillValid(historyLength) {
+    return (historyData && historyData.length) === historyLength;
+}
+
+/** API vrací eval z pohledu strany na tahu; bez převodu je scoreDrop příliš malý a nikdy neukáže Chyba/Vážná chyba. */
+var API_EVAL_SIDE_TO_MOVE = true;
+function evalToWhitePerspective(fen, evalRaw) {
+    if (fen == null || evalRaw == null || typeof evalRaw !== 'number') return evalRaw;
+    if (!API_EVAL_SIDE_TO_MOVE) return evalRaw;
+    var blackToMove = fen.indexOf(' b ') >= 0;
+    if (blackToMove) {
+        if (typeof console !== 'undefined' && console.log) console.log('[Eval Staging] converted to White perspective, raw:', evalRaw, '->', -evalRaw);
+        return -evalRaw;
+    }
+    return evalRaw;
+}
+
+function evaluateMoveAsync(fenBefore, fenAfter, playedMove, historyLength) {
+    if (!statusData.internet_connected) {
+        showMoveEvaluation('Zhodnocení vyžaduje připojení k internetu (WiFi).', 'error');
+        return;
+    }
+    var playedUci = normalizeUci(playedMove.from, playedMove.to);
+    if (playedUci.length < 4) return;
+
+    var hintedForThisMove = lastHintedMove;
+    lastHintedMove = null;
+
+    var evalDepth = getEvaluationDepth();
+    fetchStockfishBestMove(fenBefore, evalDepth).then(function (beforeData) {
+        if (!isEvaluationStillValid(historyLength)) return;
+        if (!beforeData) {
+            var errMsg = 'Zhodnocení nebylo k dispozici. Zkontrolujte připojení k internetu.';
+            showMoveEvaluation(errMsg, 'error');
+            moveEvaluations[historyLength - 1] = { grade: 'error', msg: errMsg };
+            renderHistoryList();
+            if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
+            return;
+        }
+        var bestUci = normalizeUci(beforeData.from, beforeData.to);
+        if (playedUci === bestUci) {
+            var msgBest = 'Výborný tah! Byl to nejlepší tah.';
+            showMoveEvaluation(msgBest, 'best');
+            moveEvaluations[historyLength - 1] = { grade: 'best', msg: msgBest };
+            var sideBest = (historyLength - 1) % 2 === 0 ? 'white' : 'black';
+            var hintedSameMove = hintedForThisMove && playedUci === normalizeUci(hintedForThisMove.from, hintedForThisMove.to);
+            if (getHintAwardBest() && !hintedSameMove) addHintReward('best', sideBest);
+            renderHistoryList();
+            if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
+            return;
+        }
+        var bestFormatted = formatUciMove(bestUci);
+        fetchStockfishBestMove(fenAfter, evalDepth).then(function (afterData) {
+            if (!isEvaluationStillValid(historyLength)) return;
+            if (!afterData) {
+                var msgInacc = 'Lepší byl tah ' + bestFormatted + '.';
+                showMoveEvaluation(msgInacc, 'inaccuracy');
+                moveEvaluations[historyLength - 1] = { grade: 'inaccuracy', msg: msgInacc };
+                renderHistoryList();
+                if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
+                return;
+            }
+            var hasEvalBefore = beforeData.eval != null && typeof beforeData.eval === 'number';
+            var hasEvalAfter = afterData.eval != null && typeof afterData.eval === 'number';
+            var evalBefore = hasEvalBefore ? evalToWhitePerspective(fenBefore, beforeData.eval) : null;
+            var evalAfter = hasEvalAfter ? evalToWhitePerspective(fenAfter, afterData.eval) : null;
+            var msg, grade;
+            if (!hasEvalBefore || !hasEvalAfter) {
+                if (typeof console !== 'undefined' && console.warn) {
+                    console.warn('[Eval Staging] Missing eval – hasEvalBefore:', hasEvalBefore, 'hasEvalAfter:', hasEvalAfter, 'beforeData keys:', beforeData ? Object.keys(beforeData) : [], 'afterData keys:', afterData ? Object.keys(afterData) : []);
+                }
+                msg = 'Slabší tah. Lepší bylo ' + bestFormatted + '.';
+                grade = 'inaccuracy';
+            } else {
+                var whiteJustMoved = (historyLength - 1) % 2 === 0;
+                var scoreDrop = whiteJustMoved ? (evalBefore - evalAfter) : (evalAfter - evalBefore);
+                if (scoreDrop < 0) scoreDrop = 0;
+                if (scoreDrop <= 0.20) {
+                    msg = 'Dobrý tah.';
+                    grade = 'good';
+                    var sideGood = (historyLength - 1) % 2 === 0 ? 'white' : 'black';
+                    if (getHintAwardGood()) addHintReward('good', sideGood);
+                } else if (scoreDrop <= 0.50) {
+                    msg = 'Slabší tah. Lepší bylo ' + bestFormatted + '.';
+                    grade = 'inaccuracy';
+                } else if (scoreDrop <= 1.00) {
+                    msg = 'Chyba. Pozice se zhoršila. Lepší bylo ' + bestFormatted + '.';
+                    grade = 'mistake';
+                } else {
+                    msg = 'Vážná chyba. Lepší bylo ' + bestFormatted + '.';
+                    grade = 'blunder';
+                }
+                if (typeof console !== 'undefined' && console.log) {
+                    console.log('[Eval Staging] hasEvalBefore:', hasEvalBefore, 'hasEvalAfter:', hasEvalAfter, 'evalBefore:', evalBefore, 'evalAfter:', evalAfter, 'scoreDrop:', scoreDrop.toFixed(3), 'whiteJustMoved:', whiteJustMoved, 'grade:', grade);
+                }
+            }
+            showMoveEvaluation(msg, grade);
+            moveEvaluations[historyLength - 1] = { grade: grade, msg: msg };
+            renderHistoryList();
+            if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
+        }).catch(function () {
+            if (!isEvaluationStillValid(historyLength)) return;
+            var errMsg = 'Zhodnocení nebylo k dispozici. Zkontrolujte připojení k internetu.';
+            showMoveEvaluation(errMsg, 'error');
+            moveEvaluations[historyLength - 1] = { grade: 'error', msg: errMsg };
+            renderHistoryList();
+            if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
+        });
+    }).catch(function () {
+        if (!isEvaluationStillValid(historyLength)) return;
+        var errMsg = 'Zhodnocení nebylo k dispozici. Zkontrolujte připojení k internetu.';
+        showMoveEvaluation(errMsg, 'error');
+        moveEvaluations[historyLength - 1] = { grade: 'error', msg: errMsg };
+        renderHistoryList();
+        if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
+    });
+}
+
+function isWebLocked() {
+    return !!(statusData && statusData.web_locked);
+}
+
+async function requestHint() {
+    if (sandboxMode || reviewMode) return;
+    if (isWebLocked()) {
+        showHintError('Rozhraní je zamčeno. Odemkněte přes UART.');
+        return;
+    }
+    const status = statusData || {};
+    const state = (status.game_state || '').toLowerCase();
+    if (state !== 'active' && state !== 'playing') return;
+    if (status.game_end && status.game_end.ended) return;
+    if (state === 'promotion') return;
+    if (status.castling_in_progress) return;
+
+    var limit = getHintLimit();
+    var currentHints = getCurrentPlayerHints();
+    if (limit > 0 && currentHints <= 0) {
+        showHintError('Na tahu nemáte žádnou nápovědu. Získejte ji výborným tahem nebo sebráním figurky.');
+        return;
+    }
+
+    const btn = document.getElementById('hint-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Načítám…';
+    }
+
+    if (limit > 0) {
+        var p = (status.current_player === 'Black') ? 'black' : 'white';
+        if (p === 'white') hintsRemainingWhite--; else hintsRemainingBlack--;
+        updateHintButtonLabel();
+    }
+
+    if (!status.internet_connected) {
+        if (limit > 0) {
+            var p0 = (status.current_player === 'Black') ? 'black' : 'white';
+            if (p0 === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
+            updateHintButtonLabel();
+        }
+        showHintError('Nápověda vyžaduje připojení k internetu (WiFi).');
+        if (btn) updateHintButtonLabel();
+        return;
+    }
+
+    try {
+        const fen = boardAndStatusToFen(boardData, status, historyData);
+        if (!fen) {
+            if (limit > 0) {
+                var pFen = (status.current_player === 'Black') ? 'black' : 'white';
+                if (pFen === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
+                updateHintButtonLabel();
+            }
+            if (console.warn) console.warn('[Hint] Could not build FEN');
+            showHintError('Nelze načíst pozici. Obnovte stránku.');
+            if (btn) updateHintButtonLabel();
+            return;
+        }
+        const move = await fetchStockfishBestMove(fen);
+        if (move) {
+            showHintOnBoard(move.from, move.to);
+            showHintExplanation(move);
+            lastHintedMove = { from: move.from, to: move.to };
+            try {
+                await fetch('/api/game/hint_highlight', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from: move.from, to: move.to })
+                });
+            } catch (e) {
+                if (console.warn) console.warn('[Hint] LED highlight failed:', e.message);
+            }
+            if (btn) updateHintButtonLabel();
+        } else {
+            if (limit > 0) {
+                var p = (status.current_player === 'Black') ? 'black' : 'white';
+                if (p === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
+                updateHintButtonLabel();
+            }
+            showHintError('Nápověda není k dispozici. Zkuste později nebo zkontrolujte připojení k internetu.');
+            if (btn) updateHintButtonLabel();
+        }
+    } catch (err) {
+        if (limit > 0) {
+            var p = (statusData && statusData.current_player === 'Black') ? 'black' : 'white';
+            if (p === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
+            updateHintButtonLabel();
+        }
+        if (console.error) console.error('[Hint] requestHint error:', err.message);
+        showHintError('Nápověda není k dispozici. Zkuste později nebo zkontrolujte připojení k internetu.');
+        if (btn) updateHintButtonLabel();
+    }
+}
+window.requestHint = requestHint;
+
+// ============================================================================
 // UPDATE FUNCTIONS
 // ============================================================================
 
 function updateBoard(board) {
+    // Only clear hint when board actually changed (new move), not on every periodic fetch
+    var boardUnchanged = boardData && board.length === 8 && boardData.length === 8 &&
+        JSON.stringify(board) === JSON.stringify(boardData);
     boardData = board;
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
+
+    if (!boardUnchanged) {
+        document.querySelectorAll('.square').forEach(sq => {
+            sq.classList.remove('hint-from', 'hint-to');
+        });
+        hideHintExplanation();
+    }
 
     // NEPŘIDÁVAT clearHighlights() - highlights jsou řízené přes updateStatus()
     // (lifted, error-invalid, error-original jsou serverem řízené stavy)
@@ -385,20 +1096,17 @@ async function showEndgameReport(gameEnd) {
     }
 
     // Určit výsledek a barvy
-    let emoji = '🏆';
     let title = '';
     let subtitle = '';
     let accentColor = '#4CAF50';
     let bgGradient = 'linear-gradient(135deg, #1e3a1e, #2d4a2d)';
 
     if (gameEnd.winner === 'Draw') {
-        emoji = '🤝';
         title = 'REMÍZA';
         subtitle = gameEnd.reason;
         accentColor = '#FF9800';
         bgGradient = 'linear-gradient(135deg, #3a2e1e, #4a3e2d)';
     } else {
-        emoji = gameEnd.winner === 'White' ? '⚪' : '⚫';
         title = `${gameEnd.winner.toUpperCase()} VYHRÁL!`;
         subtitle = gameEnd.reason;
         accentColor = gameEnd.winner === 'White' ? '#4CAF50' : '#2196F3';
@@ -501,15 +1209,14 @@ async function showEndgameReport(gameEnd) {
     // HTML obsah
     banner.innerHTML = `
         <div style="background:${accentColor};padding:20px;text-align:center;border-radius:10px 10px 0 0;">
-            <div style="font-size:64px;margin-bottom:8px;">${emoji}</div>
             <h2 style="margin:0;color:white;font-size:24px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,0.4);">${title}</h2>
             <p style="margin:8px 0 0 0;color:rgba(255,255,255,0.9);font-size:14px;font-weight:500;">${subtitle}</p>
         </div>
         <div style="padding:20px;">
             ${graphSVG ? `
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-bottom:15px;">
-                <h3 style="margin:0 0 12px 0;color:${accentColor};font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;">
-                    <span>📈</span> Průběh hry
+                <h3 style="margin:0 0 12px 0;color:${accentColor};font-size:16px;font-weight:600;">
+                    Průběh hry
                 </h3>
                 ${graphSVG}
                 <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:#888;">
@@ -518,13 +1225,13 @@ async function showEndgameReport(gameEnd) {
                 </div>
             </div>` : ''}
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-bottom:15px;">
-                <h3 style="margin:0 0 12px 0;color:${accentColor};font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;">
-                    <span>📊</span> Statistiky
+                <h3 style="margin:0 0 12px 0;color:${accentColor};font-size:16px;font-weight:600;">
+                    Statistiky
                 </h3>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
                         <div style="color:#888;font-size:11px;margin-bottom:4px;">Tahy</div>
-                        <div style="color:#e0e0e0;font-weight:600;">⚪ ${whiteMoves} | ⚫ ${blackMoves}</div>
+                        <div style="color:#e0e0e0;font-weight:600;">Bílý ${whiteMoves} | Černý ${blackMoves}</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
                         <div style="color:#888;font-size:11px;margin-bottom:4px;">Materiál</div>
@@ -532,7 +1239,7 @@ async function showEndgameReport(gameEnd) {
                     </div>
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
                         <div style="color:#888;font-size:11px;margin-bottom:4px;">Sebráno</div>
-                        <div style="color:#e0e0e0;font-weight:600;">⚪ ${whiteCaptured.length} | ⚫ ${blackCaptured.length}</div>
+                        <div style="color:#e0e0e0;font-weight:600;">Bílý ${whiteCaptured.length} | Černý ${blackCaptured.length}</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
                         <div style="color:#888;font-size:11px;margin-bottom:4px;">Celkem</div>
@@ -540,17 +1247,17 @@ async function showEndgameReport(gameEnd) {
                     </div>
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
                         <div style="color:#888;font-size:11px;margin-bottom:4px;">Šachy</div>
-                        <div style="color:#e0e0e0;font-weight:600;">⚪ ${advantageDataLocal.white_checks || 0} | ⚫ ${advantageDataLocal.black_checks || 0}</div>
+                        <div style="color:#e0e0e0;font-weight:600;">Bílý ${advantageDataLocal.white_checks || 0} | Černý ${advantageDataLocal.black_checks || 0}</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
                         <div style="color:#888;font-size:11px;margin-bottom:4px;">Rošády</div>
-                        <div style="color:#e0e0e0;font-weight:600;">⚪ ${advantageDataLocal.white_castles || 0} | ⚫ ${advantageDataLocal.black_castles || 0}</div>
+                        <div style="color:#e0e0e0;font-weight:600;">Bílý ${advantageDataLocal.white_castles || 0} | Černý ${advantageDataLocal.black_castles || 0}</div>
                     </div>
                 </div>
             </div>
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-bottom:15px;">
-                <h3 style="margin:0 0 12px 0;color:${accentColor};font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;">
-                    <span>⚔️</span> Sebrané figurky
+                <h3 style="margin:0 0 12px 0;color:${accentColor};font-size:16px;font-weight:600;">
+                    Sebrané figurky
                 </h3>
                 <div style="margin-bottom:10px;">
                     <div style="color:#888;font-size:11px;margin-bottom:4px;">White sebral (${whiteCaptured.length})</div>
@@ -574,7 +1281,7 @@ async function showEndgameReport(gameEnd) {
                 box-shadow:0 4px 12px rgba(0,0,0,0.3);
                 transition:all 0.2s;
             " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'">
-                ✓ OK
+                OK
             </button>
         </div>
     `;
@@ -632,8 +1339,8 @@ function showEndgameToggleButton() {
 
     const button = document.createElement('button');
     button.id = 'endgame-toggle-btn';
-    button.innerHTML = '🏆 Report';
-    button.title = 'Show/Hide Endgame Report';
+    button.innerHTML = 'Zpráva';
+    button.title = 'Zobrazit/skrýt zprávu o konci hry';
     button.style.cssText = `
         position: fixed;
         top: 10px;
@@ -671,86 +1378,321 @@ function hideEndgameToggleButton() {
 }
 
 // ============================================================================
+// BOT LOGIC
+// ============================================================================
+
+const BOT_API_TIMEOUT_MS = 15000;
+const BOT_SQUARE_REGEX = /^[a-h][1-8]$/;
+const BOT_HINT_REFRESH_MS = 500;
+
+function stopBotHintRefresh() {
+    if (botHintRefreshIntervalId) {
+        clearInterval(botHintRefreshIntervalId);
+        botHintRefreshIntervalId = null;
+    }
+}
+
+async function fetchStockfishBestMove(fen) {
+    const depth = parseInt(botSettings.strength, 10) || 10;
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(function () { controller.abort(); }, BOT_API_TIMEOUT_MS) : null;
+    try {
+        const opts = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fen: fen, depth: depth })
+        };
+        if (controller && controller.signal) opts.signal = controller.signal;
+        const res = await fetch('https://chess-api.com/v1', opts);
+        if (!res.ok) {
+            if (console.warn) console.warn('Bot API HTTP', res.status, res.statusText);
+            return null;
+        }
+        const data = await res.json().catch(function () { return null; });
+        if (!data) {
+            if (console.warn) console.warn('Bot API: invalid JSON');
+            return null;
+        }
+        var from, to;
+        if (data.from != null && data.to != null) {
+            from = String(data.from).toLowerCase();
+            to = String(data.to).toLowerCase();
+        } else if (data.move && data.move.length >= 4) {
+            from = data.move.substring(0, 2).toLowerCase();
+            to = data.move.substring(2, 4).toLowerCase();
+        }
+        if (from && to && BOT_SQUARE_REGEX.test(from) && BOT_SQUARE_REGEX.test(to)) return { from: from, to: to };
+        if (from || to) {
+            if (console.warn) console.warn('Bot API: neplatný formát pole', data);
+        } else if (console.warn) {
+            console.warn('Bot API: missing from/to or move', data);
+        }
+        return null;
+    } catch (e) {
+        if (e && e.name === 'AbortError') {
+            if (console.warn) console.warn('Bot API: timeout after', BOT_API_TIMEOUT_MS, 'ms');
+        } else {
+            console.error('Bot fetch error:', e);
+        }
+        return null;
+    } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+    }
+}
+
+async function playBotMove(fen, generation) {
+    if (botThinking || !fen || typeof fen !== 'string') return;
+    botThinking = true;
+    var msgEl = document.getElementById('castling-pending-message');
+    var statusEl = document.getElementById('game-state');
+
+    try {
+        if (statusEl) statusEl.textContent = 'Počítač přemýšlí...';
+        console.log('🤖 Bot starts thinking... Generation:', generation);
+        var move = await fetchStockfishBestMove(fen);
+
+        if (generation !== gameGeneration) {
+            console.warn('🤖 Bot move aborted: Game generation changed (New game started).');
+            lastSuggestedMove = null;
+            stopBotHintRefresh();
+            return;
+        }
+
+        if (move) {
+            console.log('🤖 Bot plays:', move.from, '->', move.to, '| FEN:', fen.length > 20 ? fen.substring(0, 30) + '...' : fen, '| mode:', gameMode, '| gen:', generation);
+            lastSuggestedMove = { from: move.from, to: move.to };
+            stopBotHintRefresh();
+            try {
+                await fetch('/api/game/hint_highlight', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from: move.from, to: move.to })
+                });
+            } catch (e) {
+                console.error('Failed to light up LEDs for bot:', e);
+            }
+            botHintRefreshIntervalId = setInterval(function () {
+                if (!lastSuggestedMove) {
+                    stopBotHintRefresh();
+                    return;
+                }
+                fetch('/api/game/hint_highlight', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from: lastSuggestedMove.from, to: lastSuggestedMove.to })
+                }).catch(function () {});
+            }, BOT_HINT_REFRESH_MS);
+            if (msgEl) {
+                msgEl.textContent = 'Bot hraje: ' + move.from + ' → ' + move.to;
+                msgEl.style.display = 'block';
+                msgEl.style.background = 'rgba(76, 175, 80, 0.2)';
+                msgEl.style.borderColor = '#4CAF50';
+                msgEl.style.color = '#e0e0e0';
+            }
+            showHintOnBoard(move.from, move.to);
+        } else {
+            console.warn('Bot: žádný tah (API chyba nebo timeout).');
+            if (typeof console !== 'undefined' && console.warn) {
+                console.warn('[Bot] API failed, clearing lastSuggestedFen for retry');
+            }
+            lastSuggestedFen = null;
+            if (msgEl) {
+                msgEl.textContent = 'Počítač nemohl najít tah (zkontrolujte internet).';
+                msgEl.style.display = 'block';
+                msgEl.style.background = 'rgba(244, 67, 54, 0.2)';
+                msgEl.style.borderColor = '#f44336';
+                msgEl.style.color = '#e0e0e0';
+                setTimeout(function () {
+                    if (msgEl.textContent.indexOf('nemohl najít tah') !== -1) msgEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+    } finally {
+        botThinking = false;
+    }
+}
+
+function checkBotTurn(status, fen) {
+    if (gameMode !== 'bot') {
+        lastSuggestedFen = null;
+        lastSuggestedMove = null;
+        stopBotHintRefresh();
+        document.querySelectorAll('.square').forEach(function (sq) { sq.classList.remove('hint-from', 'hint-to'); });
+        return;
+    }
+    if (!status || typeof status !== 'object') return;
+    if (status.game_state !== 'active' && status.game_state !== 'playing') return;
+    if (status.game_end && status.game_end.ended) return;
+    if (status.current_player !== 'White' && status.current_player !== 'Black') return;
+    if (!fen || typeof fen !== 'string' || fen.length < 20) return;
+
+    var isBotTurn = (botSettings.side === 'white') !== (status.current_player === 'White');
+    if (typeof console !== 'undefined' && console.log) console.log('checkBotTurn: isBotTurn=', isBotTurn, 'current_player=', status.current_player);
+
+    var msgEl = document.getElementById('castling-pending-message');
+    if (!isBotTurn) {
+        lastSuggestedFen = null;
+        lastSuggestedMove = null;
+        stopBotHintRefresh();
+        document.querySelectorAll('.square').forEach(function (sq) { sq.classList.remove('hint-from', 'hint-to'); });
+        if (msgEl && (msgEl.textContent.indexOf('Bot hraje') !== -1 || msgEl.textContent.indexOf('Počítač') !== -1)) msgEl.style.display = 'none';
+    } else if (!botThinking && fen !== lastSuggestedFen) {
+        if (typeof console !== 'undefined' && console.log) {
+            console.log('[Bot Staging] checkBotTurn: game_state=', status.game_state, 'fen.length=', fen.length, 'calling playBotMove');
+        }
+        lastSuggestedFen = fen;
+        playBotMove(fen, gameGeneration);
+    } else if (isBotTurn && fen === lastSuggestedFen && typeof console !== 'undefined' && console.log) {
+        console.log('[Bot Staging] checkBotTurn: skipping (fen === lastSuggestedFen), game_state=', status.game_state);
+    }
+}
+
+// ============================================================================
 // STATUS UPDATE FUNCTION
 // ============================================================================
 
 function updateStatus(status) {
     statusData = status;
-    document.getElementById('game-state').textContent = status.game_state || '-';
-    document.getElementById('current-player').textContent = status.current_player || '-';
+    // ... existing implementation ...
+    const gameStateEl = document.getElementById('game-state');
+    const playerEl = document.getElementById('current-player');
+    if (gameStateEl) gameStateEl.textContent = status.game_state || '-';
+    if (playerEl) {
+        const p = status.current_player;
+        playerEl.textContent = (p === 'White') ? 'Bílý' : (p === 'Black') ? 'Černý' : (p || '-');
+    }
     document.getElementById('move-count').textContent = status.move_count || 0;
-    document.getElementById('in-check').textContent = status.in_check ? 'Yes' : 'No';
+    document.getElementById('in-check').textContent = status.in_check ? 'Ano' : 'Ne';
 
-    // ERROR STATE - vždy nejprve odstranit všechny error classes
+    // Jas (Nastavení) – synchronizovat slider a label ze statusu
+    const b = status.brightness;
+    if (typeof b === 'number' && b >= 0 && b <= 100) {
+        const valueEl = document.getElementById('brightness-value');
+        const sliderEl = document.getElementById('brightness-slider');
+        if (valueEl) valueEl.textContent = b + '%';
+        if (sliderEl && Number(sliderEl.value) !== b) sliderEl.value = b;
+    }
+
+    // Promotion modal – zobrazit, když backend čeká na volbu promoce (game_state === "promotion")
+    const promoModal = document.getElementById('promotion-modal');
+    if (promoModal) {
+        if (status.game_state === 'promotion') {
+            promoModal.style.display = 'flex';
+        } else {
+            promoModal.style.display = 'none';
+        }
+    }
+
+    // ERROR STATE
     document.querySelectorAll('.square').forEach(sq => {
         sq.classList.remove('error-invalid', 'error-original');
     });
 
-    // LIFTED PIECE - vždy nejprve odstranit všechny lifted classes
+    // LIFTED PIECE
     document.querySelectorAll('.square').forEach(sq => {
         sq.classList.remove('lifted');
     });
 
-    // Zobrazit lifted piece (zelená)
     const lifted = status.piece_lifted;
+    const liftedPieceEl = document.getElementById('lifted-piece');
+    const liftedPosEl = document.getElementById('lifted-position');
     if (lifted && lifted.lifted) {
-        document.getElementById('lifted-piece').textContent = pieceSymbols[lifted.piece] || '-';
-        document.getElementById('lifted-position').textContent = String.fromCharCode(97 + lifted.col) + (lifted.row + 1);
+        if (liftedPieceEl) liftedPieceEl.textContent = pieceSymbols[lifted.piece] || '-';
+        if (liftedPosEl) liftedPosEl.textContent = String.fromCharCode(97 + lifted.col) + (lifted.row + 1);
         const square = document.querySelector(`[data-row='${lifted.row}'][data-col='${lifted.col}']`);
-        if (square) square.classList.add('lifted'); // Zelená - zvednutá figurka
+        if (square) square.classList.add('lifted');
     } else {
-        document.getElementById('lifted-piece').textContent = '-';
-        document.getElementById('lifted-position').textContent = '-';
+        if (liftedPieceEl) liftedPieceEl.textContent = '-';
+        if (liftedPosEl) liftedPosEl.textContent = '-';
     }
 
-    // Zobrazit error state (červená na invalid, modrá na original)
+    // Error state classes
     if (status.error_state && status.error_state.active) {
-        // Invalid position (červená - kde je figurka nyní na nevalidní pozici)
         if (status.error_state.invalid_pos) {
             const invalidCol = status.error_state.invalid_pos.charCodeAt(0) - 97;
             const invalidRow = parseInt(status.error_state.invalid_pos[1]) - 1;
             const invalidSquare = document.querySelector(`[data-row='${invalidRow}'][data-col='${invalidCol}']`);
-            if (invalidSquare) invalidSquare.classList.add('error-invalid'); // Červená - nevalidní pozice
+            if (invalidSquare) invalidSquare.classList.add('error-invalid');
         }
-        // Original position (modrá - kde byla figurka původně)
         if (status.error_state.original_pos) {
             const originalCol = status.error_state.original_pos.charCodeAt(0) - 97;
             const originalRow = parseInt(status.error_state.original_pos[1]) - 1;
             const originalSquare = document.querySelector(`[data-row='${originalRow}'][data-col='${originalCol}']`);
-            if (originalSquare) originalSquare.classList.add('error-original'); // Modrá - původní pozice
+            if (originalSquare) originalSquare.classList.add('error-original');
         }
     }
 
-    // ENDGAME REPORT - zobrazit pouze JEDNOU, po prvnim skonceni
-    if (status.game_end && status.game_end.ended) {
-        // Ulozit data pro pozdejsi toggle
-        window.lastGameEndData = status.game_end;
+    // Castling message vs Bot message
+    var castlingMsg = document.getElementById('castling-pending-message');
+    if (castlingMsg) {
+        // Prioritize Castling Message over Bot Message
+        if (status.castling_in_progress && status.castling_from && status.castling_to) {
+            castlingMsg.textContent = 'Dokončete rošádu: přesuňte věž z ' + status.castling_from + ' na ' + status.castling_to + '.';
+            castlingMsg.style.display = 'block';
+            // Reset style to warning for castling
+            castlingMsg.style.background = 'rgba(255,193,7,0.12)';
+            castlingMsg.style.borderColor = 'rgba(255,193,7,0.4)';
+            castlingMsg.style.color = '#ffc107';
+        } else {
+            // If NOT castling, check if we should keep Bot Message or hide it
+            // Bot logic handles showing/hiding bot message, so we only hide if NO bot message logic is active
+            // But simpler: just hide if not castling AND not bot thinking/turn (handled in checkBotTurn)
+            var keepMsg = castlingMsg.textContent.indexOf('Bot') !== -1 || castlingMsg.textContent.indexOf('Losování:') === 0;
+            if (!keepMsg) castlingMsg.style.display = 'none';
+        }
+    }
 
-        // Zobrazit report jen pokud jeste nebyl nikdy zobrazen
+    // ENDGAME REPORT
+    if (status.game_end && status.game_end.ended) {
+        window.lastGameEndData = status.game_end;
         if (!endgameReportShown) {
             console.log('Game ended, showing endgame report...');
             showEndgameReport(status.game_end);
         }
-
-        // Zobrazit toggle button (jen pokud je hra skoncena)
         showEndgameToggleButton();
     } else {
-        // Hra je aktivni - skryj report i toggle button
         if (endgameReportShown) {
             console.log('Game restarted, clearing endgame report...');
             hideEndgameReport();
         }
-        endgameReportShown = false;  // Reset flagu po restartu
+        endgameReportShown = false;
         window.lastGameEndData = null;
         hideEndgameToggleButton();
     }
 
+    // Web lock: zakázat Nová hra a Nápověda při zamčení
+    var locked = !!(status.web_locked);
+    var newGameBtn = document.getElementById('new-game-btn');
+    var hintBtn = document.getElementById('hint-btn');
+    if (newGameBtn) newGameBtn.disabled = locked;
+    if (hintBtn) {
+        if (locked) {
+            hintBtn.disabled = true;
+            hintBtn.title = 'Rozhraní je zamčeno';
+        } else {
+            if (typeof updateHintButtonLabel === 'function') updateHintButtonLabel();
+        }
+    }
 }
 
-function updateHistory(history) {
-    historyData = history.moves || [];
+function getGradeLabel(grade) {
+    switch (grade) {
+        case 'best': return 'Výborný';
+        case 'good': return 'Dobrý';
+        case 'inaccuracy': return 'Slabší';
+        case 'mistake': return 'Chyba';
+        case 'blunder': return 'Vážná chyba';
+        case 'unknown': return '—';
+        case 'error': return 'Chyba';
+        default: return '—';
+    }
+}
+
+function renderHistoryList() {
     const historyBox = document.getElementById('history');
+    if (!historyBox) return;
     historyBox.innerHTML = '';
+    const showEval = getEvaluateMoveEnabled();
     historyData.slice().reverse().forEach((move, index) => {
         const item = document.createElement('div');
         item.className = 'history-item';
@@ -760,9 +1702,23 @@ function updateHistory(history) {
         const isWhite = actualIndex % 2 === 0;
         const prefix = isWhite ? moveNum + '. ' : '';
         item.textContent = prefix + move.from + ' → ' + move.to;
+        if (showEval && moveEvaluations[actualIndex]) {
+            const ev = moveEvaluations[actualIndex];
+            const badge = document.createElement('span');
+            badge.className = 'move-eval-badge move-eval-badge--' + (ev.grade || 'good');
+            badge.title = ev.msg || getGradeLabel(ev.grade);
+            badge.textContent = getGradeLabel(ev.grade);
+            item.appendChild(document.createTextNode(' '));
+            item.appendChild(badge);
+        }
         item.onclick = () => enterReviewMode(actualIndex);
         historyBox.appendChild(item);
     });
+}
+
+function updateHistory(history) {
+    historyData = history.moves || [];
+    renderHistoryList();
 }
 
 function updateCaptured(captured) {
@@ -802,49 +1758,68 @@ async function fetchData() {
         updateStatus(status);
         updateHistory(history);
         updateCaptured(captured);
+
+        var newHistoryLength = (history.moves && history.moves.length) ? history.moves.length : 0;
+        var currentFen = boardAndStatusToFen(boardData, status, history);
+
+        if (newHistoryLength === 0) {
+            lastFen = null;
+            lastHistoryLength = 0;
+            moveEvaluations = {};
+            lastCapturedCount = (capturedData.white_captured || []).length + (capturedData.black_captured || []).length;
+            hideMoveEvaluation();
+        } else {
+            if (!getEvaluateMoveEnabled()) {
+                hideMoveEvaluation();
+            }
+            var castlingInProgress = status.castling_in_progress === true;
+            if (getEvaluateMoveEnabled() && !castlingInProgress && lastHistoryLength >= 0 && newHistoryLength === lastHistoryLength + 1 && lastFen) {
+                var lastMove = historyData[newHistoryLength - 1];
+                var lastMoveByWhite = (newHistoryLength - 1) % 2 === 0;
+                var lastMoveByBot = gameMode === 'bot' && ((botSettings.side === 'white' && lastMoveByWhite) || (botSettings.side === 'black' && !lastMoveByWhite));
+                if (lastMove && lastMove.from && lastMove.to && !lastMoveByBot) {
+                    evaluateMoveAsync(lastFen, currentFen, lastMove, newHistoryLength);
+                }
+            }
+            var totalCaptured = (capturedData.white_captured || []).length + (capturedData.black_captured || []).length;
+            if (newHistoryLength === lastHistoryLength + 1 && totalCaptured > lastCapturedCount && getHintAwardCapture()) {
+                var sideCapture = status.current_player === 'White' ? 'black' : 'white';
+                addHintReward('capture', sideCapture);
+            }
+            lastCapturedCount = totalCaptured;
+            if (!castlingInProgress) {
+                lastFen = currentFen;
+                lastHistoryLength = newHistoryLength;
+            }
+        }
+        checkBotTurn(status, currentFen);
     } catch (error) {
         console.error('Fetch error:', error);
     }
 }
 
 function initializeApp() {
-    console.log('🎮 Initializing Chess App...');
+    console.log('Initializing Chess App...');
     createBoard();
 
-    // Inject Demo Mode section at bottom
-    injectDemoModeSection();
+    var depthEl = document.getElementById('hint-depth');
+    if (depthEl) {
+        var d = getHintDepth();
+        depthEl.value = d;
+    }
+    var evaluateMoveEl = document.getElementById('evaluate-move-enabled');
+    if (evaluateMoveEl) evaluateMoveEl.checked = getEvaluateMoveEnabled();
+
+    var limit = getHintLimit();
+    var n = limit > 0 ? limit : 999;
+    hintsRemainingWhite = n;
+    hintsRemainingBlack = n;
+    lastCapturedCount = 0;
+    updateHintButtonLabel();
 
     fetchData();
     setInterval(fetchData, 2000); // Reduced from 500ms to 2s (4× fewer requests)
     console.log('✅ Chess App initialized');
-}
-
-/**
- * Inject Demo Mode control section into DOM
- * Placed at bottom, below all main content
- */
-function injectDemoModeSection() {
-    const container = document.querySelector('.container') || document.body;
-
-    const demoSection = document.createElement('div');
-    demoSection.style.cssText = 'margin-top:30px; padding:20px; background:#2a2a2a; border-radius:8px; border-left:4px solid #666;';
-    demoSection.innerHTML = `
-        <h3 style="color:#999;font-size:0.9em;margin-bottom:15px;text-transform:uppercase;letter-spacing:1px;">🤖 Demo Mode</h3>
-        <div style="display:flex;align-items:center;gap:15px;margin-bottom:10px;">
-            <button id="btnDemoMode" onclick="toggleDemoMode()" 
-                    style="padding:10px 20px;background:#008CBA;color:white;border:2px solid #007396;
-                           border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s;">
-                Toggle Demo Mode
-            </button>
-            <span id="demoStatus" style="font-size:14px;color:#999;">⚫ Off</span>
-        </div>
-        <p style="font-size:12px;color:#666;margin:0;font-style:italic;">
-            Automatic chess game playback. Touch board to interrupt.
-        </p>
-    `;
-
-    container.appendChild(demoSection);
-    console.log('✅ Demo Mode section injected');
 }
 
 console.log('🚀 Creating chess board...');
@@ -970,11 +1945,11 @@ function checkTimeWarnings(timerInfo) {
 
     const currentPlayerTime = timerInfo.is_white_turn ? timerInfo.white_time_ms : timerInfo.black_time_ms;
     if (currentPlayerTime < 5000 && !timerInfo.warning_5s_shown) {
-        showTimeWarning('Critical! Less than 5 seconds!', 'critical');
+        showTimeWarning('Kritické! Méně než 5 sekund!', 'critical');
     } else if (currentPlayerTime < 10000 && !timerInfo.warning_10s_shown) {
-        showTimeWarning('Warning! Less than 10 seconds!', 'warning');
+        showTimeWarning('Varování! Méně než 10 sekund!', 'warning');
     } else if (currentPlayerTime < 30000 && !timerInfo.warning_30s_shown) {
-        showTimeWarning('Low time! Less than 30 seconds!', 'info');
+        showTimeWarning('Málo času! Méně než 30 sekund!', 'info');
     }
 }
 
@@ -1003,8 +1978,8 @@ function handleTimeExpiration(timerInfo) {
         return;
     }
 
-    const expiredPlayer = timerInfo.is_white_turn ? 'White' : 'Black';
-    showTimeWarning('Time expired! ' + expiredPlayer + ' lost on time.', 'critical');
+    const expiredPlayer = timerInfo.is_white_turn ? 'Bílý' : 'Černý';
+    showTimeWarning('Čas vypršel! ' + expiredPlayer + ' prohrál na čas.', 'critical');
     const pauseBtn = document.getElementById('pause-timer');
     const resumeBtn = document.getElementById('resume-timer');
     if (pauseBtn) pauseBtn.disabled = true;
@@ -1126,8 +2101,8 @@ async function applyTimeControl() {
     if (timeControlType === 14) {
         const minutes = parseInt(document.getElementById('custom-minutes').value);
         const increment = parseInt(document.getElementById('custom-increment').value);
-        if (minutes < 1 || minutes > 180) { alert('Minutes must be between 1 and 180'); return; }
-        if (increment < 0 || increment > 60) { alert('Increment must be between 0 and 60 seconds'); return; }
+        if (minutes < 1 || minutes > 180) { alert('Minuty musí být 1–180'); return; }
+        if (increment < 0 || increment > 60) { alert('Increment musí být 0–60 sekund'); return; }
         config.custom_minutes = minutes;
         config.custom_increment = increment;
     }
@@ -1148,7 +2123,7 @@ async function applyTimeControl() {
                 await updateTimerDisplay();
                 await new Promise(resolve => setTimeout(resolve, 300));
             }
-            showTimeWarning('Time control applied!', 'info');
+            showTimeWarning('Časová kontrola nastavena.', 'info');
             const applyBtn = document.getElementById('apply-time-control');
             if (applyBtn) applyBtn.disabled = true;
         } else {
@@ -1158,7 +2133,7 @@ async function applyTimeControl() {
         }
     } catch (error) {
         console.error('Error applying time control:', error);
-        showTimeWarning('Error setting time control: ' + error.message, 'critical');
+        showTimeWarning('Chyba nastavení časové kontroly: ' + error.message, 'critical');
     }
 }
 
@@ -1170,7 +2145,7 @@ async function pauseTimer() {
             const resumeBtn = document.getElementById('resume-timer');
             if (pauseBtn) pauseBtn.style.display = 'none';
             if (resumeBtn) resumeBtn.style.display = 'inline-block';
-            showTimeWarning('Timer paused', 'info');
+            showTimeWarning('Časomíra pozastavena', 'info');
         }
     } catch (error) {
         console.error('❌ Error pausing timer:', error);
@@ -1185,7 +2160,7 @@ async function resumeTimer() {
             const resumeBtn = document.getElementById('resume-timer');
             if (pauseBtn) pauseBtn.style.display = 'inline-block';
             if (resumeBtn) resumeBtn.style.display = 'none';
-            showTimeWarning('Timer resumed', 'info');
+            showTimeWarning('Časomíra pokračuje', 'info');
         }
     } catch (error) {
         console.error('❌ Error resuming timer:', error);
@@ -1197,7 +2172,7 @@ async function resetTimer() {
         try {
             const response = await fetch('/api/timer/reset', { method: 'POST' });
             if (response.ok) {
-                showTimeWarning('Timer reset', 'info');
+                showTimeWarning('Časomíra resetována', 'info');
                 console.log('✅ Timer reset successfully');
                 await updateTimerDisplay();
             }
@@ -1206,6 +2181,179 @@ async function resetTimer() {
         }
     }
 }
+
+// ============================================================================
+// BRIGHTNESS (Nastavení → Zařízení) – for inline onchange on brightness-slider
+// ============================================================================
+
+async function setBrightness(value) {
+    const num = Math.min(100, Math.max(0, parseInt(value, 10)));
+    if (Number.isNaN(num)) return;
+    try {
+        const response = await fetch('/api/settings/brightness', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ brightness: num })
+        });
+        const data = response.ok ? await response.json().catch(() => ({})) : {};
+        if (data.success !== false) {
+            if (typeof console !== 'undefined' && console.log) console.log('Jas nastaven na', num + '%');
+        } else {
+            console.warn('Nastavení jasu selhalo:', data.message || response.status);
+        }
+    } catch (err) {
+        console.error('Chyba nastavení jasu:', err.message);
+    }
+}
+window.setBrightness = setBrightness;
+
+// ============================================================================
+// NEW GAME (Nastavení → action bar „Nová hra“) – for inline onclick
+// ============================================================================
+
+function getConfirmNewGameEnabled() {
+    const cb = document.getElementById('confirm-new-game');
+    if (cb) return cb.checked;
+    try {
+        return localStorage.getItem('chess_confirm_new_game') === 'true';
+    } catch (e) {
+        return false;
+    }
+}
+
+async function startNewGame() {
+    if (isWebLocked()) {
+        alert('Rozhraní je zamčeno. Odemkněte přes UART.');
+        return;
+    }
+    if (getConfirmNewGameEnabled()) {
+        if (!confirm('Opravdu chcete začít novou hru? Aktuální partie bude ukončena.')) {
+            return;
+        }
+    }
+
+    // UPDATE BOT SETTINGS FROM UI
+    const modeEl = document.getElementById('game-mode');
+    const strengthEl = document.getElementById('bot-strength');
+    const sideEl = document.getElementById('player-side');
+
+    if (modeEl) gameMode = modeEl.value;
+
+    botSettings.strength = (strengthEl) ? strengthEl.value : 10;
+    let sidePref = (sideEl) ? sideEl.value : 'white';
+
+    if (sidePref === 'random') {
+        sidePref = (Math.random() < 0.5) ? 'white' : 'black';
+        console.log('Random side (fallback):', sidePref);
+    }
+    botSettings.side = sidePref;
+
+    botThinking = false; // Reset bot state
+    lastSuggestedFen = null;
+    lastSuggestedMove = null;
+    stopBotHintRefresh();
+    var limit = getHintLimit();
+    var n = limit > 0 ? limit : 999;
+    hintsRemainingWhite = n;
+    hintsRemainingBlack = n;
+    lastCapturedCount = 0;
+    lastHintedMove = null;
+    updateHintButtonLabel();
+    gameGeneration++; // INVALIDATE OLD BOT REQUESTS
+    console.log('Starting New Game. Generation:', gameGeneration);
+
+    try {
+        const response = await fetch('/api/game/new', { method: 'POST' });
+        if (response.ok) {
+            if (typeof console !== 'undefined' && console.log) console.log('Nová hra spuštěna. Mode:', gameMode, 'Player Side:', botSettings.side);
+
+            await fetchData();
+
+            if (gameMode === 'bot' && botSettings.side === 'black') {
+                // Player is Black -> Bot is White -> Bot moves immediately
+                // We pass initial FEN (start pos)
+                const startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+                setTimeout(() => checkBotTurn({ current_player: 'White', game_state: 'active' }, startFen), 500);
+            }
+        } else {
+            console.warn('Nová hra selhala:', response.status);
+        }
+    } catch (err) {
+        console.error('Chyba startNewGame:', err.message);
+    }
+}
+window.startNewGame = startNewGame;
+
+function handleRandomDraw() {
+    var sideEl = document.getElementById('player-side');
+    var msgEl = document.getElementById('random-draw-result');
+    if (!sideEl) return;
+    if (sideEl.value !== 'random') {
+        if (msgEl) {
+            msgEl.style.display = 'none';
+            msgEl.textContent = '';
+        }
+        return;
+    }
+    var drawn = Math.random() < 0.5 ? 'white' : 'black';
+    sideEl.value = drawn;
+    if (msgEl) {
+        msgEl.textContent = drawn === 'white' ? 'Losování: Hrajete za bílého.' : 'Losování: Hrajete za černého.';
+        msgEl.style.display = 'block';
+    }
+    if (typeof saveBotSettings === 'function') saveBotSettings();
+}
+window.handleRandomDraw = handleRandomDraw;
+
+(function initConfirmNewGamePref() {
+    function apply() {
+        var cb = document.getElementById('confirm-new-game');
+        if (!cb) return;
+        try {
+            var saved = localStorage.getItem('chess_confirm_new_game');
+            cb.checked = saved === 'true';
+        } catch (e) { }
+        cb.addEventListener('change', function () {
+            try {
+                localStorage.setItem('chess_confirm_new_game', cb.checked);
+            } catch (e) { }
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', apply);
+    } else {
+        apply();
+    }
+})();
+
+// ============================================================================
+// PROMOTION MODAL (Q/R/B/N a Zrušit) – for inline onclick
+// ============================================================================
+
+async function selectPromotion(choice) {
+    const modal = document.getElementById('promotion-modal');
+    if (modal) modal.style.display = 'none';
+    try {
+        const body = JSON.stringify({ action: 'promote', choice: String(choice).toUpperCase().slice(0, 1) });
+        const response = await fetch('/api/game/virtual_action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: body
+        });
+        if (response.ok) await fetchData();
+    } catch (err) {
+        console.error('Chyba selectPromotion:', err.message);
+    }
+}
+
+function cancelPromotion() {
+    const modal = document.getElementById('promotion-modal');
+    if (modal) modal.style.display = 'none';
+    // Odblokovat hru výchozí volbou (Dáma)
+    selectPromotion('Q');
+}
+window.selectPromotion = selectPromotion;
+window.cancelPromotion = cancelPromotion;
 
 // Expose timer functions globally for inline onclick handlers
 window.changeTimeControl = changeTimeControl;
@@ -1277,7 +2425,7 @@ async function saveWiFiConfig() {
     const ssid = document.getElementById('wifi-ssid').value;
     const password = document.getElementById('wifi-password').value;
     if (!ssid || !password) {
-        alert('SSID and password are required');
+        alert('SSID a heslo jsou povinné');
         return;
     }
     try {
@@ -1288,12 +2436,12 @@ async function saveWiFiConfig() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('WiFi config saved. Now press "Connect STA".');
+            alert('WiFi uloženo. Stiskněte „Připojit STA“.');
         } else {
-            alert('Failed to save WiFi config: ' + data.message);
+            alert('Uložení WiFi selhalo: ' + data.message);
         }
     } catch (error) {
-        alert('Error: ' + error.message);
+        alert('Chyba: ' + error.message);
     }
 }
 
@@ -1302,13 +2450,13 @@ async function connectSTA() {
         const response = await fetch('/api/wifi/connect', { method: 'POST' });
         const data = await response.json();
         if (data.success) {
-            alert('Connecting to WiFi...');
+            alert('Připojování k WiFi...');
             setTimeout(updateWiFiStatus, 1500);
         } else {
-            alert('Failed to connect: ' + data.message);
+            alert('Připojení selhalo: ' + data.message);
         }
     } catch (error) {
-        alert('Error: ' + error.message);
+        alert('Chyba: ' + error.message);
     }
 }
 
@@ -1317,13 +2465,31 @@ async function disconnectSTA() {
         const response = await fetch('/api/wifi/disconnect', { method: 'POST' });
         const data = await response.json();
         if (data.success) {
-            alert('Disconnected from WiFi');
+            alert('Odpojeno od WiFi');
             setTimeout(updateWiFiStatus, 1000);
         } else {
-            alert('Failed to disconnect: ' + data.message);
+            alert('Odpojení selhalo: ' + data.message);
         }
     } catch (error) {
-        alert('Error: ' + error.message);
+        alert('Chyba: ' + error.message);
+    }
+}
+
+async function clearWiFiConfig() {
+    if (!confirm('Opravdu smazat uloženou WiFi konfiguraci? ESP se odpojí od sítě.')) {
+        return;
+    }
+    try {
+        const response = await fetch('/api/wifi/clear', { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            alert('WiFi konfigurace smazána.');
+            setTimeout(updateWiFiStatus, 500);
+        } else {
+            alert('Smazání selhalo: ' + (data.message || 'neznámá chyba'));
+        }
+    } catch (error) {
+        alert('Chyba: ' + error.message);
     }
 }
 
@@ -1334,11 +2500,22 @@ async function updateWiFiStatus() {
         document.getElementById('ap-ssid').textContent = data.ap_ssid || 'ESP32-CzechMate';
         document.getElementById('ap-ip').textContent = data.ap_ip || '192.168.4.1';
         document.getElementById('ap-clients').textContent = data.ap_clients || 0;
-        document.getElementById('sta-ssid').textContent = data.sta_ssid || 'Not configured';
-        document.getElementById('sta-ip').textContent = data.sta_ip || 'Not connected';
-        document.getElementById('sta-connected').textContent = data.sta_connected ? 'true' : 'false';
-        if (data.sta_ssid && data.sta_ssid !== 'Not configured') {
+        document.getElementById('sta-ssid').textContent = data.sta_ssid || 'Nenastaveno';
+        document.getElementById('sta-ip').textContent = data.sta_ip || 'Nepřipojeno';
+        document.getElementById('sta-connected').textContent = data.sta_connected ? 'ano' : 'ne';
+        if (data.sta_ssid && data.sta_ssid !== 'Nenastaveno') {
             document.getElementById('wifi-ssid').value = data.sta_ssid;
+        }
+        // Zařízení: Zámek a Online (data z téhož API)
+        const lockEl = document.getElementById('web-lock-status');
+        if (lockEl) {
+            lockEl.textContent = data.locked ? 'Zamčeno' : 'Odemčeno';
+            lockEl.style.color = data.locked ? '#e53935' : '#43a047';
+        }
+        const onlineEl = document.getElementById('web-online-status');
+        if (onlineEl) {
+            onlineEl.textContent = data.online ? 'Online' : 'Offline';
+            onlineEl.style.color = data.online ? '#43a047' : '#e53935';
         }
     } catch (error) {
         console.error('Failed to update WiFi status:', error);
@@ -1349,6 +2526,7 @@ async function updateWiFiStatus() {
 window.saveWiFiConfig = saveWiFiConfig;
 window.connectSTA = connectSTA;
 window.disconnectSTA = disconnectSTA;
+window.clearWiFiConfig = clearWiFiConfig;
 
 // Start WiFi status update loop (every 5 seconds)
 let wifiStatusInterval = null;
@@ -1397,11 +2575,11 @@ async function toggleDemoMode() {
             await updateDemoModeStatus();
         } else {
             console.error('❌ Failed to toggle demo mode');
-            alert('Failed to toggle demo mode: ' + (data.message || 'Unknown error'));
+            alert('Přepnutí demo režimu selhalo: ' + (data.message || 'Neznámá chyba'));
         }
     } catch (error) {
         console.error('Error toggling demo mode:', error);
-        alert('Error toggling demo mode');
+        alert('Chyba při přepnutí demo režimu');
     }
 }
 
@@ -1421,21 +2599,23 @@ async function isDemoModeEnabled() {
 }
 
 /**
- * Update demo mode status indicator in UI
+ * Update demo mode status indicator in UI.
+ * Syncs checkbox in Settings tab (demo-enabled) when the removed demoStatus/btnDemoMode are not present.
  */
 async function updateDemoModeStatus() {
     try {
         const enabled = await isDemoModeEnabled();
         const statusEl = document.getElementById('demoStatus');
         const btnEl = document.getElementById('btnDemoMode');
+        const demoCheckbox = document.getElementById('demo-enabled');
 
         if (statusEl) {
             if (enabled) {
-                statusEl.textContent = '🟢 Active';
+                statusEl.textContent = 'Zapnuto';
                 statusEl.style.color = '#4CAF50';
                 statusEl.style.fontWeight = 'bold';
             } else {
-                statusEl.textContent = '⚫ Off';
+                statusEl.textContent = 'Vypnuto';
                 statusEl.style.color = '#999';
                 statusEl.style.fontWeight = 'normal';
             }
@@ -1452,8 +2632,12 @@ async function updateDemoModeStatus() {
                 btnEl.style.borderColor = '#007396';
             }
         }
+
+        if (demoCheckbox && demoCheckbox.checked !== enabled) {
+            demoCheckbox.checked = enabled;
+        }
     } catch (error) {
-        console.error('Failed to update demo mode status:', error);
+        console.error('Chyba aktualizace stavu demo režimu:', error);
     }
 }
 

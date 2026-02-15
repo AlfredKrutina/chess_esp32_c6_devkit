@@ -302,6 +302,9 @@ static void ha_light_switch_to_game_mode(void) {
   // Restore game LED state (refresh based on current game status)
   game_refresh_leds();
 
+  // Obnovit tlačítka (zelená/modrá/červená podle dostupnosti a stisku)
+  led_refresh_all_button_leds();
+
   // Publish state update
   ha_light_publish_state();
 }
