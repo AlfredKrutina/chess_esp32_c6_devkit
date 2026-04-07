@@ -1,0 +1,817 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BB2057332F838A6200CAFA19 /* CZECHMATEWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BB2057322F838A6200CAFA19 /* CZECHMATEWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BB2057FD2F83B04900CAFA19 /* CZECHMATEShared in Frameworks */ = {isa = PBXBuildFile; productRef = BB2056612F838A6200CAFA19 /* CZECHMATEShared */; };
+		BB2057FF2F83B04900CAFA19 /* CZECHMATEShared in Frameworks */ = {isa = PBXBuildFile; productRef = BB2056612F838A6200CAFA19 /* CZECHMATEShared */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BB20562D2F838A6200CAFA19 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BB2056172F838A5E00CAFA19 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB20561E2F838A5E00CAFA19;
+			remoteInfo = CZECHMATE;
+		};
+		BB2056372F838A6200CAFA19 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BB2056172F838A5E00CAFA19 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB20561E2F838A5E00CAFA19;
+			remoteInfo = CZECHMATE;
+		};
+		BB2057372F838A6200CAFA19 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BB2056172F838A5E00CAFA19 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB2057302F838A6200CAFA19;
+			remoteInfo = CZECHMATEWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BB2057202F838A6200CAFA19 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB2057342F838A6200CAFA19 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BB2057332F838A6200CAFA19 /* CZECHMATEWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		BB20561F2F838A5E00CAFA19 /* CZECHMATE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CZECHMATE.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB20562C2F838A6200CAFA19 /* CZECHMATETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CZECHMATETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB2056362F838A6200CAFA19 /* CZECHMATEUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CZECHMATEUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB2057322F838A6200CAFA19 /* CZECHMATEWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CZECHMATEWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		BB2056212F838A5E00CAFA19 /* CZECHMATE */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CZECHMATE;
+			sourceTree = "<group>";
+		};
+		BB20562F2F838A6200CAFA19 /* CZECHMATETests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CZECHMATETests;
+			sourceTree = "<group>";
+		};
+		BB2056392F838A6200CAFA19 /* CZECHMATEUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CZECHMATEUITests;
+			sourceTree = "<group>";
+		};
+		BB2057262F838A6200CAFA19 /* CZECHMATEWatchApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CZECHMATEWatchApp;
+			sourceTree = "<group>";
+		};
+		BB2057312F838A6200CAFA19 /* CZECHMATEWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CZECHMATEWidgets;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BB20561C2F838A5E00CAFA19 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB2057FD2F83B04900CAFA19 /* CZECHMATEShared in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB2056292F838A6200CAFA19 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB2056332F838A6200CAFA19 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB20573B2F838A6200CAFA19 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB2057FF2F83B04900CAFA19 /* CZECHMATEShared in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BB2056162F838A5E00CAFA19 = {
+			isa = PBXGroup;
+			children = (
+				BB2056212F838A5E00CAFA19 /* CZECHMATE */,
+				BB2057262F838A6200CAFA19 /* CZECHMATEWatchApp */,
+				BB2057312F838A6200CAFA19 /* CZECHMATEWidgets */,
+				BB20562F2F838A6200CAFA19 /* CZECHMATETests */,
+				BB2056392F838A6200CAFA19 /* CZECHMATEUITests */,
+				BB2056202F838A6200CAFA19 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BB2056202F838A6200CAFA19 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BB20561F2F838A5E00CAFA19 /* CZECHMATE.app */,
+				BB2057322F838A6200CAFA19 /* CZECHMATEWidgets.appex */,
+				BB20562C2F838A6200CAFA19 /* CZECHMATETests.xctest */,
+				BB2056362F838A6200CAFA19 /* CZECHMATEUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BB20561E2F838A5E00CAFA19 /* CZECHMATE */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB2056402F838A6200CAFA19 /* Build configuration list for PBXNativeTarget "CZECHMATE" */;
+			buildPhases = (
+				BB20561B2F838A5E00CAFA19 /* Sources */,
+				BB20561C2F838A5E00CAFA19 /* Frameworks */,
+				BB20561D2F838A5E00CAFA19 /* Resources */,
+				BB2057342F838A6200CAFA19 /* Embed Foundation Extensions */,
+				BB2057202F838A6200CAFA19 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BB2057362F838A6200CAFA19 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BB2056212F838A5E00CAFA19 /* CZECHMATE */,
+			);
+			name = CZECHMATE;
+			packageProductDependencies = (
+				BB2056612F838A6200CAFA19 /* CZECHMATEShared */,
+			);
+			productName = CZECHMATE;
+			productReference = BB20561F2F838A5E00CAFA19 /* CZECHMATE.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BB20562B2F838A6200CAFA19 /* CZECHMATETests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB2056432F838A6200CAFA19 /* Build configuration list for PBXNativeTarget "CZECHMATETests" */;
+			buildPhases = (
+				BB2056282F838A6200CAFA19 /* Sources */,
+				BB2056292F838A6200CAFA19 /* Frameworks */,
+				BB20562A2F838A6200CAFA19 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BB20562E2F838A6200CAFA19 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BB20562F2F838A6200CAFA19 /* CZECHMATETests */,
+			);
+			name = CZECHMATETests;
+			packageProductDependencies = (
+			);
+			productName = CZECHMATETests;
+			productReference = BB20562C2F838A6200CAFA19 /* CZECHMATETests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BB2056352F838A6200CAFA19 /* CZECHMATEUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB2056462F838A6200CAFA19 /* Build configuration list for PBXNativeTarget "CZECHMATEUITests" */;
+			buildPhases = (
+				BB2056322F838A6200CAFA19 /* Sources */,
+				BB2056332F838A6200CAFA19 /* Frameworks */,
+				BB2056342F838A6200CAFA19 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BB2056382F838A6200CAFA19 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BB2056392F838A6200CAFA19 /* CZECHMATEUITests */,
+			);
+			name = CZECHMATEUITests;
+			packageProductDependencies = (
+			);
+			productName = CZECHMATEUITests;
+			productReference = BB2056362F838A6200CAFA19 /* CZECHMATEUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		BB2057302F838A6200CAFA19 /* CZECHMATEWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB2057352F838A6200CAFA19 /* Build configuration list for PBXNativeTarget "CZECHMATEWidgets" */;
+			buildPhases = (
+				BB20573D2F838A6200CAFA19 /* Sources */,
+				BB20573B2F838A6200CAFA19 /* Frameworks */,
+				BB20573F2F838A6200CAFA19 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BB2057312F838A6200CAFA19 /* CZECHMATEWidgets */,
+			);
+			name = CZECHMATEWidgets;
+			packageProductDependencies = (
+				BB2056612F838A6200CAFA19 /* CZECHMATEShared */,
+			);
+			productName = CZECHMATEWidgets;
+			productReference = BB2057322F838A6200CAFA19 /* CZECHMATEWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BB2056172F838A5E00CAFA19 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					BB20561E2F838A5E00CAFA19 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					BB20562B2F838A6200CAFA19 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = BB20561E2F838A5E00CAFA19;
+					};
+					BB2056352F838A6200CAFA19 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = BB20561E2F838A5E00CAFA19;
+					};
+					BB2057302F838A6200CAFA19 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+				};
+			};
+			buildConfigurationList = BB20561A2F838A5E00CAFA19 /* Build configuration list for PBXProject "CZECHMATE" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BB2056162F838A5E00CAFA19;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				BB2056602F838A6200CAFA19 /* XCLocalSwiftPackageReference "CZECHMATEShared" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = BB2056202F838A6200CAFA19 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BB20561E2F838A5E00CAFA19 /* CZECHMATE */,
+				BB2057302F838A6200CAFA19 /* CZECHMATEWidgets */,
+				BB20562B2F838A6200CAFA19 /* CZECHMATETests */,
+				BB2056352F838A6200CAFA19 /* CZECHMATEUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BB20561D2F838A5E00CAFA19 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB20562A2F838A6200CAFA19 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB2056342F838A6200CAFA19 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB20573F2F838A6200CAFA19 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BB20561B2F838A5E00CAFA19 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB2056282F838A6200CAFA19 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB2056322F838A6200CAFA19 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB20573D2F838A6200CAFA19 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BB20562E2F838A6200CAFA19 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB20561E2F838A5E00CAFA19 /* CZECHMATE */;
+			targetProxy = BB20562D2F838A6200CAFA19 /* PBXContainerItemProxy */;
+		};
+		BB2056382F838A6200CAFA19 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB20561E2F838A5E00CAFA19 /* CZECHMATE */;
+			targetProxy = BB2056372F838A6200CAFA19 /* PBXContainerItemProxy */;
+		};
+		BB2057362F838A6200CAFA19 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB2057302F838A6200CAFA19 /* CZECHMATEWidgets */;
+			targetProxy = BB2057372F838A6200CAFA19 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		BB20563E2F838A6200CAFA19 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 7GZUCQLRN9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BB20563F2F838A6200CAFA19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 7GZUCQLRN9;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		BB2056412F838A6200CAFA19 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7GZUCQLRN9;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Supporting/Info.plist;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "alfred-krutina.CZECHMATE";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Debug;
+		};
+		BB2056422F838A6200CAFA19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7GZUCQLRN9;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Supporting/Info.plist;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "alfred-krutina.CZECHMATE";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Release;
+		};
+		BB2056442F838A6200CAFA19 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7GZUCQLRN9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "alfred-krutina.CZECHMATETests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CZECHMATE.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CZECHMATE";
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Debug;
+		};
+		BB2056452F838A6200CAFA19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7GZUCQLRN9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "alfred-krutina.CZECHMATETests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CZECHMATE.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CZECHMATE";
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Release;
+		};
+		BB2056472F838A6200CAFA19 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7GZUCQLRN9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "alfred-krutina.CZECHMATEUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = CZECHMATE;
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Debug;
+		};
+		BB2056482F838A6200CAFA19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7GZUCQLRN9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "alfred-krutina.CZECHMATEUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = CZECHMATE;
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Release;
+		};
+		BB2057382F838A6200CAFA19 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7GZUCQLRN9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "WidgetExtension-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "CZECHMATE Live";
+				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "alfred-krutina.CZECHMATE.CZECHMATEWidgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BB2057392F838A6200CAFA19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7GZUCQLRN9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "WidgetExtension-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "CZECHMATE Live";
+				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "alfred-krutina.CZECHMATE.CZECHMATEWidgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BB20561A2F838A5E00CAFA19 /* Build configuration list for PBXProject "CZECHMATE" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB20563E2F838A6200CAFA19 /* Debug */,
+				BB20563F2F838A6200CAFA19 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB2056402F838A6200CAFA19 /* Build configuration list for PBXNativeTarget "CZECHMATE" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB2056412F838A6200CAFA19 /* Debug */,
+				BB2056422F838A6200CAFA19 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB2056432F838A6200CAFA19 /* Build configuration list for PBXNativeTarget "CZECHMATETests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB2056442F838A6200CAFA19 /* Debug */,
+				BB2056452F838A6200CAFA19 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB2056462F838A6200CAFA19 /* Build configuration list for PBXNativeTarget "CZECHMATEUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB2056472F838A6200CAFA19 /* Debug */,
+				BB2056482F838A6200CAFA19 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB2057352F838A6200CAFA19 /* Build configuration list for PBXNativeTarget "CZECHMATEWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB2057382F838A6200CAFA19 /* Debug */,
+				BB2057392F838A6200CAFA19 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		BB2056602F838A6200CAFA19 /* XCLocalSwiftPackageReference "CZECHMATEShared" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = CZECHMATEShared;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BB2056612F838A6200CAFA19 /* CZECHMATEShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BB2056602F838A6200CAFA19 /* XCLocalSwiftPackageReference "CZECHMATEShared" */;
+			productName = CZECHMATEShared;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = BB2056172F838A5E00CAFA19 /* Project object */;
+}

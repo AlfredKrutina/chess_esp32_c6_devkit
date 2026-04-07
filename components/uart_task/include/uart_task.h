@@ -32,6 +32,7 @@
 #include "freertos/queue.h"
 #include "esp_err.h"
 #include "chess_types.h"
+#include "uart_queue_message.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,29 +62,8 @@ typedef enum {
 typedef command_result_t (*command_handler_t)(const char* args);
 
 // ============================================================================
-// TYPY UART ZPRAV
+// TYPY UART ZPRAV (uart_message_t v uart_queue_message.h)
 // ============================================================================
-
-/**
- * @brief Typy UART zprav
- */
-typedef enum {
-    UART_MSG_NORMAL = 0,   ///< Normalni zprava
-    UART_MSG_ERROR = 1,    ///< Chybova zprava (cervena)
-    UART_MSG_WARNING = 2,  ///< Varovani (zluta)
-    UART_MSG_SUCCESS = 3,  ///< Uspech (zelena)
-    UART_MSG_INFO = 4,     ///< Informace (modra)
-    UART_MSG_DEBUG = 5     ///< Debug zprava (seda)
-} uart_msg_type_t;
-
-/**
- * @brief Struktura UART zpravy
- */
-typedef struct {
-    uart_msg_type_t type;  ///< Typ zpravy
-    bool add_newline;      ///< Pridat konec radku?
-    char message[256];     ///< Text zpravy
-} uart_message_t;
 
 /**
  * @brief Struktura UART prikazu

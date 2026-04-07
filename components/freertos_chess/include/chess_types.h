@@ -227,7 +227,7 @@ typedef struct {
  * Pouziva se pro ovladani hry, debug, testovani a spravu systemu.
  */
 typedef enum {
-  GAME_CMD_NEW_GAME = 0,        ///< Nova hra (inicializace sachovnice)
+  GAME_CMD_NEW_GAME = 0,        ///< Nova hra; reset desky a NVS klicu (viz main initialize_chess_game)
   GAME_CMD_RESET_GAME = 1,      ///< Reset hry (vrati se na zacatek)
   GAME_CMD_MAKE_MOVE = 2,       ///< Proved tah (move e2e4)
   GAME_CMD_UNDO_MOVE = 3,       ///< Vrat zpet posledni tah (undo)
@@ -287,7 +287,12 @@ typedef enum {
   GAME_CMD_RESUME_TIMER = 41,     ///< Obnov timer
   GAME_CMD_RESET_TIMER = 42,      ///< Resetuj timer
   GAME_CMD_GET_TIMER_STATE = 43,  ///< Ziskej stav timeru
-  GAME_CMD_TIMER_TIMEOUT = 44     ///< Vyprseni casoveho limitu
+  GAME_CMD_TIMER_TIMEOUT = 44,    ///< Vyprseni casoveho limitu
+  GAME_CMD_MATRIX_GUARD = 45,     ///< Guard rezim pro multi-lift anomalii
+  GAME_CMD_BOARD_SETUP_TUTORIAL =
+      46, ///< Web tutoriál rozestavení; promotion_choice: 0=start,1=cancel,2=finish
+  GAME_CMD_PUZZLE =
+      47 ///< Web puzzle: 0=cancel,1..5=start,101..105=prepare id 1..5
 } game_command_type_t;
 
 /**
@@ -319,6 +324,13 @@ typedef struct {
     struct {
       bool is_white_turn; ///< Je na tahu bily? (pro timer operace)
     } timer_state;        ///< Stav timeru
+    struct {
+      uint32_t lifted_mask_low;  ///< Bity 0-31 pro zvednuta pole
+      uint32_t lifted_mask_high; ///< Bity 32-63 pro zvednuta pole
+      uint32_t dropped_mask_low; ///< Bity 0-31 pro polozena pole
+      uint32_t dropped_mask_high; ///< Bity 32-63 pro polozena pole
+      uint8_t action;            ///< 1=enter/update, 0=clear
+    } matrix_guard;              ///< Data pro matrix guard rezim
   } timer_data;           ///< Union pro timer data
   bool is_demo_mode;      ///< Flag pro demo mode (skip resignation timer)
 } chess_move_command_t;
@@ -637,6 +649,9 @@ bool game_simulate_move_check(chess_move_extended_t *move, player_t player);
 typedef struct {
   bool verbose_mode; ///< Podrobny logovaci rezim (detailni vypisy)
   bool quiet_mode;   ///< Tichy rezim (minimalni vystup)
+  bool guided_capture_hints_enabled; ///< LED nápověda guided capture
+  /** Úroveň LED nápovědy při hře: 1–5 (5 = plná). Řídí NVS klíč led_guide_lvl. */
+  uint8_t led_guidance_level;
   uint8_t log_level; ///< Uroven logovania (ESP_LOG_ERROR, ESP_LOG_INFO, atd.)
   uint32_t command_timeout_ms; ///< Timeout prikazu v milisekundach
   uint8_t brightness_level;    ///< Globalni jas LED (0-100%)

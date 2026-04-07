@@ -1,7 +1,21 @@
 # components/web_server_task/CMakeLists.txt
 idf_component_register(
     SRCS "web_server_task.c"
+          "chess_piece_http.c"
     INCLUDE_DIRS "include"
+    EMBED_FILES
+        "piece_assets/PieceWhiteKing.png"
+        "piece_assets/PieceWhiteQueen.png"
+        "piece_assets/PieceWhiteRook.png"
+        "piece_assets/PieceWhiteBishop.png"
+        "piece_assets/PieceWhiteKnight.png"
+        "piece_assets/PieceWhitePawn.png"
+        "piece_assets/PieceBlackKing.png"
+        "piece_assets/PieceBlackQueen.png"
+        "piece_assets/PieceBlackRook.png"
+        "piece_assets/PieceBlackBishop.png"
+        "piece_assets/PieceBlackKnight.png"
+        "piece_assets/PieceBlackPawn.png"
     REQUIRES 
         freertos_chess 
         driver 
@@ -14,4 +28,9 @@ idf_component_register(
         esp_event
         json
         timer_system
+        config_manager
+        game_task
+        game_hooks
+        ble_task
+        mdns
 )

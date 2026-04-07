@@ -122,21 +122,31 @@
  */
 
 #include "web_server_task.h"
+#include "../game_hooks/include/game_state_notify.h"
 #include "../game_task/include/game_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
 // #include "../timer_system/include/timer_system.h" // UNUSED
 #include "esp_event.h"
+#include "chess_piece_http.h"
 #include "esp_http_server.h"
 #include "esp_log.h"
 #include "esp_netif.h"
 #include "esp_task_wdt.h"
 #include "esp_timer.h"
+#include "esp_mac.h"
+#include "esp_random.h"
 #include "esp_wifi.h"
 #include "freertos_chess.h"
+#include "mdns.h"
+#include "../ble_task/include/ble_task.h"
+#include "../config_manager/include/config_manager.h"
 #include "nvs.h"
 // #include "nvs_flash.h" // UNUSED
+#include "freertos/semphr.h"
+#include <ctype.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -185,8 +195,10 @@ static esp_err_t web_server_task_wdt_reset_safe(void) {
   return ESP_OK;
 }
 
-// Konfigurace WiFi
-#define WIFI_AP_SSID "ESP32-CzechMate"
+// Konfigurace WiFi — AP SSID: nejprve sken okolí; prvni deska = jen zaklad, dalsi = zaklad_1 … zaklad_N
+#define WIFI_AP_SSID_BASE "ESP32-CzechMate"
+/** Max. index suffixu _N (0 = bez pripony = prvni volny „slot“). */
+#define WIFI_AP_SSID_MAX_SLOTS 16
 #define WIFI_AP_PASSWORD "12345678"
 #define WIFI_AP_CHANNEL 1
 #define WIFI_AP_MAX_CONNECTIONS                                                \
@@ -210,18 +222,29 @@ static esp_err_t web_server_task_wdt_reset_safe(void) {
 #define HTTP_SERVER_MAX_HEADERS 8
 #define HTTP_SERVER_MAX_CLIENTS 4
 
-// Velikosti JSON bufferu
-#define JSON_BUFFER_SIZE 2048 // Puvodni velikost
+// Velikosti JSON bufferu (status JSON + inject_web_status_fields — 2048 nestacilo)
+#define JSON_BUFFER_SIZE 8192
+/** Jeden velky buffer pro GET /api/game/snapshot (board+status+history+captured). */
+#define SNAPSHOT_BUFFER_SIZE 20480
+/** GET /api/wifi/status — wifi_get_sta_status_json (~300 B); nesmi byt 8 KiB na stacku httpd. */
+#define WIFI_STATUS_JSON_MAX 512
+/** GET /api/timer — timer_get_json (name 32 + description 64 + cisla); nesmi byt 8 KiB na stacku. */
+#define TIMER_HTTP_JSON_MAX 1024
 
 // Sledovani stavu web serveru
 static bool task_running = false;
 static bool web_server_active = false;
 static bool wifi_ap_active = false;
 static uint32_t web_server_start_time = 0;
+static esp_err_t last_http_start_error = ESP_OK;
 uint32_t client_count = 0; // Externi pro UART prikazy
 
 // Handle HTTP serveru
 static httpd_handle_t httpd_handle = NULL;
+
+#if CONFIG_HTTPD_WS_SUPPORT
+static esp_timer_handle_t ws_broadcast_timer = NULL;
+#endif
 
 // Handle netif
 static esp_netif_t *ap_netif = NULL;
@@ -241,6 +264,8 @@ static esp_timer_handle_t sta_reconnect_timer = NULL;
 static bool web_locked = false; // Flag pro lock web rozhrani
 char sta_ip[16] = {0};          // Externi pro UART prikazy
 static char sta_ssid[33] = {0};
+/** Skutecny AP SSID po startu (po skenu okolnich CzechMate AP). */
+static char wifi_ap_ssid_effective[33] = {0};
 static int last_disconnect_reason =
     0; // Posledni disconnection reason pro error handling
 
@@ -260,16 +285,27 @@ extern bool is_demo_mode_enabled(void);
 
 // JSON buffer pool (znovupouzitelny)
 static char json_buffer[JSON_BUFFER_SIZE];
+static char snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
+/** Ochrana sestavení snapshotu (HTTP + BLE paralelně). */
+static SemaphoreHandle_t snapshot_build_mutex;
 
 // ============================================================================
 // PREDBEZNE DEKLARACE
 // ============================================================================
 
+static void wifi_select_ap_ssid_by_scan(void);
 static esp_err_t wifi_init_apsta(void);
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data);
 static esp_err_t start_http_server(void);
 static void stop_http_server(void);
+static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
+                                               size_t *out_len);
+static esp_err_t build_snapshot_json(size_t *out_len);
+static esp_err_t web_server_apply_hint_highlight_json_body(const char *buf);
+#if CONFIG_HTTPD_WS_SUPPORT
+static esp_err_t http_ws_handler(httpd_req_t *req);
+#endif
 
 // HTTP handlery
 static esp_err_t http_get_root_handler(httpd_req_t *req);
@@ -280,6 +316,7 @@ http_get_test_handler(httpd_req_t *req); // Testovaci stranka pro timer
 static esp_err_t
 http_get_favicon_handler(httpd_req_t *req); // Favicon handler (204 No Content)
 static esp_err_t http_get_board_handler(httpd_req_t *req);
+static esp_err_t http_get_game_snapshot_handler(httpd_req_t *req);
 static esp_err_t http_get_status_handler(httpd_req_t *req);
 static esp_err_t http_get_history_handler(httpd_req_t *req);
 static esp_err_t http_get_captured_handler(httpd_req_t *req);
@@ -307,11 +344,18 @@ static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req);
 // Handlery pro Demo API
 static esp_err_t http_post_demo_config_handler(httpd_req_t *req);
 static esp_err_t http_get_demo_status_handler(httpd_req_t *req);
+static esp_err_t http_post_settings_guided_hints_handler(httpd_req_t *req);
+static esp_err_t http_post_settings_led_guidance_handler(httpd_req_t *req);
 
 // Handler pro Virtual Actions
 static esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req);
 static esp_err_t http_post_game_new_handler(httpd_req_t *req);
 static esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req);
+static esp_err_t http_post_game_hint_clear_handler(httpd_req_t *req);
+static esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req);
+static esp_err_t http_post_game_puzzle_handler(httpd_req_t *req);
+static esp_err_t http_get_settings_ui_handler(httpd_req_t *req);
+static esp_err_t http_post_settings_ui_handler(httpd_req_t *req);
 
 // Handlery pro MQTT API
 static esp_err_t http_get_mqtt_status_handler(httpd_req_t *req);
@@ -730,6 +774,139 @@ esp_err_t web_lock_set(bool locked) {
 /** Forward declaration for STA reconnect timer callback (defined below). */
 static void sta_reconnect_timer_cb(void *arg);
 
+#define WIFI_AP_SCAN_MAX_APS 64
+
+/**
+ * Vrati true pokud SSID odpovida nase AP konvenci (zaklad | zaklad_N) a nastavi
+ * out_slot: 0 = jen zaklad, 1..N = zaklad_N.
+ */
+static bool wifi_ap_ssid_matches_czechmate(const uint8_t *ssid_raw,
+                                           size_t ssid_len, int *out_slot) {
+  const char *base = WIFI_AP_SSID_BASE;
+  const size_t bl = strlen(base);
+  *out_slot = -1;
+  if (ssid_len < bl) {
+    return false;
+  }
+  if (memcmp(ssid_raw, base, bl) != 0) {
+    return false;
+  }
+  if (ssid_len == bl) {
+    *out_slot = 0;
+    return true;
+  }
+  if (ssid_raw[bl] != (uint8_t)'_') {
+    return false;
+  }
+  unsigned n = 0;
+  for (size_t i = bl + 1; i < ssid_len; i++) {
+    uint8_t c = ssid_raw[i];
+    if (c < (uint8_t)'0' || c > (uint8_t)'9') {
+      return false;
+    }
+    n = n * 10u + (unsigned)(c - (uint8_t)'0');
+  }
+  if (n < 1u || n > (unsigned)WIFI_AP_SSID_MAX_SLOTS) {
+    return false;
+  }
+  *out_slot = (int)n;
+  return true;
+}
+
+/**
+ * @brief Jednorazovy STA sken: vybere nejnizsi volny SSID (prvni deska bez
+ * pripony, dalsi _1 … _N) podle toho, co uz v okoli vysila.
+ *
+ * Po navratu je WiFi zastavene; volajici nastavi APSTA a znovu spusti.
+ */
+static void wifi_select_ap_ssid_by_scan(void) {
+  const char *base = WIFI_AP_SSID_BASE;
+  strncpy(wifi_ap_ssid_effective, base, sizeof(wifi_ap_ssid_effective) - 1);
+  wifi_ap_ssid_effective[sizeof(wifi_ap_ssid_effective) - 1] = '\0';
+
+  esp_err_t ret = esp_wifi_set_mode(WIFI_MODE_STA);
+  if (ret != ESP_OK) {
+    ESP_LOGW(TAG, "AP SSID scan: set STA mode failed: %s — using %s",
+             esp_err_to_name(ret), base);
+    return;
+  }
+
+  ret = esp_wifi_start();
+  if (ret != ESP_OK) {
+    ESP_LOGW(TAG, "AP SSID scan: wifi_start failed: %s — using %s",
+             esp_err_to_name(ret), base);
+    return;
+  }
+
+  /* Rozptyl soubezneho startu vice desek (sniz sanci stejneho volneho slotu). */
+  vTaskDelay(pdMS_TO_TICKS(50 + (esp_random() % 450)));
+
+  wifi_scan_config_t scan_cfg = {0};
+  scan_cfg.show_hidden = true;
+
+  ret = esp_wifi_scan_start(&scan_cfg, true);
+  if (ret != ESP_OK) {
+    ESP_LOGW(TAG, "AP SSID scan: scan_start failed: %s — using %s",
+             esp_err_to_name(ret), base);
+    esp_wifi_stop();
+    return;
+  }
+
+  wifi_ap_record_t ap_records[WIFI_AP_SCAN_MAX_APS];
+  memset(ap_records, 0, sizeof(ap_records));
+  uint16_t number = WIFI_AP_SCAN_MAX_APS;
+  ret = esp_wifi_scan_get_ap_records(&number, ap_records);
+  if (ret != ESP_OK) {
+    ESP_LOGW(TAG, "AP SSID scan: get_ap_records failed: %s — using %s",
+             esp_err_to_name(ret), base);
+    esp_wifi_stop();
+    return;
+  }
+
+  bool taken[WIFI_AP_SSID_MAX_SLOTS + 1];
+  memset(taken, 0, sizeof(taken));
+
+  for (unsigned i = 0; i < number; i++) {
+    const uint8_t *s = ap_records[i].ssid;
+    size_t slen = strnlen((const char *)s, sizeof(ap_records[i].ssid));
+    int slot = -1;
+    if (wifi_ap_ssid_matches_czechmate(s, slen, &slot) && slot >= 0 &&
+        slot <= WIFI_AP_SSID_MAX_SLOTS) {
+      taken[slot] = true;
+    }
+  }
+
+  int chosen = -1;
+  for (int k = 0; k <= WIFI_AP_SSID_MAX_SLOTS; k++) {
+    if (!taken[k]) {
+      chosen = k;
+      break;
+    }
+  }
+  if (chosen < 0) {
+    ESP_LOGW(TAG, "AP SSID: vsechny sloty 0..%d obsazeny — pouzit %s",
+             WIFI_AP_SSID_MAX_SLOTS, base);
+    chosen = 0;
+  }
+
+  if (chosen == 0) {
+    strncpy(wifi_ap_ssid_effective, base, sizeof(wifi_ap_ssid_effective) - 1);
+  } else {
+    int n = snprintf(wifi_ap_ssid_effective, sizeof(wifi_ap_ssid_effective),
+                     "%s_%d", base, chosen);
+    if (n < 0 || n >= (int)sizeof(wifi_ap_ssid_effective)) {
+      strncpy(wifi_ap_ssid_effective, base, sizeof(wifi_ap_ssid_effective) - 1);
+      ESP_LOGW(TAG, "AP SSID: snprintf overflow — fallback %s", base);
+    }
+  }
+  wifi_ap_ssid_effective[sizeof(wifi_ap_ssid_effective) - 1] = '\0';
+
+  ESP_LOGI(TAG, "AP SSID po skenu okoli: %s (zaklad=%s)", wifi_ap_ssid_effective,
+           base);
+
+  esp_wifi_stop();
+}
+
 /**
  * @brief Inicializuje WiFi Access Point a Station (APSTA)
  *
@@ -771,19 +948,20 @@ static esp_err_t wifi_init_apsta(void) {
     ESP_LOGI(TAG, "Event loop ready");
   }
 
-  // Vytvorit default netif pro AP
-  ESP_LOGI(TAG, "Creating default WiFi AP netif...");
-  ap_netif = esp_netif_create_default_wifi_ap();
-  if (ap_netif == NULL) {
-    ESP_LOGE(TAG, "Failed to create AP netif");
-    return ESP_FAIL;
-  }
-
-  // Vytvorit default netif pro STA
+  /* Na ESP32-C6 (a jiných RISC-V) muze zaviset interni poradi driveru na tom,
+   * ktere default netif se vytvori prvni. Zkusime STA pred AP (snizi Load access
+   * fault v ieee80211_hostap_attach pri esp_wifi_start()). */
   ESP_LOGI(TAG, "Creating default WiFi STA netif...");
   sta_netif = esp_netif_create_default_wifi_sta();
   if (sta_netif == NULL) {
     ESP_LOGE(TAG, "Failed to create STA netif");
+    return ESP_FAIL;
+  }
+
+  ESP_LOGI(TAG, "Creating default WiFi AP netif...");
+  ap_netif = esp_netif_create_default_wifi_ap();
+  if (ap_netif == NULL) {
+    ESP_LOGE(TAG, "Failed to create AP netif");
     return ESP_FAIL;
   }
 
@@ -835,15 +1013,19 @@ static esp_err_t wifi_init_apsta(void) {
     sta_reconnect_timer = NULL;
   }
 
-  // Konfigurovat WiFi AP
-  wifi_config_t wifi_config = {
-      .ap = {.ssid = WIFI_AP_SSID,
-             .ssid_len = strlen(WIFI_AP_SSID),
-             .password = WIFI_AP_PASSWORD,
-             .channel = WIFI_AP_CHANNEL,
-             .max_connection = WIFI_AP_MAX_CONNECTIONS,
-             .authmode = WIFI_AUTH_WPA2_PSK},
-  };
+  wifi_select_ap_ssid_by_scan();
+
+  wifi_config_t wifi_config = {0};
+  strncpy((char *)wifi_config.ap.ssid, wifi_ap_ssid_effective,
+          sizeof(wifi_config.ap.ssid) - 1);
+  wifi_config.ap.ssid[sizeof(wifi_config.ap.ssid) - 1] = '\0';
+  wifi_config.ap.ssid_len =
+      (uint8_t)strlen((const char *)wifi_config.ap.ssid);
+  strncpy((char *)wifi_config.ap.password, WIFI_AP_PASSWORD,
+          sizeof(wifi_config.ap.password) - 1);
+  wifi_config.ap.channel = WIFI_AP_CHANNEL;
+  wifi_config.ap.max_connection = WIFI_AP_MAX_CONNECTIONS;
+  wifi_config.ap.authmode = WIFI_AUTH_WPA2_PSK;
 
   // Nastavit WiFi mod na APSTA
   ret = esp_wifi_set_mode(WIFI_MODE_APSTA);
@@ -867,7 +1049,7 @@ static esp_err_t wifi_init_apsta(void) {
   }
 
   ESP_LOGI(TAG, "WiFi APSTA initialized successfully");
-  ESP_LOGI(TAG, "AP SSID: %s", WIFI_AP_SSID);
+  ESP_LOGI(TAG, "AP SSID: %s", wifi_ap_ssid_effective);
   ESP_LOGI(TAG, "AP Password: %s", WIFI_AP_PASSWORD);
   ESP_LOGI(TAG, "AP IP: %s", WIFI_AP_IP);
   ESP_LOGI(TAG, "STA interface ready for connection");
@@ -918,6 +1100,8 @@ static void sta_reconnect_timer_cb(void *arg) {
  * - Pripojeni a odpojeni STA k WiFi siti
  * - Ziskani IP adresy pro STA
  */
+static void czechmate_mdns_refresh_sta_txt(void);
+
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data) {
   // AP eventy - pripojeni klientu k hotspotu
@@ -953,6 +1137,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     sta_connected = false;
     sta_connecting = false;
     sta_ip[0] = '\0';
+    czechmate_mdns_refresh_sta_txt();
     if (!sta_manual_disconnect && sta_reconnect_timer != NULL) {
       esp_timer_start_once(sta_reconnect_timer,
                            (uint64_t)sta_reconnect_delay_ms * 1000);
@@ -972,11 +1157,13 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     sta_connected = true;
     sta_connecting = false;
     sta_reconnect_delay_ms = STA_RECONNECT_DELAY_MIN_MS; // Reset backoff
+    czechmate_mdns_refresh_sta_txt();
   } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_LOST_IP) {
     ESP_LOGI(TAG, "STA: Lost IP");
     sta_connected = false;
     sta_connecting = false; // Resetovat flag pripojovani
     sta_ip[0] = '\0';
+    czechmate_mdns_refresh_sta_txt();
   }
 }
 
@@ -1040,7 +1227,8 @@ static esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
       "\"online\":%s,"
       "\"locked\":%s"
       "}",
-      WIFI_AP_SSID, ap_ip_str, (unsigned long)client_count, sta_ssid_display,
+      wifi_ap_ssid_effective, ap_ip_str, (unsigned long)client_count,
+      sta_ssid_display,
       (sta_connected && sta_ip[0] != '\0') ? sta_ip : "Not connected",
       sta_connected ? "true" : "false", online ? "true" : "false",
       web_locked ? "true" : "false");
@@ -1385,6 +1573,194 @@ static esp_err_t http_post_settings_brightness_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
+static esp_err_t http_post_settings_auto_lamp_timeout_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/settings/auto_lamp_timeout");
+
+  if (web_is_locked()) {
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
+    return ESP_OK;
+  }
+
+  char content[80];
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
+    return ESP_OK;
+  }
+  content[ret] = '\0';
+
+  int seconds_val = -1;
+  char *ptr = strstr(content, "\"seconds\":");
+  if (ptr && sscanf(ptr, "\"seconds\":%d", &seconds_val) == 1) {
+    if (seconds_val < 5) seconds_val = 5;
+    if (seconds_val > 7200) seconds_val = 7200;
+    if (ha_light_set_activity_timeout_sec((uint32_t)seconds_val) == ESP_OK) {
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_send(req, "{\"success\":true,\"seconds\":%d}", seconds_val);
+      return ESP_OK;
+    }
+  }
+  httpd_resp_set_status(req, "400 Bad Request");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":false,\"message\":\"Invalid seconds (5..7200)\"}", -1);
+  return ESP_OK;
+}
+
+static esp_err_t http_post_settings_guided_hints_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/settings/guided_hints");
+
+  if (web_is_locked()) {
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
+    return ESP_OK;
+  }
+
+  char content[96];
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
+    return ESP_OK;
+  }
+  content[ret] = '\0';
+
+  bool enabled = (strstr(content, "\"enabled\":true") != NULL) ||
+                 (strstr(content, "\"enabled\": true") != NULL);
+
+  system_config_t config;
+  if (config_load_from_nvs(&config) != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Config load failed\"}",
+                    -1);
+    return ESP_OK;
+  }
+  config.guided_capture_hints_enabled = enabled;
+  config.led_guidance_level = enabled ? (uint8_t)5 : (uint8_t)4;
+  config_save_to_nvs(&config);
+  game_set_led_guidance_level(config.led_guidance_level);
+
+  char resp[120];
+  snprintf(resp, sizeof(resp),
+           "{\"success\":true,\"enabled\":%s,\"led_guidance_level\":%u}",
+           enabled ? "true" : "false",
+           (unsigned)config.led_guidance_level);
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, resp, strlen(resp));
+  return ESP_OK;
+}
+
+static esp_err_t http_post_settings_led_guidance_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/settings/led_guidance");
+
+  if (web_is_locked()) {
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
+    return ESP_OK;
+  }
+
+  char content[128];
+  int r = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (r <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
+    return ESP_OK;
+  }
+  content[r] = '\0';
+
+  int level = -1;
+  char *p = strstr(content, "\"level\"");
+  if (p) {
+    p = strchr(p, ':');
+    if (p) {
+      level = (int)strtol(p + 1, NULL, 10);
+    }
+  }
+  if (level < 1 || level > 5) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"level 1..5\"}", -1);
+    return ESP_OK;
+  }
+
+  system_config_t config;
+  if (config_load_from_nvs(&config) != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Config load failed\"}",
+                    -1);
+    return ESP_OK;
+  }
+  config.led_guidance_level = (uint8_t)level;
+  config.guided_capture_hints_enabled = (level >= 5);
+  config_save_to_nvs(&config);
+  game_set_led_guidance_level((uint8_t)level);
+
+  char resp[96];
+  snprintf(resp, sizeof(resp),
+           "{\"success\":true,\"led_guidance_level\":%u,\"guided_capture_hints_enabled\":%s}",
+           (unsigned)level, (level >= 5) ? "true" : "false");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, resp, strlen(resp));
+  return ESP_OK;
+}
+
+static esp_err_t http_post_light_command_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/light/command");
+
+  char content[128];
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
+    return ESP_OK;
+  }
+  content[ret] = '\0';
+
+  bool state = true;
+  int r = 255, g = 255, b = 255;
+  if (strstr(content, "\"state\":false") || strstr(content, "\"state\": false\"")) {
+    state = false;
+  }
+  char *p;
+  if ((p = strstr(content, "\"r\":")) && sscanf(p, "\"r\":%d", &r) == 1) { }
+  if ((p = strstr(content, "\"g\":")) && sscanf(p, "\"g\":%d", &g) == 1) { }
+  if ((p = strstr(content, "\"b\":")) && sscanf(p, "\"b\":%d", &b) == 1) { }
+
+  if (r < 0) r = 0;
+  if (r > 255) r = 255;
+  if (g < 0) g = 0;
+  if (g > 255) g = 255;
+  if (b < 0) b = 0;
+  if (b > 255) b = 255;
+
+  if (!ha_light_request_web_lamp(state, (uint8_t)r, (uint8_t)g, (uint8_t)b)) {
+    httpd_resp_set_status(req, "503 Service Unavailable");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Light task busy or not "
+                    "ready\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
+}
+
+static esp_err_t http_post_light_game_mode_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/light/game_mode");
+  ha_light_report_activity("web_game_mode");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
+}
+
 static esp_err_t http_post_demo_config_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/demo/config");
 
@@ -1484,10 +1860,15 @@ static esp_err_t start_http_server(void) {
   // Konfigurovat HTTP server
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.server_port = HTTP_SERVER_PORT;
-  config.max_uri_handlers =
-      32; // Increased to 32 to accommodate all endpoints (currently ~25)
-  config.max_open_sockets =
-      10; // LWIP_MAX_SOCKETS(16) - HTTP_INTERNAL(3) - MQTT(1) - SYSTEM(2) = 10
+  /* Počet httpd_register_uri_handler ve start_http_server: 54+ (2026-04, vč. WS + PNG figurky).
+   * Při přidání endpointu zvýšit zásobu (HTTPD neregistruje „tiše“ navíc). */
+  config.max_uri_handlers = 64;
+  // Keep within LWIP limits. HTTP server internally reserves 3 sockets.
+#if CONFIG_LWIP_MAX_SOCKETS > 6
+  config.max_open_sockets = CONFIG_LWIP_MAX_SOCKETS - 3;
+#else
+  config.max_open_sockets = 3;
+#endif
   config.lru_purge_enable = false; // CRITICAL: Disabled to prevent socket
                                    // closure during chunked transfer
   config.recv_wait_timeout = 20;    // 20 s – stabilni pripojeni pri pomalejsi siti
@@ -1500,9 +1881,11 @@ static esp_err_t start_http_server(void) {
   // Spustit HTTP server
   esp_err_t ret = httpd_start(&httpd_handle, &config);
   if (ret != ESP_OK) {
+    last_http_start_error = ret;
     ESP_LOGE(TAG, "Failed to start HTTP server: %s", esp_err_to_name(ret));
     return ret;
   }
+  last_http_start_error = ESP_OK;
 
   // Registrovat URI handlery
   ESP_LOGI(TAG, "Registering URI handlers...");
@@ -1534,6 +1917,12 @@ static esp_err_t start_http_server(void) {
                            .handler = http_get_board_handler,
                            .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &board_uri);
+
+  httpd_uri_t game_snapshot_uri = {.uri = "/api/game/snapshot",
+                                   .method = HTTP_GET,
+                                   .handler = http_get_game_snapshot_handler,
+                                   .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &game_snapshot_uri);
 
   httpd_uri_t status_uri = {.uri = "/api/status",
                             .method = HTTP_GET,
@@ -1585,6 +1974,27 @@ static esp_err_t start_http_server(void) {
       .handler = http_post_settings_brightness_handler,
       .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &settings_brightness_uri);
+
+  httpd_uri_t settings_auto_lamp_timeout_uri = {
+      .uri = "/api/settings/auto_lamp_timeout",
+      .method = HTTP_POST,
+      .handler = http_post_settings_auto_lamp_timeout_handler,
+      .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &settings_auto_lamp_timeout_uri);
+
+  httpd_uri_t settings_guided_hints_uri = {
+      .uri = "/api/settings/guided_hints",
+      .method = HTTP_POST,
+      .handler = http_post_settings_guided_hints_handler,
+      .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &settings_guided_hints_uri);
+
+  httpd_uri_t settings_led_guidance_uri = {
+      .uri = "/api/settings/led_guidance",
+      .method = HTTP_POST,
+      .handler = http_post_settings_led_guidance_handler,
+      .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &settings_led_guidance_uri);
 
   httpd_uri_t timer_pause_uri = {.uri = "/api/timer/pause",
                                  .method = HTTP_POST,
@@ -1693,6 +2103,50 @@ static esp_err_t start_http_server(void) {
                                     .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &hint_highlight_uri);
 
+  httpd_uri_t hint_clear_uri = {.uri = "/api/game/hint_clear",
+                               .method = HTTP_POST,
+                               .handler = http_post_game_hint_clear_handler,
+                               .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &hint_clear_uri);
+
+  httpd_uri_t setup_tutorial_uri = {.uri = "/api/game/setup_tutorial",
+                                    .method = HTTP_POST,
+                                    .handler =
+                                        http_post_game_setup_tutorial_handler,
+                                    .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &setup_tutorial_uri);
+
+  httpd_uri_t puzzle_uri = {.uri = "/api/game/puzzle",
+                            .method = HTTP_POST,
+                            .handler = http_post_game_puzzle_handler,
+                            .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &puzzle_uri);
+
+  httpd_uri_t settings_ui_get_uri = {.uri = "/api/settings/ui",
+                                   .method = HTTP_GET,
+                                   .handler = http_get_settings_ui_handler,
+                                   .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &settings_ui_get_uri);
+
+  httpd_uri_t settings_ui_post_uri = {.uri = "/api/settings/ui",
+                                      .method = HTTP_POST,
+                                      .handler = http_post_settings_ui_handler,
+                                      .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &settings_ui_post_uri);
+
+  // Handlery pro lampu (režim Lampa z webu)
+  httpd_uri_t light_command_uri = {.uri = "/api/light/command",
+                                   .method = HTTP_POST,
+                                   .handler = http_post_light_command_handler,
+                                   .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &light_command_uri);
+
+  httpd_uri_t light_game_mode_uri = {.uri = "/api/light/game_mode",
+                                    .method = HTTP_POST,
+                                    .handler = http_post_light_game_mode_handler,
+                                    .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &light_game_mode_uri);
+
   // Handlery pro MQTT API
   httpd_uri_t mqtt_status_uri = {.uri = "/api/mqtt/status",
                                  .method = HTTP_GET,
@@ -1706,8 +2160,30 @@ static esp_err_t start_http_server(void) {
                                  .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &mqtt_config_uri);
 
-  ESP_LOGI(TAG, "HTTP server started successfully on port %d",
+  ret = chess_piece_register_http_uris(httpd_handle);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "chess_piece_register_http_uris failed: %s",
+             esp_err_to_name(ret));
+    return ret;
+  }
+
+#if CONFIG_HTTPD_WS_SUPPORT
+  httpd_uri_t ws_uri = {.uri = "/ws",
+                        .method = HTTP_GET,
+                        .handler = http_ws_handler,
+                        .user_ctx = NULL,
+                        .is_websocket = true};
+  httpd_register_uri_handler(httpd_handle, &ws_uri);
+  ESP_LOGI(TAG,
+           "HTTP server on port %d: GET /api/game/snapshot + WS /ws, max_uri_handlers=64",
            HTTP_SERVER_PORT);
+  web_server_websocket_init();
+#else
+  ESP_LOGW(TAG,
+           "HTTP server on port %d: WebSocket /ws NENÍ v buildu — zapni "
+           "CONFIG_HTTPD_WS_SUPPORT (iOS/watchOS WS jinak padá na -1011)",
+           HTTP_SERVER_PORT);
+#endif
 
   return ESP_OK;
 }
@@ -1722,6 +2198,13 @@ static esp_err_t start_http_server(void) {
  * Pouziva se pri vypinani web serveru.
  */
 static void stop_http_server(void) {
+#if CONFIG_HTTPD_WS_SUPPORT
+  if (ws_broadcast_timer != NULL) {
+    esp_timer_stop(ws_broadcast_timer);
+    esp_timer_delete(ws_broadcast_timer);
+    ws_broadcast_timer = NULL;
+  }
+#endif
   if (httpd_handle != NULL) {
     httpd_stop(httpd_handle);
     httpd_handle = NULL;
@@ -1732,6 +2215,635 @@ static void stop_http_server(void) {
 // ============================================================================
 // REST API HANDLERS
 // ============================================================================
+
+/** Doplnění GET /api/status o web lock, WiFi, jas, matrix guard, lampu (sdílené se snapshot). */
+static void inject_web_status_fields(char *buf, size_t buf_size) {
+  char *last_brace = strrchr(buf, '}');
+  if (!last_brace) {
+    ESP_LOGW(TAG, "[STAGING] inject_web_status_fields: no closing brace in buf");
+    return;
+  }
+  size_t remaining = buf_size - (size_t)(last_brace - buf);
+  /* První blok ~350 B + druhý ~120 B — při těsném bufferu raději neposlat useknutý JSON. */
+  if (remaining < 400) {
+    ESP_LOGE(TAG,
+             "[STAGING] inject_web_status_fields: remaining=%zu B too small for "
+             "web fields (cap=%zu)",
+             remaining, buf_size);
+    return;
+  }
+  uint8_t b = cached_brightness_valid ? cached_brightness : 50;
+  int wr =
+      snprintf(last_brace, remaining,
+               ",\"web_locked\":%s,\"internet_connected\":%s,\"brightness\":%d,"
+               "\"guided_capture_hints_enabled\":%s,\"led_guidance_level\":%u,"
+               "\"matrix_guard_active\":%s,"
+               "\"matrix_guard_conflicts\":%u,"
+               "\"matrix_guard_lifted_low\":%lu,\"matrix_guard_lifted_high\":%lu,"
+               "\"matrix_guard_dropped_low\":%lu,\"matrix_guard_dropped_high\":%lu}",
+               web_is_locked() ? "true" : "false",
+               sta_connected ? "true" : "false", (int)b,
+               game_get_guided_capture_hints_enabled() ? "true" : "false",
+               (unsigned)game_get_led_guidance_level(),
+               game_is_matrix_guard_active() ? "true" : "false",
+               (unsigned int)game_get_matrix_guard_conflict_count(),
+               (unsigned long)game_get_matrix_guard_lifted_mask_low(),
+               (unsigned long)game_get_matrix_guard_lifted_mask_high(),
+               (unsigned long)game_get_matrix_guard_dropped_mask_low(),
+               (unsigned long)game_get_matrix_guard_dropped_mask_high());
+  if (wr < 0 || (size_t)wr >= remaining) {
+    ESP_LOGE(TAG,
+             "[STAGING] inject_web_status_fields: first snprintf truncated "
+             "wr=%d rem=%zu",
+             wr, remaining);
+    return;
+  }
+  if (remaining >= 150) {
+    last_brace = strrchr(buf, '}');
+    if (last_brace) {
+      remaining = buf_size - (size_t)(last_brace - buf);
+      if (remaining < 130) {
+        ESP_LOGW(TAG,
+                 "[STAGING] inject_web_status_fields: skip lamp fields "
+                 "remaining=%zu",
+                 remaining);
+        return;
+      }
+      ha_mode_t light_mode = ha_light_get_mode();
+      uint8_t lr = 255, lg = 255, lb = 255, lbright = 255;
+      bool lstate = true;
+      ha_light_get_state(&lr, &lg, &lb, &lbright, &lstate);
+      uint32_t auto_sec = ha_light_get_activity_timeout_sec();
+      wr = snprintf(last_brace, remaining,
+                    ",\"light_mode\":\"%s\",\"light_state\":%s,\"light_r\":%u,"
+                    "\"light_g\":%u,\"light_b\":%u,\"auto_lamp_timeout_sec\":%lu}",
+                    (light_mode == HA_MODE_HA) ? "lamp" : "game",
+                    lstate ? "true" : "false", (unsigned)lr, (unsigned)lg,
+                    (unsigned)lb, (unsigned long)auto_sec);
+      if (wr < 0 || (size_t)wr >= remaining) {
+        ESP_LOGE(TAG,
+                 "[STAGING] inject_web_status_fields: lamp snprintf truncated "
+                 "wr=%d rem=%zu",
+                 wr, remaining);
+      }
+    }
+  }
+}
+
+static void snapshot_build_mutex_take(void) {
+  if (snapshot_build_mutex == NULL) {
+    snapshot_build_mutex = xSemaphoreCreateMutex();
+  }
+  (void)xSemaphoreTake(snapshot_build_mutex, portMAX_DELAY);
+}
+
+static void snapshot_build_mutex_give(void) {
+  if (snapshot_build_mutex != NULL) {
+    xSemaphoreGive(snapshot_build_mutex);
+  }
+}
+
+/** Stejný JSON jako GET /api/game/snapshot — do bufferu `out` (HTTP i BLE). */
+static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
+                                               size_t *out_len) {
+  snapshot_build_mutex_take();
+  esp_err_t ret = game_get_board_json(json_buffer, sizeof(json_buffer));
+  if (ret != ESP_OK) {
+    snapshot_build_mutex_give();
+    return ret;
+  }
+  size_t L = strlen(json_buffer);
+  if (L < 4 || json_buffer[0] != '{' || json_buffer[L - 1] != '}') {
+    snapshot_build_mutex_give();
+    return ESP_FAIL;
+  }
+  json_buffer[L - 1] = '\0';
+  uint32_t srev = game_get_state_revision();
+  size_t pos = (size_t)snprintf(out, cap, "{\"state_version\":%" PRIu32 ",%s",
+                                srev, json_buffer + 1);
+  if (pos >= cap) {
+    json_buffer[L - 1] = '}';
+    snapshot_build_mutex_give();
+    return ESP_FAIL;
+  }
+
+  ret = game_get_status_json(json_buffer, sizeof(json_buffer));
+  if (ret != ESP_OK) {
+    snapshot_build_mutex_give();
+    return ret;
+  }
+#ifndef NDEBUG
+  ESP_LOGI(TAG,
+           "[STAGING] build_snapshot: status raw len=%zu / cap=%zu",
+           strlen(json_buffer), sizeof(json_buffer));
+#endif
+  inject_web_status_fields(json_buffer, sizeof(json_buffer));
+#ifndef NDEBUG
+  ESP_LOGI(TAG,
+           "[STAGING] build_snapshot: status after inject len=%zu / cap=%zu",
+           strlen(json_buffer), sizeof(json_buffer));
+#endif
+  int n = snprintf(out + pos, cap - pos, ",\"status\":%s", json_buffer);
+  if (n < 0 || (size_t)n >= cap - pos) {
+    snapshot_build_mutex_give();
+    return ESP_FAIL;
+  }
+  pos += (size_t)n;
+
+  ret = game_get_history_json(json_buffer, sizeof(json_buffer));
+  if (ret != ESP_OK) {
+    snapshot_build_mutex_give();
+    return ret;
+  }
+  n = snprintf(out + pos, cap - pos, ",\"history\":%s", json_buffer);
+  if (n < 0 || (size_t)n >= cap - pos) {
+    snapshot_build_mutex_give();
+    return ESP_FAIL;
+  }
+  pos += (size_t)n;
+
+  ret = game_get_captured_json(json_buffer, sizeof(json_buffer));
+  if (ret != ESP_OK) {
+    snapshot_build_mutex_give();
+    return ret;
+  }
+  n = snprintf(out + pos, cap - pos, ",\"captured\":%s", json_buffer);
+  if (n < 0 || (size_t)n >= cap - pos) {
+    snapshot_build_mutex_give();
+    return ESP_FAIL;
+  }
+  pos += (size_t)n;
+
+  char clock_json[TIMER_HTTP_JSON_MAX];
+  ret = game_get_timer_json(clock_json, sizeof(clock_json));
+  if (ret == ESP_OK) {
+    n = snprintf(out + pos, cap - pos, ",\"clock\":%s}", clock_json);
+  } else {
+#ifndef NDEBUG
+    ESP_LOGW(TAG, "build_snapshot: game_get_timer_json failed: %s",
+             esp_err_to_name(ret));
+#endif
+    n = snprintf(out + pos, cap - pos, "}");
+  }
+  if (n < 0 || (size_t)n >= cap - pos) {
+    snapshot_build_mutex_give();
+    return ESP_FAIL;
+  }
+  pos += (size_t)n;
+
+  *out_len = pos;
+  snapshot_build_mutex_give();
+  return ESP_OK;
+}
+
+static esp_err_t build_snapshot_json(size_t *out_len) {
+  return build_snapshot_json_to_buffer(snapshot_buffer, sizeof(snapshot_buffer),
+                                       out_len);
+}
+
+esp_err_t web_server_build_game_snapshot_json(char *out, size_t cap,
+                                              size_t *out_len) {
+  if (out == NULL || out_len == NULL || cap == 0) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  return build_snapshot_json_to_buffer(out, cap, out_len);
+}
+
+esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
+                                                     size_t *out_len) {
+  if (out_json == NULL || out_len == NULL) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  esp_err_t e =
+      build_snapshot_json_to_buffer(snapshot_buffer, sizeof(snapshot_buffer),
+                                    out_len);
+  if (e == ESP_OK) {
+    *out_json = snapshot_buffer;
+  }
+  return e;
+}
+
+/** Společná logika POST /api/game/hint_highlight a BLE příkazu hint_highlight. */
+static esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
+  if (buf == NULL) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  const char *p_to = strstr(buf, "\"to\"");
+  if (!p_to) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  p_to += 4;
+  while (*p_to && *p_to != '"')
+    p_to++;
+  if (*p_to == '"')
+    p_to++;
+  if (!*p_to || !p_to[1]) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  char to_sq[3] = {0};
+  to_sq[0] = (char)((unsigned char)p_to[0] <= 'Z' ? p_to[0] + 32 : p_to[0]);
+  to_sq[1] = p_to[1];
+  if (to_sq[0] < 'a' || to_sq[0] > 'h' || to_sq[1] < '1' || to_sq[1] > '8') {
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  uint8_t to_led = chess_notation_to_led_index(to_sq);
+  if (to_led >= 64) {
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  uint8_t from_led = 64;
+  const char *p_from = strstr(buf, "\"from\"");
+  if (p_from) {
+    p_from += 6;
+    while (*p_from && *p_from != '"')
+      p_from++;
+    if (*p_from == '"')
+      p_from++;
+    if (*p_from && p_from[1]) {
+      char from_sq[3] = {0};
+      from_sq[0] =
+          (char)((unsigned char)p_from[0] <= 'Z' ? p_from[0] + 32 : p_from[0]);
+      from_sq[1] = p_from[1];
+      if (from_sq[0] >= 'a' && from_sq[0] <= 'h' && from_sq[1] >= '1' &&
+          from_sq[1] <= '8') {
+        uint8_t fl = chess_notation_to_led_index(from_sq);
+        if (fl < 64)
+          from_led = fl;
+      }
+    }
+  }
+
+  led_command_t cmd = {0};
+  cmd.type = LED_CMD_HIGHLIGHT_HINT;
+  cmd.led_index = from_led;
+  cmd.data = (void *)&to_led;
+  led_execute_command_new(&cmd);
+  ESP_LOGI(TAG, "Hint highlight: %s (LED %u -> %u)", to_sq, (unsigned)from_led,
+           (unsigned)to_led);
+  return ESP_OK;
+}
+
+static bool json_extract_cmd_string(const char *buf, char *cmd_out, size_t cmd_sz) {
+  const char *p = strstr(buf, "\"cmd\"");
+  if (!p) {
+    return false;
+  }
+  p = strchr(p, ':');
+  if (!p) {
+    return false;
+  }
+  p++;
+  while (*p && isspace((unsigned char)*p))
+    p++;
+  if (*p != '"') {
+    return false;
+  }
+  p++;
+  size_t i = 0;
+  while (*p && *p != '"' && i + 1 < cmd_sz) {
+    cmd_out[i++] = *p++;
+  }
+  cmd_out[i] = '\0';
+  return i > 0;
+}
+
+esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
+  if (json == NULL || json_len == 0) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  char buf[384];
+  size_t n = json_len < sizeof(buf) - 1 ? json_len : sizeof(buf) - 1;
+  memcpy(buf, json, n);
+  buf[n] = '\0';
+
+  char cmd[40];
+  if (!json_extract_cmd_string(buf, cmd, sizeof(cmd))) {
+    ESP_LOGW(TAG, "BLE JSON: missing cmd");
+    return ESP_ERR_NOT_FOUND;
+  }
+
+  if (strcmp(cmd, "ping") == 0) {
+    ESP_LOGI(TAG, "BLE cmd: ping");
+    return ESP_OK;
+  }
+  if (strcmp(cmd, "hint_highlight") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "BLE hint_highlight blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    return web_server_apply_hint_highlight_json_body(buf);
+  }
+  if (strcmp(cmd, "hint_clear") == 0) {
+    led_command_t c = {0};
+    c.type = LED_CMD_CLEAR_HIGHLIGHTS;
+    led_execute_command_new(&c);
+    ESP_LOGD(TAG, "BLE cmd: hint_clear");
+    return ESP_OK;
+  }
+  if (strcmp(cmd, "brightness") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "BLE brightness blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    int brightness_val = -1;
+    const char *pp = strstr(buf, "\"percent\"");
+    if (pp && sscanf(pp, "\"percent\":%d", &brightness_val) != 1) {
+      brightness_val = -1;
+    }
+    if (brightness_val < 0) {
+      pp = strstr(buf, "\"brightness\"");
+      if (pp) {
+        (void)sscanf(pp, "\"brightness\":%d", &brightness_val);
+      }
+    }
+    if (brightness_val < 0 || brightness_val > 100) {
+      return ESP_ERR_INVALID_ARG;
+    }
+    led_set_brightness_global((uint8_t)brightness_val);
+    system_config_t config;
+    config.brightness_level = 50;
+    if (config_load_from_nvs(&config) == ESP_OK) {
+      config.brightness_level = (uint8_t)brightness_val;
+      config_save_to_nvs(&config);
+    } else {
+      config.brightness_level = (uint8_t)brightness_val;
+      config_save_to_nvs(&config);
+    }
+    cached_brightness = (uint8_t)brightness_val;
+    cached_brightness_valid = true;
+    ESP_LOGI(TAG, "BLE brightness %d%%", brightness_val);
+    return ESP_OK;
+  }
+
+  ESP_LOGW(TAG, "BLE JSON: unknown cmd \"%s\"", cmd);
+  return ESP_ERR_NOT_SUPPORTED;
+}
+
+static void czechmate_push_ble_snapshot(void) {
+  size_t len = 0;
+  if (build_snapshot_json(&len) != ESP_OK) {
+    return;
+  }
+  ble_task_push_snapshot_json((const uint8_t *)snapshot_buffer, len);
+}
+
+static bool czechmate_mdns_started = false;
+
+/**
+ * Bonjour TXT „sta_ip" + „ap_ip" — iOS/watch často nevyřeší hostname .local
+ * včas; přímá IPv4 v TXT umožní HTTP/WS bez závislosti na mDNS A záznamu.
+ *
+ * ap_ip fix (AP hotspot): mDNS pakety ESP posílá jen přes STA rozhraní do
+ * domácí sítě. Telefon připojený na AP hotspot tyto pakety nikdy nedostane,
+ * protože patří do jiného L2 segmentu. Opraveno:
+ *   1) TXT ap_ip = IP adresa AP rozhraní (typicky 192.168.4.1)
+ *   2) mdns_netif_action na ap_netif → ESP vysílá mDNS i do AP subnetu
+ */
+static void czechmate_mdns_refresh_sta_txt(void) {
+  if (!czechmate_mdns_started) {
+    return;
+  }
+
+  /* ── sta_ip: přímá STA IPv4 adresa (domácí síť) ── */
+  if (sta_ip[0] != '\0') {
+    esp_err_t e =
+        mdns_service_txt_item_set("_http", "_tcp", "sta_ip", sta_ip);
+    if (e != ESP_OK) {
+      ESP_LOGW(TAG, "mDNS TXT sta_ip: %s", esp_err_to_name(e));
+    } else {
+      ESP_LOGI(TAG, "mDNS TXT sta_ip=%s (Bonjour + prime HTTP)", sta_ip);
+    }
+    if (sta_netif != NULL) {
+      (void)mdns_netif_action(
+          sta_netif, MDNS_EVENT_ANNOUNCE_IP4 | MDNS_EVENT_ENABLE_IP4);
+    }
+  } else {
+    esp_err_t r = mdns_service_txt_item_remove("_http", "_tcp", "sta_ip");
+    if (r != ESP_OK && r != ESP_ERR_NOT_FOUND) {
+      ESP_LOGD(TAG, "mDNS TXT sta_ip remove: %s", esp_err_to_name(r));
+    }
+  }
+
+  /* ── ap_ip: IP adresa AP hotspotu ESP (typicky 192.168.4.1) ──
+   * iOS precte ap_ip z TXT zaznamu a pripoji se primo bez .local resolve.
+   * Aktivace mdns_netif_action na ap_netif zajisti, ze ESP vysila mDNS
+   * multicasty take do AP subnetu — tak je iPhone na hotspotu najde. */
+  if (ap_netif != NULL) {
+    char ap_ip_str[16];
+    esp_netif_ip_info_t ip_info;
+    if (esp_netif_get_ip_info(ap_netif, &ip_info) == ESP_OK) {
+      snprintf(ap_ip_str, sizeof(ap_ip_str), IPSTR, IP2STR(&ip_info.ip));
+    } else {
+      snprintf(ap_ip_str, sizeof(ap_ip_str), "%s", WIFI_AP_IP);
+    }
+    esp_err_t e2 =
+        mdns_service_txt_item_set("_http", "_tcp", "ap_ip", ap_ip_str);
+    if (e2 != ESP_OK) {
+      ESP_LOGW(TAG, "mDNS TXT ap_ip: %s", esp_err_to_name(e2));
+    } else {
+      ESP_LOGI(TAG, "mDNS TXT ap_ip=%s (AP hotspot discovery)", ap_ip_str);
+    }
+    /* Zapnout mDNS vysílání přes AP rozhraní */
+    (void)mdns_netif_action(
+        ap_netif, MDNS_EVENT_ENABLE_IP4 | MDNS_EVENT_ANNOUNCE_IP4);
+  }
+}
+
+static void czechmate_mdns_ensure_started(void) {
+  if (czechmate_mdns_started) {
+    return;
+  }
+  esp_err_t e = mdns_init();
+  if (e != ESP_OK && e != ESP_ERR_INVALID_STATE) {
+    ESP_LOGW(TAG, "mdns_init: %s", esp_err_to_name(e));
+    return;
+  }
+  uint8_t mac[6];
+  if (esp_read_mac(mac, ESP_MAC_WIFI_STA) != ESP_OK) {
+    (void)esp_read_mac(mac, ESP_MAC_EFUSE_FACTORY);
+  }
+  char host[24];
+  snprintf(host, sizeof(host), "czechmate-%02x%02x%02x", mac[3], mac[4],
+           mac[5]);
+  mdns_hostname_set(host);
+  mdns_instance_name_set("CZECHMATE");
+  mdns_txt_item_t txt[] = {
+      {"board", "czechmate"},
+  };
+  e = mdns_service_add("CZECHMATE", "_http", "_tcp", HTTP_SERVER_PORT, txt, 1);
+  if (e != ESP_OK && e != ESP_ERR_INVALID_STATE) {
+    ESP_LOGW(TAG, "mdns_service_add: %s", esp_err_to_name(e));
+  } else {
+    ESP_LOGI(TAG, "[STAGING] mDNS %s.local · _http._tcp port %d", host,
+             HTTP_SERVER_PORT);
+  }
+  czechmate_mdns_started = true;
+  /* refresh_sta_txt aktivuje mDNS na STA i AP rozhrani + plni TXT zaznamy */
+  czechmate_mdns_refresh_sta_txt();
+}
+
+#if CONFIG_HTTPD_WS_SUPPORT
+#define WS_MAX_CLIENT_FDS 32
+
+static esp_err_t http_ws_handler(httpd_req_t *req) {
+  if (req->method == HTTP_GET) {
+    ESP_LOGD(TAG, "WebSocket handshake OK (/ws)");
+    return ESP_OK;
+  }
+
+  httpd_ws_frame_t ws_pkt;
+  memset(&ws_pkt, 0, sizeof(ws_pkt));
+  ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+  esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
+  if (ret != ESP_OK) {
+    ESP_LOGD(TAG, "ws recv (len): %s", esp_err_to_name(ret));
+    return ret;
+  }
+  if (ws_pkt.len) {
+    uint8_t *buf = calloc(1, ws_pkt.len + 1);
+    if (buf == NULL) {
+      return ESP_ERR_NO_MEM;
+    }
+    ws_pkt.payload = buf;
+    ret = httpd_ws_recv_frame(req, &ws_pkt, ws_pkt.len);
+    free(buf);
+    if (ret != ESP_OK) {
+      ESP_LOGD(TAG, "ws recv payload: %s", esp_err_to_name(ret));
+      return ret;
+    }
+  }
+  return ESP_OK;
+}
+
+static bool ws_has_clients(void) {
+  if (httpd_handle == NULL) {
+    return false;
+  }
+  size_t n = WS_MAX_CLIENT_FDS;
+  int fds[WS_MAX_CLIENT_FDS];
+  if (httpd_get_client_list(httpd_handle, &n, fds) != ESP_OK) {
+    return false;
+  }
+  for (size_t i = 0; i < n; i++) {
+    if (httpd_ws_get_fd_info(httpd_handle, fds[i]) ==
+        HTTPD_WS_CLIENT_WEBSOCKET) {
+      return true;
+    }
+  }
+  return false;
+}
+
+static void ws_broadcast_snapshot(void) {
+  if (httpd_handle == NULL || !web_server_active) {
+    return;
+  }
+  if (!ws_has_clients()) {
+    return;
+  }
+  size_t len = 0;
+  if (build_snapshot_json(&len) != ESP_OK) {
+    ESP_LOGD(TAG, "WS broadcast: build_snapshot_json failed");
+    return;
+  }
+  uint8_t *payload = (uint8_t *)malloc(len);
+  if (payload == NULL) {
+    ESP_LOGE(TAG, "WS broadcast: malloc %u B failed", (unsigned)len);
+    return;
+  }
+  memcpy(payload, snapshot_buffer, len);
+  httpd_ws_frame_t ws_pkt = {.type = HTTPD_WS_TYPE_TEXT,
+                             .payload = payload,
+                             .len = len};
+  size_t n = WS_MAX_CLIENT_FDS;
+  int fds[WS_MAX_CLIENT_FDS];
+  if (httpd_get_client_list(httpd_handle, &n, fds) != ESP_OK) {
+    free(payload);
+    return;
+  }
+  size_t ws_count = 0;
+  for (size_t i = 0; i < n; i++) {
+    if (httpd_ws_get_fd_info(httpd_handle, fds[i]) !=
+        HTTPD_WS_CLIENT_WEBSOCKET) {
+      continue;
+    }
+    ws_count++;
+    esp_err_t err = httpd_ws_send_data(httpd_handle, fds[i], &ws_pkt);
+    if (err != ESP_OK) {
+      ESP_LOGD(TAG, "WS send fd %d: %s", fds[i], esp_err_to_name(err));
+    }
+  }
+  ESP_LOGD(TAG, "[STAGING] WS broadcast → %u WS client(s), %u B payload",
+           (unsigned)ws_count, (unsigned)len);
+  free(payload);
+}
+
+static void ws_broadcast_timer_cb(void *arg) {
+  (void)arg;
+  ESP_LOGD(TAG, "[STAGING] WS watchdog tick (slow periodic)");
+  ws_broadcast_snapshot();
+}
+#endif /* CONFIG_HTTPD_WS_SUPPORT */
+
+/** Fronta „ping“ z game_task — WS + BLE snapshot v web_server_task (neblokuje
+ * game_task na httpd_ws_send_data / malloc). Musí být mimo #if WS — BLE vždy. */
+static QueueHandle_t snapshot_notify_queue;
+
+static void czechmate_ensure_snapshot_notify_queue(void) {
+  if (snapshot_notify_queue != NULL) {
+    return;
+  }
+  snapshot_notify_queue = xQueueCreate(2, sizeof(uint8_t));
+  if (snapshot_notify_queue == NULL) {
+    ESP_LOGE(TAG, "snapshot_notify_queue create failed (fallback sync)");
+  }
+}
+
+void web_server_process_snapshot_notify_queue(void) {
+  if (snapshot_notify_queue == NULL) {
+    return;
+  }
+  uint8_t ping;
+  int n = 0;
+  while (xQueueReceive(snapshot_notify_queue, &ping, 0) == pdTRUE) {
+    n++;
+  }
+  if (n == 0) {
+    return;
+  }
+  size_t fh = esp_get_free_heap_size();
+  if (fh < 10240) {
+    ESP_LOGW(TAG,
+             "low heap before snapshot push: %zu B (cíl udržet ~8–10kB+ volné)",
+             fh);
+  }
+#if CONFIG_HTTPD_WS_SUPPORT
+  ws_broadcast_snapshot();
+#endif
+  czechmate_push_ble_snapshot();
+}
+
+/** Silná implementace — přepíše slabou z game_hooks (WS + BLE, nezávislé na
+ * CONFIG_HTTPD_WS_SUPPORT pro BLE). */
+void czechmate_on_game_state_changed(void) {
+  czechmate_ensure_snapshot_notify_queue();
+  if (snapshot_notify_queue == NULL) {
+#if CONFIG_HTTPD_WS_SUPPORT
+    ESP_LOGD(TAG,
+             "[STAGING] czechmate_on_game_state_changed sync → WS broadcast");
+    ws_broadcast_snapshot();
+#endif
+    czechmate_push_ble_snapshot();
+    return;
+  }
+  uint8_t ping = 1;
+  if (xQueueSend(snapshot_notify_queue, &ping, 0) != pdTRUE) {
+    ESP_LOGD(TAG,
+             "[STAGING] snapshot notify coalesced (queue full, already pending)");
+  } else {
+    ESP_LOGD(TAG, "[STAGING] czechmate_on_game_state_changed → notify queued");
+  }
+}
 
 static esp_err_t http_get_board_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/board");
@@ -1761,18 +2873,7 @@ static esp_err_t http_get_status_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  // INJECT WEB STATUS FIELDS
-  // Game task doesn't know about web lock or wifi, so we add it here.
-  // Brightness: pouzit cache (nepristupovat k NVS na kazdy request – stabilita)
-  char *last_brace = strrchr(json_buffer, '}');
-  if (last_brace) {
-    size_t remaining = sizeof(json_buffer) - (size_t)(last_brace - json_buffer);
-    uint8_t b = cached_brightness_valid ? cached_brightness : 50;
-    snprintf(last_brace, remaining,
-             ",\"web_locked\":%s,\"internet_connected\":%s,\"brightness\":%d}",
-             web_is_locked() ? "true" : "false",
-             sta_connected ? "true" : "false", (int)b);
-  }
+  inject_web_status_fields(json_buffer, sizeof(json_buffer));
 
   httpd_resp_set_type(req, "application/json");
   httpd_resp_send(req, json_buffer, strlen(json_buffer));
@@ -1814,6 +2915,37 @@ static esp_err_t http_get_captured_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
+static esp_err_t http_get_game_snapshot_handler(httpd_req_t *req) {
+  ESP_LOGD(TAG, "GET /api/game/snapshot");
+  uint32_t rev = game_get_state_revision();
+  char etag[24];
+  snprintf(etag, sizeof(etag), "%" PRIu32, rev);
+
+  char inm[64];
+  if (httpd_req_get_hdr_value_str(req, "If-None-Match", inm, sizeof(inm)) ==
+      ESP_OK) {
+    if (strcmp(inm, etag) == 0) {
+      httpd_resp_set_status(req, "304 Not Modified");
+      httpd_resp_send(req, NULL, 0);
+      return ESP_OK;
+    }
+  }
+
+  size_t pos = 0;
+  esp_err_t ret = build_snapshot_json(&pos);
+  if (ret != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to build game snapshot", -1);
+    return ESP_FAIL;
+  }
+  httpd_resp_set_type(req, "application/json");
+  if (httpd_resp_set_hdr(req, "ETag", etag) != ESP_OK) {
+    ESP_LOGD(TAG, "ETag header not set");
+  }
+  httpd_resp_send(req, snapshot_buffer, pos);
+  return ESP_OK;
+}
+
 static esp_err_t http_get_advantage_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET /api/advantage");
 
@@ -1838,9 +2970,8 @@ static esp_err_t http_get_advantage_handler(httpd_req_t *req) {
 static esp_err_t http_get_timer_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/timer");
 
-  // Ziskat stav timeru z game tasku pouzitim lokalniho bufferu pro zabraneni
-  // race conditions s jinymi endpointy
-  char local_json[JSON_BUFFER_SIZE];
+  // Lokalni buffer jen pro timer JSON (~1 KiB); JSON_BUFFER_SIZE na stacku = overflow httpd (8192 B).
+  char local_json[TIMER_HTTP_JSON_MAX];
   esp_err_t ret = game_get_timer_json(local_json, sizeof(local_json));
   if (ret != ESP_OK) {
     httpd_resp_set_status(req, "500 Internal Server Error");
@@ -2453,15 +3584,14 @@ static esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro POST /api/game/new
+ * @brief POST /api/game/new: fronta GAME_CMD_NEW_GAME (explicitni nova hra z webu).
  *
- * Spustí novou hru odesíláním příkazu GAME_CMD_NEW_GAME do game tasku.
- *
- * @param req HTTP request
- * @return ESP_OK při úspěchu, chybový kód při chybě
+ * @param req ukazatel na httpd_req_t
+ * @return ESP_OK nebo chybovy kod
  *
  * @details
- * Nepotřebuje žádné JSON payload. Prostě pošle NEW_GAME příkaz.
+ * Bez JSON payload. Odlisne se od automatickeho NEW_GAME pri startu z main
+ * (initialize_chess_game), kde se pri obnove NVS prikaz neposila.
  */
 static esp_err_t http_post_game_new_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/new");
@@ -2515,8 +3645,8 @@ static esp_err_t http_post_game_new_handler(httpd_req_t *req) {
 /**
  * @brief Handler pro POST /api/game/hint_highlight
  *
- * Body: { "from": "e2", "to": "e4" }. Ověří notaci, převede na LED indexy
- * a pošle LED_CMD_HIGHLIGHT_HINT (zelená = from, žlutá = to).
+ * Body: { "to": "e4" } povinne; { "from": "e2" } volitelne.
+ * Kdyz "from" chybi nebo je neplatny, posle from_led=64 takze na desce sviti jen "to".
  */
 static esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/hint_highlight");
@@ -2542,68 +3672,299 @@ static esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req) {
   }
   buf[ret] = '\0';
 
-  const char *p_from = strstr(buf, "\"from\"");
-  const char *p_to = strstr(buf, "\"to\"");
-  if (!p_from || !p_to) {
+  esp_err_t herr = web_server_apply_hint_highlight_json_body(buf);
+  if (herr == ESP_ERR_INVALID_ARG) {
     httpd_resp_set_status(req, "400 Bad Request");
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Missing from/to\"}",
+    httpd_resp_send(req, "{\"success\":false,\"error\":\"Invalid hint body\"}",
                     -1);
     return ESP_OK;
   }
-  /* Find value after "from": skip to next " and take 2 chars */
-  p_from += 6;
-  while (*p_from && *p_from != '"')
-    p_from++;
-  if (*p_from == '"')
-    p_from++;
-  p_to += 4;
-  while (*p_to && *p_to != '"')
-    p_to++;
-  if (*p_to == '"')
-    p_to++;
-  if (!*p_from || !*p_to || !p_from[1] || !p_to[1]) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Invalid JSON\"}", -1);
-    return ESP_OK;
-  }
-  char from_sq[3] = {0};
-  char to_sq[3] = {0};
-  from_sq[0] =
-      (char)((unsigned char)p_from[0] <= 'Z' ? p_from[0] + 32 : p_from[0]);
-  from_sq[1] = p_from[1];
-  to_sq[0] = (char)((unsigned char)p_to[0] <= 'Z' ? p_to[0] + 32 : p_to[0]);
-  to_sq[1] = p_to[1];
-  if (from_sq[0] < 'a' || from_sq[0] > 'h' || from_sq[1] < '1' ||
-      from_sq[1] > '8' || to_sq[0] < 'a' || to_sq[0] > 'h' || to_sq[1] < '1' ||
-      to_sq[1] > '8') {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Invalid square\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  uint8_t from_led = chess_notation_to_led_index(from_sq);
-  uint8_t to_led = chess_notation_to_led_index(to_sq);
-  if (from_led >= 64 || to_led >= 64) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Bad notation\"}", -1);
-    return ESP_OK;
-  }
-
-  led_command_t cmd = {0};
-  cmd.type = LED_CMD_HIGHLIGHT_HINT;
-  cmd.led_index = from_led;
-  cmd.data = (void *)&to_led;
-  led_execute_command_new(&cmd);
-  ESP_LOGI(TAG, "Hint highlight sent: %s -> %s (LED %u -> %u)", from_sq, to_sq,
-           (unsigned)from_led, (unsigned)to_led);
 
   httpd_resp_set_status(req, "200 OK");
   httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
+}
+
+/**
+ * @brief Handler pro POST /api/game/hint_clear
+ * Vymaze vizualizaci hintu na LED (vola se pri clearBotSuggestion).
+ */
+static esp_err_t http_post_game_hint_clear_handler(httpd_req_t *req) {
+  (void)req;
+  ESP_LOGI(TAG, "POST /api/game/hint_clear");
+  led_command_t cmd = {0};
+  cmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
+  led_execute_command_new(&cmd);
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
+}
+
+/**
+ * POST /api/game/setup_tutorial
+ * Body: {"action":"start"|"cancel"|"finish"}
+ */
+static esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/game/setup_tutorial");
+
+  if (web_is_locked()) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(
+        req, "{\"success\":false,\"error\":\"Web interface locked\"}", -1);
+    return ESP_OK;
+  }
+
+  char buf[192] = {0};
+  int r = httpd_req_recv(req, buf, (int)sizeof(buf) - 1);
+  if (r <= 0) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "{\"success\":false,\"error\":\"Empty body\"}", -1);
+    return ESP_OK;
+  }
+  buf[r] = '\0';
+
+  bool want_start = (strstr(buf, "\"start\"") != NULL);
+  bool want_cancel = (strstr(buf, "\"cancel\"") != NULL);
+  bool want_finish = (strstr(buf, "\"finish\"") != NULL);
+  int n = (want_start ? 1 : 0) + (want_cancel ? 1 : 0) + (want_finish ? 1 : 0);
+  if (n != 1) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"error\":\"Specify exactly one action: "
+                    "start, cancel, or finish\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  if (want_finish) {
+    if (!game_is_board_setup_tutorial_active()) {
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_set_status(req, "400 Bad Request");
+      httpd_resp_send(
+          req, "{\"success\":false,\"error\":\"Tutorial is not active\"}", -1);
+      return ESP_OK;
+    }
+    if (!game_finish_board_setup_tutorial_from_web()) {
+      httpd_resp_set_type(req, "application/json");
+      if (game_is_board_setup_tutorial_active()) {
+        httpd_resp_set_status(req, "409 Conflict");
+        httpd_resp_send(req,
+                        "{\"success\":false,\"error\":\"Physical board does "
+                        "not match starting occupancy (rows 0-1,6-7 full; "
+                        "2-5 empty)\"}",
+                        -1);
+      } else {
+        httpd_resp_set_status(req, "400 Bad Request");
+        httpd_resp_send(
+            req, "{\"success\":false,\"error\":\"Could not finish tutorial\"}",
+            -1);
+      }
+      return ESP_OK;
+    }
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req,
+                    "{\"success\":true,\"message\":\"Starting position "
+                    "confirmed; new game started\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  if (game_command_queue == NULL) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(
+        req, "{\"success\":false,\"error\":\"Game command queue unavailable\"}",
+        -1);
+    return ESP_FAIL;
+  }
+
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_BOARD_SETUP_TUTORIAL;
+  cmd.promotion_choice = want_start ? 0U : 1U;
+  cmd.response_queue = NULL;
+
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    ESP_LOGE(TAG, "setup_tutorial: queue send failed");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "{\"success\":false,\"error\":\"Queue full\"}", -1);
+    return ESP_FAIL;
+  }
+
+  if (want_cancel) {
+    led_command_t lcmd = {0};
+    lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
+    led_execute_command_new(&lcmd);
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
+}
+
+/**
+ * POST /api/game/puzzle
+ * Body: {"action":"start","id":1..5} | {"action":"prepare","id":1..5} |
+ * {"action":"cancel"}
+ */
+static esp_err_t http_post_game_puzzle_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/game/puzzle");
+
+  if (web_is_locked()) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(
+        req, "{\"success\":false,\"error\":\"Web interface locked\"}", -1);
+    return ESP_OK;
+  }
+
+  char buf[192] = {0};
+  int r = httpd_req_recv(req, buf, (int)sizeof(buf) - 1);
+  if (r <= 0) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "{\"success\":false,\"error\":\"Empty body\"}", -1);
+    return ESP_OK;
+  }
+  buf[r] = '\0';
+
+  bool want_start = (strstr(buf, "\"start\"") != NULL);
+  bool want_cancel = (strstr(buf, "\"cancel\"") != NULL);
+  bool want_prepare = (strstr(buf, "\"prepare\"") != NULL);
+  int n = (want_start ? 1 : 0) + (want_cancel ? 1 : 0) + (want_prepare ? 1 : 0);
+  if (n != 1) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"error\":\"Specify exactly one action: "
+                    "start, prepare, or cancel\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  if (game_command_queue == NULL) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(
+        req, "{\"success\":false,\"error\":\"Game command queue unavailable\"}",
+        -1);
+    return ESP_FAIL;
+  }
+
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_PUZZLE;
+  cmd.promotion_choice = 0U;
+  cmd.response_queue = NULL;
+
+  if (want_start || want_prepare) {
+    int puzzle_id = -1;
+    char *id_ptr = strstr(buf, "\"id\"");
+    if (id_ptr != NULL) {
+      char *colon = strchr(id_ptr, ':');
+      if (colon != NULL) {
+        puzzle_id = atoi(colon + 1);
+      }
+    }
+    if (puzzle_id < 1 || puzzle_id > 5) {
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_set_status(req, "400 Bad Request");
+      httpd_resp_send(req,
+                      "{\"success\":false,\"error\":\"Puzzle id must be 1..5\"}",
+                      -1);
+      return ESP_OK;
+    }
+    cmd.promotion_choice =
+        want_prepare ? (uint8_t)(100 + puzzle_id) : (uint8_t)puzzle_id;
+  }
+
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    ESP_LOGE(TAG, "puzzle: queue send failed");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "{\"success\":false,\"error\":\"Queue full\"}", -1);
+    return ESP_FAIL;
+  }
+
+  if (want_cancel) {
+    led_command_t lcmd = {0};
+    lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
+    led_execute_command_new(&lcmd);
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
+}
+
+/**
+ * GET /api/settings/ui — JSON preference z NVS (nebo vychozi).
+ */
+static esp_err_t http_get_settings_ui_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/settings/ui");
+  char buf[CONFIG_UI_PREFS_MAX_BYTES + 1];
+  size_t len = 0;
+  esp_err_t err = config_load_ui_prefs_json(buf, sizeof(buf), &len);
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_set_status(req, "200 OK");
+  if (err != ESP_OK || len == 0) {
+    httpd_resp_send(req, "{\"version\":1,\"prefs\":{}}", -1);
+    return ESP_OK;
+  }
+  httpd_resp_send(req, buf, len);
+  return ESP_OK;
+}
+
+/**
+ * POST /api/settings/ui — ulozeni web UI JSON do NVS.
+ */
+static esp_err_t http_post_settings_ui_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/settings/ui");
+
+  if (web_is_locked()) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(
+        req, "{\"success\":false,\"error\":\"Web interface locked\"}", -1);
+    return ESP_OK;
+  }
+
+  char body[CONFIG_UI_PREFS_MAX_BYTES + 1];
+  int r = httpd_req_recv(req, body, (int)sizeof(body) - 1);
+  if (r <= 0) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "{\"success\":false,\"error\":\"Empty body\"}", -1);
+    return ESP_OK;
+  }
+  body[r] = '\0';
+
+  esp_err_t s = config_save_ui_prefs_json(body, (size_t)r);
+  httpd_resp_set_type(req, "application/json");
+  if (s == ESP_ERR_INVALID_ARG) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(
+        req,
+        "{\"success\":false,\"error\":\"Invalid JSON or too large (max "
+        "3072 bytes)\"}",
+        -1);
+    return ESP_OK;
+  }
+  if (s != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "{\"success\":false,\"error\":\"NVS write failed\"}",
+                    -1);
+    return ESP_FAIL;
+  }
+  httpd_resp_set_status(req, "200 OK");
   httpd_resp_send(req, "{\"success\":true}", -1);
   return ESP_OK;
 }
@@ -2950,7 +4311,7 @@ static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
 static esp_err_t http_get_wifi_status_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/wifi/status");
 
-  char local_json[JSON_BUFFER_SIZE];
+  char local_json[WIFI_STATUS_JSON_MAX];
   esp_err_t ret = wifi_get_sta_status_json(local_json, sizeof(local_json));
   if (ret != ESP_OK) {
     httpd_resp_set_status(req, "500 Internal Server Error");
@@ -2966,7 +4327,7 @@ static esp_err_t http_get_wifi_status_handler(httpd_req_t *req) {
 
 // ============================================================================
 // TEST PAGE - MINIMAL TIMER TEST (for debugging)
-// chess_app.js embedded (110990 bytes, 2682 lines)
+// chess_app.js embedded (183789 bytes, 4525 lines)
 static const char chess_app_js_content[] =
     "// ============================================================================\n"
     "// CHESS WEB APP - EXTRACTED JAVASCRIPT FOR SYNTAX CHECKING\n"
@@ -3003,8 +4364,57 @@ static const char chess_app_js_content[] =
     "    ' ': ' '\n"
     "};\n"
     "\n"
+    "/**\n"
+    " * PNG figurky z chess.com (veřejné CDN URL, Staunton „neo“, 150 px).\n"
+    " * Vyžaduje, aby prohlížeč měl přístup na internet (jinak fallback na Unicode v setPieceElementFromFen).\n"
+    " * @see https://www.chess.com/chess-themes/pieces/neo/150/wk.png\n"
+    " */\n"
+    "const CHESSCOM_PIECE_BASE = 'https://www.chess.com/chess-themes/pieces/neo/150/';\n"
+    "const CHESSCOM_PIECE = {\n"
+    "    'K': 'wk', 'Q': 'wq', 'R': 'wr', 'B': 'wb', 'N': 'wn', 'P': 'wp',\n"
+    "    'k': 'bk', 'q': 'bq', 'r': 'br', 'b': 'bb', 'n': 'bn', 'p': 'bp'\n"
+    "};\n"
+    "\n"
+    "function pieceImgSrc(ch) {\n"
+    "    const slug = CHESSCOM_PIECE[ch];\n"
+    "    return slug ? (CHESSCOM_PIECE_BASE + slug + '.png') : '';\n"
+    "}\n"
+    "\n"
+    "function setPieceElementFromFen(el, ch) {\n"
+    "    if (!el) return;\n"
+    "    if (ch === ' ' || ch === undefined) {\n"
+    "        el.textContent = '';\n"
+    "        el.innerHTML = '';\n"
+    "        el.className = 'piece';\n"
+    "        return;\n"
+    "    }\n"
+    "    const src = pieceImgSrc(ch);\n"
+    "    if (src) {\n"
+    "        const isWhite = ch >= 'A' && ch <= 'Z';\n"
+    "        el.className = 'piece has-img ' + (isWhite ? 'white' : 'black');\n"
+    "        el.innerHTML = '<img src=\"' + src + '\" alt=\"\" draggable=\"false\">';\n"
+    "    } else {\n"
+    "        el.innerHTML = '';\n"
+    "        el.textContent = pieceSymbols[ch] || ch;\n"
+    "        el.className = 'piece ' + (ch >= 'A' && ch <= 'Z' ? 'white' : 'black');\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function pieceImgHtml(ch) {\n"
+    "    const s = pieceImgSrc(ch);\n"
+    "    if (s) {\n"
+    "        return '<img src=\"' + s + '\" class=\"endgame-piece-img\" alt=\"\" draggable=\"false\">';\n"
+    "    }\n"
+    "    return pieceSymbols[ch] || ch;\n"
+    "}\n"
+    "\n"
+    "/** Zabrání souběhu několika fetchData na pomalé síti / přetíženém HTTPD. */\n"
+    "let fetchDataInFlight = false;\n"
+    "\n"
     "let boardData = [];\n"
     "let statusData = {};\n"
+    "/** Poslední stav puzzle ze úspěšného pollingu — zobrazení panelu při výpadku HTTP (offline). */\n"
+    "let lastPuzzleSnapshotForOffline = null;\n"
     "let historyData = [];\n"
     "let capturedData = { white_captured: [], black_captured: [] };\n"
     "let advantageData = { history: [], white_checks: 0, black_checks: 0, white_castles: 0, black_castles: 0 };\n"
@@ -3016,6 +4426,7 @@ static const char chess_app_js_content[] =
     "\n"
     "let remoteControlEnabled = false;\n"
     "// BOT MODE STATE\n"
+    "// Bot tah se nikdy neprovádí automaticky – jen vizualizace (web + LED); uživatel pohybuje figurku fyzicky.\n"
     "let gameMode = 'pvp'; // 'pvp' or 'bot'\n"
     "let botSettings = { strength: 10, side: 'white' }; // strength: 1,3,5,8,12,15 (zobrazeno jako ELO v Nastavení)\n"
     "let botThinking = false;\n"
@@ -3043,6 +4454,267 @@ static const char chess_app_js_content[] =
     "let lastCapturedCount = 0;\n"
     "/** Poslední nápověda { from, to } – odměna za výborný tah se nedává, pokud byl tah stejný. */\n"
     "var lastHintedMove = null;\n"
+    "/** Generace requestu nápovědy – při novém kliknutí se zvýší, zastaralé odpovědi se ignorují. */\n"
+    "var hintRequestGeneration = 0;\n"
+    "\n"
+    "/** Web UI preference (zdroj pravdy: NVS přes GET/POST /api/settings/ui). */\n"
+    "var devicePrefs = {\n"
+    "    version: 1,\n"
+    "    chessHintDepth: 10,\n"
+    "    chessEvaluateMove: false,\n"
+    "    chessHintLimit: 0,\n"
+    "    chessHintAwardBest: true,\n"
+    "    chessHintAwardGood: false,\n"
+    "    chessHintAwardCapture: false,\n"
+    "    chessShowHintStats: false,\n"
+    "    chessBotLedTargetOnlyAfterLift: false,\n"
+    "    chessTutorialsEnabled: false,\n"
+    "    chess_confirm_new_game: false,\n"
+    "    botSettings: { mode: 'pvp', strength: '10', side: 'white' }\n"
+    "};\n"
+    "var uiPrefsSaveTimer = null;\n"
+    "var uiPrefsHydratedFromServer = false;\n"
+    "\n"
+    "function mergePrefsFromObject(prefs) {\n"
+    "    if (!prefs || typeof prefs !== 'object') return;\n"
+    "    var k;\n"
+    "    for (k in prefs) {\n"
+    "        if (Object.prototype.hasOwnProperty.call(prefs, k)) {\n"
+    "            devicePrefs[k] = prefs[k];\n"
+    "        }\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "async function loadUiPrefsFromDevice() {\n"
+    "    try {\n"
+    "        var r = await fetch('/api/settings/ui');\n"
+    "        if (!r.ok) return;\n"
+    "        var data = await r.json();\n"
+    "        if (data && typeof data.version === 'number') {\n"
+    "            devicePrefs.version = data.version;\n"
+    "        }\n"
+    "        if (data && data.prefs && typeof data.prefs === 'object') {\n"
+    "            mergePrefsFromObject(data.prefs);\n"
+    "        }\n"
+    "        var empty = !data || !data.prefs ||\n"
+    "            (typeof data.prefs === 'object' && Object.keys(data.prefs).length === 0);\n"
+    "        if (empty) {\n"
+    "            migrateLocalStorageToDevicePrefsOnce();\n"
+    "        }\n"
+    "        uiPrefsHydratedFromServer = true;\n"
+    "    } catch (e) {\n"
+    "        if (typeof console !== 'undefined' && console.warn) {\n"
+    "            console.warn('loadUiPrefsFromDevice', e);\n"
+    "        }\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function migrateLocalStorageToDevicePrefsOnce() {\n"
+    "    try {\n"
+    "        if (typeof sessionStorage !== 'undefined' &&\n"
+    "            sessionStorage.getItem('chessUiPrefsMigrated') === '1') {\n"
+    "            return;\n"
+    "        }\n"
+    "        var keys = ['chessHintDepth', 'chessEvaluateMove', 'chessHintLimit', 'chessHintAwardBest',\n"
+    "            'chessHintAwardGood', 'chessHintAwardCapture', 'chessShowHintStats',\n"
+    "            'chessBotLedTargetOnlyAfterLift', 'chessTutorialsEnabled', 'chess_confirm_new_game', 'chessBotSettings'];\n"
+    "        var i;\n"
+    "        var any = false;\n"
+    "        for (i = 0; i < keys.length; i++) {\n"
+    "            try {\n"
+    "                if (localStorage.getItem(keys[i]) != null) { any = true; break; }\n"
+    "            } catch (e2) { /* ignore */ }\n"
+    "        }\n"
+    "        if (!any) return;\n"
+    "\n"
+    "        var d = localStorage.getItem('chessHintDepth');\n"
+    "        if (d != null) devicePrefs.chessHintDepth = Math.min(18, Math.max(1, parseInt(d, 10) || 10));\n"
+    "        if (localStorage.getItem('chessEvaluateMove') === 'true') devicePrefs.chessEvaluateMove = true;\n"
+    "        if (localStorage.getItem('chessEvaluateMove') === 'false') devicePrefs.chessEvaluateMove = false;\n"
+    "        d = localStorage.getItem('chessHintLimit');\n"
+    "        if (d != null) devicePrefs.chessHintLimit = Math.max(0, parseInt(d, 10) || 0);\n"
+    "        if (localStorage.getItem('chessHintAwardBest') != null) {\n"
+    "            devicePrefs.chessHintAwardBest = localStorage.getItem('chessHintAwardBest') !== 'false';\n"
+    "        }\n"
+    "        devicePrefs.chessHintAwardGood = localStorage.getItem('chessHintAwardGood') === 'true';\n"
+    "        devicePrefs.chessHintAwardCapture = localStorage.getItem('chessHintAwardCapture') === 'true';\n"
+    "        devicePrefs.chessShowHintStats = localStorage.getItem('chessShowHintStats') === 'true';\n"
+    "        devicePrefs.chessBotLedTargetOnlyAfterLift = localStorage.getItem('chessBotLedTargetOnlyAfterLift') === 'true';\n"
+    "        devicePrefs.chessTutorialsEnabled = localStorage.getItem('chessTutorialsEnabled') === 'true';\n"
+    "        devicePrefs.chess_confirm_new_game = localStorage.getItem('chess_confirm_new_game') === 'true';\n"
+    "        var bot = localStorage.getItem('chessBotSettings');\n"
+    "        if (bot) {\n"
+    "            try { devicePrefs.botSettings = JSON.parse(bot); } catch (e3) { /* ignore */ }\n"
+    "        }\n"
+    "        if (typeof sessionStorage !== 'undefined') {\n"
+    "            sessionStorage.setItem('chessUiPrefsMigrated', '1');\n"
+    "        }\n"
+    "        scheduleSaveUiPrefsToDevice(true);\n"
+    "    } catch (e) { /* ignore */ }\n"
+    "}\n"
+    "\n"
+    "function buildUiPrefsPayload() {\n"
+    "    return JSON.stringify({\n"
+    "        version: devicePrefs.version || 1,\n"
+    "        prefs: {\n"
+    "            chessHintDepth: devicePrefs.chessHintDepth,\n"
+    "            chessEvaluateMove: !!devicePrefs.chessEvaluateMove,\n"
+    "            chessHintLimit: devicePrefs.chessHintLimit,\n"
+    "            chessHintAwardBest: !!devicePrefs.chessHintAwardBest,\n"
+    "            chessHintAwardGood: !!devicePrefs.chessHintAwardGood,\n"
+    "            chessHintAwardCapture: !!devicePrefs.chessHintAwardCapture,\n"
+    "            chessShowHintStats: !!devicePrefs.chessShowHintStats,\n"
+    "            chessBotLedTargetOnlyAfterLift: !!devicePrefs.chessBotLedTargetOnlyAfterLift,\n"
+    "            chessTutorialsEnabled: !!devicePrefs.chessTutorialsEnabled,\n"
+    "            chess_confirm_new_game: !!devicePrefs.chess_confirm_new_game,\n"
+    "            botSettings: devicePrefs.botSettings && typeof devicePrefs.botSettings === 'object'\n"
+    "                ? devicePrefs.botSettings\n"
+    "                : { mode: 'pvp', strength: '10', side: 'white' }\n"
+    "        }\n"
+    "    });\n"
+    "}\n"
+    "\n"
+    "function scheduleSaveUiPrefsToDevice(immediate) {\n"
+    "    if (uiPrefsSaveTimer) {\n"
+    "        clearTimeout(uiPrefsSaveTimer);\n"
+    "        uiPrefsSaveTimer = null;\n"
+    "    }\n"
+    "    var delay = immediate ? 0 : 400;\n"
+    "    uiPrefsSaveTimer = setTimeout(function () {\n"
+    "        uiPrefsSaveTimer = null;\n"
+    "        fetch('/api/settings/ui', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: buildUiPrefsPayload()\n"
+    "        }).catch(function () { /* ignore */ });\n"
+    "    }, delay);\n"
+    "}\n"
+    "\n"
+    "function syncHintSettingsFromDom() {\n"
+    "    var el = document.getElementById('hint-limit');\n"
+    "    if (el) devicePrefs.chessHintLimit = Math.max(0, parseInt(el.value, 10) || 0);\n"
+    "    el = document.getElementById('hint-award-best');\n"
+    "    if (el) devicePrefs.chessHintAwardBest = el.checked;\n"
+    "    el = document.getElementById('hint-award-good');\n"
+    "    if (el) devicePrefs.chessHintAwardGood = el.checked;\n"
+    "    el = document.getElementById('hint-award-capture');\n"
+    "    if (el) devicePrefs.chessHintAwardCapture = el.checked;\n"
+    "    el = document.getElementById('show-hint-stats');\n"
+    "    if (el) devicePrefs.chessShowHintStats = el.checked;\n"
+    "    scheduleSaveUiPrefsToDevice();\n"
+    "}\n"
+    "window.syncHintSettingsFromDom = syncHintSettingsFromDom;\n"
+    "\n"
+    "function tutorialsPanelSetVisible(on) {\n"
+    "    var w = document.getElementById('tutorials-panel-body');\n"
+    "    if (w) w.style.display = on ? 'block' : 'none';\n"
+    "    var b = document.getElementById('setup-tutorial-open-btn');\n"
+    "    if (b) b.disabled = !on;\n"
+    "}\n"
+    "\n"
+    "function saveTutorialsEnabled(on) {\n"
+    "    devicePrefs.chessTutorialsEnabled = !!on;\n"
+    "    tutorialsPanelSetVisible(!!on);\n"
+    "    scheduleSaveUiPrefsToDevice();\n"
+    "}\n"
+    "window.saveTutorialsEnabled = saveTutorialsEnabled;\n"
+    "\n"
+    "function updateBotSettingsVisibility() {\n"
+    "    var gm = document.getElementById('game-mode');\n"
+    "    var container = document.getElementById('bot-settings-container');\n"
+    "    if (!gm || !container) return;\n"
+    "    container.style.display = (gm.value === 'bot') ? 'block' : 'none';\n"
+    "    saveBotSettings();\n"
+    "}\n"
+    "window.updateBotSettingsVisibility = updateBotSettingsVisibility;\n"
+    "\n"
+    "function saveBotSettings() {\n"
+    "    var modeEl = document.getElementById('game-mode');\n"
+    "    var strengthEl = document.getElementById('bot-strength');\n"
+    "    var sideEl = document.getElementById('player-side');\n"
+    "    if (modeEl) gameMode = modeEl.value;\n"
+    "    devicePrefs.botSettings = {\n"
+    "        mode: modeEl ? modeEl.value : 'pvp',\n"
+    "        strength: strengthEl ? strengthEl.value : '10',\n"
+    "        side: sideEl ? sideEl.value : 'white'\n"
+    "    };\n"
+    "    botSettings.strength = devicePrefs.botSettings.strength;\n"
+    "    botSettings.side = devicePrefs.botSettings.side;\n"
+    "    scheduleSaveUiPrefsToDevice();\n"
+    "}\n"
+    "window.saveBotSettings = saveBotSettings;\n"
+    "\n"
+    "function loadBotSettings() {\n"
+    "    var s = devicePrefs.botSettings;\n"
+    "    if (!s || typeof s !== 'object') {\n"
+    "        s = { mode: 'pvp', strength: '10', side: 'white' };\n"
+    "    }\n"
+    "    var gm = document.getElementById('game-mode');\n"
+    "    if (gm) {\n"
+    "        if (s.mode) gm.value = s.mode;\n"
+    "        gameMode = gm.value;\n"
+    "    }\n"
+    "    var bs = document.getElementById('bot-strength');\n"
+    "    if (bs && s.strength != null && s.strength !== '') bs.value = String(s.strength);\n"
+    "    var ps = document.getElementById('player-side');\n"
+    "    if (ps && s.side) ps.value = s.side;\n"
+    "    botSettings.strength = bs ? bs.value : String(s.strength || '10');\n"
+    "    botSettings.side = ps ? ps.value : (s.side || 'white');\n"
+    "    var container = document.getElementById('bot-settings-container');\n"
+    "    if (container && gm) {\n"
+    "        container.style.display = (gm.value === 'bot') ? 'block' : 'none';\n"
+    "    }\n"
+    "    if (typeof handleRandomDraw === 'function') handleRandomDraw();\n"
+    "}\n"
+    "window.loadBotSettings = loadBotSettings;\n"
+    "\n"
+    "function wireConfirmNewGameCheckbox() {\n"
+    "    var cb = document.getElementById('confirm-new-game');\n"
+    "    if (!cb || cb._prefsWired) return;\n"
+    "    cb._prefsWired = true;\n"
+    "    cb.addEventListener('change', function () {\n"
+    "        devicePrefs.chess_confirm_new_game = !!cb.checked;\n"
+    "        scheduleSaveUiPrefsToDevice();\n"
+    "    });\n"
+    "}\n"
+    "\n"
+    "function applyDevicePrefsToDom() {\n"
+    "    var depthEl = document.getElementById('hint-depth');\n"
+    "    if (depthEl) depthEl.value = getHintDepth();\n"
+    "    var evaluateMoveEl = document.getElementById('evaluate-move-enabled');\n"
+    "    if (evaluateMoveEl) evaluateMoveEl.checked = getEvaluateMoveEnabled();\n"
+    "    var hl = document.getElementById('hint-limit');\n"
+    "    if (hl) hl.value = String(getHintLimit());\n"
+    "    var hb = document.getElementById('hint-award-best');\n"
+    "    if (hb) hb.checked = getHintAwardBest();\n"
+    "    var hg = document.getElementById('hint-award-good');\n"
+    "    if (hg) hg.checked = getHintAwardGood();\n"
+    "    var hc = document.getElementById('hint-award-capture');\n"
+    "    if (hc) hc.checked = getHintAwardCapture();\n"
+    "    var hs = document.getElementById('show-hint-stats');\n"
+    "    if (hs) hs.checked = getShowHintStats();\n"
+    "    var botLed = document.getElementById('bot-led-target-only-after-lift');\n"
+    "    if (botLed) botLed.checked = getBotLedTargetOnlyAfterLift();\n"
+    "    var tut = document.getElementById('chess-tutorials-enabled');\n"
+    "    if (tut) {\n"
+    "        tut.checked = !!devicePrefs.chessTutorialsEnabled;\n"
+    "        tutorialsPanelSetVisible(!!devicePrefs.chessTutorialsEnabled);\n"
+    "    }\n"
+    "    var cng = document.getElementById('confirm-new-game');\n"
+    "    if (cng) cng.checked = !!devicePrefs.chess_confirm_new_game;\n"
+    "    wireConfirmNewGameCheckbox();\n"
+    "    loadBotSettings();\n"
+    "    if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();\n"
+    "}\n"
+    "\n"
+    "window.onHintDepthChange = function (v) {\n"
+    "    devicePrefs.chessHintDepth = v;\n"
+    "    scheduleSaveUiPrefsToDevice();\n"
+    "};\n"
+    "window.onEvaluateMoveChange = function (checked) {\n"
+    "    devicePrefs.chessEvaluateMove = !!checked;\n"
+    "    scheduleSaveUiPrefsToDevice();\n"
+    "};\n"
     "\n"
     "// ============================================================================\n"
     "// BOARD FUNCTIONS\n"
@@ -3058,7 +4730,7 @@ static const char chess_app_js_content[] =
     "            square.dataset.row = row;\n"
     "            square.dataset.col = col;\n"
     "            square.dataset.index = row * 8 + col;\n"
-    "            square.onclick = () => handleSquareClick(row, col);\n"
+    "            attachBoardPointerHandlers(square, row, col);\n"
     "            const piece = document.createElement('div');\n"
     "            piece.className = 'piece';\n"
     "            piece.id = 'piece-' + (row * 8 + col);\n"
@@ -3075,6 +4747,142 @@ static const char chess_app_js_content[] =
     "        sq.classList.remove('selected', 'valid-move', 'valid-capture');\n"
     "    });\n"
     "    selectedSquare = null;\n"
+    "}\n"
+    "\n"
+    "/** Prah (px) pro rozlišení kliknutí vs. táhnutí figurky. */\n"
+    "var BOARD_DRAG_THRESHOLD_PX = 12;\n"
+    "\n"
+    "function squareFromEventTarget(el) {\n"
+    "    if (!el || !el.closest) return null;\n"
+    "    var sq = el.closest('.square');\n"
+    "    if (!sq) return null;\n"
+    "    return {\n"
+    "        row: parseInt(sq.dataset.row, 10),\n"
+    "        col: parseInt(sq.dataset.col, 10)\n"
+    "    };\n"
+    "}\n"
+    "\n"
+    "function coordsToNotation(row, col) {\n"
+    "    return String.fromCharCode(97 + col) + (row + 1);\n"
+    "}\n"
+    "\n"
+    "function sandboxApplyMoveFromDrag(fromRow, fromCol, toRow, toCol) {\n"
+    "    if (fromRow === toRow && fromCol === toCol) return;\n"
+    "    var piece = sandboxBoard[fromRow][fromCol];\n"
+    "    if (piece === ' ') return;\n"
+    "    var dest = sandboxBoard[toRow][toCol];\n"
+    "    var index = toRow * 8 + toCol;\n"
+    "    if (dest === ' ') {\n"
+    "        makeSandboxMove(fromRow, fromCol, toRow, toCol);\n"
+    "        clearHighlights();\n"
+    "        return;\n"
+    "    }\n"
+    "    var isOurPiece = (piece === piece.toUpperCase()) === (dest === dest.toUpperCase());\n"
+    "    if (isOurPiece) {\n"
+    "        clearHighlights();\n"
+    "        selectedSquare = index;\n"
+    "        var elSq = document.querySelector('[data-row=\\'' + toRow + '\\'][data-col=\\'' + toCol + '\\']');\n"
+    "        if (elSq) elSq.classList.add('selected');\n"
+    "        return;\n"
+    "    }\n"
+    "    makeSandboxMove(fromRow, fromCol, toRow, toCol);\n"
+    "    clearHighlights();\n"
+    "}\n"
+    "\n"
+    "async function handleRemoteDragMove(fromRow, fromCol, toRow, toCol) {\n"
+    "    if (fromRow === toRow && fromCol === toCol) return;\n"
+    "    var piece = boardData[fromRow] && boardData[fromRow][fromCol];\n"
+    "    if (!piece || piece === ' ') return;\n"
+    "    if (isWebLocked()) {\n"
+    "        alert('Rozhraní je zamčeno. Odemkněte přes UART.');\n"
+    "        return;\n"
+    "    }\n"
+    "    var fromN = coordsToNotation(fromRow, fromCol);\n"
+    "    var toN = coordsToNotation(toRow, toCol);\n"
+    "    try {\n"
+    "        var r1 = await fetch('/api/game/virtual_action', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ action: 'pickup', square: fromN })\n"
+    "        });\n"
+    "        var res1 = await r1.json().catch(function () { return {}; });\n"
+    "        if (!r1.ok) {\n"
+    "            if (r1.status === 403 && res1.message) alert(res1.message);\n"
+    "            await fetchData();\n"
+    "            return;\n"
+    "        }\n"
+    "        await fetchData();\n"
+    "        var r2 = await fetch('/api/game/virtual_action', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ action: 'drop', square: toN })\n"
+    "        });\n"
+    "        var res2 = await r2.json().catch(function () { return {}; });\n"
+    "        if (!r2.ok && r2.status === 403 && res2.message) alert(res2.message);\n"
+    "        await fetchData();\n"
+    "    } catch (e) {\n"
+    "        console.error('Remote drag virtual_action:', e);\n"
+    "        await fetchData();\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function attachBoardPointerHandlers(square, row, col) {\n"
+    "    var dragStart = null;\n"
+    "    function onPointerDown(ev) {\n"
+    "        if (ev.button !== undefined && ev.button !== 0) return;\n"
+    "        if (reviewMode) return;\n"
+    "        dragStart = {\n"
+    "            row: row,\n"
+    "            col: col,\n"
+    "            x: ev.clientX,\n"
+    "            y: ev.clientY,\n"
+    "            pid: ev.pointerId,\n"
+    "            moved: false\n"
+    "        };\n"
+    "        try {\n"
+    "            square.setPointerCapture(ev.pointerId);\n"
+    "        } catch (e) { /* ignore */ }\n"
+    "        if (document.documentElement.classList.contains('web-board-focus')) {\n"
+    "            try {\n"
+    "                ev.preventDefault();\n"
+    "            } catch (e2) { /* ignore */ }\n"
+    "        }\n"
+    "    }\n"
+    "    function onPointerMove(ev) {\n"
+    "        if (!dragStart || dragStart.pid !== ev.pointerId) return;\n"
+    "        var dx = ev.clientX - dragStart.x;\n"
+    "        var dy = ev.clientY - dragStart.y;\n"
+    "        if (!dragStart.moved && (dx * dx + dy * dy) >= BOARD_DRAG_THRESHOLD_PX * BOARD_DRAG_THRESHOLD_PX) {\n"
+    "            dragStart.moved = true;\n"
+    "        }\n"
+    "    }\n"
+    "    async function onPointerUp(ev) {\n"
+    "        if (!dragStart || dragStart.pid !== ev.pointerId) return;\n"
+    "        try {\n"
+    "            square.releasePointerCapture(ev.pointerId);\n"
+    "        } catch (e) { /* ignore */ }\n"
+    "        var wasDrag = dragStart.moved;\n"
+    "        var fr = dragStart.row;\n"
+    "        var fc = dragStart.col;\n"
+    "        dragStart = null;\n"
+    "        if (reviewMode) return;\n"
+    "        if (wasDrag) {\n"
+    "            var targetEl = document.elementFromPoint(ev.clientX, ev.clientY);\n"
+    "            var to = squareFromEventTarget(targetEl);\n"
+    "            if (!to || (to.row === fr && to.col === fc)) return;\n"
+    "            if (sandboxMode) {\n"
+    "                sandboxApplyMoveFromDrag(fr, fc, to.row, to.col);\n"
+    "            } else if (remoteControlEnabled) {\n"
+    "                await handleRemoteDragMove(fr, fc, to.row, to.col);\n"
+    "            }\n"
+    "            return;\n"
+    "        }\n"
+    "        await handleSquareClick(row, col);\n"
+    "    }\n"
+    "    square.addEventListener('pointerdown', onPointerDown);\n"
+    "    square.addEventListener('pointermove', onPointerMove);\n"
+    "    square.addEventListener('pointerup', onPointerUp);\n"
+    "    square.addEventListener('pointercancel', onPointerUp);\n"
     "}\n"
     "\n"
     "// ============================================================================\n"
@@ -3382,10 +5190,10 @@ static const char chess_app_js_content[] =
     "    return fen;\n"
     "}\n"
     "\n"
-    "/** Hint depth 1–18 from settings (localStorage). Used by fetchStockfishBestMove for hints. */\n"
+    "/** Hint depth 1–18 from settings (NVS devicePrefs). Used by fetchStockfishBestMove for hints. */\n"
     "function getHintDepth() {\n"
     "    try {\n"
-    "        var d = parseInt(localStorage.getItem('chessHintDepth') || '10', 10);\n"
+    "        var d = parseInt(devicePrefs.chessHintDepth, 10);\n"
     "        d = isNaN(d) ? 10 : d;\n"
     "        return Math.min(18, Math.max(1, d));\n"
     "    } catch (e) {\n"
@@ -3402,7 +5210,7 @@ static const char chess_app_js_content[] =
     "/** Whether to show move evaluation after each move (localStorage). */\n"
     "function getEvaluateMoveEnabled() {\n"
     "    try {\n"
-    "        return localStorage.getItem('chessEvaluateMove') === 'true';\n"
+    "        return devicePrefs.chessEvaluateMove === true;\n"
     "    } catch (e) {\n"
     "        return false;\n"
     "    }\n"
@@ -3411,17 +5219,17 @@ static const char chess_app_js_content[] =
     "/** Počet nápověd na partii (0 = neomezeno). */\n"
     "function getHintLimit() {\n"
     "    try {\n"
-    "        var n = parseInt(localStorage.getItem('chessHintLimit') || '0', 10);\n"
+    "        var n = parseInt(devicePrefs.chessHintLimit, 10);\n"
     "        return isNaN(n) || n < 0 ? 0 : n;\n"
     "    } catch (e) {\n"
     "        return 0;\n"
     "    }\n"
     "}\n"
     "\n"
-    "/** Přidat nápovědu za výborný tah (localStorage). */\n"
+    "/** Přidat nápovědu za výborný tah (devicePrefs). */\n"
     "function getHintAwardBest() {\n"
     "    try {\n"
-    "        return localStorage.getItem('chessHintAwardBest') !== 'false';\n"
+    "        return devicePrefs.chessHintAwardBest !== false;\n"
     "    } catch (e) {\n"
     "        return true;\n"
     "    }\n"
@@ -3430,7 +5238,7 @@ static const char chess_app_js_content[] =
     "/** Přidat nápovědu za dobrý tah (localStorage). */\n"
     "function getHintAwardGood() {\n"
     "    try {\n"
-    "        return localStorage.getItem('chessHintAwardGood') === 'true';\n"
+    "        return devicePrefs.chessHintAwardGood === true;\n"
     "    } catch (e) {\n"
     "        return false;\n"
     "    }\n"
@@ -3439,7 +5247,7 @@ static const char chess_app_js_content[] =
     "/** Přidat nápovědu za sebrání figurky (localStorage). */\n"
     "function getHintAwardCapture() {\n"
     "    try {\n"
-    "        return localStorage.getItem('chessHintAwardCapture') === 'true';\n"
+    "        return devicePrefs.chessHintAwardCapture === true;\n"
     "    } catch (e) {\n"
     "        return false;\n"
     "    }\n"
@@ -3448,11 +5256,26 @@ static const char chess_app_js_content[] =
     "/** Zobrazit blok „Výukový přehled“ (nápovědy + kvalita tahů). */\n"
     "function getShowHintStats() {\n"
     "    try {\n"
-    "        return localStorage.getItem('chessShowHintStats') === 'true';\n"
+    "        return devicePrefs.chessShowHintStats === true;\n"
     "    } catch (e) {\n"
     "        return false;\n"
     "    }\n"
     "}\n"
+    "\n"
+    "/** Po zvednutí figurky bota zobrazit na LED jen cílové pole (výchozí vypnuto). */\n"
+    "function getBotLedTargetOnlyAfterLift() {\n"
+    "    try {\n"
+    "        return devicePrefs.chessBotLedTargetOnlyAfterLift === true;\n"
+    "    } catch (e) {\n"
+    "        return false;\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function setBotLedTargetOnlyAfterLift(checked) {\n"
+    "    devicePrefs.chessBotLedTargetOnlyAfterLift = !!checked;\n"
+    "    scheduleSaveUiPrefsToDevice();\n"
+    "}\n"
+    "window.setBotLedTargetOnlyAfterLift = setBotLedTargetOnlyAfterLift;\n"
     "\n"
     "function getCurrentPlayerHints() {\n"
     "    var p = (statusData && statusData.current_player) ? statusData.current_player : 'White';\n"
@@ -3544,7 +5367,7 @@ static const char chess_app_js_content[] =
     "        panel.style.display = 'none';\n"
     "        return;\n"
     "    }\n"
-    "    panel.style.display = 'block';\n"
+    "    panel.style.display = '';\n"
     "    var limit = getHintLimit();\n"
     "    var wHints = limit > 0 ? hintsRemainingWhite : '—';\n"
     "    var bHints = limit > 0 ? hintsRemainingBlack : '—';\n"
@@ -3574,10 +5397,58 @@ static const char chess_app_js_content[] =
     "}\n"
     "if (typeof window !== 'undefined') window.updateTeachingStatsPanel = updateTeachingStatsPanel;\n"
     "\n"
+    "// ---------- Parsování eval z API (jedno místo, bez duplicity) ----------\n"
+    "/** Normalizuje řetězec s eval (Unicode minus → ASCII minus). */\n"
+    "function normalizeEvalString(s) {\n"
+    "    if (s == null || typeof s !== 'string') return s;\n"
+    "    return String(s).replace(/\\u2212/g, '-').trim();\n"
+    "}\n"
+    "/** Převod hodnoty na pawns: pokud |v| > 10, považujeme za centipawns (děleno 100). */\n"
+    "function toPawns(v) {\n"
+    "    if (v == null || typeof v !== 'number' || isNaN(v)) return null;\n"
+    "    if (Math.abs(v) > 10) return v / 100;\n"
+    "    return v;\n"
+    "}\n"
     "/**\n"
-    " * Fetch best move and explanation from Chess-API.com (POST).\n"
-    " * Returns { from, to, eval, text, san, continuationArr, mate, winChance } or null.\n"
-    " * depthOverride: optional; if number, use for API; else use getHintDepth() (for hints).\n"
+    " * Vybere a naparsuje eval z libovolného objektu odpovědi API (data nebo raw).\n"
+    " * Zkouší: eval (number/string), centipawns, cp, evaluation, score (number/string), result.eval.\n"
+    " * @param {Object} obj - objekt z API (např. raw.data nebo celý raw)\n"
+    " * @returns {number|null} - eval v pawns, nebo null\n"
+    " */\n"
+    "function parseEvalFromApiObject(obj) {\n"
+    "    if (!obj || typeof obj !== 'object') return null;\n"
+    "    var val = null;\n"
+    "    if (typeof obj.eval === 'number') val = toPawns(obj.eval);\n"
+    "    if (val == null && typeof obj.eval === 'string') { var p = parseFloat(normalizeEvalString(obj.eval)); if (!isNaN(p)) val = toPawns(p); }\n"
+    "    if (val == null && obj.centipawns != null) {\n"
+    "        var cp = typeof obj.centipawns === 'number' ? obj.centipawns : parseInt(normalizeEvalString(obj.centipawns), 10);\n"
+    "        if (!isNaN(cp)) val = cp / 100;\n"
+    "    }\n"
+    "    if (val == null && obj.cp != null) {\n"
+    "        var cp2 = typeof obj.cp === 'number' ? obj.cp : parseInt(normalizeEvalString(obj.cp), 10);\n"
+    "        if (!isNaN(cp2)) val = cp2 / 100;\n"
+    "    }\n"
+    "    if (val == null && obj.evaluation != null) {\n"
+    "        var ev = typeof obj.evaluation === 'number' ? obj.evaluation : parseFloat(normalizeEvalString(obj.evaluation));\n"
+    "        if (!isNaN(ev)) val = toPawns(ev);\n"
+    "    }\n"
+    "    if (val == null && typeof obj.score === 'number' && !isNaN(obj.score)) val = toPawns(obj.score);\n"
+    "    if (val == null && typeof obj.score === 'string') { var sc = parseFloat(normalizeEvalString(obj.score)); if (!isNaN(sc)) val = toPawns(sc); }\n"
+    "    if (val == null && obj.result != null && typeof obj.result === 'object' && typeof obj.result.eval === 'number') val = toPawns(obj.result.eval);\n"
+    "    return val;\n"
+    "}\n"
+    "\n"
+    "/**\n"
+    " * Fetch best move and optional evaluation from Stockfish API (POST).\n"
+    " * Used for hints, move evaluation and bot. Returns { from, to, eval, text, san, continuationArr, mate, winChance } or null.\n"
+    " * @param {string} fen - FEN position\n"
+    " * @param {number} [depthOverride] - Optional depth 1–18; if omitted, uses getHintDepth() (hints) or bot uses botSettings.strength\n"
+    " *\n"
+    " * Expected API response format (chess-api.com; other backends may use different keys):\n"
+    " * - from, to (strings, e.g. \"e2\", \"e4\") or move (e.g. \"e2e4\") for the best move\n"
+    " * - eval (number in pawns; negative = black better) or centipawns/cp (number, divide by 100) or evaluation/score for grading\n"
+    " * - Optional: text, san, continuationArr, mate, winChance for hint explanation\n"
+    " * Response may be at root or under .data / .result; all are handled.\n"
     " */\n"
     "async function fetchStockfishBestMove(fen, depthOverride) {\n"
     "    var depth = (typeof depthOverride === 'number' && depthOverride >= 1 && depthOverride <= 18)\n"
@@ -3609,7 +5480,10 @@ static const char chess_app_js_content[] =
     "            if (console.warn) console.warn('[Hint] Stockfish invalid JSON');\n"
     "            return null;\n"
     "        }\n"
-    "        var data = raw && typeof raw.data === 'object' && raw.data !== null ? raw.data : (raw && typeof raw.result === 'object' && raw.result !== null ? raw.result : raw);\n"
+    "        var data = (raw && typeof raw.data === 'object' && raw.data !== null) ? raw.data\n"
+    "            : (raw && typeof raw.result === 'object' && raw.result !== null) ? raw.result\n"
+    "            : (raw && typeof raw.bestMove === 'object' && raw.bestMove !== null) ? raw.bestMove\n"
+    "            : raw;\n"
     "        var from = data.from;\n"
     "        var to = data.to;\n"
     "        if (typeof from !== 'string' || typeof to !== 'string' || from.length !== 2 || to.length !== 2) {\n"
@@ -3626,30 +5500,13 @@ static const char chess_app_js_content[] =
     "            to = to.toLowerCase();\n"
     "        }\n"
     "        if (console.log) console.log('[Hint] Best move:', from, '->', to);\n"
-    "        var evalVal = null;\n"
-    "        function toPawns(v) {\n"
-    "            if (v == null || typeof v !== 'number' || isNaN(v)) return null;\n"
-    "            if (Math.abs(v) > 10) return v / 100;\n"
-    "            return v;\n"
+    "        var evalVal = parseEvalFromApiObject(data);\n"
+    "        if (evalVal == null && raw && data !== raw) evalVal = parseEvalFromApiObject(raw);\n"
+    "        if (evalVal == null && typeof console !== 'undefined' && console.warn) {\n"
+    "            console.warn('[Eval Staging] evalVal still null – data keys:', data ? Object.keys(data) : [], 'raw keys:', raw ? Object.keys(raw) : [], 'data.eval:', data && data.eval, 'raw.eval:', raw && raw.eval, 'raw.centipawns:', raw && raw.centipawns);\n"
     "        }\n"
-    "        if (typeof data.eval === 'number') evalVal = toPawns(data.eval);\n"
-    "        if (evalVal == null && typeof data.eval === 'string') { var p = parseFloat(data.eval); if (!isNaN(p)) evalVal = toPawns(p); }\n"
-    "        if (evalVal == null && data.centipawns != null) {\n"
-    "            var cp = typeof data.centipawns === 'number' ? data.centipawns : parseInt(data.centipawns, 10);\n"
-    "            if (!isNaN(cp)) evalVal = cp / 100;\n"
-    "        }\n"
-    "        if (evalVal == null && data.cp != null) {\n"
-    "            var cp2 = typeof data.cp === 'number' ? data.cp : parseInt(data.cp, 10);\n"
-    "            if (!isNaN(cp2)) evalVal = cp2 / 100;\n"
-    "        }\n"
-    "        if (evalVal == null && data.evaluation != null) {\n"
-    "            var ev = typeof data.evaluation === 'number' ? data.evaluation : parseFloat(data.evaluation);\n"
-    "            if (!isNaN(ev)) evalVal = toPawns(ev);\n"
-    "        }\n"
-    "        if (evalVal == null && typeof data.score === 'number' && !isNaN(data.score)) evalVal = toPawns(data.score);\n"
-    "        if (evalVal == null && data.result != null && typeof data.result === 'object' && typeof data.result.eval === 'number') evalVal = toPawns(data.result.eval);\n"
     "        if (typeof console !== 'undefined' && console.log) {\n"
-    "            console.log('[Eval Staging] API raw data.eval:', data.eval, 'data.centipawns:', data.centipawns, 'parsed evalVal (pawns):', evalVal);\n"
+    "            console.log('[Eval Staging] API parsed evalVal (pawns):', evalVal);\n"
     "        }\n"
     "        return {\n"
     "            from: from,\n"
@@ -3792,8 +5649,8 @@ static const char chess_app_js_content[] =
     "    return (historyData && historyData.length) === historyLength;\n"
     "}\n"
     "\n"
-    "/** API vrací eval z pohledu strany na tahu; bez převodu je scoreDrop příliš malý a nikdy neukáže Chyba/Vážná chyba. */\n"
-    "var API_EVAL_SIDE_TO_MOVE = true;\n"
+    "/** chess-api.com vrací eval v perspektivě bílého (negative = black winning). Nepřevádět. */\n"
+    "var API_EVAL_SIDE_TO_MOVE = false;\n"
     "function evalToWhitePerspective(fen, evalRaw) {\n"
     "    if (fen == null || evalRaw == null || typeof evalRaw !== 'number') return evalRaw;\n"
     "    if (!API_EVAL_SIDE_TO_MOVE) return evalRaw;\n"
@@ -3912,6 +5769,9 @@ static const char chess_app_js_content[] =
     "\n"
     "async function requestHint() {\n"
     "    if (sandboxMode || reviewMode) return;\n"
+    "    if (statusData && statusData.board_setup_tutorial === true) return;\n"
+    "    if (statusData && statusData.puzzle && statusData.puzzle.setup_active === true) return;\n"
+    "    if (statusData && statusData.puzzle && statusData.puzzle.active === true) return;\n"
     "    if (isWebLocked()) {\n"
     "        showHintError('Rozhraní je zamčeno. Odemkněte přes UART.');\n"
     "        return;\n"
@@ -3953,6 +5813,7 @@ static const char chess_app_js_content[] =
     "        return;\n"
     "    }\n"
     "\n"
+    "    var myGen = ++hintRequestGeneration;\n"
     "    try {\n"
     "        const fen = boardAndStatusToFen(boardData, status, historyData);\n"
     "        if (!fen) {\n"
@@ -3967,6 +5828,15 @@ static const char chess_app_js_content[] =
     "            return;\n"
     "        }\n"
     "        const move = await fetchStockfishBestMove(fen);\n"
+    "        if (myGen !== hintRequestGeneration) {\n"
+    "            if (limit > 0) {\n"
+    "                var pStale = (statusData && statusData.current_player === 'Black') ? 'black' : 'white';\n"
+    "                if (pStale === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;\n"
+    "            }\n"
+    "            if (btn) btn.disabled = false;\n"
+    "            updateHintButtonLabel();\n"
+    "            return;\n"
+    "        }\n"
     "        if (move) {\n"
     "            showHintOnBoard(move.from, move.to);\n"
     "            showHintExplanation(move);\n"
@@ -3991,6 +5861,14 @@ static const char chess_app_js_content[] =
     "            if (btn) updateHintButtonLabel();\n"
     "        }\n"
     "    } catch (err) {\n"
+    "        if (myGen !== hintRequestGeneration) {\n"
+    "            if (limit > 0) {\n"
+    "                var pStaleC = (statusData && statusData.current_player === 'Black') ? 'black' : 'white';\n"
+    "                if (pStaleC === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;\n"
+    "            }\n"
+    "            if (btn) updateHintButtonLabel();\n"
+    "            return;\n"
+    "        }\n"
     "        if (limit > 0) {\n"
     "            var p = (statusData && statusData.current_player === 'Black') ? 'black' : 'white';\n"
     "            if (p === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;\n"
@@ -4030,12 +5908,7 @@ static const char chess_app_js_content[] =
     "            const piece = board[row][col];\n"
     "            const pieceElement = document.getElementById('piece-' + (row * 8 + col));\n"
     "            if (pieceElement) {\n"
-    "                pieceElement.textContent = pieceSymbols[piece] || ' ';\n"
-    "                if (piece !== ' ') {\n"
-    "                    pieceElement.className = 'piece ' + (piece === piece.toUpperCase() ? 'white' : 'black');\n"
-    "                } else {\n"
-    "                    pieceElement.className = 'piece';\n"
-    "                }\n"
+    "                setPieceElementFromFen(pieceElement, piece);\n"
     "            }\n"
     "        }\n"
     "    }\n"
@@ -4231,11 +6104,11 @@ static const char chess_app_js_content[] =
     "                </h3>\n"
     "                <div style=\"margin-bottom:10px;\">\n"
     "                    <div style=\"color:#888;font-size:11px;margin-bottom:4px;\">White sebral (${whiteCaptured.length})</div>\n"
-    "                    <div style=\"font-size:20px;line-height:1.4;\">${whiteCaptured.map(p => pieceSymbols[p] || p).join(' ') || '−'}</div>\n"
+    "                    <div style=\"font-size:20px;line-height:1.4;\">${whiteCaptured.map(p => pieceImgHtml(p)).join(' ') || '−'}</div>\n"
     "                </div>\n"
     "                <div>\n"
     "                    <div style=\"color:#888;font-size:11px;margin-bottom:4px;\">Black sebral (${blackCaptured.length})</div>\n"
-    "                    <div style=\"font-size:20px;line-height:1.4;\">${blackCaptured.map(p => pieceSymbols[p] || p).join(' ') || '−'}</div>\n"
+    "                    <div style=\"font-size:20px;line-height:1.4;\">${blackCaptured.map(p => pieceImgHtml(p)).join(' ') || '−'}</div>\n"
     "                </div>\n"
     "            </div>\n"
     "            <button onclick=\"hideEndgameReport()\" style=\"\n"
@@ -4362,64 +6235,159 @@ static const char chess_app_js_content[] =
     "    }\n"
     "}\n"
     "\n"
-    "async function fetchStockfishBestMove(fen) {\n"
-    "    const depth = parseInt(botSettings.strength, 10) || 10;\n"
-    "    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;\n"
-    "    const timeoutId = controller ? setTimeout(function () { controller.abort(); }, BOT_API_TIMEOUT_MS) : null;\n"
-    "    try {\n"
-    "        const opts = {\n"
-    "            method: 'POST',\n"
-    "            headers: { 'Content-Type': 'application/json' },\n"
-    "            body: JSON.stringify({ fen: fen, depth: depth })\n"
-    "        };\n"
-    "        if (controller && controller.signal) opts.signal = controller.signal;\n"
-    "        const res = await fetch('https://chess-api.com/v1', opts);\n"
-    "        if (!res.ok) {\n"
-    "            if (console.warn) console.warn('Bot API HTTP', res.status, res.statusText);\n"
-    "            return null;\n"
+    "/**\n"
+    " * Zobrazí/skryje panel „Bot“ a nastaví text.\n"
+    " * Panel je viditelný jen když gameMode === 'bot'.\n"
+    " * @param {string} [text] - Text stavu. Pokud chybí, určí se z status (navádění při zvednuté figurce) nebo „Hraješ ty!“.\n"
+    " * @param {object} [status] - Aktuální status z API; pokud je piece_lifted a máme návrh bota, zobrazí se navádění.\n"
+    " */\n"
+    "function updateBotStatusPanel(text, status) {\n"
+    "    var panel = document.getElementById('bot-status-panel');\n"
+    "    var textEl = document.getElementById('bot-status-text');\n"
+    "    if (!panel || !textEl) return;\n"
+    "    if (gameMode !== 'bot') {\n"
+    "        panel.style.display = 'none';\n"
+    "        return;\n"
+    "    }\n"
+    "    if (text !== undefined) {\n"
+    "        textEl.textContent = text;\n"
+    "    } else if (status && status.piece_lifted && status.piece_lifted.lifted && lastSuggestedMove) {\n"
+    "        textEl.textContent = 'Polož figurku na ' + lastSuggestedMove.to + '.';\n"
+    "    } else if (textEl.textContent === '—' || textEl.textContent.trim() === '') {\n"
+    "        textEl.textContent = 'Hraješ ty!';\n"
+    "    }\n"
+    "    panel.style.display = '';\n"
+    "}\n"
+    "\n"
+    "/**\n"
+    " * Panel „Puzzle“ (jako Bot) — povzbuzující text podle feedbacku z desky; funguje bez internetu (jen poll k desce).\n"
+    " * @param {object} status - status z API nebo { puzzle: {...} }\n"
+    " * @param {{offline?:boolean}} [opts]\n"
+    " */\n"
+    "function updatePuzzleStatusPanel(status, opts) {\n"
+    "    opts = opts || {};\n"
+    "    var offline = !!opts.offline;\n"
+    "    var panel = document.getElementById('puzzle-status-panel');\n"
+    "    var textEl = document.getElementById('puzzle-status-text');\n"
+    "    var subEl = document.getElementById('puzzle-status-sub');\n"
+    "    var titleEl = panel ? panel.querySelector('.game-title') : null;\n"
+    "    if (!panel || !textEl) return;\n"
+    "\n"
+    "    var p = status && status.puzzle ? status.puzzle : null;\n"
+    "    if (!p) {\n"
+    "        panel.style.display = 'none';\n"
+    "        panel.className = 'game-block puzzle-status-panel';\n"
+    "        if (subEl) {\n"
+    "            subEl.textContent = '';\n"
+    "            subEl.style.display = 'none';\n"
     "        }\n"
-    "        const data = await res.json().catch(function () { return null; });\n"
-    "        if (!data) {\n"
-    "            if (console.warn) console.warn('Bot API: invalid JSON');\n"
-    "            return null;\n"
-    "        }\n"
-    "        var from, to;\n"
-    "        if (data.from != null && data.to != null) {\n"
-    "            from = String(data.from).toLowerCase();\n"
-    "            to = String(data.to).toLowerCase();\n"
-    "        } else if (data.move && data.move.length >= 4) {\n"
-    "            from = data.move.substring(0, 2).toLowerCase();\n"
-    "            to = data.move.substring(2, 4).toLowerCase();\n"
-    "        }\n"
-    "        if (from && to && BOT_SQUARE_REGEX.test(from) && BOT_SQUARE_REGEX.test(to)) return { from: from, to: to };\n"
-    "        if (from || to) {\n"
-    "            if (console.warn) console.warn('Bot API: neplatný formát pole', data);\n"
-    "        } else if (console.warn) {\n"
-    "            console.warn('Bot API: missing from/to or move', data);\n"
-    "        }\n"
-    "        return null;\n"
-    "    } catch (e) {\n"
-    "        if (e && e.name === 'AbortError') {\n"
-    "            if (console.warn) console.warn('Bot API: timeout after', BOT_API_TIMEOUT_MS, 'ms');\n"
+    "        if (titleEl) titleEl.textContent = 'Puzzle';\n"
+    "        return;\n"
+    "    }\n"
+    "\n"
+    "    var fb = String(p.feedback || 'none').toLowerCase();\n"
+    "    var show = false;\n"
+    "    var mode = 'play';\n"
+    "    var main = '';\n"
+    "    var sub = '';\n"
+    "\n"
+    "    if (p.setup_active === true && p.active !== true) {\n"
+    "        show = true;\n"
+    "        mode = 'setup';\n"
+    "        main = 'Připrav fyzickou pozici podle LED — jdeš na to krok za krokem.';\n"
+    "        sub = 'Podrobnosti máš v okně Puzzles (nahoře).';\n"
+    "    } else if (p.active === true) {\n"
+    "        show = true;\n"
+    "        if (fb === 'wrong') {\n"
+    "            mode = 'wrong';\n"
+    "            main = 'Ještě to není ono — vrať figurku zpátky a klidně to zkus znovu. Tak se člověk učí!';\n"
+    "            sub = p.message ? String(p.message) : '';\n"
+    "        } else if (fb === 'illegal') {\n"
+    "            mode = 'illegal';\n"
+    "            main = 'Tenhle tah tady neplatí — zkus jiné pole. Každý mistr jednou začínal.';\n"
+    "            sub = p.message ? String(p.message) : '';\n"
     "        } else {\n"
-    "            console.error('Bot fetch error:', e);\n"
+    "            mode = 'play';\n"
+    "            main = 'Jsi na tahu — najdi nejlepší pokračování. Držím palce!';\n"
+    "            sub = (p.teaser && String(p.teaser).length) ? String(p.teaser) : (p.title ? String(p.title) : '');\n"
     "        }\n"
-    "        return null;\n"
-    "    } finally {\n"
-    "        if (timeoutId) clearTimeout(timeoutId);\n"
+    "    } else if (fb === 'solved') {\n"
+    "        show = true;\n"
+    "        mode = 'solved';\n"
+    "        main = 'Skvěle! Přesně takhle se to hraje — puzzle je hotové.';\n"
+    "        sub = (p.title ? 'Úloha: ' + p.title : '') + (p.teaser ? (p.title ? ' — ' : '') + p.teaser : '');\n"
+    "    }\n"
+    "\n"
+    "    if (!show) {\n"
+    "        panel.style.display = 'none';\n"
+    "        panel.className = 'game-block puzzle-status-panel';\n"
+    "        if (titleEl) titleEl.textContent = 'Puzzle';\n"
+    "        if (subEl) {\n"
+    "            subEl.textContent = '';\n"
+    "            subEl.style.display = 'none';\n"
+    "        }\n"
+    "        return;\n"
+    "    }\n"
+    "\n"
+    "    if (offline) {\n"
+    "        sub = (sub ? sub + ' ' : '') + 'Živý stav z desky teď nevidím (spojení s webem). Jakmile bude síť k desce zas, obnoví se.';\n"
+    "    }\n"
+    "\n"
+    "    if (titleEl) {\n"
+    "        titleEl.textContent = mode === 'setup'\n"
+    "            ? 'Puzzle · příprava'\n"
+    "            : mode === 'solved'\n"
+    "                ? 'Puzzle · hotovo'\n"
+    "                : 'Puzzle · hraješ';\n"
+    "    }\n"
+    "    panel.style.display = '';\n"
+    "    panel.className = 'game-block puzzle-status-panel puzzle-status-panel--' + mode +\n"
+    "        (offline ? ' puzzle-status-panel--offline' : '');\n"
+    "    textEl.textContent = main;\n"
+    "    if (subEl) {\n"
+    "        if (sub && String(sub).trim().length > 0) {\n"
+    "            subEl.textContent = sub.trim();\n"
+    "            subEl.style.display = 'block';\n"
+    "        } else {\n"
+    "            subEl.textContent = '';\n"
+    "            subEl.style.display = 'none';\n"
+    "        }\n"
     "    }\n"
     "}\n"
     "\n"
+    "/** Smaže bot UI: stav, interval LED, hint třídy a zprávu „Bot hraje“ / „Počítač“. */\n"
+    "function clearBotSuggestion() {\n"
+    "    var hadDomHints = !!document.querySelector('.square.hint-from, .square.hint-to');\n"
+    "    var needServerClear = lastSuggestedFen !== null || lastSuggestedMove !== null || hadDomHints;\n"
+    "    lastSuggestedFen = null;\n"
+    "    lastSuggestedMove = null;\n"
+    "    stopBotHintRefresh();\n"
+    "    document.querySelectorAll('.square').forEach(function (sq) { sq.classList.remove('hint-from', 'hint-to'); });\n"
+    "    var msgEl = document.getElementById('castling-pending-message');\n"
+    "    if (msgEl && (msgEl.textContent.indexOf('Bot') !== -1 || msgEl.textContent.indexOf('Počítač') !== -1)) msgEl.style.display = 'none';\n"
+    "    updateBotStatusPanel('Hraješ ty!');\n"
+    "    if (needServerClear) {\n"
+    "        fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "/**\n"
+    " * Tah bota se NEprovádí automaticky – pouze vizualizace na webu a LED.\n"
+    " * Uživatel musí fyzicky pohnout figurku; tah se provede až po DROP z matrixu.\n"
+    " * Voláme jen /api/game/hint_highlight, nikdy /api/move ani virtual_action za bota.\n"
+    " */\n"
+    "/** Bot používá jednotnou fetchStockfishBestMove s depth = botSettings.strength. */\n"
     "async function playBotMove(fen, generation) {\n"
     "    if (botThinking || !fen || typeof fen !== 'string') return;\n"
     "    botThinking = true;\n"
-    "    var msgEl = document.getElementById('castling-pending-message');\n"
     "    var statusEl = document.getElementById('game-state');\n"
     "\n"
+    "    updateBotStatusPanel('Přemýšlím');\n"
     "    try {\n"
-    "        if (statusEl) statusEl.textContent = 'Počítač přemýšlí...';\n"
-    "        console.log('🤖 Bot starts thinking... Generation:', generation);\n"
-    "        var move = await fetchStockfishBestMove(fen);\n"
+    "        if (statusEl) statusEl.textContent = 'Bot vybírá tah';\n"
+    "        console.log('🤖 Bot suggests move (visualization only – user moves physically)... Generation:', generation);\n"
+    "        var botDepth = parseInt(botSettings.strength, 10) || 10;\n"
+    "        var move = await fetchStockfishBestMove(fen, botDepth);\n"
     "\n"
     "        if (generation !== gameGeneration) {\n"
     "            console.warn('🤖 Bot move aborted: Game generation changed (New game started).');\n"
@@ -4429,7 +6397,7 @@ static const char chess_app_js_content[] =
     "        }\n"
     "\n"
     "        if (move) {\n"
-    "            console.log('🤖 Bot plays:', move.from, '->', move.to, '| FEN:', fen.length > 20 ? fen.substring(0, 30) + '...' : fen, '| mode:', gameMode, '| gen:', generation);\n"
+    "            console.log('🤖 Bot suggests:', move.from, '->', move.to, '(zobrazíme na webu a LED; tah provedete vy na desce)');\n"
     "            lastSuggestedMove = { from: move.from, to: move.to };\n"
     "            stopBotHintRefresh();\n"
     "            try {\n"
@@ -4446,32 +6414,38 @@ static const char chess_app_js_content[] =
     "                    stopBotHintRefresh();\n"
     "                    return;\n"
     "                }\n"
+    "                var status = statusData;\n"
+    "                if (status && status.piece_lifted && status.piece_lifted.lifted) {\n"
+    "                    if (getBotLedTargetOnlyAfterLift()) {\n"
+    "                        var liftedFrom = String.fromCharCode(97 + status.piece_lifted.col) + (status.piece_lifted.row + 1);\n"
+    "                        if (liftedFrom.toLowerCase() === lastSuggestedMove.from.toLowerCase()) {\n"
+    "                            fetch('/api/game/hint_highlight', {\n"
+    "                                method: 'POST',\n"
+    "                                headers: { 'Content-Type': 'application/json' },\n"
+    "                                body: JSON.stringify({ to: lastSuggestedMove.to })\n"
+    "                            }).catch(function () {});\n"
+    "                            return;\n"
+    "                        }\n"
+    "                    } else {\n"
+    "                        return;\n"
+    "                    }\n"
+    "                }\n"
     "                fetch('/api/game/hint_highlight', {\n"
     "                    method: 'POST',\n"
     "                    headers: { 'Content-Type': 'application/json' },\n"
     "                    body: JSON.stringify({ from: lastSuggestedMove.from, to: lastSuggestedMove.to })\n"
     "                }).catch(function () {});\n"
     "            }, BOT_HINT_REFRESH_MS);\n"
-    "            if (msgEl) {\n"
-    "                msgEl.textContent = 'Bot hraje: ' + move.from + ' → ' + move.to;\n"
-    "                msgEl.style.display = 'block';\n"
-    "                msgEl.style.background = 'rgba(76, 175, 80, 0.2)';\n"
-    "                msgEl.style.borderColor = '#4CAF50';\n"
-    "                msgEl.style.color = '#e0e0e0';\n"
-    "            }\n"
+    "            var panelMsg = 'Hraji ' + move.from + '-' + move.to + '. Zvedni figurku z ' + move.from + '.';\n"
+    "            updateBotStatusPanel(panelMsg);\n"
     "            showHintOnBoard(move.from, move.to);\n"
     "        } else {\n"
     "            console.warn('Bot: žádný tah (API chyba nebo timeout).');\n"
-    "            if (msgEl) {\n"
-    "                msgEl.textContent = 'Počítač nemohl najít tah (zkontrolujte internet).';\n"
-    "                msgEl.style.display = 'block';\n"
-    "                msgEl.style.background = 'rgba(244, 67, 54, 0.2)';\n"
-    "                msgEl.style.borderColor = '#f44336';\n"
-    "                msgEl.style.color = '#e0e0e0';\n"
-    "                setTimeout(function () {\n"
-    "                    if (msgEl.textContent.indexOf('nemohl najít tah') !== -1) msgEl.style.display = 'none';\n"
-    "                }, 5000);\n"
+    "            if (typeof console !== 'undefined' && console.warn) {\n"
+    "                console.warn('[Bot] API failed, clearing lastSuggestedFen for retry');\n"
     "            }\n"
+    "            lastSuggestedFen = null;\n"
+    "            updateBotStatusPanel('Chyba API');\n"
     "        }\n"
     "    } finally {\n"
     "        botThinking = false;\n"
@@ -4479,38 +6453,774 @@ static const char chess_app_js_content[] =
     "}\n"
     "\n"
     "function checkBotTurn(status, fen) {\n"
-    "    if (gameMode !== 'bot') {\n"
-    "        lastSuggestedFen = null;\n"
-    "        lastSuggestedMove = null;\n"
-    "        stopBotHintRefresh();\n"
-    "        document.querySelectorAll('.square').forEach(function (sq) { sq.classList.remove('hint-from', 'hint-to'); });\n"
+    "    if (status && status.board_setup_tutorial === true) {\n"
+    "        clearBotSuggestion();\n"
     "        return;\n"
     "    }\n"
-    "    if (!status || typeof status !== 'object') return;\n"
-    "    if (status.game_state !== 'active' && status.game_state !== 'playing') return;\n"
-    "    if (status.game_end && status.game_end.ended) return;\n"
-    "    if (status.current_player !== 'White' && status.current_player !== 'Black') return;\n"
-    "    if (!fen || typeof fen !== 'string' || fen.length < 20) return;\n"
+    "    if (status && status.puzzle && status.puzzle.setup_active === true) {\n"
+    "        clearBotSuggestion();\n"
+    "        return;\n"
+    "    }\n"
+    "    if (status && status.puzzle && status.puzzle.active === true) {\n"
+    "        clearBotSuggestion();\n"
+    "        return;\n"
+    "    }\n"
+    "    if (gameMode !== 'bot') {\n"
+    "        clearBotSuggestion();\n"
+    "        return;\n"
+    "    }\n"
+    "    /* Jakmile se pozice změní (nový FEN), někdo táhl – smažeme návrh bota hned,\n"
+    "       nezávisle na current_player (ten může v backendu dohnat až později). */\n"
+    "    var clearedDueToFenChange = false;\n"
+    "    if (lastSuggestedFen && fen && fen !== lastSuggestedFen) {\n"
+    "        clearBotSuggestion();\n"
+    "        clearedDueToFenChange = true;\n"
+    "    }\n"
+    "    if (!status || typeof status !== 'object') {\n"
+    "        clearBotSuggestion();\n"
+    "        return;\n"
+    "    }\n"
+    "    if (status.castling_in_progress === true) {\n"
+    "        clearBotSuggestion();\n"
+    "        return;\n"
+    "    }\n"
+    "    if (status.game_state !== 'active' && status.game_state !== 'playing') {\n"
+    "        clearBotSuggestion();\n"
+    "        return;\n"
+    "    }\n"
+    "    if (status.game_end && status.game_end.ended) {\n"
+    "        clearBotSuggestion();\n"
+    "        return;\n"
+    "    }\n"
+    "    if (status.current_player !== 'White' && status.current_player !== 'Black') {\n"
+    "        clearBotSuggestion();\n"
+    "        return;\n"
+    "    }\n"
+    "    if (!fen || typeof fen !== 'string' || fen.length < 20) {\n"
+    "        clearBotSuggestion();\n"
+    "        return;\n"
+    "    }\n"
     "\n"
     "    var isBotTurn = (botSettings.side === 'white') !== (status.current_player === 'White');\n"
     "    if (typeof console !== 'undefined' && console.log) console.log('checkBotTurn: isBotTurn=', isBotTurn, 'current_player=', status.current_player);\n"
     "\n"
-    "    var msgEl = document.getElementById('castling-pending-message');\n"
     "    if (!isBotTurn) {\n"
-    "        lastSuggestedFen = null;\n"
-    "        lastSuggestedMove = null;\n"
-    "        stopBotHintRefresh();\n"
-    "        document.querySelectorAll('.square').forEach(function (sq) { sq.classList.remove('hint-from', 'hint-to'); });\n"
-    "        if (msgEl && (msgEl.textContent.indexOf('Bot hraje') !== -1 || msgEl.textContent.indexOf('Počítač') !== -1)) msgEl.style.display = 'none';\n"
-    "    } else if (!botThinking && fen !== lastSuggestedFen) {\n"
+    "        clearBotSuggestion();\n"
+    "        return;\n"
+    "    }\n"
+    "    /* Uživatel zvedl figurku – provádí tah za bota. Nevolat clearBotSuggestion (lastSuggestedMove\n"
+    "       musí zůstat), aby panel Bot mohl zobrazit „Polož figurku na X.“ v updateBotStatusPanel. */\n"
+    "    if (status.piece_lifted && status.piece_lifted.lifted) {\n"
+    "        return;\n"
+    "    }\n"
+    "    /* Po vyčištění kvůli změně FEN v tomto volání nevolat playBotMove – mohl by být race (FEN už nový, current_player ještě bot). */\n"
+    "    if (clearedDueToFenChange) return;\n"
+    "    if (!botThinking && fen !== lastSuggestedFen) {\n"
+    "        if (typeof console !== 'undefined' && console.log) {\n"
+    "            console.log('[Bot Staging] checkBotTurn: game_state=', status.game_state, 'fen.length=', fen.length, 'calling playBotMove');\n"
+    "        }\n"
     "        lastSuggestedFen = fen;\n"
     "        playBotMove(fen, gameGeneration);\n"
+    "    } else if (isBotTurn && fen === lastSuggestedFen && typeof console !== 'undefined' && console.log) {\n"
+    "        console.log('[Bot Staging] checkBotTurn: skipping (fen === lastSuggestedFen), game_state=', status.game_state);\n"
     "    }\n"
     "}\n"
     "\n"
     "// ============================================================================\n"
     "// STATUS UPDATE FUNCTION\n"
     "// ============================================================================\n"
+    "\n"
+    "function matrixGuardMaskToSquares(low, high) {\n"
+    "    const squares = [];\n"
+    "    const lowVal = Number(low) >>> 0;\n"
+    "    const highVal = Number(high) >>> 0;\n"
+    "    for (let i = 0; i < 32; i++) {\n"
+    "        if ((lowVal & (1 << i)) !== 0) {\n"
+    "            const col = i % 8;\n"
+    "            const row = Math.floor(i / 8);\n"
+    "            squares.push(String.fromCharCode(97 + col) + (row + 1));\n"
+    "        }\n"
+    "    }\n"
+    "    for (let i = 0; i < 32; i++) {\n"
+    "        if ((highVal & (1 << i)) !== 0) {\n"
+    "            const idx = i + 32;\n"
+    "            const col = idx % 8;\n"
+    "            const row = Math.floor(idx / 8);\n"
+    "            squares.push(String.fromCharCode(97 + col) + (row + 1));\n"
+    "        }\n"
+    "    }\n"
+    "    return squares;\n"
+    "}\n"
+    "\n"
+    "// ============================================================================\n"
+    "// SETUP TUTORIAL (základní postavení — web + LED)\n"
+    "// ============================================================================\n"
+    "\n"
+    "const SETUP_TUTORIAL_REFRESH_MS = 600;\n"
+    "const SETUP_TUTORIAL_FAST_POLL_MS = 400;\n"
+    "const SETUP_TUTORIAL_OCC_STABLE_TICKS = 2;\n"
+    "\n"
+    "/** 32 kroků: bílá 1. řada, bílí pěšci, černá 8. řada, černí pěšci. */\n"
+    "const SETUP_TUTORIAL_STEPS = [\n"
+    "    { sq: 'a1', piece: 'r', label: 'Bílá věž → a1' },\n"
+    "    { sq: 'b1', piece: 'n', label: 'Bílý jezdec → b1' },\n"
+    "    { sq: 'c1', piece: 'b', label: 'Bílý střelec → c1' },\n"
+    "    { sq: 'd1', piece: 'q', label: 'Bílá dáma → d1' },\n"
+    "    { sq: 'e1', piece: 'k', label: 'Bílý král → e1' },\n"
+    "    { sq: 'f1', piece: 'b', label: 'Bílý střelec → f1' },\n"
+    "    { sq: 'g1', piece: 'n', label: 'Bílý jezdec → g1' },\n"
+    "    { sq: 'h1', piece: 'r', label: 'Bílá věž → h1' },\n"
+    "    { sq: 'a2', piece: 'p', label: 'Bílý pěšec → a2' },\n"
+    "    { sq: 'b2', piece: 'p', label: 'Bílý pěšec → b2' },\n"
+    "    { sq: 'c2', piece: 'p', label: 'Bílý pěšec → c2' },\n"
+    "    { sq: 'd2', piece: 'p', label: 'Bílý pěšec → d2' },\n"
+    "    { sq: 'e2', piece: 'p', label: 'Bílý pěšec → e2' },\n"
+    "    { sq: 'f2', piece: 'p', label: 'Bílý pěšec → f2' },\n"
+    "    { sq: 'g2', piece: 'p', label: 'Bílý pěšec → g2' },\n"
+    "    { sq: 'h2', piece: 'p', label: 'Bílý pěšec → h2' },\n"
+    "    { sq: 'a8', piece: 'R', label: 'Černá věž → a8' },\n"
+    "    { sq: 'b8', piece: 'N', label: 'Černý jezdec → b8' },\n"
+    "    { sq: 'c8', piece: 'B', label: 'Černý střelec → c8' },\n"
+    "    { sq: 'd8', piece: 'Q', label: 'Černá dáma → d8' },\n"
+    "    { sq: 'e8', piece: 'K', label: 'Černý král → e8' },\n"
+    "    { sq: 'f8', piece: 'B', label: 'Černý střelec → f8' },\n"
+    "    { sq: 'g8', piece: 'N', label: 'Černý jezdec → g8' },\n"
+    "    { sq: 'h8', piece: 'R', label: 'Černá věž → h8' },\n"
+    "    { sq: 'a7', piece: 'P', label: 'Černý pěšec → a7' },\n"
+    "    { sq: 'b7', piece: 'P', label: 'Černý pěšec → b7' },\n"
+    "    { sq: 'c7', piece: 'P', label: 'Černý pěšec → c7' },\n"
+    "    { sq: 'd7', piece: 'P', label: 'Černý pěšec → d7' },\n"
+    "    { sq: 'e7', piece: 'P', label: 'Černý pěšec → e7' },\n"
+    "    { sq: 'f7', piece: 'P', label: 'Černý pěšec → f7' },\n"
+    "    { sq: 'g7', piece: 'P', label: 'Černý pěšec → g7' },\n"
+    "    { sq: 'h7', piece: 'P', label: 'Černý pěšec → h7' }\n"
+    "];\n"
+    "\n"
+    "let setupTutorialPhase = null;\n"
+    "let setupTutorialStepIndex = 0;\n"
+    "let setupTutorialLedIntervalId = null;\n"
+    "let setupTutorialFastPollId = null;\n"
+    "let setupTutorialOccStable = 0;\n"
+    "\n"
+    "function setupTutorialSquareToIndex(sq) {\n"
+    "    var c = sq.charCodeAt(0) - 97;\n"
+    "    var r = parseInt(sq.charAt(1), 10) - 1;\n"
+    "    return r * 8 + c;\n"
+    "}\n"
+    "\n"
+    "function setupTutorialStopLedRefresh() {\n"
+    "    if (setupTutorialLedIntervalId) {\n"
+    "        clearInterval(setupTutorialLedIntervalId);\n"
+    "        setupTutorialLedIntervalId = null;\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function setupTutorialStopFastPoll() {\n"
+    "    if (setupTutorialFastPollId) {\n"
+    "        clearInterval(setupTutorialFastPollId);\n"
+    "        setupTutorialFastPollId = null;\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function setupTutorialApplyLed(sq) {\n"
+    "    return fetch('/api/game/hint_highlight', {\n"
+    "        method: 'POST',\n"
+    "        headers: { 'Content-Type': 'application/json' },\n"
+    "        body: JSON.stringify({ to: sq })\n"
+    "    }).catch(function () {});\n"
+    "}\n"
+    "\n"
+    "function setupTutorialStartLedRefresh(sq) {\n"
+    "    setupTutorialStopLedRefresh();\n"
+    "    setupTutorialApplyLed(sq);\n"
+    "    setupTutorialLedIntervalId = setInterval(function () {\n"
+    "        setupTutorialApplyLed(sq);\n"
+    "    }, SETUP_TUTORIAL_REFRESH_MS);\n"
+    "}\n"
+    "\n"
+    "function setupTutorialClearLed() {\n"
+    "    fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});\n"
+    "}\n"
+    "\n"
+    "function openSetupTutorialIntro() {\n"
+    "    var ov = document.getElementById('setup-tutorial-overlay');\n"
+    "    if (!ov) return;\n"
+    "    try {\n"
+    "        if (!devicePrefs.chessTutorialsEnabled) return;\n"
+    "    } catch (e) { return; }\n"
+    "    ov.style.display = 'flex';\n"
+    "    ov.classList.add('overlay-visible');\n"
+    "    var intro = document.getElementById('setup-tutorial-intro-panel');\n"
+    "    var run = document.getElementById('setup-tutorial-run-panel');\n"
+    "    var done = document.getElementById('setup-tutorial-done-panel');\n"
+    "    if (intro) intro.style.display = '';\n"
+    "    if (run) run.style.display = 'none';\n"
+    "    if (done) done.style.display = 'none';\n"
+    "    setupTutorialUpdateIntroWarnings(statusData || {});\n"
+    "}\n"
+    "\n"
+    "function setupTutorialCloseIntro() {\n"
+    "    var ov = document.getElementById('setup-tutorial-overlay');\n"
+    "    if (ov) {\n"
+    "        ov.classList.remove('overlay-visible');\n"
+    "        ov.style.display = 'none';\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function setupTutorialUpdateIntroWarnings(st) {\n"
+    "    var w = document.getElementById('setup-tutorial-warn');\n"
+    "    if (!w) return;\n"
+    "    var parts = [];\n"
+    "    if (st.light_mode === 'lamp') {\n"
+    "        parts.push('Režim Lampa může přebít herní LED — přepni na Šachovnice v Zařízení.');\n"
+    "    }\n"
+    "    if (st.matrix_guard_active) {\n"
+    "        parts.push('Matrix guard je aktivní — dokonči návrat figurek nebo ukonči režim guardu.');\n"
+    "    }\n"
+    "    if (parts.length) {\n"
+    "        w.textContent = parts.join(' ');\n"
+    "        w.style.display = '';\n"
+    "    } else {\n"
+    "        w.textContent = '';\n"
+    "        w.style.display = 'none';\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function setupTutorialRenderStep() {\n"
+    "    var st = SETUP_TUTORIAL_STEPS[setupTutorialStepIndex];\n"
+    "    if (!st) return;\n"
+    "    var pe = document.getElementById('setup-tutorial-piece-display');\n"
+    "    var ins = document.getElementById('setup-tutorial-instruction');\n"
+    "    var pr = document.getElementById('setup-tutorial-progress');\n"
+    "    if (pe) {\n"
+    "        var isWhitePc = (st.piece >= 'a' && st.piece <= 'z');\n"
+    "        var src = pieceImgSrc(st.piece);\n"
+    "        if (src) {\n"
+    "            pe.className = 'setup-tutorial-piece-glyph piece has-img ' +\n"
+    "                (isWhitePc ? 'white' : 'black');\n"
+    "            pe.innerHTML = '<img src=\"' + src + '\" alt=\"\" draggable=\"false\">';\n"
+    "        } else {\n"
+    "            pe.innerHTML = '';\n"
+    "            pe.textContent = pieceSymbols[st.piece] || '?';\n"
+    "            pe.className = 'setup-tutorial-piece-glyph piece ' +\n"
+    "                (isWhitePc ? 'white' : 'black');\n"
+    "        }\n"
+    "    }\n"
+    "    if (ins) ins.textContent = 'Polož figurku na pole ' + st.sq.toUpperCase();\n"
+    "    if (pr) pr.textContent = 'Krok ' + (setupTutorialStepIndex + 1) + ' / ' + SETUP_TUTORIAL_STEPS.length + ' — ' + st.label;\n"
+    "    setupTutorialStartLedRefresh(st.sq);\n"
+    "    setupTutorialOccStable = 0;\n"
+    "}\n"
+    "\n"
+    "async function setupTutorialBegin() {\n"
+    "    try {\n"
+    "        var res = await fetch('/api/game/setup_tutorial', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ action: 'start' })\n"
+    "        });\n"
+    "        if (!res.ok) {\n"
+    "            if (typeof console !== 'undefined' && console.warn) console.warn('setup_tutorial start', res.status);\n"
+    "            return;\n"
+    "        }\n"
+    "    } catch (e) {\n"
+    "        if (typeof console !== 'undefined' && console.warn) console.warn(e);\n"
+    "        return;\n"
+    "    }\n"
+    "    setupTutorialPhase = 'run';\n"
+    "    setupTutorialStepIndex = 0;\n"
+    "    var intro = document.getElementById('setup-tutorial-intro-panel');\n"
+    "    var run = document.getElementById('setup-tutorial-run-panel');\n"
+    "    if (intro) intro.style.display = 'none';\n"
+    "    if (run) run.style.display = '';\n"
+    "    setupTutorialRenderStep();\n"
+    "    setupTutorialFastPollId = setInterval(setupTutorialPollOccupancy, SETUP_TUTORIAL_FAST_POLL_MS);\n"
+    "}\n"
+    "\n"
+    "function setupTutorialPollOccupancy() {\n"
+    "    if (setupTutorialPhase !== 'run') return;\n"
+    "    fetch('/api/status')\n"
+    "        .then(function (r) { return r.json(); })\n"
+    "        .then(function (st) {\n"
+    "            if (!st.matrix_occupied || !Array.isArray(st.matrix_occupied)) return;\n"
+    "            var stp = SETUP_TUTORIAL_STEPS[setupTutorialStepIndex];\n"
+    "            if (!stp) return;\n"
+    "            var idx = setupTutorialSquareToIndex(stp.sq);\n"
+    "            if (Number(st.matrix_occupied[idx]) === 1) {\n"
+    "                setupTutorialOccStable++;\n"
+    "                if (setupTutorialOccStable >= SETUP_TUTORIAL_OCC_STABLE_TICKS) {\n"
+    "                    setupTutorialAdvance(true);\n"
+    "                }\n"
+    "            } else {\n"
+    "                setupTutorialOccStable = 0;\n"
+    "            }\n"
+    "        })\n"
+    "        .catch(function () {});\n"
+    "}\n"
+    "\n"
+    "function setupTutorialAdvance(fromAuto) {\n"
+    "    if (setupTutorialPhase !== 'run') return;\n"
+    "    setupTutorialStopLedRefresh();\n"
+    "    setupTutorialClearLed();\n"
+    "    setupTutorialOccStable = 0;\n"
+    "    setupTutorialStepIndex++;\n"
+    "    if (setupTutorialStepIndex >= SETUP_TUTORIAL_STEPS.length) {\n"
+    "        setupTutorialStopFastPoll();\n"
+    "        setupTutorialPhase = 'done';\n"
+    "        var run = document.getElementById('setup-tutorial-run-panel');\n"
+    "        var done = document.getElementById('setup-tutorial-done-panel');\n"
+    "        if (run) run.style.display = 'none';\n"
+    "        if (done) done.style.display = '';\n"
+    "        return;\n"
+    "    }\n"
+    "    setupTutorialRenderStep();\n"
+    "}\n"
+    "\n"
+    "function setupTutorialBack() {\n"
+    "    if (setupTutorialPhase !== 'run') return;\n"
+    "    if (setupTutorialStepIndex <= 0) return;\n"
+    "    setupTutorialStopLedRefresh();\n"
+    "    setupTutorialClearLed();\n"
+    "    setupTutorialOccStable = 0;\n"
+    "    setupTutorialStepIndex--;\n"
+    "    setupTutorialRenderStep();\n"
+    "}\n"
+    "\n"
+    "function setupTutorialSkip() {\n"
+    "    setupTutorialAdvance(false);\n"
+    "}\n"
+    "\n"
+    "async function setupTutorialCancel() {\n"
+    "    setupTutorialStopLedRefresh();\n"
+    "    setupTutorialStopFastPoll();\n"
+    "    setupTutorialClearLed();\n"
+    "    setupTutorialPhase = null;\n"
+    "    try {\n"
+    "        await fetch('/api/game/setup_tutorial', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ action: 'cancel' })\n"
+    "        });\n"
+    "    } catch (e) {}\n"
+    "    var ov = document.getElementById('setup-tutorial-overlay');\n"
+    "    if (ov) {\n"
+    "        ov.classList.remove('overlay-visible');\n"
+    "        ov.style.display = 'none';\n"
+    "    }\n"
+    "    var intro = document.getElementById('setup-tutorial-intro-panel');\n"
+    "    var run = document.getElementById('setup-tutorial-run-panel');\n"
+    "    var done = document.getElementById('setup-tutorial-done-panel');\n"
+    "    if (intro) intro.style.display = '';\n"
+    "    if (run) run.style.display = 'none';\n"
+    "    if (done) done.style.display = 'none';\n"
+    "    if (typeof fetchData === 'function') fetchData();\n"
+    "}\n"
+    "\n"
+    "async function setupTutorialFinish() {\n"
+    "    try {\n"
+    "        var res = await fetch('/api/game/setup_tutorial', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ action: 'finish' })\n"
+    "        });\n"
+    "        var data = await res.json().catch(function () { return {}; });\n"
+    "        if (!res.ok) {\n"
+    "            var msg = (data && data.error) ? data.error : 'Zkontroluj fyzickou pozici (řádky 1–2 a 7–8 plné, 3–6 prázdné).';\n"
+    "            alert(msg);\n"
+    "            return;\n"
+    "        }\n"
+    "    } catch (e) {\n"
+    "        alert('Chyba sítě při dokončení.');\n"
+    "        return;\n"
+    "    }\n"
+    "    setupTutorialStopLedRefresh();\n"
+    "    setupTutorialStopFastPoll();\n"
+    "    setupTutorialPhase = null;\n"
+    "    var ov = document.getElementById('setup-tutorial-overlay');\n"
+    "    if (ov) {\n"
+    "        ov.classList.remove('overlay-visible');\n"
+    "        ov.style.display = 'none';\n"
+    "    }\n"
+    "    var intro = document.getElementById('setup-tutorial-intro-panel');\n"
+    "    var run = document.getElementById('setup-tutorial-run-panel');\n"
+    "    var done = document.getElementById('setup-tutorial-done-panel');\n"
+    "    if (intro) intro.style.display = '';\n"
+    "    if (run) run.style.display = 'none';\n"
+    "    if (done) done.style.display = 'none';\n"
+    "    if (typeof fetchData === 'function') fetchData();\n"
+    "}\n"
+    "\n"
+    "window.openSetupTutorialIntro = openSetupTutorialIntro;\n"
+    "window.setupTutorialBegin = setupTutorialBegin;\n"
+    "window.setupTutorialCloseIntro = setupTutorialCloseIntro;\n"
+    "window.setupTutorialBack = setupTutorialBack;\n"
+    "window.setupTutorialSkip = setupTutorialSkip;\n"
+    "window.setupTutorialCancel = setupTutorialCancel;\n"
+    "window.setupTutorialFinish = setupTutorialFinish;\n"
+    "\n"
+    "const PUZZLE_DEFS = [\n"
+    "    { id: 1, difficulty: 1, title: 'Mat 1 – Dáma na poslední řadě',\n"
+    "        teaser: 'Klasický motiv: otevřený f-sloupec, dáma dá mat na f8.',\n"
+    "        fen: '7k/7p/8/8/8/8/5Q2/6K1 w - - 0 1' },\n"
+    "    { id: 2, difficulty: 2, title: 'Mat 1 – Dáma po sloupci',\n"
+    "        teaser: 'Útok po ose: dáma stoupá z b2 na b8.',\n"
+    "        fen: '6k1/5ppp/8/8/8/8/1Q6/6K1 w - - 0 1' },\n"
+    "    { id: 3, difficulty: 3, title: 'Mat 1 – Věž bere věž',\n"
+    "        teaser: 'Taktika zadní řady: bílá věž sebere černou na e8 a matuje krále.',\n"
+    "        fen: '4r1k1/5ppp/8/8/8/8/4R3/4K3 w - - 0 1' },\n"
+    "    { id: 4, difficulty: 4, title: 'Mat 1 – Školácký mat',\n"
+    "        teaser: 'Známá ukázková pozice: střelec na c4, dáma na h5 — mat na f7.',\n"
+    "        fen: 'r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1' },\n"
+    "    { id: 5, difficulty: 5, title: 'Mat 1 – Dáma na d8',\n"
+    "        teaser: 'Centrální úder: dáma z d4 uzavře mat na poli d8.',\n"
+    "        fen: '6k1/5ppp/8/8/3Q4/8/6PP/6K1 w - - 0 1' }\n"
+    "];\n"
+    "let selectedPuzzleId = 1;\n"
+    "let puzzleSetupPhase = null;\n"
+    "let puzzleSetupStepIndex = 0;\n"
+    "let puzzleSetupSteps = [];\n"
+    "let puzzleSetupFastPollId = null;\n"
+    "let puzzleSetupLedIntervalId = null;\n"
+    "let puzzleSetupOccStable = 0;\n"
+    "\n"
+    "function puzzleSquareToIndex(sq) {\n"
+    "    var c = sq.charCodeAt(0) - 97;\n"
+    "    var r = parseInt(sq.charAt(1), 10) - 1;\n"
+    "    return r * 8 + c;\n"
+    "}\n"
+    "\n"
+    "function buildPuzzleSetupStepsFromFen(fen) {\n"
+    "    var steps = [];\n"
+    "    if (!fen) return steps;\n"
+    "    var boardPart = fen.split(' ')[0];\n"
+    "    var row = 7;\n"
+    "    var col = 0;\n"
+    "    var i;\n"
+    "    for (i = 0; i < boardPart.length; i++) {\n"
+    "        var ch = boardPart.charAt(i);\n"
+    "        if (ch === '/') {\n"
+    "            row--;\n"
+    "            col = 0;\n"
+    "            continue;\n"
+    "        }\n"
+    "        if (ch >= '1' && ch <= '8') {\n"
+    "            col += parseInt(ch, 10);\n"
+    "            continue;\n"
+    "        }\n"
+    "        var sq = String.fromCharCode(97 + col) + (row + 1);\n"
+    "        var sym = pieceSymbols[ch] || ch;\n"
+    "        steps.push({\n"
+    "            sq: sq,\n"
+    "            piece: ch,\n"
+    "            label: sym + ' → ' + sq.toUpperCase()\n"
+    "        });\n"
+    "        col++;\n"
+    "    }\n"
+    "    return steps;\n"
+    "}\n"
+    "\n"
+    "function puzzleSetupStopLedRefresh() {\n"
+    "    if (puzzleSetupLedIntervalId) {\n"
+    "        clearInterval(puzzleSetupLedIntervalId);\n"
+    "        puzzleSetupLedIntervalId = null;\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function puzzleSetupStopFastPoll() {\n"
+    "    if (puzzleSetupFastPollId) {\n"
+    "        clearInterval(puzzleSetupFastPollId);\n"
+    "        puzzleSetupFastPollId = null;\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function puzzleSetupApplyLed(sq) {\n"
+    "    return fetch('/api/game/hint_highlight', {\n"
+    "        method: 'POST',\n"
+    "        headers: { 'Content-Type': 'application/json' },\n"
+    "        body: JSON.stringify({ to: sq })\n"
+    "    }).catch(function () {});\n"
+    "}\n"
+    "\n"
+    "function puzzleSetupStartLedRefresh(sq) {\n"
+    "    puzzleSetupStopLedRefresh();\n"
+    "    puzzleSetupApplyLed(sq);\n"
+    "    puzzleSetupLedIntervalId = setInterval(function () {\n"
+    "        puzzleSetupApplyLed(sq);\n"
+    "    }, SETUP_TUTORIAL_REFRESH_MS);\n"
+    "}\n"
+    "\n"
+    "function puzzleRenderList() {\n"
+    "    var list = document.getElementById('puzzle-list');\n"
+    "    if (!list) return;\n"
+    "    list.innerHTML = '';\n"
+    "    PUZZLE_DEFS.forEach(function (p) {\n"
+    "        var btn = document.createElement('button');\n"
+    "        btn.type = 'button';\n"
+    "        btn.className = 'set-btn set-btn-sm';\n"
+    "        btn.style.textAlign = 'left';\n"
+    "        btn.style.opacity = (p.id === selectedPuzzleId) ? '1' : '0.85';\n"
+    "        btn.textContent = '[' + p.difficulty + '/5] ' + p.title + ' - ' + p.teaser;\n"
+    "        btn.onclick = function () {\n"
+    "            selectedPuzzleId = p.id;\n"
+    "            puzzleRenderList();\n"
+    "        };\n"
+    "        list.appendChild(btn);\n"
+    "    });\n"
+    "}\n"
+    "\n"
+    "function puzzleUpdateGuidedMessage(status) {\n"
+    "    var box = document.getElementById('puzzle-guided-message');\n"
+    "    if (!box) return;\n"
+    "    var p = status && status.puzzle ? status.puzzle : null;\n"
+    "    if (!p) {\n"
+    "        box.textContent = '';\n"
+    "        return;\n"
+    "    }\n"
+    "    if (p.message && p.message.length > 0) {\n"
+    "        box.textContent = p.message;\n"
+    "    } else if (p.active === true) {\n"
+    "        box.textContent = 'Puzzle bezi. Zahraj hledany tah.';\n"
+    "    } else if (p.setup_active === true) {\n"
+    "        box.textContent = 'Rozestav figurky podle LED (pořadí jako u základního postavení).';\n"
+    "    } else {\n"
+    "        box.textContent = '';\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function puzzleResetPanelsToIntro() {\n"
+    "    var intro = document.getElementById('puzzle-intro-panel');\n"
+    "    var setup = document.getElementById('puzzle-setup-panel');\n"
+    "    var conf = document.getElementById('puzzle-confirm-panel');\n"
+    "    if (intro) intro.style.display = '';\n"
+    "    if (setup) setup.style.display = 'none';\n"
+    "    if (conf) conf.style.display = 'none';\n"
+    "}\n"
+    "\n"
+    "function puzzleSetOverlayVisible(vis) {\n"
+    "    var ov = document.getElementById('puzzle-overlay');\n"
+    "    if (!ov) return;\n"
+    "    if (vis) {\n"
+    "        ov.style.display = 'flex';\n"
+    "        ov.classList.add('overlay-visible');\n"
+    "    } else {\n"
+    "        ov.classList.remove('overlay-visible');\n"
+    "        ov.style.display = 'none';\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function openPuzzleIntro() {\n"
+    "    var ov = document.getElementById('puzzle-overlay');\n"
+    "    if (!ov) return;\n"
+    "    puzzleResetPanelsToIntro();\n"
+    "    puzzleSetOverlayVisible(true);\n"
+    "    puzzleRenderList();\n"
+    "    puzzleUpdateGuidedMessage(statusData || {});\n"
+    "}\n"
+    "\n"
+    "async function puzzlePrepareSelected() {\n"
+    "    try {\n"
+    "        var res = await fetch('/api/game/puzzle', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ action: 'prepare', id: selectedPuzzleId })\n"
+    "        });\n"
+    "        if (!res.ok) {\n"
+    "            if (typeof console !== 'undefined' && console.warn) console.warn('puzzle prepare', res.status);\n"
+    "            return;\n"
+    "        }\n"
+    "    } catch (e) {\n"
+    "        if (typeof console !== 'undefined' && console.warn) console.warn(e);\n"
+    "        return;\n"
+    "    }\n"
+    "    if (typeof fetchData === 'function') await fetchData();\n"
+    "    var def = PUZZLE_DEFS.filter(function (x) { return x.id === selectedPuzzleId; })[0];\n"
+    "    puzzleSetupSteps = buildPuzzleSetupStepsFromFen(def ? def.fen : '');\n"
+    "    puzzleSetupStepIndex = 0;\n"
+    "    puzzleSetupOccStable = 0;\n"
+    "    var intro = document.getElementById('puzzle-intro-panel');\n"
+    "    var setup = document.getElementById('puzzle-setup-panel');\n"
+    "    var conf = document.getElementById('puzzle-confirm-panel');\n"
+    "    if (puzzleSetupSteps.length === 0) {\n"
+    "        puzzleSetupPhase = 'confirm';\n"
+    "        if (intro) intro.style.display = 'none';\n"
+    "        if (setup) setup.style.display = 'none';\n"
+    "        if (conf) conf.style.display = '';\n"
+    "        if (typeof fetchData === 'function') {\n"
+    "            fetchData().then(function () {\n"
+    "                var w = document.getElementById('puzzle-confirm-warn');\n"
+    "                if (w && statusData && statusData.puzzle) {\n"
+    "                    w.textContent = statusData.puzzle.physical_match === false\n"
+    "                        ? 'Varování: fyzická deska nemusí přesně odpovídat.'\n"
+    "                        : 'Můžeš spustit puzzle.';\n"
+    "                    w.style.display = '';\n"
+    "                }\n"
+    "            });\n"
+    "        }\n"
+    "        return;\n"
+    "    }\n"
+    "    puzzleSetupPhase = 'run';\n"
+    "    if (intro) intro.style.display = 'none';\n"
+    "    if (setup) setup.style.display = '';\n"
+    "    if (conf) conf.style.display = 'none';\n"
+    "    puzzleSetupRenderStep();\n"
+    "    puzzleSetupFastPollId = setInterval(puzzleSetupPollOccupancy, SETUP_TUTORIAL_FAST_POLL_MS);\n"
+    "}\n"
+    "\n"
+    "function puzzleSetupRenderStep() {\n"
+    "    var st = puzzleSetupSteps[puzzleSetupStepIndex];\n"
+    "    var pe = document.getElementById('puzzle-setup-piece-display');\n"
+    "    var ins = document.getElementById('puzzle-setup-instruction');\n"
+    "    var pr = document.getElementById('puzzle-setup-progress');\n"
+    "    if (!st) return;\n"
+    "    if (pe) {\n"
+    "        var isW = (st.piece >= 'a' && st.piece <= 'z');\n"
+    "        var srcP = pieceImgSrc(st.piece);\n"
+    "        if (srcP) {\n"
+    "            pe.className = 'setup-tutorial-piece-glyph piece has-img ' + (isW ? 'white' : 'black');\n"
+    "            pe.innerHTML = '<img src=\"' + srcP + '\" alt=\"\" draggable=\"false\">';\n"
+    "        } else {\n"
+    "            pe.innerHTML = '';\n"
+    "            pe.textContent = pieceSymbols[st.piece] || st.piece || '?';\n"
+    "            pe.className = 'setup-tutorial-piece-glyph piece ' + (isW ? 'white' : 'black');\n"
+    "        }\n"
+    "    }\n"
+    "    if (ins) ins.textContent = 'Polož figurku na pole ' + st.sq.toUpperCase();\n"
+    "    if (pr) {\n"
+    "        pr.textContent = 'Krok ' + (puzzleSetupStepIndex + 1) + ' / ' + puzzleSetupSteps.length + ' — ' + st.label;\n"
+    "    }\n"
+    "    puzzleSetupStartLedRefresh(st.sq);\n"
+    "    puzzleSetupOccStable = 0;\n"
+    "}\n"
+    "\n"
+    "function puzzleSetupPollOccupancy() {\n"
+    "    if (puzzleSetupPhase !== 'run') return;\n"
+    "    fetch('/api/status')\n"
+    "        .then(function (r) { return r.json(); })\n"
+    "        .then(function (st) {\n"
+    "            if (!st.puzzle || st.puzzle.setup_active !== true) return;\n"
+    "            if (!st.matrix_occupied || !Array.isArray(st.matrix_occupied)) return;\n"
+    "            var stp = puzzleSetupSteps[puzzleSetupStepIndex];\n"
+    "            if (!stp) return;\n"
+    "            var idx = puzzleSquareToIndex(stp.sq);\n"
+    "            if (Number(st.matrix_occupied[idx]) === 1) {\n"
+    "                puzzleSetupOccStable++;\n"
+    "                if (puzzleSetupOccStable >= SETUP_TUTORIAL_OCC_STABLE_TICKS) {\n"
+    "                    puzzleSetupAdvance(true);\n"
+    "                }\n"
+    "            } else {\n"
+    "                puzzleSetupOccStable = 0;\n"
+    "            }\n"
+    "        })\n"
+    "        .catch(function () {});\n"
+    "}\n"
+    "\n"
+    "function puzzleSetupAdvance(fromAuto) {\n"
+    "    if (puzzleSetupPhase !== 'run') return;\n"
+    "    puzzleSetupStopLedRefresh();\n"
+    "    fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});\n"
+    "    puzzleSetupOccStable = 0;\n"
+    "    puzzleSetupStepIndex++;\n"
+    "    if (puzzleSetupStepIndex >= puzzleSetupSteps.length) {\n"
+    "        puzzleSetupStopFastPoll();\n"
+    "        puzzleSetupPhase = 'confirm';\n"
+    "        var setup = document.getElementById('puzzle-setup-panel');\n"
+    "        var conf = document.getElementById('puzzle-confirm-panel');\n"
+    "        if (setup) setup.style.display = 'none';\n"
+    "        if (conf) conf.style.display = '';\n"
+    "        if (typeof fetchData === 'function') {\n"
+    "            fetchData().then(function () {\n"
+    "                var w = document.getElementById('puzzle-confirm-warn');\n"
+    "                if (w && statusData && statusData.puzzle) {\n"
+    "                    if (statusData.puzzle.physical_match === false) {\n"
+    "                        w.textContent = 'Varování: fyzická deska nemusí přesně odpovídat (senzory neznají druh figurky). Puzzle můžeš přesto spustit.';\n"
+    "                        w.style.display = '';\n"
+    "                    } else {\n"
+    "                        w.textContent = 'Fyzická obsazenost odpovídá pozici.';\n"
+    "                        w.style.display = '';\n"
+    "                    }\n"
+    "                }\n"
+    "            });\n"
+    "        }\n"
+    "        return;\n"
+    "    }\n"
+    "    puzzleSetupRenderStep();\n"
+    "}\n"
+    "\n"
+    "function puzzleSetupBack() {\n"
+    "    if (puzzleSetupPhase !== 'run') return;\n"
+    "    if (puzzleSetupStepIndex <= 0) return;\n"
+    "    puzzleSetupStopLedRefresh();\n"
+    "    fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});\n"
+    "    puzzleSetupOccStable = 0;\n"
+    "    puzzleSetupStepIndex--;\n"
+    "    puzzleSetupRenderStep();\n"
+    "}\n"
+    "\n"
+    "function puzzleSetupSkip() {\n"
+    "    puzzleSetupAdvance(false);\n"
+    "}\n"
+    "\n"
+    "async function puzzleExecuteStart() {\n"
+    "    if (statusData && statusData.puzzle && statusData.puzzle.physical_match === false) {\n"
+    "        if (!window.confirm('Fyzická deska nemusí odpovídat očekávané pozici. Spustit puzzle?')) {\n"
+    "            return;\n"
+    "        }\n"
+    "    }\n"
+    "    try {\n"
+    "        await fetch('/api/game/puzzle', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ action: 'start', id: selectedPuzzleId })\n"
+    "        });\n"
+    "    } catch (e) {\n"
+    "        if (typeof console !== 'undefined' && console.warn) console.warn(e);\n"
+    "    }\n"
+    "    puzzleSetupPhase = null;\n"
+    "    puzzleResetPanelsToIntro();\n"
+    "    puzzleSetOverlayVisible(false);\n"
+    "    if (typeof fetchData === 'function') fetchData();\n"
+    "}\n"
+    "\n"
+    "async function puzzleBackToIntroFromSetup() {\n"
+    "    puzzleSetupStopFastPoll();\n"
+    "    puzzleSetupStopLedRefresh();\n"
+    "    fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});\n"
+    "    puzzleSetupPhase = null;\n"
+    "    try {\n"
+    "        await fetch('/api/game/puzzle', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ action: 'cancel' })\n"
+    "        });\n"
+    "    } catch (e) {}\n"
+    "    puzzleResetPanelsToIntro();\n"
+    "    if (typeof fetchData === 'function') fetchData();\n"
+    "}\n"
+    "\n"
+    "async function puzzleCancel() {\n"
+    "    puzzleSetupStopFastPoll();\n"
+    "    puzzleSetupStopLedRefresh();\n"
+    "    fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});\n"
+    "    puzzleSetupPhase = null;\n"
+    "    try {\n"
+    "        await fetch('/api/game/puzzle', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ action: 'cancel' })\n"
+    "        });\n"
+    "    } catch (e) {}\n"
+    "    puzzleResetPanelsToIntro();\n"
+    "    puzzleSetOverlayVisible(false);\n"
+    "    if (typeof fetchData === 'function') fetchData();\n"
+    "}\n"
+    "\n"
+    "window.openPuzzleIntro = openPuzzleIntro;\n"
+    "window.puzzlePrepareSelected = puzzlePrepareSelected;\n"
+    "window.puzzleExecuteStart = puzzleExecuteStart;\n"
+    "window.puzzleCancel = puzzleCancel;\n"
+    "window.puzzleSetupBack = puzzleSetupBack;\n"
+    "window.puzzleSetupSkip = puzzleSetupSkip;\n"
+    "window.puzzleBackToIntroFromSetup = puzzleBackToIntroFromSetup;\n"
     "\n"
     "function updateStatus(status) {\n"
     "    statusData = status;\n"
@@ -4533,6 +7243,36 @@ static const char chess_app_js_content[] =
     "        if (valueEl) valueEl.textContent = b + '%';\n"
     "        if (sliderEl && Number(sliderEl.value) !== b) sliderEl.value = b;\n"
     "    }\n"
+    "    const gl = status.led_guidance_level;\n"
+    "    if (typeof gl === 'number' && gl >= 1 && gl <= 5) {\n"
+    "        const ledGuidanceEl = document.getElementById('led-guidance-level');\n"
+    "        if (ledGuidanceEl && String(ledGuidanceEl.value) !== String(gl)) {\n"
+    "            ledGuidanceEl.value = String(gl);\n"
+    "        }\n"
+    "    }\n"
+    "    puzzleUpdateGuidedMessage(status);\n"
+    "    updatePuzzleStatusPanel(status, { offline: false });\n"
+    "\n"
+    "    // Lampa (Nastavení) – režim, zapnutí, R/G/B ze statusu\n"
+    "    const lightMode = status.light_mode;\n"
+    "    const lightState = status.light_state;\n"
+    "    const lr = status.light_r, lg = status.light_g, lb = status.light_b;\n"
+    "    const btnGame = document.getElementById('light-mode-game');\n"
+    "    const btnLamp = document.getElementById('light-mode-lamp');\n"
+    "    const lampControls = document.getElementById('light-lamp-controls');\n"
+    "    if (btnGame && btnLamp) {\n"
+    "        const isLamp = lightMode === 'lamp';\n"
+    "        btnGame.classList.toggle('active', !isLamp);\n"
+    "        btnLamp.classList.toggle('active', isLamp);\n"
+    "        if (lampControls) lampControls.style.display = isLamp ? '' : 'none';\n"
+    "    }\n"
+    "    const toggleEl = document.getElementById('light-state-toggle');\n"
+    "    if (toggleEl && typeof lightState === 'boolean' && toggleEl.checked !== lightState) toggleEl.checked = lightState;\n"
+    "    const rEl = document.getElementById('light-r'), gEl = document.getElementById('light-g'), bEl = document.getElementById('light-b');\n"
+    "    const rVal = document.getElementById('light-r-value'), gVal = document.getElementById('light-g-value'), bVal = document.getElementById('light-b-value');\n"
+    "    if (typeof lr === 'number' && lr >= 0 && lr <= 255 && rEl && rVal) { rEl.value = lr; rVal.textContent = lr; }\n"
+    "    if (typeof lg === 'number' && lg >= 0 && lg <= 255 && gEl && gVal) { gEl.value = lg; gVal.textContent = lg; }\n"
+    "    if (typeof lb === 'number' && lb >= 0 && lb <= 255 && bEl && bVal) { bEl.value = lb; bVal.textContent = lb; }\n"
     "\n"
     "    // Promotion modal – zobrazit, když backend čeká na volbu promoce (game_state === \"promotion\")\n"
     "    const promoModal = document.getElementById('promotion-modal');\n"
@@ -4558,12 +7298,23 @@ static const char chess_app_js_content[] =
     "    const liftedPieceEl = document.getElementById('lifted-piece');\n"
     "    const liftedPosEl = document.getElementById('lifted-position');\n"
     "    if (lifted && lifted.lifted) {\n"
-    "        if (liftedPieceEl) liftedPieceEl.textContent = pieceSymbols[lifted.piece] || '-';\n"
+    "        if (liftedPieceEl) {\n"
+    "            const sl = pieceImgSrc(lifted.piece);\n"
+    "            if (sl) {\n"
+    "                liftedPieceEl.innerHTML = '<img src=\"' + sl + '\" class=\"lifted-piece-img\" alt=\"\">';\n"
+    "            } else {\n"
+    "                liftedPieceEl.innerHTML = '';\n"
+    "                liftedPieceEl.textContent = pieceSymbols[lifted.piece] || '-';\n"
+    "            }\n"
+    "        }\n"
     "        if (liftedPosEl) liftedPosEl.textContent = String.fromCharCode(97 + lifted.col) + (lifted.row + 1);\n"
     "        const square = document.querySelector(`[data-row='${lifted.row}'][data-col='${lifted.col}']`);\n"
     "        if (square) square.classList.add('lifted');\n"
     "    } else {\n"
-    "        if (liftedPieceEl) liftedPieceEl.textContent = '-';\n"
+    "        if (liftedPieceEl) {\n"
+    "            liftedPieceEl.innerHTML = '';\n"
+    "            liftedPieceEl.textContent = '-';\n"
+    "        }\n"
     "        if (liftedPosEl) liftedPosEl.textContent = '-';\n"
     "    }\n"
     "\n"
@@ -4586,8 +7337,40 @@ static const char chess_app_js_content[] =
     "    // Castling message vs Bot message\n"
     "    var castlingMsg = document.getElementById('castling-pending-message');\n"
     "    if (castlingMsg) {\n"
-    "        // Prioritize Castling Message over Bot Message\n"
-    "        if (status.castling_in_progress && status.castling_from && status.castling_to) {\n"
+    "        if (status.restore_state && status.restore_state.boot_new_game_triggered) {\n"
+    "            castlingMsg.textContent = 'Byla spuštěna nová hra: detekovány 2 starty zařízení bez tahu v intervalu 1 minuty.';\n"
+    "            castlingMsg.style.display = 'block';\n"
+    "            castlingMsg.style.background = 'rgba(23,162,184,0.14)';\n"
+    "            castlingMsg.style.borderColor = 'rgba(23,162,184,0.45)';\n"
+    "            castlingMsg.style.color = '#4dd0e1';\n"
+    "        // Highest priority: matrix guard pause with return guidance.\n"
+    "        } else if (status.matrix_guard_active) {\n"
+    "            const liftedSquares = matrixGuardMaskToSquares(status.matrix_guard_lifted_low, status.matrix_guard_lifted_high);\n"
+    "            const droppedSquares = matrixGuardMaskToSquares(status.matrix_guard_dropped_low, status.matrix_guard_dropped_high);\n"
+    "            const all = Array.from(new Set(liftedSquares.concat(droppedSquares)));\n"
+    "            const hint = all.length > 0 ? all.join(', ') : 'označené pozice';\n"
+    "            const resync = status.restore_state && status.restore_state.resync_required;\n"
+    "            castlingMsg.textContent = resync\n"
+    "                ? ('Po startu nesedí fyzická deska s uloženou hrou. Srovnejte figurky na LED zvýrazněných polích: ' + hint + '.')\n"
+    "                : ('Hra je pozastavena: zvednuto více figurek najednou. Vraťte figurky na: ' + hint + '. Po návratu hra automaticky pokračuje.');\n"
+    "            castlingMsg.style.display = 'block';\n"
+    "            castlingMsg.style.background = 'rgba(220,53,69,0.14)';\n"
+    "            castlingMsg.style.borderColor = 'rgba(220,53,69,0.45)';\n"
+    "            castlingMsg.style.color = '#ff6b6b';\n"
+    "        } else if (status.restore_state && status.restore_state.snapshot_restore_failed) {\n"
+    "            castlingMsg.textContent = 'Chyba obnovy hry z NVS — hra běží z výchozí / poslední známé pozice. Zkontrolujte log.';\n"
+    "            castlingMsg.style.display = 'block';\n"
+    "            castlingMsg.style.background = 'rgba(255,87,34,0.14)';\n"
+    "            castlingMsg.style.borderColor = 'rgba(255,87,34,0.45)';\n"
+    "            castlingMsg.style.color = '#ff8a65';\n"
+    "        } else if (status.restore_state && status.restore_state.snapshot_save_failed) {\n"
+    "            castlingMsg.textContent = 'Varování: uložení hry do NVS selhalo — po výpadku napájení může chybět poslední tah.';\n"
+    "            castlingMsg.style.display = 'block';\n"
+    "            castlingMsg.style.background = 'rgba(255,152,0,0.14)';\n"
+    "            castlingMsg.style.borderColor = 'rgba(255,152,0,0.45)';\n"
+    "            castlingMsg.style.color = '#ffb74d';\n"
+    "        // Next priority: castling guidance.\n"
+    "        } else if (status.castling_in_progress && status.castling_from && status.castling_to) {\n"
     "            castlingMsg.textContent = 'Dokončete rošádu: přesuňte věž z ' + status.castling_from + ' na ' + status.castling_to + '.';\n"
     "            castlingMsg.style.display = 'block';\n"
     "            // Reset style to warning for castling\n"
@@ -4595,13 +7378,17 @@ static const char chess_app_js_content[] =
     "            castlingMsg.style.borderColor = 'rgba(255,193,7,0.4)';\n"
     "            castlingMsg.style.color = '#ffc107';\n"
     "        } else {\n"
-    "            // If NOT castling, check if we should keep Bot Message or hide it\n"
-    "            // Bot logic handles showing/hiding bot message, so we only hide if NO bot message logic is active\n"
-    "            // But simpler: just hide if not castling AND not bot thinking/turn (handled in checkBotTurn)\n"
-    "            var keepMsg = castlingMsg.textContent.indexOf('Bot') !== -1 || castlingMsg.textContent.indexOf('Losování:') === 0;\n"
-    "            if (!keepMsg) castlingMsg.style.display = 'none';\n"
+    "            if (status.game_end && status.game_end.ended) castlingMsg.style.display = 'none';\n"
+    "            else if (status.game_state !== 'active' && status.game_state !== 'playing') castlingMsg.style.display = 'none';\n"
+    "            else {\n"
+    "                var keepMsg = castlingMsg.textContent.indexOf('Losování:') === 0 || castlingMsg.textContent.indexOf('nápověda') !== -1;\n"
+    "                if (!keepMsg) castlingMsg.style.display = 'none';\n"
+    "            }\n"
     "        }\n"
     "    }\n"
+    "\n"
+    "    // Panel „Bot“ – zobrazit jen v režimu proti botovi; při zvednuté figurce navádění\n"
+    "    updateBotStatusPanel(undefined, status);\n"
     "\n"
     "    // ENDGAME REPORT\n"
     "    if (status.game_end && status.game_end.ended) {\n"
@@ -4630,9 +7417,17 @@ static const char chess_app_js_content[] =
     "        if (locked) {\n"
     "            hintBtn.disabled = true;\n"
     "            hintBtn.title = 'Rozhraní je zamčeno';\n"
+    "        } else if (status.board_setup_tutorial === true) {\n"
+    "            hintBtn.disabled = true;\n"
+    "            hintBtn.title = 'Běží tutoriál rozestavení';\n"
     "        } else {\n"
     "            if (typeof updateHintButtonLabel === 'function') updateHintButtonLabel();\n"
     "        }\n"
+    "    }\n"
+    "\n"
+    "    var tutOv = document.getElementById('setup-tutorial-overlay');\n"
+    "    if (tutOv && tutOv.style.display === 'flex') {\n"
+    "        setupTutorialUpdateIntroWarnings(status);\n"
     "    }\n"
     "}\n"
     "\n"
@@ -4649,31 +7444,154 @@ static const char chess_app_js_content[] =
     "    }\n"
     "}\n"
     "\n"
+    "/** Krátký štítek kvality tahu do přehledu (2–4 znaky). */\n"
+    "function getGradeShortLabel(grade) {\n"
+    "    switch (grade) {\n"
+    "        case 'best': return 'Výb.';\n"
+    "        case 'good': return 'Dob.';\n"
+    "        case 'inaccuracy': return 'Nepř.';\n"
+    "        case 'mistake': return 'Ch.';\n"
+    "        case 'blunder': return 'Hr.';\n"
+    "        case 'error': return '!';\n"
+    "        case 'unknown': return '—';\n"
+    "        default: return '—';\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "function escapeHtml(s) {\n"
+    "    if (s == null) return '';\n"
+    "    return String(s)\n"
+    "        .replace(/&/g, '&amp;')\n"
+    "        .replace(/</g, '&lt;')\n"
+    "        .replace(/>/g, '&gt;')\n"
+    "        .replace(/\"/g, '&quot;');\n"
+    "}\n"
+    "\n"
+    "/** Kolik posledních tahů v kompaktním náhledu (2–4). */\n"
+    "var HISTORY_PREVIEW_COUNT = 4;\n"
+    "var historyFullExpanded = false;\n"
+    "var historyDetailIndex = null;\n"
+    "\n"
+    "function wireHistoryToolbarOnce() {\n"
+    "    var btn = document.getElementById('history-toggle-full');\n"
+    "    if (!btn || btn._historyWired) return;\n"
+    "    btn._historyWired = true;\n"
+    "    btn.addEventListener('click', function (e) {\n"
+    "        e.preventDefault();\n"
+    "        historyFullExpanded = !historyFullExpanded;\n"
+    "        btn.setAttribute('aria-expanded', historyFullExpanded ? 'true' : 'false');\n"
+    "        btn.textContent = historyFullExpanded ? 'Skrýt celou historii' : 'Celá historie';\n"
+    "        renderHistoryList();\n"
+    "    });\n"
+    "}\n"
+    "\n"
+    "function createHistoryItemElement(move, actualIndex) {\n"
+    "    var item = document.createElement('div');\n"
+    "    item.className = 'history-item';\n"
+    "    item.dataset.moveIndex = String(actualIndex);\n"
+    "    var moveNum = Math.floor(actualIndex / 2) + 1;\n"
+    "    var isWhite = actualIndex % 2 === 0;\n"
+    "    var prefix = isWhite ? moveNum + '. ' : '';\n"
+    "    item.appendChild(document.createTextNode(prefix + move.from + ' → ' + move.to));\n"
+    "    var ev = moveEvaluations[actualIndex];\n"
+    "    if (ev) {\n"
+    "        var badge = document.createElement('span');\n"
+    "        badge.className = 'move-eval-badge move-eval-badge--' + (ev.grade || 'good');\n"
+    "        var fullTitle = ev.msg || getGradeLabel(ev.grade);\n"
+    "        badge.title = fullTitle;\n"
+    "        badge.setAttribute('aria-label', fullTitle);\n"
+    "        badge.textContent = getGradeShortLabel(ev.grade);\n"
+    "        item.appendChild(document.createTextNode(' '));\n"
+    "        item.appendChild(badge);\n"
+    "    }\n"
+    "    item.addEventListener('click', function (e) {\n"
+    "        e.stopPropagation();\n"
+    "        toggleHistoryMoveDetail(actualIndex);\n"
+    "    });\n"
+    "    return item;\n"
+    "}\n"
+    "\n"
+    "function toggleHistoryMoveDetail(actualIndex) {\n"
+    "    var panel = document.getElementById('history-move-detail');\n"
+    "    if (!panel) return;\n"
+    "    if (historyDetailIndex === actualIndex) {\n"
+    "        panel.style.display = 'none';\n"
+    "        historyDetailIndex = null;\n"
+    "        return;\n"
+    "    }\n"
+    "    historyDetailIndex = actualIndex;\n"
+    "    var ev = moveEvaluations[actualIndex];\n"
+    "    var move = historyData[actualIndex];\n"
+    "    var san = move ? (move.from + ' → ' + move.to) : '—';\n"
+    "    var gradeLine = ev ? getGradeLabel(ev.grade) : 'Bezhodnoceno';\n"
+    "    var gExtra = ev && ev.grade ? (' history-detail-grade--' + ev.grade) : '';\n"
+    "    var msg = ev && ev.msg\n"
+    "        ? ev.msg\n"
+    "        : ('Zhodnocení není k dispozici. Zapni „Zhodnocení tahu“ v Nastavení a hraj ' +\n"
+    "            's připojením k internetu — u každého nového tahu se doplní kvalita.');\n"
+    "    panel.innerHTML =\n"
+    "        '<div class=\"history-detail-inner\">' +\n"
+    "        '<div class=\"history-detail-san\">' + escapeHtml(san) + '</div>' +\n"
+    "        '<div class=\"history-detail-grade' + gExtra + '\">' + escapeHtml(gradeLine) + '</div>' +\n"
+    "        '<p class=\"history-detail-msg\">' + escapeHtml(msg) + '</p>' +\n"
+    "        '<button type=\"button\" class=\"history-detail-review-btn btn-history-review\">' +\n"
+    "        'Zobrazit pozici na šachovnici</button></div>';\n"
+    "    var rb = panel.querySelector('.history-detail-review-btn');\n"
+    "    if (rb) {\n"
+    "        rb.addEventListener('click', function (ev2) {\n"
+    "            ev2.stopPropagation();\n"
+    "            enterReviewMode(actualIndex);\n"
+    "        });\n"
+    "    }\n"
+    "    panel.style.display = 'block';\n"
+    "}\n"
+    "\n"
     "function renderHistoryList() {\n"
-    "    const historyBox = document.getElementById('history');\n"
+    "    var previewEl = document.getElementById('history-preview');\n"
+    "    var fullEl = document.getElementById('history');\n"
+    "    var wrap = document.getElementById('history-full-wrap');\n"
+    "    wireHistoryToolbarOnce();\n"
+    "\n"
+    "    if (previewEl && fullEl) {\n"
+    "        var total = historyData.length;\n"
+    "        var rev;\n"
+    "        previewEl.innerHTML = '';\n"
+    "        fullEl.innerHTML = '';\n"
+    "        if (historyFullExpanded) {\n"
+    "            previewEl.style.display = 'none';\n"
+    "            if (wrap) wrap.style.display = 'block';\n"
+    "            for (rev = 0; rev < total; rev++) {\n"
+    "                var ai = total - 1 - rev;\n"
+    "                fullEl.appendChild(createHistoryItemElement(historyData[ai], ai));\n"
+    "            }\n"
+    "        } else {\n"
+    "            previewEl.style.display = '';\n"
+    "            if (wrap) wrap.style.display = 'none';\n"
+    "            var nPrev = Math.min(HISTORY_PREVIEW_COUNT, total);\n"
+    "            for (rev = 0; rev < nPrev; rev++) {\n"
+    "                var ai2 = total - 1 - rev;\n"
+    "                previewEl.appendChild(createHistoryItemElement(historyData[ai2], ai2));\n"
+    "            }\n"
+    "        }\n"
+    "        var tbtn = document.getElementById('history-toggle-full');\n"
+    "        if (tbtn) {\n"
+    "            tbtn.style.display = total > HISTORY_PREVIEW_COUNT ? 'inline-block' : 'none';\n"
+    "        }\n"
+    "        if (historyDetailIndex != null &&\n"
+    "            (historyDetailIndex < 0 || historyDetailIndex >= total)) {\n"
+    "            historyDetailIndex = null;\n"
+    "            var p = document.getElementById('history-move-detail');\n"
+    "            if (p) p.style.display = 'none';\n"
+    "        }\n"
+    "        return;\n"
+    "    }\n"
+    "\n"
+    "    var historyBox = document.getElementById('history');\n"
     "    if (!historyBox) return;\n"
     "    historyBox.innerHTML = '';\n"
-    "    const showEval = getEvaluateMoveEnabled();\n"
     "    historyData.slice().reverse().forEach((move, index) => {\n"
-    "        const item = document.createElement('div');\n"
-    "        item.className = 'history-item';\n"
-    "        const actualIndex = historyData.length - 1 - index;\n"
-    "        item.dataset.moveIndex = actualIndex;\n"
-    "        const moveNum = Math.floor(actualIndex / 2) + 1;\n"
-    "        const isWhite = actualIndex % 2 === 0;\n"
-    "        const prefix = isWhite ? moveNum + '. ' : '';\n"
-    "        item.textContent = prefix + move.from + ' → ' + move.to;\n"
-    "        if (showEval && moveEvaluations[actualIndex]) {\n"
-    "            const ev = moveEvaluations[actualIndex];\n"
-    "            const badge = document.createElement('span');\n"
-    "            badge.className = 'move-eval-badge move-eval-badge--' + (ev.grade || 'good');\n"
-    "            badge.title = ev.msg || getGradeLabel(ev.grade);\n"
-    "            badge.textContent = getGradeLabel(ev.grade);\n"
-    "            item.appendChild(document.createTextNode(' '));\n"
-    "            item.appendChild(badge);\n"
-    "        }\n"
-    "        item.onclick = () => enterReviewMode(actualIndex);\n"
-    "        historyBox.appendChild(item);\n"
+    "        var actualIndex = historyData.length - 1 - index;\n"
+    "        historyBox.appendChild(createHistoryItemElement(move, actualIndex));\n"
     "    });\n"
     "}\n"
     "\n"
@@ -4691,32 +7609,84 @@ static const char chess_app_js_content[] =
     "    captured.white_captured.forEach(p => {\n"
     "        const piece = document.createElement('div');\n"
     "        piece.className = 'captured-piece';\n"
-    "        piece.textContent = pieceSymbols[p] || p;\n"
+    "        const s = pieceImgSrc(p);\n"
+    "        if (s) {\n"
+    "            piece.innerHTML = '<img src=\"' + s + '\" alt=\"\">';\n"
+    "        } else {\n"
+    "            piece.textContent = pieceSymbols[p] || p;\n"
+    "        }\n"
     "        whiteBox.appendChild(piece);\n"
     "    });\n"
     "    captured.black_captured.forEach(p => {\n"
     "        const piece = document.createElement('div');\n"
     "        piece.className = 'captured-piece';\n"
-    "        piece.textContent = pieceSymbols[p] || p;\n"
+    "        const s2 = pieceImgSrc(p);\n"
+    "        if (s2) {\n"
+    "            piece.innerHTML = '<img src=\"' + s2 + '\" alt=\"\">';\n"
+    "        } else {\n"
+    "            piece.textContent = pieceSymbols[p] || p;\n"
+    "        }\n"
     "        blackBox.appendChild(piece);\n"
     "    });\n"
     "}\n"
     "\n"
     "async function fetchData() {\n"
     "    if (reviewMode || sandboxMode) return;\n"
+    "    if (fetchDataInFlight) return;\n"
+    "    fetchDataInFlight = true;\n"
     "    try {\n"
-    "        const [boardRes, statusRes, historyRes, capturedRes] = await Promise.all([\n"
-    "            fetch('/api/board'),\n"
-    "            fetch('/api/status'),\n"
-    "            fetch('/api/history'),\n"
-    "            fetch('/api/captured')\n"
-    "        ]);\n"
-    "        const board = await boardRes.json();\n"
-    "        const status = await statusRes.json();\n"
-    "        const history = await historyRes.json();\n"
-    "        const captured = await capturedRes.json();\n"
+    "        var snapRes = await fetch('/api/game/snapshot');\n"
+    "        var board;\n"
+    "        var status;\n"
+    "        var history;\n"
+    "        var captured;\n"
+    "        if (snapRes.ok) {\n"
+    "            var data = await snapRes.json();\n"
+    "            board = { board: data.board, timestamp: data.timestamp };\n"
+    "            status = data.status;\n"
+    "            history = data.history;\n"
+    "            captured = data.captured;\n"
+    "            if (data.clock) {\n"
+    "                lastSnapshotClockInfo = data.clock;\n"
+    "                lastSnapshotClockAt = Date.now();\n"
+    "                applyTimerInfo(data.clock);\n"
+    "            } else {\n"
+    "                lastSnapshotClockInfo = null;\n"
+    "                lastSnapshotClockAt = 0;\n"
+    "            }\n"
+    "        } else {\n"
+    "            lastSnapshotClockInfo = null;\n"
+    "            lastSnapshotClockAt = 0;\n"
+    "            const [boardRes, statusRes, historyRes, capturedRes] = await Promise.all([\n"
+    "                fetch('/api/board'),\n"
+    "                fetch('/api/status'),\n"
+    "                fetch('/api/history'),\n"
+    "                fetch('/api/captured')\n"
+    "            ]);\n"
+    "            board = await boardRes.json();\n"
+    "            status = await statusRes.json();\n"
+    "            history = await historyRes.json();\n"
+    "            captured = await capturedRes.json();\n"
+    "        }\n"
     "        updateBoard(board.board);\n"
     "        updateStatus(status);\n"
+    "        if (status && status.puzzle) {\n"
+    "            var pu = status.puzzle;\n"
+    "            if (pu.active || pu.setup_active || (pu.feedback && String(pu.feedback).toLowerCase() !== 'none')) {\n"
+    "                lastPuzzleSnapshotForOffline = {\n"
+    "                    active: !!pu.active,\n"
+    "                    setup_active: !!pu.setup_active,\n"
+    "                    feedback: pu.feedback || 'none',\n"
+    "                    message: pu.message || '',\n"
+    "                    title: pu.title || '',\n"
+    "                    teaser: pu.teaser || ''\n"
+    "                };\n"
+    "            } else {\n"
+    "                lastPuzzleSnapshotForOffline = null;\n"
+    "            }\n"
+    "        } else {\n"
+    "            lastPuzzleSnapshotForOffline = null;\n"
+    "        }\n"
     "        updateHistory(history);\n"
     "        updateCaptured(captured);\n"
     "\n"
@@ -4727,6 +7697,15 @@ static const char chess_app_js_content[] =
     "            lastFen = null;\n"
     "            lastHistoryLength = 0;\n"
     "            moveEvaluations = {};\n"
+    "            historyFullExpanded = false;\n"
+    "            historyDetailIndex = null;\n"
+    "            var hmd = document.getElementById('history-move-detail');\n"
+    "            if (hmd) hmd.style.display = 'none';\n"
+    "            var htf = document.getElementById('history-toggle-full');\n"
+    "            if (htf) {\n"
+    "                htf.textContent = 'Celá historie';\n"
+    "                htf.setAttribute('aria-expanded', 'false');\n"
+    "            }\n"
     "            lastCapturedCount = (capturedData.white_captured || []).length + (capturedData.black_captured || []).length;\n"
     "            hideMoveEvaluation();\n"
     "        } else {\n"
@@ -4737,7 +7716,7 @@ static const char chess_app_js_content[] =
     "            if (getEvaluateMoveEnabled() && !castlingInProgress && lastHistoryLength >= 0 && newHistoryLength === lastHistoryLength + 1 && lastFen) {\n"
     "                var lastMove = historyData[newHistoryLength - 1];\n"
     "                var lastMoveByWhite = (newHistoryLength - 1) % 2 === 0;\n"
-    "                var lastMoveByBot = gameMode === 'bot' && ((botSettings.side === 'white' && lastMoveByWhite) || (botSettings.side === 'black' && !lastMoveByWhite));\n"
+    "                var lastMoveByBot = gameMode === 'bot' && ((botSettings.side === 'black' && lastMoveByWhite) || (botSettings.side === 'white' && !lastMoveByWhite));\n"
     "                if (lastMove && lastMove.from && lastMove.to && !lastMoveByBot) {\n"
     "                    evaluateMoveAsync(lastFen, currentFen, lastMove, newHistoryLength);\n"
     "                }\n"
@@ -4748,7 +7727,7 @@ static const char chess_app_js_content[] =
     "                addHintReward('capture', sideCapture);\n"
     "            }\n"
     "            lastCapturedCount = totalCaptured;\n"
-    "            if (!castlingInProgress) {\n"
+    "            if (!castlingInProgress && newHistoryLength >= lastHistoryLength) {\n"
     "                lastFen = currentFen;\n"
     "                lastHistoryLength = newHistoryLength;\n"
     "            }\n"
@@ -4756,6 +7735,11 @@ static const char chess_app_js_content[] =
     "        checkBotTurn(status, currentFen);\n"
     "    } catch (error) {\n"
     "        console.error('Fetch error:', error);\n"
+    "        if (lastPuzzleSnapshotForOffline) {\n"
+    "            updatePuzzleStatusPanel({ puzzle: lastPuzzleSnapshotForOffline }, { offline: true });\n"
+    "        }\n"
+    "    } finally {\n"
+    "        fetchDataInFlight = false;\n"
     "    }\n"
     "}\n"
     "\n"
@@ -4771,6 +7755,9 @@ static const char chess_app_js_content[] =
     "    var evaluateMoveEl = document.getElementById('evaluate-move-enabled');\n"
     "    if (evaluateMoveEl) evaluateMoveEl.checked = getEvaluateMoveEnabled();\n"
     "\n"
+    "    var botLedTargetEl = document.getElementById('bot-led-target-only-after-lift');\n"
+    "    if (botLedTargetEl) botLedTargetEl.checked = getBotLedTargetOnlyAfterLift();\n"
+    "\n"
     "    var limit = getHintLimit();\n"
     "    var n = limit > 0 ? limit : 999;\n"
     "    hintsRemainingWhite = n;\n"
@@ -4783,10 +7770,92 @@ static const char chess_app_js_content[] =
     "    console.log('✅ Chess App initialized');\n"
     "}\n"
     "\n"
-    "console.log('🚀 Creating chess board...');\n"
-    "initializeApp(); // Call the new initialization function\n"
-    "console.log('✅ Chess JavaScript loaded successfully!');\n"
-    "console.log('⏱️ About to initialize timer system...');\n"
+    "function ensureBoardFocusExitButton() {\n"
+    "    if (document.getElementById('web-board-focus-exit')) return;\n"
+    "    var b = document.createElement('button');\n"
+    "    b.id = 'web-board-focus-exit';\n"
+    "    b.type = 'button';\n"
+    "    b.className = 'web-board-focus-exit-btn';\n"
+    "    b.textContent = 'Celá aplikace';\n"
+    "    b.setAttribute('aria-label', 'Zobrazit celou aplikaci');\n"
+    "    b.onclick = function () {\n"
+    "        exitWebBoardFocusMode();\n"
+    "    };\n"
+    "    document.body.appendChild(b);\n"
+    "}\n"
+    "\n"
+    "function exitWebBoardFocusMode() {\n"
+    "    document.documentElement.classList.remove('web-board-focus');\n"
+    "    document.body.classList.remove('web-board-focus');\n"
+    "    try {\n"
+    "        document.body.style.position = '';\n"
+    "        document.body.style.width = '';\n"
+    "    } catch (e) { /* ignore */ }\n"
+    "    var x = document.getElementById('web-board-focus-exit');\n"
+    "    if (x) x.remove();\n"
+    "    try {\n"
+    "        localStorage.setItem('chessWebBoardFocus', '0');\n"
+    "    } catch (e2) { /* ignore */ }\n"
+    "}\n"
+    "\n"
+    "/**\n"
+    " * Jen šachovnice + časovače: bez scrollování stránky, táhnutí figur při zapnutém ovládání z webu.\n"
+    " * Zapnutí: URL ?focus=1 nebo ?board=1, nebo localStorage chessWebBoardFocus=1\n"
+    " */\n"
+    "function initWebBoardFocusMode() {\n"
+    "    try {\n"
+    "        var p = new URLSearchParams(window.location.search);\n"
+    "        var q = p.get('focus') === '1' || p.get('board') === '1';\n"
+    "        var ls = false;\n"
+    "        try {\n"
+    "            ls = localStorage.getItem('chessWebBoardFocus') === '1';\n"
+    "        } catch (e0) { /* ignore */ }\n"
+    "        if (!q && !ls) return;\n"
+    "        document.documentElement.classList.add('web-board-focus');\n"
+    "        document.body.classList.add('web-board-focus');\n"
+    "        try {\n"
+    "            localStorage.setItem('chessWebBoardFocus', '1');\n"
+    "        } catch (e1) { /* ignore */ }\n"
+    "        var rc = document.getElementById('remote-control-enabled');\n"
+    "        if (rc && !rc.checked) {\n"
+    "            rc.checked = true;\n"
+    "            if (typeof toggleRemoteControl === 'function') toggleRemoteControl();\n"
+    "        }\n"
+    "        ensureBoardFocusExitButton();\n"
+    "        if (typeof console !== 'undefined' && console.log) {\n"
+    "            console.log('[staging] web-board-focus: jen deska + čas; táhni figurky (dálkové ovládání zapnuto)');\n"
+    "        }\n"
+    "    } catch (e) {\n"
+    "        if (typeof console !== 'undefined' && console.warn) console.warn('initWebBoardFocusMode', e);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "window.exitWebBoardFocusMode = exitWebBoardFocusMode;\n"
+    "\n"
+    "async function bootstrapChessWebUi() {\n"
+    "    try {\n"
+    "        await loadUiPrefsFromDevice();\n"
+    "    } catch (e) {\n"
+    "        if (typeof console !== 'undefined' && console.warn) {\n"
+    "            console.warn('bootstrapChessWebUi loadUiPrefsFromDevice', e);\n"
+    "        }\n"
+    "    }\n"
+    "    applyDevicePrefsToDom();\n"
+    "    initWebBoardFocusMode();\n"
+    "    console.log('🚀 Creating chess board...');\n"
+    "    initializeApp();\n"
+    "    console.log('✅ Chess JavaScript loaded successfully!');\n"
+    "    console.log('⏱️ About to initialize timer system...');\n"
+    "    try {\n"
+    "        initTimerSystem();\n"
+    "        console.log('✅ initTimerSystem() called successfully');\n"
+    "    } catch (error) {\n"
+    "        console.error('❌ CRITICAL ERROR in initTimerSystem():', error);\n"
+    "        if (error && error.stack) console.error('Stack:', error.stack);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "bootstrapChessWebUi();\n"
     "\n"
     "// ============================================================================\n"
     "// TIMER SYSTEM\n"
@@ -4804,6 +7873,12 @@ static const char chess_app_js_content[] =
     "    avg_move_time_ms: 0\n"
     "};\n"
     "let timerUpdateInterval = null;\n"
+    "/** -1 = ještě nezjištěno; 1000 při aktivní časové kontrole, 8000 když je vypnutá. */\n"
+    "let timerPollMs = -1;\n"
+    "/** Čerstvý `clock` z GET /api/game/snapshot — šetří GET /api/timer v updateTimerDisplay. */\n"
+    "let lastSnapshotClockInfo = null;\n"
+    "let lastSnapshotClockAt = 0;\n"
+    "const SNAPSHOT_CLOCK_FRESH_MS = 900;\n"
     "let selectedTimeControl = 0;\n"
     "\n"
     "// ========== HELPER FUNCTIONS (must be defined before use) ==========\n"
@@ -4961,10 +8036,9 @@ static const char chess_app_js_content[] =
     "    const select = document.getElementById('time-control-select');\n"
     "    const applyBtn = document.getElementById('apply-time-control');\n"
     "    if (!select) return;\n"
-    "    selectedTimeControl = parseInt(select.value);\n"
+    "    selectedTimeControl = parseInt(select.value, 10);\n"
     "    toggleCustomSettings();\n"
     "    if (applyBtn) applyBtn.disabled = false;\n"
-    "    localStorage.setItem('chess_time_control', selectedTimeControl.toString());\n"
     "}\n"
     "\n"
     "// ========== TIMER INITIALIZATION AND MAIN FUNCTIONS ==========\n"
@@ -4979,13 +8053,7 @@ static const char chess_app_js_content[] =
     "        setTimeout(() => initTimerSystem(), 100);\n"
     "        return;\n"
     "    }\n"
-    "    const savedTimeControl = localStorage.getItem('chess_time_control');\n"
-    "    if (savedTimeControl) {\n"
-    "        selectedTimeControl = parseInt(savedTimeControl);\n"
-    "        timeControlSelect.value = selectedTimeControl;\n"
-    "    } else {\n"
-    "        selectedTimeControl = parseInt(timeControlSelect.value);\n"
-    "    }\n"
+    "    selectedTimeControl = parseInt(timeControlSelect.value, 10);\n"
     "    toggleCustomSettings();\n"
     "    // Enable button if a time control is selected (not 0 = None)\n"
     "    if (selectedTimeControl !== 0 && applyButton) {\n"
@@ -4996,62 +8064,83 @@ static const char chess_app_js_content[] =
     "    startTimerUpdateLoop();\n"
     "}\n"
     "\n"
-    "function startTimerUpdateLoop() {\n"
-    "    console.log('✅ Timer update loop starting... (will update every 1000ms)');\n"
+    "function rescheduleTimerPollInterval() {\n"
+    "    var active = timerData.config && timerData.config.type !== 0;\n"
+    "    var want = active ? 1000 : 8000;\n"
+    "    if (timerPollMs === want && timerUpdateInterval) {\n"
+    "        return;\n"
+    "    }\n"
+    "    timerPollMs = want;\n"
     "    if (timerUpdateInterval) {\n"
-    "        console.log('⚠️ Clearing existing timer interval');\n"
     "        clearInterval(timerUpdateInterval);\n"
     "    }\n"
     "    timerUpdateInterval = setInterval(async () => {\n"
     "        try {\n"
     "            await updateTimerDisplay();\n"
     "        } catch (error) {\n"
-    "            console.error('❌ Timer update loop error:', error);\n"
+    "            console.error('Timer update loop error:', error);\n"
     "        }\n"
-    "    }, 1000); // Optimized from 200ms to 1s (5× fewer requests, still responsive)\n"
-    "    console.log('✅ Timer interval set successfully, ID:', timerUpdateInterval);\n"
-    "    // Initial immediate update\n"
-    "    console.log('⏱️ Calling initial timer update...');\n"
-    "    updateTimerDisplay().catch(e => console.error('❌ Initial timer update failed:', e));\n"
+    "    }, timerPollMs);\n"
+    "}\n"
+    "\n"
+    "function startTimerUpdateLoop() {\n"
+    "    if (timerUpdateInterval) {\n"
+    "        clearInterval(timerUpdateInterval);\n"
+    "        timerUpdateInterval = null;\n"
+    "    }\n"
+    "    timerPollMs = -1;\n"
+    "    updateTimerDisplay().catch(e => console.error('Initial timer update failed:', e));\n"
+    "}\n"
+    "\n"
+    "function applyTimerInfo(timerInfo) {\n"
+    "    timerData = timerInfo;\n"
+    "    const tcSel = document.getElementById('time-control-select');\n"
+    "    if (tcSel && timerInfo.config && typeof timerInfo.config.type === 'number') {\n"
+    "        var tt = timerInfo.config.type;\n"
+    "        selectedTimeControl = tt;\n"
+    "        if (tcSel.value !== String(tt)) {\n"
+    "            tcSel.value = String(tt);\n"
+    "        }\n"
+    "        toggleCustomSettings();\n"
+    "    }\n"
+    "    updatePlayerTime('white', timerInfo.white_time_ms);\n"
+    "    updatePlayerTime('black', timerInfo.black_time_ms);\n"
+    "    updateActivePlayer(timerInfo.is_white_turn);\n"
+    "    updateProgressBars(timerInfo);\n"
+    "    updateTimerStats(timerInfo);\n"
+    "    const pauseBtn = document.getElementById('pause-timer');\n"
+    "    const resumeBtn = document.getElementById('resume-timer');\n"
+    "    const resetBtn = document.getElementById('reset-timer');\n"
+    "    const isTimerActive = timerInfo.config && timerInfo.config.type !== 0;\n"
+    "    if (pauseBtn) pauseBtn.disabled = !isTimerActive;\n"
+    "    if (resumeBtn) resumeBtn.disabled = !isTimerActive;\n"
+    "    if (resetBtn) resetBtn.disabled = !isTimerActive;\n"
+    "    if (isTimerActive) {\n"
+    "        checkTimeWarnings(timerInfo);\n"
+    "        if (timerInfo.time_expired) {\n"
+    "            handleTimeExpiration(timerInfo);\n"
+    "        }\n"
+    "    }\n"
+    "    rescheduleTimerPollInterval();\n"
     "}\n"
     "\n"
     "async function updateTimerDisplay() {\n"
     "    try {\n"
-    "        console.log('⏱️ updateTimerDisplay() called, fetching /api/timer...');\n"
+    "        if (lastSnapshotClockInfo && (Date.now() - lastSnapshotClockAt) < SNAPSHOT_CLOCK_FRESH_MS) {\n"
+    "            applyTimerInfo(lastSnapshotClockInfo);\n"
+    "            return;\n"
+    "        }\n"
     "        const response = await fetch('/api/timer');\n"
-    "        console.log('⏱️ /api/timer response status:', response.status);\n"
     "        if (response.ok) {\n"
     "            const timerInfo = await response.json();\n"
-    "            timerData = timerInfo;\n"
-    "            // Format time for logging\n"
-    "            const whiteTime = formatTime(timerInfo.white_time_ms);\n"
-    "            const blackTime = formatTime(timerInfo.black_time_ms);\n"
-    "            console.log('⏱️ Timer:', timerInfo.config ? timerInfo.config.name : 'NO CONFIG', '| White:', whiteTime, '(' + timerInfo.white_time_ms + 'ms)', '| Black:', blackTime, '(' + timerInfo.black_time_ms + 'ms)');\n"
-    "            updatePlayerTime('white', timerInfo.white_time_ms);\n"
-    "            updatePlayerTime('black', timerInfo.black_time_ms);\n"
-    "            updateActivePlayer(timerInfo.is_white_turn);\n"
-    "            updateProgressBars(timerInfo);\n"
-    "            updateTimerStats(timerInfo);\n"
-    "            // Disable/enable timer controls podle config.type\n"
-    "            const pauseBtn = document.getElementById('pause-timer');\n"
-    "            const resumeBtn = document.getElementById('resume-timer');\n"
-    "            const resetBtn = document.getElementById('reset-timer');\n"
-    "            const isTimerActive = timerInfo.config && timerInfo.config.type !== 0;\n"
-    "            if (pauseBtn) pauseBtn.disabled = !isTimerActive;\n"
-    "            if (resumeBtn) resumeBtn.disabled = !isTimerActive;\n"
-    "            if (resetBtn) resetBtn.disabled = !isTimerActive;\n"
-    "            // Pouze pokud je časová kontrola aktivní\n"
-    "            if (isTimerActive) {\n"
-    "                checkTimeWarnings(timerInfo);\n"
-    "                if (timerInfo.time_expired) {\n"
-    "                    handleTimeExpiration(timerInfo);\n"
-    "                }\n"
-    "            }\n"
+    "            applyTimerInfo(timerInfo);\n"
     "        } else {\n"
-    "            console.error('❌ Timer update failed:', response.status);\n"
+    "            console.error('Timer update failed:', response.status);\n"
+    "            rescheduleTimerPollInterval();\n"
     "        }\n"
     "    } catch (error) {\n"
-    "        console.error('❌ Timer update error:', error);\n"
+    "        console.error('Timer update error:', error);\n"
+    "        rescheduleTimerPollInterval();\n"
     "    }\n"
     "}\n"
     "\n"
@@ -5168,6 +8257,132 @@ static const char chess_app_js_content[] =
     "}\n"
     "window.setBrightness = setBrightness;\n"
     "\n"
+    "async function setLedGuidanceLevel(level) {\n"
+    "    const n = Math.min(5, Math.max(1, parseInt(level, 10)));\n"
+    "    if (Number.isNaN(n)) {\n"
+    "        return;\n"
+    "    }\n"
+    "    try {\n"
+    "        const response = await fetch('/api/settings/led_guidance', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ level: n })\n"
+    "        });\n"
+    "        const data = response.ok ? await response.json().catch(() => ({})) : {};\n"
+    "        if (data.success === false) {\n"
+    "            console.warn('Nastavení LED nápovědy selhalo:', data.message || response.status);\n"
+    "        }\n"
+    "    } catch (err) {\n"
+    "        console.error('Chyba nastavení LED nápovědy:', err.message);\n"
+    "    }\n"
+    "}\n"
+    "window.setLedGuidanceLevel = setLedGuidanceLevel;\n"
+    "\n"
+    "// ============================================================================\n"
+    "// LAMP MODE (Nastavení → Zařízení: Šachovnice / Lampa, barva)\n"
+    "// ============================================================================\n"
+    "\n"
+    "function showLightError(msg) {\n"
+    "    const el = document.getElementById('light-error-msg');\n"
+    "    if (el) {\n"
+    "        el.textContent = msg || 'Chyba odeslání';\n"
+    "        el.style.display = '';\n"
+    "        setTimeout(function () { el.style.display = 'none'; el.textContent = ''; }, 2500);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "async function setLightModeGame() {\n"
+    "    try {\n"
+    "        const res = await fetch('/api/light/game_mode', { method: 'POST', headers: { 'Content-Type': 'application/json' } });\n"
+    "        if (res.ok) {\n"
+    "            const btnGame = document.getElementById('light-mode-game');\n"
+    "            const btnLamp = document.getElementById('light-mode-lamp');\n"
+    "            const lampControls = document.getElementById('light-lamp-controls');\n"
+    "            if (btnGame) btnGame.classList.add('active');\n"
+    "            if (btnLamp) btnLamp.classList.remove('active');\n"
+    "            if (lampControls) lampControls.style.display = 'none';\n"
+    "        } else {\n"
+    "            showLightError('Přepnutí na šachovnici selhalo');\n"
+    "        }\n"
+    "    } catch (e) {\n"
+    "        console.warn('setLightModeGame failed:', e.message);\n"
+    "        showLightError('Chyba sítě');\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "async function setLightModeLamp(r, g, b, state) {\n"
+    "    const rr = Math.min(255, Math.max(0, parseInt(r, 10) || 255));\n"
+    "    const gg = Math.min(255, Math.max(0, parseInt(g, 10) || 255));\n"
+    "    const bb = Math.min(255, Math.max(0, parseInt(b, 10) || 255));\n"
+    "    try {\n"
+    "        const res = await fetch('/api/light/command', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ state: !!state, r: rr, g: gg, b: bb })\n"
+    "        });\n"
+    "        if (res.ok) {\n"
+    "            const btnGame = document.getElementById('light-mode-game');\n"
+    "            const btnLamp = document.getElementById('light-mode-lamp');\n"
+    "            const lampControls = document.getElementById('light-lamp-controls');\n"
+    "            if (btnGame) btnGame.classList.remove('active');\n"
+    "            if (btnLamp) btnLamp.classList.add('active');\n"
+    "            if (lampControls) lampControls.style.display = '';\n"
+    "        } else {\n"
+    "            const data = await res.json().catch(function () { return {}; });\n"
+    "            showLightError(data.message || 'Zařízení není připraveno (503)');\n"
+    "        }\n"
+    "    } catch (e) {\n"
+    "        console.warn('setLightModeLamp failed:', e.message);\n"
+    "        showLightError('Chyba sítě');\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "let lightCommandDebounceId = null;\n"
+    "function sendLightCommandDebounced() {\n"
+    "    if (lightCommandDebounceId) clearTimeout(lightCommandDebounceId);\n"
+    "    lightCommandDebounceId = setTimeout(function () {\n"
+    "        lightCommandDebounceId = null;\n"
+    "        const rEl = document.getElementById('light-r'), gEl = document.getElementById('light-g'), bEl = document.getElementById('light-b');\n"
+    "        const toggleEl = document.getElementById('light-state-toggle');\n"
+    "        if (!rEl || !gEl || !bEl) return;\n"
+    "        const r = parseInt(rEl.value, 10) || 0, g = parseInt(gEl.value, 10) || 0, b = parseInt(bEl.value, 10) || 0;\n"
+    "        const state = toggleEl ? toggleEl.checked : true;\n"
+    "        setLightModeLamp(r, g, b, state);\n"
+    "    }, 120);\n"
+    "}\n"
+    "\n"
+    "function initLightControls() {\n"
+    "    const btnGame = document.getElementById('light-mode-game');\n"
+    "    const btnLamp = document.getElementById('light-mode-lamp');\n"
+    "    const toggleEl = document.getElementById('light-state-toggle');\n"
+    "    const ledGuidanceEl = document.getElementById('led-guidance-level');\n"
+    "    const rEl = document.getElementById('light-r'), gEl = document.getElementById('light-g'), bEl = document.getElementById('light-b');\n"
+    "    if (btnGame) btnGame.addEventListener('click', setLightModeGame);\n"
+    "    if (btnLamp) btnLamp.addEventListener('click', function () {\n"
+    "        const r = rEl ? parseInt(rEl.value, 10) : 255, g = gEl ? parseInt(gEl.value, 10) : 255, b = bEl ? parseInt(bEl.value, 10) : 255;\n"
+    "        setLightModeLamp(r, g, b, true);\n"
+    "    });\n"
+    "    if (toggleEl) toggleEl.addEventListener('change', sendLightCommandDebounced);\n"
+    "    if (ledGuidanceEl) {\n"
+    "        ledGuidanceEl.addEventListener('change', function () {\n"
+    "            setLedGuidanceLevel(ledGuidanceEl.value);\n"
+    "        });\n"
+    "    }\n"
+    "    function updateRgbLabel(id, valueId) {\n"
+    "        const el = document.getElementById(id), val = document.getElementById(valueId);\n"
+    "        if (el && val) { val.textContent = el.value; }\n"
+    "    }\n"
+    "    if (rEl) { rEl.addEventListener('input', function () { updateRgbLabel('light-r', 'light-r-value'); sendLightCommandDebounced(); }); }\n"
+    "    if (gEl) { gEl.addEventListener('input', function () { updateRgbLabel('light-g', 'light-g-value'); sendLightCommandDebounced(); }); }\n"
+    "    if (bEl) { bEl.addEventListener('input', function () { updateRgbLabel('light-b', 'light-b-value'); sendLightCommandDebounced(); }); }\n"
+    "}\n"
+    "\n"
+    "if (document.readyState === 'loading') {\n"
+    "    document.addEventListener('DOMContentLoaded', initLightControls);\n"
+    "} else {\n"
+    "    setTimeout(initLightControls, 100);\n"
+    "}\n"
+    "\n"
     "// ============================================================================\n"
     "// NEW GAME (Nastavení → action bar „Nová hra“) – for inline onclick\n"
     "// ============================================================================\n"
@@ -5175,11 +8390,7 @@ static const char chess_app_js_content[] =
     "function getConfirmNewGameEnabled() {\n"
     "    const cb = document.getElementById('confirm-new-game');\n"
     "    if (cb) return cb.checked;\n"
-    "    try {\n"
-    "        return localStorage.getItem('chess_confirm_new_game') === 'true';\n"
-    "    } catch (e) {\n"
-    "        return false;\n"
-    "    }\n"
+    "    return !!devicePrefs.chess_confirm_new_game;\n"
     "}\n"
     "\n"
     "async function startNewGame() {\n"
@@ -5266,27 +8477,6 @@ static const char chess_app_js_content[] =
     "}\n"
     "window.handleRandomDraw = handleRandomDraw;\n"
     "\n"
-    "(function initConfirmNewGamePref() {\n"
-    "    function apply() {\n"
-    "        var cb = document.getElementById('confirm-new-game');\n"
-    "        if (!cb) return;\n"
-    "        try {\n"
-    "            var saved = localStorage.getItem('chess_confirm_new_game');\n"
-    "            cb.checked = saved === 'true';\n"
-    "        } catch (e) { }\n"
-    "        cb.addEventListener('change', function () {\n"
-    "            try {\n"
-    "                localStorage.setItem('chess_confirm_new_game', cb.checked);\n"
-    "            } catch (e) { }\n"
-    "        });\n"
-    "    }\n"
-    "    if (document.readyState === 'loading') {\n"
-    "        document.addEventListener('DOMContentLoaded', apply);\n"
-    "    } else {\n"
-    "        apply();\n"
-    "    }\n"
-    "})();\n"
-    "\n"
     "// ============================================================================\n"
     "// PROMOTION MODAL (Q/R/B/N a Zrušit) – for inline onclick\n"
     "// ============================================================================\n"
@@ -5326,16 +8516,6 @@ static const char chess_app_js_content[] =
     "window.toggleRemoteControl = toggleRemoteControl;\n"
     "window.undoSandboxMove = undoSandboxMove;\n"
     "\n"
-    "// Initialize timer system immediately (will retry if DOM not ready)\n"
-    "console.log('⏱️ Exposing timer functions and calling initTimerSystem()...');\n"
-    "try {\n"
-    "    initTimerSystem();\n"
-    "    console.log('✅ initTimerSystem() called successfully');\n"
-    "} catch (error) {\n"
-    "    console.error('❌ CRITICAL ERROR in initTimerSystem():', error);\n"
-    "    console.error('Stack:', error.stack);\n"
-    "}\n"
-    "\n"
     "// ============================================================================\n"
     "// KEYBOARD SHORTCUTS AND EVENT HANDLERS\n"
     "// ============================================================================\n"
@@ -5371,6 +8551,13 @@ static const char chess_app_js_content[] =
     "\n"
     "// Click outside to deselect\n"
     "document.addEventListener('click', (e) => {\n"
+    "    if (!e.target.closest('.history-block')) {\n"
+    "        var pd = document.getElementById('history-move-detail');\n"
+    "        if (pd) {\n"
+    "            pd.style.display = 'none';\n"
+    "            historyDetailIndex = null;\n"
+    "        }\n"
+    "    }\n"
     "    if (!e.target.closest('.square') && !e.target.closest('.history-item')) {\n"
     "        if (!reviewMode) {\n"
     "            clearHighlights();\n"
@@ -5454,6 +8641,22 @@ static const char chess_app_js_content[] =
     "    }\n"
     "}\n"
     "\n"
+    "/** True if API vrací uložené STA SSID z NVS (ne zástupný text z firmware). */\n"
+    "function wifiStatusHasSavedStaSsid(staSsid) {\n"
+    "    if (staSsid == null || typeof staSsid !== 'string') {\n"
+    "        return false;\n"
+    "    }\n"
+    "    const s = staSsid.trim();\n"
+    "    if (s === '') {\n"
+    "        return false;\n"
+    "    }\n"
+    "    const lower = s.toLowerCase();\n"
+    "    if (lower === 'not configured' || lower === 'nenastaveno') {\n"
+    "        return false;\n"
+    "    }\n"
+    "    return true;\n"
+    "}\n"
+    "\n"
     "async function updateWiFiStatus() {\n"
     "    try {\n"
     "        const response = await fetch('/api/wifi/status');\n"
@@ -5461,10 +8664,11 @@ static const char chess_app_js_content[] =
     "        document.getElementById('ap-ssid').textContent = data.ap_ssid || 'ESP32-CzechMate';\n"
     "        document.getElementById('ap-ip').textContent = data.ap_ip || '192.168.4.1';\n"
     "        document.getElementById('ap-clients').textContent = data.ap_clients || 0;\n"
-    "        document.getElementById('sta-ssid').textContent = data.sta_ssid || 'Nenastaveno';\n"
+    "        document.getElementById('sta-ssid').textContent =\n"
+    "            wifiStatusHasSavedStaSsid(data.sta_ssid) ? data.sta_ssid : 'Nenastaveno';\n"
     "        document.getElementById('sta-ip').textContent = data.sta_ip || 'Nepřipojeno';\n"
     "        document.getElementById('sta-connected').textContent = data.sta_connected ? 'ano' : 'ne';\n"
-    "        if (data.sta_ssid && data.sta_ssid !== 'Nenastaveno') {\n"
+    "        if (wifiStatusHasSavedStaSsid(data.sta_ssid)) {\n"
     "            document.getElementById('wifi-ssid').value = data.sta_ssid;\n"
     "        }\n"
     "        // Zařízení: Zámek a Online (data z téhož API)\n"
@@ -6006,9 +9210,9 @@ static const char html_chunk_head[] =
     "line-height: 1.5; "
     "}\n"
     ".castling-pending-message { "
-    "margin-top: 10px; padding: 8px 10px; "
+    "margin-top: 14px; padding: 12px 14px; "
     "background: rgba(255,193,7,0.12); border: 1px solid rgba(255,193,7,0.4); "
-    "border-radius: 6px; font-size: 12px; color: #ffc107; "
+    "border-radius: 8px; font-size: 13px; line-height: 1.45; color: #ffc107; "
     "}\n"
     ".teaching-stats .game-title { margin-bottom: 8px; }\n"
     ".teaching-stats-row { "
@@ -6051,11 +9255,35 @@ static const char html_chunk_head[] =
     "}\n"
     "@media (max-width: 599px) { "
     ".game-actions { grid-template-columns: 1fr; } "
+    ".btn-game-action { min-height: 44px; } "
     "}\n"
     "@media (max-width: 319px) { "
     ".tab-btn { padding: 8px 12px; font-size: 12px; } "
-    ".btn-game-action { padding: 6px 8px; font-size: 11px; min-height: 32px; } "
+    ".btn-game-action { padding: 6px 8px; font-size: 11px; min-height: 40px; } "
     "}\n"
+    "html.web-board-focus { height: 100%; overflow: hidden; overscroll-behavior: "
+    "none; }"
+    "body.web-board-focus { position: fixed; inset: 0; width: 100%; height: "
+    "100%; overflow: hidden; overscroll-behavior: none; -webkit-overflow-scrolling: "
+    "auto; touch-action: manipulation; }"
+    ".web-board-focus .container { max-height: 100vh; overflow: hidden; "
+    "padding-bottom: env(safe-area-inset-bottom, 0); }"
+    ".web-board-focus .app-header { display: none !important; }"
+    ".web-board-focus .game-right-panel { display: none !important; }"
+    ".web-board-focus .game-info-panel > .game-block:nth-child(n+2) { "
+    "display: none !important; }"
+    ".web-board-focus .main-content { "
+    "grid-template-columns: 1fr !important; "
+    "grid-template-areas: 'left' 'center' !important; "
+    "align-items: stretch; gap: 8px !important; max-height: calc(100vh - 12px); "
+    "overflow: hidden; min-height: 0; }"
+    ".web-board-focus .board-container { min-height: 0; display: flex; "
+    "flex-direction: column; }"
+    ".web-board-focus-exit-btn { position: fixed; "
+    "bottom: max(12px, env(safe-area-inset-bottom, 12px)); right: 12px; "
+    "z-index: 3000; padding: 10px 14px; border-radius: 8px; border: 1px solid "
+    "#555; background: #2a2a2a; color: #eee; font-size: 13px; "
+    "box-shadow: 0 2px 10px rgba(0,0,0,0.45); cursor: pointer; }"
     ".board-container { grid-area: center; } "
     ".info-panel { grid-area: right; } "
     ".game-info-panel { grid-area: left; } "
@@ -6076,6 +9304,7 @@ static const char html_chunk_head[] =
     "border: 2px solid #3a3a3a; "
     "border-radius: 4px; "
     "overflow: hidden; "
+    "touch-action: none; "
     "}"
     ".square { "
     "aspect-ratio: 1; "
@@ -6128,9 +9357,24 @@ static const char html_chunk_head[] =
     "font-size: 4vw; "
     "text-shadow: 2px 2px 4px rgba(0,0,0,0.3); "
     "user-select: none; "
+    "display: flex; align-items: center; justify-content: center; "
     "}"
+    ".piece.has-img { font-size: 0; text-shadow: none; line-height: 0; }"
+    ".piece.has-img img { width: 88%; height: 88%; max-width: 100%; max-height: 100%; "
+    "object-fit: contain; display: block; pointer-events: none; }"
     ".piece.white { color: white; }"
     ".piece.black { color: black; }"
+    ".captured-piece { display: inline-flex; align-items: center; justify-content: center; "
+    "min-width: 1.1em; min-height: 1.1em; vertical-align: middle; }"
+    ".captured-piece img { width: clamp(22px, 4.2vw, 34px); height: clamp(22px, 4.2vw, 34px); "
+    "object-fit: contain; display: block; }"
+    ".setup-tutorial-piece-glyph.has-img { font-size: 0; text-shadow: none; line-height: 0; "
+    "display: flex; align-items: center; justify-content: center; min-height: 72px; }"
+    ".setup-tutorial-piece-glyph.has-img img { max-width: 120px; max-height: 120px; width: auto; "
+    "height: auto; object-fit: contain; }"
+    ".lifted-piece-img { width: 28px; height: 28px; object-fit: contain; vertical-align: middle; }"
+    ".endgame-piece-img { width: 26px; height: 26px; object-fit: contain; vertical-align: middle; "
+    "margin: 0 1px; }"
 
     // CSS styles - part 2
     ".info-panel, .game-info-panel, .game-right-panel { "
@@ -6248,6 +9492,7 @@ static const char html_chunk_head[] =
     "#tab-nastaveni .set-btn-danger:hover { background: #6b3333; }\n"
     "#tab-nastaveni .set-btn-row { "
     "display: flex; "
+    "flex-wrap: wrap; "
     "gap: 6px; "
     "margin-top: 6px; "
     "}\n"
@@ -6272,6 +9517,54 @@ static const char html_chunk_head[] =
     "line-height: 1.35; "
     "}\n"
     "#tab-nastaveni .set-note-warn { color: #b8860b; }\n"
+    "@media (max-width: 599px) { "
+    "#tab-nastaveni .set-note { font-size: 11px; } "
+    "#tab-nastaveni .set-btn { min-height: 44px; } "
+    "#tab-nastaveni .set-btn-sm { min-height: 40px; } "
+    "} "
+    "@media (max-width: 399px) { "
+    "#tab-nastaveni .set-btn-row { flex-direction: column; } "
+    "#tab-nastaveni .set-btn-row .set-btn { width: 100%; flex: none; } "
+    "} "
+    "@media (max-width: 319px) { "
+    "#tab-nastaveni { padding-left: 6px; padding-right: 6px; } "
+    "#tab-nastaveni .settings-section { padding: 8px 10px; } "
+    "} "
+    ".setup-tutorial-overlay { "
+    "display: none; "
+    "position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1600; "
+    "align-items: center; justify-content: center; "
+    "} "
+    ".setup-tutorial-overlay.overlay-visible { "
+    "display: flex !important; "
+    "} "
+    ".tutorials-panel-body { margin-top: 4px; }\n"
+    ".setup-tutorial-modal-content { "
+    "background: #2a2a2e; padding: 22px; border-radius: 10px; max-width: 440px; "
+    "width: 92%; max-height: 90vh; overflow-y: auto; color: #eee; "
+    "border: 1px solid #444; box-sizing: border-box; "
+    "} "
+    ".setup-tutorial-modal-title { "
+    "margin: 0 0 10px 0; font-size: 1.05em; font-weight: 600; color: #e0e0e0; "
+    "} "
+    ".setup-tutorial-body { "
+    "font-size: 15px; line-height: 1.45; margin: 0 0 8px 0; color: #ddd; "
+    "} "
+    ".setup-tutorial-warn { color: #ffb74d !important; } "
+    ".setup-tutorial-piece-wrap { text-align: center; margin-bottom: 12px; } "
+    ".setup-tutorial-piece-glyph { font-size: 56px; line-height: 1; } "
+    ".setup-tutorial-instruction { "
+    "font-size: 17px; text-align: center; margin: 8px 0; line-height: 1.4; "
+    "} "
+    ".setup-tutorial-progress { text-align: center; } "
+    ".setup-tutorial-actions { "
+    "display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; "
+    "} "
+    ".setup-tutorial-actions--run { justify-content: center; margin-top: 14px; } "
+    "@media (max-width: 399px) { "
+    ".setup-tutorial-actions .set-btn { flex: 1 1 100%; min-height: 44px; } "
+    ".setup-tutorial-actions--run .set-btn-sm { min-height: 44px; } "
+    "} "
     "#tab-nastaveni input[type='range'] { accent-color: #4a6b4a; }\n"
     "#tab-nastaveni .status-item { "
     "margin: 4px 0; "
@@ -6306,6 +9599,65 @@ static const char html_chunk_head[] =
     ".game-row:last-child { margin-bottom: 0; }\n"
     ".game-label { color: #999; }\n"
     ".game-value { color: #e0e0e0; font-weight: 500; }\n"
+    "#bot-status-panel { "
+    "background: #2a3032; "
+    "border: 1px solid rgba(76,175,80,0.3); "
+    "border-left: 3px solid rgba(76,175,80,0.65); "
+    "border-radius: 10px; "
+    "padding: 14px 16px; "
+    "margin-top: 6px; "
+    "box-shadow: 0 2px 6px rgba(0,0,0,0.15); "
+    "}\n"
+    "#bot-status-panel .game-title { "
+    "font-size: 0.75em; letter-spacing: 0.06em; "
+    "color: #5cb85c; margin-bottom: 10px; font-weight: 600; "
+    "}\n"
+    "#bot-status-text { "
+    "display: block; margin: 0; padding: 2px 0 0 0; "
+    "line-height: 1.45; word-break: break-word; min-height: 1.4em; "
+    "font-size: 14px; color: #e8e8e8; "
+    "}\n"
+    "#puzzle-status-panel.puzzle-status-panel { "
+    "background: #263238; "
+    "border: 1px solid rgba(38,198,218,0.35); "
+    "border-left: 3px solid rgba(38,198,218,0.75); "
+    "border-radius: 10px; padding: 14px 16px; margin-top: 6px; "
+    "box-shadow: 0 2px 6px rgba(0,0,0,0.15); "
+    "}\n"
+    "#puzzle-status-panel .game-title { "
+    "font-size: 0.75em; letter-spacing: 0.06em; "
+    "color: #4dd0e1; margin-bottom: 8px; font-weight: 600; "
+    "}\n"
+    "#puzzle-status-text { "
+    "display: block; line-height: 1.5; word-break: break-word; "
+    "font-size: 14px; color: #eceff1; margin: 0; "
+    "}\n"
+    ".puzzle-status-sub { "
+    "margin: 10px 0 0 0; font-size: 12px; line-height: 1.4; color: #90a4ae; "
+    "}\n"
+    "#puzzle-status-panel.puzzle-status-panel--setup { "
+    "border-color: rgba(100,181,246,0.4); border-left-color: rgba(100,181,246,0.85); "
+    "}\n"
+    "#puzzle-status-panel.puzzle-status-panel--setup .game-title { color: #64b5f6; }\n"
+    "#puzzle-status-panel.puzzle-status-panel--play { "
+    "border-color: rgba(38,198,218,0.35); border-left-color: rgba(38,198,218,0.75); "
+    "}\n"
+    "#puzzle-status-panel.puzzle-status-panel--wrong { "
+    "border-color: rgba(255,183,77,0.45); border-left-color: rgba(255,167,38,0.9); "
+    "background: #2e2a24; "
+    "}\n"
+    "#puzzle-status-panel.puzzle-status-panel--wrong .game-title { color: #ffb74d; }\n"
+    "#puzzle-status-panel.puzzle-status-panel--illegal { "
+    "border-color: rgba(239,154,154,0.45); border-left-color: rgba(229,115,115,0.85); "
+    "background: #2d2424; "
+    "}\n"
+    "#puzzle-status-panel.puzzle-status-panel--illegal .game-title { color: #ef9a9a; }\n"
+    "#puzzle-status-panel.puzzle-status-panel--solved { "
+    "border-color: rgba(129,199,132,0.5); border-left-color: rgba(76,175,80,0.9); "
+    "background: #243124; "
+    "}\n"
+    "#puzzle-status-panel.puzzle-status-panel--solved .game-title { color: #81c784; }\n"
+    "#puzzle-status-panel.puzzle-status-panel--offline { opacity: 0.92; }\n"
     ".status-box, .card { "
     "background: #2a2a2a; "
     "border-left: 2px solid #3d5a3d; "
@@ -6338,6 +9690,74 @@ static const char html_chunk_head[] =
     "background: transparent; padding: 0; margin-top: 6px; "
     "}\n"
     ".game-block .stat-item { margin-bottom: 4px; font-size: 12px; }\n"
+    ".game-details { margin-bottom: 4px; }\n"
+    ".game-details-summary { "
+    "cursor: pointer; "
+    "list-style: none; "
+    "font-weight: 600; "
+    "color: #ccc; "
+    "padding: 6px 0; "
+    "font-size: clamp(13px, 1.6vw, 14px); "
+    "}\n"
+    ".game-details-summary::-webkit-details-marker { display: none; }\n"
+    ".game-details-body { padding-top: 4px; }\n"
+    ".history-toolbar { "
+    "display: flex; "
+    "align-items: center; "
+    "justify-content: space-between; "
+    "gap: 8px; "
+    "flex-wrap: wrap; "
+    "margin-bottom: 4px; "
+    "}\n"
+    ".history-toolbar-title { margin: 0; }\n"
+    ".history-toolbar-btn { "
+    "font-size: 11px; "
+    "padding: 4px 10px; "
+    "border-radius: 6px; "
+    "border: 1px solid #555; "
+    "background: #2d2d2d; "
+    "color: #ddd; "
+    "cursor: pointer; "
+    "}\n"
+    ".history-preview.history-box { max-height: none; }\n"
+    ".history-full-wrap .history-box--expanded { "
+    "max-height: min(50vh, 420px); "
+    "overflow-y: auto; "
+    "}\n"
+    ".history-move-detail { "
+    "margin-top: 8px; "
+    "padding: 10px 12px; "
+    "background: #1a1a1a; "
+    "border: 1px solid #3a3a3a; "
+    "border-radius: 8px; "
+    "font-size: 12px; "
+    "color: #ccc; "
+    "}\n"
+    ".history-detail-san { "
+    "font-family: 'Courier New', monospace; "
+    "color: #e0e0e0; "
+    "margin-bottom: 6px; "
+    "}\n"
+    ".history-detail-grade { "
+    "font-weight: 600; "
+    "margin-bottom: 8px; "
+    "}\n"
+    ".history-detail-grade--best { color: #81C784; }\n"
+    ".history-detail-grade--good { color: #9CCC65; }\n"
+    ".history-detail-grade--inaccuracy { color: #FFD54F; }\n"
+    ".history-detail-grade--mistake { color: #FFB74D; }\n"
+    ".history-detail-grade--blunder { color: #E57373; }\n"
+    ".history-detail-grade--error { color: #BDBDBD; }\n"
+    ".history-detail-msg { margin: 0 0 10px 0; line-height: 1.45; color: #bbb; }\n"
+    ".btn-history-review { "
+    "font-size: 12px; "
+    "padding: 6px 12px; "
+    "border-radius: 6px; "
+    "border: 1px solid #4CAF50; "
+    "background: rgba(76,175,80,0.15); "
+    "color: #81C784; "
+    "cursor: pointer; "
+    "}\n"
     ".history-box { "
     "max-height: 180px; "
     "overflow-y: auto; "
@@ -6355,8 +9775,8 @@ static const char html_chunk_head[] =
     "}"
     ".history-item:last-child { border-bottom: none; }\n"
     ".move-eval-badge { "
-    "font-size: 10px; margin-left: 6px; padding: 1px 5px; border-radius: 4px; "
-    "font-weight: 600; display: inline-block; }\n"
+    "font-size: 11px; margin-left: 6px; padding: 2px 6px; border-radius: 4px; "
+    "font-weight: 700; display: inline-block; vertical-align: middle; }\n"
     ".move-eval-badge--best { background: rgba(76,175,80,0.35); color: "
     "#81C784; }\n"
     ".move-eval-badge--good { background: rgba(139,195,74,0.3); color: "
@@ -6377,7 +9797,7 @@ static const char html_chunk_head[] =
     "}"
     ".captured-piece { font-size: 1.1em; color: #888; }\n"
     ".game-block .game-value { font-family: 'Courier New', monospace; }\n"
-    ".game-right-panel .history-box { max-height: 260px; }\n"
+    ".game-right-panel .history-box:not(.history-box--expanded) { max-height: 220px; }\n"
     ".game-info-panel .player-time { padding: 10px; }\n"
     ".game-info-panel .time-value { font-size: 20px; }\n"
     ".loading { "
@@ -6783,7 +10203,8 @@ static const char html_chunk_layout_start[] =
     "var side=(status.current_player==='White')?'w':'b';var "
     "moves=(history.moves||[]).length;var fen=rows.join('/')+' '+side+' KQkq - "
     "0 '+(Math.floor(moves/2)+1);"
-    "var depth=(function(){try{var "
+    "var depth=(function(){try{if(typeof getHintDepth==='function')return "
+    "getHintDepth();var "
     "d=parseInt(localStorage.getItem('chessHintDepth')||'10',10);return "
     "Math.min(18,Math.max(1,isNaN(d)?10:d));}catch(e){return 10;}})();"
     "fetch('https://chess-api.com/"
@@ -6869,8 +10290,9 @@ static const char html_chunk_game_left[] =
     "id='total-moves' class='stat-value'>0</span></div>"
     "</div>"
     "</div>"
-    "<div class='game-block'>"
-    "<div class='game-title'>Stav</div>"
+    "<details class='game-block game-details'>"
+    "<summary class='game-details-summary'>Stav partie</summary>"
+    "<div class='game-details-body'>"
     "<div class='game-row'><span class='game-label'>Stav</span><span "
     "id='game-state' class='game-value'>—</span></div>"
     "<div class='game-row'><span class='game-label'>Na tahu</span><span "
@@ -6880,8 +10302,21 @@ static const char html_chunk_game_left[] =
     "<div class='game-row'><span class='game-label'>Šach</span><span "
     "id='in-check' class='game-value'>Ne</span></div>"
     "</div>"
-    "<div class='game-block'>"
-    "<div class='game-title'>Časová kontrola</div>"
+    "</details>"
+    "<div id='bot-status-panel' class='game-block' style='display:none;'>"
+    "<div class='game-title'>Bot</div>"
+    "<span id='bot-status-text' class='game-value'>—</span>"
+    "</div>"
+    "<div id='puzzle-status-panel' class='game-block puzzle-status-panel' "
+    "style='display:none;'>"
+    "<div class='game-title'>Puzzle</div>"
+    "<p id='puzzle-status-text' class='puzzle-status-text'>—</p>"
+    "<p id='puzzle-status-sub' class='puzzle-status-sub' style='display:none;'>"
+    "</p>"
+    "</div>"
+    "<details class='game-block game-details'>"
+    "<summary class='game-details-summary'>Časová kontrola</summary>"
+    "<div class='game-details-body'>"
     "<div class='time-control-selector'>"
     "<select id='time-control-select' onchange='changeTimeControl()'>"
     "<option value='0'>Bez času</option>"
@@ -6913,6 +10348,7 @@ static const char html_chunk_game_left[] =
     "</div>"
     "</div>"
     "</div>"
+    "</details>"
     "<div class='game-actions'>"
     "<button type='button' id='new-game-btn' class='btn-game-action "
     "btn-game-new' "
@@ -6922,36 +10358,45 @@ static const char html_chunk_game_left[] =
     "<button type='button' class='btn-game-action btn-game-sandbox' "
     "onclick='enterSandboxMode()'>Zkusit tahy</button>"
     "</div>"
+    "<details class='game-block game-details game-details--hints'>"
+    "<summary class='game-details-summary'>Nápověda a poslední zhodnocení</summary>"
+    "<div class='game-details-body'>"
     "<div id='hint-explanation' class='hint-explanation' style='display:none;'>"
     "<div class='hint-explanation-title'>Proč tento tah?</div>"
     "<p id='hint-explanation-message' class='hint-explanation-message'></p>"
     "</div>"
     "<div id='move-evaluation' class='move-evaluation' style='display:none;'>"
-    "<div class='move-evaluation-title'>Zhodnocení tahu</div>"
+    "<div class='move-evaluation-title'>Zhodnocení posledního tahu</div>"
     "<p id='move-evaluation-message' class='move-evaluation-message'></p>"
     "</div>"
     "<div id='castling-pending-message' class='castling-pending-message' "
     "style='display:none;'></div>"
+    "</div>"
+    "</details>"
     "</div>";
 
 // Game Right Panel (zvednutá, sebrání, historie)
 static const char html_chunk_game_right[] =
     "<div class='game-right-panel'>"
-    "<div class='game-block'>"
-    "<div class='game-title'>Zvednutá</div>"
+    "<details class='game-block game-details' open>"
+    "<summary class='game-details-summary'>Zvednutá figurka</summary>"
+    "<div class='game-details-body'>"
     "<div class='game-row'><span class='game-label'>Figurka</span><span "
     "id='lifted-piece' class='game-value'>—</span></div>"
     "<div class='game-row'><span class='game-label'>Pozice</span><span "
     "id='lifted-position' class='game-value'>—</span></div>"
     "</div>"
-    "<div class='game-block'>"
-    "<div class='game-title'>Sebrané</div>"
+    "</details>"
+    "<details class='game-block game-details'>"
+    "<summary class='game-details-summary'>Sebrané figurky</summary>"
+    "<div class='game-details-body'>"
     "<div class='game-row'><span class='game-label'>Bílý</span></div>"
     "<div id='white-captured' class='captured-pieces'></div>"
     "<div class='game-row' style='margin-top:8px;'><span "
     "class='game-label'>Černý</span></div>"
     "<div id='black-captured' class='captured-pieces'></div>"
     "</div>"
+    "</details>"
     "<div id='teaching-stats-panel' class='game-block teaching-stats' "
     "style='display:none;'>"
     "<div class='game-title'>Výukový přehled</div>"
@@ -6985,9 +10430,17 @@ static const char html_chunk_game_right[] =
     "</div>"
     "<p class='teaching-stats-note'>Kvalita 1–5 (5 = výborný).</p>"
     "</div>"
-    "<div class='game-block'>"
-    "<div class='game-title'>Historie</div>"
-    "<div id='history' class='history-box'></div>"
+    "<div class='game-block history-block'>"
+    "<div class='history-toolbar'>"
+    "<span class='game-title history-toolbar-title'>Historie</span>"
+    "<button type='button' id='history-toggle-full' class='history-toolbar-btn' "
+    "aria-expanded='false' style='display:none;'>Celá historie</button>"
+    "</div>"
+    "<div id='history-preview' class='history-preview history-box'></div>"
+    "<div id='history-full-wrap' class='history-full-wrap' style='display:none;'>"
+    "<div id='history' class='history-box history-box--expanded'></div>"
+    "</div>"
+    "<div id='history-move-detail' class='history-move-detail' style='display:none;'></div>"
     "</div>"
     "</div>";
 
@@ -7106,42 +10559,44 @@ static const char html_chunk_settings_bot[] =
     "border:1px solid rgba(33,150,243,0.4); border-radius:6px; color:#e0e0e0; "
     "font-size:14px;'>"
     "</div>"
+    "<div class='set-group set-check' style='margin-top:8px;'>"
+    "<label><input type='checkbox' id='bot-led-target-only-after-lift' "
+    "onchange='if(typeof setBotLedTargetOnlyAfterLift===\"function\") "
+    "setBotLedTargetOnlyAfterLift(this.checked);'> "
+    "Po zvednutí figurky bota zobrazit na LED jen cílové pole</label>"
+    "</div>"
     "</div>"
     "<script>\n"
-    "function updateBotSettingsVisibility() {\n"
-    "  const mode = document.getElementById('game-mode').value;\n"
-    "  const container = document.getElementById('bot-settings-container');\n"
-    "  container.style.display = (mode === 'bot') ? 'block' : 'none';\n"
-    "  saveBotSettings();\n"
-    "}\n"
-    "function saveBotSettings() {\n"
-    "  const settings = {\n"
-    "    mode: document.getElementById('game-mode').value,\n"
-    "    strength: document.getElementById('bot-strength').value,\n"
-    "    side: document.getElementById('player-side').value\n"
-    "  };\n"
-    "  localStorage.setItem('chessBotSettings', JSON.stringify(settings));\n"
-    "}\n"
-    "function loadBotSettings() {\n"
-    "  try {\n"
-    "    const stored = localStorage.getItem('chessBotSettings');\n"
-    "    if (stored) {\n"
-    "      const s = JSON.parse(stored);\n"
-    "      if(s.mode) document.getElementById('game-mode').value = s.mode;\n"
-    "      if(s.strength) document.getElementById('bot-strength').value = "
-    "s.strength;\n"
-    "      if(s.side) document.getElementById('player-side').value = s.side;\n"
-    "      updateBotSettingsVisibility();\n"
-    "    }\n"
-    "  } catch(e) { console.error('Failed to load bot settings', e); }\n"
-    "  if (typeof handleRandomDraw === 'function') handleRandomDraw();\n"
-    "}\n"
-    "// Load on init\n"
-    "if (document.readyState === 'loading') {\n"
-    "  document.addEventListener('DOMContentLoaded', loadBotSettings);\n"
-    "} else {\n"
-    "  setTimeout(loadBotSettings, 100);\n"
-    "}\n"
+    "/* Bot: updateBotSettingsVisibility, saveBotSettings, loadBotSettings — "
+    "chess_app.js (NVS) */\n"
+    "</script>"
+    "</div>";
+
+// Section Tutoriály (základní postavení)
+static const char html_chunk_settings_tutorial[] =
+    "<div class='settings-section'>"
+    "<h3 class='set-title'>Tutoriály</h3>"
+    "<div class='set-group set-check'>"
+    "<label><input type='checkbox' id='chess-tutorials-enabled' "
+    "onchange='if(typeof saveTutorialsEnabled===\"function\")saveTutorialsEnabled(this.checked);'> "
+    "Zobrazit nabídku tutoriálů (výchozí vypnuto)</label>"
+    "</div>"
+    "<div id='tutorials-panel-body' class='tutorials-panel-body' style='display:none;'>"
+    "<p class='set-note'>LED a web ukážou, kam položit figurku; senzory neověřují druh figurky. "
+    "Po dokončení musí fyzická pozice odpovídat pravidlům šachu, jinak další hra nemusí dávat smysl.</p>"
+    "<button type='button' class='set-btn' id='setup-tutorial-open-btn' "
+    "onclick='if(typeof openSetupTutorialIntro===\"function\")openSetupTutorialIntro();' "
+    "disabled>Základní postavení figur</button>"
+    "</div>"
+    "<div class='set-group' style='margin-top:10px;'>"
+    "<p class='set-note'>Puzzle: nejdřív rozestavení podle LED (i bez zapnutých tutoriálů), pak hra.</p>"
+    "<button type='button' class='set-btn' id='puzzle-open-btn' "
+    "onclick='if(typeof openPuzzleIntro===\"function\")openPuzzleIntro();'>"
+    "Puzzles (5 obtížností)</button>"
+    "</div>"
+    "<script>\n"
+    "/* Tutoriály: saveTutorialsEnabled, tutorialsPanelSetVisible — chess_app.js "
+    "(NVS) */\n"
     "</script>"
     "</div>";
 
@@ -7149,6 +10604,30 @@ static const char html_chunk_settings_bot[] =
 static const char html_chunk_settings_zarizeni[] =
     "<div class='settings-section'>"
     "<h3 class='set-title'>Zařízení</h3>"
+    "<div class='set-row'><span class='set-label'>Režim</span></div>"
+    "<div class='set-btn-row' style='margin-bottom:8px;'>"
+    "<button type='button' class='set-btn set-btn-sm' id='light-mode-game'>"
+    "Šachovnice</button>"
+    "<button type='button' class='set-btn set-btn-sm' id='light-mode-lamp'>"
+    "Lampa</button>"
+    "</div>"
+    "<div id='light-lamp-controls' style='display:none;'>"
+    "<div class='set-row'><span class='set-label'>Zapnutí</span>"
+    "<input type='checkbox' id='light-state-toggle' checked></div>"
+    "<div class='set-row'><span class='set-label'>Barva R</span>"
+    "<span id='light-r-value' class='set-value'>255</span></div>"
+    "<input type='range' id='light-r' class='set-input' min='0' max='255' "
+    "value='255' style='padding:0; height:20px;'>"
+    "<div class='set-row'><span class='set-label'>G</span>"
+    "<span id='light-g-value' class='set-value'>255</span></div>"
+    "<input type='range' id='light-g' class='set-input' min='0' max='255' "
+    "value='255' style='padding:0; height:20px;'>"
+    "<div class='set-row'><span class='set-label'>B</span>"
+    "<span id='light-b-value' class='set-value'>255</span></div>"
+    "<input type='range' id='light-b' class='set-input' min='0' max='255' "
+    "value='255' style='padding:0; height:20px;'>"
+    "<span id='light-error-msg' class='set-note' style='display:none;color:#c62828;'></span>"
+    "</div>"
     "<div class='set-row'>"
     "<span class='set-label'>Jas</span>"
     "<span id='brightness-value' class='set-value'>50%</span>"
@@ -7158,6 +10637,15 @@ static const char html_chunk_settings_zarizeni[] =
     "oninput='var e=document.getElementById(\"brightness-value\"); "
     "if(e)e.textContent=this.value+\"%\";' "
     "onchange='setBrightness(this.value)'>"
+    "<div class='set-row'>"
+    "<span class='set-label'>Přepnutí na lampu po nečinnosti</span>"
+    "<span id='auto-lamp-timeout-value' class='set-value'>300 s</span></div>"
+    "<input type='number' id='auto-lamp-timeout' class='set-input' min='5' "
+    "max='7200' step='1' value='300' style='width:80px;' "
+    "oninput='var e=document.getElementById(\"auto-lamp-timeout-value\"); "
+    "if(e)e.textContent=(this.value||\"\")+\" s\";' "
+    "onchange='setAutoLampTimeout(this.value)'>"
+    "<span class='set-note'> 5 s až 120 min (7200 s)</span>"
     "<div class='set-row'><span class='set-label'>Zámek</span><span "
     "id='web-lock-status' class='set-value'>—</span></div>"
     "<div class='set-row'><span class='set-label'>Online</span><span "
@@ -7165,18 +10653,32 @@ static const char html_chunk_settings_zarizeni[] =
     "</div>"
     "<div class='settings-section settings-section--wide'>"
     "<h3 class='set-title'>Nápověda</h3>"
+    "<p class='set-note' style='margin-top:0;'>Tlačítko Nápověda (Stockfish), hloubka "
+    "myšlení a limity nápověd níže vyžadují internet (WiFi s přístupem ven).</p>"
+    "<div class='set-group'><label for='led-guidance-level'>Úroveň LED na desce</label>"
+    "<select id='led-guidance-level' class='set-select'>"
+    "<option value='5'>5 – Plná (cíle, šach, braní na LED)</option>"
+    "<option value='4'>4 – Bez růžové signalizace šachu na králi</option>"
+    "<option value='3'>3 – Bez žlutého zvýraznění figur na tahu</option>"
+    "<option value='2'>2 – Po zvednutí bez cílových polí (jen zdroj)</option>"
+    "<option value='1'>1 – Minimum (jen základní indikace zvednutí)</option>"
+    "</select></div>"
+    "<p class='set-note'>Uloží se v zařízení. Nižší číslo = méně barev na LED; úroveň 5 "
+    "zahrnuje i nápovědu braní u zvedlé soupeřovy figurky.</p>"
     "<div class='set-group'><label>Hloubka myšlení</label>"
     "<input type='number' id='hint-depth' class='set-input' min='1' max='18' "
     "value='10' onchange='var "
     "v=Math.min(18,Math.max(1,parseInt(this.value,10)||10));"
-    "this.value=v;try{localStorage.setItem(\"chessHintDepth\",v);}catch(e){}'>"
+    "this.value=v;if(typeof window.onHintDepthChange===\"function\")"
+    "window.onHintDepthChange(v);'>"
     "</div>"
-    "<p class='set-note'>Jak moc má počítač přemýšlet. Přibližně: 1 ≈ 500 "
-    "ELO, 10 ≈ 1500 ELO, 18 ≈ 2800 ELO.</p>"
+    "<p class='set-note'>Jak moc má počítač přemýšlet. ELO u hloubek je jen hrubý odhad: "
+    "1 ≈ 500 ELO, 10 ≈ 1500 ELO, 18 ≈ 2800 ELO.</p>"
     "<label class='set-check' style='margin-top:4px;'>"
     "<input type='checkbox' id='evaluate-move-enabled' "
-    "onchange=\"try{localStorage.setItem('chessEvaluateMove',this.checked);}"
-    "catch(e){};if(!this.checked){hideMoveEvaluation();if(typeof "
+    "onchange=\"if(typeof window.onEvaluateMoveChange==='function')"
+    "window.onEvaluateMoveChange(this.checked);"
+    "if(!this.checked){hideMoveEvaluation();if(typeof "
     "renderHistoryList==='function')renderHistoryList();}\">"
     "<span>Zhodnocení tahu</span>"
     "</label>"
@@ -7205,38 +10707,24 @@ static const char html_chunk_settings_zarizeni[] =
     "<span>Zobrazit výukový přehled (nápovědy a kvalita tahů)</span></label>"
     "<p class='set-note'>Blok v panelu u historie: nápovědy a průměr kvality za 5 / 15 / celou hru.</p>"
     "<script>\n"
-    "function saveHintSettings(){try{var "
-    "el=document.getElementById('hint-limit');if(el)localStorage.setItem('chessHintLimit',el.value);"
-    "el=document.getElementById('hint-award-best');if(el)localStorage.setItem('chessHintAwardBest',el.checked);"
-    "el=document.getElementById('hint-award-good');if(el)localStorage.setItem('chessHintAwardGood',el.checked);"
-    "el=document.getElementById('hint-award-capture');if(el)localStorage.setItem('chessHintAwardCapture',el.checked);"
-    "el=document.getElementById('show-hint-stats');if(el)localStorage.setItem('chessShowHintStats',el.checked);"
-    "}catch(e){}}\n"
-    "function loadHintSettings(){try{var "
-    "v=localStorage.getItem('chessHintLimit');var "
-    "el=document.getElementById('hint-limit');if(el&&v!==null)el.value=v;"
-    "v=localStorage.getItem('chessHintAwardBest');el=document.getElementById('hint-award-best');"
-    "if(el)el.checked=v!=='false';"
-    "v=localStorage.getItem('chessHintAwardGood');el=document.getElementById('hint-award-good');"
-    "if(el)el.checked=v==='true';"
-    "v=localStorage.getItem('chessHintAwardCapture');el=document.getElementById('hint-award-capture');"
-    "if(el)el.checked=v==='true';"
-    "v=localStorage.getItem('chessShowHintStats');el=document.getElementById('show-hint-stats');"
-    "if(el)el.checked=v==='true';"
-    "if(typeof updateTeachingStatsPanel==='function')updateTeachingStatsPanel();"
-    "}catch(e){}}\n"
-    "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadHintSettings);"
-    "else setTimeout(loadHintSettings,100);\n"
+    "function saveHintSettings(){try{if(typeof window.syncHintSettingsFromDom==="
+    "'function')window.syncHintSettingsFromDom();}catch(e){}}\n"
     "</script>"
     "</div>"
     "<div class='settings-section'>"
     "<h3 class='set-title'>Ovládání</h3>"
     "<label class='set-check'>"
     "<input type='checkbox' id='remote-control-enabled' "
-    "onchange='toggleRemoteControl()'>"
-    "<span>Dálkové ovládání (sync s deskou)</span>"
+    "onchange='toggleRemoteControl()' aria-describedby='remote-control-help'>"
+    "<span>Ovládání tahů z webu (virtuální zvednutí a položení)</span>"
     "</label>"
-    "<p class='set-note set-note-warn'>Synchronizace s fyzickou deskou.</p>"
+    "<p id='remote-control-help' class='set-note set-note-warn'>Kliky nebo táhnutí "
+    "figurky na cílové pole posílají stejné příkazy jako fyzické zvednutí a položení. "
+    "Režim jen šachovnice a časovačů bez scrollování: přidej do adresy <code>?focus=1</code> "
+    "(tlačítkem „Celá aplikace“ se vrátíš). Pokud současně někdo mění postavení na "
+    "desce, může se stav hry v programu rozcházet s reálným postavením — pak je potřeba "
+    "situaci srovnat (např. nová hra) nebo používat jen jeden způsob ovládání. Při "
+    "zamčeném webu (stav Zámek výše) se ovládání z webu nepoužije.</p>"
     "<label class='set-check'>"
     "<input type='checkbox' id='confirm-new-game' "
     "onchange=\"try{localStorage.setItem('chess_confirm_new_game',this.checked)"
@@ -7280,7 +10768,73 @@ static const char html_chunk_banners[] =
     "<button class='btn-exit-sandbox' onclick='exitSandboxMode()'>Zpět na "
     "skutečnou pozici</button>"
     "</div>"
-    "</div>";
+    "</div>"
+    "<div id='setup-tutorial-overlay' class='setup-tutorial-overlay' "
+    "style='display:none;'>"
+    "<div class='modal-content setup-tutorial-modal-content'>"
+    "<div id='setup-tutorial-intro-panel'>"
+    "<h3 class='setup-tutorial-modal-title'>Tutoriál: základní postavení</h3>"
+    "<p id='setup-tutorial-warn' class='set-note setup-tutorial-warn' "
+    "style='display:none;'></p>"
+    "<p class='setup-tutorial-body'>Srovnej všechny figurky <strong>mimo desku</strong>. "
+    "Potom ukládej podle návodu — rozsvítí se cílové pole. Senzory nepoznají druh figurky; "
+    "polož správnou podle obrázku. Po dokončení musí odpovídat fyzická pozice pravidlům šachu.</p>"
+    "<div class='setup-tutorial-actions'>"
+    "<button type='button' class='set-btn' onclick='if(typeof setupTutorialBegin===\"function\")setupTutorialBegin();'>Zahájit</button>"
+    "<button type='button' class='set-btn set-btn-sm' onclick='if(typeof setupTutorialCloseIntro===\"function\")setupTutorialCloseIntro();'>Zavřít</button>"
+    "</div></div>"
+    "<div id='setup-tutorial-run-panel' style='display:none;'>"
+    "<div class='setup-tutorial-piece-wrap'>"
+    "<span id='setup-tutorial-piece-display' class='setup-tutorial-piece-glyph'></span>"
+    "</div>"
+    "<p id='setup-tutorial-instruction' class='setup-tutorial-instruction'></p>"
+    "<p id='setup-tutorial-progress' class='set-note setup-tutorial-progress'></p>"
+    "<div class='setup-tutorial-actions setup-tutorial-actions--run'>"
+    "<button type='button' class='set-btn set-btn-sm' onclick='if(typeof setupTutorialBack===\"function\")setupTutorialBack();'>Zpět</button>"
+    "<button type='button' class='set-btn set-btn-sm' onclick='if(typeof setupTutorialSkip===\"function\")setupTutorialSkip();'>Další</button>"
+    "<button type='button' class='set-btn set-btn-sm set-btn-danger' onclick='if(typeof setupTutorialCancel===\"function\")setupTutorialCancel();'>Ukončit</button>"
+    "</div></div>"
+    "<div id='setup-tutorial-done-panel' style='display:none;'>"
+    "<h3 class='setup-tutorial-modal-title'>Dokončení</h3>"
+    "<p class='setup-tutorial-body'>Fyzická deska musí mít obsazené řádky 1–2 a 7–8 a prázdný střed (jen senzor).</p>"
+    "<div class='setup-tutorial-actions'>"
+    "<button type='button' class='set-btn' onclick='if(typeof setupTutorialFinish===\"function\")setupTutorialFinish();'>Potvrdit a spustit novou hru</button>"
+    "<button type='button' class='set-btn set-btn-sm' onclick='if(typeof setupTutorialCancel===\"function\")setupTutorialCancel();'>Zrušit</button>"
+    "</div></div>"
+    "</div></div>"
+    "<div id='puzzle-overlay' class='setup-tutorial-overlay' style='display:none;'>"
+    "<div class='modal-content setup-tutorial-modal-content'>"
+    "<div id='puzzle-intro-panel'>"
+    "<h3 class='setup-tutorial-modal-title'>Puzzle mód</h3>"
+    "<p class='setup-tutorial-body'>Vyber obtížnost. Nejprve rozestav figurky na desku podle LED (stejně jako u základního postavení), pak spusť puzzle.</p>"
+    "<div id='puzzle-list' class='setup-tutorial-body' style='display:grid;grid-template-columns:1fr;gap:8px;'></div>"
+    "<p id='puzzle-guided-message' class='set-note setup-tutorial-progress'></p>"
+    "<div class='setup-tutorial-actions'>"
+    "<button type='button' class='set-btn' onclick='if(typeof puzzlePrepareSelected===\"function\")puzzlePrepareSelected();'>"
+    "Pokračovat k rozestavení</button>"
+    "<button type='button' class='set-btn set-btn-sm' onclick='if(typeof puzzleCancel===\"function\")puzzleCancel();'>Zavřít</button>"
+    "</div></div>"
+    "<div id='puzzle-setup-panel' style='display:none;'>"
+    "<div class='setup-tutorial-piece-wrap'>"
+    "<span id='puzzle-setup-piece-display' class='setup-tutorial-piece-glyph'></span>"
+    "</div>"
+    "<p id='puzzle-setup-instruction' class='setup-tutorial-instruction'></p>"
+    "<p id='puzzle-setup-progress' class='set-note setup-tutorial-progress'></p>"
+    "<div class='setup-tutorial-actions setup-tutorial-actions--run'>"
+    "<button type='button' class='set-btn set-btn-sm' onclick='if(typeof puzzleSetupBack===\"function\")puzzleSetupBack();'>Zpět</button>"
+    "<button type='button' class='set-btn set-btn-sm' onclick='if(typeof puzzleSetupSkip===\"function\")puzzleSetupSkip();'>Přeskočit krok</button>"
+    "<button type='button' class='set-btn set-btn-sm' onclick='if(typeof puzzleBackToIntroFromSetup===\"function\")puzzleBackToIntroFromSetup();'>Na výběr</button>"
+    "<button type='button' class='set-btn set-btn-sm set-btn-danger' onclick='if(typeof puzzleCancel===\"function\")puzzleCancel();'>Ukončit</button>"
+    "</div></div>"
+    "<div id='puzzle-confirm-panel' style='display:none;'>"
+    "<h3 class='setup-tutorial-modal-title'>Spustit puzzle</h3>"
+    "<p id='puzzle-confirm-warn' class='set-note setup-tutorial-warn' style='display:none;'></p>"
+    "<p class='setup-tutorial-body'>Po spuštění hraj na fyzické desce. Špatný tah uvidíš ve stavu hry.</p>"
+    "<div class='setup-tutorial-actions'>"
+    "<button type='button' class='set-btn' onclick='if(typeof puzzleExecuteStart===\"function\")puzzleExecuteStart();'>Spustit puzzle</button>"
+    "<button type='button' class='set-btn set-btn-sm' onclick='if(typeof puzzleCancel===\"function\")puzzleCancel();'>Zrušit</button>"
+    "</div></div>"
+    "</div></div>";
 
 // Chunk 3: Hint (Nápověda) - inline so requestHint exists even if chess_app.js
 // fails/cache
@@ -7299,7 +10853,8 @@ static const char html_chunk_hint_inline[] =
     "var moves=(history&&history.moves)?history.moves.length:0;"
     "return rows.join('/')+' '+side+' KQkq - 0 '+(Math.floor(moves/2)+1);}"
     "async function fetchStockfishBestMove(fen){"
-    "try{var depth=(function(){try{var "
+    "try{var depth=(function(){try{if(typeof getHintDepth==='function')return "
+    "getHintDepth();var "
     "d=parseInt(localStorage.getItem('chessHintDepth')||'10',10);"
     "return Math.min(18,Math.max(1,isNaN(d)?10:d));}catch(e){return 10;}})();"
     "var res=await "
@@ -7489,8 +11044,18 @@ static const char html_chunk_mqtt_config[] =
     "\n"
     "// Load current MQTT config on page load\n"
     "async function loadMQTTConfig() {\n"
+    "  const statusDiv = document.getElementById('mqtt-status');\n"
     "  try {\n"
     "    const response = await fetch('/api/mqtt/status');\n"
+    "    if (!response.ok) {\n"
+    "      if (response.status === 404 && statusDiv) {\n"
+    "        statusDiv.style.display = 'block';\n"
+    "        statusDiv.style.background = '#666';\n"
+    "        statusDiv.textContent = 'Rozhraní MQTT není v tomto firmware. "
+    "Aktualizujte ESP32.';\n"
+    "      }\n"
+    "      return;\n"
+    "    }\n"
     "    const data = await response.json();\n"
     "    if (data.host) document.getElementById('mqtt-host').value = "
     "data.host;\n"
@@ -7499,7 +11064,11 @@ static const char html_chunk_mqtt_config[] =
     "    if (data.username) document.getElementById('mqtt-username').value = "
     "data.username;\n"
     "  } catch (e) {\n"
-    "    console.log('Could not load MQTT config:', e);\n"
+    "    if (statusDiv) {\n"
+    "      statusDiv.style.display = 'block';\n"
+    "      statusDiv.style.background = '#666';\n"
+    "      statusDiv.textContent = 'Načtení MQTT konfigurace selhalo.';\n"
+    "    }\n"
     "  }\n"
     "}\n"
     "if (document.readyState === 'loading') {\n"
@@ -7601,6 +11170,12 @@ static esp_err_t http_get_root_handler(httpd_req_t *req) {
   // New Bot Settings Chunk
   size_t chunk_bot_len = strlen(html_chunk_settings_bot);
   ret = httpd_resp_send_chunk(req, html_chunk_settings_bot, chunk_bot_len);
+  if (ret != ESP_OK)
+    return ret;
+
+  size_t chunk_tutorial_len = strlen(html_chunk_settings_tutorial);
+  ret = httpd_resp_send_chunk(req, html_chunk_settings_tutorial,
+                              chunk_tutorial_len);
   if (ret != ESP_OK)
     return ret;
 
@@ -7759,20 +11334,36 @@ void web_server_task_start(void *pvParameters) {
     ESP_LOGE(TAG,
              "❌ Web server task will continue but HTTP will not be available");
 
-    // Don't delete task - instead enter a maintenance loop that feeds WDT
+    // Keep task alive and retry HTTP startup periodically
     task_running = true;
+    uint32_t retry_counter = 0;
     while (task_running) {
       web_server_task_wdt_reset_safe();
+      if ((retry_counter++ % 5) == 0) {
+        ESP_LOGW(TAG, "Retrying HTTP server start...");
+        esp_err_t retry_ret = start_http_server();
+        if (retry_ret == ESP_OK) {
+          web_server_active = true;
+          web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+          ESP_LOGI(TAG, "HTTP server recovered and started");
+          break;
+        }
+      }
       vTaskDelay(pdMS_TO_TICKS(1000));
     }
 
+    if (web_server_active) {
+      ESP_LOGI(TAG, "Switching to normal web server loop after recovery");
+    } else {
     esp_task_wdt_delete(NULL); // Unregister before deleting
     vTaskDelete(NULL);
     return;
+    }
   }
   web_server_active = true;
   web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
   ESP_LOGI(TAG, "HTTP server started");
+  czechmate_mdns_ensure_started();
 
   /* Jednorazove nacteni jasu do cache – GET /api/status pak nepristupuje k NVS
    */
@@ -7786,7 +11377,7 @@ void web_server_task_start(void *pvParameters) {
 
   task_running = true;
   ESP_LOGI(TAG, "Web server task started successfully");
-  ESP_LOGI(TAG, "Connect to WiFi: %s", WIFI_AP_SSID);
+  ESP_LOGI(TAG, "Connect to WiFi: %s", wifi_ap_ssid_effective);
   ESP_LOGI(TAG, "Password: %s", WIFI_AP_PASSWORD);
   ESP_LOGI(TAG, "Open browser: http://%s", WIFI_AP_IP);
 
@@ -7802,6 +11393,9 @@ void web_server_task_start(void *pvParameters) {
 
     // Process web server commands from queue
     web_server_process_commands();
+
+    /* Snapshot WS/BLE mimo game_task (fronta z czechmate_on_game_state_changed). */
+    web_server_process_snapshot_notify_queue();
 
     // Update web server state
     web_server_update_state();
@@ -7976,18 +11570,43 @@ void web_server_handle_api_move(void) {
 }
 
 // ============================================================================
-// WEBSOCKET FUNCTIONS (Placeholder for future implementation)
+// WEBSOCKET (snapshot push — stejný JSON jako GET /api/game/snapshot)
 // ============================================================================
 
 void web_server_websocket_init(void) {
-  ESP_LOGI(TAG, "WebSocket support not yet implemented");
+#if CONFIG_HTTPD_WS_SUPPORT
+  if (ws_broadcast_timer != NULL) {
+    return;
+  }
+  const esp_timer_create_args_t args = {.callback = &ws_broadcast_timer_cb,
+                                        .name = "ws_snap"};
+  esp_err_t e = esp_timer_create(&args, &ws_broadcast_timer);
+  if (e != ESP_OK) {
+    ESP_LOGE(TAG, "WS timer create failed: %s", esp_err_to_name(e));
+    return;
+  }
+  e = esp_timer_start_periodic(ws_broadcast_timer, 3000 * 1000);
+  if (e != ESP_OK) {
+    ESP_LOGE(TAG, "WS timer start failed: %s", esp_err_to_name(e));
+    esp_timer_delete(ws_broadcast_timer);
+    ws_broadcast_timer = NULL;
+    return;
+  }
+  ESP_LOGI(TAG,
+           "WebSocket: watchdog broadcast 3 s + okamžitý push při změně stavu");
+#else
+  ESP_LOGD(TAG, "WebSocket disabled (CONFIG_HTTPD_WS_SUPPORT)");
+#endif
 }
 
 void web_server_websocket_send_update(const char *data) {
-  if (!web_server_active || data == NULL) {
+  (void)data;
+  if (!web_server_active) {
     return;
   }
-  ESP_LOGI(TAG, "WebSocket send: %s", data);
+#if CONFIG_HTTPD_WS_SUPPORT
+  ws_broadcast_snapshot();
+#endif
 }
 
 // ============================================================================
@@ -7996,7 +11615,16 @@ void web_server_websocket_send_update(const char *data) {
 
 bool web_server_is_active(void) { return web_server_active; }
 
+const char *web_server_get_ap_ssid(void) {
+  if (wifi_ap_ssid_effective[0] == '\0') {
+    return WIFI_AP_SSID_BASE;
+  }
+  return wifi_ap_ssid_effective;
+}
+
 uint32_t web_server_get_client_count(void) { return client_count; }
+
+esp_err_t web_server_get_last_http_error(void) { return last_http_start_error; }
 
 uint32_t web_server_get_uptime(void) {
   if (!web_server_active) {

@@ -164,6 +164,7 @@
 #include "../uart_commands_extended/include/uart_commands_extended.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "../web_server_task/include/web_server_task.h"
+#include "../ble_task/include/ble_task.h"
 #include "config_manager.h"
 #include "esp_system.h"
 #include "freertos_chess.h"
@@ -263,7 +264,7 @@ static const char *TAG = "UART_TASK";
 
 // Optimalizované konstanty pro ESP32-C6
 #define CHUNK_DELAY_MS 2       // Minimální delay
-#define MAX_CHUNK_SIZE 128     // Optimální pro UART buffer
+#define MAX_CHUNK_SIZE UART_MESSAGE_TEXT_MAX /* uart_queue_message.h */
 #define STACK_SAFETY_LIMIT 512 // Minimální volný stack
 
 // UART configuration - only use if UART is enabled
@@ -371,9 +372,9 @@ void uart_write_string_immediate(const char *str) {
 // ENHANCED INPUT BUFFERING AND LINE EDITING
 // ============================================================================
 
-// Input buffer configuration
-#define UART_CMD_BUFFER_SIZE 256
-#define UART_CMD_HISTORY_SIZE 20
+/* Paměť: dříve 20×256 = 5120 B + vstup; nyní 8×192 + 192 ≈ 1728 B (~3,4 KiB úspora BSS) */
+#define UART_CMD_BUFFER_SIZE 192
+#define UART_CMD_HISTORY_SIZE 8
 #define UART_MAX_ARGS 10
 #define INPUT_TIMEOUT_MS 100
 
@@ -1146,7 +1147,7 @@ void input_buffer_set_cursor(input_buffer_t *buffer, size_t pos) {
 
     // Prompt handled by terminal
     {
-      char prompt_line[512];
+      char prompt_line[UART_CMD_BUFFER_SIZE + 8];
       snprintf(prompt_line, sizeof(prompt_line), "\r%s", buffer->buffer);
       if (UART_ENABLED) {
         uart_write_bytes(UART_PORT_NUM, prompt_line, strlen(prompt_line));
@@ -1399,6 +1400,7 @@ command_result_t uart_cmd_wifi_clear(const char *args);
 // Web control UART prikazy
 command_result_t uart_cmd_web_lock(const char *args);
 command_result_t uart_cmd_web_status(const char *args);
+command_result_t uart_cmd_ble(const char *args);
 
 // MQTT control UART prikazy
 command_result_t uart_cmd_mqtt_config(const char *args);
@@ -1443,6 +1445,7 @@ command_result_t uart_cmd_endgame_draw_pulse(const char *args);
 
 // Help functions
 void uart_cmd_help_web(void);
+void uart_cmd_help_app(void);
 
 // Puzzle Commands
 // Puzzle level commands removed
@@ -1478,10 +1481,13 @@ command_result_t uart_cmd_help(const char *args) {
       uart_cmd_help_debug();
     } else if (strcmp(args_upper, "WEB") == 0) {
       uart_cmd_help_web();
+    } else if (strcmp(args_upper, "APP") == 0 ||
+               strcmp(args_upper, "APLIKACE") == 0) {
+      uart_cmd_help_app();
     } else {
       uart_send_error("Unknown help category");
       uart_send_formatted(
-          "Available categories: GAME, SYSTEM, BEGINNER, DEBUG, WEB");
+          "Available categories: GAME, SYSTEM, BEGINNER, DEBUG, WEB, APP");
       return CMD_ERROR_INVALID_PARAMETER;
     }
   } else {
@@ -1525,6 +1531,10 @@ void uart_display_main_help(void) {
     uart_write_string_immediate("\033[1;35m"); // bold magenta
   uart_send_formatted("DEBUG    - Advanced debugging and testing");
   if (color_enabled)
+    uart_write_string_immediate("\033[1;95m"); // bold bright magenta
+  uart_send_formatted(
+      "APP      - Mobile app (CZECHMATE) and Bluetooth LE overview");
+  if (color_enabled)
     uart_write_string_immediate("\033[0m"); // reset colors
 
   uart_send_formatted("");
@@ -1536,6 +1546,8 @@ void uart_display_main_help(void) {
   uart_send_formatted("  HELP BEGINNER  - Start here if you're new");
   uart_send_formatted("  HELP GAME      - Learn chess commands");
   uart_send_formatted("  HELP SYSTEM    - System management");
+  uart_send_formatted("  HELP APP       - App + BLE (same as HELP APLIKACE)");
+  uart_send_formatted("  BLE            - Live BLE / GATT status (developers)");
 
   uart_send_formatted("");
   if (color_enabled)
@@ -1702,7 +1714,7 @@ void uart_cmd_help_system(void) {
   if (color_enabled)
     uart_write_string_immediate("\033[0m"); // reset colors
   uart_send_formatted("  VERBOSE ON/OFF - Control logging verbosity");
-  uart_send_formatted("  QUIET          - Toggle quiet mode");
+  uart_send_formatted("  QUIET / Q      - Toggle quiet mode (zkratka Q; stejné jako příkaz Q)");
   uart_send_formatted("  CONFIG         - Show/set system configuration");
   uart_send_formatted("  CONFIG show    - Show current configuration");
   uart_send_formatted("  CONFIG key value - Set configuration key=value");
@@ -1892,7 +1904,8 @@ void uart_cmd_help_web(void) {
     uart_write_string_immediate("\033[0m"); // reset colors
 
   uart_send_formatted("  1. Access Point (Direct Connection):");
-  uart_send_formatted("     • Connect to WiFi: 'ESP32-CzechMate'");
+  uart_send_formatted("     • Connect to WiFi: '%s'",
+                      web_server_get_ap_ssid());
   uart_send_formatted("     • Password:        '12345678'");
   uart_send_formatted("     • Open Browser:    http://192.168.4.1");
 
@@ -1964,6 +1977,121 @@ void uart_cmd_help_web(void) {
   uart_send_formatted(
       "  • Use WEB_LOCK ON before events to prevent interference");
   uart_send_formatted("  • Use WEB_LOCK OFF to allow web configuration again");
+
+  uart_send_formatted("");
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;32m"); // bold green
+  uart_send_formatted(
+      "═══════════════════════════════════════════════════════════════");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+}
+
+/**
+ * @brief Mobilni aplikace CZECHMATE a Bluetooth LE — uzivatele + vyvojari
+ */
+void uart_cmd_help_app(void) {
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;95m"); // bold bright magenta
+  uart_send_formatted("MOBILE APP & BLUETOOTH (CZECHMATE)");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+  uart_send_formatted(
+      "═══════════════════════════════════════════════════════════════");
+
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;32m"); // bold green
+  uart_send_formatted("📱 Companion app:");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+  uart_send_formatted(
+      "  iOS app (CZECHMATE) — CoreBluetooth scan filtrovany podle sluzby.");
+  uart_send_formatted(
+      "  • S deskou: stejny JSON snapshot jako GET /api/game/snapshot");
+  uart_send_formatted(
+      "  • Wi‑Fi alternativa: REST (HELP WEB), vetsi payload, nastaveni site");
+
+  uart_send_formatted("");
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;36m"); // bold cyan
+  uart_send_formatted("📶 GATT (NimBLE, peripheral):");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+  uart_send_formatted(
+      "  Adv. nazev: CZECHMATE | Sluzba + char. UUID 128-bit (viz nize)");
+  uart_send_formatted(
+      "  Snapshot: READ + NOTIFY — UTF-8 JSON GameSnapshot (Swift decoder)");
+  uart_send_formatted(
+      "  Command:  WRITE (s odpovedi) — UTF-8 JSON {\"cmd\":...}");
+  uart_send_formatted(
+      "  Push: po subscribe na NOTIFY se posila pri zmene hry (hook z game)");
+
+  uart_send_formatted("");
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;33m"); // bold yellow
+  uart_send_formatted("🧩 UUID (must match CZECHMATEBLEUUIDs.swift):");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+  uart_send_formatted(
+      "  Svc A0B40001-9267-4AB6-BDCC-E8336F8A8D9E");
+  uart_send_formatted(
+      "  Snap A0B40002-9267-4AB6-BDCC-E8336F8A8D9E");
+  uart_send_formatted(
+      "  Cmd  A0B40003-9267-4AB6-BDCC-E8336F8A8D9E");
+
+  uart_send_formatted("");
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;35m"); // bold magenta
+  uart_send_formatted("📦 Chunk notifikace (velke JSON):");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+  uart_send_formatted(
+      "  Byty 0-1: 0x43 0x4D ('CM'), 2=cast, 3=celkem, pak payload UTF-8");
+  uart_send_formatted(
+      "  Male zpravy bez hlavicky = cele JSON v jednom notify (iOS)");
+
+  uart_send_formatted("");
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;33m"); // bold yellow
+  uart_send_formatted("⌨️  Priklady JSON prikazu (command char):");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+  uart_send_formatted("  {\"cmd\":\"ping\"}");
+  uart_send_formatted(
+      "  {\"cmd\":\"hint_highlight\",\"from\":\"e2\",\"to\":\"e4\"}");
+  uart_send_formatted("  {\"cmd\":\"hint_clear\"}");
+  uart_send_formatted("  {\"cmd\":\"brightness\",\"percent\":75}");
+  uart_send_formatted(
+      "  hint/brightness pri WEB_LOCK vraci chybu (stejne jako web API)");
+
+  uart_send_formatted("");
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;34m"); // bold blue
+  uart_send_formatted("🛠  UART prikazy:");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+  uart_send_formatted(
+      "  BLE  — stav spojeni, handly, UUID (staging log: tag BLE_NIMBLE)");
+
+  uart_send_formatted("");
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;33m"); // bold yellow
+  uart_send_formatted("⚙️  Build:");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+  uart_send_formatted(
+      "  idf.py menuconfig: zapnout Bluetooth + NimBLE (CONFIG_BT_ENABLED=y)");
+  uart_send_formatted(
+      "  Bez BT: GATT se nekompiluje do aktivniho stacku — pouzij HELP WEB");
+
+  uart_send_formatted("");
+  if (color_enabled)
+    uart_write_string_immediate("\033[1;34m"); // bold blue
+  uart_send_formatted("🌐 Wi‑Fi:");
+  if (color_enabled)
+    uart_write_string_immediate("\033[0m"); // reset colors
+  uart_send_formatted(
+      "  Stejna deska: HTTP snapshot / REST — HELP WEB");
 
   uart_send_formatted("");
   if (color_enabled)
@@ -2111,17 +2239,18 @@ command_result_t uart_cmd_quiet(const char *args) {
 
   if (system_config.quiet_mode) {
     system_config.verbose_mode = false;
-    esp_log_level_set("*", ESP_LOG_NONE);
+  }
+
+  config_save_to_nvs(&system_config);
+  config_apply_settings(&system_config);
+
+  if (system_config.quiet_mode) {
     uart_send_warning("Quiet mode ON");
     uart_send_formatted("Only essential messages will be shown");
   } else {
-    esp_log_level_set("*", ESP_LOG_ERROR);
     uart_send_formatted("Quiet mode OFF");
     uart_send_formatted("Normal logging restored");
   }
-
-  // Save to NVS
-  config_save_to_nvs(&system_config);
 
   return CMD_SUCCESS;
 }
@@ -2656,6 +2785,12 @@ static const uart_command_t commands[] = {
      "",
      false,
      {"WEB", "WS", "", "", ""}},
+    {"BLE",
+     uart_cmd_ble,
+     "Bluetooth LE / GATT status (CZECHMATE)",
+     "",
+     false,
+     {"BT", "BLE_STATUS", "", "", ""}},
 
     // MQTT commands
     {"MQTT_CONFIG",
@@ -3747,7 +3882,7 @@ command_result_t uart_cmd_wifi_status(const char *args) {
 
   // AP info
   uart_send_formatted("Access Point (AP):");
-  uart_send_formatted("  SSID: ESP32-CzechMate");
+  uart_send_formatted("  SSID: %s", web_server_get_ap_ssid());
   uart_send_formatted("  IP: 192.168.4.1");
   // Client count by mel byt globalni promenna, ale pro jednoduchost pouzijeme
   // externi
@@ -3869,6 +4004,33 @@ command_result_t uart_cmd_web_status(const char *args) {
     uart_send_formatted("  STA: Not connected");
   }
 
+  bool http_active = web_server_is_active();
+  esp_err_t http_err = web_server_get_last_http_error();
+  uart_send_formatted("HTTP Server: %s",
+                      http_active ? "🟢 ACTIVE" : "🔴 INACTIVE");
+  uart_send_formatted("  Last HTTP start error: %s", esp_err_to_name(http_err));
+  uart_send_formatted("Matrix guard pause: %s",
+                      game_is_matrix_guard_active() ? "🟡 ACTIVE" : "⚪ OFF");
+  uart_send_formatted("  Matrix conflicts: %u",
+                      (unsigned int)game_get_matrix_guard_conflict_count());
+  uart_send_formatted("Snapshot loaded on boot: %s",
+                      game_was_snapshot_loaded_on_boot() ? "YES" : "NO");
+  uart_send_formatted("Snapshot fallback mode: %s",
+                      game_is_snapshot_fallback_used() ? "YES" : "NO");
+  uart_send_formatted("Snapshot restore error: %s",
+                      game_has_snapshot_restore_failure() ? "YES" : "NO");
+  uart_send_formatted("Snapshot save error: %s",
+                      game_has_snapshot_save_failure() ? "YES" : "NO");
+  uart_send_formatted("Resync required after restore: %s",
+                      game_is_resync_required_after_restore() ? "YES" : "NO");
+  uart_send_formatted("Boot-triggered new game: %s",
+                      game_was_boot_new_game_triggered() ? "YES" : "NO");
+  if (sta_conn && sta_ip[0] != '\0') {
+    uart_send_formatted("  URL: http://%s/", sta_ip);
+  } else {
+    uart_send_formatted("  URL (AP): http://192.168.4.1/");
+  }
+
   // WiFi info
   char ssid[33] = {0};
   char password[65] = {0};
@@ -3884,6 +4046,27 @@ command_result_t uart_cmd_web_status(const char *args) {
   uart_send_formatted(
       "═══════════════════════════════════════════════════════════════");
 
+  return CMD_SUCCESS;
+}
+
+command_result_t uart_cmd_ble(const char *args) {
+  (void)args;
+  SAFE_WDT_RESET();
+  uart_send_colored_line(COLOR_INFO, "Bluetooth LE (CZECHMATE GATT)");
+  uart_send_formatted(
+      "═══════════════════════════════════════════════════════════════");
+  char line[160];
+  ble_task_format_status(line, sizeof(line));
+  uart_send_formatted("%s", line);
+  uart_send_formatted("");
+  uart_send_formatted("UUIDs (128-bit, viz CZECHMATEBLEUUIDs.swift):");
+  uart_send_formatted("  Service   A0B40001-9267-4AB6-BDCC-E8336F8A8D9E");
+  uart_send_formatted("  Snapshot  A0B40002-9267-4AB6-BDCC-E8336F8A8D9E  (READ+NOTIFY)");
+  uart_send_formatted("  Command   A0B40003-9267-4AB6-BDCC-E8336F8A8D9E  (WRITE)");
+  uart_send_formatted("Notifikace snapshotu: po subscribe + změně hry (czechmate_on_game_state_changed).");
+  uart_send_formatted("Detail: HELP APP");
+  uart_send_formatted(
+      "═══════════════════════════════════════════════════════════════");
   return CMD_SUCCESS;
 }
 
@@ -3920,8 +4103,8 @@ command_result_t uart_cmd_mqtt_config(const char *args) {
     return CMD_ERROR_INVALID_PARAMETER;
   }
 
-  // Validate port
-  if (port == 0 || port > 65535) {
+  /* uint16_t is always <= 65535; only 0 is invalid */
+  if (port == 0) {
     uart_send_error("❌ Invalid port (must be 1-65535)");
     return CMD_ERROR_INVALID_PARAMETER;
   }
@@ -5015,23 +5198,26 @@ esp_err_t uart_check_memory_health(void) {
   size_t free_heap = esp_get_free_heap_size();
   size_t min_free_heap = esp_get_minimum_free_heap_size();
 
-  // Critical threshold: less than 10KB free
-  if (free_heap < 10000) {
+  /* ESP32-C6 + WiFi + BLE + HTTP: běžně ~15–30 KiB volných — nebrat jako chybu */
+  enum {
+    heap_critical = 5120,
+    heap_warning = 12288,
+  };
+  static uint32_t last_warn_ms;
+  uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+
+  if (free_heap < (size_t)heap_critical) {
     ESP_LOGW(TAG, "⚠️ CRITICAL: Low memory - %zu bytes free (min: %zu)",
              free_heap, min_free_heap);
     return ESP_ERR_NO_MEM;
   }
 
-  // Warning threshold: less than 50KB free
-  if (free_heap < 50000) {
-    ESP_LOGW(TAG, "⚠️ WARNING: Low memory - %zu bytes free (min: %zu)",
-             free_heap, min_free_heap);
-  }
-
-  // Normal operation
-  if (free_heap > 100000) {
-    ESP_LOGI(TAG, "✅ Memory healthy - %zu bytes free (min: %zu)", free_heap,
-             min_free_heap);
+  if (free_heap < (size_t)heap_warning) {
+    if (now_ms - last_warn_ms > 60000) {
+      last_warn_ms = now_ms;
+      ESP_LOGW(TAG, "⚠️ WARNING: Low memory - %zu bytes free (min: %zu)",
+               free_heap, min_free_heap);
+    }
   }
 
   return ESP_OK;
@@ -7082,6 +7268,7 @@ void uart_task_start(void *pvParameters) {
 
   // Apply configuration settings
   config_apply_settings(&system_config);
+  game_set_led_guidance_level(system_config.led_guidance_level);
 
   // Initialize input buffer and command history
   input_buffer_init(&input_buffer);
@@ -7294,13 +7481,13 @@ void uart_task_legacy_loop(void) {
       }
     }
 
-    // ROBUST ERROR HANDLING: Periodic health check
-    if (loop_count % 1000 == 0) { // Every 10 seconds
+    /* Paměť/log: kontrola ~1×/30 s (1 ms tick × 30000), ne každou sekundu */
+    if (loop_count % 30000 == 0) {
       uart_task_health_check();
-      uart_check_memory_health(); // Check memory health
+      uart_check_memory_health();
     }
 
-    // Periodic status update every 60 seconds
+    /* Status řádku: při 1 ms smyčce = každých ~6 s (dřívější komentář „60 s“ byl nepřesný) */
     if (loop_count % 6000 == 0) {
       ESP_LOGI(TAG, "UART Task Status: Commands=%lu, Errors=%lu", command_count,
                error_count);

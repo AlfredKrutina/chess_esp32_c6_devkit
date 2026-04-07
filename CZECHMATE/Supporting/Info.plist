@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>CZECHMATE používá Bluetooth k připojení k šachovnici (BLE), až bude zapnuto na zařízení.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>CZECHMATE komunikuje se šachovnicí v domácí Wi-Fi síti (HTTP a WebSocket).</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_http._tcp</string>
+		<string>_czechmate._tcp</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>czechmate.game</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>czechmate</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+</dict>
+</plist>

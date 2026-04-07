@@ -15,10 +15,10 @@
  * @details
  * Web Server Task spravuje WiFi Access Point a HTTP server pro vzdalene
  * ovladani sachoveho systemu. Uzivatel se muze pripojit k WiFi hotspotu
- * "ESP32-CzechMate" a ovladat hru pres webovy prohlizec.
+ * "ESP32-CzechMate" (prip. ESP32-CzechMate_1 …) a ovladat hru pres webovy prohlizec.
  *
  * WiFi konfigurace:
- * - SSID: ESP32-CzechMate
+ * - SSID: ESP32-CzechMate nebo ESP32-CzechMate_N (auto podle okolnich desek)
  * - Heslo: 12345678
  * - IP: 192.168.4.1
  * - Kanal: 1
@@ -45,6 +45,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos_chess.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,6 +84,12 @@ void web_server_task_start(void *pvParameters);
  * @brief Zpracuj web server prikazy z fronty
  */
 void web_server_process_commands(void);
+
+/**
+ * @brief Odešle čekající game snapshot (WS + BLE) z fronty — volat z web
+ * server task smyčky; nesmí z game_task.
+ */
+void web_server_process_snapshot_notify_queue(void);
 
 /**
  * @brief Vykonaj web server prikaz
@@ -176,11 +183,21 @@ void web_server_websocket_send_update(const char *data);
 bool web_server_is_active(void);
 
 /**
+ * @brief Aktualni SSID WiFi AP po startu (napr. ESP32-CzechMate nebo ESP32-CzechMate_1).
+ */
+const char *web_server_get_ap_ssid(void);
+
+/**
  * @brief Ziskej pocet pripojenych klientu
  *
  * @return Pocet aktualne pripojenych klientu
  */
 uint32_t web_server_get_client_count(void);
+
+/**
+ * @brief Vrati posledni chybu pri startu HTTP serveru (ESP_OK pokud bez chyby)
+ */
+esp_err_t web_server_get_last_http_error(void);
 
 /**
  * @brief Ziskej uptime serveru
@@ -321,6 +338,29 @@ esp_err_t web_lock_load_from_nvs(void);
  */
 esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
                                     size_t password_len);
+
+/**
+ * @brief Stejný JSON jako GET /api/game/snapshot (pro BLE GATT read / interní
+ * použití).
+ */
+esp_err_t web_server_build_game_snapshot_json(char *out, size_t cap,
+                                              size_t *out_len);
+
+/**
+ * @brief Stejný JSON jako GET /api/game/snapshot do interního `snapshot_buffer`.
+ *
+ * Šetří ~20 KB RAM oproti druhému statickému poli v BLE — mutex je uvnitř buildu.
+ * Platný ukazatel jen do dalšího volání jakéhokoli snapshot buildu (HTTP/BLE).
+ */
+esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
+                                                     size_t *out_len);
+
+/**
+ * @brief Zpracuje UTF-8 JSON z BLE GATT zápisu na příkazovou charakteristiku
+ * (cmd: ping, hint_highlight, hint_clear, brightness — stejné chování jako
+ * REST kde je uvedeno).
+ */
+esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len);
 
 /**
  * @brief Ziska aktualni IP adresu STA rozhrani

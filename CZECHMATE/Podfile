@@ -1,0 +1,18 @@
+# MediaPipe LLM Inference (Gemma 2B .bin) — viz https://ai.google.dev/edge/mediapipe/solutions/genai/llm_inference/ios
+# Po `pod install` otevři CZECHMATE.xcworkspace (ne .xcodeproj).
+
+platform :ios, '16.0'
+
+target 'CZECHMATE' do
+  use_frameworks!
+  pod 'MediaPipeTasksGenAI'
+  pod 'MediaPipeTasksGenAIC'
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+    end
+  end
+end

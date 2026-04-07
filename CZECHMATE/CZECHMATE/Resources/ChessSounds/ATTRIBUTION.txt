@@ -1,0 +1,3 @@
+Zvukové soubory Chess*.wav pocházejí z balíčku Kenney „UI Audio“ (CC0 1.0).
+Zdroj: https://github.com/Calinou/kenney-ui-audio
+Přesné samply Chess.com nelze z licenčních důvodů distribuovat; tyto lze nahradit vlastními .wav se stejnými názvy.

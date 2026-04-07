@@ -31,6 +31,7 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_mac.h"
+#include "esp_system.h"
 #include "esp_netif.h"
 #include "esp_task_wdt.h"
 #include "esp_timer.h"
@@ -39,12 +40,18 @@
 #include "game_task.h"
 #include "led_task.h"
 #include "mqtt_client.h"
+#include "freertos/semphr.h"
 #include "nvs.h"
 #include "nvs_flash.h"
 #include <stdio.h>
 #include <string.h>
 
 static const char *TAG = "HA_LIGHT_TASK";
+
+/** Min. volný heap před esp_mqtt_client_start (interní úloha + zásobník). */
+#define HA_MQTT_MIN_FREE_HEAP_BYTES (18 * 1024)
+/** Pod tímto prahem ukončíme MQTT klienta (uvolní sockety / úlohy) — prevence errno 11 / RST. */
+#define HA_MQTT_STOP_HEAP_BYTES (10 * 1024)
 
 // ============================================================================
 // NVS KONFIGURACE PRO MQTT
@@ -56,6 +63,19 @@ static const char *TAG = "HA_LIGHT_TASK";
 #define MQTT_NVS_KEY_PORT "broker_port"
 #define MQTT_NVS_KEY_USERNAME "broker_username"
 #define MQTT_NVS_KEY_PASSWORD "broker_password"
+
+// NVS pro ulozeni stavu lampy (web / lokální režim)
+#define LAMP_NVS_NAMESPACE "lamp_cfg"
+#define LAMP_NVS_KEY_STATE "state"
+#define LAMP_NVS_KEY_R "r"
+#define LAMP_NVS_KEY_G "g"
+#define LAMP_NVS_KEY_B "b"
+#define LAMP_NVS_KEY_AUTO_TIMEOUT_SEC "auto_sec"
+
+// Rozsah pro automatické přepnutí do režimu lampa: 5 s .. 120 min (7200 s)
+#define HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC 5
+#define HA_ACTIVITY_TIMEOUT_AUTO_MAX_SEC 7200
+#define HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC 300
 
 // Default hodnoty pro MQTT konfiguraci
 #define MQTT_DEFAULT_HOST "homeassistant.local"
@@ -71,7 +91,8 @@ static const char *TAG = "HA_LIGHT_TASK";
 static bool task_running = false;
 static ha_mode_t current_mode = HA_MODE_GAME;
 
-// Activity tracking (5 minut timer)
+// Activity tracking – doba (s) po které se přepne do režimu lampa (načteno z NVS)
+static uint32_t activity_timeout_auto_sec = HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC;
 static uint32_t last_activity_time_ms = 0;
 
 // WiFi STA status (shared with web_server_task via events)
@@ -114,6 +135,9 @@ extern QueueHandle_t matrix_event_queue;
 // Interní fronta pro HA task
 static QueueHandle_t ha_light_cmd_queue = NULL;
 
+// Mutex pro thread-safe pristup k ha_light_state (HTTP handler cte, HA task pise)
+static SemaphoreHandle_t ha_light_state_mutex = NULL;
+
 // Forward declarations
 static void ha_light_check_activity_timeout(void);
 static void ha_light_switch_to_ha_mode(void);
@@ -127,6 +151,8 @@ static void ha_light_mqtt_event_handler(void *handler_args,
 static void ha_light_handle_mqtt_command(const char *topic, const char *data,
                                          int data_len);
 static void ha_light_publish_state(void);
+static void lamp_nvs_load(void);
+static void lamp_nvs_save(void);
 
 // ============================================================================
 // WDT HELPER FUNCTIONS
@@ -145,6 +171,16 @@ static esp_err_t ha_light_task_wdt_reset_safe(void) {
     return ret;
   }
   return ESP_OK;
+}
+
+/** Handle hlavní smyčky — esp_task_wdt_reset jen z ha_light_task (ne z MQTT). */
+static TaskHandle_t s_ha_light_task_hdl;
+
+static void ha_light_wdt_feed_if_own_task(void) {
+  if (s_ha_light_task_hdl != NULL &&
+      xTaskGetCurrentTaskHandle() == s_ha_light_task_hdl) {
+    (void)ha_light_task_wdt_reset_safe();
+  }
 }
 
 // ============================================================================
@@ -205,24 +241,24 @@ void ha_light_report_activity(const char *activity_type) {
   // Mode switching and LED refresh must happen in HA task context.
   last_activity_time_ms = esp_timer_get_time() / 1000;
 
-  // CHECK: Rate limiting for activity reporting (max 1 message per 500ms)
+  /* Rate limit: max 1 queued activity / 500 ms (šetří frontu a MQTT).
+   * Výjimka: POST /api/light/game_mode — musí vždy projít, jinak uživatel
+   * nevrátí desku z režimu lampy po rychlé sérii jiných událostí. */
   static uint32_t last_report_time = 0;
   uint32_t current_time = esp_timer_get_time() / 1000;
-  if (current_time - last_report_time < 500) {
-    return; // Skip reporting if too frequent
+  const bool force_queue = (activity_type != NULL &&
+                            strcmp(activity_type, "web_game_mode") == 0);
+  if (!force_queue && current_time - last_report_time < 500) {
+    return;
   }
   last_report_time = current_time;
 
-  // Send simple command to queue - minimal overhead for caller
   ha_light_command_t cmd;
-  cmd.type = 1; // 1 = Activity Report (magic number but internal)
-  // We don't need data for simple activity reset, but if we wanted to pass
-  // string: We can pass a static string pointer since most activity strings are
-  // literals. Warning: Do not pass stack buffers!
-  cmd.data = (void *)activity_type;
+  cmd.type = HA_CMD_ACTIVITY;
+  cmd.u.data = (void *)activity_type;
 
   if (ha_light_cmd_queue != NULL) {
-    xQueueSend(ha_light_cmd_queue, &cmd, 0); // Non-blocking send
+    xQueueSend(ha_light_cmd_queue, &cmd, 0);
   }
 }
 
@@ -242,15 +278,15 @@ static void ha_light_check_activity_timeout(void) {
 
   uint32_t current_time_ms = esp_timer_get_time() / 1000;
   uint32_t elapsed_ms = current_time_ms - last_activity_time_ms;
+  uint32_t timeout_ms = (uint32_t)activity_timeout_auto_sec * 1000;
 
-  if (elapsed_ms >= HA_ACTIVITY_TIMEOUT_AUTO_MS) {
-    // 10 minutes passed - auto-switch to HA mode
+  if (elapsed_ms >= timeout_ms) {
     if (ha_light_check_wifi_sta_connected()) {
-      ESP_LOGI(TAG, "10 minute timeout reached - auto-switching to HA mode");
+      ESP_LOGI(TAG, "Activity timeout (%lu s) reached - auto-switching to HA mode",
+               (unsigned long)activity_timeout_auto_sec);
       ha_light_switch_to_ha_mode();
     } else {
-      ESP_LOGD(TAG, "5 minute timeout reached but WiFi STA not connected - "
-                    "staying in GAME mode");
+      ESP_LOGD(TAG, "Timeout reached but WiFi STA not connected - staying in GAME mode");
     }
   }
 }
@@ -265,6 +301,7 @@ static void ha_light_check_activity_timeout(void) {
  * Vsech 64 LED desky se nastavi na barvu z ha_light_state.
  */
 static void ha_light_switch_to_ha_mode(void) {
+  ha_light_wdt_feed_if_own_task();
   bool mode_changed = (current_mode != HA_MODE_HA);
 
   if (mode_changed) {
@@ -272,18 +309,32 @@ static void ha_light_switch_to_ha_mode(void) {
   }
   current_mode = HA_MODE_HA;
 
-  // Apply HA color/state to all 64 board LEDs
-  if (ha_light_state.state) {
-    // ON: Apply RGB color with brightness
-    led_set_ha_color(ha_light_state.r, ha_light_state.g, ha_light_state.b,
-                     ha_light_state.brightness);
+  uint8_t r, g, b, brightness;
+  bool state;
+  if (ha_light_state_mutex != NULL &&
+      xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
+    r = ha_light_state.r;
+    g = ha_light_state.g;
+    b = ha_light_state.b;
+    brightness = ha_light_state.brightness;
+    state = ha_light_state.state;
+    xSemaphoreGive(ha_light_state_mutex);
   } else {
-    // OFF: Turn all LEDs off (black)
-    led_set_ha_color(0, 0, 0, 0);
+    r = g = b = 255;
+    brightness = 255;
+    state = true;
   }
 
-  // Publish state update
+  // Apply HA color/state to all 64 board LEDs
+  if (state) {
+    led_set_ha_color(r, g, b, brightness);
+  } else {
+    led_set_ha_color(0, 0, 0, 0);
+  }
+  ha_light_wdt_feed_if_own_task();
+
   ha_light_publish_state();
+  ha_light_wdt_feed_if_own_task();
 }
 
 /**
@@ -297,16 +348,20 @@ static void ha_light_switch_to_game_mode(void) {
   }
 
   ESP_LOGI(TAG, "Switching to GAME MODE");
+  ha_light_wdt_feed_if_own_task();
   current_mode = HA_MODE_GAME;
 
   // Restore game LED state (refresh based on current game status)
   game_refresh_leds();
+  ha_light_wdt_feed_if_own_task();
 
   // Obnovit tlačítka (zelená/modrá/červená podle dostupnosti a stisku)
   led_refresh_all_button_leds();
+  ha_light_wdt_feed_if_own_task();
 
   // Publish state update
   ha_light_publish_state();
+  ha_light_wdt_feed_if_own_task();
 }
 
 // ============================================================================
@@ -505,6 +560,10 @@ static void ha_light_publish_discovery(void) {
   if (!mqtt_connected || mqtt_client == NULL) {
     return;
   }
+  if (esp_get_free_heap_size() < HA_MQTT_STOP_HEAP_BYTES) {
+    ESP_LOGD(TAG, "[STAGING] ha_light_publish_discovery: skip (low heap)");
+    return;
+  }
 
   // Get MAC address for unique ID
   uint8_t mac_raw[6];
@@ -671,17 +730,20 @@ static void ha_light_handle_mqtt_command(const char *topic, const char *data,
     return;
   }
 
-  // Parse state (on/off)
+  bool new_state = ha_light_state.state;
+  uint8_t new_r = ha_light_state.r, new_g = ha_light_state.g,
+          new_b = ha_light_state.b;
+  uint8_t new_brightness = ha_light_state.brightness;
+
   cJSON *state_item = cJSON_GetObjectItem(json, "state");
   if (cJSON_IsString(state_item)) {
     if (strcasecmp(state_item->valuestring, "ON") == 0) {
-      ha_light_state.state = true;
+      new_state = true;
     } else if (strcasecmp(state_item->valuestring, "OFF") == 0) {
-      ha_light_state.state = false;
+      new_state = false;
     }
   }
 
-  // Parse brightness
   cJSON *brightness_item = cJSON_GetObjectItem(json, "brightness");
   if (cJSON_IsNumber(brightness_item)) {
     int brightness_val = (int)cJSON_GetNumberValue(brightness_item);
@@ -689,40 +751,45 @@ static void ha_light_handle_mqtt_command(const char *topic, const char *data,
       brightness_val = 0;
     if (brightness_val > 255)
       brightness_val = 255;
-    ha_light_state.brightness = (uint8_t)brightness_val;
+    new_brightness = (uint8_t)brightness_val;
   }
 
-  // Parse color (JSON schema uses "color": {"r": 255, "g": 255, "b": 255})
   cJSON *color_item = cJSON_GetObjectItem(json, "color");
   if (cJSON_IsObject(color_item)) {
     cJSON *r = cJSON_GetObjectItem(color_item, "r");
     cJSON *g = cJSON_GetObjectItem(color_item, "g");
     cJSON *b = cJSON_GetObjectItem(color_item, "b");
-
     if (cJSON_IsNumber(r) && cJSON_IsNumber(g) && cJSON_IsNumber(b)) {
-      ha_light_state.r = (uint8_t)cJSON_GetNumberValue(r);
-      ha_light_state.g = (uint8_t)cJSON_GetNumberValue(g);
-      ha_light_state.b = (uint8_t)cJSON_GetNumberValue(b);
+      new_r = (uint8_t)cJSON_GetNumberValue(r);
+      new_g = (uint8_t)cJSON_GetNumberValue(g);
+      new_b = (uint8_t)cJSON_GetNumberValue(b);
     }
   }
 
-  // Parse legacy rgb_color (if sent by some controllers)
   cJSON *rgb_item = cJSON_GetObjectItem(json, "rgb_color");
   if (cJSON_IsArray(rgb_item) && cJSON_GetArraySize(rgb_item) >= 3) {
-    ha_light_state.r =
-        (uint8_t)cJSON_GetNumberValue(cJSON_GetArrayItem(rgb_item, 0));
-    ha_light_state.g =
-        (uint8_t)cJSON_GetNumberValue(cJSON_GetArrayItem(rgb_item, 1));
-    ha_light_state.b =
-        (uint8_t)cJSON_GetNumberValue(cJSON_GetArrayItem(rgb_item, 2));
+    new_r = (uint8_t)cJSON_GetNumberValue(cJSON_GetArrayItem(rgb_item, 0));
+    new_g = (uint8_t)cJSON_GetNumberValue(cJSON_GetArrayItem(rgb_item, 1));
+    new_b = (uint8_t)cJSON_GetNumberValue(cJSON_GetArrayItem(rgb_item, 2));
   }
 
-  // Parse effect
+  char new_effect[32] = "solid";
   cJSON *effect_item = cJSON_GetObjectItem(json, "effect");
-  if (cJSON_IsString(effect_item)) {
-    strncpy(ha_light_state.effect, effect_item->valuestring,
-            sizeof(ha_light_state.effect) - 1);
+  if (cJSON_IsString(effect_item) && effect_item->valuestring) {
+    strncpy(new_effect, effect_item->valuestring, sizeof(new_effect) - 1);
+    new_effect[sizeof(new_effect) - 1] = '\0';
+  }
+
+  if (ha_light_state_mutex != NULL &&
+      xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+    ha_light_state.state = new_state;
+    ha_light_state.r = new_r;
+    ha_light_state.g = new_g;
+    ha_light_state.b = new_b;
+    ha_light_state.brightness = new_brightness;
+    strncpy(ha_light_state.effect, new_effect, sizeof(ha_light_state.effect) - 1);
     ha_light_state.effect[sizeof(ha_light_state.effect) - 1] = '\0';
+    xSemaphoreGive(ha_light_state_mutex);
   }
 
   cJSON_Delete(json);
@@ -750,27 +817,43 @@ static void ha_light_publish_state(void) {
   if (!mqtt_connected || mqtt_client == NULL) {
     return;
   }
+  if (esp_get_free_heap_size() < HA_MQTT_STOP_HEAP_BYTES) {
+    ESP_LOGD(TAG,
+             "[STAGING] ha_light_publish_state: skip (heap < %d B)",
+             HA_MQTT_STOP_HEAP_BYTES);
+    return;
+  }
+
+  bool st;
+  uint8_t br, rr, rg, rb;
+  char eff[32];
+  if (ha_light_state_mutex != NULL &&
+      xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
+    st = ha_light_state.state;
+    br = ha_light_state.brightness;
+    rr = ha_light_state.r;
+    rg = ha_light_state.g;
+    rb = ha_light_state.b;
+    strncpy(eff, ha_light_state.effect, sizeof(eff) - 1);
+    eff[sizeof(eff) - 1] = '\0';
+    xSemaphoreGive(ha_light_state_mutex);
+  } else {
+    st = true;
+    br = 255;
+    rr = rg = rb = 255;
+    eff[0] = '\0';
+  }
 
   cJSON *json = cJSON_CreateObject();
-
-  // State
-  cJSON_AddStringToObject(json, "state", ha_light_state.state ? "ON" : "OFF");
-
-  // Brightness
-  cJSON_AddNumberToObject(json, "brightness", ha_light_state.brightness);
-
-  // Color Mode
+  cJSON_AddStringToObject(json, "state", st ? "ON" : "OFF");
+  cJSON_AddNumberToObject(json, "brightness", br);
   cJSON_AddStringToObject(json, "color_mode", "rgb");
-
-  // Color (standard JSON schema object)
   cJSON *color = cJSON_CreateObject();
-  cJSON_AddNumberToObject(color, "r", ha_light_state.r);
-  cJSON_AddNumberToObject(color, "g", ha_light_state.g);
-  cJSON_AddNumberToObject(color, "b", ha_light_state.b);
+  cJSON_AddNumberToObject(color, "r", rr);
+  cJSON_AddNumberToObject(color, "g", rg);
+  cJSON_AddNumberToObject(color, "b", rb);
   cJSON_AddItemToObject(json, "color", color);
-
-  // Effect
-  cJSON_AddStringToObject(json, "effect", ha_light_state.effect);
+  cJSON_AddStringToObject(json, "effect", eff);
 
   // Mode
   cJSON_AddStringToObject(json, "mode",
@@ -843,6 +926,14 @@ static esp_err_t ha_light_init_mqtt(void) {
     return ESP_OK;
   }
 
+  size_t free_heap = esp_get_free_heap_size();
+  if (free_heap < HA_MQTT_MIN_FREE_HEAP_BYTES) {
+    ESP_LOGW(TAG,
+             "MQTT deferred: free heap %zu B < %d B (need RAM for mqtt task)",
+             free_heap, HA_MQTT_MIN_FREE_HEAP_BYTES);
+    return ESP_ERR_NO_MEM;
+  }
+
   // Ensure config is loaded from NVS (first time only)
   mqtt_ensure_config_loaded();
 
@@ -894,11 +985,91 @@ static esp_err_t ha_light_init_mqtt(void) {
   esp_err_t ret = esp_mqtt_client_start(mqtt_client);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "Failed to start MQTT client: %s", esp_err_to_name(ret));
+    esp_mqtt_client_destroy(mqtt_client);
+    mqtt_client = NULL;
     return ret;
   }
 
   ESP_LOGI(TAG, "MQTT client initialized and started");
   return ESP_OK;
+}
+
+// ============================================================================
+// LAMP NVS PERSISTENCE
+// ============================================================================
+
+static void lamp_nvs_load(void) {
+  nvs_handle_t handle;
+  esp_err_t ret = nvs_open(LAMP_NVS_NAMESPACE, NVS_READONLY, &handle);
+  if (ret != ESP_OK) {
+    return;
+  }
+
+  uint8_t state_u8 = 1, r = 255, g = 255, b = 255;
+  uint32_t auto_sec = HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC;
+  nvs_get_u8(handle, LAMP_NVS_KEY_STATE, &state_u8);
+  nvs_get_u8(handle, LAMP_NVS_KEY_R, &r);
+  nvs_get_u8(handle, LAMP_NVS_KEY_G, &g);
+  nvs_get_u8(handle, LAMP_NVS_KEY_B, &b);
+  if (nvs_get_u32(handle, LAMP_NVS_KEY_AUTO_TIMEOUT_SEC, &auto_sec) == ESP_OK &&
+      auto_sec >= HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC &&
+      auto_sec <= HA_ACTIVITY_TIMEOUT_AUTO_MAX_SEC) {
+    activity_timeout_auto_sec = auto_sec;
+  }
+  nvs_close(handle);
+
+  if (ha_light_state_mutex != NULL &&
+      xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+    ha_light_state.state = (state_u8 != 0);
+    ha_light_state.r = r;
+    ha_light_state.g = g;
+    ha_light_state.b = b;
+    ha_light_state.brightness = 255;
+    xSemaphoreGive(ha_light_state_mutex);
+  }
+}
+
+static void lamp_nvs_save(void) {
+  ha_light_task_wdt_reset_safe();
+  bool st;
+  uint8_t r, g, b;
+  if (ha_light_state_mutex != NULL &&
+      xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+    st = ha_light_state.state;
+    r = ha_light_state.r;
+    g = ha_light_state.g;
+    b = ha_light_state.b;
+    xSemaphoreGive(ha_light_state_mutex);
+  } else {
+    return;
+  }
+
+  nvs_handle_t handle;
+  if (nvs_open(LAMP_NVS_NAMESPACE, NVS_READWRITE, &handle) != ESP_OK) {
+    ESP_LOGW(TAG, "lamp_nvs_save: nvs_open failed");
+    return;
+  }
+  nvs_set_u8(handle, LAMP_NVS_KEY_STATE, st ? 1 : 0);
+  nvs_set_u8(handle, LAMP_NVS_KEY_R, r);
+  nvs_set_u8(handle, LAMP_NVS_KEY_G, g);
+  nvs_set_u8(handle, LAMP_NVS_KEY_B, b);
+  ha_light_task_wdt_reset_safe();
+  esp_err_t err = nvs_commit(handle);
+  ha_light_task_wdt_reset_safe();
+  nvs_close(handle);
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "lamp_nvs_save: nvs_commit failed (%s)", esp_err_to_name(err));
+  }
+}
+
+static void lamp_nvs_save_auto_timeout(void) {
+  nvs_handle_t handle;
+  if (nvs_open(LAMP_NVS_NAMESPACE, NVS_READWRITE, &handle) != ESP_OK) {
+    return;
+  }
+  nvs_set_u32(handle, LAMP_NVS_KEY_AUTO_TIMEOUT_SEC, activity_timeout_auto_sec);
+  nvs_commit(handle);
+  nvs_close(handle);
 }
 
 // ============================================================================
@@ -909,6 +1080,74 @@ static esp_err_t ha_light_init_mqtt(void) {
  * @brief Ziskej aktualni rezim
  */
 ha_mode_t ha_light_get_mode(void) { return current_mode; }
+
+uint32_t ha_light_get_activity_timeout_sec(void) { return activity_timeout_auto_sec; }
+
+esp_err_t ha_light_set_activity_timeout_sec(uint32_t sec) {
+  if (sec < HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC) {
+    sec = HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC;
+  }
+  if (sec > HA_ACTIVITY_TIMEOUT_AUTO_MAX_SEC) {
+    sec = HA_ACTIVITY_TIMEOUT_AUTO_MAX_SEC;
+  }
+  activity_timeout_auto_sec = sec;
+  lamp_nvs_save_auto_timeout();
+  ESP_LOGI(TAG, "Auto lamp timeout set to %lu s (saved to NVS)", (unsigned long)sec);
+  return ESP_OK;
+}
+
+/**
+ * @brief Ziskej aktualni stav lampy (thread-safe pro HTTP handler)
+ */
+void ha_light_get_state(uint8_t *r, uint8_t *g, uint8_t *b,
+                        uint8_t *brightness, bool *state) {
+  if (r)
+    *r = 255;
+  if (g)
+    *g = 255;
+  if (b)
+    *b = 255;
+  if (brightness)
+    *brightness = 255;
+  if (state)
+    *state = true;
+
+  if (ha_light_state_mutex == NULL) {
+    return;
+  }
+  if (xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) != pdTRUE) {
+    return;
+  }
+  if (r)
+    *r = ha_light_state.r;
+  if (g)
+    *g = ha_light_state.g;
+  if (b)
+    *b = ha_light_state.b;
+  if (brightness)
+    *brightness = ha_light_state.brightness;
+  if (state)
+    *state = ha_light_state.state;
+  xSemaphoreGive(ha_light_state_mutex);
+}
+
+/**
+ * @brief Pozadavek na nastaveni lampy z webu
+ * @return true pokud prikaz odeslan do fronty, false pokud fronta NULL nebo plna
+ */
+bool ha_light_request_web_lamp(bool state, uint8_t r, uint8_t g, uint8_t b) {
+  ha_light_command_t cmd;
+  cmd.type = HA_CMD_WEB_LAMP;
+  cmd.u.web_lamp.state = state ? 1 : 0;
+  cmd.u.web_lamp.r = r;
+  cmd.u.web_lamp.g = g;
+  cmd.u.web_lamp.b = b;
+
+  if (ha_light_cmd_queue == NULL) {
+    return false;
+  }
+  return xQueueSend(ha_light_cmd_queue, &cmd, 0) == pdTRUE;
+}
 
 /**
  * @brief Zjisti zda je HA rezim dostupny (WiFi STA pripojeno)
@@ -990,6 +1229,7 @@ esp_err_t ha_light_reinit_mqtt(void) {
  */
 void ha_light_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "Starting HA Light Task...");
+  s_ha_light_task_hdl = xTaskGetCurrentTaskHandle();
 
   // Register with WDT
   esp_err_t ret = esp_task_wdt_add(NULL);
@@ -1001,11 +1241,17 @@ void ha_light_task_start(void *pvParameters) {
   current_mode = HA_MODE_GAME;
   last_activity_time_ms = esp_timer_get_time() / 1000;
 
-  // Create internal command queue
+  ha_light_state_mutex = xSemaphoreCreateMutex();
+  if (ha_light_state_mutex == NULL) {
+    ESP_LOGE(TAG, "Failed to create ha_light_state mutex");
+  }
+
   ha_light_cmd_queue = xQueueCreate(10, sizeof(ha_light_command_t));
   if (ha_light_cmd_queue == NULL) {
     ESP_LOGE(TAG, "Failed to create HA command queue");
   }
+
+  lamp_nvs_load();
 
   // Main loop
   // TickType_t last_wake_time = xTaskGetTickCount(); // Unused in queue-based
@@ -1031,9 +1277,20 @@ void ha_light_task_start(void *pvParameters) {
     ha_light_command_t cmd;
     if (ha_light_cmd_queue &&
         xQueueReceive(ha_light_cmd_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
-      // Handle internal command
-      if (cmd.type == 1) { // Activity Report
-        const char *activity_name = (const char *)cmd.data;
+      if (cmd.type == HA_CMD_WEB_LAMP) {
+        if (ha_light_state_mutex != NULL &&
+            xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+          ha_light_state.state = (cmd.u.web_lamp.state != 0);
+          ha_light_state.r = cmd.u.web_lamp.r;
+          ha_light_state.g = cmd.u.web_lamp.g;
+          ha_light_state.b = cmd.u.web_lamp.b;
+          ha_light_state.brightness = 255;
+          xSemaphoreGive(ha_light_state_mutex);
+        }
+        lamp_nvs_save();
+        ha_light_switch_to_ha_mode();
+      } else if (cmd.type == HA_CMD_ACTIVITY) {
+        const char *activity_name = (const char *)cmd.u.data;
         // Reset activity timer in HA task context
         last_activity_time_ms = esp_timer_get_time() / 1000;
 
@@ -1069,18 +1326,45 @@ void ha_light_task_start(void *pvParameters) {
           }
         }
       }
+      ha_light_task_wdt_reset_safe();
     }
 
     // POLL: Check WiFi STA status periodically (every 5 seconds)
     static uint32_t last_wifi_check = 0;
+    static uint32_t last_mqtt_retry_ms = 0;
     uint32_t current_time_ms = esp_timer_get_time() / 1000;
     if (current_time_ms - last_wifi_check >= 5000) {
       bool wifi_connected = ha_light_check_wifi_sta_connected();
+      if (wifi_connected && sta_connected && mqtt_client != NULL) {
+        size_t fh = esp_get_free_heap_size();
+        if (fh < HA_MQTT_STOP_HEAP_BYTES) {
+          ESP_LOGW(TAG,
+                   "[STAGING] MQTT stop: critical heap %zu B (<%d B) — release "
+                   "client",
+                   fh, HA_MQTT_STOP_HEAP_BYTES);
+          esp_mqtt_client_stop(mqtt_client);
+          esp_mqtt_client_destroy(mqtt_client);
+          mqtt_client = NULL;
+          mqtt_connected = false;
+        }
+      }
       if (wifi_connected && !sta_connected) {
-        // WiFi just connected - initialize MQTT
         sta_connected = true;
         ESP_LOGI(TAG, "WiFi STA connected - initializing MQTT");
+        ha_light_task_wdt_reset_safe();
         ha_light_init_mqtt();
+      } else if (wifi_connected && sta_connected && mqtt_client == NULL) {
+        /* Opakovat po uvolnění heap; při NO_MEM nečastěji než 1×/30 s (šetří CPU a WDT) */
+        if (current_time_ms - last_mqtt_retry_ms >= 30000) {
+          last_mqtt_retry_ms = current_time_ms;
+          ha_light_task_wdt_reset_safe();
+          esp_err_t mr = ha_light_init_mqtt();
+          if (mr == ESP_ERR_NO_MEM) {
+            ESP_LOGW(TAG,
+                     "MQTT retry skipped/low heap: free=%zu B",
+                     (size_t)esp_get_free_heap_size());
+          }
+        }
       } else if (!wifi_connected && sta_connected) {
         // WiFi disconnected
         sta_connected = false;

@@ -100,6 +100,44 @@ esp_err_t config_reset_to_defaults(void);
 #define CONFIG_NVS_KEY_ECHO "echo"
 /** @brief NVS klic pro jas */
 #define CONFIG_NVS_KEY_BRIGHTNESS "brightness"
+/** @brief NVS klic pro guided capture LED napovedu */
+#define CONFIG_NVS_KEY_GUIDED_HINT "guided_hint"
+/** @brief NVS klic pro plny snapshot hry */
+#define CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL "g_snap_full"
+/** @brief NVS klic pro fallback snapshot hry */
+#define CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN "g_snap_min"
+/** @brief NVS klic pro boot tracker */
+#define CONFIG_NVS_KEY_BOOT_TRACKER "g_boot_trk"
+/** @brief Web UI preference (UTF-8 JSON: {"version":1,"prefs":{...}}) */
+#define CONFIG_NVS_KEY_UI_PREFS "ui_prefs_v1"
+/** @brief Max velikost JSON pro ui_prefs (NVS blob) */
+#define CONFIG_UI_PREFS_MAX_BYTES 3072
+
+/**
+ * @brief Ulozi binarni blob do NVS pod danym klicem
+ */
+esp_err_t config_save_blob_to_nvs(const char *key, const void *data, size_t len);
+
+/**
+ * @brief Ulozi web UI JSON do NVS (jednoducha validace tvaru).
+ */
+esp_err_t config_save_ui_prefs_json(const char *json, size_t len);
+
+/**
+ * @brief Nacte web UI JSON z NVS do bufferu (null terminator pokud misto).
+ */
+esp_err_t config_load_ui_prefs_json(char *out_buf, size_t out_buf_size,
+                                    size_t *out_len);
+
+/**
+ * @brief Nacte binarni blob z NVS pod danym klicem
+ */
+esp_err_t config_load_blob_from_nvs(const char *key, void *data, size_t *len);
+
+/**
+ * @brief Smaze hodnotu pod danym klicem z NVS
+ */
+esp_err_t config_erase_key_from_nvs(const char *key);
 
 #ifdef __cplusplus
 }

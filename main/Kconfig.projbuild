@@ -1,0 +1,11 @@
+menu "CzechMate firmware"
+
+config CHESS_ENABLE_TEST_TASK
+    bool "Enable automated test task"
+    default y
+    help
+        When enabled, creates test_task (4 KB stack) and the test command queue.
+        Disable for production builds to save RAM and reduce background logging;
+        hardware/UART test commands that depend on the task will not run.
+
+endmenu

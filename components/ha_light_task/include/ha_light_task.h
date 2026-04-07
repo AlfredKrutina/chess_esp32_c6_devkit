@@ -47,8 +47,8 @@ extern "C" {
 // KONSTANTY
 // ============================================================================
 
-// 10 minut necinosti = automaticky prepne do HA modu
-#define HA_ACTIVITY_TIMEOUT_AUTO_MS (600000)
+// Vychozi doba necinosti pro automaticke prepnuti do HA modu (lampa) – lze menit z webu, ukladano v NVS
+#define HA_ACTIVITY_TIMEOUT_AUTO_MS (300000)  // 5 min default (realna hodnota se cte z NVS)
 
 // 2 minuty necinosti = umozni HA command prepnout do HA modu
 #define HA_ACTIVITY_TIMEOUT_COMMAND_MS (120000)
@@ -86,13 +86,46 @@ typedef enum {
   HA_MODE_HA = 1    ///< HA rezim - LED jako RGB svetlo
 } ha_mode_t;
 
+/** Typ prikazu: Activity report (prepinani z HA do GAME) */
+#define HA_CMD_ACTIVITY 1
+/** Typ prikazu: Web lamp (nastaveni barvy/zapnuti z webu) */
+#define HA_CMD_WEB_LAMP 2
+
 /**
  * @brief HA Light prikaz pro vnitrni komunikaci
  */
 typedef struct {
-  uint8_t type; ///< Typ prikazu
-  void *data;   ///< Data prikazu (volitelne)
+  uint8_t type; ///< Typ prikazu (HA_CMD_ACTIVITY, HA_CMD_WEB_LAMP)
+  union {
+    void *data; ///< Pro HA_CMD_ACTIVITY: (const char*) activity_type
+    struct {
+      uint8_t state; ///< Pro HA_CMD_WEB_LAMP: 0=off, 1=on
+      uint8_t r, g, b;
+    } web_lamp;
+  } u;
 } ha_light_command_t;
+
+/**
+ * @brief Ziskej aktualni stav lampy (barva, zapnuti)
+ *
+ * Volat z HTTP handleru pro GET /api/status. Thread-safe.
+ */
+void ha_light_get_state(uint8_t *r, uint8_t *g, uint8_t *b,
+                        uint8_t *brightness, bool *state);
+
+/**
+ * @brief Pozadavek na nastaveni lampy z webu (režim Lampa, barva, zapnuti)
+ *
+ * Nepotrebuje WiFi ani MQTT. Prikaz se zaradi do fronty a zpracuje v HA tasku.
+ * @return true pokud byl prikaz odeslan do fronty, false pokud fronta neexistuje
+ *         nebo je plna (volajici muze vratit 503).
+ */
+bool ha_light_request_web_lamp(bool state, uint8_t r, uint8_t g, uint8_t b);
+
+/** Doba (v sekundach) po ktere se pri necinosti prepne do rezimu lampa (5..7200). */
+uint32_t ha_light_get_activity_timeout_sec(void);
+/** Nastavi a ulozi do NVS; sec se omezí na 5..7200. */
+esp_err_t ha_light_set_activity_timeout_sec(uint32_t sec);
 
 // ============================================================================
 // PROTOTYPY FUNKCI

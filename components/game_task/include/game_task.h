@@ -119,8 +119,8 @@ uint32_t game_get_move_count(void);
 esp_err_t game_get_status_json(char *buffer, size_t size);
 
 /**
- * @brief Vynuceny refresh LED podle aktualniho stavu hry
- * Volat po navratu z HA rezimu nebo jineho preruseni.
+ * @brief Vynuceny refresh LED podle stavu hry (highlight, sach, chyby, promoce).
+ * @details Volat po navratu z HA, po fade-out bootu pri obnove NVS (main), apod.
  */
 void game_refresh_leds(void);
 
@@ -189,6 +189,11 @@ void game_reset_game(void);
  * Kompletni reset hry vcetne timer systemu.
  */
 void game_start_new_game(void);
+
+/**
+ * @brief Monotónní verze stavu hry (ETag / If-None-Match na snapshotu).
+ */
+uint32_t game_get_state_revision(void);
 
 /**
  * @brief Vynuluje stav error recovery (vraceni figurky na blikajici pole).
@@ -414,6 +419,84 @@ game_state_t game_get_state(void);
  * @return Aktualni hrac (PLAYER_WHITE nebo PLAYER_BLACK)
  */
 player_t game_get_current_player(void);
+
+/**
+ * @brief Zapne/vypne LED nápovědu guided capture (herní logika zůstává aktivní)
+ */
+void game_set_guided_capture_hints_enabled(bool enabled);
+
+/**
+ * @brief Vrátí stav LED nápovědy guided capture
+ */
+bool game_get_guided_capture_hints_enabled(void);
+
+/**
+ * @brief Úroveň LED nápovědy při hře (1 = minimum … 5 = plná).
+ * @details Řídí zvýraznění tahů, šachu na LED, guided capture atd.
+ */
+void game_set_led_guidance_level(uint8_t level);
+uint8_t game_get_led_guidance_level(void);
+
+/** Web tutoriál rozestavení z prázdné desky (LED + návod). */
+void game_enter_board_setup_tutorial(void);
+void game_exit_board_setup_tutorial(bool apply_full_start_position);
+bool game_is_board_setup_tutorial_active(void);
+/** Fyzická obsazenost řádků 0–1 a 6–7 plné, 2–5 prázdné (matrix). */
+bool game_is_physical_board_starting_occupancy(void);
+/** Ukončí tutoriál a spustí novou hru jen pokud fyzická pozice sedí. */
+bool game_finish_board_setup_tutorial_from_web(void);
+bool game_puzzle_start(uint8_t puzzle_id);
+void game_puzzle_cancel(void);
+bool game_is_puzzle_active(void);
+bool game_puzzle_enter_setup(uint8_t puzzle_id);
+bool game_is_puzzle_setup_active(void);
+
+/**
+ * @brief Matrix guard: aktivni pauza pri nesouladu matice s logickou deskou.
+ * @details true = uzivatel musi srovnat fyzickou desku pred dalsimi tahy.
+ */
+bool game_is_matrix_guard_active(void);
+
+/**
+ * @brief Pocet poli s konfliktem (matice vs. ocekavany stav po obnove).
+ */
+uint8_t game_get_matrix_guard_conflict_count(void);
+
+/** @brief Bitova maska zvednutych poli (spodnich 32 poli), matrix guard. */
+uint32_t game_get_matrix_guard_lifted_mask_low(void);
+/** @brief Bitova maska zvednutych poli (hornich 32 poli), matrix guard. */
+uint32_t game_get_matrix_guard_lifted_mask_high(void);
+/** @brief Bitova maska polozenych poli (spodnich 32), matrix guard. */
+uint32_t game_get_matrix_guard_dropped_mask_low(void);
+/** @brief Bitova maska polozenych poli (hornich 32), matrix guard. */
+uint32_t game_get_matrix_guard_dropped_mask_high(void);
+
+/**
+ * @brief true pokud game_load_snapshot_from_nvs() v game_task_start uspesne nacetl hru.
+ * @see game_was_boot_new_game_triggered()
+ */
+bool game_was_snapshot_loaded_on_boot(void);
+
+/**
+ * @brief true pokud byl pouzit minimalni snapshot (min) misto plneho (full).
+ */
+bool game_is_snapshot_fallback_used(void);
+
+/** @brief Selhani obnovy snapshotu (CRC / format). */
+bool game_has_snapshot_restore_failure(void);
+
+/** @brief Posledni ulozeni snapshotu do NVS selhalo. */
+bool game_has_snapshot_save_failure(void);
+
+/**
+ * @brief Po obnove z NVS: fyzicka deska nesedi s ulozenou pozici (vyzva k resync).
+ */
+bool game_is_resync_required_after_restore(void);
+
+/**
+ * @brief Boot tracker vynutil novou hru (napr. prilis casty restart); main neposila NEW_GAME.
+ */
+bool game_was_boot_new_game_triggered(void);
 
 /**
  * @brief Ziskej pocet provedenych tahu

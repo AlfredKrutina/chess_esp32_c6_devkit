@@ -1,0 +1,33 @@
+{
+  "": {
+    "swift-dependencies": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/master.swiftdeps"
+  },
+  "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessMatchActivityAttributes.swift": {
+    "dependencies": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessMatchActivityAttributes.d",
+    "object": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessMatchActivityAttributes.swift.o",
+    "swiftmodule": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessMatchActivityAttributes~partial.swiftmodule",
+    "swift-dependencies": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessMatchActivityAttributes.swiftdeps",
+    "diagnostics": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessMatchActivityAttributes.dia"
+  },
+  "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessSquareNotation.swift": {
+    "dependencies": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessSquareNotation.d",
+    "object": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessSquareNotation.swift.o",
+    "swiftmodule": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessSquareNotation~partial.swiftmodule",
+    "swift-dependencies": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessSquareNotation.swiftdeps",
+    "diagnostics": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessSquareNotation.dia"
+  },
+  "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/FENPlacementParser.swift": {
+    "dependencies": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/FENPlacementParser.d",
+    "object": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/FENPlacementParser.swift.o",
+    "swiftmodule": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/FENPlacementParser~partial.swiftmodule",
+    "swift-dependencies": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/FENPlacementParser.swiftdeps",
+    "diagnostics": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/FENPlacementParser.dia"
+  },
+  "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/SharedChessBoardView.swift": {
+    "dependencies": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/SharedChessBoardView.d",
+    "object": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/SharedChessBoardView.swift.o",
+    "swiftmodule": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/SharedChessBoardView~partial.swiftmodule",
+    "swift-dependencies": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/SharedChessBoardView.swiftdeps",
+    "diagnostics": "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/SharedChessBoardView.dia"
+  }
+}

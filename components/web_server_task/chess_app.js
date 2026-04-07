@@ -33,8 +33,57 @@ const pieceSymbols = {
     ' ': ' '
 };
 
+/**
+ * PNG figurky z chess.com (veřejné CDN URL, Staunton „neo“, 150 px).
+ * Vyžaduje, aby prohlížeč měl přístup na internet (jinak fallback na Unicode v setPieceElementFromFen).
+ * @see https://www.chess.com/chess-themes/pieces/neo/150/wk.png
+ */
+const CHESSCOM_PIECE_BASE = 'https://www.chess.com/chess-themes/pieces/neo/150/';
+const CHESSCOM_PIECE = {
+    'K': 'wk', 'Q': 'wq', 'R': 'wr', 'B': 'wb', 'N': 'wn', 'P': 'wp',
+    'k': 'bk', 'q': 'bq', 'r': 'br', 'b': 'bb', 'n': 'bn', 'p': 'bp'
+};
+
+function pieceImgSrc(ch) {
+    const slug = CHESSCOM_PIECE[ch];
+    return slug ? (CHESSCOM_PIECE_BASE + slug + '.png') : '';
+}
+
+function setPieceElementFromFen(el, ch) {
+    if (!el) return;
+    if (ch === ' ' || ch === undefined) {
+        el.textContent = '';
+        el.innerHTML = '';
+        el.className = 'piece';
+        return;
+    }
+    const src = pieceImgSrc(ch);
+    if (src) {
+        const isWhite = ch >= 'A' && ch <= 'Z';
+        el.className = 'piece has-img ' + (isWhite ? 'white' : 'black');
+        el.innerHTML = '<img src="' + src + '" alt="" draggable="false">';
+    } else {
+        el.innerHTML = '';
+        el.textContent = pieceSymbols[ch] || ch;
+        el.className = 'piece ' + (ch >= 'A' && ch <= 'Z' ? 'white' : 'black');
+    }
+}
+
+function pieceImgHtml(ch) {
+    const s = pieceImgSrc(ch);
+    if (s) {
+        return '<img src="' + s + '" class="endgame-piece-img" alt="" draggable="false">';
+    }
+    return pieceSymbols[ch] || ch;
+}
+
+/** Zabrání souběhu několika fetchData na pomalé síti / přetíženém HTTPD. */
+let fetchDataInFlight = false;
+
 let boardData = [];
 let statusData = {};
+/** Poslední stav puzzle ze úspěšného pollingu — zobrazení panelu při výpadku HTTP (offline). */
+let lastPuzzleSnapshotForOffline = null;
 let historyData = [];
 let capturedData = { white_captured: [], black_captured: [] };
 let advantageData = { history: [], white_checks: 0, black_checks: 0, white_castles: 0, black_castles: 0 };
@@ -46,6 +95,7 @@ let sandboxMode = false;
 
 let remoteControlEnabled = false;
 // BOT MODE STATE
+// Bot tah se nikdy neprovádí automaticky – jen vizualizace (web + LED); uživatel pohybuje figurku fyzicky.
 let gameMode = 'pvp'; // 'pvp' or 'bot'
 let botSettings = { strength: 10, side: 'white' }; // strength: 1,3,5,8,12,15 (zobrazeno jako ELO v Nastavení)
 let botThinking = false;
@@ -73,6 +123,267 @@ let hintsRemainingBlack = 999;
 let lastCapturedCount = 0;
 /** Poslední nápověda { from, to } – odměna za výborný tah se nedává, pokud byl tah stejný. */
 var lastHintedMove = null;
+/** Generace requestu nápovědy – při novém kliknutí se zvýší, zastaralé odpovědi se ignorují. */
+var hintRequestGeneration = 0;
+
+/** Web UI preference (zdroj pravdy: NVS přes GET/POST /api/settings/ui). */
+var devicePrefs = {
+    version: 1,
+    chessHintDepth: 10,
+    chessEvaluateMove: false,
+    chessHintLimit: 0,
+    chessHintAwardBest: true,
+    chessHintAwardGood: false,
+    chessHintAwardCapture: false,
+    chessShowHintStats: false,
+    chessBotLedTargetOnlyAfterLift: false,
+    chessTutorialsEnabled: false,
+    chess_confirm_new_game: false,
+    botSettings: { mode: 'pvp', strength: '10', side: 'white' }
+};
+var uiPrefsSaveTimer = null;
+var uiPrefsHydratedFromServer = false;
+
+function mergePrefsFromObject(prefs) {
+    if (!prefs || typeof prefs !== 'object') return;
+    var k;
+    for (k in prefs) {
+        if (Object.prototype.hasOwnProperty.call(prefs, k)) {
+            devicePrefs[k] = prefs[k];
+        }
+    }
+}
+
+async function loadUiPrefsFromDevice() {
+    try {
+        var r = await fetch('/api/settings/ui');
+        if (!r.ok) return;
+        var data = await r.json();
+        if (data && typeof data.version === 'number') {
+            devicePrefs.version = data.version;
+        }
+        if (data && data.prefs && typeof data.prefs === 'object') {
+            mergePrefsFromObject(data.prefs);
+        }
+        var empty = !data || !data.prefs ||
+            (typeof data.prefs === 'object' && Object.keys(data.prefs).length === 0);
+        if (empty) {
+            migrateLocalStorageToDevicePrefsOnce();
+        }
+        uiPrefsHydratedFromServer = true;
+    } catch (e) {
+        if (typeof console !== 'undefined' && console.warn) {
+            console.warn('loadUiPrefsFromDevice', e);
+        }
+    }
+}
+
+function migrateLocalStorageToDevicePrefsOnce() {
+    try {
+        if (typeof sessionStorage !== 'undefined' &&
+            sessionStorage.getItem('chessUiPrefsMigrated') === '1') {
+            return;
+        }
+        var keys = ['chessHintDepth', 'chessEvaluateMove', 'chessHintLimit', 'chessHintAwardBest',
+            'chessHintAwardGood', 'chessHintAwardCapture', 'chessShowHintStats',
+            'chessBotLedTargetOnlyAfterLift', 'chessTutorialsEnabled', 'chess_confirm_new_game', 'chessBotSettings'];
+        var i;
+        var any = false;
+        for (i = 0; i < keys.length; i++) {
+            try {
+                if (localStorage.getItem(keys[i]) != null) { any = true; break; }
+            } catch (e2) { /* ignore */ }
+        }
+        if (!any) return;
+
+        var d = localStorage.getItem('chessHintDepth');
+        if (d != null) devicePrefs.chessHintDepth = Math.min(18, Math.max(1, parseInt(d, 10) || 10));
+        if (localStorage.getItem('chessEvaluateMove') === 'true') devicePrefs.chessEvaluateMove = true;
+        if (localStorage.getItem('chessEvaluateMove') === 'false') devicePrefs.chessEvaluateMove = false;
+        d = localStorage.getItem('chessHintLimit');
+        if (d != null) devicePrefs.chessHintLimit = Math.max(0, parseInt(d, 10) || 0);
+        if (localStorage.getItem('chessHintAwardBest') != null) {
+            devicePrefs.chessHintAwardBest = localStorage.getItem('chessHintAwardBest') !== 'false';
+        }
+        devicePrefs.chessHintAwardGood = localStorage.getItem('chessHintAwardGood') === 'true';
+        devicePrefs.chessHintAwardCapture = localStorage.getItem('chessHintAwardCapture') === 'true';
+        devicePrefs.chessShowHintStats = localStorage.getItem('chessShowHintStats') === 'true';
+        devicePrefs.chessBotLedTargetOnlyAfterLift = localStorage.getItem('chessBotLedTargetOnlyAfterLift') === 'true';
+        devicePrefs.chessTutorialsEnabled = localStorage.getItem('chessTutorialsEnabled') === 'true';
+        devicePrefs.chess_confirm_new_game = localStorage.getItem('chess_confirm_new_game') === 'true';
+        var bot = localStorage.getItem('chessBotSettings');
+        if (bot) {
+            try { devicePrefs.botSettings = JSON.parse(bot); } catch (e3) { /* ignore */ }
+        }
+        if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.setItem('chessUiPrefsMigrated', '1');
+        }
+        scheduleSaveUiPrefsToDevice(true);
+    } catch (e) { /* ignore */ }
+}
+
+function buildUiPrefsPayload() {
+    return JSON.stringify({
+        version: devicePrefs.version || 1,
+        prefs: {
+            chessHintDepth: devicePrefs.chessHintDepth,
+            chessEvaluateMove: !!devicePrefs.chessEvaluateMove,
+            chessHintLimit: devicePrefs.chessHintLimit,
+            chessHintAwardBest: !!devicePrefs.chessHintAwardBest,
+            chessHintAwardGood: !!devicePrefs.chessHintAwardGood,
+            chessHintAwardCapture: !!devicePrefs.chessHintAwardCapture,
+            chessShowHintStats: !!devicePrefs.chessShowHintStats,
+            chessBotLedTargetOnlyAfterLift: !!devicePrefs.chessBotLedTargetOnlyAfterLift,
+            chessTutorialsEnabled: !!devicePrefs.chessTutorialsEnabled,
+            chess_confirm_new_game: !!devicePrefs.chess_confirm_new_game,
+            botSettings: devicePrefs.botSettings && typeof devicePrefs.botSettings === 'object'
+                ? devicePrefs.botSettings
+                : { mode: 'pvp', strength: '10', side: 'white' }
+        }
+    });
+}
+
+function scheduleSaveUiPrefsToDevice(immediate) {
+    if (uiPrefsSaveTimer) {
+        clearTimeout(uiPrefsSaveTimer);
+        uiPrefsSaveTimer = null;
+    }
+    var delay = immediate ? 0 : 400;
+    uiPrefsSaveTimer = setTimeout(function () {
+        uiPrefsSaveTimer = null;
+        fetch('/api/settings/ui', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: buildUiPrefsPayload()
+        }).catch(function () { /* ignore */ });
+    }, delay);
+}
+
+function syncHintSettingsFromDom() {
+    var el = document.getElementById('hint-limit');
+    if (el) devicePrefs.chessHintLimit = Math.max(0, parseInt(el.value, 10) || 0);
+    el = document.getElementById('hint-award-best');
+    if (el) devicePrefs.chessHintAwardBest = el.checked;
+    el = document.getElementById('hint-award-good');
+    if (el) devicePrefs.chessHintAwardGood = el.checked;
+    el = document.getElementById('hint-award-capture');
+    if (el) devicePrefs.chessHintAwardCapture = el.checked;
+    el = document.getElementById('show-hint-stats');
+    if (el) devicePrefs.chessShowHintStats = el.checked;
+    scheduleSaveUiPrefsToDevice();
+}
+window.syncHintSettingsFromDom = syncHintSettingsFromDom;
+
+function tutorialsPanelSetVisible(on) {
+    var w = document.getElementById('tutorials-panel-body');
+    if (w) w.style.display = on ? 'block' : 'none';
+    var b = document.getElementById('setup-tutorial-open-btn');
+    if (b) b.disabled = !on;
+}
+
+function saveTutorialsEnabled(on) {
+    devicePrefs.chessTutorialsEnabled = !!on;
+    tutorialsPanelSetVisible(!!on);
+    scheduleSaveUiPrefsToDevice();
+}
+window.saveTutorialsEnabled = saveTutorialsEnabled;
+
+function updateBotSettingsVisibility() {
+    var gm = document.getElementById('game-mode');
+    var container = document.getElementById('bot-settings-container');
+    if (!gm || !container) return;
+    container.style.display = (gm.value === 'bot') ? 'block' : 'none';
+    saveBotSettings();
+}
+window.updateBotSettingsVisibility = updateBotSettingsVisibility;
+
+function saveBotSettings() {
+    var modeEl = document.getElementById('game-mode');
+    var strengthEl = document.getElementById('bot-strength');
+    var sideEl = document.getElementById('player-side');
+    if (modeEl) gameMode = modeEl.value;
+    devicePrefs.botSettings = {
+        mode: modeEl ? modeEl.value : 'pvp',
+        strength: strengthEl ? strengthEl.value : '10',
+        side: sideEl ? sideEl.value : 'white'
+    };
+    botSettings.strength = devicePrefs.botSettings.strength;
+    botSettings.side = devicePrefs.botSettings.side;
+    scheduleSaveUiPrefsToDevice();
+}
+window.saveBotSettings = saveBotSettings;
+
+function loadBotSettings() {
+    var s = devicePrefs.botSettings;
+    if (!s || typeof s !== 'object') {
+        s = { mode: 'pvp', strength: '10', side: 'white' };
+    }
+    var gm = document.getElementById('game-mode');
+    if (gm) {
+        if (s.mode) gm.value = s.mode;
+        gameMode = gm.value;
+    }
+    var bs = document.getElementById('bot-strength');
+    if (bs && s.strength != null && s.strength !== '') bs.value = String(s.strength);
+    var ps = document.getElementById('player-side');
+    if (ps && s.side) ps.value = s.side;
+    botSettings.strength = bs ? bs.value : String(s.strength || '10');
+    botSettings.side = ps ? ps.value : (s.side || 'white');
+    var container = document.getElementById('bot-settings-container');
+    if (container && gm) {
+        container.style.display = (gm.value === 'bot') ? 'block' : 'none';
+    }
+    if (typeof handleRandomDraw === 'function') handleRandomDraw();
+}
+window.loadBotSettings = loadBotSettings;
+
+function wireConfirmNewGameCheckbox() {
+    var cb = document.getElementById('confirm-new-game');
+    if (!cb || cb._prefsWired) return;
+    cb._prefsWired = true;
+    cb.addEventListener('change', function () {
+        devicePrefs.chess_confirm_new_game = !!cb.checked;
+        scheduleSaveUiPrefsToDevice();
+    });
+}
+
+function applyDevicePrefsToDom() {
+    var depthEl = document.getElementById('hint-depth');
+    if (depthEl) depthEl.value = getHintDepth();
+    var evaluateMoveEl = document.getElementById('evaluate-move-enabled');
+    if (evaluateMoveEl) evaluateMoveEl.checked = getEvaluateMoveEnabled();
+    var hl = document.getElementById('hint-limit');
+    if (hl) hl.value = String(getHintLimit());
+    var hb = document.getElementById('hint-award-best');
+    if (hb) hb.checked = getHintAwardBest();
+    var hg = document.getElementById('hint-award-good');
+    if (hg) hg.checked = getHintAwardGood();
+    var hc = document.getElementById('hint-award-capture');
+    if (hc) hc.checked = getHintAwardCapture();
+    var hs = document.getElementById('show-hint-stats');
+    if (hs) hs.checked = getShowHintStats();
+    var botLed = document.getElementById('bot-led-target-only-after-lift');
+    if (botLed) botLed.checked = getBotLedTargetOnlyAfterLift();
+    var tut = document.getElementById('chess-tutorials-enabled');
+    if (tut) {
+        tut.checked = !!devicePrefs.chessTutorialsEnabled;
+        tutorialsPanelSetVisible(!!devicePrefs.chessTutorialsEnabled);
+    }
+    var cng = document.getElementById('confirm-new-game');
+    if (cng) cng.checked = !!devicePrefs.chess_confirm_new_game;
+    wireConfirmNewGameCheckbox();
+    loadBotSettings();
+    if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
+}
+
+window.onHintDepthChange = function (v) {
+    devicePrefs.chessHintDepth = v;
+    scheduleSaveUiPrefsToDevice();
+};
+window.onEvaluateMoveChange = function (checked) {
+    devicePrefs.chessEvaluateMove = !!checked;
+    scheduleSaveUiPrefsToDevice();
+};
 
 // ============================================================================
 // BOARD FUNCTIONS
@@ -88,7 +399,7 @@ function createBoard() {
             square.dataset.row = row;
             square.dataset.col = col;
             square.dataset.index = row * 8 + col;
-            square.onclick = () => handleSquareClick(row, col);
+            attachBoardPointerHandlers(square, row, col);
             const piece = document.createElement('div');
             piece.className = 'piece';
             piece.id = 'piece-' + (row * 8 + col);
@@ -105,6 +416,142 @@ function clearHighlights() {
         sq.classList.remove('selected', 'valid-move', 'valid-capture');
     });
     selectedSquare = null;
+}
+
+/** Prah (px) pro rozlišení kliknutí vs. táhnutí figurky. */
+var BOARD_DRAG_THRESHOLD_PX = 12;
+
+function squareFromEventTarget(el) {
+    if (!el || !el.closest) return null;
+    var sq = el.closest('.square');
+    if (!sq) return null;
+    return {
+        row: parseInt(sq.dataset.row, 10),
+        col: parseInt(sq.dataset.col, 10)
+    };
+}
+
+function coordsToNotation(row, col) {
+    return String.fromCharCode(97 + col) + (row + 1);
+}
+
+function sandboxApplyMoveFromDrag(fromRow, fromCol, toRow, toCol) {
+    if (fromRow === toRow && fromCol === toCol) return;
+    var piece = sandboxBoard[fromRow][fromCol];
+    if (piece === ' ') return;
+    var dest = sandboxBoard[toRow][toCol];
+    var index = toRow * 8 + toCol;
+    if (dest === ' ') {
+        makeSandboxMove(fromRow, fromCol, toRow, toCol);
+        clearHighlights();
+        return;
+    }
+    var isOurPiece = (piece === piece.toUpperCase()) === (dest === dest.toUpperCase());
+    if (isOurPiece) {
+        clearHighlights();
+        selectedSquare = index;
+        var elSq = document.querySelector('[data-row=\'' + toRow + '\'][data-col=\'' + toCol + '\']');
+        if (elSq) elSq.classList.add('selected');
+        return;
+    }
+    makeSandboxMove(fromRow, fromCol, toRow, toCol);
+    clearHighlights();
+}
+
+async function handleRemoteDragMove(fromRow, fromCol, toRow, toCol) {
+    if (fromRow === toRow && fromCol === toCol) return;
+    var piece = boardData[fromRow] && boardData[fromRow][fromCol];
+    if (!piece || piece === ' ') return;
+    if (isWebLocked()) {
+        alert('Rozhraní je zamčeno. Odemkněte přes UART.');
+        return;
+    }
+    var fromN = coordsToNotation(fromRow, fromCol);
+    var toN = coordsToNotation(toRow, toCol);
+    try {
+        var r1 = await fetch('/api/game/virtual_action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'pickup', square: fromN })
+        });
+        var res1 = await r1.json().catch(function () { return {}; });
+        if (!r1.ok) {
+            if (r1.status === 403 && res1.message) alert(res1.message);
+            await fetchData();
+            return;
+        }
+        await fetchData();
+        var r2 = await fetch('/api/game/virtual_action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'drop', square: toN })
+        });
+        var res2 = await r2.json().catch(function () { return {}; });
+        if (!r2.ok && r2.status === 403 && res2.message) alert(res2.message);
+        await fetchData();
+    } catch (e) {
+        console.error('Remote drag virtual_action:', e);
+        await fetchData();
+    }
+}
+
+function attachBoardPointerHandlers(square, row, col) {
+    var dragStart = null;
+    function onPointerDown(ev) {
+        if (ev.button !== undefined && ev.button !== 0) return;
+        if (reviewMode) return;
+        dragStart = {
+            row: row,
+            col: col,
+            x: ev.clientX,
+            y: ev.clientY,
+            pid: ev.pointerId,
+            moved: false
+        };
+        try {
+            square.setPointerCapture(ev.pointerId);
+        } catch (e) { /* ignore */ }
+        if (document.documentElement.classList.contains('web-board-focus')) {
+            try {
+                ev.preventDefault();
+            } catch (e2) { /* ignore */ }
+        }
+    }
+    function onPointerMove(ev) {
+        if (!dragStart || dragStart.pid !== ev.pointerId) return;
+        var dx = ev.clientX - dragStart.x;
+        var dy = ev.clientY - dragStart.y;
+        if (!dragStart.moved && (dx * dx + dy * dy) >= BOARD_DRAG_THRESHOLD_PX * BOARD_DRAG_THRESHOLD_PX) {
+            dragStart.moved = true;
+        }
+    }
+    async function onPointerUp(ev) {
+        if (!dragStart || dragStart.pid !== ev.pointerId) return;
+        try {
+            square.releasePointerCapture(ev.pointerId);
+        } catch (e) { /* ignore */ }
+        var wasDrag = dragStart.moved;
+        var fr = dragStart.row;
+        var fc = dragStart.col;
+        dragStart = null;
+        if (reviewMode) return;
+        if (wasDrag) {
+            var targetEl = document.elementFromPoint(ev.clientX, ev.clientY);
+            var to = squareFromEventTarget(targetEl);
+            if (!to || (to.row === fr && to.col === fc)) return;
+            if (sandboxMode) {
+                sandboxApplyMoveFromDrag(fr, fc, to.row, to.col);
+            } else if (remoteControlEnabled) {
+                await handleRemoteDragMove(fr, fc, to.row, to.col);
+            }
+            return;
+        }
+        await handleSquareClick(row, col);
+    }
+    square.addEventListener('pointerdown', onPointerDown);
+    square.addEventListener('pointermove', onPointerMove);
+    square.addEventListener('pointerup', onPointerUp);
+    square.addEventListener('pointercancel', onPointerUp);
 }
 
 // ============================================================================
@@ -412,10 +859,10 @@ function boardAndStatusToFen(board, status, history) {
     return fen;
 }
 
-/** Hint depth 1–18 from settings (localStorage). Used by fetchStockfishBestMove for hints. */
+/** Hint depth 1–18 from settings (NVS devicePrefs). Used by fetchStockfishBestMove for hints. */
 function getHintDepth() {
     try {
-        var d = parseInt(localStorage.getItem('chessHintDepth') || '10', 10);
+        var d = parseInt(devicePrefs.chessHintDepth, 10);
         d = isNaN(d) ? 10 : d;
         return Math.min(18, Math.max(1, d));
     } catch (e) {
@@ -432,7 +879,7 @@ function getEvaluationDepth() {
 /** Whether to show move evaluation after each move (localStorage). */
 function getEvaluateMoveEnabled() {
     try {
-        return localStorage.getItem('chessEvaluateMove') === 'true';
+        return devicePrefs.chessEvaluateMove === true;
     } catch (e) {
         return false;
     }
@@ -441,17 +888,17 @@ function getEvaluateMoveEnabled() {
 /** Počet nápověd na partii (0 = neomezeno). */
 function getHintLimit() {
     try {
-        var n = parseInt(localStorage.getItem('chessHintLimit') || '0', 10);
+        var n = parseInt(devicePrefs.chessHintLimit, 10);
         return isNaN(n) || n < 0 ? 0 : n;
     } catch (e) {
         return 0;
     }
 }
 
-/** Přidat nápovědu za výborný tah (localStorage). */
+/** Přidat nápovědu za výborný tah (devicePrefs). */
 function getHintAwardBest() {
     try {
-        return localStorage.getItem('chessHintAwardBest') !== 'false';
+        return devicePrefs.chessHintAwardBest !== false;
     } catch (e) {
         return true;
     }
@@ -460,7 +907,7 @@ function getHintAwardBest() {
 /** Přidat nápovědu za dobrý tah (localStorage). */
 function getHintAwardGood() {
     try {
-        return localStorage.getItem('chessHintAwardGood') === 'true';
+        return devicePrefs.chessHintAwardGood === true;
     } catch (e) {
         return false;
     }
@@ -469,7 +916,7 @@ function getHintAwardGood() {
 /** Přidat nápovědu za sebrání figurky (localStorage). */
 function getHintAwardCapture() {
     try {
-        return localStorage.getItem('chessHintAwardCapture') === 'true';
+        return devicePrefs.chessHintAwardCapture === true;
     } catch (e) {
         return false;
     }
@@ -478,11 +925,26 @@ function getHintAwardCapture() {
 /** Zobrazit blok „Výukový přehled“ (nápovědy + kvalita tahů). */
 function getShowHintStats() {
     try {
-        return localStorage.getItem('chessShowHintStats') === 'true';
+        return devicePrefs.chessShowHintStats === true;
     } catch (e) {
         return false;
     }
 }
+
+/** Po zvednutí figurky bota zobrazit na LED jen cílové pole (výchozí vypnuto). */
+function getBotLedTargetOnlyAfterLift() {
+    try {
+        return devicePrefs.chessBotLedTargetOnlyAfterLift === true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function setBotLedTargetOnlyAfterLift(checked) {
+    devicePrefs.chessBotLedTargetOnlyAfterLift = !!checked;
+    scheduleSaveUiPrefsToDevice();
+}
+window.setBotLedTargetOnlyAfterLift = setBotLedTargetOnlyAfterLift;
 
 function getCurrentPlayerHints() {
     var p = (statusData && statusData.current_player) ? statusData.current_player : 'White';
@@ -574,7 +1036,7 @@ function updateTeachingStatsPanel() {
         panel.style.display = 'none';
         return;
     }
-    panel.style.display = 'block';
+    panel.style.display = '';
     var limit = getHintLimit();
     var wHints = limit > 0 ? hintsRemainingWhite : '—';
     var bHints = limit > 0 ? hintsRemainingBlack : '—';
@@ -604,10 +1066,58 @@ function updateTeachingStatsPanel() {
 }
 if (typeof window !== 'undefined') window.updateTeachingStatsPanel = updateTeachingStatsPanel;
 
+// ---------- Parsování eval z API (jedno místo, bez duplicity) ----------
+/** Normalizuje řetězec s eval (Unicode minus → ASCII minus). */
+function normalizeEvalString(s) {
+    if (s == null || typeof s !== 'string') return s;
+    return String(s).replace(/\u2212/g, '-').trim();
+}
+/** Převod hodnoty na pawns: pokud |v| > 10, považujeme za centipawns (děleno 100). */
+function toPawns(v) {
+    if (v == null || typeof v !== 'number' || isNaN(v)) return null;
+    if (Math.abs(v) > 10) return v / 100;
+    return v;
+}
 /**
- * Fetch best move and explanation from Chess-API.com (POST).
- * Returns { from, to, eval, text, san, continuationArr, mate, winChance } or null.
- * depthOverride: optional; if number, use for API; else use getHintDepth() (for hints).
+ * Vybere a naparsuje eval z libovolného objektu odpovědi API (data nebo raw).
+ * Zkouší: eval (number/string), centipawns, cp, evaluation, score (number/string), result.eval.
+ * @param {Object} obj - objekt z API (např. raw.data nebo celý raw)
+ * @returns {number|null} - eval v pawns, nebo null
+ */
+function parseEvalFromApiObject(obj) {
+    if (!obj || typeof obj !== 'object') return null;
+    var val = null;
+    if (typeof obj.eval === 'number') val = toPawns(obj.eval);
+    if (val == null && typeof obj.eval === 'string') { var p = parseFloat(normalizeEvalString(obj.eval)); if (!isNaN(p)) val = toPawns(p); }
+    if (val == null && obj.centipawns != null) {
+        var cp = typeof obj.centipawns === 'number' ? obj.centipawns : parseInt(normalizeEvalString(obj.centipawns), 10);
+        if (!isNaN(cp)) val = cp / 100;
+    }
+    if (val == null && obj.cp != null) {
+        var cp2 = typeof obj.cp === 'number' ? obj.cp : parseInt(normalizeEvalString(obj.cp), 10);
+        if (!isNaN(cp2)) val = cp2 / 100;
+    }
+    if (val == null && obj.evaluation != null) {
+        var ev = typeof obj.evaluation === 'number' ? obj.evaluation : parseFloat(normalizeEvalString(obj.evaluation));
+        if (!isNaN(ev)) val = toPawns(ev);
+    }
+    if (val == null && typeof obj.score === 'number' && !isNaN(obj.score)) val = toPawns(obj.score);
+    if (val == null && typeof obj.score === 'string') { var sc = parseFloat(normalizeEvalString(obj.score)); if (!isNaN(sc)) val = toPawns(sc); }
+    if (val == null && obj.result != null && typeof obj.result === 'object' && typeof obj.result.eval === 'number') val = toPawns(obj.result.eval);
+    return val;
+}
+
+/**
+ * Fetch best move and optional evaluation from Stockfish API (POST).
+ * Used for hints, move evaluation and bot. Returns { from, to, eval, text, san, continuationArr, mate, winChance } or null.
+ * @param {string} fen - FEN position
+ * @param {number} [depthOverride] - Optional depth 1–18; if omitted, uses getHintDepth() (hints) or bot uses botSettings.strength
+ *
+ * Expected API response format (chess-api.com; other backends may use different keys):
+ * - from, to (strings, e.g. "e2", "e4") or move (e.g. "e2e4") for the best move
+ * - eval (number in pawns; negative = black better) or centipawns/cp (number, divide by 100) or evaluation/score for grading
+ * - Optional: text, san, continuationArr, mate, winChance for hint explanation
+ * Response may be at root or under .data / .result; all are handled.
  */
 async function fetchStockfishBestMove(fen, depthOverride) {
     var depth = (typeof depthOverride === 'number' && depthOverride >= 1 && depthOverride <= 18)
@@ -639,7 +1149,10 @@ async function fetchStockfishBestMove(fen, depthOverride) {
             if (console.warn) console.warn('[Hint] Stockfish invalid JSON');
             return null;
         }
-        var data = raw && typeof raw.data === 'object' && raw.data !== null ? raw.data : (raw && typeof raw.result === 'object' && raw.result !== null ? raw.result : raw);
+        var data = (raw && typeof raw.data === 'object' && raw.data !== null) ? raw.data
+            : (raw && typeof raw.result === 'object' && raw.result !== null) ? raw.result
+            : (raw && typeof raw.bestMove === 'object' && raw.bestMove !== null) ? raw.bestMove
+            : raw;
         var from = data.from;
         var to = data.to;
         if (typeof from !== 'string' || typeof to !== 'string' || from.length !== 2 || to.length !== 2) {
@@ -656,30 +1169,13 @@ async function fetchStockfishBestMove(fen, depthOverride) {
             to = to.toLowerCase();
         }
         if (console.log) console.log('[Hint] Best move:', from, '->', to);
-        var evalVal = null;
-        function toPawns(v) {
-            if (v == null || typeof v !== 'number' || isNaN(v)) return null;
-            if (Math.abs(v) > 10) return v / 100;
-            return v;
+        var evalVal = parseEvalFromApiObject(data);
+        if (evalVal == null && raw && data !== raw) evalVal = parseEvalFromApiObject(raw);
+        if (evalVal == null && typeof console !== 'undefined' && console.warn) {
+            console.warn('[Eval Staging] evalVal still null – data keys:', data ? Object.keys(data) : [], 'raw keys:', raw ? Object.keys(raw) : [], 'data.eval:', data && data.eval, 'raw.eval:', raw && raw.eval, 'raw.centipawns:', raw && raw.centipawns);
         }
-        if (typeof data.eval === 'number') evalVal = toPawns(data.eval);
-        if (evalVal == null && typeof data.eval === 'string') { var p = parseFloat(data.eval); if (!isNaN(p)) evalVal = toPawns(p); }
-        if (evalVal == null && data.centipawns != null) {
-            var cp = typeof data.centipawns === 'number' ? data.centipawns : parseInt(data.centipawns, 10);
-            if (!isNaN(cp)) evalVal = cp / 100;
-        }
-        if (evalVal == null && data.cp != null) {
-            var cp2 = typeof data.cp === 'number' ? data.cp : parseInt(data.cp, 10);
-            if (!isNaN(cp2)) evalVal = cp2 / 100;
-        }
-        if (evalVal == null && data.evaluation != null) {
-            var ev = typeof data.evaluation === 'number' ? data.evaluation : parseFloat(data.evaluation);
-            if (!isNaN(ev)) evalVal = toPawns(ev);
-        }
-        if (evalVal == null && typeof data.score === 'number' && !isNaN(data.score)) evalVal = toPawns(data.score);
-        if (evalVal == null && data.result != null && typeof data.result === 'object' && typeof data.result.eval === 'number') evalVal = toPawns(data.result.eval);
         if (typeof console !== 'undefined' && console.log) {
-            console.log('[Eval Staging] API raw data.eval:', data.eval, 'data.centipawns:', data.centipawns, 'parsed evalVal (pawns):', evalVal);
+            console.log('[Eval Staging] API parsed evalVal (pawns):', evalVal);
         }
         return {
             from: from,
@@ -822,8 +1318,8 @@ function isEvaluationStillValid(historyLength) {
     return (historyData && historyData.length) === historyLength;
 }
 
-/** API vrací eval z pohledu strany na tahu; bez převodu je scoreDrop příliš malý a nikdy neukáže Chyba/Vážná chyba. */
-var API_EVAL_SIDE_TO_MOVE = true;
+/** chess-api.com vrací eval v perspektivě bílého (negative = black winning). Nepřevádět. */
+var API_EVAL_SIDE_TO_MOVE = false;
 function evalToWhitePerspective(fen, evalRaw) {
     if (fen == null || evalRaw == null || typeof evalRaw !== 'number') return evalRaw;
     if (!API_EVAL_SIDE_TO_MOVE) return evalRaw;
@@ -942,6 +1438,9 @@ function isWebLocked() {
 
 async function requestHint() {
     if (sandboxMode || reviewMode) return;
+    if (statusData && statusData.board_setup_tutorial === true) return;
+    if (statusData && statusData.puzzle && statusData.puzzle.setup_active === true) return;
+    if (statusData && statusData.puzzle && statusData.puzzle.active === true) return;
     if (isWebLocked()) {
         showHintError('Rozhraní je zamčeno. Odemkněte přes UART.');
         return;
@@ -983,6 +1482,7 @@ async function requestHint() {
         return;
     }
 
+    var myGen = ++hintRequestGeneration;
     try {
         const fen = boardAndStatusToFen(boardData, status, historyData);
         if (!fen) {
@@ -997,6 +1497,15 @@ async function requestHint() {
             return;
         }
         const move = await fetchStockfishBestMove(fen);
+        if (myGen !== hintRequestGeneration) {
+            if (limit > 0) {
+                var pStale = (statusData && statusData.current_player === 'Black') ? 'black' : 'white';
+                if (pStale === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
+            }
+            if (btn) btn.disabled = false;
+            updateHintButtonLabel();
+            return;
+        }
         if (move) {
             showHintOnBoard(move.from, move.to);
             showHintExplanation(move);
@@ -1021,6 +1530,14 @@ async function requestHint() {
             if (btn) updateHintButtonLabel();
         }
     } catch (err) {
+        if (myGen !== hintRequestGeneration) {
+            if (limit > 0) {
+                var pStaleC = (statusData && statusData.current_player === 'Black') ? 'black' : 'white';
+                if (pStaleC === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
+            }
+            if (btn) updateHintButtonLabel();
+            return;
+        }
         if (limit > 0) {
             var p = (statusData && statusData.current_player === 'Black') ? 'black' : 'white';
             if (p === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
@@ -1060,12 +1577,7 @@ function updateBoard(board) {
             const piece = board[row][col];
             const pieceElement = document.getElementById('piece-' + (row * 8 + col));
             if (pieceElement) {
-                pieceElement.textContent = pieceSymbols[piece] || ' ';
-                if (piece !== ' ') {
-                    pieceElement.className = 'piece ' + (piece === piece.toUpperCase() ? 'white' : 'black');
-                } else {
-                    pieceElement.className = 'piece';
-                }
+                setPieceElementFromFen(pieceElement, piece);
             }
         }
     }
@@ -1261,11 +1773,11 @@ async function showEndgameReport(gameEnd) {
                 </h3>
                 <div style="margin-bottom:10px;">
                     <div style="color:#888;font-size:11px;margin-bottom:4px;">White sebral (${whiteCaptured.length})</div>
-                    <div style="font-size:20px;line-height:1.4;">${whiteCaptured.map(p => pieceSymbols[p] || p).join(' ') || '−'}</div>
+                    <div style="font-size:20px;line-height:1.4;">${whiteCaptured.map(p => pieceImgHtml(p)).join(' ') || '−'}</div>
                 </div>
                 <div>
                     <div style="color:#888;font-size:11px;margin-bottom:4px;">Black sebral (${blackCaptured.length})</div>
-                    <div style="font-size:20px;line-height:1.4;">${blackCaptured.map(p => pieceSymbols[p] || p).join(' ') || '−'}</div>
+                    <div style="font-size:20px;line-height:1.4;">${blackCaptured.map(p => pieceImgHtml(p)).join(' ') || '−'}</div>
                 </div>
             </div>
             <button onclick="hideEndgameReport()" style="
@@ -1392,64 +1904,159 @@ function stopBotHintRefresh() {
     }
 }
 
-async function fetchStockfishBestMove(fen) {
-    const depth = parseInt(botSettings.strength, 10) || 10;
-    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(function () { controller.abort(); }, BOT_API_TIMEOUT_MS) : null;
-    try {
-        const opts = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fen: fen, depth: depth })
-        };
-        if (controller && controller.signal) opts.signal = controller.signal;
-        const res = await fetch('https://chess-api.com/v1', opts);
-        if (!res.ok) {
-            if (console.warn) console.warn('Bot API HTTP', res.status, res.statusText);
-            return null;
+/**
+ * Zobrazí/skryje panel „Bot“ a nastaví text.
+ * Panel je viditelný jen když gameMode === 'bot'.
+ * @param {string} [text] - Text stavu. Pokud chybí, určí se z status (navádění při zvednuté figurce) nebo „Hraješ ty!“.
+ * @param {object} [status] - Aktuální status z API; pokud je piece_lifted a máme návrh bota, zobrazí se navádění.
+ */
+function updateBotStatusPanel(text, status) {
+    var panel = document.getElementById('bot-status-panel');
+    var textEl = document.getElementById('bot-status-text');
+    if (!panel || !textEl) return;
+    if (gameMode !== 'bot') {
+        panel.style.display = 'none';
+        return;
+    }
+    if (text !== undefined) {
+        textEl.textContent = text;
+    } else if (status && status.piece_lifted && status.piece_lifted.lifted && lastSuggestedMove) {
+        textEl.textContent = 'Polož figurku na ' + lastSuggestedMove.to + '.';
+    } else if (textEl.textContent === '—' || textEl.textContent.trim() === '') {
+        textEl.textContent = 'Hraješ ty!';
+    }
+    panel.style.display = '';
+}
+
+/**
+ * Panel „Puzzle“ (jako Bot) — povzbuzující text podle feedbacku z desky; funguje bez internetu (jen poll k desce).
+ * @param {object} status - status z API nebo { puzzle: {...} }
+ * @param {{offline?:boolean}} [opts]
+ */
+function updatePuzzleStatusPanel(status, opts) {
+    opts = opts || {};
+    var offline = !!opts.offline;
+    var panel = document.getElementById('puzzle-status-panel');
+    var textEl = document.getElementById('puzzle-status-text');
+    var subEl = document.getElementById('puzzle-status-sub');
+    var titleEl = panel ? panel.querySelector('.game-title') : null;
+    if (!panel || !textEl) return;
+
+    var p = status && status.puzzle ? status.puzzle : null;
+    if (!p) {
+        panel.style.display = 'none';
+        panel.className = 'game-block puzzle-status-panel';
+        if (subEl) {
+            subEl.textContent = '';
+            subEl.style.display = 'none';
         }
-        const data = await res.json().catch(function () { return null; });
-        if (!data) {
-            if (console.warn) console.warn('Bot API: invalid JSON');
-            return null;
-        }
-        var from, to;
-        if (data.from != null && data.to != null) {
-            from = String(data.from).toLowerCase();
-            to = String(data.to).toLowerCase();
-        } else if (data.move && data.move.length >= 4) {
-            from = data.move.substring(0, 2).toLowerCase();
-            to = data.move.substring(2, 4).toLowerCase();
-        }
-        if (from && to && BOT_SQUARE_REGEX.test(from) && BOT_SQUARE_REGEX.test(to)) return { from: from, to: to };
-        if (from || to) {
-            if (console.warn) console.warn('Bot API: neplatný formát pole', data);
-        } else if (console.warn) {
-            console.warn('Bot API: missing from/to or move', data);
-        }
-        return null;
-    } catch (e) {
-        if (e && e.name === 'AbortError') {
-            if (console.warn) console.warn('Bot API: timeout after', BOT_API_TIMEOUT_MS, 'ms');
+        if (titleEl) titleEl.textContent = 'Puzzle';
+        return;
+    }
+
+    var fb = String(p.feedback || 'none').toLowerCase();
+    var show = false;
+    var mode = 'play';
+    var main = '';
+    var sub = '';
+
+    if (p.setup_active === true && p.active !== true) {
+        show = true;
+        mode = 'setup';
+        main = 'Připrav fyzickou pozici podle LED — jdeš na to krok za krokem.';
+        sub = 'Podrobnosti máš v okně Puzzles (nahoře).';
+    } else if (p.active === true) {
+        show = true;
+        if (fb === 'wrong') {
+            mode = 'wrong';
+            main = 'Ještě to není ono — vrať figurku zpátky a klidně to zkus znovu. Tak se člověk učí!';
+            sub = p.message ? String(p.message) : '';
+        } else if (fb === 'illegal') {
+            mode = 'illegal';
+            main = 'Tenhle tah tady neplatí — zkus jiné pole. Každý mistr jednou začínal.';
+            sub = p.message ? String(p.message) : '';
         } else {
-            console.error('Bot fetch error:', e);
+            mode = 'play';
+            main = 'Jsi na tahu — najdi nejlepší pokračování. Držím palce!';
+            sub = (p.teaser && String(p.teaser).length) ? String(p.teaser) : (p.title ? String(p.title) : '');
         }
-        return null;
-    } finally {
-        if (timeoutId) clearTimeout(timeoutId);
+    } else if (fb === 'solved') {
+        show = true;
+        mode = 'solved';
+        main = 'Skvěle! Přesně takhle se to hraje — puzzle je hotové.';
+        sub = (p.title ? 'Úloha: ' + p.title : '') + (p.teaser ? (p.title ? ' — ' : '') + p.teaser : '');
+    }
+
+    if (!show) {
+        panel.style.display = 'none';
+        panel.className = 'game-block puzzle-status-panel';
+        if (titleEl) titleEl.textContent = 'Puzzle';
+        if (subEl) {
+            subEl.textContent = '';
+            subEl.style.display = 'none';
+        }
+        return;
+    }
+
+    if (offline) {
+        sub = (sub ? sub + ' ' : '') + 'Živý stav z desky teď nevidím (spojení s webem). Jakmile bude síť k desce zas, obnoví se.';
+    }
+
+    if (titleEl) {
+        titleEl.textContent = mode === 'setup'
+            ? 'Puzzle · příprava'
+            : mode === 'solved'
+                ? 'Puzzle · hotovo'
+                : 'Puzzle · hraješ';
+    }
+    panel.style.display = '';
+    panel.className = 'game-block puzzle-status-panel puzzle-status-panel--' + mode +
+        (offline ? ' puzzle-status-panel--offline' : '');
+    textEl.textContent = main;
+    if (subEl) {
+        if (sub && String(sub).trim().length > 0) {
+            subEl.textContent = sub.trim();
+            subEl.style.display = 'block';
+        } else {
+            subEl.textContent = '';
+            subEl.style.display = 'none';
+        }
     }
 }
 
+/** Smaže bot UI: stav, interval LED, hint třídy a zprávu „Bot hraje“ / „Počítač“. */
+function clearBotSuggestion() {
+    var hadDomHints = !!document.querySelector('.square.hint-from, .square.hint-to');
+    var needServerClear = lastSuggestedFen !== null || lastSuggestedMove !== null || hadDomHints;
+    lastSuggestedFen = null;
+    lastSuggestedMove = null;
+    stopBotHintRefresh();
+    document.querySelectorAll('.square').forEach(function (sq) { sq.classList.remove('hint-from', 'hint-to'); });
+    var msgEl = document.getElementById('castling-pending-message');
+    if (msgEl && (msgEl.textContent.indexOf('Bot') !== -1 || msgEl.textContent.indexOf('Počítač') !== -1)) msgEl.style.display = 'none';
+    updateBotStatusPanel('Hraješ ty!');
+    if (needServerClear) {
+        fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});
+    }
+}
+
+/**
+ * Tah bota se NEprovádí automaticky – pouze vizualizace na webu a LED.
+ * Uživatel musí fyzicky pohnout figurku; tah se provede až po DROP z matrixu.
+ * Voláme jen /api/game/hint_highlight, nikdy /api/move ani virtual_action za bota.
+ */
+/** Bot používá jednotnou fetchStockfishBestMove s depth = botSettings.strength. */
 async function playBotMove(fen, generation) {
     if (botThinking || !fen || typeof fen !== 'string') return;
     botThinking = true;
-    var msgEl = document.getElementById('castling-pending-message');
     var statusEl = document.getElementById('game-state');
 
+    updateBotStatusPanel('Přemýšlím');
     try {
-        if (statusEl) statusEl.textContent = 'Počítač přemýšlí...';
-        console.log('🤖 Bot starts thinking... Generation:', generation);
-        var move = await fetchStockfishBestMove(fen);
+        if (statusEl) statusEl.textContent = 'Bot vybírá tah';
+        console.log('🤖 Bot suggests move (visualization only – user moves physically)... Generation:', generation);
+        var botDepth = parseInt(botSettings.strength, 10) || 10;
+        var move = await fetchStockfishBestMove(fen, botDepth);
 
         if (generation !== gameGeneration) {
             console.warn('🤖 Bot move aborted: Game generation changed (New game started).');
@@ -1459,7 +2066,7 @@ async function playBotMove(fen, generation) {
         }
 
         if (move) {
-            console.log('🤖 Bot plays:', move.from, '->', move.to, '| FEN:', fen.length > 20 ? fen.substring(0, 30) + '...' : fen, '| mode:', gameMode, '| gen:', generation);
+            console.log('🤖 Bot suggests:', move.from, '->', move.to, '(zobrazíme na webu a LED; tah provedete vy na desce)');
             lastSuggestedMove = { from: move.from, to: move.to };
             stopBotHintRefresh();
             try {
@@ -1476,19 +2083,30 @@ async function playBotMove(fen, generation) {
                     stopBotHintRefresh();
                     return;
                 }
+                var status = statusData;
+                if (status && status.piece_lifted && status.piece_lifted.lifted) {
+                    if (getBotLedTargetOnlyAfterLift()) {
+                        var liftedFrom = String.fromCharCode(97 + status.piece_lifted.col) + (status.piece_lifted.row + 1);
+                        if (liftedFrom.toLowerCase() === lastSuggestedMove.from.toLowerCase()) {
+                            fetch('/api/game/hint_highlight', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ to: lastSuggestedMove.to })
+                            }).catch(function () {});
+                            return;
+                        }
+                    } else {
+                        return;
+                    }
+                }
                 fetch('/api/game/hint_highlight', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ from: lastSuggestedMove.from, to: lastSuggestedMove.to })
                 }).catch(function () {});
             }, BOT_HINT_REFRESH_MS);
-            if (msgEl) {
-                msgEl.textContent = 'Bot hraje: ' + move.from + ' → ' + move.to;
-                msgEl.style.display = 'block';
-                msgEl.style.background = 'rgba(76, 175, 80, 0.2)';
-                msgEl.style.borderColor = '#4CAF50';
-                msgEl.style.color = '#e0e0e0';
-            }
+            var panelMsg = 'Hraji ' + move.from + '-' + move.to + '. Zvedni figurku z ' + move.from + '.';
+            updateBotStatusPanel(panelMsg);
             showHintOnBoard(move.from, move.to);
         } else {
             console.warn('Bot: žádný tah (API chyba nebo timeout).');
@@ -1496,16 +2114,7 @@ async function playBotMove(fen, generation) {
                 console.warn('[Bot] API failed, clearing lastSuggestedFen for retry');
             }
             lastSuggestedFen = null;
-            if (msgEl) {
-                msgEl.textContent = 'Počítač nemohl najít tah (zkontrolujte internet).';
-                msgEl.style.display = 'block';
-                msgEl.style.background = 'rgba(244, 67, 54, 0.2)';
-                msgEl.style.borderColor = '#f44336';
-                msgEl.style.color = '#e0e0e0';
-                setTimeout(function () {
-                    if (msgEl.textContent.indexOf('nemohl najít tah') !== -1) msgEl.style.display = 'none';
-                }, 5000);
-            }
+            updateBotStatusPanel('Chyba API');
         }
     } finally {
         botThinking = false;
@@ -1513,30 +2122,69 @@ async function playBotMove(fen, generation) {
 }
 
 function checkBotTurn(status, fen) {
-    if (gameMode !== 'bot') {
-        lastSuggestedFen = null;
-        lastSuggestedMove = null;
-        stopBotHintRefresh();
-        document.querySelectorAll('.square').forEach(function (sq) { sq.classList.remove('hint-from', 'hint-to'); });
+    if (status && status.board_setup_tutorial === true) {
+        clearBotSuggestion();
         return;
     }
-    if (!status || typeof status !== 'object') return;
-    if (status.game_state !== 'active' && status.game_state !== 'playing') return;
-    if (status.game_end && status.game_end.ended) return;
-    if (status.current_player !== 'White' && status.current_player !== 'Black') return;
-    if (!fen || typeof fen !== 'string' || fen.length < 20) return;
+    if (status && status.puzzle && status.puzzle.setup_active === true) {
+        clearBotSuggestion();
+        return;
+    }
+    if (status && status.puzzle && status.puzzle.active === true) {
+        clearBotSuggestion();
+        return;
+    }
+    if (gameMode !== 'bot') {
+        clearBotSuggestion();
+        return;
+    }
+    /* Jakmile se pozice změní (nový FEN), někdo táhl – smažeme návrh bota hned,
+       nezávisle na current_player (ten může v backendu dohnat až později). */
+    var clearedDueToFenChange = false;
+    if (lastSuggestedFen && fen && fen !== lastSuggestedFen) {
+        clearBotSuggestion();
+        clearedDueToFenChange = true;
+    }
+    if (!status || typeof status !== 'object') {
+        clearBotSuggestion();
+        return;
+    }
+    if (status.castling_in_progress === true) {
+        clearBotSuggestion();
+        return;
+    }
+    if (status.game_state !== 'active' && status.game_state !== 'playing') {
+        clearBotSuggestion();
+        return;
+    }
+    if (status.game_end && status.game_end.ended) {
+        clearBotSuggestion();
+        return;
+    }
+    if (status.current_player !== 'White' && status.current_player !== 'Black') {
+        clearBotSuggestion();
+        return;
+    }
+    if (!fen || typeof fen !== 'string' || fen.length < 20) {
+        clearBotSuggestion();
+        return;
+    }
 
     var isBotTurn = (botSettings.side === 'white') !== (status.current_player === 'White');
     if (typeof console !== 'undefined' && console.log) console.log('checkBotTurn: isBotTurn=', isBotTurn, 'current_player=', status.current_player);
 
-    var msgEl = document.getElementById('castling-pending-message');
     if (!isBotTurn) {
-        lastSuggestedFen = null;
-        lastSuggestedMove = null;
-        stopBotHintRefresh();
-        document.querySelectorAll('.square').forEach(function (sq) { sq.classList.remove('hint-from', 'hint-to'); });
-        if (msgEl && (msgEl.textContent.indexOf('Bot hraje') !== -1 || msgEl.textContent.indexOf('Počítač') !== -1)) msgEl.style.display = 'none';
-    } else if (!botThinking && fen !== lastSuggestedFen) {
+        clearBotSuggestion();
+        return;
+    }
+    /* Uživatel zvedl figurku – provádí tah za bota. Nevolat clearBotSuggestion (lastSuggestedMove
+       musí zůstat), aby panel Bot mohl zobrazit „Polož figurku na X.“ v updateBotStatusPanel. */
+    if (status.piece_lifted && status.piece_lifted.lifted) {
+        return;
+    }
+    /* Po vyčištění kvůli změně FEN v tomto volání nevolat playBotMove – mohl by být race (FEN už nový, current_player ještě bot). */
+    if (clearedDueToFenChange) return;
+    if (!botThinking && fen !== lastSuggestedFen) {
         if (typeof console !== 'undefined' && console.log) {
             console.log('[Bot Staging] checkBotTurn: game_state=', status.game_state, 'fen.length=', fen.length, 'calling playBotMove');
         }
@@ -1550,6 +2198,698 @@ function checkBotTurn(status, fen) {
 // ============================================================================
 // STATUS UPDATE FUNCTION
 // ============================================================================
+
+function matrixGuardMaskToSquares(low, high) {
+    const squares = [];
+    const lowVal = Number(low) >>> 0;
+    const highVal = Number(high) >>> 0;
+    for (let i = 0; i < 32; i++) {
+        if ((lowVal & (1 << i)) !== 0) {
+            const col = i % 8;
+            const row = Math.floor(i / 8);
+            squares.push(String.fromCharCode(97 + col) + (row + 1));
+        }
+    }
+    for (let i = 0; i < 32; i++) {
+        if ((highVal & (1 << i)) !== 0) {
+            const idx = i + 32;
+            const col = idx % 8;
+            const row = Math.floor(idx / 8);
+            squares.push(String.fromCharCode(97 + col) + (row + 1));
+        }
+    }
+    return squares;
+}
+
+// ============================================================================
+// SETUP TUTORIAL (základní postavení — web + LED)
+// ============================================================================
+
+const SETUP_TUTORIAL_REFRESH_MS = 600;
+const SETUP_TUTORIAL_FAST_POLL_MS = 400;
+const SETUP_TUTORIAL_OCC_STABLE_TICKS = 2;
+
+/** 32 kroků: bílá 1. řada, bílí pěšci, černá 8. řada, černí pěšci. */
+const SETUP_TUTORIAL_STEPS = [
+    { sq: 'a1', piece: 'r', label: 'Bílá věž → a1' },
+    { sq: 'b1', piece: 'n', label: 'Bílý jezdec → b1' },
+    { sq: 'c1', piece: 'b', label: 'Bílý střelec → c1' },
+    { sq: 'd1', piece: 'q', label: 'Bílá dáma → d1' },
+    { sq: 'e1', piece: 'k', label: 'Bílý král → e1' },
+    { sq: 'f1', piece: 'b', label: 'Bílý střelec → f1' },
+    { sq: 'g1', piece: 'n', label: 'Bílý jezdec → g1' },
+    { sq: 'h1', piece: 'r', label: 'Bílá věž → h1' },
+    { sq: 'a2', piece: 'p', label: 'Bílý pěšec → a2' },
+    { sq: 'b2', piece: 'p', label: 'Bílý pěšec → b2' },
+    { sq: 'c2', piece: 'p', label: 'Bílý pěšec → c2' },
+    { sq: 'd2', piece: 'p', label: 'Bílý pěšec → d2' },
+    { sq: 'e2', piece: 'p', label: 'Bílý pěšec → e2' },
+    { sq: 'f2', piece: 'p', label: 'Bílý pěšec → f2' },
+    { sq: 'g2', piece: 'p', label: 'Bílý pěšec → g2' },
+    { sq: 'h2', piece: 'p', label: 'Bílý pěšec → h2' },
+    { sq: 'a8', piece: 'R', label: 'Černá věž → a8' },
+    { sq: 'b8', piece: 'N', label: 'Černý jezdec → b8' },
+    { sq: 'c8', piece: 'B', label: 'Černý střelec → c8' },
+    { sq: 'd8', piece: 'Q', label: 'Černá dáma → d8' },
+    { sq: 'e8', piece: 'K', label: 'Černý král → e8' },
+    { sq: 'f8', piece: 'B', label: 'Černý střelec → f8' },
+    { sq: 'g8', piece: 'N', label: 'Černý jezdec → g8' },
+    { sq: 'h8', piece: 'R', label: 'Černá věž → h8' },
+    { sq: 'a7', piece: 'P', label: 'Černý pěšec → a7' },
+    { sq: 'b7', piece: 'P', label: 'Černý pěšec → b7' },
+    { sq: 'c7', piece: 'P', label: 'Černý pěšec → c7' },
+    { sq: 'd7', piece: 'P', label: 'Černý pěšec → d7' },
+    { sq: 'e7', piece: 'P', label: 'Černý pěšec → e7' },
+    { sq: 'f7', piece: 'P', label: 'Černý pěšec → f7' },
+    { sq: 'g7', piece: 'P', label: 'Černý pěšec → g7' },
+    { sq: 'h7', piece: 'P', label: 'Černý pěšec → h7' }
+];
+
+let setupTutorialPhase = null;
+let setupTutorialStepIndex = 0;
+let setupTutorialLedIntervalId = null;
+let setupTutorialFastPollId = null;
+let setupTutorialOccStable = 0;
+
+function setupTutorialSquareToIndex(sq) {
+    var c = sq.charCodeAt(0) - 97;
+    var r = parseInt(sq.charAt(1), 10) - 1;
+    return r * 8 + c;
+}
+
+function setupTutorialStopLedRefresh() {
+    if (setupTutorialLedIntervalId) {
+        clearInterval(setupTutorialLedIntervalId);
+        setupTutorialLedIntervalId = null;
+    }
+}
+
+function setupTutorialStopFastPoll() {
+    if (setupTutorialFastPollId) {
+        clearInterval(setupTutorialFastPollId);
+        setupTutorialFastPollId = null;
+    }
+}
+
+function setupTutorialApplyLed(sq) {
+    return fetch('/api/game/hint_highlight', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: sq })
+    }).catch(function () {});
+}
+
+function setupTutorialStartLedRefresh(sq) {
+    setupTutorialStopLedRefresh();
+    setupTutorialApplyLed(sq);
+    setupTutorialLedIntervalId = setInterval(function () {
+        setupTutorialApplyLed(sq);
+    }, SETUP_TUTORIAL_REFRESH_MS);
+}
+
+function setupTutorialClearLed() {
+    fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});
+}
+
+function openSetupTutorialIntro() {
+    var ov = document.getElementById('setup-tutorial-overlay');
+    if (!ov) return;
+    try {
+        if (!devicePrefs.chessTutorialsEnabled) return;
+    } catch (e) { return; }
+    ov.style.display = 'flex';
+    ov.classList.add('overlay-visible');
+    var intro = document.getElementById('setup-tutorial-intro-panel');
+    var run = document.getElementById('setup-tutorial-run-panel');
+    var done = document.getElementById('setup-tutorial-done-panel');
+    if (intro) intro.style.display = '';
+    if (run) run.style.display = 'none';
+    if (done) done.style.display = 'none';
+    setupTutorialUpdateIntroWarnings(statusData || {});
+}
+
+function setupTutorialCloseIntro() {
+    var ov = document.getElementById('setup-tutorial-overlay');
+    if (ov) {
+        ov.classList.remove('overlay-visible');
+        ov.style.display = 'none';
+    }
+}
+
+function setupTutorialUpdateIntroWarnings(st) {
+    var w = document.getElementById('setup-tutorial-warn');
+    if (!w) return;
+    var parts = [];
+    if (st.light_mode === 'lamp') {
+        parts.push('Režim Lampa může přebít herní LED — přepni na Šachovnice v Zařízení.');
+    }
+    if (st.matrix_guard_active) {
+        parts.push('Matrix guard je aktivní — dokonči návrat figurek nebo ukonči režim guardu.');
+    }
+    if (parts.length) {
+        w.textContent = parts.join(' ');
+        w.style.display = '';
+    } else {
+        w.textContent = '';
+        w.style.display = 'none';
+    }
+}
+
+function setupTutorialRenderStep() {
+    var st = SETUP_TUTORIAL_STEPS[setupTutorialStepIndex];
+    if (!st) return;
+    var pe = document.getElementById('setup-tutorial-piece-display');
+    var ins = document.getElementById('setup-tutorial-instruction');
+    var pr = document.getElementById('setup-tutorial-progress');
+    if (pe) {
+        var isWhitePc = (st.piece >= 'a' && st.piece <= 'z');
+        var src = pieceImgSrc(st.piece);
+        if (src) {
+            pe.className = 'setup-tutorial-piece-glyph piece has-img ' +
+                (isWhitePc ? 'white' : 'black');
+            pe.innerHTML = '<img src="' + src + '" alt="" draggable="false">';
+        } else {
+            pe.innerHTML = '';
+            pe.textContent = pieceSymbols[st.piece] || '?';
+            pe.className = 'setup-tutorial-piece-glyph piece ' +
+                (isWhitePc ? 'white' : 'black');
+        }
+    }
+    if (ins) ins.textContent = 'Polož figurku na pole ' + st.sq.toUpperCase();
+    if (pr) pr.textContent = 'Krok ' + (setupTutorialStepIndex + 1) + ' / ' + SETUP_TUTORIAL_STEPS.length + ' — ' + st.label;
+    setupTutorialStartLedRefresh(st.sq);
+    setupTutorialOccStable = 0;
+}
+
+async function setupTutorialBegin() {
+    try {
+        var res = await fetch('/api/game/setup_tutorial', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'start' })
+        });
+        if (!res.ok) {
+            if (typeof console !== 'undefined' && console.warn) console.warn('setup_tutorial start', res.status);
+            return;
+        }
+    } catch (e) {
+        if (typeof console !== 'undefined' && console.warn) console.warn(e);
+        return;
+    }
+    setupTutorialPhase = 'run';
+    setupTutorialStepIndex = 0;
+    var intro = document.getElementById('setup-tutorial-intro-panel');
+    var run = document.getElementById('setup-tutorial-run-panel');
+    if (intro) intro.style.display = 'none';
+    if (run) run.style.display = '';
+    setupTutorialRenderStep();
+    setupTutorialFastPollId = setInterval(setupTutorialPollOccupancy, SETUP_TUTORIAL_FAST_POLL_MS);
+}
+
+function setupTutorialPollOccupancy() {
+    if (setupTutorialPhase !== 'run') return;
+    fetch('/api/status')
+        .then(function (r) { return r.json(); })
+        .then(function (st) {
+            if (!st.matrix_occupied || !Array.isArray(st.matrix_occupied)) return;
+            var stp = SETUP_TUTORIAL_STEPS[setupTutorialStepIndex];
+            if (!stp) return;
+            var idx = setupTutorialSquareToIndex(stp.sq);
+            if (Number(st.matrix_occupied[idx]) === 1) {
+                setupTutorialOccStable++;
+                if (setupTutorialOccStable >= SETUP_TUTORIAL_OCC_STABLE_TICKS) {
+                    setupTutorialAdvance(true);
+                }
+            } else {
+                setupTutorialOccStable = 0;
+            }
+        })
+        .catch(function () {});
+}
+
+function setupTutorialAdvance(fromAuto) {
+    if (setupTutorialPhase !== 'run') return;
+    setupTutorialStopLedRefresh();
+    setupTutorialClearLed();
+    setupTutorialOccStable = 0;
+    setupTutorialStepIndex++;
+    if (setupTutorialStepIndex >= SETUP_TUTORIAL_STEPS.length) {
+        setupTutorialStopFastPoll();
+        setupTutorialPhase = 'done';
+        var run = document.getElementById('setup-tutorial-run-panel');
+        var done = document.getElementById('setup-tutorial-done-panel');
+        if (run) run.style.display = 'none';
+        if (done) done.style.display = '';
+        return;
+    }
+    setupTutorialRenderStep();
+}
+
+function setupTutorialBack() {
+    if (setupTutorialPhase !== 'run') return;
+    if (setupTutorialStepIndex <= 0) return;
+    setupTutorialStopLedRefresh();
+    setupTutorialClearLed();
+    setupTutorialOccStable = 0;
+    setupTutorialStepIndex--;
+    setupTutorialRenderStep();
+}
+
+function setupTutorialSkip() {
+    setupTutorialAdvance(false);
+}
+
+async function setupTutorialCancel() {
+    setupTutorialStopLedRefresh();
+    setupTutorialStopFastPoll();
+    setupTutorialClearLed();
+    setupTutorialPhase = null;
+    try {
+        await fetch('/api/game/setup_tutorial', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'cancel' })
+        });
+    } catch (e) {}
+    var ov = document.getElementById('setup-tutorial-overlay');
+    if (ov) {
+        ov.classList.remove('overlay-visible');
+        ov.style.display = 'none';
+    }
+    var intro = document.getElementById('setup-tutorial-intro-panel');
+    var run = document.getElementById('setup-tutorial-run-panel');
+    var done = document.getElementById('setup-tutorial-done-panel');
+    if (intro) intro.style.display = '';
+    if (run) run.style.display = 'none';
+    if (done) done.style.display = 'none';
+    if (typeof fetchData === 'function') fetchData();
+}
+
+async function setupTutorialFinish() {
+    try {
+        var res = await fetch('/api/game/setup_tutorial', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'finish' })
+        });
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok) {
+            var msg = (data && data.error) ? data.error : 'Zkontroluj fyzickou pozici (řádky 1–2 a 7–8 plné, 3–6 prázdné).';
+            alert(msg);
+            return;
+        }
+    } catch (e) {
+        alert('Chyba sítě při dokončení.');
+        return;
+    }
+    setupTutorialStopLedRefresh();
+    setupTutorialStopFastPoll();
+    setupTutorialPhase = null;
+    var ov = document.getElementById('setup-tutorial-overlay');
+    if (ov) {
+        ov.classList.remove('overlay-visible');
+        ov.style.display = 'none';
+    }
+    var intro = document.getElementById('setup-tutorial-intro-panel');
+    var run = document.getElementById('setup-tutorial-run-panel');
+    var done = document.getElementById('setup-tutorial-done-panel');
+    if (intro) intro.style.display = '';
+    if (run) run.style.display = 'none';
+    if (done) done.style.display = 'none';
+    if (typeof fetchData === 'function') fetchData();
+}
+
+window.openSetupTutorialIntro = openSetupTutorialIntro;
+window.setupTutorialBegin = setupTutorialBegin;
+window.setupTutorialCloseIntro = setupTutorialCloseIntro;
+window.setupTutorialBack = setupTutorialBack;
+window.setupTutorialSkip = setupTutorialSkip;
+window.setupTutorialCancel = setupTutorialCancel;
+window.setupTutorialFinish = setupTutorialFinish;
+
+const PUZZLE_DEFS = [
+    { id: 1, difficulty: 1, title: 'Mat 1 – Dáma na poslední řadě',
+        teaser: 'Klasický motiv: otevřený f-sloupec, dáma dá mat na f8.',
+        fen: '7k/7p/8/8/8/8/5Q2/6K1 w - - 0 1' },
+    { id: 2, difficulty: 2, title: 'Mat 1 – Dáma po sloupci',
+        teaser: 'Útok po ose: dáma stoupá z b2 na b8.',
+        fen: '6k1/5ppp/8/8/8/8/1Q6/6K1 w - - 0 1' },
+    { id: 3, difficulty: 3, title: 'Mat 1 – Věž bere věž',
+        teaser: 'Taktika zadní řady: bílá věž sebere černou na e8 a matuje krále.',
+        fen: '4r1k1/5ppp/8/8/8/8/4R3/4K3 w - - 0 1' },
+    { id: 4, difficulty: 4, title: 'Mat 1 – Školácký mat',
+        teaser: 'Známá ukázková pozice: střelec na c4, dáma na h5 — mat na f7.',
+        fen: 'r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1' },
+    { id: 5, difficulty: 5, title: 'Mat 1 – Dáma na d8',
+        teaser: 'Centrální úder: dáma z d4 uzavře mat na poli d8.',
+        fen: '6k1/5ppp/8/8/3Q4/8/6PP/6K1 w - - 0 1' }
+];
+let selectedPuzzleId = 1;
+let puzzleSetupPhase = null;
+let puzzleSetupStepIndex = 0;
+let puzzleSetupSteps = [];
+let puzzleSetupFastPollId = null;
+let puzzleSetupLedIntervalId = null;
+let puzzleSetupOccStable = 0;
+
+function puzzleSquareToIndex(sq) {
+    var c = sq.charCodeAt(0) - 97;
+    var r = parseInt(sq.charAt(1), 10) - 1;
+    return r * 8 + c;
+}
+
+function buildPuzzleSetupStepsFromFen(fen) {
+    var steps = [];
+    if (!fen) return steps;
+    var boardPart = fen.split(' ')[0];
+    var row = 7;
+    var col = 0;
+    var i;
+    for (i = 0; i < boardPart.length; i++) {
+        var ch = boardPart.charAt(i);
+        if (ch === '/') {
+            row--;
+            col = 0;
+            continue;
+        }
+        if (ch >= '1' && ch <= '8') {
+            col += parseInt(ch, 10);
+            continue;
+        }
+        var sq = String.fromCharCode(97 + col) + (row + 1);
+        var sym = pieceSymbols[ch] || ch;
+        steps.push({
+            sq: sq,
+            piece: ch,
+            label: sym + ' → ' + sq.toUpperCase()
+        });
+        col++;
+    }
+    return steps;
+}
+
+function puzzleSetupStopLedRefresh() {
+    if (puzzleSetupLedIntervalId) {
+        clearInterval(puzzleSetupLedIntervalId);
+        puzzleSetupLedIntervalId = null;
+    }
+}
+
+function puzzleSetupStopFastPoll() {
+    if (puzzleSetupFastPollId) {
+        clearInterval(puzzleSetupFastPollId);
+        puzzleSetupFastPollId = null;
+    }
+}
+
+function puzzleSetupApplyLed(sq) {
+    return fetch('/api/game/hint_highlight', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: sq })
+    }).catch(function () {});
+}
+
+function puzzleSetupStartLedRefresh(sq) {
+    puzzleSetupStopLedRefresh();
+    puzzleSetupApplyLed(sq);
+    puzzleSetupLedIntervalId = setInterval(function () {
+        puzzleSetupApplyLed(sq);
+    }, SETUP_TUTORIAL_REFRESH_MS);
+}
+
+function puzzleRenderList() {
+    var list = document.getElementById('puzzle-list');
+    if (!list) return;
+    list.innerHTML = '';
+    PUZZLE_DEFS.forEach(function (p) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'set-btn set-btn-sm';
+        btn.style.textAlign = 'left';
+        btn.style.opacity = (p.id === selectedPuzzleId) ? '1' : '0.85';
+        btn.textContent = '[' + p.difficulty + '/5] ' + p.title + ' - ' + p.teaser;
+        btn.onclick = function () {
+            selectedPuzzleId = p.id;
+            puzzleRenderList();
+        };
+        list.appendChild(btn);
+    });
+}
+
+function puzzleUpdateGuidedMessage(status) {
+    var box = document.getElementById('puzzle-guided-message');
+    if (!box) return;
+    var p = status && status.puzzle ? status.puzzle : null;
+    if (!p) {
+        box.textContent = '';
+        return;
+    }
+    if (p.message && p.message.length > 0) {
+        box.textContent = p.message;
+    } else if (p.active === true) {
+        box.textContent = 'Puzzle bezi. Zahraj hledany tah.';
+    } else if (p.setup_active === true) {
+        box.textContent = 'Rozestav figurky podle LED (pořadí jako u základního postavení).';
+    } else {
+        box.textContent = '';
+    }
+}
+
+function puzzleResetPanelsToIntro() {
+    var intro = document.getElementById('puzzle-intro-panel');
+    var setup = document.getElementById('puzzle-setup-panel');
+    var conf = document.getElementById('puzzle-confirm-panel');
+    if (intro) intro.style.display = '';
+    if (setup) setup.style.display = 'none';
+    if (conf) conf.style.display = 'none';
+}
+
+function puzzleSetOverlayVisible(vis) {
+    var ov = document.getElementById('puzzle-overlay');
+    if (!ov) return;
+    if (vis) {
+        ov.style.display = 'flex';
+        ov.classList.add('overlay-visible');
+    } else {
+        ov.classList.remove('overlay-visible');
+        ov.style.display = 'none';
+    }
+}
+
+function openPuzzleIntro() {
+    var ov = document.getElementById('puzzle-overlay');
+    if (!ov) return;
+    puzzleResetPanelsToIntro();
+    puzzleSetOverlayVisible(true);
+    puzzleRenderList();
+    puzzleUpdateGuidedMessage(statusData || {});
+}
+
+async function puzzlePrepareSelected() {
+    try {
+        var res = await fetch('/api/game/puzzle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'prepare', id: selectedPuzzleId })
+        });
+        if (!res.ok) {
+            if (typeof console !== 'undefined' && console.warn) console.warn('puzzle prepare', res.status);
+            return;
+        }
+    } catch (e) {
+        if (typeof console !== 'undefined' && console.warn) console.warn(e);
+        return;
+    }
+    if (typeof fetchData === 'function') await fetchData();
+    var def = PUZZLE_DEFS.filter(function (x) { return x.id === selectedPuzzleId; })[0];
+    puzzleSetupSteps = buildPuzzleSetupStepsFromFen(def ? def.fen : '');
+    puzzleSetupStepIndex = 0;
+    puzzleSetupOccStable = 0;
+    var intro = document.getElementById('puzzle-intro-panel');
+    var setup = document.getElementById('puzzle-setup-panel');
+    var conf = document.getElementById('puzzle-confirm-panel');
+    if (puzzleSetupSteps.length === 0) {
+        puzzleSetupPhase = 'confirm';
+        if (intro) intro.style.display = 'none';
+        if (setup) setup.style.display = 'none';
+        if (conf) conf.style.display = '';
+        if (typeof fetchData === 'function') {
+            fetchData().then(function () {
+                var w = document.getElementById('puzzle-confirm-warn');
+                if (w && statusData && statusData.puzzle) {
+                    w.textContent = statusData.puzzle.physical_match === false
+                        ? 'Varování: fyzická deska nemusí přesně odpovídat.'
+                        : 'Můžeš spustit puzzle.';
+                    w.style.display = '';
+                }
+            });
+        }
+        return;
+    }
+    puzzleSetupPhase = 'run';
+    if (intro) intro.style.display = 'none';
+    if (setup) setup.style.display = '';
+    if (conf) conf.style.display = 'none';
+    puzzleSetupRenderStep();
+    puzzleSetupFastPollId = setInterval(puzzleSetupPollOccupancy, SETUP_TUTORIAL_FAST_POLL_MS);
+}
+
+function puzzleSetupRenderStep() {
+    var st = puzzleSetupSteps[puzzleSetupStepIndex];
+    var pe = document.getElementById('puzzle-setup-piece-display');
+    var ins = document.getElementById('puzzle-setup-instruction');
+    var pr = document.getElementById('puzzle-setup-progress');
+    if (!st) return;
+    if (pe) {
+        var isW = (st.piece >= 'a' && st.piece <= 'z');
+        var srcP = pieceImgSrc(st.piece);
+        if (srcP) {
+            pe.className = 'setup-tutorial-piece-glyph piece has-img ' + (isW ? 'white' : 'black');
+            pe.innerHTML = '<img src="' + srcP + '" alt="" draggable="false">';
+        } else {
+            pe.innerHTML = '';
+            pe.textContent = pieceSymbols[st.piece] || st.piece || '?';
+            pe.className = 'setup-tutorial-piece-glyph piece ' + (isW ? 'white' : 'black');
+        }
+    }
+    if (ins) ins.textContent = 'Polož figurku na pole ' + st.sq.toUpperCase();
+    if (pr) {
+        pr.textContent = 'Krok ' + (puzzleSetupStepIndex + 1) + ' / ' + puzzleSetupSteps.length + ' — ' + st.label;
+    }
+    puzzleSetupStartLedRefresh(st.sq);
+    puzzleSetupOccStable = 0;
+}
+
+function puzzleSetupPollOccupancy() {
+    if (puzzleSetupPhase !== 'run') return;
+    fetch('/api/status')
+        .then(function (r) { return r.json(); })
+        .then(function (st) {
+            if (!st.puzzle || st.puzzle.setup_active !== true) return;
+            if (!st.matrix_occupied || !Array.isArray(st.matrix_occupied)) return;
+            var stp = puzzleSetupSteps[puzzleSetupStepIndex];
+            if (!stp) return;
+            var idx = puzzleSquareToIndex(stp.sq);
+            if (Number(st.matrix_occupied[idx]) === 1) {
+                puzzleSetupOccStable++;
+                if (puzzleSetupOccStable >= SETUP_TUTORIAL_OCC_STABLE_TICKS) {
+                    puzzleSetupAdvance(true);
+                }
+            } else {
+                puzzleSetupOccStable = 0;
+            }
+        })
+        .catch(function () {});
+}
+
+function puzzleSetupAdvance(fromAuto) {
+    if (puzzleSetupPhase !== 'run') return;
+    puzzleSetupStopLedRefresh();
+    fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});
+    puzzleSetupOccStable = 0;
+    puzzleSetupStepIndex++;
+    if (puzzleSetupStepIndex >= puzzleSetupSteps.length) {
+        puzzleSetupStopFastPoll();
+        puzzleSetupPhase = 'confirm';
+        var setup = document.getElementById('puzzle-setup-panel');
+        var conf = document.getElementById('puzzle-confirm-panel');
+        if (setup) setup.style.display = 'none';
+        if (conf) conf.style.display = '';
+        if (typeof fetchData === 'function') {
+            fetchData().then(function () {
+                var w = document.getElementById('puzzle-confirm-warn');
+                if (w && statusData && statusData.puzzle) {
+                    if (statusData.puzzle.physical_match === false) {
+                        w.textContent = 'Varování: fyzická deska nemusí přesně odpovídat (senzory neznají druh figurky). Puzzle můžeš přesto spustit.';
+                        w.style.display = '';
+                    } else {
+                        w.textContent = 'Fyzická obsazenost odpovídá pozici.';
+                        w.style.display = '';
+                    }
+                }
+            });
+        }
+        return;
+    }
+    puzzleSetupRenderStep();
+}
+
+function puzzleSetupBack() {
+    if (puzzleSetupPhase !== 'run') return;
+    if (puzzleSetupStepIndex <= 0) return;
+    puzzleSetupStopLedRefresh();
+    fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});
+    puzzleSetupOccStable = 0;
+    puzzleSetupStepIndex--;
+    puzzleSetupRenderStep();
+}
+
+function puzzleSetupSkip() {
+    puzzleSetupAdvance(false);
+}
+
+async function puzzleExecuteStart() {
+    if (statusData && statusData.puzzle && statusData.puzzle.physical_match === false) {
+        if (!window.confirm('Fyzická deska nemusí odpovídat očekávané pozici. Spustit puzzle?')) {
+            return;
+        }
+    }
+    try {
+        await fetch('/api/game/puzzle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'start', id: selectedPuzzleId })
+        });
+    } catch (e) {
+        if (typeof console !== 'undefined' && console.warn) console.warn(e);
+    }
+    puzzleSetupPhase = null;
+    puzzleResetPanelsToIntro();
+    puzzleSetOverlayVisible(false);
+    if (typeof fetchData === 'function') fetchData();
+}
+
+async function puzzleBackToIntroFromSetup() {
+    puzzleSetupStopFastPoll();
+    puzzleSetupStopLedRefresh();
+    fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});
+    puzzleSetupPhase = null;
+    try {
+        await fetch('/api/game/puzzle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'cancel' })
+        });
+    } catch (e) {}
+    puzzleResetPanelsToIntro();
+    if (typeof fetchData === 'function') fetchData();
+}
+
+async function puzzleCancel() {
+    puzzleSetupStopFastPoll();
+    puzzleSetupStopLedRefresh();
+    fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});
+    puzzleSetupPhase = null;
+    try {
+        await fetch('/api/game/puzzle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'cancel' })
+        });
+    } catch (e) {}
+    puzzleResetPanelsToIntro();
+    puzzleSetOverlayVisible(false);
+    if (typeof fetchData === 'function') fetchData();
+}
+
+window.openPuzzleIntro = openPuzzleIntro;
+window.puzzlePrepareSelected = puzzlePrepareSelected;
+window.puzzleExecuteStart = puzzleExecuteStart;
+window.puzzleCancel = puzzleCancel;
+window.puzzleSetupBack = puzzleSetupBack;
+window.puzzleSetupSkip = puzzleSetupSkip;
+window.puzzleBackToIntroFromSetup = puzzleBackToIntroFromSetup;
 
 function updateStatus(status) {
     statusData = status;
@@ -1572,6 +2912,36 @@ function updateStatus(status) {
         if (valueEl) valueEl.textContent = b + '%';
         if (sliderEl && Number(sliderEl.value) !== b) sliderEl.value = b;
     }
+    const gl = status.led_guidance_level;
+    if (typeof gl === 'number' && gl >= 1 && gl <= 5) {
+        const ledGuidanceEl = document.getElementById('led-guidance-level');
+        if (ledGuidanceEl && String(ledGuidanceEl.value) !== String(gl)) {
+            ledGuidanceEl.value = String(gl);
+        }
+    }
+    puzzleUpdateGuidedMessage(status);
+    updatePuzzleStatusPanel(status, { offline: false });
+
+    // Lampa (Nastavení) – režim, zapnutí, R/G/B ze statusu
+    const lightMode = status.light_mode;
+    const lightState = status.light_state;
+    const lr = status.light_r, lg = status.light_g, lb = status.light_b;
+    const btnGame = document.getElementById('light-mode-game');
+    const btnLamp = document.getElementById('light-mode-lamp');
+    const lampControls = document.getElementById('light-lamp-controls');
+    if (btnGame && btnLamp) {
+        const isLamp = lightMode === 'lamp';
+        btnGame.classList.toggle('active', !isLamp);
+        btnLamp.classList.toggle('active', isLamp);
+        if (lampControls) lampControls.style.display = isLamp ? '' : 'none';
+    }
+    const toggleEl = document.getElementById('light-state-toggle');
+    if (toggleEl && typeof lightState === 'boolean' && toggleEl.checked !== lightState) toggleEl.checked = lightState;
+    const rEl = document.getElementById('light-r'), gEl = document.getElementById('light-g'), bEl = document.getElementById('light-b');
+    const rVal = document.getElementById('light-r-value'), gVal = document.getElementById('light-g-value'), bVal = document.getElementById('light-b-value');
+    if (typeof lr === 'number' && lr >= 0 && lr <= 255 && rEl && rVal) { rEl.value = lr; rVal.textContent = lr; }
+    if (typeof lg === 'number' && lg >= 0 && lg <= 255 && gEl && gVal) { gEl.value = lg; gVal.textContent = lg; }
+    if (typeof lb === 'number' && lb >= 0 && lb <= 255 && bEl && bVal) { bEl.value = lb; bVal.textContent = lb; }
 
     // Promotion modal – zobrazit, když backend čeká na volbu promoce (game_state === "promotion")
     const promoModal = document.getElementById('promotion-modal');
@@ -1597,12 +2967,23 @@ function updateStatus(status) {
     const liftedPieceEl = document.getElementById('lifted-piece');
     const liftedPosEl = document.getElementById('lifted-position');
     if (lifted && lifted.lifted) {
-        if (liftedPieceEl) liftedPieceEl.textContent = pieceSymbols[lifted.piece] || '-';
+        if (liftedPieceEl) {
+            const sl = pieceImgSrc(lifted.piece);
+            if (sl) {
+                liftedPieceEl.innerHTML = '<img src="' + sl + '" class="lifted-piece-img" alt="">';
+            } else {
+                liftedPieceEl.innerHTML = '';
+                liftedPieceEl.textContent = pieceSymbols[lifted.piece] || '-';
+            }
+        }
         if (liftedPosEl) liftedPosEl.textContent = String.fromCharCode(97 + lifted.col) + (lifted.row + 1);
         const square = document.querySelector(`[data-row='${lifted.row}'][data-col='${lifted.col}']`);
         if (square) square.classList.add('lifted');
     } else {
-        if (liftedPieceEl) liftedPieceEl.textContent = '-';
+        if (liftedPieceEl) {
+            liftedPieceEl.innerHTML = '';
+            liftedPieceEl.textContent = '-';
+        }
         if (liftedPosEl) liftedPosEl.textContent = '-';
     }
 
@@ -1625,8 +3006,40 @@ function updateStatus(status) {
     // Castling message vs Bot message
     var castlingMsg = document.getElementById('castling-pending-message');
     if (castlingMsg) {
-        // Prioritize Castling Message over Bot Message
-        if (status.castling_in_progress && status.castling_from && status.castling_to) {
+        if (status.restore_state && status.restore_state.boot_new_game_triggered) {
+            castlingMsg.textContent = 'Byla spuštěna nová hra: detekovány 2 starty zařízení bez tahu v intervalu 1 minuty.';
+            castlingMsg.style.display = 'block';
+            castlingMsg.style.background = 'rgba(23,162,184,0.14)';
+            castlingMsg.style.borderColor = 'rgba(23,162,184,0.45)';
+            castlingMsg.style.color = '#4dd0e1';
+        // Highest priority: matrix guard pause with return guidance.
+        } else if (status.matrix_guard_active) {
+            const liftedSquares = matrixGuardMaskToSquares(status.matrix_guard_lifted_low, status.matrix_guard_lifted_high);
+            const droppedSquares = matrixGuardMaskToSquares(status.matrix_guard_dropped_low, status.matrix_guard_dropped_high);
+            const all = Array.from(new Set(liftedSquares.concat(droppedSquares)));
+            const hint = all.length > 0 ? all.join(', ') : 'označené pozice';
+            const resync = status.restore_state && status.restore_state.resync_required;
+            castlingMsg.textContent = resync
+                ? ('Po startu nesedí fyzická deska s uloženou hrou. Srovnejte figurky na LED zvýrazněných polích: ' + hint + '.')
+                : ('Hra je pozastavena: zvednuto více figurek najednou. Vraťte figurky na: ' + hint + '. Po návratu hra automaticky pokračuje.');
+            castlingMsg.style.display = 'block';
+            castlingMsg.style.background = 'rgba(220,53,69,0.14)';
+            castlingMsg.style.borderColor = 'rgba(220,53,69,0.45)';
+            castlingMsg.style.color = '#ff6b6b';
+        } else if (status.restore_state && status.restore_state.snapshot_restore_failed) {
+            castlingMsg.textContent = 'Chyba obnovy hry z NVS — hra běží z výchozí / poslední známé pozice. Zkontrolujte log.';
+            castlingMsg.style.display = 'block';
+            castlingMsg.style.background = 'rgba(255,87,34,0.14)';
+            castlingMsg.style.borderColor = 'rgba(255,87,34,0.45)';
+            castlingMsg.style.color = '#ff8a65';
+        } else if (status.restore_state && status.restore_state.snapshot_save_failed) {
+            castlingMsg.textContent = 'Varování: uložení hry do NVS selhalo — po výpadku napájení může chybět poslední tah.';
+            castlingMsg.style.display = 'block';
+            castlingMsg.style.background = 'rgba(255,152,0,0.14)';
+            castlingMsg.style.borderColor = 'rgba(255,152,0,0.45)';
+            castlingMsg.style.color = '#ffb74d';
+        // Next priority: castling guidance.
+        } else if (status.castling_in_progress && status.castling_from && status.castling_to) {
             castlingMsg.textContent = 'Dokončete rošádu: přesuňte věž z ' + status.castling_from + ' na ' + status.castling_to + '.';
             castlingMsg.style.display = 'block';
             // Reset style to warning for castling
@@ -1634,13 +3047,17 @@ function updateStatus(status) {
             castlingMsg.style.borderColor = 'rgba(255,193,7,0.4)';
             castlingMsg.style.color = '#ffc107';
         } else {
-            // If NOT castling, check if we should keep Bot Message or hide it
-            // Bot logic handles showing/hiding bot message, so we only hide if NO bot message logic is active
-            // But simpler: just hide if not castling AND not bot thinking/turn (handled in checkBotTurn)
-            var keepMsg = castlingMsg.textContent.indexOf('Bot') !== -1 || castlingMsg.textContent.indexOf('Losování:') === 0;
-            if (!keepMsg) castlingMsg.style.display = 'none';
+            if (status.game_end && status.game_end.ended) castlingMsg.style.display = 'none';
+            else if (status.game_state !== 'active' && status.game_state !== 'playing') castlingMsg.style.display = 'none';
+            else {
+                var keepMsg = castlingMsg.textContent.indexOf('Losování:') === 0 || castlingMsg.textContent.indexOf('nápověda') !== -1;
+                if (!keepMsg) castlingMsg.style.display = 'none';
+            }
         }
     }
+
+    // Panel „Bot“ – zobrazit jen v režimu proti botovi; při zvednuté figurce navádění
+    updateBotStatusPanel(undefined, status);
 
     // ENDGAME REPORT
     if (status.game_end && status.game_end.ended) {
@@ -1669,9 +3086,17 @@ function updateStatus(status) {
         if (locked) {
             hintBtn.disabled = true;
             hintBtn.title = 'Rozhraní je zamčeno';
+        } else if (status.board_setup_tutorial === true) {
+            hintBtn.disabled = true;
+            hintBtn.title = 'Běží tutoriál rozestavení';
         } else {
             if (typeof updateHintButtonLabel === 'function') updateHintButtonLabel();
         }
+    }
+
+    var tutOv = document.getElementById('setup-tutorial-overlay');
+    if (tutOv && tutOv.style.display === 'flex') {
+        setupTutorialUpdateIntroWarnings(status);
     }
 }
 
@@ -1688,31 +3113,154 @@ function getGradeLabel(grade) {
     }
 }
 
+/** Krátký štítek kvality tahu do přehledu (2–4 znaky). */
+function getGradeShortLabel(grade) {
+    switch (grade) {
+        case 'best': return 'Výb.';
+        case 'good': return 'Dob.';
+        case 'inaccuracy': return 'Nepř.';
+        case 'mistake': return 'Ch.';
+        case 'blunder': return 'Hr.';
+        case 'error': return '!';
+        case 'unknown': return '—';
+        default: return '—';
+    }
+}
+
+function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+/** Kolik posledních tahů v kompaktním náhledu (2–4). */
+var HISTORY_PREVIEW_COUNT = 4;
+var historyFullExpanded = false;
+var historyDetailIndex = null;
+
+function wireHistoryToolbarOnce() {
+    var btn = document.getElementById('history-toggle-full');
+    if (!btn || btn._historyWired) return;
+    btn._historyWired = true;
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        historyFullExpanded = !historyFullExpanded;
+        btn.setAttribute('aria-expanded', historyFullExpanded ? 'true' : 'false');
+        btn.textContent = historyFullExpanded ? 'Skrýt celou historii' : 'Celá historie';
+        renderHistoryList();
+    });
+}
+
+function createHistoryItemElement(move, actualIndex) {
+    var item = document.createElement('div');
+    item.className = 'history-item';
+    item.dataset.moveIndex = String(actualIndex);
+    var moveNum = Math.floor(actualIndex / 2) + 1;
+    var isWhite = actualIndex % 2 === 0;
+    var prefix = isWhite ? moveNum + '. ' : '';
+    item.appendChild(document.createTextNode(prefix + move.from + ' → ' + move.to));
+    var ev = moveEvaluations[actualIndex];
+    if (ev) {
+        var badge = document.createElement('span');
+        badge.className = 'move-eval-badge move-eval-badge--' + (ev.grade || 'good');
+        var fullTitle = ev.msg || getGradeLabel(ev.grade);
+        badge.title = fullTitle;
+        badge.setAttribute('aria-label', fullTitle);
+        badge.textContent = getGradeShortLabel(ev.grade);
+        item.appendChild(document.createTextNode(' '));
+        item.appendChild(badge);
+    }
+    item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleHistoryMoveDetail(actualIndex);
+    });
+    return item;
+}
+
+function toggleHistoryMoveDetail(actualIndex) {
+    var panel = document.getElementById('history-move-detail');
+    if (!panel) return;
+    if (historyDetailIndex === actualIndex) {
+        panel.style.display = 'none';
+        historyDetailIndex = null;
+        return;
+    }
+    historyDetailIndex = actualIndex;
+    var ev = moveEvaluations[actualIndex];
+    var move = historyData[actualIndex];
+    var san = move ? (move.from + ' → ' + move.to) : '—';
+    var gradeLine = ev ? getGradeLabel(ev.grade) : 'Bezhodnoceno';
+    var gExtra = ev && ev.grade ? (' history-detail-grade--' + ev.grade) : '';
+    var msg = ev && ev.msg
+        ? ev.msg
+        : ('Zhodnocení není k dispozici. Zapni „Zhodnocení tahu“ v Nastavení a hraj ' +
+            's připojením k internetu — u každého nového tahu se doplní kvalita.');
+    panel.innerHTML =
+        '<div class="history-detail-inner">' +
+        '<div class="history-detail-san">' + escapeHtml(san) + '</div>' +
+        '<div class="history-detail-grade' + gExtra + '">' + escapeHtml(gradeLine) + '</div>' +
+        '<p class="history-detail-msg">' + escapeHtml(msg) + '</p>' +
+        '<button type="button" class="history-detail-review-btn btn-history-review">' +
+        'Zobrazit pozici na šachovnici</button></div>';
+    var rb = panel.querySelector('.history-detail-review-btn');
+    if (rb) {
+        rb.addEventListener('click', function (ev2) {
+            ev2.stopPropagation();
+            enterReviewMode(actualIndex);
+        });
+    }
+    panel.style.display = 'block';
+}
+
 function renderHistoryList() {
-    const historyBox = document.getElementById('history');
+    var previewEl = document.getElementById('history-preview');
+    var fullEl = document.getElementById('history');
+    var wrap = document.getElementById('history-full-wrap');
+    wireHistoryToolbarOnce();
+
+    if (previewEl && fullEl) {
+        var total = historyData.length;
+        var rev;
+        previewEl.innerHTML = '';
+        fullEl.innerHTML = '';
+        if (historyFullExpanded) {
+            previewEl.style.display = 'none';
+            if (wrap) wrap.style.display = 'block';
+            for (rev = 0; rev < total; rev++) {
+                var ai = total - 1 - rev;
+                fullEl.appendChild(createHistoryItemElement(historyData[ai], ai));
+            }
+        } else {
+            previewEl.style.display = '';
+            if (wrap) wrap.style.display = 'none';
+            var nPrev = Math.min(HISTORY_PREVIEW_COUNT, total);
+            for (rev = 0; rev < nPrev; rev++) {
+                var ai2 = total - 1 - rev;
+                previewEl.appendChild(createHistoryItemElement(historyData[ai2], ai2));
+            }
+        }
+        var tbtn = document.getElementById('history-toggle-full');
+        if (tbtn) {
+            tbtn.style.display = total > HISTORY_PREVIEW_COUNT ? 'inline-block' : 'none';
+        }
+        if (historyDetailIndex != null &&
+            (historyDetailIndex < 0 || historyDetailIndex >= total)) {
+            historyDetailIndex = null;
+            var p = document.getElementById('history-move-detail');
+            if (p) p.style.display = 'none';
+        }
+        return;
+    }
+
+    var historyBox = document.getElementById('history');
     if (!historyBox) return;
     historyBox.innerHTML = '';
-    const showEval = getEvaluateMoveEnabled();
     historyData.slice().reverse().forEach((move, index) => {
-        const item = document.createElement('div');
-        item.className = 'history-item';
-        const actualIndex = historyData.length - 1 - index;
-        item.dataset.moveIndex = actualIndex;
-        const moveNum = Math.floor(actualIndex / 2) + 1;
-        const isWhite = actualIndex % 2 === 0;
-        const prefix = isWhite ? moveNum + '. ' : '';
-        item.textContent = prefix + move.from + ' → ' + move.to;
-        if (showEval && moveEvaluations[actualIndex]) {
-            const ev = moveEvaluations[actualIndex];
-            const badge = document.createElement('span');
-            badge.className = 'move-eval-badge move-eval-badge--' + (ev.grade || 'good');
-            badge.title = ev.msg || getGradeLabel(ev.grade);
-            badge.textContent = getGradeLabel(ev.grade);
-            item.appendChild(document.createTextNode(' '));
-            item.appendChild(badge);
-        }
-        item.onclick = () => enterReviewMode(actualIndex);
-        historyBox.appendChild(item);
+        var actualIndex = historyData.length - 1 - index;
+        historyBox.appendChild(createHistoryItemElement(move, actualIndex));
     });
 }
 
@@ -1730,32 +3278,84 @@ function updateCaptured(captured) {
     captured.white_captured.forEach(p => {
         const piece = document.createElement('div');
         piece.className = 'captured-piece';
-        piece.textContent = pieceSymbols[p] || p;
+        const s = pieceImgSrc(p);
+        if (s) {
+            piece.innerHTML = '<img src="' + s + '" alt="">';
+        } else {
+            piece.textContent = pieceSymbols[p] || p;
+        }
         whiteBox.appendChild(piece);
     });
     captured.black_captured.forEach(p => {
         const piece = document.createElement('div');
         piece.className = 'captured-piece';
-        piece.textContent = pieceSymbols[p] || p;
+        const s2 = pieceImgSrc(p);
+        if (s2) {
+            piece.innerHTML = '<img src="' + s2 + '" alt="">';
+        } else {
+            piece.textContent = pieceSymbols[p] || p;
+        }
         blackBox.appendChild(piece);
     });
 }
 
 async function fetchData() {
     if (reviewMode || sandboxMode) return;
+    if (fetchDataInFlight) return;
+    fetchDataInFlight = true;
     try {
-        const [boardRes, statusRes, historyRes, capturedRes] = await Promise.all([
-            fetch('/api/board'),
-            fetch('/api/status'),
-            fetch('/api/history'),
-            fetch('/api/captured')
-        ]);
-        const board = await boardRes.json();
-        const status = await statusRes.json();
-        const history = await historyRes.json();
-        const captured = await capturedRes.json();
+        var snapRes = await fetch('/api/game/snapshot');
+        var board;
+        var status;
+        var history;
+        var captured;
+        if (snapRes.ok) {
+            var data = await snapRes.json();
+            board = { board: data.board, timestamp: data.timestamp };
+            status = data.status;
+            history = data.history;
+            captured = data.captured;
+            if (data.clock) {
+                lastSnapshotClockInfo = data.clock;
+                lastSnapshotClockAt = Date.now();
+                applyTimerInfo(data.clock);
+            } else {
+                lastSnapshotClockInfo = null;
+                lastSnapshotClockAt = 0;
+            }
+        } else {
+            lastSnapshotClockInfo = null;
+            lastSnapshotClockAt = 0;
+            const [boardRes, statusRes, historyRes, capturedRes] = await Promise.all([
+                fetch('/api/board'),
+                fetch('/api/status'),
+                fetch('/api/history'),
+                fetch('/api/captured')
+            ]);
+            board = await boardRes.json();
+            status = await statusRes.json();
+            history = await historyRes.json();
+            captured = await capturedRes.json();
+        }
         updateBoard(board.board);
         updateStatus(status);
+        if (status && status.puzzle) {
+            var pu = status.puzzle;
+            if (pu.active || pu.setup_active || (pu.feedback && String(pu.feedback).toLowerCase() !== 'none')) {
+                lastPuzzleSnapshotForOffline = {
+                    active: !!pu.active,
+                    setup_active: !!pu.setup_active,
+                    feedback: pu.feedback || 'none',
+                    message: pu.message || '',
+                    title: pu.title || '',
+                    teaser: pu.teaser || ''
+                };
+            } else {
+                lastPuzzleSnapshotForOffline = null;
+            }
+        } else {
+            lastPuzzleSnapshotForOffline = null;
+        }
         updateHistory(history);
         updateCaptured(captured);
 
@@ -1766,6 +3366,15 @@ async function fetchData() {
             lastFen = null;
             lastHistoryLength = 0;
             moveEvaluations = {};
+            historyFullExpanded = false;
+            historyDetailIndex = null;
+            var hmd = document.getElementById('history-move-detail');
+            if (hmd) hmd.style.display = 'none';
+            var htf = document.getElementById('history-toggle-full');
+            if (htf) {
+                htf.textContent = 'Celá historie';
+                htf.setAttribute('aria-expanded', 'false');
+            }
             lastCapturedCount = (capturedData.white_captured || []).length + (capturedData.black_captured || []).length;
             hideMoveEvaluation();
         } else {
@@ -1776,7 +3385,7 @@ async function fetchData() {
             if (getEvaluateMoveEnabled() && !castlingInProgress && lastHistoryLength >= 0 && newHistoryLength === lastHistoryLength + 1 && lastFen) {
                 var lastMove = historyData[newHistoryLength - 1];
                 var lastMoveByWhite = (newHistoryLength - 1) % 2 === 0;
-                var lastMoveByBot = gameMode === 'bot' && ((botSettings.side === 'white' && lastMoveByWhite) || (botSettings.side === 'black' && !lastMoveByWhite));
+                var lastMoveByBot = gameMode === 'bot' && ((botSettings.side === 'black' && lastMoveByWhite) || (botSettings.side === 'white' && !lastMoveByWhite));
                 if (lastMove && lastMove.from && lastMove.to && !lastMoveByBot) {
                     evaluateMoveAsync(lastFen, currentFen, lastMove, newHistoryLength);
                 }
@@ -1787,7 +3396,7 @@ async function fetchData() {
                 addHintReward('capture', sideCapture);
             }
             lastCapturedCount = totalCaptured;
-            if (!castlingInProgress) {
+            if (!castlingInProgress && newHistoryLength >= lastHistoryLength) {
                 lastFen = currentFen;
                 lastHistoryLength = newHistoryLength;
             }
@@ -1795,6 +3404,11 @@ async function fetchData() {
         checkBotTurn(status, currentFen);
     } catch (error) {
         console.error('Fetch error:', error);
+        if (lastPuzzleSnapshotForOffline) {
+            updatePuzzleStatusPanel({ puzzle: lastPuzzleSnapshotForOffline }, { offline: true });
+        }
+    } finally {
+        fetchDataInFlight = false;
     }
 }
 
@@ -1810,6 +3424,9 @@ function initializeApp() {
     var evaluateMoveEl = document.getElementById('evaluate-move-enabled');
     if (evaluateMoveEl) evaluateMoveEl.checked = getEvaluateMoveEnabled();
 
+    var botLedTargetEl = document.getElementById('bot-led-target-only-after-lift');
+    if (botLedTargetEl) botLedTargetEl.checked = getBotLedTargetOnlyAfterLift();
+
     var limit = getHintLimit();
     var n = limit > 0 ? limit : 999;
     hintsRemainingWhite = n;
@@ -1822,10 +3439,92 @@ function initializeApp() {
     console.log('✅ Chess App initialized');
 }
 
-console.log('🚀 Creating chess board...');
-initializeApp(); // Call the new initialization function
-console.log('✅ Chess JavaScript loaded successfully!');
-console.log('⏱️ About to initialize timer system...');
+function ensureBoardFocusExitButton() {
+    if (document.getElementById('web-board-focus-exit')) return;
+    var b = document.createElement('button');
+    b.id = 'web-board-focus-exit';
+    b.type = 'button';
+    b.className = 'web-board-focus-exit-btn';
+    b.textContent = 'Celá aplikace';
+    b.setAttribute('aria-label', 'Zobrazit celou aplikaci');
+    b.onclick = function () {
+        exitWebBoardFocusMode();
+    };
+    document.body.appendChild(b);
+}
+
+function exitWebBoardFocusMode() {
+    document.documentElement.classList.remove('web-board-focus');
+    document.body.classList.remove('web-board-focus');
+    try {
+        document.body.style.position = '';
+        document.body.style.width = '';
+    } catch (e) { /* ignore */ }
+    var x = document.getElementById('web-board-focus-exit');
+    if (x) x.remove();
+    try {
+        localStorage.setItem('chessWebBoardFocus', '0');
+    } catch (e2) { /* ignore */ }
+}
+
+/**
+ * Jen šachovnice + časovače: bez scrollování stránky, táhnutí figur při zapnutém ovládání z webu.
+ * Zapnutí: URL ?focus=1 nebo ?board=1, nebo localStorage chessWebBoardFocus=1
+ */
+function initWebBoardFocusMode() {
+    try {
+        var p = new URLSearchParams(window.location.search);
+        var q = p.get('focus') === '1' || p.get('board') === '1';
+        var ls = false;
+        try {
+            ls = localStorage.getItem('chessWebBoardFocus') === '1';
+        } catch (e0) { /* ignore */ }
+        if (!q && !ls) return;
+        document.documentElement.classList.add('web-board-focus');
+        document.body.classList.add('web-board-focus');
+        try {
+            localStorage.setItem('chessWebBoardFocus', '1');
+        } catch (e1) { /* ignore */ }
+        var rc = document.getElementById('remote-control-enabled');
+        if (rc && !rc.checked) {
+            rc.checked = true;
+            if (typeof toggleRemoteControl === 'function') toggleRemoteControl();
+        }
+        ensureBoardFocusExitButton();
+        if (typeof console !== 'undefined' && console.log) {
+            console.log('[staging] web-board-focus: jen deska + čas; táhni figurky (dálkové ovládání zapnuto)');
+        }
+    } catch (e) {
+        if (typeof console !== 'undefined' && console.warn) console.warn('initWebBoardFocusMode', e);
+    }
+}
+
+window.exitWebBoardFocusMode = exitWebBoardFocusMode;
+
+async function bootstrapChessWebUi() {
+    try {
+        await loadUiPrefsFromDevice();
+    } catch (e) {
+        if (typeof console !== 'undefined' && console.warn) {
+            console.warn('bootstrapChessWebUi loadUiPrefsFromDevice', e);
+        }
+    }
+    applyDevicePrefsToDom();
+    initWebBoardFocusMode();
+    console.log('🚀 Creating chess board...');
+    initializeApp();
+    console.log('✅ Chess JavaScript loaded successfully!');
+    console.log('⏱️ About to initialize timer system...');
+    try {
+        initTimerSystem();
+        console.log('✅ initTimerSystem() called successfully');
+    } catch (error) {
+        console.error('❌ CRITICAL ERROR in initTimerSystem():', error);
+        if (error && error.stack) console.error('Stack:', error.stack);
+    }
+}
+
+bootstrapChessWebUi();
 
 // ============================================================================
 // TIMER SYSTEM
@@ -1843,6 +3542,12 @@ let timerData = {
     avg_move_time_ms: 0
 };
 let timerUpdateInterval = null;
+/** -1 = ještě nezjištěno; 1000 při aktivní časové kontrole, 8000 když je vypnutá. */
+let timerPollMs = -1;
+/** Čerstvý `clock` z GET /api/game/snapshot — šetří GET /api/timer v updateTimerDisplay. */
+let lastSnapshotClockInfo = null;
+let lastSnapshotClockAt = 0;
+const SNAPSHOT_CLOCK_FRESH_MS = 900;
 let selectedTimeControl = 0;
 
 // ========== HELPER FUNCTIONS (must be defined before use) ==========
@@ -2000,10 +3705,9 @@ function changeTimeControl() {
     const select = document.getElementById('time-control-select');
     const applyBtn = document.getElementById('apply-time-control');
     if (!select) return;
-    selectedTimeControl = parseInt(select.value);
+    selectedTimeControl = parseInt(select.value, 10);
     toggleCustomSettings();
     if (applyBtn) applyBtn.disabled = false;
-    localStorage.setItem('chess_time_control', selectedTimeControl.toString());
 }
 
 // ========== TIMER INITIALIZATION AND MAIN FUNCTIONS ==========
@@ -2018,13 +3722,7 @@ function initTimerSystem() {
         setTimeout(() => initTimerSystem(), 100);
         return;
     }
-    const savedTimeControl = localStorage.getItem('chess_time_control');
-    if (savedTimeControl) {
-        selectedTimeControl = parseInt(savedTimeControl);
-        timeControlSelect.value = selectedTimeControl;
-    } else {
-        selectedTimeControl = parseInt(timeControlSelect.value);
-    }
+    selectedTimeControl = parseInt(timeControlSelect.value, 10);
     toggleCustomSettings();
     // Enable button if a time control is selected (not 0 = None)
     if (selectedTimeControl !== 0 && applyButton) {
@@ -2035,62 +3733,83 @@ function initTimerSystem() {
     startTimerUpdateLoop();
 }
 
-function startTimerUpdateLoop() {
-    console.log('✅ Timer update loop starting... (will update every 1000ms)');
+function rescheduleTimerPollInterval() {
+    var active = timerData.config && timerData.config.type !== 0;
+    var want = active ? 1000 : 8000;
+    if (timerPollMs === want && timerUpdateInterval) {
+        return;
+    }
+    timerPollMs = want;
     if (timerUpdateInterval) {
-        console.log('⚠️ Clearing existing timer interval');
         clearInterval(timerUpdateInterval);
     }
     timerUpdateInterval = setInterval(async () => {
         try {
             await updateTimerDisplay();
         } catch (error) {
-            console.error('❌ Timer update loop error:', error);
+            console.error('Timer update loop error:', error);
         }
-    }, 1000); // Optimized from 200ms to 1s (5× fewer requests, still responsive)
-    console.log('✅ Timer interval set successfully, ID:', timerUpdateInterval);
-    // Initial immediate update
-    console.log('⏱️ Calling initial timer update...');
-    updateTimerDisplay().catch(e => console.error('❌ Initial timer update failed:', e));
+    }, timerPollMs);
+}
+
+function startTimerUpdateLoop() {
+    if (timerUpdateInterval) {
+        clearInterval(timerUpdateInterval);
+        timerUpdateInterval = null;
+    }
+    timerPollMs = -1;
+    updateTimerDisplay().catch(e => console.error('Initial timer update failed:', e));
+}
+
+function applyTimerInfo(timerInfo) {
+    timerData = timerInfo;
+    const tcSel = document.getElementById('time-control-select');
+    if (tcSel && timerInfo.config && typeof timerInfo.config.type === 'number') {
+        var tt = timerInfo.config.type;
+        selectedTimeControl = tt;
+        if (tcSel.value !== String(tt)) {
+            tcSel.value = String(tt);
+        }
+        toggleCustomSettings();
+    }
+    updatePlayerTime('white', timerInfo.white_time_ms);
+    updatePlayerTime('black', timerInfo.black_time_ms);
+    updateActivePlayer(timerInfo.is_white_turn);
+    updateProgressBars(timerInfo);
+    updateTimerStats(timerInfo);
+    const pauseBtn = document.getElementById('pause-timer');
+    const resumeBtn = document.getElementById('resume-timer');
+    const resetBtn = document.getElementById('reset-timer');
+    const isTimerActive = timerInfo.config && timerInfo.config.type !== 0;
+    if (pauseBtn) pauseBtn.disabled = !isTimerActive;
+    if (resumeBtn) resumeBtn.disabled = !isTimerActive;
+    if (resetBtn) resetBtn.disabled = !isTimerActive;
+    if (isTimerActive) {
+        checkTimeWarnings(timerInfo);
+        if (timerInfo.time_expired) {
+            handleTimeExpiration(timerInfo);
+        }
+    }
+    rescheduleTimerPollInterval();
 }
 
 async function updateTimerDisplay() {
     try {
-        console.log('⏱️ updateTimerDisplay() called, fetching /api/timer...');
+        if (lastSnapshotClockInfo && (Date.now() - lastSnapshotClockAt) < SNAPSHOT_CLOCK_FRESH_MS) {
+            applyTimerInfo(lastSnapshotClockInfo);
+            return;
+        }
         const response = await fetch('/api/timer');
-        console.log('⏱️ /api/timer response status:', response.status);
         if (response.ok) {
             const timerInfo = await response.json();
-            timerData = timerInfo;
-            // Format time for logging
-            const whiteTime = formatTime(timerInfo.white_time_ms);
-            const blackTime = formatTime(timerInfo.black_time_ms);
-            console.log('⏱️ Timer:', timerInfo.config ? timerInfo.config.name : 'NO CONFIG', '| White:', whiteTime, '(' + timerInfo.white_time_ms + 'ms)', '| Black:', blackTime, '(' + timerInfo.black_time_ms + 'ms)');
-            updatePlayerTime('white', timerInfo.white_time_ms);
-            updatePlayerTime('black', timerInfo.black_time_ms);
-            updateActivePlayer(timerInfo.is_white_turn);
-            updateProgressBars(timerInfo);
-            updateTimerStats(timerInfo);
-            // Disable/enable timer controls podle config.type
-            const pauseBtn = document.getElementById('pause-timer');
-            const resumeBtn = document.getElementById('resume-timer');
-            const resetBtn = document.getElementById('reset-timer');
-            const isTimerActive = timerInfo.config && timerInfo.config.type !== 0;
-            if (pauseBtn) pauseBtn.disabled = !isTimerActive;
-            if (resumeBtn) resumeBtn.disabled = !isTimerActive;
-            if (resetBtn) resetBtn.disabled = !isTimerActive;
-            // Pouze pokud je časová kontrola aktivní
-            if (isTimerActive) {
-                checkTimeWarnings(timerInfo);
-                if (timerInfo.time_expired) {
-                    handleTimeExpiration(timerInfo);
-                }
-            }
+            applyTimerInfo(timerInfo);
         } else {
-            console.error('❌ Timer update failed:', response.status);
+            console.error('Timer update failed:', response.status);
+            rescheduleTimerPollInterval();
         }
     } catch (error) {
-        console.error('❌ Timer update error:', error);
+        console.error('Timer update error:', error);
+        rescheduleTimerPollInterval();
     }
 }
 
@@ -2207,6 +3926,132 @@ async function setBrightness(value) {
 }
 window.setBrightness = setBrightness;
 
+async function setLedGuidanceLevel(level) {
+    const n = Math.min(5, Math.max(1, parseInt(level, 10)));
+    if (Number.isNaN(n)) {
+        return;
+    }
+    try {
+        const response = await fetch('/api/settings/led_guidance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level: n })
+        });
+        const data = response.ok ? await response.json().catch(() => ({})) : {};
+        if (data.success === false) {
+            console.warn('Nastavení LED nápovědy selhalo:', data.message || response.status);
+        }
+    } catch (err) {
+        console.error('Chyba nastavení LED nápovědy:', err.message);
+    }
+}
+window.setLedGuidanceLevel = setLedGuidanceLevel;
+
+// ============================================================================
+// LAMP MODE (Nastavení → Zařízení: Šachovnice / Lampa, barva)
+// ============================================================================
+
+function showLightError(msg) {
+    const el = document.getElementById('light-error-msg');
+    if (el) {
+        el.textContent = msg || 'Chyba odeslání';
+        el.style.display = '';
+        setTimeout(function () { el.style.display = 'none'; el.textContent = ''; }, 2500);
+    }
+}
+
+async function setLightModeGame() {
+    try {
+        const res = await fetch('/api/light/game_mode', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        if (res.ok) {
+            const btnGame = document.getElementById('light-mode-game');
+            const btnLamp = document.getElementById('light-mode-lamp');
+            const lampControls = document.getElementById('light-lamp-controls');
+            if (btnGame) btnGame.classList.add('active');
+            if (btnLamp) btnLamp.classList.remove('active');
+            if (lampControls) lampControls.style.display = 'none';
+        } else {
+            showLightError('Přepnutí na šachovnici selhalo');
+        }
+    } catch (e) {
+        console.warn('setLightModeGame failed:', e.message);
+        showLightError('Chyba sítě');
+    }
+}
+
+async function setLightModeLamp(r, g, b, state) {
+    const rr = Math.min(255, Math.max(0, parseInt(r, 10) || 255));
+    const gg = Math.min(255, Math.max(0, parseInt(g, 10) || 255));
+    const bb = Math.min(255, Math.max(0, parseInt(b, 10) || 255));
+    try {
+        const res = await fetch('/api/light/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state: !!state, r: rr, g: gg, b: bb })
+        });
+        if (res.ok) {
+            const btnGame = document.getElementById('light-mode-game');
+            const btnLamp = document.getElementById('light-mode-lamp');
+            const lampControls = document.getElementById('light-lamp-controls');
+            if (btnGame) btnGame.classList.remove('active');
+            if (btnLamp) btnLamp.classList.add('active');
+            if (lampControls) lampControls.style.display = '';
+        } else {
+            const data = await res.json().catch(function () { return {}; });
+            showLightError(data.message || 'Zařízení není připraveno (503)');
+        }
+    } catch (e) {
+        console.warn('setLightModeLamp failed:', e.message);
+        showLightError('Chyba sítě');
+    }
+}
+
+let lightCommandDebounceId = null;
+function sendLightCommandDebounced() {
+    if (lightCommandDebounceId) clearTimeout(lightCommandDebounceId);
+    lightCommandDebounceId = setTimeout(function () {
+        lightCommandDebounceId = null;
+        const rEl = document.getElementById('light-r'), gEl = document.getElementById('light-g'), bEl = document.getElementById('light-b');
+        const toggleEl = document.getElementById('light-state-toggle');
+        if (!rEl || !gEl || !bEl) return;
+        const r = parseInt(rEl.value, 10) || 0, g = parseInt(gEl.value, 10) || 0, b = parseInt(bEl.value, 10) || 0;
+        const state = toggleEl ? toggleEl.checked : true;
+        setLightModeLamp(r, g, b, state);
+    }, 120);
+}
+
+function initLightControls() {
+    const btnGame = document.getElementById('light-mode-game');
+    const btnLamp = document.getElementById('light-mode-lamp');
+    const toggleEl = document.getElementById('light-state-toggle');
+    const ledGuidanceEl = document.getElementById('led-guidance-level');
+    const rEl = document.getElementById('light-r'), gEl = document.getElementById('light-g'), bEl = document.getElementById('light-b');
+    if (btnGame) btnGame.addEventListener('click', setLightModeGame);
+    if (btnLamp) btnLamp.addEventListener('click', function () {
+        const r = rEl ? parseInt(rEl.value, 10) : 255, g = gEl ? parseInt(gEl.value, 10) : 255, b = bEl ? parseInt(bEl.value, 10) : 255;
+        setLightModeLamp(r, g, b, true);
+    });
+    if (toggleEl) toggleEl.addEventListener('change', sendLightCommandDebounced);
+    if (ledGuidanceEl) {
+        ledGuidanceEl.addEventListener('change', function () {
+            setLedGuidanceLevel(ledGuidanceEl.value);
+        });
+    }
+    function updateRgbLabel(id, valueId) {
+        const el = document.getElementById(id), val = document.getElementById(valueId);
+        if (el && val) { val.textContent = el.value; }
+    }
+    if (rEl) { rEl.addEventListener('input', function () { updateRgbLabel('light-r', 'light-r-value'); sendLightCommandDebounced(); }); }
+    if (gEl) { gEl.addEventListener('input', function () { updateRgbLabel('light-g', 'light-g-value'); sendLightCommandDebounced(); }); }
+    if (bEl) { bEl.addEventListener('input', function () { updateRgbLabel('light-b', 'light-b-value'); sendLightCommandDebounced(); }); }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLightControls);
+} else {
+    setTimeout(initLightControls, 100);
+}
+
 // ============================================================================
 // NEW GAME (Nastavení → action bar „Nová hra“) – for inline onclick
 // ============================================================================
@@ -2214,11 +4059,7 @@ window.setBrightness = setBrightness;
 function getConfirmNewGameEnabled() {
     const cb = document.getElementById('confirm-new-game');
     if (cb) return cb.checked;
-    try {
-        return localStorage.getItem('chess_confirm_new_game') === 'true';
-    } catch (e) {
-        return false;
-    }
+    return !!devicePrefs.chess_confirm_new_game;
 }
 
 async function startNewGame() {
@@ -2305,27 +4146,6 @@ function handleRandomDraw() {
 }
 window.handleRandomDraw = handleRandomDraw;
 
-(function initConfirmNewGamePref() {
-    function apply() {
-        var cb = document.getElementById('confirm-new-game');
-        if (!cb) return;
-        try {
-            var saved = localStorage.getItem('chess_confirm_new_game');
-            cb.checked = saved === 'true';
-        } catch (e) { }
-        cb.addEventListener('change', function () {
-            try {
-                localStorage.setItem('chess_confirm_new_game', cb.checked);
-            } catch (e) { }
-        });
-    }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', apply);
-    } else {
-        apply();
-    }
-})();
-
 // ============================================================================
 // PROMOTION MODAL (Q/R/B/N a Zrušit) – for inline onclick
 // ============================================================================
@@ -2365,16 +4185,6 @@ window.hideEndgameReport = hideEndgameReport;
 window.toggleRemoteControl = toggleRemoteControl;
 window.undoSandboxMove = undoSandboxMove;
 
-// Initialize timer system immediately (will retry if DOM not ready)
-console.log('⏱️ Exposing timer functions and calling initTimerSystem()...');
-try {
-    initTimerSystem();
-    console.log('✅ initTimerSystem() called successfully');
-} catch (error) {
-    console.error('❌ CRITICAL ERROR in initTimerSystem():', error);
-    console.error('Stack:', error.stack);
-}
-
 // ============================================================================
 // KEYBOARD SHORTCUTS AND EVENT HANDLERS
 // ============================================================================
@@ -2410,6 +4220,13 @@ document.addEventListener('keydown', (e) => {
 
 // Click outside to deselect
 document.addEventListener('click', (e) => {
+    if (!e.target.closest('.history-block')) {
+        var pd = document.getElementById('history-move-detail');
+        if (pd) {
+            pd.style.display = 'none';
+            historyDetailIndex = null;
+        }
+    }
     if (!e.target.closest('.square') && !e.target.closest('.history-item')) {
         if (!reviewMode) {
             clearHighlights();
@@ -2493,6 +4310,22 @@ async function clearWiFiConfig() {
     }
 }
 
+/** True if API vrací uložené STA SSID z NVS (ne zástupný text z firmware). */
+function wifiStatusHasSavedStaSsid(staSsid) {
+    if (staSsid == null || typeof staSsid !== 'string') {
+        return false;
+    }
+    const s = staSsid.trim();
+    if (s === '') {
+        return false;
+    }
+    const lower = s.toLowerCase();
+    if (lower === 'not configured' || lower === 'nenastaveno') {
+        return false;
+    }
+    return true;
+}
+
 async function updateWiFiStatus() {
     try {
         const response = await fetch('/api/wifi/status');
@@ -2500,10 +4333,11 @@ async function updateWiFiStatus() {
         document.getElementById('ap-ssid').textContent = data.ap_ssid || 'ESP32-CzechMate';
         document.getElementById('ap-ip').textContent = data.ap_ip || '192.168.4.1';
         document.getElementById('ap-clients').textContent = data.ap_clients || 0;
-        document.getElementById('sta-ssid').textContent = data.sta_ssid || 'Nenastaveno';
+        document.getElementById('sta-ssid').textContent =
+            wifiStatusHasSavedStaSsid(data.sta_ssid) ? data.sta_ssid : 'Nenastaveno';
         document.getElementById('sta-ip').textContent = data.sta_ip || 'Nepřipojeno';
         document.getElementById('sta-connected').textContent = data.sta_connected ? 'ano' : 'ne';
-        if (data.sta_ssid && data.sta_ssid !== 'Nenastaveno') {
+        if (wifiStatusHasSavedStaSsid(data.sta_ssid)) {
             document.getElementById('wifi-ssid').value = data.sta_ssid;
         }
         // Zařízení: Zámek a Online (data z téhož API)

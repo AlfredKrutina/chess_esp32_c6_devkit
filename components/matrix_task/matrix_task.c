@@ -118,6 +118,7 @@
 #include "freertos/timers.h"
 #include "freertos_chess.h"
 #include <ctype.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -184,6 +185,8 @@ static uint32_t scan_count = 0;
 static uint8_t last_piece_lifted = 255; // Zadna figurka
 static uint8_t last_piece_placed = 255; // Zadna figurka
 static uint32_t move_detection_timeout = 0;
+static bool matrix_guard_mode_active = false;
+static uint8_t matrix_guard_expected_state[64] = {0};
 
 // Vzory matice pro simulaci
 static const uint8_t simulation_patterns[][64] = {
@@ -548,6 +551,42 @@ static void matrix_send_drop_command_with_from(uint8_t from_square,
   }
 }
 
+static void matrix_send_guard_command(uint32_t lifted_mask_low,
+                                      uint32_t lifted_mask_high,
+                                      uint32_t dropped_mask_low,
+                                      uint32_t dropped_mask_high,
+                                      uint8_t action) {
+  extern QueueHandle_t game_command_queue;
+
+  if (game_command_queue == NULL) {
+    ESP_LOGW(TAG, "game_command_queue not available - cannot send GUARD command");
+    return;
+  }
+
+  chess_move_command_t cmd = {
+      .type = GAME_CMD_MATRIX_GUARD,
+      .player = 0,
+      .response_queue = NULL,
+  };
+  cmd.timer_data.matrix_guard.lifted_mask_low = lifted_mask_low;
+  cmd.timer_data.matrix_guard.lifted_mask_high = lifted_mask_high;
+  cmd.timer_data.matrix_guard.dropped_mask_low = dropped_mask_low;
+  cmd.timer_data.matrix_guard.dropped_mask_high = dropped_mask_high;
+  cmd.timer_data.matrix_guard.action = action;
+  cmd.from_notation[0] = '\0';
+  cmd.to_notation[0] = '\0';
+
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+    ESP_LOGW(TAG,
+             "MATRIX GUARD command sent: action=%u lifted=%08" PRIx32
+             ":%08" PRIx32 " dropped=%08" PRIx32 ":%08" PRIx32,
+             (unsigned int)action, lifted_mask_high, lifted_mask_low,
+             dropped_mask_high, dropped_mask_low);
+  } else {
+    ESP_LOGW(TAG, "Failed to send MATRIX GUARD command");
+  }
+}
+
 void matrix_detect_moves(void) {
   // Check for move timeout - change from RESET to WARNING + EXTEND
   if (last_piece_lifted != 255) {
@@ -562,22 +601,65 @@ void matrix_detect_moves(void) {
     }
   }
 
-  // Look for piece lifted (1->0 transition)
+  // Collect full delta in this scan to detect ambiguous states.
   uint8_t piece_lifted = 255;
+  uint8_t piece_placed = 255;
+  uint8_t lift_count = 0;
+  uint8_t drop_count = 0;
+  uint32_t lifted_mask_low = 0;
+  uint32_t lifted_mask_high = 0;
+  uint32_t dropped_mask_low = 0;
+  uint32_t dropped_mask_high = 0;
   for (int i = 0; i < 64; i++) {
     if (matrix_previous[i] == 1 && matrix_state[i] == 0) {
-      piece_lifted = i;
-      break;
+      lift_count++;
+      if (piece_lifted == 255) {
+        piece_lifted = i;
+      }
+      if (i < 32) {
+        lifted_mask_low |= (1UL << i);
+      } else {
+        lifted_mask_high |= (1UL << (i - 32));
+      }
+    } else if (matrix_previous[i] == 0 && matrix_state[i] == 1) {
+      drop_count++;
+      if (piece_placed == 255) {
+        piece_placed = i;
+      }
+      if (i < 32) {
+        dropped_mask_low |= (1UL << i);
+      } else {
+        dropped_mask_high |= (1UL << (i - 32));
+      }
     }
   }
 
-  // Look for piece placed (0->1 transition)
-  uint8_t piece_placed = 255;
-  for (int i = 0; i < 64; i++) {
-    if (matrix_previous[i] == 0 && matrix_state[i] == 1) {
-      piece_placed = i;
-      break;
+  bool ambiguous_state =
+      (lift_count > 1) || (drop_count > 1) ||
+      (last_piece_lifted != 255 && lift_count > 0);
+
+  if (ambiguous_state) {
+    if (!matrix_guard_mode_active) {
+      // Snapshot expected board occupancy before anomaly.
+      memcpy(matrix_guard_expected_state, matrix_previous,
+             sizeof(matrix_guard_expected_state));
     }
+    matrix_guard_mode_active = true;
+    matrix_send_guard_command(lifted_mask_low, lifted_mask_high, dropped_mask_low,
+                              dropped_mask_high, 1);
+    return;
+  }
+
+  if (matrix_guard_mode_active) {
+    // Keep matrix flow paused until board occupancy is back to expected state.
+    bool back_to_expected =
+        (memcmp(matrix_state, matrix_guard_expected_state,
+                sizeof(matrix_guard_expected_state)) == 0);
+    if (lift_count == 0 && drop_count == 0 && back_to_expected) {
+      matrix_guard_mode_active = false;
+      matrix_send_guard_command(0, 0, 0, 0, 0);
+    }
+    return;
   }
 
   // Process move detection
@@ -835,6 +917,8 @@ void matrix_reset(void) {
   last_piece_lifted = 255;
   last_piece_placed = 255;
   move_detection_timeout = 0;
+  matrix_guard_mode_active = false;
+  memset(matrix_guard_expected_state, 0, sizeof(matrix_guard_expected_state));
 
   // Reset scanning
   current_row = 0;

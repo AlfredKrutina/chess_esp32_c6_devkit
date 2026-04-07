@@ -182,25 +182,22 @@ extern "C" {
 // VELIKOSTI FRONT
 // ============================================================================
 
-// PAMETI OPTIMALIZOVANE VELIKOSTI FRONT - Faze 1
-// Celkova pamet front: 8KB → 5KB = 3KB uspora
-/** @brief Velikost LED fronty (50 prvku, zvetseno z 15 na 50 pro stabilitu) */
-#define LED_QUEUE_SIZE 50 // Velikost LED fronty (50 prvku pro stabilitu)
-/** @brief Velikost matrix fronty (8 prvku, snizeno z 15 na 8, dostatecne pro
- * skenovani) */
-#define MATRIX_QUEUE_SIZE 8 // Reduced from 15 to 8 (sufficient for scanning)
-/** @brief Velikost button fronty (5 prvku, snizeno z 8 na 5, udalosti jsou
- * vzacne) */
-#define BUTTON_QUEUE_SIZE                                                      \
-  5 // Reduced from 8 to 5 (button events are infrequent)
-/** @brief Velikost UART fronty (10 prvku, snizeno z 20 na 10, uspora ~38 KB
- * pameti) */
-#define UART_QUEUE_SIZE 10 // Reduced from 20 to 10 to save ~38 KB memory
-/** @brief Velikost game fronty (20 prvku, snizeno z 30 na 20, dostatecne pro
- * game prikazy) */
-#define GAME_QUEUE_SIZE                                                        \
-  50 // STABILITY FIX: Increased from 20 to 50 for better handling of rapid
-     // moves // Reduced from 30 to 20 (sufficient for game commands)
+/** @brief Matrix: udalosti pri skenovani 8x8 (dostatecna hloubka pro burst). */
+#define MATRIX_QUEUE_SIZE 8
+/** @brief Button: udalosti z ISR (vzacne). */
+#define BUTTON_QUEUE_SIZE 5
+/** @brief UART: prikazy/odpovedi (sizeof(game_response_t) ~ 328 B na polozku). */
+#define UART_QUEUE_SIZE 10
+/** @brief Game: rychle tahy z webu/matice (24 × chess_move_command_t; dříve 50). */
+#define GAME_QUEUE_SIZE 24
+/**
+ * @brief Test: uint8 prikazy do test_task (0–5 v test_process_commands).
+ * @note LED fronty se nepouzivaji (direct LED); drive byla tato hodnota
+ *       mylne pojmenovana LED_QUEUE_SIZE.
+ */
+#define TEST_COMMAND_QUEUE_SIZE 16
+/** @brief UART vystupni fronta (polozka = sizeof(uart_message_t), uart_queue_message.h). */
+#define UART_OUTPUT_QUEUE_LENGTH 20
 /** @brief Velikost animation fronty (5 prvku, snizeno z 8 na 5, jednoduche
  * animace) */
 #define ANIMATION_QUEUE_SIZE 5 // Reduced from 8 to 5 (simple animations)
@@ -216,25 +213,14 @@ extern "C" {
 // VELIKOSTI STACKU A PRIORITY TASKU
 // ============================================================================
 
-// Velikosti stacku tasku (v bajtech) - PAMETI OPTIMALIZOVANE FAZE 1
-// Celkove pouziti stacku: 57KB → 41KB = 16KB uspora (UART task zvysen na 10KB
-// pro game_response_t na stacku)
-/** @brief Velikost stacku LED tasku (8KB - KRITICKE: LED task potrebuje vice
- * stacku pro critical sections + velka pole) */
-#define LED_TASK_STACK_SIZE (8 * 1024) // 8KB (Optimized: 16KB was excessive)
-/** @brief Velikost stacku Matrix tasku (8KB - zvyseno pro game_response_t na
- * stacku) */
-#define MATRIX_TASK_STACK_SIZE                                                 \
-  (4 * 1024) // 4KB (Optimized: Reduced struct size allow smaller stack)
-/** @brief Velikost stacku Button tasku (3KB - nezmeneno, jiz optimalni) */
-#define BUTTON_TASK_STACK_SIZE (3 * 1024) // 3KB (unchanged - already optimal)
-/** @brief Velikost stacku UART tasku (10KB - game_response_t je 3.8KB +
- * overhead) */
-#define UART_TASK_STACK_SIZE                                                   \
-  (5 * 1024) // 5KB (Optimized: Reduced struct size allow smaller stack)
-/** @brief Velikost stacku Game tasku (10KB pro bezpecny error handling) */
-#define GAME_TASK_STACK_SIZE                                                   \
-  (6 * 1024) // 6KB (Optimized: Reduced struct size allow smaller stack)
+/** @brief LED: WS2812 + animacni logika (merit high-water mark pred snizovanim). */
+#define LED_TASK_STACK_SIZE (8 * 1024)
+/** @brief Matrix: sken + odezvy (game_response_t). */
+#define MATRIX_TASK_STACK_SIZE (4 * 1024)
+#define BUTTON_TASK_STACK_SIZE (3 * 1024)
+/** @brief UART: radka vstupu + game_response_t pri forwardu odpovedi. */
+#define UART_TASK_STACK_SIZE (5 * 1024)
+#define GAME_TASK_STACK_SIZE (6 * 1024)
 /** @brief Velikost stacku Animation tasku (2KB, snizeno z 3KB, jednoduche
  * animace) */
 #define ANIMATION_TASK_STACK_SIZE                                              \

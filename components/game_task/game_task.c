@@ -173,6 +173,7 @@ xSemaphoreGive(...);
 #include "game_colors.h"
 // HA Light Task integration
 #include "../ha_light_task/include/ha_light_task.h"
+#include "../config_manager/include/config_manager.h"
 // Note: animation_task.h is not included to avoid type conflicts with
 // unified_animation_manager
 #include "esp_log.h"
@@ -186,11 +187,21 @@ xSemaphoreGive(...);
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
+#include "../game_hooks/include/game_state_notify.h"
 
 static const char *TAG = "GAME_TASK";
+
+#ifndef NDEBUG
+#define STAGING_LOGI(tag, fmt, ...) ESP_LOGI(tag, "[STAGING] " fmt, ##__VA_ARGS__)
+#else
+#define STAGING_LOGI(tag, fmt, ...) ((void)0)
+#endif
 
 // ============================================================================
 // WDT WRAPPER FUNCTIONS
@@ -245,6 +256,8 @@ static const int8_t knight_moves[8][2] = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},
 static game_state_t current_game_state = GAME_STATE_IDLE;
 static player_t current_player = PLAYER_WHITE;
 static uint32_t move_count = 0;
+/** Monotónní verze stavu pro klienty (ETag / If-None-Match, delta). */
+static uint32_t game_state_revision = 0;
 // New logic: Block auto-new game until at least one move is made
 static bool auto_new_game_blocked_until_move = false;
 
@@ -284,6 +297,123 @@ static uint8_t capture_target_row = 0;   // Kam se má položit vlastní figurka
 static uint8_t capture_target_col = 0;
 static piece_t capture_removed_piece =
     PIECE_EMPTY; // Jaká figurka byla odebrána
+
+#define GUIDED_CAPTURE_MAX_ATTACKERS 16
+typedef struct {
+  bool active;
+  uint8_t target_row;
+  uint8_t target_col;
+  piece_t target_piece;
+  uint8_t attacker_count;
+  uint8_t attacker_rows[GUIDED_CAPTURE_MAX_ATTACKERS];
+  uint8_t attacker_cols[GUIDED_CAPTURE_MAX_ATTACKERS];
+  piece_t attacker_pieces[GUIDED_CAPTURE_MAX_ATTACKERS];
+} guided_capture_state_t;
+
+static guided_capture_state_t guided_capture_state = {0};
+static bool guided_capture_hints_enabled = true;
+/** 1 = jen zdroj zvednutí … 5 = plná nápověda vč. guided capture na LED */
+static uint8_t led_guidance_level = 5;
+
+static bool game_led_guidance_show_destinations(void) {
+  return led_guidance_level >= 2;
+}
+
+static bool game_led_guidance_show_movable_yellow(void) {
+  return led_guidance_level >= 3;
+}
+
+static bool game_led_guidance_show_check_anim(void) {
+  return led_guidance_level >= 4;
+}
+
+static void game_show_guided_capture_leds(void);
+
+typedef struct {
+  bool active;
+  uint32_t lifted_mask_low;
+  uint32_t lifted_mask_high;
+  uint32_t dropped_mask_low;
+  uint32_t dropped_mask_high;
+  uint8_t conflict_count;
+} matrix_guard_pause_state_t;
+
+static matrix_guard_pause_state_t matrix_guard_pause_state = {0};
+
+#define GAME_SNAPSHOT_VERSION 1
+#define GAME_SNAPSHOT_HISTORY_CAP 40
+#define BOOT_WINDOW_SECONDS 60
+
+typedef struct {
+  uint32_t version;
+  uint32_t crc32;
+  uint8_t format; // 2=full, 1=minimal
+  uint8_t board[64];
+  uint8_t current_player;
+  uint8_t game_state;
+  uint32_t move_count;
+  uint8_t white_king_moved;
+  uint8_t white_rook_a_moved;
+  uint8_t white_rook_h_moved;
+  uint8_t black_king_moved;
+  uint8_t black_rook_a_moved;
+  uint8_t black_rook_h_moved;
+  uint8_t en_passant_available;
+  uint8_t en_passant_target_row;
+  uint8_t en_passant_target_col;
+  uint8_t en_passant_victim_row;
+  uint8_t en_passant_victim_col;
+  uint8_t promotion_pending;
+  uint8_t promotion_row;
+  uint8_t promotion_col;
+  uint8_t promotion_player;
+  uint32_t white_time_total;
+  uint32_t black_time_total;
+  uint32_t white_remaining_ms;
+  uint32_t black_remaining_ms;
+  uint8_t history_count;
+  chess_move_t history[GAME_SNAPSHOT_HISTORY_CAP];
+} game_snapshot_full_t;
+
+typedef struct {
+  uint32_t version;
+  uint32_t crc32;
+  uint8_t format; // 1=minimal
+  uint8_t board[64];
+  uint8_t current_player;
+  uint8_t game_state;
+  uint32_t move_count;
+  uint8_t white_king_moved;
+  uint8_t white_rook_a_moved;
+  uint8_t white_rook_h_moved;
+  uint8_t black_king_moved;
+  uint8_t black_rook_a_moved;
+  uint8_t black_rook_h_moved;
+  uint8_t en_passant_available;
+  uint8_t en_passant_target_row;
+  uint8_t en_passant_target_col;
+  uint8_t en_passant_victim_row;
+  uint8_t en_passant_victim_col;
+  uint8_t promotion_pending;
+  uint8_t promotion_row;
+  uint8_t promotion_col;
+  uint8_t promotion_player;
+} game_snapshot_min_t;
+
+typedef struct {
+  uint32_t version;
+  uint32_t crc32;
+  uint32_t first_boot_epoch_s;
+  uint8_t boot_counter_window;
+  uint8_t moved_since_boot;
+} game_boot_tracker_t;
+
+static bool snapshot_loaded_on_boot = false;
+static bool snapshot_restore_failed = false;
+static bool snapshot_save_failed = false;
+static bool snapshot_fallback_used = false;
+static bool boot_new_game_triggered = false;
+static bool resync_required_after_restore = false;
 
 // Proměnné pro tracking opponent piece (když se zvedne figurka
 // nehrajícího hráče)
@@ -424,6 +554,23 @@ static void resignation_stop(bool finalize);
 static void resignation_update_button_leds(uint32_t elapsed_ms);
 static void resignation_tick(void);
 static void resignation_finalize_timeout(void);
+static bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd);
+static uint8_t game_count_mask_bits(uint32_t low, uint32_t high);
+static bool game_matrix_guard_mode_conflict_active(void);
+static void game_render_matrix_guard_leds(void);
+static void game_handle_matrix_guard_command(const chess_move_command_t *cmd);
+static uint32_t game_crc32_simple(const uint8_t *data, size_t len);
+static esp_err_t game_save_snapshot_to_nvs(void);
+static esp_err_t game_load_snapshot_from_nvs(void);
+static void game_boot_tracker_update_on_move(void);
+static bool game_boot_tracker_should_force_new_game(void);
+static void game_check_resync_needed_after_restore(void);
+static void game_persist_after_valid_move(void);
+static void game_try_clear_local_guard_from_matrix(void);
+static bool game_parse_piece_from_fen(char c, piece_t *out_piece);
+static bool game_load_position_from_fen(const char *fen, player_t *active_player);
+static const char *game_puzzle_feedback_key(void);
+static const char *game_puzzle_feedback_message(void);
 
 // Forward declarations
 void game_highlight_opponent_pieces(void);
@@ -1262,6 +1409,53 @@ static bool has_last_move = false;
 // Tutorial mode state
 static bool tutorial_mode_active = false;
 static bool show_hints = true;
+/** Web „základní postavení“: prázdná logika, matrix guard potlačen. */
+static bool board_setup_tutorial_active = false;
+typedef struct {
+  uint8_t id;
+  uint8_t difficulty;
+  const char *title;
+  const char *teaser;
+  const char *fen;
+  const char *solution_from;
+  const char *solution_to;
+} game_puzzle_definition_t;
+
+typedef enum {
+  PUZZLE_FEEDBACK_NONE = 0,
+  PUZZLE_FEEDBACK_WRONG = 1,
+  PUZZLE_FEEDBACK_SOLVED = 2,
+  PUZZLE_FEEDBACK_ILLEGAL = 3
+} puzzle_feedback_t;
+
+static const game_puzzle_definition_t game_puzzles[] = {
+    {1, 1, "Mat 1 – Dáma na poslední řadě",
+     "Klasický motiv: otevřený f-sloupec, dáma dá mat na f8.",
+     "7k/7p/8/8/8/8/5Q2/6K1 w - - 0 1", "f2", "f8"},
+    {2, 2, "Mat 1 – Dáma po sloupci",
+     "Útok po ose: dáma stoupá z b2 na b8.",
+     "6k1/5ppp/8/8/8/8/1Q6/6K1 w - - 0 1", "b2", "b8"},
+    {3, 3, "Mat 1 – Věž bere věž",
+     "Taktika zadní řady: bílá věž sebere černou na e8 a matuje krále.",
+     "4r1k1/5ppp/8/8/8/8/4R3/4K3 w - - 0 1", "e2", "e8"},
+    {4, 4, "Mat 1 – Školácký mat",
+     "Známá ukázková pozice: střelec na c4, dáma na h5 — mat na f7.",
+     "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1",
+     "h5", "f7"},
+    {5, 5, "Mat 1 – Dáma na d8",
+     "Centrální úder: dáma z d4 uzavře mat na poli d8.",
+     "6k1/5ppp/8/8/3Q4/8/6PP/6K1 w - - 0 1", "d4", "d8"},
+};
+static bool puzzle_active = false;
+/** Příprava fyzické pozice před game_puzzle_start (prázdná logika, matrix v JSON). */
+static bool puzzle_setup_active = false;
+static uint8_t puzzle_setup_id = 0;
+static uint8_t puzzle_active_id = 0;
+static uint8_t puzzle_solution_from_row = 0;
+static uint8_t puzzle_solution_from_col = 0;
+static uint8_t puzzle_solution_to_row = 0;
+static uint8_t puzzle_solution_to_col = 0;
+static puzzle_feedback_t puzzle_feedback = PUZZLE_FEEDBACK_NONE;
 // Game analysis flags (for future use)
 // static bool show_warnings = true;
 // static bool show_analysis = true;
@@ -1292,21 +1486,11 @@ static const char *piece_symbols[] = {
 // GAME INITIALIZATION FUNCTIONS
 // ============================================================================
 
-/**
- * @brief Checks if board is physically in starting position (occupancy only)
- *
- * ✅ UPDATED LOGIC per User Request Phase 2:
- * Uses RAW SENSOR DATA from Matrix Task instead of logical board state.
- * Checks if Rows 0, 1, 6, 7 are FULL (occupied) and Rows 2, 3, 4, 5 are EMPTY.
- * Ignores piece types (identity doesn't matter, just occupancy).
- * This works even if logical board state is out of sync due to manual reset.
- */
-static bool game_is_board_in_starting_position(void) {
-  uint8_t state[64];
-  // Retrieve raw sensor state (1=occupied, 0=empty)
-  matrix_get_state(state);
+/** Vzorků matice při kontrole výchozí pozice (reed kontakty často „klepou“). */
+#define GAME_START_POS_MATRIX_SAMPLES 5
+#define GAME_START_POS_MAJORITY_VOTES 3
 
-  // Check Rows 2, 3, 4, 5 must be EMPTY (0)
+static bool game_board_starting_occupancy_matches(const uint8_t state[64]) {
   for (int row = 2; row < 6; row++) {
     for (int col = 0; col < 8; col++) {
       if (state[row * 8 + col] != 0) {
@@ -1314,8 +1498,6 @@ static bool game_is_board_in_starting_position(void) {
       }
     }
   }
-
-  // Check Rows 0, 1 (White side) must be FULL (1)
   for (int row = 0; row < 2; row++) {
     for (int col = 0; col < 8; col++) {
       if (state[row * 8 + col] == 0) {
@@ -1323,8 +1505,6 @@ static bool game_is_board_in_starting_position(void) {
       }
     }
   }
-
-  // Check Rows 6, 7 (Black side) must be FULL (1)
   for (int row = 6; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
       if (state[row * 8 + col] == 0) {
@@ -1332,8 +1512,82 @@ static bool game_is_board_in_starting_position(void) {
       }
     }
   }
-
   return true;
+}
+
+static void game_log_first_startpos_mismatch(const uint8_t state[64]) {
+  char sq[4];
+  for (int row = 2; row < 6; row++) {
+    for (int col = 0; col < 8; col++) {
+      int idx = row * 8 + col;
+      if (state[idx] != 0) {
+        matrix_square_to_notation((uint8_t)idx, sq);
+        ESP_LOGW(TAG,
+                 "starting position: rank 3–6 square %s must be empty "
+                 "(majority vote saw piece)",
+                 sq);
+        return;
+      }
+    }
+  }
+  for (int row = 0; row < 2; row++) {
+    for (int col = 0; col < 8; col++) {
+      int idx = row * 8 + col;
+      if (state[idx] == 0) {
+        matrix_square_to_notation((uint8_t)idx, sq);
+        ESP_LOGW(TAG,
+                 "starting position: rank 1–2 square %s must be occupied "
+                 "(majority vote saw empty)",
+                 sq);
+        return;
+      }
+    }
+  }
+  for (int row = 6; row < 8; row++) {
+    for (int col = 0; col < 8; col++) {
+      int idx = row * 8 + col;
+      if (state[idx] == 0) {
+        matrix_square_to_notation((uint8_t)idx, sq);
+        ESP_LOGW(TAG,
+                 "starting position: rank 7–8 square %s must be occupied "
+                 "(majority vote saw empty)",
+                 sq);
+        return;
+      }
+    }
+  }
+}
+
+/**
+ * @brief Checks if board is physically in starting position (occupancy only)
+ *
+ * Uses RAW SENSOR DATA from Matrix Task. Rows 0–1 a 6–7 plné, 2–5 prázdné.
+ * Více vzorků + většinové hlasování kvůli šumu u reedů při dokončení tutorialu.
+ */
+static bool game_is_board_in_starting_position(void) {
+  uint8_t votes[64] = {0};
+
+  for (int s = 0; s < GAME_START_POS_MATRIX_SAMPLES; s++) {
+    uint8_t snap[64];
+    matrix_get_state(snap);
+    for (int i = 0; i < 64; i++) {
+      votes[i] += snap[i];
+    }
+    if (s + 1 < GAME_START_POS_MATRIX_SAMPLES) {
+      vTaskDelay(pdMS_TO_TICKS(12));
+    }
+  }
+
+  uint8_t stable[64];
+  for (int i = 0; i < 64; i++) {
+    stable[i] = (votes[i] >= GAME_START_POS_MAJORITY_VOTES) ? 1 : 0;
+  }
+
+  if (game_board_starting_occupancy_matches(stable)) {
+    return true;
+  }
+  game_log_first_startpos_mismatch(stable);
+  return false;
 }
 
 /**
@@ -1421,6 +1675,19 @@ void game_initialize_board(void) {
   // Board will be displayed after all tasks are initialized
 }
 
+static void game_bump_revision_and_notify(void) {
+  game_task_wdt_reset_safe();
+  game_state_revision++;
+  if (game_state_revision == 0U) {
+    game_state_revision = 1U;
+  }
+  game_task_wdt_reset_safe();
+  czechmate_on_game_state_changed();
+  game_task_wdt_reset_safe();
+}
+
+uint32_t game_get_state_revision(void) { return game_state_revision; }
+
 /**
  * @brief Resetuje hru do vychoziho stavu
  *
@@ -1477,6 +1744,11 @@ void game_reset_game(void) {
   // Clear move history
   memset(move_history, 0, sizeof(move_history));
   history_index = 0;
+  puzzle_active = false;
+  puzzle_active_id = 0;
+  puzzle_setup_active = false;
+  puzzle_setup_id = 0;
+  puzzle_feedback = PUZZLE_FEEDBACK_NONE;
 
   // Clear captured pieces
   white_captured_count = 0;
@@ -1515,6 +1787,23 @@ void game_reset_game(void) {
   capture_target_col = 0;
   capture_removed_piece = PIECE_EMPTY;
 
+  // Reset guided capture state
+  guided_capture_state.active = false;
+  guided_capture_state.target_row = 0;
+  guided_capture_state.target_col = 0;
+  guided_capture_state.target_piece = PIECE_EMPTY;
+  guided_capture_state.attacker_count = 0;
+  memset(guided_capture_state.attacker_rows, 0,
+         sizeof(guided_capture_state.attacker_rows));
+  memset(guided_capture_state.attacker_cols, 0,
+         sizeof(guided_capture_state.attacker_cols));
+  memset(guided_capture_state.attacker_pieces, 0,
+         sizeof(guided_capture_state.attacker_pieces));
+
+  // Reset matrix guard pause state
+  memset(&matrix_guard_pause_state, 0, sizeof(matrix_guard_pause_state));
+  resync_required_after_restore = false;
+
   // Reset promotion state to prevent blocking moves in a new game.
   promotion_state.pending = false;
   promotion_state.square_row = 0;
@@ -1542,6 +1831,359 @@ void game_reset_game(void) {
   game_initialize_board();
 
   ESP_LOGI(TAG, "Game reset completed");
+  game_bump_revision_and_notify();
+}
+
+/**
+ * Po game_reset_game(): vyprázdní logiku a IDLE — společné pro vstup/výstup z
+ * tutoriálu rozestavení.
+ */
+static void game_apply_empty_logical_board_after_full_reset(void) {
+  memset(board, 0, sizeof(board));
+  memset(piece_moved, 0, sizeof(piece_moved));
+  current_game_state = GAME_STATE_IDLE;
+  game_active = false;
+  move_count = 0;
+  white_king_moved = true;
+  white_rook_a_moved = true;
+  white_rook_h_moved = true;
+  black_king_moved = true;
+  black_rook_a_moved = true;
+  black_rook_h_moved = true;
+  memset(&castling_state, 0, sizeof(castling_state));
+  en_passant_available = false;
+  game_check_promotion_needed();
+}
+
+void game_enter_board_setup_tutorial(void) {
+  game_puzzle_cancel();
+  game_reset_game();
+  game_apply_empty_logical_board_after_full_reset();
+  board_setup_tutorial_active = true;
+  STAGING_LOGI(TAG,
+               "board_setup_tutorial: entered (empty logical, guard bypass)");
+}
+
+void game_exit_board_setup_tutorial(bool apply_full_start_position) {
+  board_setup_tutorial_active = false;
+  if (apply_full_start_position) {
+    game_start_new_game();
+    STAGING_LOGI(TAG, "board_setup_tutorial: exited with full start position");
+    return;
+  }
+  game_reset_game();
+  game_apply_empty_logical_board_after_full_reset();
+  STAGING_LOGI(TAG, "board_setup_tutorial: cancelled (empty logical board)");
+}
+
+bool game_is_board_setup_tutorial_active(void) {
+  return board_setup_tutorial_active;
+}
+
+bool game_is_physical_board_starting_occupancy(void) {
+  return game_is_board_in_starting_position();
+}
+
+bool game_finish_board_setup_tutorial_from_web(void) {
+  bool physical_ok = false;
+  if (game_mutex != NULL) {
+    if (xSemaphoreTake(game_mutex, pdMS_TO_TICKS(2000)) != pdTRUE) {
+      return false;
+    }
+  }
+  if (!board_setup_tutorial_active) {
+    if (game_mutex != NULL) {
+      xSemaphoreGive(game_mutex);
+    }
+    return false;
+  }
+  physical_ok = game_is_board_in_starting_position();
+  if (!physical_ok) {
+    if (game_mutex != NULL) {
+      xSemaphoreGive(game_mutex);
+    }
+    return false;
+  }
+  board_setup_tutorial_active = false;
+  if (game_mutex != NULL) {
+    xSemaphoreGive(game_mutex);
+  }
+  game_start_new_game();
+  STAGING_LOGI(TAG,
+               "board_setup_tutorial: finish OK — physical start, new game");
+  return true;
+}
+
+static bool game_parse_piece_from_fen(char c, piece_t *out_piece) {
+  if (out_piece == NULL) {
+    return false;
+  }
+  switch (c) {
+  case 'P':
+    *out_piece = PIECE_WHITE_PAWN;
+    return true;
+  case 'N':
+    *out_piece = PIECE_WHITE_KNIGHT;
+    return true;
+  case 'B':
+    *out_piece = PIECE_WHITE_BISHOP;
+    return true;
+  case 'R':
+    *out_piece = PIECE_WHITE_ROOK;
+    return true;
+  case 'Q':
+    *out_piece = PIECE_WHITE_QUEEN;
+    return true;
+  case 'K':
+    *out_piece = PIECE_WHITE_KING;
+    return true;
+  case 'p':
+    *out_piece = PIECE_BLACK_PAWN;
+    return true;
+  case 'n':
+    *out_piece = PIECE_BLACK_KNIGHT;
+    return true;
+  case 'b':
+    *out_piece = PIECE_BLACK_BISHOP;
+    return true;
+  case 'r':
+    *out_piece = PIECE_BLACK_ROOK;
+    return true;
+  case 'q':
+    *out_piece = PIECE_BLACK_QUEEN;
+    return true;
+  case 'k':
+    *out_piece = PIECE_BLACK_KING;
+    return true;
+  default:
+    return false;
+  }
+}
+
+static bool game_load_position_from_fen(const char *fen, player_t *active_player) {
+  if (fen == NULL || active_player == NULL) {
+    return false;
+  }
+
+  memset(board, 0, sizeof(board));
+
+  int row = 7;
+  int col = 0;
+  const char *p = fen;
+  while (*p != '\0' && *p != ' ') {
+    if (*p == '/') {
+      if (col != 8) {
+        return false;
+      }
+      row--;
+      col = 0;
+      p++;
+      continue;
+    }
+    if (*p >= '1' && *p <= '8') {
+      col += (*p - '0');
+      if (col > 8) {
+        return false;
+      }
+      p++;
+      continue;
+    }
+    piece_t piece = PIECE_EMPTY;
+    if (!game_parse_piece_from_fen(*p, &piece)) {
+      return false;
+    }
+    if (row < 0 || row > 7 || col < 0 || col > 7) {
+      return false;
+    }
+    board[row][col] = piece;
+    col++;
+    p++;
+  }
+
+  if (row != 0 || col != 8 || *p != ' ') {
+    return false;
+  }
+
+  p++;
+  if (*p == 'w') {
+    *active_player = PLAYER_WHITE;
+  } else if (*p == 'b') {
+    *active_player = PLAYER_BLACK;
+  } else {
+    return false;
+  }
+  return true;
+}
+
+static const game_puzzle_definition_t *game_get_puzzle_definition(uint8_t puzzle_id) {
+  for (size_t i = 0; i < (sizeof(game_puzzles) / sizeof(game_puzzles[0])); i++) {
+    if (game_puzzles[i].id == puzzle_id) {
+      return &game_puzzles[i];
+    }
+  }
+  return NULL;
+}
+
+/** Očekávaná obsazenost (0/1) z FEN — jen placement, bez typů figurek. */
+static bool game_fen_expected_occupancy_64(const char *fen, uint8_t exp[64]) {
+  memset(exp, 0, 64);
+  if (fen == NULL) {
+    return false;
+  }
+  int row = 7;
+  int col = 0;
+  const char *p = fen;
+  while (*p != '\0' && *p != ' ') {
+    if (*p == '/') {
+      if (col != 8) {
+        return false;
+      }
+      row--;
+      col = 0;
+      p++;
+      continue;
+    }
+    if (*p >= '1' && *p <= '8') {
+      col += (*p - '0');
+      if (col > 8) {
+        return false;
+      }
+      p++;
+      continue;
+    }
+    if (row < 0 || row > 7 || col < 0 || col > 7) {
+      return false;
+    }
+    exp[row * 8 + col] = 1;
+    col++;
+    p++;
+  }
+  return (row == 0 && col == 8 && *p == ' ');
+}
+
+static bool game_puzzle_physical_matches_fen(const char *fen) {
+  uint8_t exp[64];
+  if (!game_fen_expected_occupancy_64(fen, exp)) {
+    return false;
+  }
+  uint8_t phys[64];
+  matrix_get_state(phys);
+  for (int i = 0; i < 64; i++) {
+    uint8_t want = exp[i] ? (uint8_t)1 : (uint8_t)0;
+    uint8_t got = phys[i] ? (uint8_t)1 : (uint8_t)0;
+    if (want != got) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool game_puzzle_enter_setup(uint8_t puzzle_id) {
+  const game_puzzle_definition_t *puzzle = game_get_puzzle_definition(puzzle_id);
+  if (puzzle == NULL) {
+    return false;
+  }
+  if (board_setup_tutorial_active) {
+    game_exit_board_setup_tutorial(false);
+  }
+  game_puzzle_cancel();
+  game_reset_game();
+  game_apply_empty_logical_board_after_full_reset();
+  puzzle_setup_active = true;
+  puzzle_setup_id = puzzle_id;
+  led_clear_board_only();
+  STAGING_LOGI(TAG, "puzzle: enter setup id=%u", (unsigned)puzzle_id);
+  return true;
+}
+
+bool game_is_puzzle_setup_active(void) { return puzzle_setup_active; }
+
+bool game_puzzle_start(uint8_t puzzle_id) {
+  const game_puzzle_definition_t *puzzle = game_get_puzzle_definition(puzzle_id);
+  if (puzzle == NULL) {
+    return false;
+  }
+
+  game_reset_game();
+
+  player_t fen_player = PLAYER_WHITE;
+  if (!game_load_position_from_fen(puzzle->fen, &fen_player)) {
+    ESP_LOGE(TAG, "puzzle: failed to load FEN for id=%u", (unsigned)puzzle_id);
+    return false;
+  }
+
+  uint8_t from_row = 0, from_col = 0, to_row = 0, to_col = 0;
+  if (!convert_notation_to_coords(puzzle->solution_from, &from_row, &from_col) ||
+      !convert_notation_to_coords(puzzle->solution_to, &to_row, &to_col)) {
+    ESP_LOGE(TAG, "puzzle: invalid solution notation for id=%u",
+             (unsigned)puzzle_id);
+    return false;
+  }
+
+  current_player = fen_player;
+  current_game_state = GAME_STATE_ACTIVE;
+  game_active = true;
+  game_start_time = esp_timer_get_time() / 1000;
+  last_move_time = game_start_time;
+  board_setup_tutorial_active = false;
+  puzzle_setup_active = false;
+  puzzle_setup_id = 0;
+  puzzle_active = true;
+  puzzle_active_id = puzzle_id;
+  puzzle_solution_from_row = from_row;
+  puzzle_solution_from_col = from_col;
+  puzzle_solution_to_row = to_row;
+  puzzle_solution_to_col = to_col;
+  puzzle_feedback = PUZZLE_FEEDBACK_NONE;
+  led_clear_board_only();
+  game_highlight_movable_pieces();
+  STAGING_LOGI(TAG, "puzzle: started id=%u difficulty=%u",
+               (unsigned)puzzle->id, (unsigned)puzzle->difficulty);
+  return true;
+}
+
+void game_puzzle_cancel(void) {
+  bool was = puzzle_active || puzzle_setup_active;
+  puzzle_active = false;
+  puzzle_active_id = 0;
+  puzzle_setup_active = false;
+  puzzle_setup_id = 0;
+  puzzle_feedback = PUZZLE_FEEDBACK_NONE;
+  if (was) {
+    STAGING_LOGI(TAG, "puzzle: cancelled");
+  }
+}
+
+bool game_is_puzzle_active(void) {
+  return puzzle_active;
+}
+
+static const char *game_puzzle_feedback_key(void) {
+  switch (puzzle_feedback) {
+  case PUZZLE_FEEDBACK_WRONG:
+    return "wrong";
+  case PUZZLE_FEEDBACK_SOLVED:
+    return "solved";
+  case PUZZLE_FEEDBACK_ILLEGAL:
+    return "illegal";
+  case PUZZLE_FEEDBACK_NONE:
+  default:
+    return "none";
+  }
+}
+
+static const char *game_puzzle_feedback_message(void) {
+  switch (puzzle_feedback) {
+  case PUZZLE_FEEDBACK_WRONG:
+    return "To neni spravne reseni, vrat figurku na puvodni pole.";
+  case PUZZLE_FEEDBACK_SOLVED:
+    return "Spravne! Puzzle je vyresene.";
+  case PUZZLE_FEEDBACK_ILLEGAL:
+    return "Nelegalni tah, zkus jiny.";
+  case PUZZLE_FEEDBACK_NONE:
+  default:
+    return "";
+  }
 }
 
 /**
@@ -1562,8 +2204,18 @@ void game_reset_game(void) {
 void game_start_new_game(void) {
   ESP_LOGI(TAG, "Starting new game...");
 
+  game_task_wdt_reset_safe();
+  (void)config_erase_key_from_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL);
+  (void)config_erase_key_from_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN);
+  (void)config_erase_key_from_nvs(CONFIG_NVS_KEY_BOOT_TRACKER);
+  game_task_wdt_reset_safe();
+
+  snapshot_save_failed = false;
+  snapshot_restore_failed = false;
+
   // Reset game
   game_reset_game();
+  game_task_wdt_reset_safe();
 
   // Reset timer před novou hrou
   game_reset_timer();
@@ -1637,7 +2289,9 @@ void game_start_new_game(void) {
   if (total_games >= 1) { // Povolit highlight i pro první hru!
     // Restart hry - zvýraznit pohyblivé figurky
     vTaskDelay(pdMS_TO_TICKS(100)); // Krátká pauza pro stabilizaci
+    game_task_wdt_reset_safe();
     game_highlight_movable_pieces();
+    game_task_wdt_reset_safe();
     ESP_LOGI(TAG,
              "✅ Highlighted movable pieces for starting player (restart)");
   } else {
@@ -1646,6 +2300,7 @@ void game_start_new_game(void) {
         TAG,
         "⏸️  Boot sequence: Skipping movable pieces highlight (first game)");
   }
+  game_bump_revision_and_notify();
 }
 
 // ============================================================================
@@ -3224,21 +3879,33 @@ bool game_execute_move(const chess_move_t *move) {
     last_move_to_col = move->to_col;
     has_last_move = true;
 
-    // Add to move history
-    if (history_index < MAX_MOVES_HISTORY) {
-      move_history[history_index] = *move;
-      move_history[history_index].piece = source_piece;
-      move_history[history_index].captured_piece = dest_piece;
-      move_history[history_index].timestamp = esp_timer_get_time() / 1000;
-      history_index++;
+    // Rošáda = jeden tah v historii (král už byl přidán; tah věže nepřidávat)
+    bool is_castling_rook_completion =
+        (castling_state.in_progress &&
+         move->from_row == castling_state.rook_from_row &&
+         move->from_col == castling_state.rook_from_col &&
+         move->to_row == castling_state.rook_to_row &&
+         move->to_col == castling_state.rook_to_col);
+
+    if (!is_castling_rook_completion) {
+      // Add to move history
+      if (history_index < MAX_MOVES_HISTORY) {
+        move_history[history_index] = *move;
+        move_history[history_index].piece = source_piece;
+        move_history[history_index].captured_piece = dest_piece;
+        move_history[history_index].timestamp = esp_timer_get_time() / 1000;
+        history_index++;
+      }
+
+      // Update game state
+      move_count++;
+      last_move_time = esp_timer_get_time() / 1000;
+
+      // Record material advantage pro graf
+      game_record_material_advantage();
+    } else {
+      last_move_time = esp_timer_get_time() / 1000;
     }
-
-    // Update game state
-    move_count++;
-    last_move_time = esp_timer_get_time() / 1000;
-
-    // Record material advantage pro graf
-    game_record_material_advantage();
 
     // ENHANCED CASTLING DETECTION
     if (extended_move.move_type == MOVE_TYPE_CASTLE_KING ||
@@ -3305,6 +3972,7 @@ bool game_execute_move(const chess_move_t *move) {
           'a' + castling_state.rook_to_col, castling_state.rook_to_row + 1);
       ESP_LOGI(TAG, "🏰 Castling in progress - player remains %s",
                current_player == PLAYER_WHITE ? "White" : "Black");
+      game_persist_after_valid_move();
       return success; // Return success but don't change player - hráč se změní
                       // až po dokončení rošády
     }
@@ -3353,6 +4021,7 @@ bool game_execute_move(const chess_move_t *move) {
       ESP_LOGI(
           TAG,
           "🏁 Promotion flow started - awaiting selection (buttons/UART/web)");
+      game_persist_after_valid_move();
       return success; // Don't change player - wait for promotion choice
     }
 
@@ -3370,6 +4039,13 @@ bool game_execute_move(const chess_move_t *move) {
         board[move->to_row][move->to_col] = move->piece;
         board[castling_state.rook_from_row][castling_state.rook_from_col] =
             PIECE_EMPTY;
+
+        // Počet rošád pro výukový přehled / API
+        if (castling_state.player == PLAYER_WHITE) {
+          white_castles++;
+        } else {
+          black_castles++;
+        }
 
         // Aktualizovat příznaky pro krále a věž
         if (castling_state.player == PLAYER_WHITE) {
@@ -3489,25 +4165,28 @@ bool game_execute_move(const chess_move_t *move) {
             }
 
             if (king_row != -1 && king_col != -1) {
-              uint8_t king_led_index =
-                  chess_pos_to_led_index(king_row, king_col);
-              // Spustit check animaci - růžové svícení na králi
-              led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                         .led_index = king_led_index,
-                                         .red = 0,
-                                         .green = 0,
-                                         .blue = 0,
-                                         .duration_ms =
-                                             0, // Trvalé až do dalšího tahu
-                                         .data = NULL};
-              led_execute_command_new(&check_cmd);
-              ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
-                       current_player == PLAYER_WHITE ? "White" : "Black");
+              if (game_led_guidance_show_check_anim()) {
+                uint8_t king_led_index =
+                    chess_pos_to_led_index(king_row, king_col);
+                // Spustit check animaci - růžové svícení na králi
+                led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                           .led_index = king_led_index,
+                                           .red = 0,
+                                           .green = 0,
+                                           .blue = 0,
+                                           .duration_ms =
+                                               0, // Trvalé až do dalšího tahu
+                                           .data = NULL};
+                led_execute_command_new(&check_cmd);
+                ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
+                         current_player == PLAYER_WHITE ? "White" : "Black");
+              }
             }
           }
         }
 
         // RETURN po dokončení rošády - hráč se už změnil
+        game_persist_after_valid_move();
         return success;
       } else {
         // Wrong move during castling
@@ -3576,6 +4255,7 @@ bool game_execute_move(const chess_move_t *move) {
               castling_state.rook_from_row + 1,
               'a' + castling_state.rook_to_col, castling_state.rook_to_row + 1);
           // Nezměnit hráče - stále čekáme na správný tah věže
+          game_persist_after_valid_move();
           return success; // Return success but don't change player
         }
       }
@@ -3611,6 +4291,8 @@ bool game_execute_move(const chess_move_t *move) {
   // Update promotion LED indications after move
   if (success) {
     game_check_promotion_needed();
+    game_persist_after_valid_move();
+    game_bump_revision_and_notify();
   }
 
   return success;
@@ -3623,6 +4305,77 @@ bool game_execute_move(const chess_move_t *move) {
 game_state_t game_get_state(void) { return current_game_state; }
 
 player_t game_get_current_player(void) { return current_player; }
+
+void game_set_guided_capture_hints_enabled(bool enabled) {
+  guided_capture_hints_enabled = enabled;
+  STAGING_LOGI(TAG, "Guided capture hints set to: %s",
+               enabled ? "ON" : "OFF");
+
+  if (guided_capture_state.active) {
+    if (enabled) {
+      game_show_guided_capture_leds();
+    } else {
+      led_clear_board_only();
+      game_highlight_movable_pieces();
+    }
+  }
+}
+
+bool game_get_guided_capture_hints_enabled(void) {
+  return guided_capture_hints_enabled;
+}
+
+uint8_t game_get_led_guidance_level(void) { return led_guidance_level; }
+
+void game_set_led_guidance_level(uint8_t level) {
+  if (level < 1U) {
+    level = 1;
+  }
+  if (level > 5U) {
+    level = 5;
+  }
+  led_guidance_level = level;
+  bool want_gc = (level >= 5);
+  if (guided_capture_hints_enabled != want_gc) {
+    game_set_guided_capture_hints_enabled(want_gc);
+  }
+}
+
+bool game_is_matrix_guard_active(void) { return matrix_guard_pause_state.active; }
+
+uint8_t game_get_matrix_guard_conflict_count(void) {
+  return matrix_guard_pause_state.conflict_count;
+}
+
+uint32_t game_get_matrix_guard_lifted_mask_low(void) {
+  return matrix_guard_pause_state.lifted_mask_low;
+}
+
+uint32_t game_get_matrix_guard_lifted_mask_high(void) {
+  return matrix_guard_pause_state.lifted_mask_high;
+}
+
+uint32_t game_get_matrix_guard_dropped_mask_low(void) {
+  return matrix_guard_pause_state.dropped_mask_low;
+}
+
+uint32_t game_get_matrix_guard_dropped_mask_high(void) {
+  return matrix_guard_pause_state.dropped_mask_high;
+}
+
+bool game_was_snapshot_loaded_on_boot(void) { return snapshot_loaded_on_boot; }
+
+bool game_is_snapshot_fallback_used(void) { return snapshot_fallback_used; }
+
+bool game_has_snapshot_restore_failure(void) { return snapshot_restore_failed; }
+
+bool game_has_snapshot_save_failure(void) { return snapshot_save_failed; }
+
+bool game_is_resync_required_after_restore(void) {
+  return resync_required_after_restore;
+}
+
+bool game_was_boot_new_game_triggered(void) { return boot_new_game_triggered; }
 
 void game_print_board(void) {
   // Add spacing before board
@@ -3834,24 +4587,15 @@ static void game_send_response_to_uart(const char *message, bool is_error,
       .timestamp = esp_timer_get_time() / 1000};
   strcpy(response.data, response_message);
 
-  // STABILITY FIX: Use timeout instead of portMAX_DELAY to prevent deadlocks
-  if (game_mutex != NULL) {
-    if (xSemaphoreTake(game_mutex, pdMS_TO_TICKS(1000)) != pdTRUE) {
-      ESP_LOGE(TAG, "Failed to acquire game_mutex - timeout!");
-      return; // Return early if mutex unavailable
-    }
-  }
-
+  /* Bez game_mutex: odeslání do fronty jen kopíruje připravený řetězec; mutex by
+   * mohl deadlocknout (game_task × HTTP GET držící mutex pro JSON) nebo zdvojit
+   * nest-rekurzivní zámek. Čtení stavu pro UART je vždy přes předaný `message`. */
   if (xQueueSend(response_queue, &response, pdMS_TO_TICKS(100)) != pdTRUE) {
     ESP_LOGW(TAG,
              "Failed to send response to UART task (queue full or timeout)");
   } else {
     ESP_LOGI(TAG, "Response sent to UART task: %s",
              is_error ? "ERROR" : "SUCCESS");
-  }
-
-  if (game_mutex != NULL) {
-    xSemaphoreGive(game_mutex);
   }
 }
 
@@ -3984,12 +4728,619 @@ static void game_send_board_to_uart(QueueHandle_t response_queue) {
 
 // Function removed - using game_send_board_to_uart(QueueHandle_t) instead
 
+static bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd) {
+  if (cmd == NULL) {
+    return false;
+  }
+  return (cmd->response_queue == NULL &&
+          (cmd->type == GAME_CMD_PICKUP || cmd->type == GAME_CMD_DROP));
+}
+
+static uint8_t game_count_mask_bits(uint32_t low, uint32_t high) {
+  uint8_t count = 0;
+  while (low != 0) {
+    count += (uint8_t)(low & 1U);
+    low >>= 1;
+  }
+  while (high != 0) {
+    count += (uint8_t)(high & 1U);
+    high >>= 1;
+  }
+  return count;
+}
+
+static bool game_matrix_guard_mode_conflict_active(void) {
+  return (board_setup_tutorial_active || puzzle_setup_active || puzzle_active ||
+          promotion_state.pending ||
+          castling_state.in_progress || castle_animation_active ||
+          resignation_state.active || guided_capture_state.active ||
+          error_recovery_state.waiting_for_move_correction);
+}
+
+static void game_render_matrix_guard_leds(void) {
+  if (!matrix_guard_pause_state.active) {
+    return;
+  }
+
+  led_clear_board_only();
+  uint64_t mask = ((uint64_t)matrix_guard_pause_state.lifted_mask_high << 32) |
+                  matrix_guard_pause_state.lifted_mask_low |
+                  ((uint64_t)matrix_guard_pause_state.dropped_mask_high << 32) |
+                  matrix_guard_pause_state.dropped_mask_low;
+
+  uint8_t phys[64] = {0};
+  matrix_get_state(phys);
+
+  for (uint8_t square = 0; square < 64; square++) {
+    if ((mask & (1ULL << square)) == 0) {
+      continue;
+    }
+    uint8_t row = square / 8;
+    uint8_t col = square % 8;
+    piece_t piece = board[row][col];
+    if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) {
+      led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255, 0);
+    } else if (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING) {
+      led_set_pixel_safe(chess_pos_to_led_index(row, col), 0, 0, 255);
+    } else if (phys[square] != 0) {
+      /* Logika říká prázdno, senzor hlásí figurku — zvýraznit (oranžová). */
+      led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 140, 0);
+    } else {
+      /* Chybí figurka oproti logice — bílá výplň */
+      led_set_pixel_safe(chess_pos_to_led_index(row, col), 220, 220, 220);
+    }
+  }
+}
+
+static void game_handle_matrix_guard_command(const chess_move_command_t *cmd) {
+  if (cmd == NULL || cmd->type != GAME_CMD_MATRIX_GUARD) {
+    return;
+  }
+
+  uint8_t action = cmd->timer_data.matrix_guard.action;
+  if (action == 0) {
+    matrix_guard_pause_state.active = false;
+    matrix_guard_pause_state.lifted_mask_low = 0;
+    matrix_guard_pause_state.lifted_mask_high = 0;
+    matrix_guard_pause_state.dropped_mask_low = 0;
+    matrix_guard_pause_state.dropped_mask_high = 0;
+    matrix_guard_pause_state.conflict_count = 0;
+    resync_required_after_restore = false;
+    STAGING_LOGI(TAG, "Matrix guard cleared");
+    led_clear_board_only();
+    game_highlight_movable_pieces();
+    return;
+  }
+
+  if (game_matrix_guard_mode_conflict_active()) {
+    STAGING_LOGI(TAG, "Matrix guard ignored due to active special mode");
+    return;
+  }
+
+  matrix_guard_pause_state.active = true;
+  matrix_guard_pause_state.lifted_mask_low =
+      cmd->timer_data.matrix_guard.lifted_mask_low;
+  matrix_guard_pause_state.lifted_mask_high =
+      cmd->timer_data.matrix_guard.lifted_mask_high;
+  matrix_guard_pause_state.dropped_mask_low =
+      cmd->timer_data.matrix_guard.dropped_mask_low;
+  matrix_guard_pause_state.dropped_mask_high =
+      cmd->timer_data.matrix_guard.dropped_mask_high;
+  matrix_guard_pause_state.conflict_count = game_count_mask_bits(
+      matrix_guard_pause_state.lifted_mask_low |
+          matrix_guard_pause_state.dropped_mask_low,
+      matrix_guard_pause_state.lifted_mask_high |
+          matrix_guard_pause_state.dropped_mask_high);
+
+  // Freeze matrix move flow and clear transient lift state.
+  piece_lifted = false;
+  lifted_piece = PIECE_EMPTY;
+  lifted_piece_row = 0;
+  lifted_piece_col = 0;
+  capture_in_progress = false;
+
+  STAGING_LOGI(TAG, "Matrix guard active, conflict_count=%u",
+               matrix_guard_pause_state.conflict_count);
+  game_render_matrix_guard_leds();
+}
+
+static uint32_t game_crc32_simple(const uint8_t *data, size_t len) {
+  uint32_t h = 2166136261u;
+  if (data == NULL) {
+    return h;
+  }
+  for (size_t i = 0; i < len; i++) {
+    h ^= data[i];
+    h *= 16777619u;
+  }
+  return h;
+}
+
+static void game_snapshot_fill_board(uint8_t out_board[64]) {
+  if (out_board == NULL) {
+    return;
+  }
+  for (uint8_t row = 0; row < 8; row++) {
+    for (uint8_t col = 0; col < 8; col++) {
+      out_board[row * 8 + col] = (uint8_t)board[row][col];
+    }
+  }
+}
+
+static void game_snapshot_apply_board(const uint8_t in_board[64]) {
+  if (in_board == NULL) {
+    return;
+  }
+  for (uint8_t row = 0; row < 8; row++) {
+    for (uint8_t col = 0; col < 8; col++) {
+      board[row][col] = (piece_t)in_board[row * 8 + col];
+    }
+  }
+}
+
+static esp_err_t game_save_snapshot_to_nvs(void) {
+  game_snapshot_full_t full = {0};
+  full.version = GAME_SNAPSHOT_VERSION;
+  full.format = 2;
+  game_snapshot_fill_board(full.board);
+  full.current_player = (uint8_t)current_player;
+  full.game_state = (uint8_t)current_game_state;
+  full.move_count = move_count;
+  full.white_king_moved = (uint8_t)white_king_moved;
+  full.white_rook_a_moved = (uint8_t)white_rook_a_moved;
+  full.white_rook_h_moved = (uint8_t)white_rook_h_moved;
+  full.black_king_moved = (uint8_t)black_king_moved;
+  full.black_rook_a_moved = (uint8_t)black_rook_a_moved;
+  full.black_rook_h_moved = (uint8_t)black_rook_h_moved;
+  full.en_passant_available = (uint8_t)en_passant_available;
+  full.en_passant_target_row = en_passant_target_row;
+  full.en_passant_target_col = en_passant_target_col;
+  full.en_passant_victim_row = en_passant_victim_row;
+  full.en_passant_victim_col = en_passant_victim_col;
+  full.promotion_pending = (uint8_t)promotion_state.pending;
+  full.promotion_row = promotion_state.square_row;
+  full.promotion_col = promotion_state.square_col;
+  full.promotion_player = (uint8_t)promotion_state.player;
+  full.white_time_total = white_time_total;
+  full.black_time_total = black_time_total;
+  full.white_remaining_ms = game_get_remaining_time(true);
+  full.black_remaining_ms = game_get_remaining_time(false);
+  full.history_count = (history_index > GAME_SNAPSHOT_HISTORY_CAP)
+                           ? GAME_SNAPSHOT_HISTORY_CAP
+                           : (uint8_t)history_index;
+  if (full.history_count > 0) {
+    uint32_t start = history_index - full.history_count;
+    for (uint8_t i = 0; i < full.history_count; i++) {
+      full.history[i] = move_history[start + i];
+    }
+  }
+  full.crc32 = game_crc32_simple(((const uint8_t *)&full) + 8, sizeof(full) - 8);
+
+  esp_err_t ret = config_save_blob_to_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL, &full,
+                                          sizeof(full));
+  if (ret == ESP_OK) {
+    snapshot_fallback_used = false;
+    snapshot_save_failed = false;
+    return ESP_OK;
+  }
+
+  game_snapshot_min_t min = {0};
+  min.version = GAME_SNAPSHOT_VERSION;
+  min.format = 1;
+  memcpy(min.board, full.board, sizeof(min.board));
+  min.current_player = full.current_player;
+  min.game_state = full.game_state;
+  min.move_count = full.move_count;
+  min.white_king_moved = full.white_king_moved;
+  min.white_rook_a_moved = full.white_rook_a_moved;
+  min.white_rook_h_moved = full.white_rook_h_moved;
+  min.black_king_moved = full.black_king_moved;
+  min.black_rook_a_moved = full.black_rook_a_moved;
+  min.black_rook_h_moved = full.black_rook_h_moved;
+  min.en_passant_available = full.en_passant_available;
+  min.en_passant_target_row = full.en_passant_target_row;
+  min.en_passant_target_col = full.en_passant_target_col;
+  min.en_passant_victim_row = full.en_passant_victim_row;
+  min.en_passant_victim_col = full.en_passant_victim_col;
+  min.promotion_pending = full.promotion_pending;
+  min.promotion_row = full.promotion_row;
+  min.promotion_col = full.promotion_col;
+  min.promotion_player = full.promotion_player;
+  min.crc32 = game_crc32_simple(((const uint8_t *)&min) + 8, sizeof(min) - 8);
+
+  ret = config_save_blob_to_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN, &min, sizeof(min));
+  if (ret == ESP_OK) {
+    snapshot_fallback_used = true;
+    snapshot_save_failed = false;
+  } else {
+    snapshot_save_failed = true;
+  }
+  return ret;
+}
+
+/** True if NVS contains a full or minimal snapshot with valid CRC (no board apply). */
+static bool game_nvs_has_valid_snapshot(void) {
+  game_snapshot_full_t full = {0};
+  size_t full_len = sizeof(full);
+  esp_err_t ret =
+      config_load_blob_from_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL, &full, &full_len);
+  if (ret == ESP_OK && full_len == sizeof(full) &&
+      full.version == GAME_SNAPSHOT_VERSION &&
+      full.crc32 ==
+          game_crc32_simple(((const uint8_t *)&full) + 8, sizeof(full) - 8)) {
+    return true;
+  }
+
+  game_snapshot_min_t min = {0};
+  size_t min_len = sizeof(min);
+  ret = config_load_blob_from_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN, &min, &min_len);
+  if (ret == ESP_OK && min_len == sizeof(min) && min.version == GAME_SNAPSHOT_VERSION &&
+      min.crc32 ==
+          game_crc32_simple(((const uint8_t *)&min) + 8, sizeof(min) - 8)) {
+    return true;
+  }
+  return false;
+}
+
+static esp_err_t game_load_snapshot_from_nvs(void) {
+  game_snapshot_full_t full = {0};
+  size_t full_len = sizeof(full);
+  esp_err_t ret =
+      config_load_blob_from_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL, &full, &full_len);
+  if (ret == ESP_OK && full_len == sizeof(full) &&
+      full.version == GAME_SNAPSHOT_VERSION &&
+      full.crc32 ==
+          game_crc32_simple(((const uint8_t *)&full) + 8, sizeof(full) - 8)) {
+    snapshot_restore_failed = false;
+    game_snapshot_apply_board(full.board);
+    current_player = (player_t)full.current_player;
+    current_game_state = (game_state_t)full.game_state;
+    move_count = full.move_count;
+    white_king_moved = full.white_king_moved;
+    white_rook_a_moved = full.white_rook_a_moved;
+    white_rook_h_moved = full.white_rook_h_moved;
+    black_king_moved = full.black_king_moved;
+    black_rook_a_moved = full.black_rook_a_moved;
+    black_rook_h_moved = full.black_rook_h_moved;
+    en_passant_available = full.en_passant_available;
+    en_passant_target_row = full.en_passant_target_row;
+    en_passant_target_col = full.en_passant_target_col;
+    en_passant_victim_row = full.en_passant_victim_row;
+    en_passant_victim_col = full.en_passant_victim_col;
+    promotion_state.pending = full.promotion_pending;
+    promotion_state.square_row = full.promotion_row;
+    promotion_state.square_col = full.promotion_col;
+    promotion_state.player = (player_t)full.promotion_player;
+    white_time_total = full.white_time_total;
+    black_time_total = full.black_time_total;
+    history_index = full.history_count;
+    if (history_index > 0) {
+      memcpy(move_history, full.history, sizeof(chess_move_t) * history_index);
+    }
+    snapshot_loaded_on_boot = true;
+    snapshot_fallback_used = false;
+    /*
+     * Po obnove NVS: game_active musi sedet s current_game_state (drive nastavoval
+     * vzdy GAME_CMD_NEW_GAME z main). Jinak game_is_valid_move() vraci
+     * MOVE_ERROR_GAME_NOT_ACTIVE.
+     */
+    game_active = (current_game_state != GAME_STATE_IDLE &&
+                   current_game_state != GAME_STATE_FINISHED);
+    return ESP_OK;
+  }
+
+  game_snapshot_min_t min = {0};
+  size_t min_len = sizeof(min);
+  ret = config_load_blob_from_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN, &min, &min_len);
+  if (ret == ESP_OK && min_len == sizeof(min) && min.version == GAME_SNAPSHOT_VERSION &&
+      min.crc32 ==
+          game_crc32_simple(((const uint8_t *)&min) + 8, sizeof(min) - 8)) {
+    snapshot_restore_failed = false;
+    game_snapshot_apply_board(min.board);
+    current_player = (player_t)min.current_player;
+    current_game_state = (game_state_t)min.game_state;
+    move_count = min.move_count;
+    white_king_moved = min.white_king_moved;
+    white_rook_a_moved = min.white_rook_a_moved;
+    white_rook_h_moved = min.white_rook_h_moved;
+    black_king_moved = min.black_king_moved;
+    black_rook_a_moved = min.black_rook_a_moved;
+    black_rook_h_moved = min.black_rook_h_moved;
+    en_passant_available = min.en_passant_available;
+    en_passant_target_row = min.en_passant_target_row;
+    en_passant_target_col = min.en_passant_target_col;
+    en_passant_victim_row = min.en_passant_victim_row;
+    en_passant_victim_col = min.en_passant_victim_col;
+    promotion_state.pending = min.promotion_pending;
+    promotion_state.square_row = min.promotion_row;
+    promotion_state.square_col = min.promotion_col;
+    promotion_state.player = (player_t)min.promotion_player;
+    history_index = 0;
+    snapshot_loaded_on_boot = true;
+    snapshot_fallback_used = true;
+    /* Minimalni snapshot: stejna logika game_active jako u plneho zaznamu. */
+    game_active = (current_game_state != GAME_STATE_IDLE &&
+                   current_game_state != GAME_STATE_FINISHED);
+    return ESP_OK;
+  }
+
+  /* Zadny platny snapshot (prvni flash / smazana hra) — neni chyba obnovy. */
+  snapshot_restore_failed = false;
+  return ESP_ERR_NOT_FOUND;
+}
+
+static void game_boot_tracker_update_on_move(void) {
+  game_boot_tracker_t trk = {0};
+  size_t len = sizeof(trk);
+  bool loaded =
+      (config_load_blob_from_nvs(CONFIG_NVS_KEY_BOOT_TRACKER, &trk, &len) == ESP_OK &&
+       len == sizeof(trk) && trk.version == GAME_SNAPSHOT_VERSION &&
+       trk.crc32 == game_crc32_simple(((const uint8_t *)&trk) + 8, sizeof(trk) - 8));
+
+  if (!loaded) {
+    time_t now = time(NULL);
+    trk.version = GAME_SNAPSHOT_VERSION;
+    trk.first_boot_epoch_s = (now >= 1700000000) ? (uint32_t)now : 0u;
+    trk.boot_counter_window = 1u;
+  }
+  trk.moved_since_boot = 1u;
+  trk.crc32 = game_crc32_simple(((const uint8_t *)&trk) + 8, sizeof(trk) - 8);
+  (void)config_save_blob_to_nvs(CONFIG_NVS_KEY_BOOT_TRACKER, &trk, sizeof(trk));
+}
+
+static bool game_boot_tracker_should_force_new_game(void) {
+  time_t now = time(NULL);
+  const bool wall_time_ok = (now >= 1700000000);
+  const uint32_t now_s = wall_time_ok ? (uint32_t)now : 0u;
+
+  game_boot_tracker_t trk = {0};
+  size_t len = sizeof(trk);
+  bool loaded =
+      (config_load_blob_from_nvs(CONFIG_NVS_KEY_BOOT_TRACKER, &trk, &len) == ESP_OK &&
+       len == sizeof(trk) && trk.version == GAME_SNAPSHOT_VERSION &&
+       trk.crc32 == game_crc32_simple(((const uint8_t *)&trk) + 8, sizeof(trk) - 8));
+
+  bool in_window = false;
+  if (loaded) {
+    if (wall_time_ok) {
+      in_window = (now_s >= trk.first_boot_epoch_s &&
+                   (now_s - trk.first_boot_epoch_s) <= BOOT_WINDOW_SECONDS);
+    } else {
+      /* Bez SNTP neumíme 60s okno — držíme stejnou „session“ jako minulý záznam. */
+      in_window = true;
+    }
+  }
+
+  /* Po prvním bootu v okně je v NVS counter==1. Druhý boot (stále bez tahu) spustí novou hru. */
+  bool force_new_game = false;
+  if (wall_time_ok && loaded && trk.moved_since_boot == 0u && in_window &&
+      trk.boot_counter_window == 1u) {
+    force_new_game = true;
+  }
+
+  game_boot_tracker_t next = {0};
+  next.version = GAME_SNAPSHOT_VERSION;
+  next.moved_since_boot = 0u;
+  if (loaded && in_window) {
+    next.first_boot_epoch_s = trk.first_boot_epoch_s;
+    next.boot_counter_window = trk.boot_counter_window + 1u;
+  } else if (wall_time_ok) {
+    next.first_boot_epoch_s = now_s;
+    next.boot_counter_window = 1u;
+  } else {
+    next.first_boot_epoch_s = loaded ? trk.first_boot_epoch_s : 0u;
+    next.boot_counter_window = 1u;
+  }
+  next.crc32 = game_crc32_simple(((const uint8_t *)&next) + 8, sizeof(next) - 8);
+  (void)config_save_blob_to_nvs(CONFIG_NVS_KEY_BOOT_TRACKER, &next, sizeof(next));
+
+  return force_new_game;
+}
+
+static void game_check_resync_needed_after_restore(void) {
+  uint8_t matrix_state_now[64] = {0};
+  matrix_get_state(matrix_state_now);
+
+  uint32_t lifted_low = 0, lifted_high = 0;
+  uint8_t conflicts = 0;
+  for (uint8_t i = 0; i < 64; i++) {
+    uint8_t expected = (((uint8_t)board[i / 8][i % 8]) == PIECE_EMPTY) ? 0 : 1;
+    if (matrix_state_now[i] != expected) {
+      if (i < 32) {
+        lifted_low |= (1UL << i);
+      } else {
+        lifted_high |= (1UL << (i - 32));
+      }
+      conflicts++;
+    }
+  }
+
+  if (conflicts == 0) {
+    resync_required_after_restore = false;
+    return;
+  }
+
+  matrix_guard_pause_state.active = true;
+  matrix_guard_pause_state.lifted_mask_low = lifted_low;
+  matrix_guard_pause_state.lifted_mask_high = lifted_high;
+  matrix_guard_pause_state.dropped_mask_low = 0;
+  matrix_guard_pause_state.dropped_mask_high = 0;
+  matrix_guard_pause_state.conflict_count = conflicts;
+  resync_required_after_restore = true;
+  game_render_matrix_guard_leds();
+}
+
+static void game_persist_after_valid_move(void) {
+  esp_err_t ret = game_save_snapshot_to_nvs();
+  if (ret != ESP_OK) {
+    ESP_LOGW(TAG, "Game snapshot save failed: %s", esp_err_to_name(ret));
+  }
+  game_boot_tracker_update_on_move();
+}
+
+static void game_try_clear_local_guard_from_matrix(void) {
+  if (!matrix_guard_pause_state.active) {
+    return;
+  }
+  uint8_t matrix_state_now[64] = {0};
+  matrix_get_state(matrix_state_now);
+  for (uint8_t i = 0; i < 64; i++) {
+    uint8_t expected = (((uint8_t)board[i / 8][i % 8]) == PIECE_EMPTY) ? 0 : 1;
+    if (matrix_state_now[i] != expected) {
+      return;
+    }
+  }
+
+  matrix_guard_pause_state.active = false;
+  matrix_guard_pause_state.lifted_mask_low = 0;
+  matrix_guard_pause_state.lifted_mask_high = 0;
+  matrix_guard_pause_state.dropped_mask_low = 0;
+  matrix_guard_pause_state.dropped_mask_high = 0;
+  matrix_guard_pause_state.conflict_count = 0;
+  resync_required_after_restore = false;
+  led_clear_board_only();
+  game_highlight_movable_pieces();
+}
+
+static void game_reset_guided_capture_state(void) {
+  guided_capture_state.active = false;
+  guided_capture_state.target_row = 0;
+  guided_capture_state.target_col = 0;
+  guided_capture_state.target_piece = PIECE_EMPTY;
+  guided_capture_state.attacker_count = 0;
+  memset(guided_capture_state.attacker_rows, 0,
+         sizeof(guided_capture_state.attacker_rows));
+  memset(guided_capture_state.attacker_cols, 0,
+         sizeof(guided_capture_state.attacker_cols));
+  memset(guided_capture_state.attacker_pieces, 0,
+         sizeof(guided_capture_state.attacker_pieces));
+}
+
+static bool game_guided_capture_has_mode_conflict(void) {
+  if (promotion_state.pending || castling_state.in_progress ||
+      castle_animation_active || resignation_state.active ||
+      error_recovery_state.waiting_for_move_correction ||
+      current_game_state == GAME_STATE_WAITING_FOR_RETURN ||
+      current_game_state == GAME_STATE_FINISHED) {
+    return true;
+  }
+  return false;
+}
+
+static bool game_find_legal_attackers_to_square(uint8_t target_row,
+                                                uint8_t target_col,
+                                                piece_t target_piece) {
+  guided_capture_state.attacker_count = 0;
+
+  piece_t current_player_king =
+      (current_player == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
+
+  for (uint8_t row = 0; row < 8; row++) {
+    for (uint8_t col = 0; col < 8; col++) {
+      piece_t candidate_piece = board[row][col];
+      if (candidate_piece == PIECE_EMPTY ||
+          !game_is_same_color(candidate_piece, current_player_king)) {
+        continue;
+      }
+
+      chess_move_t capture_attempt = {.from_row = row,
+                                      .from_col = col,
+                                      .to_row = target_row,
+                                      .to_col = target_col,
+                                      .piece = candidate_piece,
+                                      .captured_piece = target_piece,
+                                      .timestamp = esp_timer_get_time() / 1000};
+
+      if (game_is_valid_move(&capture_attempt) == MOVE_ERROR_NONE &&
+          guided_capture_state.attacker_count < GUIDED_CAPTURE_MAX_ATTACKERS) {
+        uint8_t idx = guided_capture_state.attacker_count++;
+        guided_capture_state.attacker_rows[idx] = row;
+        guided_capture_state.attacker_cols[idx] = col;
+        guided_capture_state.attacker_pieces[idx] = candidate_piece;
+      }
+    }
+  }
+
+  return guided_capture_state.attacker_count > 0;
+}
+
+static bool game_refresh_guided_attackers(void) {
+  if (!guided_capture_state.active) {
+    return false;
+  }
+  return game_find_legal_attackers_to_square(guided_capture_state.target_row,
+                                             guided_capture_state.target_col,
+                                             guided_capture_state.target_piece);
+}
+
+static void game_show_guided_capture_leds(void) {
+  if (!guided_capture_state.active) {
+    return;
+  }
+  if (!guided_capture_hints_enabled) {
+    return;
+  }
+
+  led_clear_board_only();
+  led_set_pixel_safe(
+      chess_pos_to_led_index(guided_capture_state.target_row,
+                             guided_capture_state.target_col),
+      128, 0, 128); // Purple target
+
+  for (uint8_t i = 0; i < guided_capture_state.attacker_count; i++) {
+    led_set_pixel_safe(chess_pos_to_led_index(guided_capture_state.attacker_rows[i],
+                                              guided_capture_state.attacker_cols[i]),
+                       255, 255, 0); // Yellow attackers
+  }
+}
+
+static void game_exit_guided_capture(bool restore_highlights) {
+  game_reset_guided_capture_state();
+  piece_lifted = false;
+  lifted_piece = PIECE_EMPTY;
+  lifted_piece_row = 0;
+  lifted_piece_col = 0;
+
+  if (restore_highlights) {
+    led_clear_board_only();
+    game_highlight_movable_pieces();
+  }
+}
+
+static void game_enter_guided_capture(uint8_t target_row, uint8_t target_col,
+                                      piece_t target_piece) {
+  guided_capture_state.active = true;
+  guided_capture_state.target_row = target_row;
+  guided_capture_state.target_col = target_col;
+  guided_capture_state.target_piece = target_piece;
+  piece_lifted = false;
+  lifted_piece_row = 0;
+  lifted_piece_col = 0;
+  lifted_piece = PIECE_EMPTY;
+}
+
 /**
  * @brief Process pickup command (UP)
  */
 static void game_process_pickup_command(const chess_move_command_t *cmd) {
   if (!cmd)
     return;
+
+  if (matrix_guard_pause_state.active) {
+    if (game_cmd_is_matrix_origin(cmd)) {
+      game_try_clear_local_guard_from_matrix();
+      if (!matrix_guard_pause_state.active) {
+        return;
+      }
+      game_render_matrix_guard_leds();
+      return;
+    }
+    game_send_response_to_uart(
+        "⏸️ Čeká se na srovnání fyzické desky (matrix guard). "
+        "PICKUP z UART/Web je blokován.",
+        true, (QueueHandle_t)cmd->response_queue);
+    return;
+  }
 
   // PROMOTION (swap_then_choose, swap volitelný):
   // - Povolit fyzický UP/DN pouze na promočním poli (bez běžného pickup flow).
@@ -4116,19 +5467,21 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
           0, 0, 255);
 
       // ZELENÉ LED pro validní cílová pole (z původní pozice)
-      for (uint32_t i = 0; i < valid_moves; i++) {
-        uint8_t dest_led = chess_pos_to_led_index(suggestions[i].to_row,
-                                                  suggestions[i].to_col);
+      if (game_led_guidance_show_destinations()) {
+        for (uint32_t i = 0; i < valid_moves; i++) {
+          uint8_t dest_led = chess_pos_to_led_index(suggestions[i].to_row,
+                                                    suggestions[i].to_col);
 
-        // Nepřepisovat žlutou (aktuální pozici) a modrou (původní pozici)
-        if (dest_led != chess_pos_to_led_index(from_row, from_col) &&
-            dest_led != chess_pos_to_led_index(
-                            error_recovery_state.original_valid_row,
-                            error_recovery_state.original_valid_col)) {
-          if (suggestions[i].is_capture) {
-            led_set_pixel_safe(dest_led, 255, 165, 0); // Oranžová pro capture
-          } else {
-            led_set_pixel_safe(dest_led, 0, 255, 0); // Zelená pro normální tah
+          // Nepřepisovat žlutou (aktuální pozici) a modrou (původní pozici)
+          if (dest_led != chess_pos_to_led_index(from_row, from_col) &&
+              dest_led != chess_pos_to_led_index(
+                              error_recovery_state.original_valid_row,
+                              error_recovery_state.original_valid_col)) {
+            if (suggestions[i].is_capture) {
+              led_set_pixel_safe(dest_led, 255, 165, 0); // Oranžová pro capture
+            } else {
+              led_set_pixel_safe(dest_led, 0, 255, 0); // Zelená pro normální tah
+            }
           }
         }
       }
@@ -4175,6 +5528,67 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
     ESP_LOGE(TAG, "❌ No piece at %s", cmd->from_notation);
     game_send_response_to_uart(error_msg, true,
                                (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+
+  if (guided_capture_state.active) {
+    if (game_guided_capture_has_mode_conflict()) {
+      STAGING_LOGI(TAG, "Guided capture cancelled due to mode conflict (pickup)");
+      game_exit_guided_capture(true);
+      game_send_response_to_uart(
+          "⚠️ Guided capture cancelled due to higher-priority game state.", true,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+    if (!game_refresh_guided_attackers()) {
+      STAGING_LOGI(TAG, "Guided capture cancelled (no legal attackers after refresh)");
+      game_exit_guided_capture(true);
+      game_send_response_to_uart(
+          "⚠️ Guided capture cancelled - no legal capture available now.", true,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+
+    bool is_target_square = (from_row == guided_capture_state.target_row &&
+                             from_col == guided_capture_state.target_col);
+    bool is_allowed_attacker = false;
+
+    for (uint8_t i = 0; i < guided_capture_state.attacker_count; i++) {
+      if (guided_capture_state.attacker_rows[i] == from_row &&
+          guided_capture_state.attacker_cols[i] == from_col) {
+        is_allowed_attacker = true;
+        break;
+      }
+    }
+
+    if (is_target_square) {
+      // Cancel/escape path: user picked up target opponent piece again.
+      game_exit_guided_capture(true);
+      game_send_response_to_uart(
+          "↩️ Guided capture cancelled. Opponent piece returned to normal flow.",
+          false,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+
+    if (!is_allowed_attacker) {
+      game_show_guided_capture_leds();
+      game_send_response_to_uart(
+          "⚠️ Guided capture active: lift highlighted YELLOW piece only.", true,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+
+    piece_lifted = true;
+    lifted_piece_row = from_row;
+    lifted_piece_col = from_col;
+    lifted_piece = piece;
+    if (guided_capture_hints_enabled) {
+      game_show_guided_capture_leds();
+    }
+    game_send_response_to_uart(
+        "✅ Attacker lifted. Drop on PURPLE target square to capture.", false,
+        (QueueHandle_t)cmd->response_queue);
     return;
   }
 
@@ -4251,9 +5665,48 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
       }
     }
 
-    // ERROR FLOW: Wrong color piece lifted inappropriately
     const char *safe_notation =
         (strlen(cmd->from_notation) > 0) ? cmd->from_notation : "??";
+
+    if (!error_recovery_state.waiting_for_move_correction && !piece_lifted &&
+        !game_guided_capture_has_mode_conflict() &&
+        game_find_legal_attackers_to_square(from_row, from_col, piece)) {
+      game_enter_guided_capture(from_row, from_col, piece);
+
+      STAGING_LOGI(TAG,
+                   "Guided capture armed for %s, attackers=%u, player=%s",
+                   safe_notation, guided_capture_state.attacker_count,
+                   current_player == PLAYER_WHITE ? "White" : "Black");
+      if (guided_capture_hints_enabled) {
+        game_show_guided_capture_leds();
+      } else {
+        led_clear_board_only();
+        game_highlight_movable_pieces();
+      }
+
+      char guided_msg[256];
+      snprintf(guided_msg, sizeof(guided_msg),
+               "♟️ Capture is legal on %s\n",
+               safe_notation);
+      if (guided_capture_hints_enabled) {
+        strncat(guided_msg,
+                "🟡 Lift any YELLOW attacker and place it on PURPLE target",
+                sizeof(guided_msg) - strlen(guided_msg) - 1);
+      } else {
+        strncat(guided_msg,
+                "ℹ️ Guided capture hints are OFF. Lift your piece and drop on target square.",
+                sizeof(guided_msg) - strlen(guided_msg) - 1);
+      }
+      game_send_response_to_uart(guided_msg, false,
+                                 (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+
+    STAGING_LOGI(TAG, "No legal attacker for %s - fallback to red blink",
+                 safe_notation);
+
+    // ERROR FLOW: Wrong color piece lifted inappropriately
+    game_reset_guided_capture_state();
 
     if (error_recovery_state.waiting_for_move_correction) {
       ESP_LOGW(TAG,
@@ -4373,7 +5826,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
              cmd->from_notation, valid_moves);
 
     // Zobrazit valid moves (zelená/oranžová/modrá pro castling)
-    if (valid_moves > 0) {
+    if (valid_moves > 0 && game_led_guidance_show_destinations()) {
       for (uint32_t i = 0; i < valid_moves; i++) {
         uint8_t dest_row = suggestions[i].to_row;
         uint8_t dest_col = suggestions[i].to_col;
@@ -4486,7 +5939,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
            cmd->from_notation);
 
   // Send LED commands to highlight possible destinations
-  if (valid_moves > 0) {
+  if (valid_moves > 0 && game_led_guidance_show_destinations()) {
     for (uint32_t i = 0; i < valid_moves; i++) {
       uint8_t dest_row = suggestions[i].to_row;
       uint8_t dest_col = suggestions[i].to_col;
@@ -4523,7 +5976,8 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
 
   // MATRIX COMPATIBILITY: Show opponent pieces after pickup (same as matrix
   // flow)
-  if (!game_is_castle_animation_active() && !game_is_castling_expected()) {
+  if (!guided_capture_state.active && !game_is_castle_animation_active() &&
+      !game_is_castling_expected()) {
     game_highlight_movable_pieces();
   }
 
@@ -4561,6 +6015,22 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
   if (!cmd)
     return;
 
+  if (matrix_guard_pause_state.active) {
+    if (game_cmd_is_matrix_origin(cmd)) {
+      game_try_clear_local_guard_from_matrix();
+      if (!matrix_guard_pause_state.active) {
+        return;
+      }
+      game_render_matrix_guard_leds();
+      return;
+    }
+    game_send_response_to_uart(
+        "⏸️ Čeká se na srovnání fyzické desky (matrix guard). "
+        "DROP z UART/Web je blokován.",
+        true, (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+
   ESP_LOGI(TAG, "🎯 Processing DROP command: %s (START)", cmd->to_notation);
 
   // MOVED: New game detection moved to end of function to avoid false
@@ -4579,6 +6049,124 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
   // uživatel položil během animace nebo po ní; zvednutí–položení rychle za
   // sebou tak vždy zastaví blink před dalším překreslením.
   game_stop_error_blink();
+
+  if (guided_capture_state.active) {
+    if (game_guided_capture_has_mode_conflict()) {
+      STAGING_LOGI(TAG, "Guided capture cancelled due to mode conflict (drop)");
+      game_exit_guided_capture(true);
+      game_send_response_to_uart(
+          "⚠️ Guided capture cancelled due to higher-priority game state.", true,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+
+    if (!game_refresh_guided_attackers()) {
+      STAGING_LOGI(TAG, "Guided capture cancelled (no legal attackers at drop)");
+      game_exit_guided_capture(true);
+      game_send_response_to_uart(
+          "⚠️ Guided capture cancelled - no legal capture available now.", true,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+
+    if (!piece_lifted || lifted_piece == PIECE_EMPTY) {
+      // Escape/cancel path: opponent piece dropped back to target square.
+      if (to_row == guided_capture_state.target_row &&
+          to_col == guided_capture_state.target_col) {
+        game_exit_guided_capture(true);
+        game_send_response_to_uart(
+            "↩️ Guided capture cancelled. Opponent piece returned to target square.",
+            false, (QueueHandle_t)cmd->response_queue);
+        return;
+      }
+      game_show_guided_capture_leds();
+      game_send_response_to_uart(
+          "⚠️ Guided capture active: lift highlighted YELLOW piece first.", true,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+
+    bool is_allowed_attacker = false;
+    for (uint8_t i = 0; i < guided_capture_state.attacker_count; i++) {
+      if (guided_capture_state.attacker_rows[i] == lifted_piece_row &&
+          guided_capture_state.attacker_cols[i] == lifted_piece_col &&
+          guided_capture_state.attacker_pieces[i] == lifted_piece) {
+        is_allowed_attacker = true;
+        break;
+      }
+    }
+
+    if (!is_allowed_attacker) {
+      // Prevent stale "piece still lifted" state when attacker set changed.
+      piece_lifted = false;
+      lifted_piece = PIECE_EMPTY;
+      lifted_piece_row = 0;
+      lifted_piece_col = 0;
+      game_show_guided_capture_leds();
+      game_send_response_to_uart(
+          "⚠️ This piece is not allowed. Use highlighted YELLOW attacker.", true,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+
+    if (to_row != guided_capture_state.target_row ||
+        to_col != guided_capture_state.target_col) {
+      // User put the attacker back on source square -> graceful cancel.
+      if (to_row == lifted_piece_row && to_col == lifted_piece_col) {
+        game_exit_guided_capture(true);
+        game_send_response_to_uart(
+            "↩️ Guided capture cancelled. Attacker returned to source square.",
+            false, (QueueHandle_t)cmd->response_queue);
+        return;
+      }
+
+      // Wrong destination was used; clear lifted state to avoid ghost-lift.
+      piece_lifted = false;
+      lifted_piece = PIECE_EMPTY;
+      lifted_piece_row = 0;
+      lifted_piece_col = 0;
+      if (guided_capture_hints_enabled) {
+        game_show_guided_capture_leds();
+      }
+      game_send_response_to_uart(
+          "⚠️ Wrong destination. Lift attacker again and drop on PURPLE target.",
+          true,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+
+    uint8_t source_row = lifted_piece_row;
+    uint8_t source_col = lifted_piece_col;
+    chess_move_t guided_capture_move = {.from_row = source_row,
+                                        .from_col = source_col,
+                                        .to_row = to_row,
+                                        .to_col = to_col,
+                                        .piece = lifted_piece,
+                                        .captured_piece =
+                                            guided_capture_state.target_piece,
+                                        .timestamp =
+                                            esp_timer_get_time() / 1000};
+
+    if (!game_execute_move(&guided_capture_move)) {
+      STAGING_LOGI(TAG, "Guided capture rejected %c%d -> %c%d", 'a' + source_col,
+                   source_row + 1, 'a' + to_col, to_row + 1);
+      if (guided_capture_hints_enabled) {
+        game_show_guided_capture_leds();
+      }
+      game_send_response_to_uart(
+          "❌ Guided capture rejected by legality checks. Try another attacker.",
+          true, (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+
+    STAGING_LOGI(TAG, "Guided capture completed %c%d -> %c%d", 'a' + source_col,
+                 source_row + 1, 'a' + to_col, to_row + 1);
+
+    game_exit_guided_capture(true);
+    game_send_response_to_uart("✅ Guided capture complete!", false,
+                               (QueueHandle_t)cmd->response_queue);
+    return;
+  }
 
   // CASTLING INTERCEPTION: Handle rook moves during castling phase
   // This logic must be BEFORE standard validation to avoid "Blocked by King"
@@ -5128,6 +6716,48 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     // VALIDNÍ TAH - normální processing
     ESP_LOGI(TAG, "✅ Valid move detected");
 
+    if (puzzle_active) {
+      bool is_expected_solution = (lifted_piece_row == puzzle_solution_from_row &&
+                                   lifted_piece_col == puzzle_solution_from_col &&
+                                   to_row == puzzle_solution_to_row &&
+                                   to_col == puzzle_solution_to_col);
+      if (!is_expected_solution) {
+        bool already_in_error = error_recovery_state.waiting_for_move_correction;
+        puzzle_feedback = PUZZLE_FEEDBACK_WRONG;
+        STAGING_LOGI(TAG, "puzzle: wrong move %c%d -> %c%d for id=%u",
+                     'a' + lifted_piece_col, lifted_piece_row + 1, 'a' + to_col,
+                     to_row + 1, (unsigned)puzzle_active_id);
+
+        error_recovery_state.waiting_for_move_correction = true;
+        error_recovery_state.has_invalid_piece = true;
+        error_recovery_state.piece_type = lifted_piece;
+        error_recovery_state.invalid_row = to_row;
+        error_recovery_state.invalid_col = to_col;
+
+        if (!already_in_error) {
+          error_recovery_state.original_valid_row = lifted_piece_row;
+          error_recovery_state.original_valid_col = lifted_piece_col;
+        }
+
+        board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;
+        board[to_row][to_col] = lifted_piece;
+        lifted_piece_row = to_row;
+        lifted_piece_col = to_col;
+
+        game_show_invalid_move_error_with_blink(to_row, to_col);
+
+        char error_msg[256];
+        snprintf(
+            error_msg, sizeof(error_msg),
+            "❌ Puzzle: to neni ono (%s). Vrat figurku na ORIGINAL %c%d.",
+            cmd->to_notation, 'a' + error_recovery_state.original_valid_col,
+            error_recovery_state.original_valid_row + 1);
+        game_send_response_to_uart(error_msg, true,
+                                   (QueueHandle_t)cmd->response_queue);
+        return;
+      }
+    }
+
     // KRITICKÁ OPRAVA: Pokud je resignation timer aktivní a král udělá validní
     // tah (ne castling, ne položití zpět), zrušit resignation timer Castling už
     // je ošetřen výše, takže tady kontrolujeme normální tahy krále
@@ -5166,6 +6796,11 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
              move_success);
 
     if (move_success) {
+      if (puzzle_active) {
+        puzzle_active = false;
+        puzzle_feedback = PUZZLE_FEEDBACK_SOLVED;
+        STAGING_LOGI(TAG, "puzzle: solved id=%u", (unsigned)puzzle_active_id);
+      }
       // KRITICKÁ OPRAVA: Reset error state při jakémkoliv validním tahu!
       if (error_recovery_state.waiting_for_move_correction) {
         ESP_LOGI(TAG, "✅ Valid move - clearing error recovery state");
@@ -5303,19 +6938,21 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         }
 
         if (king_row != -1 && king_col != -1) {
-          uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-          // Spustit check animaci - růžové svícení na králi
-          led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                     .led_index = king_led_index,
-                                     .red = 0,
-                                     .green = 0,
-                                     .blue = 0,
-                                     .duration_ms =
-                                         0, // Trvalé až do dalšího tahu
-                                     .data = NULL};
-          led_execute_command_new(&check_cmd);
-          ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
-                   current_player == PLAYER_WHITE ? "White" : "Black");
+          if (game_led_guidance_show_check_anim()) {
+            uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
+            // Spustit check animaci - růžové svícení na králi
+            led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                       .led_index = king_led_index,
+                                       .red = 0,
+                                       .green = 0,
+                                       .blue = 0,
+                                       .duration_ms =
+                                           0, // Trvalé až do dalšího tahu
+                                       .data = NULL};
+            led_execute_command_new(&check_cmd);
+            ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
+                     current_player == PLAYER_WHITE ? "White" : "Black");
+          }
         }
       }
 
@@ -5345,6 +6982,9 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
   } else {
     // NEVALIDNÍ TAH - ENHANCED ERROR HANDLING
     ESP_LOGW(TAG, "❌ Invalid move attempt: %s", cmd->to_notation);
+    if (puzzle_active) {
+      puzzle_feedback = PUZZLE_FEEDBACK_ILLEGAL;
+    }
 
     // KRITICKÝ: Rozlišit první error vs další errory
     bool already_in_error = error_recovery_state.waiting_for_move_correction;
@@ -5914,19 +7554,21 @@ static void game_process_promotion_button(uint8_t button_id) {
       }
 
       if (king_row != -1 && king_col != -1) {
-        uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-        // Spustit check animaci - růžové svícení na králi
-        led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                   .led_index = king_led_index,
-                                   .red = 0,
-                                   .green = 0,
-                                   .blue = 0,
-                                   .duration_ms =
-                                       0, // Trvalé až do dalšího tahu
-                                   .data = NULL};
-        led_execute_command_new(&check_cmd);
-        ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
-                 current_player == PLAYER_WHITE ? "White" : "Black");
+        if (game_led_guidance_show_check_anim()) {
+          uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
+          // Spustit check animaci - růžové svícení na králi
+          led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                     .led_index = king_led_index,
+                                     .red = 0,
+                                     .green = 0,
+                                     .blue = 0,
+                                     .duration_ms =
+                                         0, // Trvalé až do dalšího tahu
+                                     .data = NULL};
+          led_execute_command_new(&check_cmd);
+          ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
+                   current_player == PLAYER_WHITE ? "White" : "Black");
+        }
       }
     }
 
@@ -8027,20 +9669,22 @@ void game_process_chess_move(const chess_move_command_t *cmd) {
             }
 
             if (king_row != -1 && king_col != -1) {
-              uint8_t king_led_index =
-                  chess_pos_to_led_index(king_row, king_col);
-              // Spustit check animaci - růžové svícení na králi
-              led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                         .led_index = king_led_index,
-                                         .red = 0,
-                                         .green = 0,
-                                         .blue = 0,
-                                         .duration_ms =
-                                             0, // Trvalé až do dalšího tahu
-                                         .data = NULL};
-              led_execute_command_new(&check_cmd);
-              ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
-                       current_player == PLAYER_WHITE ? "White" : "Black");
+              if (game_led_guidance_show_check_anim()) {
+                uint8_t king_led_index =
+                    chess_pos_to_led_index(king_row, king_col);
+                // Spustit check animaci - růžové svícení na králi
+                led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                           .led_index = king_led_index,
+                                           .red = 0,
+                                           .green = 0,
+                                           .blue = 0,
+                                           .duration_ms =
+                                               0, // Trvalé až do dalšího tahu
+                                           .data = NULL};
+                led_execute_command_new(&check_cmd);
+                ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
+                         current_player == PLAYER_WHITE ? "White" : "Black");
+              }
             }
           }
         }
@@ -8349,6 +9993,50 @@ void game_process_commands(void) {
       case GAME_CMD_TIMER_TIMEOUT: // 44
         ESP_LOGI(TAG, "Processing TIMER_TIMEOUT command");
         game_process_timer_command(&chess_cmd);
+        break;
+
+      case GAME_CMD_MATRIX_GUARD: // 45
+        ESP_LOGW(TAG, "Processing MATRIX_GUARD command");
+        game_handle_matrix_guard_command(&chess_cmd);
+        break;
+
+      case GAME_CMD_BOARD_SETUP_TUTORIAL: // 46
+        ESP_LOGI(TAG, "BOARD_SETUP_TUTORIAL action=%u",
+                 (unsigned)chess_cmd.promotion_choice);
+        switch (chess_cmd.promotion_choice) {
+        case 0:
+          game_enter_board_setup_tutorial();
+          break;
+        case 1:
+          game_exit_board_setup_tutorial(false);
+          break;
+        default:
+          ESP_LOGW(TAG, "BOARD_SETUP_TUTORIAL unknown action");
+          break;
+        }
+        break;
+
+      case GAME_CMD_PUZZLE: // 47
+        ESP_LOGI(TAG, "PUZZLE action/id=%u", (unsigned)chess_cmd.promotion_choice);
+        if (chess_cmd.promotion_choice == 0U) {
+          game_puzzle_cancel();
+        } else if (chess_cmd.promotion_choice >= 101U &&
+                   chess_cmd.promotion_choice <= 105U) {
+          uint8_t prep_id =
+              (uint8_t)(chess_cmd.promotion_choice - 100U);
+          if (!game_puzzle_enter_setup(prep_id)) {
+            ESP_LOGW(TAG, "PUZZLE prepare failed id=%u", (unsigned)prep_id);
+          }
+        } else if (chess_cmd.promotion_choice >= 1U &&
+                   chess_cmd.promotion_choice <= 5U) {
+          if (!game_puzzle_start(chess_cmd.promotion_choice)) {
+            ESP_LOGW(TAG, "PUZZLE start failed for id=%u",
+                     (unsigned)chess_cmd.promotion_choice);
+          }
+        } else {
+          ESP_LOGW(TAG, "PUZZLE unknown promotion_choice=%u",
+                   (unsigned)chess_cmd.promotion_choice);
+        }
         break;
 
       default:
@@ -8786,19 +10474,21 @@ void game_process_move_command(const void *move_cmd_ptr) {
       }
 
       if (king_row != -1 && king_col != -1) {
-        uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-        // Spustit check animaci - růžové svícení na králi
-        led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                   .led_index = king_led_index,
-                                   .red = 0,
-                                   .green = 0,
-                                   .blue = 0,
-                                   .duration_ms =
-                                       0, // Trvalé až do dalšího tahu
-                                   .data = NULL};
-        led_execute_command_new(&check_cmd);
-        ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
-                 current_player == PLAYER_WHITE ? "White" : "Black");
+        if (game_led_guidance_show_check_anim()) {
+          uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
+          // Spustit check animaci - růžové svícení na králi
+          led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                     .led_index = king_led_index,
+                                     .red = 0,
+                                     .green = 0,
+                                     .blue = 0,
+                                     .duration_ms =
+                                         0, // Trvalé až do dalšího tahu
+                                     .data = NULL};
+          led_execute_command_new(&check_cmd);
+          ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
+                   current_player == PLAYER_WHITE ? "White" : "Black");
+        }
       }
     }
   }
@@ -9776,8 +11466,38 @@ void game_task_start(void *pvParameters) {
              "Timer system initialization failed, continuing without timer");
   }
 
-  // Initialize game
+  /*
+   * Start logicke hry: vychozi deska, pak NVS nebo boot tracker.
+   * - Platny klic v NVS: vypnout nucenou novou hru z boot trackeru, nacist snapshot,
+   *   game_check_resync_needed_after_restore() pri nesouladu matice.
+   * - Jinak: boot_new_game_triggered z game_boot_tracker_should_force_new_game();
+   *   pri true volat game_start_new_game() (main pak neposle druhy NEW_GAME).
+   * - Pri uspesnem nacteni snapshotu nastavi game_load_snapshot_from_nvs() i game_active.
+   */
   game_initialize_board();
+
+  bool has_valid_snapshot = game_nvs_has_valid_snapshot();
+  if (has_valid_snapshot) {
+    boot_new_game_triggered = false;
+    STAGING_LOGI(TAG,
+                 "boot: valid NVS snapshot present — skipping force-new-game "
+                 "heuristic");
+  } else {
+    boot_new_game_triggered = game_boot_tracker_should_force_new_game();
+  }
+  if (boot_new_game_triggered) {
+    ESP_LOGW(TAG, "Boot rule triggered: forcing new game (2 boots / 1 minute)");
+    game_start_new_game();
+    snapshot_loaded_on_boot = false;
+  } else {
+    esp_err_t restore_ret = game_load_snapshot_from_nvs();
+    if (restore_ret == ESP_OK) {
+      ESP_LOGI(TAG, "Game snapshot restored from NVS");
+      game_check_resync_needed_after_restore();
+    } else {
+      ESP_LOGI(TAG, "No valid snapshot found, using fresh board");
+    }
+  }
 
   // Main task loop
   uint32_t loop_count = 0;
@@ -9823,7 +11543,8 @@ void game_task_start(void *pvParameters) {
 
     // Auto new game detection (kdyz jsou figurky v pocatecni pozici 2s)
     // Logic update: Must not be blocked (require 1 move)
-    bool in_start_pos = game_is_board_in_starting_position();
+    bool in_start_pos =
+        !board_setup_tutorial_active && game_is_board_in_starting_position();
 
     if (in_start_pos && !auto_new_game_triggered &&
         !auto_new_game_blocked_until_move) {
@@ -10757,6 +12478,10 @@ move_error_t game_validate_move_enhanced(uint8_t from_row, uint8_t from_col,
  * @return true if pieces are in starting positions, false otherwise
  */
 bool game_detect_new_game_setup(void) {
+  if (board_setup_tutorial_active) {
+    return false;
+  }
+
   // Zkontrolovat, jestli jsou řádky 1, 2, 7, 8 obsazené figurkami
   // a řádky 3, 4, 5, 6 jsou prázdné
 
@@ -10886,25 +12611,27 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col) {
                        0); // Yellow for source
 
     // Highlight possible destinations
-    for (uint32_t i = 0; i < valid_moves; i++) {
-      uint8_t dest_row = suggestions[i].to_row;
-      uint8_t dest_col = suggestions[i].to_col;
-      uint8_t led_index = chess_pos_to_led_index(dest_row, dest_col);
+    if (game_led_guidance_show_destinations()) {
+      for (uint32_t i = 0; i < valid_moves; i++) {
+        uint8_t dest_row = suggestions[i].to_row;
+        uint8_t dest_col = suggestions[i].to_col;
+        uint8_t led_index = chess_pos_to_led_index(dest_row, dest_col);
 
-      // Check if destination has opponent's piece
-      piece_t dest_piece = board[dest_row][dest_col];
-      bool is_opponent_piece =
-          (current_player == PLAYER_WHITE && dest_piece >= PIECE_BLACK_PAWN &&
-           dest_piece <= PIECE_BLACK_KING) ||
-          (current_player == PLAYER_BLACK && dest_piece >= PIECE_WHITE_PAWN &&
-           dest_piece <= PIECE_WHITE_KING);
+        // Check if destination has opponent's piece
+        piece_t dest_piece = board[dest_row][dest_col];
+        bool is_opponent_piece =
+            (current_player == PLAYER_WHITE && dest_piece >= PIECE_BLACK_PAWN &&
+             dest_piece <= PIECE_BLACK_KING) ||
+            (current_player == PLAYER_BLACK && dest_piece >= PIECE_WHITE_PAWN &&
+             dest_piece <= PIECE_WHITE_KING);
 
-      if (is_opponent_piece) {
-        // Orange for opponent's pieces (capture)
-        led_set_pixel_safe(led_index, 255, 165, 0);
-      } else {
-        // Green for empty squares
-        led_set_pixel_safe(led_index, 0, 255, 0);
+        if (is_opponent_piece) {
+          // Orange for opponent's pieces (capture)
+          led_set_pixel_safe(led_index, 255, 165, 0);
+        } else {
+          // Green for empty squares
+          led_set_pixel_safe(led_index, 0, 255, 0);
+        }
       }
     }
   } else {
@@ -11316,19 +13043,21 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
         }
 
         if (king_row != -1 && king_col != -1) {
-          uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-          // Spustit check animaci - růžové svícení na králi
-          led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                     .led_index = king_led_index,
-                                     .red = 0,
-                                     .green = 0,
-                                     .blue = 0,
-                                     .duration_ms =
-                                         0, // Trvalé až do dalšího tahu
-                                     .data = NULL};
-          led_execute_command_new(&check_cmd);
-          ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
-                   current_player == PLAYER_WHITE ? "White" : "Black");
+          if (game_led_guidance_show_check_anim()) {
+            uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
+            // Spustit check animaci - růžové svícení na králi
+            led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                       .led_index = king_led_index,
+                                       .red = 0,
+                                       .green = 0,
+                                       .blue = 0,
+                                       .duration_ms =
+                                           0, // Trvalé až do dalšího tahu
+                                       .data = NULL};
+            led_execute_command_new(&check_cmd);
+            ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
+                     current_player == PLAYER_WHITE ? "White" : "Black");
+          }
         }
       }
     }
@@ -11473,6 +13202,12 @@ void game_highlight_movable_pieces(void) {
   // Nespouštět highlight během rošády - rošáda má vlastní LED indikaci
   if (castling_state.in_progress) {
     ESP_LOGD(TAG, "Highlight skipped - castling in progress");
+    return;
+  }
+
+  if (!game_led_guidance_show_movable_yellow()) {
+    ESP_LOGD(TAG, "Movable piece highlights skipped (LED guidance level %u)",
+             (unsigned)led_guidance_level);
     return;
   }
 
@@ -11725,19 +13460,21 @@ bool game_check_castling_completion(const chess_move_t *move) {
         }
 
         if (king_row != -1 && king_col != -1) {
-          uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-          // Spustit check animaci - růžové svícení na králi
-          led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                     .led_index = king_led_index,
-                                     .red = 0,
-                                     .green = 0,
-                                     .blue = 0,
-                                     .duration_ms =
-                                         0, // Trvalé až do dalšího tahu
-                                     .data = NULL};
-          led_execute_command_new(&check_cmd);
-          ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
-                   current_player == PLAYER_WHITE ? "White" : "Black");
+          if (game_led_guidance_show_check_anim()) {
+            uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
+            // Spustit check animaci - růžové svícení na králi
+            led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                       .led_index = king_led_index,
+                                       .red = 0,
+                                       .green = 0,
+                                       .blue = 0,
+                                       .duration_ms =
+                                           0, // Trvalé až do dalšího tahu
+                                       .data = NULL};
+            led_execute_command_new(&check_cmd);
+            ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
+                     current_player == PLAYER_WHITE ? "White" : "Black");
+          }
         }
       }
     }
@@ -12046,6 +13783,42 @@ uint32_t game_get_move_count(void) {
   return count;
 }
 
+static esp_err_t game_status_json_append(int *offset, char *buffer, size_t size,
+                                        const char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  if (*offset < 0 || (size_t)*offset >= size) {
+    va_end(ap);
+    ESP_LOGE(TAG, "game_get_status_json: offset invalid %d", *offset);
+    return ESP_ERR_NO_MEM;
+  }
+  size_t rem = size - (size_t)*offset;
+  if (rem <= 1) {
+    va_end(ap);
+    return ESP_ERR_NO_MEM;
+  }
+  int n = vsnprintf(buffer + *offset, rem, fmt, ap);
+  va_end(ap);
+  if (n < 0 || (size_t)n >= rem) {
+    ESP_LOGE(TAG,
+             "game_get_status_json: append overflow need=%d rem=%zu off=%d", n,
+             rem, *offset);
+    return ESP_ERR_NO_MEM;
+  }
+  *offset += n;
+  return ESP_OK;
+}
+
+#define GAME_STATUS_JSON_APPEND(...)                                           \
+  do {                                                                         \
+    if (game_status_json_append(&offset, buffer, size, __VA_ARGS__) !=         \
+        ESP_OK) {                                                              \
+      if (game_mutex != NULL)                                                  \
+        xSemaphoreGive(game_mutex);                                            \
+      return ESP_ERR_NO_MEM;                                                   \
+    }                                                                          \
+  } while (0)
+
 esp_err_t game_get_status_json(char *buffer, size_t size) {
   if (buffer == NULL || size == 0) {
     return ESP_ERR_INVALID_ARG;
@@ -12105,35 +13878,34 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
     stalemate = (legal_moves == 0);
   }
 
-  offset +=
-      snprintf(buffer + offset, size - offset,
-               "{\"game_state\":\"%s\","
-               "\"current_player\":\"%s\","
-               "\"move_count\":%" PRIu32 ","
-               "\"white_time\":%" PRIu32 ","
-               "\"black_time\":%" PRIu32 ","
-               "\"in_check\":%s,"
-               "\"checkmate\":%s,"
-               "\"stalemate\":%s",
-               game_state_str,
-               (current_player == PLAYER_WHITE) ? "White" : "Black", move_count,
-               white_time_total, black_time_total, in_check ? "true" : "false",
-               checkmate ? "true" : "false", stalemate ? "true" : "false");
+  GAME_STATUS_JSON_APPEND("{\"game_state\":\"%s\","
+                          "\"current_player\":\"%s\","
+                          "\"move_count\":%" PRIu32 ","
+                          "\"white_time\":%" PRIu32 ","
+                          "\"black_time\":%" PRIu32 ","
+                          "\"in_check\":%s,"
+                          "\"checkmate\":%s,"
+                          "\"stalemate\":%s",
+                          game_state_str,
+                          (current_player == PLAYER_WHITE) ? "White" : "Black",
+                          move_count, white_time_total, black_time_total,
+                          in_check ? "true" : "false", checkmate ? "true" : "false",
+                          stalemate ? "true" : "false");
 
   // Piece lifted info
   if (piece_lifted) {
     char piece_char = piece_to_char(lifted_piece);
     char notation[4] = {0};
     convert_coords_to_notation(lifted_piece_row, lifted_piece_col, notation);
-    offset +=
-        snprintf(buffer + offset, size - offset,
-                 ",\"piece_lifted\":{\"lifted\":true,\"row\":%d,\"col\":%d,"
-                 "\"piece\":\"%c\",\"notation\":\"%s\"}",
-                 lifted_piece_row, lifted_piece_col, piece_char, notation);
+    GAME_STATUS_JSON_APPEND(",\"piece_lifted\":{\"lifted\":true,\"row\":%d,"
+                            "\"col\":%d,"
+                            "\"piece\":\"%c\",\"notation\":\"%s\"}",
+                            lifted_piece_row, lifted_piece_col, piece_char,
+                            notation);
   } else {
-    offset += snprintf(buffer + offset, size - offset,
-                       ",\"piece_lifted\":{\"lifted\":false,\"row\":0,\"col\":"
-                       "0,\"piece\":\" \",\"notation\":\"\"}");
+    GAME_STATUS_JSON_APPEND(",\"piece_lifted\":{\"lifted\":false,\"row\":0,"
+                            "\"col\":"
+                            "0,\"piece\":\" \",\"notation\":\"\"}");
   }
 
   /* Rošáda na 2 tahy: web musí vědět, že má čekat na tah věže (deska je mezistav). */
@@ -12143,12 +13915,12 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
                               castling_state.rook_from_col, cf);
     convert_coords_to_notation(castling_state.rook_to_row,
                               castling_state.rook_to_col, ct);
-    offset += snprintf(buffer + offset, size - offset,
-                      ",\"castling_in_progress\":true,\"castling_from\":\"%s\","
-                      "\"castling_to\":\"%s\"", cf, ct);
+    GAME_STATUS_JSON_APPEND(",\"castling_in_progress\":true,"
+                            "\"castling_from\":\"%s\","
+                            "\"castling_to\":\"%s\"",
+                            cf, ct);
   } else {
-    offset += snprintf(buffer + offset, size - offset,
-                      ",\"castling_in_progress\":false");
+    GAME_STATUS_JSON_APPEND(",\"castling_in_progress\":false");
   }
 
   // Game end information - použít current_endgame_reason pro přesné
@@ -12207,14 +13979,12 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
       break;
     }
 
-    offset += snprintf(buffer + offset, size - offset,
-                       ",\"game_end\":{\"ended\":true,\"reason\":\"%s\","
-                       "\"winner\":\"%s\",\"loser\":\"%s\"}",
-                       end_reason, winner, loser);
+    GAME_STATUS_JSON_APPEND(",\"game_end\":{\"ended\":true,\"reason\":\"%s\","
+                            "\"winner\":\"%s\",\"loser\":\"%s\"}",
+                            end_reason, winner, loser);
   } else {
-    offset += snprintf(buffer + offset, size - offset,
-                       ",\"game_end\":{\"ended\":false,\"reason\":\"\","
-                       "\"winner\":\"\",\"loser\":\"\"}");
+    GAME_STATUS_JSON_APPEND(",\"game_end\":{\"ended\":false,\"reason\":\"\","
+                            "\"winner\":\"\",\"loser\":\"\"}");
   }
 
   // Error recovery state pro vizuální indikaci na webu
@@ -12228,19 +13998,93 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
                                error_recovery_state.original_valid_col,
                                original_notation);
 
-    offset += snprintf(buffer + offset, size - offset,
-                       ",\"error_state\":{\"active\":true,"
-                       "\"invalid_pos\":\"%s\","
-                       "\"original_pos\":\"%s\","
-                       "\"error_count\":%d}",
-                       invalid_notation, original_notation,
-                       error_recovery_state.error_count);
+    GAME_STATUS_JSON_APPEND(",\"error_state\":{\"active\":true,"
+                            "\"invalid_pos\":\"%s\","
+                            "\"original_pos\":\"%s\","
+                            "\"error_count\":%d}",
+                            invalid_notation, original_notation,
+                            error_recovery_state.error_count);
   } else {
-    offset += snprintf(buffer + offset, size - offset,
-                       ",\"error_state\":{\"active\":false}");
+    /* Uzavřít objekt error_state — dříve chybějící } rozbíjelo JSON (restore_state
+     * vnořený do error_state). */
+    GAME_STATUS_JSON_APPEND(",\"error_state\":{\"active\":false}");
   }
 
-  offset += snprintf(buffer + offset, size - offset, "}");
+  GAME_STATUS_JSON_APPEND(
+      ",\"restore_state\":{\"snapshot_loaded\":%s,\"snapshot_fallback_used\":%s,"
+      "\"snapshot_restore_failed\":%s,\"snapshot_save_failed\":%s,"
+      "\"resync_required\":%s,"
+      "\"boot_new_game_triggered\":%s}",
+      snapshot_loaded_on_boot ? "true" : "false",
+      snapshot_fallback_used ? "true" : "false",
+      snapshot_restore_failed ? "true" : "false",
+      snapshot_save_failed ? "true" : "false",
+      resync_required_after_restore ? "true" : "false",
+      boot_new_game_triggered ? "true" : "false");
+
+  GAME_STATUS_JSON_APPEND(",\"board_setup_tutorial\":%s",
+                            board_setup_tutorial_active ? "true" : "false");
+
+  const game_puzzle_definition_t *pd_play =
+      game_get_puzzle_definition(puzzle_active_id);
+  const game_puzzle_definition_t *pd_setup =
+      game_get_puzzle_definition(puzzle_setup_id);
+  const game_puzzle_definition_t *pd =
+      puzzle_active ? pd_play : (puzzle_setup_active ? pd_setup : NULL);
+  bool puzzle_phys_match = false;
+  if (puzzle_setup_active && pd_setup != NULL) {
+    puzzle_phys_match = game_puzzle_physical_matches_fen(pd_setup->fen);
+  }
+  const char *puzzle_fen_json = "";
+  if (puzzle_setup_active && pd_setup != NULL) {
+    puzzle_fen_json = pd_setup->fen;
+  } else if (puzzle_active && pd_play != NULL) {
+    puzzle_fen_json = pd_play->fen;
+  }
+  GAME_STATUS_JSON_APPEND(",\"puzzle\":{\"active\":%s,\"setup_active\":%s,"
+                          "\"setup_id\":%u,\"physical_match\":%s,\"fen\":\"%s\","
+                          "\"id\":%u,\"difficulty\":%u,"
+                          "\"title\":\"%s\",\"teaser\":\"%s\",\"feedback\":\"%s\","
+                          "\"message\":\"%s\"}",
+                          puzzle_active ? "true" : "false",
+                          puzzle_setup_active ? "true" : "false",
+                          (unsigned)puzzle_setup_id,
+                          puzzle_phys_match ? "true" : "false", puzzle_fen_json,
+                          (unsigned)(puzzle_active ? puzzle_active_id
+                                                   : (puzzle_setup_active
+                                                          ? puzzle_setup_id
+                                                          : 0)),
+                          (unsigned)(pd ? pd->difficulty : 0U), pd ? pd->title : "",
+                          pd ? pd->teaser : "", game_puzzle_feedback_key(),
+                          game_puzzle_feedback_message());
+
+  if (board_setup_tutorial_active || puzzle_setup_active) {
+    uint8_t occ[64];
+    matrix_get_state(occ);
+    GAME_STATUS_JSON_APPEND(",\"matrix_occupied\":[");
+    for (int i = 0; i < 64; i++) {
+      GAME_STATUS_JSON_APPEND("%s%u", (i > 0) ? "," : "",
+                              (unsigned int)occ[i]);
+    }
+    GAME_STATUS_JSON_APPEND("]");
+  }
+
+  GAME_STATUS_JSON_APPEND("}");
+
+#undef GAME_STATUS_JSON_APPEND
+
+  buffer[offset] = '\0';
+  if (strstr(buffer, "\"game_state\"") == NULL) {
+    ESP_LOGE(TAG, "game_get_status_json: missing game_state in output");
+    if (game_mutex != NULL) {
+      xSemaphoreGive(game_mutex);
+    }
+    return ESP_FAIL;
+  }
+
+#ifndef NDEBUG
+  STAGING_LOGI(TAG, "game_get_status_json: len=%d cap=%zu", offset, size);
+#endif
 
   if (game_mutex != NULL) {
     xSemaphoreGive(game_mutex);
@@ -12764,16 +14608,18 @@ void game_refresh_leds(void) {
     }
 
     if (king_row != -1) {
-      ESP_LOGI(TAG, "  - Restoring CHECK state LEDs");
-      uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-      led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                 .led_index = king_led_index,
-                                 .red = 0,
-                                 .green = 0,
-                                 .blue = 0,
-                                 .duration_ms = 0,
-                                 .data = NULL};
-      led_execute_command_new(&check_cmd);
+      if (game_led_guidance_show_check_anim()) {
+        ESP_LOGI(TAG, "  - Restoring CHECK state LEDs");
+        uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
+        led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                                   .led_index = king_led_index,
+                                   .red = 0,
+                                   .green = 0,
+                                   .blue = 0,
+                                   .duration_ms = 0,
+                                   .data = NULL};
+        led_execute_command_new(&check_cmd);
+      }
     }
   }
 

@@ -1,154 +1,37 @@
 /**
  * @file main.c
- * @brief ESP32-C6 Chess System - Hlavni inicializace a startup
- *
- * @details
- * =============================================================================
- * CO TENTO SOUBOR DELA?
- * =============================================================================
- *
- * Tento soubor je VSTUPNI BOD cele aplikace. Spousti se jako prvni:
- * 1. Inicializace FreeRTOS
- * 2. Vytvoreni fronty (queues) pro komunikaci mezi tasky
- * 3. Vytvoreni  mutexu (synchronizace)
- * 4. Spusteni vsech tasku (game, uart, led, matrix...)
- * 5. WDT (watchdog) konfigurace
- * 6. Prechod do scheduler (FreeRTOS prevezme rizeni)
- *
- * =============================================================================
- * STARTUP SEKVENCE
- * =============================================================================
- *
- * 1. ESP32 BOOT (hardware)
- *    - Bootloader ESP-IDF
- *    - Nacteni firmware z flash
- *    - Skok na app_main()
- *
- * 2. app_main() - HLAVNI FUNKCE:
- *    a) NVS init (Non-Volatile Storage pro WiFi config)
- *    b) Vytvoreni front:
- *       - game_command_queue (20 zprav)
- *       - button_event_queue (5 zprav)
- *       - LED se ovladaji primymi volanimi (fronta byla odstranena)
- *
- *    c) Vytvor mutexy:
- *       - uart_mutex (ochrana UART vystupu)
- *       - led_state_mutex (ochrana LED bufferu)
- *
- *    d) Spust tasky (v poradi priority):
- *       - led_task (priorita 7 - nejvyssi, kriticky timing)
- *       - matrix_task (priorita 6 - realtime)
- *       - button_task (priorita 5 - uzivatelsky vstup)
- *       - game_task (priorita 4)
- *       - uart_task (priorita 3)
- *       - animation_task (priorita 3)
- *       - web_server_task (priorita 3)
- *       - test_task (priorita 1 - nejnizsi)
- *
- *    e) WDT init (5s timeout)
- *    f) Zobraz welcome message
- *
- * 3. SCHEDULER START:
- *    - FreeRTOS scheduler prevezme rizeni
- *    - app_main() uz NIKDY NEKONCI
- *    - Tasky bezi paralelne (pseudo-paralelne)
- *
- * =============================================================================
- * FRONTY (QUEUES) - KOMUNIKACE MEZI TASKY
- * =============================================================================
- *
- * game_command_queue:
- * - Velikost: 20 zprav
- * - Odesilatel: uart_task, matrix_task, web_server
- * - Prijemce: game_task
- * - Obsah: Prikazy typu  GAME_CMD_MOVE, GAME_CMD_RESET...
- *
- * button_event_queue:
- * - Velikost: 5 zprav
- * - Odesilatel: ISR (interrupt handler)
- * - Prijemce: button_task
- * - Obsah: BUTTON_PRESSED, BUTTON_RELEASED
- *
- * =============================================================================
- * TASK PRIORITY
- * =============================================================================
- *
- * ESP32 ma 25 priorit (0 = nejnizsi, 24 = nejvyssi):
- *
- * Priorita 7: led_task
- * - NEJVYSSI priorita - kriticky timing pro WS2812B LED
- * - LED vyzaduji presny timing a nesmi byt preruseny
- * - Animace nesmi trhat
- *
- * Priorita 6: matrix_task
- * - Vysoka priorita - realtime detekce pohybu
- * - Nelze zmeskovat detekci pohybu figurek
- *
- * Priorita 5: button_task
- * - Uzivatelsky vstup - musi byt rychla odezva
- *
- * Priorita 4: game_task
- * - Logika hry je kriticka
- * - Musi byt rychla odezva na tahy
- *
- * Priorita 3: uart_task, animation_task, web_server_task
- * - Terminal muze cekat par ms
- * - Neni realtime
- *
- * Priorita 1: test_task
- * - Nejnizsi priorita - pouze pro debug
- * - Muze cekat
- *
- * Priorita 0: IDLE task (FreeRTOS internal)
- *
- * =============================================================================
- * KRITICKA PRAVIDLA
- * =============================================================================
- *
- * @warning CO SE NESMI DELAT:
- *
- * 1. NIKDY  nezmen poradi vytvareni front!
- *    Fronty MUSI existovat PRED spustenim tasku
- *
- * 2. NIKDY nespust task bez queue!
- *    xTaskCreate(game_task, ...) PRED game_command_queue = xQueueCreate(...)
- *    Task by mel NULL pointer -> crash
- *
- * 3. NIKDY nemen priority nahodne!
- *    led_task ma nejvyssi prioritu (7) pro kriticky LED timing
- *
- * 4. VZDY kontroluj navratove hodnoty.
- *    xTaskCreate vraci pdPASS pokud uspesne
- *    xQueueCreate vraci handle nebo NULL
- *
- * =============================================================================
+ * @brief ESP32-C6 Chess System: vstupni bod, fronty, tasky, boot a NVS spoluprace.
  *
  * @author Alfred Krutina
  * @version 2.4
  * @date 2025-08-24
  *
- * Funkce:
- * - 8 FreeRTOS tasku pro systemove komponenty
- * - Task Watchdog Timer pro stabilitu systemu
- * - ASCII sachove umeni welcome banner
- * - Automaticka inicializace sachove hry
- * - Demo mod s automatickymi tahy
- * - Production-ready error handling
- *
  * @details
- * Tento soubor je hlavnim vstupnim bodem pro ESP32-C6 sachovy system.
- * Spousti se jako prvni a inicializuje vsechny potrebne komponenty.
- * System pouziva FreeRTOS pro multitasking a ma 8 hlavnich tasku:
- * - LED task: ovladani LED pasku
- * - Matrix task: skenovani 8x8 matice
- * - Button task: ovladani tlacitek
- * - UART task: komunikace pres UART
- * - Game task: logika sachove hry
- * - Animation task: LED animace
- * - Test task: testovani systemu
- * - Web server task: web rozhrani
+ * Tento soubor spousti app_main(), vytvori FreeRTOS fronty a mutexy, nastavi WDT
+ * a spusti systemove tasky (LED, matrix, button, game, UART, animace, web, test).
+ * Po kratsim cekani probiha centralizovana boot animace; nasleduje
+ * initialize_chess_game(), ktere respektuje obnovu ulozene hry z NVS v game_task.
+ *
+ * @subsection ss_queues Fronty
+ * - game_command_queue: prikazy pro game_task (UART, matrix, web).
+ * - button_event_queue: udalosti z tlacitek (ISR -> button_task).
+ *
+ * @subsection ss_priorities Priority (orientacne)
+ * led_task (7) > matrix_task (6) > button_task (5) > game_task (4) >
+ * uart / animation / web (3) > test_task (1) > IDLE (0).
+ *
+ * @subsection ss_boot_nvs Boot a NVS
+ * game_task_start() drive nez skonci boot animace: inicializuje desku, pripadne
+ * nacte snapshot z NVS nebo spusti novou hru podle boot trackeru. Po fade-out
+ * vola main initialize_chess_game(): pokud uz je stav nacteny z NVS nebo uz bezela
+ * nucena nova hra, neposila se GAME_CMD_NEW_GAME (jinak by se prepisla obnova).
+ * Pri obnove bez matrix guard se doplni LED pres game_refresh_leds().
+ *
+ * @warning Fronty musi existovat pred xTaskCreate. Kontroluj navratove hodnoty
+ * xQueueCreate a xTaskCreate.
  */
 
+#include "sdkconfig.h"
 #include "animation_task.h"
 #include "button_task.h"
 #include "chess_types.h"
@@ -172,7 +55,9 @@
 #include "led_task.h"
 #include "matrix_task.h"
 #include "nvs_flash.h"
+#if CONFIG_CHESS_ENABLE_TEST_TASK
 #include "test_task.h"
+#endif
 #include "uart_task.h"
 // #include <inttypes.h> // UNUSED
 #include <stdio.h>
@@ -185,6 +70,7 @@
 #include "ha_light_task.h"
 #include "uart_commands_extended.h"
 #include "web_server_task.h"
+#include "ble_task.h"
 
 // ============================================================================
 // RESET REASON DIAGNOSTICS (PRODUCTION STABILITY)
@@ -440,11 +326,12 @@ esp_err_t main_system_init(void) {
     return ESP_FAIL;
   }
 
-  // Verify Test queues
+#if CONFIG_CHESS_ENABLE_TEST_TASK
   if (test_command_queue == NULL) {
     ESP_LOGE(TAG, "Test command queue not available");
     return ESP_FAIL;
   }
+#endif
 
   // Verify Animation queues
   if (animation_command_queue == NULL || animation_status_queue == NULL) {
@@ -474,6 +361,8 @@ esp_err_t main_system_init(void) {
   }
   ESP_LOGI(TAG, "✅ Extended UART commands registered");
 
+  ble_task_init();
+
   return ESP_OK;
 }
 
@@ -482,37 +371,66 @@ esp_err_t main_system_init(void) {
 // ============================================================================
 
 /**
- * @brief Inicializuje sachovou hru a posle prikaz pro novou hru
- *
- * Tato funkce spusti novou sachovou hru odeslanim prikazu GAME_CMD_NEW_GAME
- * do game tasku. Po spusteni hry aktualizuje dostupnost tlacitek LED.
+ * @brief Dokonci start hry po boot animaci: volitelny GAME_CMD_NEW_GAME, LED, tlacitka.
  *
  * @details
- * Funkce vytvori novou sachovou hru odeslanim prikazu do game tasku.
- * Po uspesnem spusteni hry aktualizuje LED feedback pro tlacitka,
- * aby uzivatel vedel ktera tlacitka jsou dostupna.
+ * Volat az po show_boot_animation_and_board() (flag led_is_booting() je uz false).
+ * game_task_start() drive nastavil desku a pripadne nacetl NVS snapshot nebo
+ * game_start_new_game() podle boot trackeru.
+ *
+ * - @c nvs_restored: neposilat GAME_CMD_NEW_GAME; stav pochazi z NVS. Po fade-out
+ *   zavolat game_refresh_leds() jen kdyz neni aktivni matrix guard (ochrana LED
+ *   pri nesouladu matice s ulozenou pozici).
+ * - @c boot_already_new: boot tracker uz spustil novou hru v game_task; neposilat
+ *   duplicitni GAME_CMD_NEW_GAME.
+ * - Jinak poslat GAME_CMD_NEW_GAME pro plny reset jako drive (zadny platny snapshot).
+ *
+ * Vzdy vola led_update_button_availability_from_game().
+ *
+ * @note game_active po obnove NVS nastavuje game_load_snapshot_from_nvs(); drive
+ *       to delal az prikaz NEW_GAME z teto funkce.
+ *
+ * @see game_was_snapshot_loaded_on_boot()
+ * @see game_was_boot_new_game_triggered()
+ * @see game_is_matrix_guard_active()
+ * @see game_refresh_leds()
  */
 void initialize_chess_game(void) {
-  ESP_LOGI(TAG, "🎯 Starting new chess game...");
+  const bool nvs_restored = game_was_snapshot_loaded_on_boot();
+  const bool boot_already_new = game_was_boot_new_game_triggered();
 
-  // Send new game command to game task
-  if (game_command_queue != NULL) {
-    chess_move_command_t cmd = {0};
-    cmd.type = GAME_CMD_NEW_GAME;
-    // from_notation a to_notation nechte prazdne
-
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-      ESP_LOGE(TAG, "❌ Failed to send GAME_CMD_NEW_GAME");
-    } else {
-      ESP_LOGI(TAG, "✅ New game command sent");
-    }
+  if (nvs_restored) {
+    ESP_LOGI(TAG,
+             "[staging] Chess init: snapshot from NVS kept — skip "
+             "GAME_CMD_NEW_GAME");
+  } else if (boot_already_new) {
+    ESP_LOGI(TAG,
+             "[staging] Chess init: boot rule already ran new game — skip "
+             "duplicate GAME_CMD_NEW_GAME");
   } else {
-    ESP_LOGE(TAG, "❌ Game command queue not available");
+    ESP_LOGI(TAG, "🎯 Starting new chess game...");
+
+    if (game_command_queue != NULL) {
+      chess_move_command_t cmd = {0};
+      cmd.type = GAME_CMD_NEW_GAME;
+
+      if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+        ESP_LOGE(TAG, "❌ Failed to send GAME_CMD_NEW_GAME");
+      } else {
+        ESP_LOGI(TAG, "✅ New game command sent");
+      }
+    } else {
+      ESP_LOGE(TAG, "❌ Game command queue not available");
+    }
   }
 
-  // Update button LED availability after game starts
   extern void led_update_button_availability_from_game(void);
   led_update_button_availability_from_game();
+
+  /* Po fade-out je deska prazdna; drive NEW_GAME spustilo highlight v game_task. */
+  if (nvs_restored && !game_is_matrix_guard_active()) {
+    game_refresh_leds();
+  }
 
   ESP_LOGI(TAG, "🎯 Game ready! White to move.");
   ESP_LOGI(TAG, "💡 Type 'HELP' for available commands");
@@ -764,15 +682,10 @@ void execute_demo_move(void) {
 // ============================================================================
 
 /**
- * @brief Inicializuje konzoli a UART
- *
- * Tato funkce inicializuje NVS flash, konzoli a UART pro komunikaci.
- * Pouziva USB Serial JTAG konzoli, takze neni potreba externi UART.
+ * @brief Inicializace NVS (pro konfiguraci), konzole a UART / USB Serial JTAG.
  *
  * @details
- * Funkce inicializuje NVS flash pamet pro ulozeni konfigurace,
- * nastavi konzoli pro prijimani prikazu a registruje help prikaz.
- * Vsechna komunikace probiha pres USB Serial JTAG.
+ * NVS flash pro ulozeni konfigurace; esp_console pro prikazy; bez externiho UART.
  */
 static void init_console(void) {
   ESP_LOGI(TAG, "Initializing console...");
@@ -927,7 +840,7 @@ esp_err_t create_system_tasks(void) {
            "self-register with TWDT",
            ANIMATION_TASK_STACK_SIZE / 1024);
 
-  // Create Test task
+#if CONFIG_CHESS_ENABLE_TEST_TASK
   result = xTaskCreate((TaskFunction_t)test_task_start, "test_task",
                        TEST_TASK_STACK_SIZE, NULL, TEST_TASK_PRIORITY,
                        &test_task_handle);
@@ -937,11 +850,15 @@ esp_err_t create_system_tasks(void) {
     return ESP_FAIL;
   }
 
-  // Task will register itself with TWDT internally
   ESP_LOGI(TAG,
            "✓ Test task created successfully (%dKB stack) - will self-register "
            "with TWDT",
            TEST_TASK_STACK_SIZE / 1024);
+#else
+  ESP_LOGI(TAG,
+           "⏭️ Test task disabled (menuconfig: CzechMate → Enable automated test "
+           "task)");
+#endif
 
   // DISABLED: Create Matter task - Matter not needed
   /*
@@ -998,21 +915,20 @@ esp_err_t create_system_tasks(void) {
 
   ESP_LOGI(TAG, "All system tasks created successfully");
 
-  // Wait for all tasks to initialize before showing boot animation
+  // Cas pro start tasku pred boot animaci.
   vTaskDelay(pdMS_TO_TICKS(1000));
 
-  // Show centralized boot animation and chess board
+  // ASCII banner, progress bar, led_boot_animation_step, fade-out.
   show_boot_animation_and_board();
 
-  // Initialize chess game after boot animation
+  // Sladeni s NVS: initialize_chess_game() nemusi poslat GAME_CMD_NEW_GAME.
   initialize_chess_game();
 
-  // Resume UART task now that boot animation is complete
+  // UART bezel suspended az do konce boot animace (vystup neprerusuje logo).
   vTaskResume(uart_task_handle);
   ESP_LOGI(TAG, "✅ UART task resumed after boot animation");
 
-  // NOTE: LED boot flag is managed by LED task itself - it will clear
-  // after LED boot animation completes (including fade-out)
+  // led_is_booting() cisti az po fade_out (viz led_boot_animation_fade_out v led_task).
 
   return ESP_OK;
 }
@@ -1022,16 +938,14 @@ esp_err_t create_system_tasks(void) {
 // ============================================================================
 
 /**
- * @brief Zobrazi centralizovanou boot animaci a sachovnici
- *
- * Tato funkce je volana po inicializaci vsech tasku, aby se zabranilo
- * duplicitnimu renderovani a zajistil se plynuly timing animace.
- * Zobrazi ASCII sachove umeni, progress bar a navod k pouziti.
+ * @brief Centralizovana boot animace: ASCII logo, progress bar, LED krok, fade-out.
  *
  * @details
- * Funkce zobrazi pekny ASCII banner s nazvem systemu, progress bar
- * s animaci nacitani a navod k pouziti systemu. Vsechno je barevne
- * a plynule animovane pro lepsi uzivatelsky zazitek.
+ * Volat az po vytvoreni tasku. Behem smycky vola led_boot_animation_step() a WDT
+ * reset v main; na konci led_boot_animation_fade_out() vycisti desku a nastavi
+ * led_booting_active = false. Nasleduje initialize_chess_game().
+ *
+ * @note game_task behem led_is_booting() nezpracovava tahy (viz game_task_start).
  */
 void show_boot_animation_and_board(void) {
   ESP_LOGI(TAG, "🎬 Starting centralized boot animation...");

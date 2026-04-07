@@ -1,5 +1,13 @@
-# ESP32-C6 Chess v2.4 Configuration
+# ESP32-C6 Chess v2.4 — výchozí Kconfig pro nový build / clone.
+# Sladit s `sdkconfig`: při změně defaults často `idf.py fullclean reconfigure build`.
+# Klíče zde přepisují tovární výchozí IDF; samotný `sdkconfig` drží plný strom z menuconfig.
 CONFIG_IDF_TARGET="esp32c6"
+
+# CzechMate — automatizovaný test task (vypni pro úsporu ~4,5 KiB stack + TCB)
+# CONFIG_CHESS_ENABLE_TEST_TASK is not set
+
+# HTTP server — WebSocket /ws (watchOS/iOS); bez toho klient dostane „bad response“ (-1011)
+CONFIG_HTTPD_WS_SUPPORT=y
 
 # System
 CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE=4096
@@ -14,7 +22,7 @@ CONFIG_LOG_MAXIMUM_LEVEL=3
 
 # USB Serial JTAG Console
 CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
-CONFIG_ESP_CONSOLE_NONE=y
+# CONFIG_ESP_CONSOLE_NONE is not set
 
 # JTAG Configuration (keep GPIO0-5 free for debugging)
 CONFIG_ESP_SYSTEM_GDBSTUB_RUNTIME=n
@@ -29,14 +37,22 @@ CONFIG_NVS_ENCRYPTION=n
 # Security Configuration
 CONFIG_SECURE_BOOT_V2_ENABLED=n
 
-# WiFi Configuration (disabled for chess project)
-CONFIG_ESP_WIFI_ENABLED=n
-CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=0
-CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=0
+# WiFi — nutné pro web_server (AP/STA), HTTP, WebSocket, mDNS. Bez toho aplikace přes LAN nefunguje.
+CONFIG_ESP_WIFI_ENABLED=y
+CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=10
+CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=8
 
-# Bluetooth Configuration (disabled for chess project)
-CONFIG_BT_ENABLED=n
-CONFIG_BT_NIMBLE_ENABLED=n
+# Bluetooth — NimBLE GATT (CZECHMATE). Po změně spusť `idf.py fullclean reconfigure build`.
+# Pokud sdkconfig přepisuje defaults, zapni BT v menuconfig Component config → Bluetooth.
+CONFIG_BT_ENABLED=y
+CONFIG_BT_NIMBLE_ENABLED=y
+# Větší MSYS pool — při AP/STA + HTTP může default nestačit na ATT; pomáhá proti „0 služeb“ na iOS.
+CONFIG_BT_NIMBLE_MSYS_1_BLOCK_COUNT=32
+CONFIG_BT_NIMBLE_MSYS_2_BLOCK_COUNT=32
+
+# WiFi + BLE na jednom čipu (nutné pro stabilní provoz obojího).
+CONFIG_ESP_COEX_ENABLED=y
+CONFIG_ESP_COEX_SW_COEXIST_ENABLE=y
 
 # Power Management
 CONFIG_PM_ENABLE=y
@@ -51,12 +67,14 @@ CONFIG_COMPILER_OPTIMIZATION_DEBUG=y
 CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_ENABLE=y
 CONFIG_COMPILER_STACK_CHECK_MODE_NONE=y
 
-# Build Configuration
+# Build Configuration — na desce je typicky 16 MB flash (log: chip větší než 2 MB v hlavičce).
 CONFIG_APP_RETRIEVE_LEN_ELF_SHA=16
 CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
 CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
-CONFIG_ESPTOOLPY_FLASHSIZE_2MB=y
+# CONFIG_ESPTOOLPY_FLASHSIZE_2MB is not set
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
 
 # Partition Table Configuration - Force default
-CONFIG_PARTITION_TABLE_SINGLE_APP=y
-CONFIG_PARTITION_TABLE_CUSTOM=n
+# CONFIG_PARTITION_TABLE_SINGLE_APP is not set
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"

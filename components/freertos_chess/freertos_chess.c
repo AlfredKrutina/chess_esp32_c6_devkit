@@ -40,7 +40,9 @@
  * - LED aktualizace probiha nezavisle mimo multiplexing cyklus
  */
 
+#include "sdkconfig.h"
 #include "freertos_chess.h"
+#include "uart_queue_message.h"
 #include "button_task.h"
 #include "driver/gpio.h"
 #include "esp_err.h"
@@ -577,7 +579,8 @@ esp_err_t chess_create_queues(void) {
 
   // CRITICAL: Check heap availability before creating queues
   size_t free_heap = esp_get_free_heap_size();
-  if (free_heap < 50000) { // Minimum 50KB free heap required
+  /* Pocatecni rezerva pred alokaci front (~50 KiB); pri zmene poctu tasku upravit. */
+  if (free_heap < 50000) {
     ESP_LOGE(
         TAG,
         "Insufficient free heap for queue creation: %zu bytes (minimum 50000)",
@@ -633,10 +636,10 @@ esp_err_t chess_create_queues(void) {
 
   // CRITICAL: Create UART output queue for centralized output
   extern QueueHandle_t uart_output_queue;
-  ESP_LOGI(TAG, "  - UART Output Queue: %d items × %zu bytes", 20, 128);
-  SAFE_CREATE_QUEUE(
-      uart_output_queue, 20, 128,
-      "UART Output Queue"); // Reduced item size from 512 to 128 to save ~7.5KB
+  ESP_LOGI(TAG, "  - UART Output Queue: %d items × %zu bytes",
+           UART_OUTPUT_QUEUE_LENGTH, sizeof(uart_message_t));
+  SAFE_CREATE_QUEUE(uart_output_queue, UART_OUTPUT_QUEUE_LENGTH,
+                    sizeof(uart_message_t), "UART Output Queue");
 
   ESP_LOGI(TAG, "✅ UART queues created. Free heap: %zu bytes",
            esp_get_free_heap_size());
@@ -709,31 +712,35 @@ esp_err_t chess_create_queues(void) {
   ESP_LOGI(TAG, "✅ Web Server queues created. Free heap: %zu bytes",
            esp_get_free_heap_size());
 
-  // Test control queues
+#if CONFIG_CHESS_ENABLE_TEST_TASK
   ESP_LOGI(TAG, "🔄 Creating Test queue...");
-  ESP_LOGI(TAG, "  - Test Command Queue: %d items × %zu bytes", LED_QUEUE_SIZE,
-           sizeof(uint8_t));
-  SAFE_CREATE_QUEUE(test_command_queue, LED_QUEUE_SIZE, sizeof(uint8_t),
-                    "Test Command Queue");
+  ESP_LOGI(TAG, "  - Test Command Queue: %d items × %zu bytes",
+           TEST_COMMAND_QUEUE_SIZE, sizeof(uint8_t));
+  SAFE_CREATE_QUEUE(test_command_queue, TEST_COMMAND_QUEUE_SIZE,
+                      sizeof(uint8_t), "Test Command Queue");
   ESP_LOGI(TAG, "✅ Test queue created. Free heap: %zu bytes",
            esp_get_free_heap_size());
+#else
+  test_command_queue = NULL;
+  ESP_LOGI(TAG, "⏭️ Test queue skipped (CONFIG_CHESS_ENABLE_TEST_TASK=n)");
+#endif
 
   ESP_LOGI(TAG, "========================================");
   ESP_LOGI(TAG, "🎉 ALL FREERTOS QUEUES CREATED SUCCESSFULLY!");
   ESP_LOGI(TAG, "Final free heap: %zu bytes", esp_get_free_heap_size());
   ESP_LOGI(TAG, "========================================");
 
-  // CRITICAL: Validate all queues were created successfully
-  if (!matrix_event_queue || !matrix_command_queue || !matrix_response_queue ||
-      !button_event_queue || !button_command_queue || !uart_command_queue ||
-      !uart_response_queue || !game_command_queue || !game_status_queue ||
-      !animation_command_queue || !animation_status_queue ||
-      !screen_saver_command_queue || !screen_saver_status_queue ||
-      /* !matter_command_queue || !matter_status_queue || */ // DISABLED -
-                                                             // Matter not
-                                                             // needed
-      !web_command_queue || !web_server_command_queue ||
-      !web_server_status_queue || !test_command_queue) {
+  bool queues_ok =
+      matrix_event_queue && matrix_command_queue && matrix_response_queue &&
+      button_event_queue && button_command_queue && uart_command_queue &&
+      uart_response_queue && game_command_queue && game_status_queue &&
+      animation_command_queue && animation_status_queue &&
+      screen_saver_command_queue && screen_saver_status_queue &&
+      web_command_queue && web_server_command_queue && web_server_status_queue;
+#if CONFIG_CHESS_ENABLE_TEST_TASK
+  queues_ok = queues_ok && test_command_queue;
+#endif
+  if (!queues_ok) {
     ESP_LOGE(TAG, "One or more queues failed to create - system initialization "
                   "will fail");
     return ESP_ERR_NO_MEM;
