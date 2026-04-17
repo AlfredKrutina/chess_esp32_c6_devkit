@@ -8,11 +8,14 @@ import SwiftUI
 
 /// Malá neinteraktivní šachovnice; `board` ve stejném formátu jako z ESP (řádek 0 = rank 1).
 struct MiniBoardView: View {
+    @AppStorage("czechmate.boardStyleRaw") private var boardStyleRaw = ChessBoardStyle.wooden.rawValue
+
     let board: [[String]]
     var cellSide: CGFloat = 20
 
-    private let light = Color(red: 0.96, green: 0.88, blue: 0.72)
-    private let dark = Color(red: 0.55, green: 0.40, blue: 0.28)
+    private var boardStyle: ChessBoardStyle {
+        ChessBoardStyle(rawValue: boardStyleRaw) ?? .wooden
+    }
 
     var body: some View {
         let side = cellSide * 8
@@ -41,7 +44,7 @@ struct MiniBoardView: View {
         let isLight = (row + col) % 2 == 0
         let piece = pieceChar(row: row, col: col)
         ZStack {
-            Rectangle().fill(isLight ? light : dark)
+            Rectangle().fill(isLight ? boardStyle.squareLight : boardStyle.squareDark)
             ChessPieceArtView(fenChar: piece, size: cellSide * 0.52, isLightSquare: isLight)
                 .minimumScaleFactor(0.5)
         }

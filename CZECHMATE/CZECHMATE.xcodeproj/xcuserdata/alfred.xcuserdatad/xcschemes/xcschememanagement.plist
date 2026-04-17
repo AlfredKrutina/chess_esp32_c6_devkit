@@ -17,7 +17,40 @@
 		<key>CZECHMATEWidgets.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>CZECHMATE_W Watch App.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
 			<integer>3</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>BB20561E2F838A5E00CAFA19</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>BB2057302F838A6200CAFA19</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>BB95D1DD2F8CCF68006A3F1C</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>BB95D1E92F8CCF6A006A3F1C</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>BB95D1F32F8CCF6A006A3F1C</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

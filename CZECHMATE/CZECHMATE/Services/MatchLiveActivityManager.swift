@@ -13,6 +13,14 @@ import CZECHMATEShared
 final class MatchLiveActivityManager {
     static let shared = MatchLiveActivityManager()
 
+    /// Sjednocený klíč s `SettingsTabView` (`@AppStorage`). Výchozí při chybějícím klíči: zapnuto.
+    static let liveActivityEnabledDefaultsKey = "czechmate.liveActivityEnabled"
+
+    static var isLiveActivityEnabledByUser: Bool {
+        if UserDefaults.standard.object(forKey: liveActivityEnabledDefaultsKey) == nil { return true }
+        return UserDefaults.standard.bool(forKey: liveActivityEnabledDefaultsKey)
+    }
+
     private var activity: Activity<ChessMatchAttributes>?
 
     private init() {}
@@ -21,6 +29,16 @@ final class MatchLiveActivityManager {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             #if DEBUG
             print("[staging] Live Activities disabled in Settings")
+            #endif
+            return
+        }
+
+        guard Self.isLiveActivityEnabledByUser else {
+            if activity != nil {
+                await endActivity(reason: "user_disabled_app_setting")
+            }
+            #if DEBUG
+            print("[staging] Live Activity vypnutá v CZECHMATE Nastavení")
             #endif
             return
         }
@@ -36,9 +54,10 @@ final class MatchLiveActivityManager {
         }
 
         let state = makeContentState(snap, timer: timer)
+        let stale = BoardCompanionSync.liveActivityStaleDate(timerRunning: state.timerActive)
 
         if let existing = activity {
-            await existing.update(ActivityContent(state: state, staleDate: nil))
+            await existing.update(ActivityContent(state: state, staleDate: stale))
             #if DEBUG
             print("[staging] LiveActivity update matchId=\(existing.attributes.matchId)")
             #endif
@@ -47,7 +66,7 @@ final class MatchLiveActivityManager {
 
         let matchId = UUID().uuidString
         let attributes = ChessMatchAttributes(matchId: matchId)
-        let content = ActivityContent(state: state, staleDate: nil)
+        let content = ActivityContent(state: state, staleDate: stale)
         do {
             activity = try Activity.request(attributes: attributes, content: content, pushType: nil)
             #if DEBUG
@@ -62,6 +81,11 @@ final class MatchLiveActivityManager {
 
     func connectionStopped() async {
         await endActivity(reason: "connection_stopped")
+    }
+
+    /// Okamžité ukončení živé aktivity po vypnutí přepínače v Nastavení (bez čekání na další snapshot).
+    func dismissForUserPreferenceOff() async {
+        await endActivity(reason: "user_preference_off")
     }
 
     private func endActivity(reason: String) async {
@@ -91,9 +115,10 @@ final class MatchLiveActivityManager {
         } else {
             sub = "Tah \(snap.status.moveCount)"
         }
-        let whiteSec = timer.map { UInt32($0.whiteTimeMs / 1000) } ?? snap.status.whiteTime
-        let blackSec = timer.map { UInt32($0.blackTimeMs / 1000) } ?? snap.status.blackTime
-        let timerActive = timer.map { $0.timerRunning && !$0.gamePaused } ?? snap.status.isTimerRunning
+        let boardClock = timer ?? snap.clock
+        let whiteSec = boardClock.map { UInt32($0.whiteTimeMs / 1000) } ?? snap.status.whiteTime
+        let blackSec = boardClock.map { UInt32($0.blackTimeMs / 1000) } ?? snap.status.blackTime
+        let timerActive = boardClock.map { $0.timerRunning && !$0.gamePaused } ?? snap.status.isTimerRunning
         return ChessMatchAttributes.ContentState(
             moveCount: Int(snap.status.moveCount),
             currentPlayer: snap.status.currentPlayer,
@@ -113,9 +138,12 @@ final class MatchLiveActivityManager {
 @MainActor
 final class MatchLiveActivityManager {
     static let shared = MatchLiveActivityManager()
+    static let liveActivityEnabledDefaultsKey = "czechmate.liveActivityEnabled"
+    static var isLiveActivityEnabledByUser: Bool { true }
     private init() {}
     func applySnapshot(_: GameSnapshot, timer _: BoardTimerHTTPState?) async {}
     func connectionStopped() async {}
+    func dismissForUserPreferenceOff() async {}
 }
 
 #endif

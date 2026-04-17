@@ -30,8 +30,9 @@ enum HistoryBoardReplay {
     }
 
     private static func apply(_ m: HistoryMove, to b: inout [[String]]) -> Bool {
-        guard let from = FirmwareSquareNotation.indices(from: m.from),
-              let to = FirmwareSquareNotation.indices(from: m.to)
+        guard let fromSquare = m.from, let toSquare = m.to,
+              let from = FirmwareSquareNotation.indices(from: fromSquare),
+              let to = FirmwareSquareNotation.indices(from: toSquare)
         else { return false }
         let piece = b[from.row][from.col].trimmingCharacters(in: .whitespaces)
         guard piece != " ", !piece.isEmpty else { return false }
@@ -58,7 +59,7 @@ enum HistoryBoardReplay {
         // Promoce: cíl na poslední řádě a pěšec
         if pieceLower == "p", (to.row == 0 || to.row == 7) {
             let promoted: String
-            if m.piece.count == 1, let ch = m.piece.first {
+            if let p = m.piece, p.count == 1, let ch = p.first {
                 let u = String(ch)
                 promoted = isWhite ? u.uppercased() : u.lowercased()
             } else {

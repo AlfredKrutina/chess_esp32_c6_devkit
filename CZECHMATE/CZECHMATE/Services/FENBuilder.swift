@@ -8,12 +8,12 @@
 import Foundation
 
 enum FENBuilder {
-    /// Řádky board: row 0 = rank 1 (bílá strana dole na fyzické desce v JSON z firmware).
+    /// Řádky `board` jako po `GameSnapshot.decodeFromBoardDataRepairingAndNormalizing`: řádek 0 = rank 8 (černá nahoře), 7 = rank 1.
     /// `history.moves.count` odpovídá `halfmove` v chess_app.js pro výpočet fullmove.
-    static func boardAndStatusToFEN(board: [[String]], status: GameStatus, history: MoveHistory) -> String? {
+    static func boardAndStatusToFEN(board: [[String]], status: GameStatus, halfmoveCount n: Int) -> String? {
         guard board.count == 8 else { return nil }
         var rows: [String] = []
-        for r in stride(from: 7, through: 0, by: -1) {
+        for r in 0 ..< 8 {
             guard board[r].count == 8 else { return nil }
             var rank = ""
             var empty = 0
@@ -34,11 +34,18 @@ enum FENBuilder {
             rows.append(rank)
         }
         let piecePlacement = rows.joined(separator: "/")
-        let sideToMove = status.currentPlayer == "White" ? "w" : "b"
-        let n = history.moves.count
+        let sideToMove = sideToMoveChar(from: status.currentPlayer)
         let fullmove = max(1, n / 2 + 1)
         let fen = "\(piecePlacement) \(sideToMove) KQkq - 0 \(fullmove)"
         guard fen.count >= 20, fen.count <= 120 else { return nil }
         return fen
     }
+
+    private static func sideToMoveChar(from currentPlayer: String) -> String {
+        let t = currentPlayer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if t == "black" || t == "b" { return "b" }
+        if t == "white" || t == "w" { return "w" }
+        return currentPlayer == "Black" ? "b" : "w"
+    }
 }
+

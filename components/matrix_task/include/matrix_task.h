@@ -159,6 +159,15 @@ void matrix_process_commands(void);
  */
 void matrix_reset(void);
 
+/**
+ * @brief Zruší lokální matrix guard a zarovná baseline (previous = HW stav).
+ *
+ * Volá game_task když matrix guard na straně hry ignorujeme (tutoriál / puzzle),
+ * nebo po game_reset — aby se nezasekla detekce a neplatný last_piece_lifted
+ * nevyvolával falešné „více zvednutí najednou“.
+ */
+void matrix_abort_ambiguous_guard_baseline(void);
+
 // ============================================================================
 // TIME-MULTIPLEXING FUNKCE
 // ============================================================================

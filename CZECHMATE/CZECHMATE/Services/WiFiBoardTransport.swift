@@ -181,6 +181,10 @@ final class WiFiBoardTransport: BoardTransport {
     func postWiFiDisconnect() async throws { try await boardClient.postWiFiDisconnect() }
     func postWiFiClear() async throws { try await boardClient.postWiFiClear() }
 
+    func postFactoryReset() async throws {
+        try await boardClient.postFactoryReset()
+    }
+
     // MARK: - Zařízení (parita s webem)
 
     func fetchUISettingsEnvelope() async throws -> BoardUISettingsEnvelope {

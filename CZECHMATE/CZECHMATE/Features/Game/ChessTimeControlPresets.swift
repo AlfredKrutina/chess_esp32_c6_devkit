@@ -31,7 +31,7 @@ enum ChessTimeControlChoice: Equatable, Sendable {
 }
 
 /// Nabídka pro UI (chess.com styl).
-enum ChessTimeControlPreset: String, CaseIterable, Identifiable {
+enum ChessTimeControlPreset: String, CaseIterable, Identifiable, Codable {
     /// `TIME_CONTROL_NONE` — hra bez odpočtu (viz `timer_system.h`).
     case no_time_limit
     case bullet1_0
@@ -92,5 +92,43 @@ enum ChessTimeControlPreset: String, CaseIterable, Identifiable {
 
     var choice: ChessTimeControlChoice {
         .firmwareType(firmwareType)
+    }
+}
+
+// MARK: - Poslední volba (sheet „Nová hra“)
+
+/// Uložení posledního času před novou hrou; při chybějících datech UI začíná na `no_time_limit`.
+enum LastNewGameTimeSelection: Equatable, Codable {
+    case presetChoice(ChessTimeControlPreset)
+    case customChoice(minutes: Int, incrementSeconds: Int)
+
+    private static let udKey = "czechmate.lastNewGameTimeSelection.v1"
+
+    static func load() -> LastNewGameTimeSelection? {
+        guard let data = UserDefaults.standard.data(forKey: udKey) else { return nil }
+        return try? JSONDecoder().decode(Self.self, from: data)
+    }
+
+    func save() {
+        if let data = try? JSONEncoder().encode(self) {
+            UserDefaults.standard.set(data, forKey: Self.udKey)
+        }
+    }
+
+    static func persist(from choice: ChessTimeControlChoice) {
+        guard let sel = Self.from(choice) else { return }
+        sel.save()
+    }
+
+    static func from(_ choice: ChessTimeControlChoice) -> LastNewGameTimeSelection? {
+        switch choice {
+        case .firmwareType(let t):
+            guard let preset = ChessTimeControlPreset.allCases.first(where: { $0.firmwareType == t }) else {
+                return nil
+            }
+            return .presetChoice(preset)
+        case .custom(let m, let inc):
+            return .customChoice(minutes: m, incrementSeconds: inc)
+        }
     }
 }

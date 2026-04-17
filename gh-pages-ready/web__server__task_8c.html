@@ -1,0 +1,3385 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru web_server_task.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('web__server__task_8c.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru web_server_task.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Web Server Task - WiFi hotspot a HTTP server pro web ovladani.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="web__server__task_8h_source.html">web_server_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">../game_task/include/game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="timer__system_8h_source.html">../timer_system/include/timer_system.h</a>&quot;</code><br />
+<code>#include &quot;esp_event.h&quot;</code><br />
+<code>#include &quot;esp_http_server.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_netif.h&quot;</code><br />
+<code>#include &quot;esp_task_wdt.h&quot;</code><br />
+<code>#include &quot;esp_wifi.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &quot;nvs.h&quot;</code><br />
+<code>#include &quot;nvs_flash.h&quot;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro web_server_task.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="web__server__task_8c__incl.png" border="0" usemap="#aweb__server__task_8c" loading="lazy" alt=""/></div>
+<map name="aweb__server__task_8c" id="aweb__server__task_8c">
+<area shape="rect" title="Web Server Task &#45; WiFi hotspot a HTTP server pro web ovladani." alt="" coords="1553,5,1684,31"/>
+<area shape="rect" href="web__server__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Web Server Task Hlavicka." alt="" coords="30,79,161,105"/>
+<area shape="poly" title=" " alt="" coords="1552,25,177,89,176,84,1553,20"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="442,160,560,186"/>
+<area shape="poly" title=" " alt="" coords="1549,27,1113,82,815,125,576,162,575,157,814,120,1113,76,1555,26"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Game Task Hlavicka." alt="" coords="993,153,1135,193"/>
+<area shape="poly" title=" " alt="" coords="1550,23,1453,32,1337,43,1229,59,1186,69,1154,81,1117,109,1087,142,1084,138,1113,105,1152,77,1185,64,1228,54,1336,38,1452,26,1555,22"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Timer System komponenta." alt="" coords="1253,241,1413,282"/>
+<area shape="poly" title=" " alt="" coords="1549,19,1458,24,1352,32,1302,40,1257,50,1222,64,1199,81,1188,100,1187,119,1194,140,1206,160,1245,199,1289,233,1284,232,1241,203,1202,163,1189,142,1182,120,1183,98,1195,77,1220,59,1256,45,1301,35,1351,27,1458,18,1555,18"/>
+<area shape="rect" title=" " alt="" coords="1210,79,1302,105"/>
+<area shape="poly" title=" " alt="" coords="1553,32,1318,81,1317,76,1558,31"/>
+<area shape="rect" title=" " alt="" coords="1326,79,1450,105"/>
+<area shape="poly" title=" " alt="" coords="1582,31,1442,77,1441,71,1577,32"/>
+<area shape="rect" title=" " alt="" coords="1474,79,1552,105"/>
+<area shape="poly" title=" " alt="" coords="1603,31,1545,72,1542,68,1598,33"/>
+<area shape="rect" title=" " alt="" coords="1576,79,1661,105"/>
+<area shape="poly" title=" " alt="" coords="1620,29,1620,65,1616,62,1617,33"/>
+<area shape="rect" title=" " alt="" coords="1686,79,1799,105"/>
+<area shape="poly" title=" " alt="" coords="1640,29,1711,71,1706,71,1639,34"/>
+<area shape="rect" title=" " alt="" coords="1824,79,1904,105"/>
+<area shape="poly" title=" " alt="" coords="1660,29,1811,75,1806,74,1660,34"/>
+<area shape="rect" title=" " alt="" coords="1928,79,1981,105"/>
+<area shape="poly" title=" " alt="" coords="1684,28,1788,48,1915,78,1910,78,1787,53,1684,34"/>
+<area shape="rect" title=" " alt="" coords="2005,79,2093,105"/>
+<area shape="poly" title=" " alt="" coords="1685,26,1992,78,1987,79,1684,32"/>
+<area shape="rect" title=" " alt="" coords="2118,79,2178,105"/>
+<area shape="poly" title=" " alt="" coords="1685,22,1869,41,1984,56,2105,79,2100,79,1983,61,1869,46,1685,27"/>
+<area shape="rect" title=" " alt="" coords="2201,79,2265,105"/>
+<area shape="poly" title=" " alt="" coords="1684,20,1904,38,2044,54,2189,79,2184,79,2043,59,1904,43,1685,26"/>
+<area shape="rect" title=" " alt="" coords="2289,79,2353,105"/>
+<area shape="poly" title=" " alt="" coords="1684,19,1939,35,2104,52,2276,79,2271,79,2104,57,1939,41,1684,25"/>
+<area shape="rect" title=" " alt="" coords="419,330,493,356"/>
+<area shape="poly" title=" " alt="" coords="103,102,127,138,162,186,208,236,261,280,286,292,323,304,406,329,401,329,321,309,284,297,258,284,204,240,158,189,123,141,102,108"/>
+<area shape="rect" title=" " alt="" coords="84,330,227,356"/>
+<area shape="poly" title=" " alt="" coords="72,108,49,127,29,154,14,189,8,219,12,248,29,280,52,305,84,323,80,325,49,309,24,284,7,250,3,219,9,187,24,151,45,123,75,103"/>
+<area shape="rect" title=" " alt="" coords="270,330,385,356"/>
+<area shape="poly" title=" " alt="" coords="89,107,77,140,64,186,61,211,61,236,67,259,79,280,101,291,144,303,257,328,252,330,143,309,99,296,75,284,62,261,56,237,55,211,59,185,72,138,90,102"/>
+<area shape="poly" title=" " alt="" coords="158,103,429,155,425,159,158,108"/>
+<area shape="poly" title=" " alt="" coords="439,185,343,209,301,225,275,243,268,262,275,280,291,289,323,301,406,328,401,328,321,306,288,294,271,284,262,262,271,240,298,220,342,204,444,183"/>
+<area shape="poly" title=" " alt="" coords="439,181,348,203,297,220,249,244,226,260,206,280,173,320,170,315,202,276,223,256,246,239,295,215,346,198,444,180"/>
+<area shape="poly" title=" " alt="" coords="439,183,336,207,290,224,273,233,262,243,257,252,255,261,262,281,277,302,296,322,291,320,272,305,257,283,250,261,252,251,258,240,270,229,287,219,334,202,444,182"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="403,249,509,274"/>
+<area shape="poly" title=" " alt="" coords="497,185,471,237,467,233,493,188"/>
+<area shape="rect" title=" " alt="" coords="1124,330,1188,356"/>
+<area shape="poly" title=" " alt="" coords="515,184,579,239,600,262,609,271,623,280,700,295,836,311,1111,338,1105,338,835,316,699,300,621,284,606,276,596,266,575,243,514,189"/>
+<area shape="rect" title=" " alt="" coords="848,330,922,356"/>
+<area shape="poly" title=" " alt="" coords="507,184,534,232,555,258,580,280,610,297,643,310,711,328,777,337,835,343,830,343,776,343,710,333,641,315,608,301,577,284,551,262,530,235,505,189"/>
+<area shape="rect" title=" " alt="" coords="286,249,378,274"/>
+<area shape="poly" title=" " alt="" coords="480,186,370,244,368,239,475,187"/>
+<area shape="rect" title=" " alt="" coords="635,249,757,274"/>
+<area shape="poly" title=" " alt="" coords="529,184,657,242,652,242,528,189"/>
+<area shape="rect" title=" " alt="" coords="780,249,886,274"/>
+<area shape="poly" title=" " alt="" coords="552,184,770,239,781,244,776,244,768,244,552,189"/>
+<area shape="rect" title=" " alt="" coords="910,249,1026,274"/>
+<area shape="poly" title=" " alt="" coords="561,180,715,204,899,239,914,245,909,244,898,244,714,209,561,185"/>
+<area shape="poly" title=" " alt="" coords="458,273,458,316,454,312,454,277"/>
+<area shape="poly" title=" " alt="" coords="418,274,391,285,221,328,220,323,390,279,412,276"/>
+<area shape="poly" title=" " alt="" coords="439,274,361,324,359,319,434,276"/>
+<area shape="poly" title=" " alt="" coords="509,269,579,279,880,313,1111,337,1105,337,879,319,578,285,509,275"/>
+<area shape="poly" title=" " alt="" coords="499,272,528,279,695,310,835,334,830,334,694,316,527,285,499,278"/>
+<area shape="poly" title=" " alt="" coords="1092,191,1116,212,1135,235,1144,260,1142,272,1135,284,1122,293,1101,300,1039,313,862,330,664,340,508,344,508,338,664,334,862,325,1039,308,1100,295,1120,288,1131,280,1137,270,1139,260,1130,238,1112,215,1091,197"/>
+<area shape="poly" title=" " alt="" coords="1067,192,1064,240,1056,264,1040,284,1021,294,990,302,901,315,785,322,656,327,407,330,259,333,243,334,243,329,258,327,407,325,656,322,785,317,900,309,989,297,1019,289,1037,280,1051,261,1059,239,1064,196"/>
+<area shape="poly" title=" " alt="" coords="1077,191,1088,213,1095,238,1095,262,1084,284,1068,294,1042,302,966,314,866,322,753,326,536,329,407,333,401,333,400,328,406,327,536,324,753,321,866,317,965,309,1041,297,1066,289,1080,280,1090,261,1090,238,1083,215,1074,196"/>
+<area shape="poly" title=" " alt="" coords="990,185,524,253,524,248,995,183"/>
+<area shape="poly" title=" " alt="" coords="1135,174,1216,181,1303,192,1379,211,1408,224,1427,240,1436,254,1440,267,1438,279,1432,290,1408,307,1373,320,1286,336,1203,343,1203,337,1286,331,1372,315,1406,302,1428,286,1433,277,1435,267,1431,256,1423,243,1405,229,1377,216,1302,198,1215,186,1135,180"/>
+<area shape="poly" title=" " alt="" coords="1115,191,1149,209,1178,231,1188,243,1194,256,1193,270,1186,284,1169,297,1144,308,1079,325,1005,336,938,341,938,336,1004,330,1078,320,1142,303,1166,293,1182,280,1188,268,1188,257,1184,246,1174,235,1146,214,1114,197"/>
+<area shape="poly" title=" " alt="" coords="995,190,770,244,757,247,756,242,768,239,990,190"/>
+<area shape="poly" title=" " alt="" coords="1014,193,881,245,879,240,1009,194"/>
+<area shape="poly" title=" " alt="" coords="1044,193,993,241,991,236,1039,195"/>
+<area shape="poly" title=" " alt="" coords="1126,191,1260,236,1255,236,1125,197"/>
+<area shape="poly" title=" " alt="" coords="1255,274,1184,285,797,320,508,341,508,335,796,314,1183,279,1250,274"/>
+<area shape="poly" title=" " alt="" coords="1291,282,1197,326,1196,321,1286,283"/>
+<area shape="poly" title=" " alt="" coords="1255,278,1235,285,938,336,937,330,1234,279,1250,279"/>
+</map>
+</div>
+</div>
+<p><a href="web__server__task_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-define-members" class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:a8e19d13af09f7ed0afad391730f1e3e7" id="r_a8e19d13af09f7ed0afad391730f1e3e7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8e19d13af09f7ed0afad391730f1e3e7">WIFI_AP_SSID</a>&#160;&#160;&#160;&quot;ESP32-CzechMate&quot;</td></tr>
+<tr class="memitem:ac80c92af8bf29cfe0442a28b6a7ec5a3" id="r_ac80c92af8bf29cfe0442a28b6a7ec5a3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac80c92af8bf29cfe0442a28b6a7ec5a3">WIFI_AP_PASSWORD</a>&#160;&#160;&#160;&quot;12345678&quot;</td></tr>
+<tr class="memitem:ac0a1dba58f0e6d7f07d3050fa0291dd0" id="r_ac0a1dba58f0e6d7f07d3050fa0291dd0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac0a1dba58f0e6d7f07d3050fa0291dd0">WIFI_AP_CHANNEL</a>&#160;&#160;&#160;1</td></tr>
+<tr class="memitem:ab689d29cda2d350ce6652141df530fd0" id="r_ab689d29cda2d350ce6652141df530fd0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab689d29cda2d350ce6652141df530fd0">WIFI_AP_MAX_CONNECTIONS</a>&#160;&#160;&#160;4</td></tr>
+<tr class="memitem:a067a8d9ec14859ad6237320d2cec686a" id="r_a067a8d9ec14859ad6237320d2cec686a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a067a8d9ec14859ad6237320d2cec686a">WIFI_AP_IP</a>&#160;&#160;&#160;&quot;192.168.4.1&quot;</td></tr>
+<tr class="memitem:a2782b50f9a156696a1708c61823aa3a3" id="r_a2782b50f9a156696a1708c61823aa3a3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2782b50f9a156696a1708c61823aa3a3">WIFI_AP_GATEWAY</a>&#160;&#160;&#160;&quot;192.168.4.1&quot;</td></tr>
+<tr class="memitem:af48472f62a4bab9896e181b25d439f34" id="r_af48472f62a4bab9896e181b25d439f34"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af48472f62a4bab9896e181b25d439f34">WIFI_AP_NETMASK</a>&#160;&#160;&#160;&quot;255.255.255.0&quot;</td></tr>
+<tr class="memitem:a3be9b58c528a64824c7b4847f5589837" id="r_a3be9b58c528a64824c7b4847f5589837"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3be9b58c528a64824c7b4847f5589837">WIFI_NVS_NAMESPACE</a>&#160;&#160;&#160;&quot;wifi_config&quot;</td></tr>
+<tr class="memitem:a4d51acbc4a1127232436f69fbbc18683" id="r_a4d51acbc4a1127232436f69fbbc18683"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4d51acbc4a1127232436f69fbbc18683">WIFI_NVS_KEY_SSID</a>&#160;&#160;&#160;&quot;sta_ssid&quot;</td></tr>
+<tr class="memitem:a434b6722326d8ef2da75d4d215ac6992" id="r_a434b6722326d8ef2da75d4d215ac6992"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a434b6722326d8ef2da75d4d215ac6992">WIFI_NVS_KEY_PASSWORD</a>&#160;&#160;&#160;&quot;sta_password&quot;</td></tr>
+<tr class="memitem:a94e74a2c614fc3d5ea5f639a55f2221b" id="r_a94e74a2c614fc3d5ea5f639a55f2221b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a94e74a2c614fc3d5ea5f639a55f2221b">WEB_NVS_NAMESPACE</a>&#160;&#160;&#160;&quot;web_config&quot;</td></tr>
+<tr class="memitem:a34ccd19a2d18b64a7db37e39c68dc704" id="r_a34ccd19a2d18b64a7db37e39c68dc704"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a34ccd19a2d18b64a7db37e39c68dc704">WEB_NVS_KEY_LOCKED</a>&#160;&#160;&#160;&quot;locked&quot;</td></tr>
+<tr class="memitem:a4f905ddd4da1a3e205a8935f4babb25b" id="r_a4f905ddd4da1a3e205a8935f4babb25b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4f905ddd4da1a3e205a8935f4babb25b">HTTP_SERVER_PORT</a>&#160;&#160;&#160;80</td></tr>
+<tr class="memitem:ac6dafba2315f7dd8ef7954d67c1c58ef" id="r_ac6dafba2315f7dd8ef7954d67c1c58ef"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac6dafba2315f7dd8ef7954d67c1c58ef">HTTP_SERVER_MAX_URI_LEN</a>&#160;&#160;&#160;512</td></tr>
+<tr class="memitem:aa471f425e7c4a8154dd0a6aef7b1c151" id="r_aa471f425e7c4a8154dd0a6aef7b1c151"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa471f425e7c4a8154dd0a6aef7b1c151">HTTP_SERVER_MAX_HEADERS</a>&#160;&#160;&#160;8</td></tr>
+<tr class="memitem:a8fed04375198615d8723433210c7861a" id="r_a8fed04375198615d8723433210c7861a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8fed04375198615d8723433210c7861a">HTTP_SERVER_MAX_CLIENTS</a>&#160;&#160;&#160;4</td></tr>
+<tr class="memitem:a2e4ba70a12e464d5b5278c18d28355f8" id="r_a2e4ba70a12e464d5b5278c18d28355f8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e4ba70a12e464d5b5278c18d28355f8">JSON_BUFFER_SIZE</a>&#160;&#160;&#160;2048</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a6c97a0ccfbc6eb7b4c5fc2443d19a974" id="r_a6c97a0ccfbc6eb7b4c5fc2443d19a974"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6c97a0ccfbc6eb7b4c5fc2443d19a974">web_server_task_wdt_reset_safe</a> (void)</td></tr>
+<tr class="memdesc:a6c97a0ccfbc6eb7b4c5fc2443d19a974"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND.  <br /></td></tr>
+<tr class="memitem:a6e05201e522856e3cd984bade768be7e" id="r_a6e05201e522856e3cd984bade768be7e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6e05201e522856e3cd984bade768be7e">toggle_demo_mode</a> (bool enabled)</td></tr>
+<tr class="memdesc:a6e05201e522856e3cd984bade768be7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepina demo mod zapnuto/vypnuto.  <br /></td></tr>
+<tr class="memitem:ad190bb08e29e63b6f04a3715dae88706" id="r_ad190bb08e29e63b6f04a3715dae88706"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad190bb08e29e63b6f04a3715dae88706">is_demo_mode_enabled</a> (void)</td></tr>
+<tr class="memdesc:ad190bb08e29e63b6f04a3715dae88706"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get demo mode status.  <br /></td></tr>
+<tr class="memitem:a67b85e21ee1a283f1f8ba6b818e6bb3e" id="r_a67b85e21ee1a283f1f8ba6b818e6bb3e"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a67b85e21ee1a283f1f8ba6b818e6bb3e">wifi_init_apsta</a> (void)</td></tr>
+<tr class="memdesc:a67b85e21ee1a283f1f8ba6b818e6bb3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuje WiFi Access Point a Station (APSTA).  <br /></td></tr>
+<tr class="memitem:ac31e38637f7a5e5c8ce4d033b0955fec" id="r_ac31e38637f7a5e5c8ce4d033b0955fec"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac31e38637f7a5e5c8ce4d033b0955fec">wifi_event_handler</a> (void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)</td></tr>
+<tr class="memdesc:ac31e38637f7a5e5c8ce4d033b0955fec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obsluhuje WiFi eventy.  <br /></td></tr>
+<tr class="memitem:a336ec184b985a0af307c5ad81f06ae9e" id="r_a336ec184b985a0af307c5ad81f06ae9e"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a336ec184b985a0af307c5ad81f06ae9e">start_http_server</a> (void)</td></tr>
+<tr class="memdesc:a336ec184b985a0af307c5ad81f06ae9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spusti HTTP server.  <br /></td></tr>
+<tr class="memitem:a12a90512dcfbad1de2475bba47af2c18" id="r_a12a90512dcfbad1de2475bba47af2c18"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a12a90512dcfbad1de2475bba47af2c18">stop_http_server</a> (void)</td></tr>
+<tr class="memdesc:a12a90512dcfbad1de2475bba47af2c18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastavi HTTP server.  <br /></td></tr>
+<tr class="memitem:ac4be9f5032c10525d0b61493e402b758" id="r_ac4be9f5032c10525d0b61493e402b758"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac4be9f5032c10525d0b61493e402b758">http_get_root_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:afeadcd80458be0b8f189b25986dc9e72" id="r_afeadcd80458be0b8f189b25986dc9e72"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afeadcd80458be0b8f189b25986dc9e72">http_get_chess_js_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:ae7ac8a7695f85cdf9c15b8045b2813b3" id="r_ae7ac8a7695f85cdf9c15b8045b2813b3"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae7ac8a7695f85cdf9c15b8045b2813b3">http_get_test_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:a1df4df74a1d4c242f385b8288f5243d4" id="r_a1df4df74a1d4c242f385b8288f5243d4"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1df4df74a1d4c242f385b8288f5243d4">http_get_board_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:abe969da6ebebc1b67cb06e9fc8bf3125" id="r_abe969da6ebebc1b67cb06e9fc8bf3125"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abe969da6ebebc1b67cb06e9fc8bf3125">http_get_status_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:ad3a55001d3de8d4f584d7c64bed5f13d" id="r_ad3a55001d3de8d4f584d7c64bed5f13d"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad3a55001d3de8d4f584d7c64bed5f13d">http_get_history_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:a97ff386657b49592624586a42a5f38e4" id="r_a97ff386657b49592624586a42a5f38e4"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a97ff386657b49592624586a42a5f38e4">http_get_captured_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:aeac0e653e9a5ab503812d90dac9623d5" id="r_aeac0e653e9a5ab503812d90dac9623d5"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeac0e653e9a5ab503812d90dac9623d5">http_get_advantage_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:ab7d5385d7f569007c56c2c7a7fa7d6c3" id="r_ab7d5385d7f569007c56c2c7a7fa7d6c3"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab7d5385d7f569007c56c2c7a7fa7d6c3">http_get_timer_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:a475710334bf70a033c8877844b4becf7" id="r_a475710334bf70a033c8877844b4becf7"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a475710334bf70a033c8877844b4becf7">http_post_timer_config_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:a908aa1beee83594820b7c14d65c18278" id="r_a908aa1beee83594820b7c14d65c18278"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a908aa1beee83594820b7c14d65c18278">http_post_timer_pause_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:a25c5ac166fb8596946684e3e3f9e0202" id="r_a25c5ac166fb8596946684e3e3f9e0202"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a25c5ac166fb8596946684e3e3f9e0202">http_post_timer_resume_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:a3500d692620d566066b284e7678946c6" id="r_a3500d692620d566066b284e7678946c6"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3500d692620d566066b284e7678946c6">http_post_timer_reset_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:a6493232eb46ff49eb44d894c8c4a1daf" id="r_a6493232eb46ff49eb44d894c8c4a1daf"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6493232eb46ff49eb44d894c8c4a1daf">http_post_wifi_config_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memdesc:a6493232eb46ff49eb44d894c8c4a1daf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handler pro POST /api/wifi/config.  <br /></td></tr>
+<tr class="memitem:a3d0bd2243c20416d59e0fba4fcd733a6" id="r_a3d0bd2243c20416d59e0fba4fcd733a6"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3d0bd2243c20416d59e0fba4fcd733a6">http_post_wifi_connect_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memdesc:a3d0bd2243c20416d59e0fba4fcd733a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handler pro POST /api/wifi/connect.  <br /></td></tr>
+<tr class="memitem:a1e666336ebbd7c13672804089a310f19" id="r_a1e666336ebbd7c13672804089a310f19"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1e666336ebbd7c13672804089a310f19">http_post_wifi_disconnect_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memdesc:a1e666336ebbd7c13672804089a310f19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handler pro POST /api/wifi/disconnect.  <br /></td></tr>
+<tr class="memitem:a55bff9badf4ff599d4b2a8e272f9f318" id="r_a55bff9badf4ff599d4b2a8e272f9f318"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a55bff9badf4ff599d4b2a8e272f9f318">http_post_wifi_clear_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memdesc:a55bff9badf4ff599d4b2a8e272f9f318"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handler pro POST /api/wifi/clear.  <br /></td></tr>
+<tr class="memitem:aedaea596294dea3bc9a8670d696e8290" id="r_aedaea596294dea3bc9a8670d696e8290"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aedaea596294dea3bc9a8670d696e8290">http_get_wifi_status_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memdesc:aedaea596294dea3bc9a8670d696e8290"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handler pro GET /api/wifi/status.  <br /></td></tr>
+<tr class="memitem:a860d44d17a7928a2ad3d09628635dd31" id="r_a860d44d17a7928a2ad3d09628635dd31"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a860d44d17a7928a2ad3d09628635dd31">http_get_web_lock_status_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memdesc:a860d44d17a7928a2ad3d09628635dd31"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handler pro GET /api/web/lock-status.  <br /></td></tr>
+<tr class="memitem:a94ab4e3ed0c9d94e819d7e4e9e66b9d8" id="r_a94ab4e3ed0c9d94e819d7e4e9e66b9d8"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a94ab4e3ed0c9d94e819d7e4e9e66b9d8">http_post_demo_config_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:a1b2ca6e53cae11465e829b142b4ee049" id="r_a1b2ca6e53cae11465e829b142b4ee049"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1b2ca6e53cae11465e829b142b4ee049">http_get_demo_status_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memitem:a0915923195ef83ed0a4a8ab10cfe3d24" id="r_a0915923195ef83ed0a4a8ab10cfe3d24"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0915923195ef83ed0a4a8ab10cfe3d24">wifi_load_config_from_nvs</a> (char *ssid, size_t ssid_len, char *password, size_t password_len)</td></tr>
+<tr class="memdesc:a0915923195ef83ed0a4a8ab10cfe3d24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nacte WiFi STA konfiguraci z NVS (pro externi pouziti).  <br /></td></tr>
+<tr class="memitem:adf48bce5b2fe5cafb51a5a5b928ca31d" id="r_adf48bce5b2fe5cafb51a5a5b928ca31d"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adf48bce5b2fe5cafb51a5a5b928ca31d">wifi_get_sta_status_json</a> (char *buffer, size_t buffer_size)</td></tr>
+<tr class="memdesc:adf48bce5b2fe5cafb51a5a5b928ca31d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vytvori JSON s WiFi statusem (AP i STA).  <br /></td></tr>
+<tr class="memitem:a2fb41e5bc5236e57873eb55f1eadb51c" id="r_a2fb41e5bc5236e57873eb55f1eadb51c"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2fb41e5bc5236e57873eb55f1eadb51c">wifi_get_sta_ip</a> (char *buffer, size_t max_len)</td></tr>
+<tr class="memdesc:a2fb41e5bc5236e57873eb55f1eadb51c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziska aktualni IP adresu STA rozhrani.  <br /></td></tr>
+<tr class="memitem:a0dd2f78dc29e5c5cd031dcdf59d587e6" id="r_a0dd2f78dc29e5c5cd031dcdf59d587e6"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0dd2f78dc29e5c5cd031dcdf59d587e6">wifi_get_sta_ssid</a> (char *buffer, size_t max_len)</td></tr>
+<tr class="memdesc:a0dd2f78dc29e5c5cd031dcdf59d587e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziska aktualni SSID STA rozhrani.  <br /></td></tr>
+<tr class="memitem:acc62bf6d95aba71aede977266f96e962" id="r_acc62bf6d95aba71aede977266f96e962"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acc62bf6d95aba71aede977266f96e962">wifi_save_config_to_nvs</a> (const char *ssid, const char *password)</td></tr>
+<tr class="memdesc:acc62bf6d95aba71aede977266f96e962"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ulozi WiFi STA konfiguraci do NVS.  <br /></td></tr>
+<tr class="memitem:ad3bda523e632b9d3152cdd73fe9d8d4c" id="r_ad3bda523e632b9d3152cdd73fe9d8d4c"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad3bda523e632b9d3152cdd73fe9d8d4c">wifi_connect_sta</a> (void)</td></tr>
+<tr class="memdesc:ad3bda523e632b9d3152cdd73fe9d8d4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pripoji ESP32 k WiFi site jako Station.  <br /></td></tr>
+<tr class="memitem:a4a4813aac1f99fb986c17f6a4f5e40e2" id="r_a4a4813aac1f99fb986c17f6a4f5e40e2"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4a4813aac1f99fb986c17f6a4f5e40e2">wifi_disconnect_sta</a> (void)</td></tr>
+<tr class="memdesc:a4a4813aac1f99fb986c17f6a4f5e40e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Odpoji ESP32 od WiFi site.  <br /></td></tr>
+<tr class="memitem:a1b7f75613a5cab50704428a000610531" id="r_a1b7f75613a5cab50704428a000610531"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1b7f75613a5cab50704428a000610531">wifi_clear_config_from_nvs</a> (void)</td></tr>
+<tr class="memdesc:a1b7f75613a5cab50704428a000610531"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vymaze WiFi STA konfiguraci z NVS.  <br /></td></tr>
+<tr class="memitem:a96cbfc09f923b4548a4bb4c63f70237f" id="r_a96cbfc09f923b4548a4bb4c63f70237f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a96cbfc09f923b4548a4bb4c63f70237f">wifi_is_sta_connected</a> (void)</td></tr>
+<tr class="memdesc:a96cbfc09f923b4548a4bb4c63f70237f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zjisti zda je STA pripojeno.  <br /></td></tr>
+<tr class="memitem:a7a944cacc1ac5f2f8077a9244aaa44e3" id="r_a7a944cacc1ac5f2f8077a9244aaa44e3"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7a944cacc1ac5f2f8077a9244aaa44e3">web_lock_save_to_nvs</a> (bool locked)</td></tr>
+<tr class="memdesc:a7a944cacc1ac5f2f8077a9244aaa44e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ulozi lock stav do NVS.  <br /></td></tr>
+<tr class="memitem:afd6d2236bd4fcbbe7ccbbb0e7b4a71de" id="r_afd6d2236bd4fcbbe7ccbbb0e7b4a71de"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afd6d2236bd4fcbbe7ccbbb0e7b4a71de">web_lock_load_from_nvs</a> (void)</td></tr>
+<tr class="memdesc:afd6d2236bd4fcbbe7ccbbb0e7b4a71de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nacte lock stav z NVS.  <br /></td></tr>
+<tr class="memitem:add53c7f34376bb856c868cab6321070b" id="r_add53c7f34376bb856c868cab6321070b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#add53c7f34376bb856c868cab6321070b">web_is_locked</a> (void)</td></tr>
+<tr class="memdesc:add53c7f34376bb856c868cab6321070b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zjisti, zda je web rozhrani zamcene.  <br /></td></tr>
+<tr class="memitem:a325753fb6460ffaa94c0c32237c8e7e1" id="r_a325753fb6460ffaa94c0c32237c8e7e1"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a325753fb6460ffaa94c0c32237c8e7e1">web_lock_set</a> (bool locked)</td></tr>
+<tr class="memdesc:a325753fb6460ffaa94c0c32237c8e7e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastavi lock stav a ulozi do NVS.  <br /></td></tr>
+<tr class="memitem:a9aed8f59f75d856e2916530518eff586" id="r_a9aed8f59f75d856e2916530518eff586"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9aed8f59f75d856e2916530518eff586">__wrap_esp_log_writev</a> (esp_log_level_t level, const char *tag, const char *format, va_list args)</td></tr>
+<tr class="memitem:ac16f4afbf3b99fa63b395c4f03e720d8" id="r_ac16f4afbf3b99fa63b395c4f03e720d8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac16f4afbf3b99fa63b395c4f03e720d8">__wrap_esp_log_write</a> (esp_log_level_t level, const char *tag, const char *format,...)</td></tr>
+<tr class="memitem:a706a239d45aec91411ba21ec2fe1b6f9" id="r_a706a239d45aec91411ba21ec2fe1b6f9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a706a239d45aec91411ba21ec2fe1b6f9">web_server_task_start</a> (void *pvParameters)</td></tr>
+<tr class="memdesc:a706a239d45aec91411ba21ec2fe1b6f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hlavni funkce Web Server tasku.  <br /></td></tr>
+<tr class="memitem:aee13c30e5ba3aacbdb4adf76ac429f08" id="r_aee13c30e5ba3aacbdb4adf76ac429f08"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aee13c30e5ba3aacbdb4adf76ac429f08">web_server_process_commands</a> (void)</td></tr>
+<tr class="memdesc:aee13c30e5ba3aacbdb4adf76ac429f08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj web server prikazy z fronty.  <br /></td></tr>
+<tr class="memitem:ae84a23138d1c5c146c9cadf884edaa85" id="r_ae84a23138d1c5c146c9cadf884edaa85"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae84a23138d1c5c146c9cadf884edaa85">web_server_execute_command</a> (uint8_t command)</td></tr>
+<tr class="memdesc:ae84a23138d1c5c146c9cadf884edaa85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vykonaj web server prikaz.  <br /></td></tr>
+<tr class="memitem:a1449ade4d0e7558ec4fdb355d19b2d05" id="r_a1449ade4d0e7558ec4fdb355d19b2d05"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1449ade4d0e7558ec4fdb355d19b2d05">web_server_start</a> (void)</td></tr>
+<tr class="memdesc:a1449ade4d0e7558ec4fdb355d19b2d05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spust web server.  <br /></td></tr>
+<tr class="memitem:a0d3daaa268fa6003470a334af7dbd2c1" id="r_a0d3daaa268fa6003470a334af7dbd2c1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0d3daaa268fa6003470a334af7dbd2c1">web_server_stop</a> (void)</td></tr>
+<tr class="memdesc:a0d3daaa268fa6003470a334af7dbd2c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastav web server.  <br /></td></tr>
+<tr class="memitem:a46cb4e2e81f7578c9f230f5a3bcd11e9" id="r_a46cb4e2e81f7578c9f230f5a3bcd11e9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a46cb4e2e81f7578c9f230f5a3bcd11e9">web_server_get_status</a> (void)</td></tr>
+<tr class="memdesc:a46cb4e2e81f7578c9f230f5a3bcd11e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej status web serveru.  <br /></td></tr>
+<tr class="memitem:a46d1719629fd536b25bd288a334d338c" id="r_a46d1719629fd536b25bd288a334d338c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a46d1719629fd536b25bd288a334d338c">web_server_set_config</a> (void)</td></tr>
+<tr class="memdesc:a46d1719629fd536b25bd288a334d338c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav konfiguraci web serveru.  <br /></td></tr>
+<tr class="memitem:a64790e5afc3435f96af702391bf6a24d" id="r_a64790e5afc3435f96af702391bf6a24d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a64790e5afc3435f96af702391bf6a24d">web_server_update_state</a> (void)</td></tr>
+<tr class="memdesc:a64790e5afc3435f96af702391bf6a24d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualizuj stav web serveru.  <br /></td></tr>
+<tr class="memitem:a483e27ca5d114ebfc2d8e6ea723bb804" id="r_a483e27ca5d114ebfc2d8e6ea723bb804"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a483e27ca5d114ebfc2d8e6ea723bb804">web_server_handle_root</a> (void)</td></tr>
+<tr class="memdesc:a483e27ca5d114ebfc2d8e6ea723bb804"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj GET / (hlavni stranka).  <br /></td></tr>
+<tr class="memitem:acd8c0cf4c727a56b30cf72b6b48edcb4" id="r_acd8c0cf4c727a56b30cf72b6b48edcb4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acd8c0cf4c727a56b30cf72b6b48edcb4">web_server_handle_api_status</a> (void)</td></tr>
+<tr class="memdesc:acd8c0cf4c727a56b30cf72b6b48edcb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj GET /api/status (stav hry).  <br /></td></tr>
+<tr class="memitem:a3bba3e089bedf1e0e30e5e4cd1db5091" id="r_a3bba3e089bedf1e0e30e5e4cd1db5091"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3bba3e089bedf1e0e30e5e4cd1db5091">web_server_handle_api_board</a> (void)</td></tr>
+<tr class="memdesc:a3bba3e089bedf1e0e30e5e4cd1db5091"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj GET /api/board (sachovnice).  <br /></td></tr>
+<tr class="memitem:a4680b3adbb255bf863bcf5f81925b618" id="r_a4680b3adbb255bf863bcf5f81925b618"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4680b3adbb255bf863bcf5f81925b618">web_server_handle_api_move</a> (void)</td></tr>
+<tr class="memdesc:a4680b3adbb255bf863bcf5f81925b618"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj POST /api/move (tah).  <br /></td></tr>
+<tr class="memitem:a362473905ca28dd32196ec327d9ccaee" id="r_a362473905ca28dd32196ec327d9ccaee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a362473905ca28dd32196ec327d9ccaee">web_server_websocket_init</a> (void)</td></tr>
+<tr class="memdesc:a362473905ca28dd32196ec327d9ccaee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuj WebSocket.  <br /></td></tr>
+<tr class="memitem:a2cb5b9ee72f8acc55f6cb8f8b45f8bec" id="r_a2cb5b9ee72f8acc55f6cb8f8b45f8bec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2cb5b9ee72f8acc55f6cb8f8b45f8bec">web_server_websocket_send_update</a> (const char *data)</td></tr>
+<tr class="memdesc:a2cb5b9ee72f8acc55f6cb8f8b45f8bec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Posli aktualizaci pres WebSocket.  <br /></td></tr>
+<tr class="memitem:a29aa411112dd288259022706b7ff59ca" id="r_a29aa411112dd288259022706b7ff59ca"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a29aa411112dd288259022706b7ff59ca">web_server_is_active</a> (void)</td></tr>
+<tr class="memdesc:a29aa411112dd288259022706b7ff59ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je web server aktivni.  <br /></td></tr>
+<tr class="memitem:ab47f0c904798d9ffc4f8e75f7ce8b5f3" id="r_ab47f0c904798d9ffc4f8e75f7ce8b5f3"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab47f0c904798d9ffc4f8e75f7ce8b5f3">web_server_get_client_count</a> (void)</td></tr>
+<tr class="memdesc:ab47f0c904798d9ffc4f8e75f7ce8b5f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej pocet pripojenych klientu.  <br /></td></tr>
+<tr class="memitem:aed7d37015ce007d6f84d759c94ad5f26" id="r_aed7d37015ce007d6f84d759c94ad5f26"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aed7d37015ce007d6f84d759c94ad5f26">web_server_get_uptime</a> (void)</td></tr>
+<tr class="memdesc:aed7d37015ce007d6f84d759c94ad5f26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej uptime serveru.  <br /></td></tr>
+<tr class="memitem:af8feae54c5bb7a79bc36e947985c7e9f" id="r_af8feae54c5bb7a79bc36e947985c7e9f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af8feae54c5bb7a79bc36e947985c7e9f">web_server_log_request</a> (const char *method, const char *path)</td></tr>
+<tr class="memdesc:af8feae54c5bb7a79bc36e947985c7e9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zaloguj HTTP pozadavek.  <br /></td></tr>
+<tr class="memitem:a81f3502fd237eb59ce2ebfc3999b9d36" id="r_a81f3502fd237eb59ce2ebfc3999b9d36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a81f3502fd237eb59ce2ebfc3999b9d36">web_server_log_error</a> (const char *error_message)</td></tr>
+<tr class="memdesc:a81f3502fd237eb59ce2ebfc3999b9d36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zaloguj chybu web serveru.  <br /></td></tr>
+<tr class="memitem:ab18a2857822cb150c96fa252d484246a" id="r_ab18a2857822cb150c96fa252d484246a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab18a2857822cb150c96fa252d484246a">web_server_set_port</a> (uint16_t port)</td></tr>
+<tr class="memdesc:ab18a2857822cb150c96fa252d484246a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav port serveru.  <br /></td></tr>
+<tr class="memitem:ad915360105d028b5ebd3ca1b38e391d4" id="r_ad915360105d028b5ebd3ca1b38e391d4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad915360105d028b5ebd3ca1b38e391d4">web_server_set_max_clients</a> (uint32_t max_clients)</td></tr>
+<tr class="memdesc:ad915360105d028b5ebd3ca1b38e391d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav maximum klientu.  <br /></td></tr>
+<tr class="memitem:a74937acaf240abcaaac7d9260e412beb" id="r_a74937acaf240abcaaac7d9260e412beb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a74937acaf240abcaaac7d9260e412beb">web_server_enable_ssl</a> (bool enable)</td></tr>
+<tr class="memdesc:a74937acaf240abcaaac7d9260e412beb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zapni/vypni SSL.  <br /></td></tr>
+<tr class="memitem:aa8fab275f60059ceb3bc58df7650bf0b" id="r_aa8fab275f60059ceb3bc58df7650bf0b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa8fab275f60059ceb3bc58df7650bf0b">web_server_is_task_running</a> (void)</td></tr>
+<tr class="memdesc:aa8fab275f60059ceb3bc58df7650bf0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda web server task bezi.  <br /></td></tr>
+<tr class="memitem:a76a1b24d8a4f73007def0e2675cb2b1c" id="r_a76a1b24d8a4f73007def0e2675cb2b1c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a76a1b24d8a4f73007def0e2675cb2b1c">web_server_stop_task</a> (void)</td></tr>
+<tr class="memdesc:a76a1b24d8a4f73007def0e2675cb2b1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastav web server task.  <br /></td></tr>
+<tr class="memitem:ae0743c305f029ddda532f3823d8bd602" id="r_ae0743c305f029ddda532f3823d8bd602"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae0743c305f029ddda532f3823d8bd602">web_server_reset</a> (void)</td></tr>
+<tr class="memdesc:ae0743c305f029ddda532f3823d8bd602"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuj web server.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a4ed770cbe46604586e494bae84b62304" id="r_a4ed770cbe46604586e494bae84b62304"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4ed770cbe46604586e494bae84b62304">game_command_queue</a></td></tr>
+<tr class="memdesc:a4ed770cbe46604586e494bae84b62304"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fronta pro game prikazy (new game, move, status).  <br /></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;WEB_SERVER_TASK&quot;</td></tr>
+<tr class="memitem:a35141cb45623cb3b7b4d96da35ed1831" id="r_a35141cb45623cb3b7b4d96da35ed1831"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a35141cb45623cb3b7b4d96da35ed1831">task_running</a> = false</td></tr>
+<tr class="memitem:aafa0fef29f6314e439892920011c0612" id="r_aafa0fef29f6314e439892920011c0612"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aafa0fef29f6314e439892920011c0612">web_server_active</a> = false</td></tr>
+<tr class="memitem:a6fd14c6866c5be5170e78061b5af1cca" id="r_a6fd14c6866c5be5170e78061b5af1cca"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6fd14c6866c5be5170e78061b5af1cca">wifi_ap_active</a> = false</td></tr>
+<tr class="memitem:a78e57b763d02a6d2f0e9e96a9bd4bdc4" id="r_a78e57b763d02a6d2f0e9e96a9bd4bdc4"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a78e57b763d02a6d2f0e9e96a9bd4bdc4">web_server_start_time</a> = 0</td></tr>
+<tr class="memitem:a21f294411b76ec3adac8af9c73e83b13" id="r_a21f294411b76ec3adac8af9c73e83b13"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a21f294411b76ec3adac8af9c73e83b13">client_count</a> = 0</td></tr>
+<tr class="memitem:a19b0be42f085a9e121651e3a21813ce8" id="r_a19b0be42f085a9e121651e3a21813ce8"><td class="memItemLeft" align="right" valign="top">static httpd_handle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a19b0be42f085a9e121651e3a21813ce8">httpd_handle</a> = NULL</td></tr>
+<tr class="memitem:a91aeff1220701b1ecdc74ab211de8243" id="r_a91aeff1220701b1ecdc74ab211de8243"><td class="memItemLeft" align="right" valign="top">static esp_netif_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a91aeff1220701b1ecdc74ab211de8243">ap_netif</a> = NULL</td></tr>
+<tr class="memitem:a8475209c3d16d25790fc4b67e18f3f57" id="r_a8475209c3d16d25790fc4b67e18f3f57"><td class="memItemLeft" align="right" valign="top">static esp_netif_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8475209c3d16d25790fc4b67e18f3f57">sta_netif</a> = NULL</td></tr>
+<tr class="memitem:a738f5dc6c12f15f0149e08de59f48064" id="r_a738f5dc6c12f15f0149e08de59f48064"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a738f5dc6c12f15f0149e08de59f48064">sta_connected</a> = false</td></tr>
+<tr class="memitem:ae88cda9a42f3f54cda581d8f3df6a981" id="r_ae88cda9a42f3f54cda581d8f3df6a981"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae88cda9a42f3f54cda581d8f3df6a981">sta_connecting</a></td></tr>
+<tr class="memitem:aa21e15af227cd88b231854eef4d9a1cc" id="r_aa21e15af227cd88b231854eef4d9a1cc"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa21e15af227cd88b231854eef4d9a1cc">web_locked</a> = false</td></tr>
+<tr class="memitem:aea67e706fb77d2b28047d62252b54088" id="r_aea67e706fb77d2b28047d62252b54088"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aea67e706fb77d2b28047d62252b54088">sta_ip</a> [16] = {0}</td></tr>
+<tr class="memitem:a8e71a432a4ef4bac3ead0d19184bad9e" id="r_a8e71a432a4ef4bac3ead0d19184bad9e"><td class="memItemLeft" align="right" valign="top">static char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8e71a432a4ef4bac3ead0d19184bad9e">sta_ssid</a> [33] = {0}</td></tr>
+<tr class="memitem:ae6a105bb6087d94dc1dff9c49c17a3d8" id="r_ae6a105bb6087d94dc1dff9c49c17a3d8"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae6a105bb6087d94dc1dff9c49c17a3d8">last_disconnect_reason</a></td></tr>
+<tr class="memitem:aa17b405ee779d94d3b6954dd83712591" id="r_aa17b405ee779d94d3b6954dd83712591"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa17b405ee779d94d3b6954dd83712591">web_server_status_queue</a> = NULL</td></tr>
+<tr class="memdesc:aa17b405ee779d94d3b6954dd83712591"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fronta pro web server status (server state).  <br /></td></tr>
+<tr class="memitem:aaed4d7c5bc3e8140853498b965ec94e2" id="r_aaed4d7c5bc3e8140853498b965ec94e2"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaed4d7c5bc3e8140853498b965ec94e2">web_server_command_queue</a> = NULL</td></tr>
+<tr class="memdesc:aaed4d7c5bc3e8140853498b965ec94e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fronta pro web server prikazy (HTTP requests).  <br /></td></tr>
+<tr class="memitem:ab9623bd189e3125138776d88fc5d35ff" id="r_ab9623bd189e3125138776d88fc5d35ff"><td class="memItemLeft" align="right" valign="top">static char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab9623bd189e3125138776d88fc5d35ff">json_buffer</a> [2048]</td></tr>
+<tr class="memitem:a31bf285a16bbf718a86c71d94f2b9f31" id="r_a31bf285a16bbf718a86c71d94f2b9f31"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a31bf285a16bbf718a86c71d94f2b9f31">chess_app_js_content</a> []</td></tr>
+<tr class="memitem:a42e66ee24fe5081421583e97925b3d7a" id="r_a42e66ee24fe5081421583e97925b3d7a"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42e66ee24fe5081421583e97925b3d7a">test_html</a> []</td></tr>
+<tr class="memitem:a50be2765f30c79691d319bc9a1b6920c" id="r_a50be2765f30c79691d319bc9a1b6920c"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a50be2765f30c79691d319bc9a1b6920c">html_chunk_head</a> []</td></tr>
+<tr class="memitem:a58b080500cd1f710432d056604d841b4" id="r_a58b080500cd1f710432d056604d841b4"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a58b080500cd1f710432d056604d841b4">html_chunk_body</a> []</td></tr>
+<tr class="memitem:ada10d9693138282c09fb7cd6414e79d5" id="r_ada10d9693138282c09fb7cd6414e79d5"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ada10d9693138282c09fb7cd6414e79d5">html_chunk_infopanel</a> []</td></tr>
+<tr class="memitem:a38326283e81a476ac89426aea7cf3250" id="r_a38326283e81a476ac89426aea7cf3250"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a38326283e81a476ac89426aea7cf3250">html_chunk_banners</a> []</td></tr>
+<tr class="memitem:ad68d8dce5b4bb5eb53f9201c4a146c2f" id="r_ad68d8dce5b4bb5eb53f9201c4a146c2f"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad68d8dce5b4bb5eb53f9201c4a146c2f">html_chunk_javascript</a> []</td></tr>
+<tr class="memitem:a8bf9680c8995edd413cb2da4a543c3d6" id="r_a8bf9680c8995edd413cb2da4a543c3d6"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8bf9680c8995edd413cb2da4a543c3d6">html_chunk_demo_mode</a> []</td></tr>
+<tr class="memitem:a3d913a16031d5b9a41a6dc6551e6ce61" id="r_a3d913a16031d5b9a41a6dc6551e6ce61"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3d913a16031d5b9a41a6dc6551e6ce61">html_chunk_end</a> []</td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Web Server Task - WiFi hotspot a HTTP server pro web ovladani. </p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md81"></a>
+autotoc_md81</h1>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md82"></a>
+CO TENTO SOUBOR DELA?</h1>
+<p>Tento task zpristupnuje sachovnici pres web rozhrani:</p><ol type="1">
+<li>WiFi Access Point (hotspot "ESP32-Chess")</li>
+<li>HTTP server (port 80)</li>
+<li>REST API endpointy (/api/status, /api/board, /api/move...)</li>
+<li>Interaktivni web UI (HTML/CSS/JavaScript)</li>
+<li>Realtime aktualizace stavu (polling)</li>
+</ol>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md84"></a>
+JAK TO FUNGUJE?</h1>
+<p>STARTUP:</p><ul>
+<li>Init WiFi jako Access Point (AP mode)</li>
+<li>SSID: "ESP32-Chess" (bez hesla)</li>
+<li>IP: 192.168.4.1</li>
+<li>Start HTTP serveru</li>
+<li>Registrace REST API handleru</li>
+</ul>
+<p>HTTP SERVER:</p><ul>
+<li>GET / -&gt; Hlavni HTML stranka</li>
+<li>GET /api/status -&gt; JSON stav hry</li>
+<li>GET /api/board -&gt; JSON pozice figurek</li>
+<li>POST /api/move -&gt; Provest tah</li>
+<li>POST /api/reset -&gt; Nova hra</li>
+<li>GET /api/timer -&gt; Stav casovace</li>
+</ul>
+<p>WEB UI:</p><ul>
+<li>Interaktivni sachovnice (klikaci)</li>
+<li>Zobrazeni validnich tahu</li>
+<li>Historie tahu</li>
+<li>Timer display</li>
+<li>Endgame report</li>
+<li>Demo mode controls</li>
+</ul>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md86"></a>
+KOMUNIKACE (QUEUES)</h1>
+<p>FRONTY - Posilame prikazy:</p><ul>
+<li>game_command_queue -&gt; Prikazy z webu (move, reset)</li>
+</ul>
+<p>VOLANI API FUNKCI:</p><ul>
+<li><a class="el" href="game__task_8c.html#abdf3ba446d87db43c26b6c51275a521e" title="Exportuj stav hry do JSON retezce.">game_get_status_json()</a> -&gt; Ziskani JSON stavu</li>
+<li><a class="el" href="game__task_8c.html#a6199d3c51c2ba715c27b7be7428c61b7" title="Exportuj stav sachovnice do JSON retezce.">game_get_board_json()</a> -&gt; Ziskani JSON desky</li>
+<li><a class="el" href="game__task_8c.html#a5d08ec12c99532e3819abb072385a921" title="Exportuj historii tahu do JSON retezce.">game_get_history_json()</a> -&gt; Ziskani JSON historie</li>
+</ul>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md88"></a>
+REST API ENDPOINTY</h1>
+<p>GET /api/status:</p><ul>
+<li>JSON: {game_state, current_player, move_count, in_check, game_end, error_state}</li>
+</ul>
+<p>GET /api/board:</p><ul>
+<li>JSON: {board: [[...], ...]} // 8x8 array figurek</li>
+</ul>
+<p>POST /api/move:</p><ul>
+<li>Body: {from: "e2", to: "e4"}</li>
+<li>Response: {success: true/false, message: "..."}</li>
+</ul>
+<p>GET /api/timer:</p><ul>
+<li>JSON: {white_time, black_time, running, paused}</li>
+</ul>
+<p>POST /api/demo/config:</p><ul>
+<li>Body: {enabled: true, speed_ms: 2000}</li>
+</ul>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md90"></a>
+KRITICKA PRAVIDLA</h1>
+<dl class="section warning"><dt>Pozor</dt><dd>CO SE NESMI DELAT:</dd></dl>
+<ol type="1">
+<li>NIKDY neblokuj v HTTP handleru! ❌ vTaskDelay(1000); // Zablokuje HTTP server ✅ Proved rychle, vrat odpoved okamzite</li>
+<li>NIKDY nezabud poslat HTTP response! ❌ return ESP_OK; // Bez httpd_resp_send() ✅ httpd_resp_send(req, json, strlen(json)); return ESP_OK;</li>
+<li>VZDY kontroluj JSON buffer overflow! Buffer je 8KB - pokud JSON je vetsi, stack overflow!</li>
+<li>VZDY pouzij mutexу pro pristup ke game state! API funkce jako <a class="el" href="game__task_8c.html#abdf3ba446d87db43c26b6c51275a521e" title="Exportuj stav hry do JSON retezce.">game_get_status_json()</a> uz to delaji</li>
+</ol>
+<hr  />
+ <h1 class="doxsection"><a class="anchor" id="autotoc_md92"></a>
+TABLE OF CONTENTS</h1>
+<p>Sekce 1: WiFi Setup ........................... radek 100 Sekce 2: HTTP Handlers ........................ radek 300 Sekce 3: REST API Functions ................... radek 800 Sekce 4: HTML Page Generation ................. radek 1200 Sekce 5: Main Web Server Task ................. radek 4800</p>
+<hr  />
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-12-23</dd></dl>
+<dl class="section note"><dt>Poznámka</dt><dd><ul>
+<li>Task priorita: 2 (nizsi nez game/matrix)</li>
+<li>Stack size: 8KB (velke kvuli JSON bufferum)</li>
+<li>WiFi SSID: "ESP32-Chess"</li>
+<li>IP adresa: 192.168.4.1</li>
+<li>HTTP port: 80</li>
+</ul>
+</dd></dl>
+<dl class="section see"><dt>Viz také</dt><dd><a class="el" href="game__task_8c.html" title="Game Task - Sachova logika a sprava stavu hry.">game_task.c</a> - Poskytuje JSON API </dd>
+<dd>
+<a class="el" href="timer__system_8c.html" title="ESP32-C6 Chess System v2.4 - Timer System implementace.">timer_system.c</a> - Timer API </dd></dl>
+
+<p class="definition">Definice v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+</div><a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Dokumentace definic maker</h2>
+<a id="a8fed04375198615d8723433210c7861a" name="a8fed04375198615d8723433210c7861a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fed04375198615d8723433210c7861a">&#9670;&#160;</a></span>HTTP_SERVER_MAX_CLIENTS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HTTP_SERVER_MAX_CLIENTS&#160;&#160;&#160;4</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00206">206</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa471f425e7c4a8154dd0a6aef7b1c151" name="aa471f425e7c4a8154dd0a6aef7b1c151"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa471f425e7c4a8154dd0a6aef7b1c151">&#9670;&#160;</a></span>HTTP_SERVER_MAX_HEADERS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HTTP_SERVER_MAX_HEADERS&#160;&#160;&#160;8</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00205">205</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac6dafba2315f7dd8ef7954d67c1c58ef" name="ac6dafba2315f7dd8ef7954d67c1c58ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6dafba2315f7dd8ef7954d67c1c58ef">&#9670;&#160;</a></span>HTTP_SERVER_MAX_URI_LEN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HTTP_SERVER_MAX_URI_LEN&#160;&#160;&#160;512</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00204">204</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4f905ddd4da1a3e205a8935f4babb25b" name="a4f905ddd4da1a3e205a8935f4babb25b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f905ddd4da1a3e205a8935f4babb25b">&#9670;&#160;</a></span>HTTP_SERVER_PORT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HTTP_SERVER_PORT&#160;&#160;&#160;80</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00203">203</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2e4ba70a12e464d5b5278c18d28355f8" name="a2e4ba70a12e464d5b5278c18d28355f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e4ba70a12e464d5b5278c18d28355f8">&#9670;&#160;</a></span>JSON_BUFFER_SIZE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define JSON_BUFFER_SIZE&#160;&#160;&#160;2048</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00209">209</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a34ccd19a2d18b64a7db37e39c68dc704" name="a34ccd19a2d18b64a7db37e39c68dc704"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a34ccd19a2d18b64a7db37e39c68dc704">&#9670;&#160;</a></span>WEB_NVS_KEY_LOCKED</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WEB_NVS_KEY_LOCKED&#160;&#160;&#160;&quot;locked&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00200">200</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a94e74a2c614fc3d5ea5f639a55f2221b" name="a94e74a2c614fc3d5ea5f639a55f2221b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94e74a2c614fc3d5ea5f639a55f2221b">&#9670;&#160;</a></span>WEB_NVS_NAMESPACE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WEB_NVS_NAMESPACE&#160;&#160;&#160;&quot;web_config&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00199">199</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac0a1dba58f0e6d7f07d3050fa0291dd0" name="ac0a1dba58f0e6d7f07d3050fa0291dd0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0a1dba58f0e6d7f07d3050fa0291dd0">&#9670;&#160;</a></span>WIFI_AP_CHANNEL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_AP_CHANNEL&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00187">187</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2782b50f9a156696a1708c61823aa3a3" name="a2782b50f9a156696a1708c61823aa3a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2782b50f9a156696a1708c61823aa3a3">&#9670;&#160;</a></span>WIFI_AP_GATEWAY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_AP_GATEWAY&#160;&#160;&#160;&quot;192.168.4.1&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00190">190</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a067a8d9ec14859ad6237320d2cec686a" name="a067a8d9ec14859ad6237320d2cec686a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a067a8d9ec14859ad6237320d2cec686a">&#9670;&#160;</a></span>WIFI_AP_IP</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_AP_IP&#160;&#160;&#160;&quot;192.168.4.1&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00189">189</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab689d29cda2d350ce6652141df530fd0" name="ab689d29cda2d350ce6652141df530fd0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab689d29cda2d350ce6652141df530fd0">&#9670;&#160;</a></span>WIFI_AP_MAX_CONNECTIONS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_AP_MAX_CONNECTIONS&#160;&#160;&#160;4</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00188">188</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af48472f62a4bab9896e181b25d439f34" name="af48472f62a4bab9896e181b25d439f34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af48472f62a4bab9896e181b25d439f34">&#9670;&#160;</a></span>WIFI_AP_NETMASK</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_AP_NETMASK&#160;&#160;&#160;&quot;255.255.255.0&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00191">191</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac80c92af8bf29cfe0442a28b6a7ec5a3" name="ac80c92af8bf29cfe0442a28b6a7ec5a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac80c92af8bf29cfe0442a28b6a7ec5a3">&#9670;&#160;</a></span>WIFI_AP_PASSWORD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_AP_PASSWORD&#160;&#160;&#160;&quot;12345678&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00186">186</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8e19d13af09f7ed0afad391730f1e3e7" name="a8e19d13af09f7ed0afad391730f1e3e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e19d13af09f7ed0afad391730f1e3e7">&#9670;&#160;</a></span>WIFI_AP_SSID</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_AP_SSID&#160;&#160;&#160;&quot;ESP32-CzechMate&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00185">185</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a434b6722326d8ef2da75d4d215ac6992" name="a434b6722326d8ef2da75d4d215ac6992"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a434b6722326d8ef2da75d4d215ac6992">&#9670;&#160;</a></span>WIFI_NVS_KEY_PASSWORD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_NVS_KEY_PASSWORD&#160;&#160;&#160;&quot;sta_password&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00196">196</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4d51acbc4a1127232436f69fbbc18683" name="a4d51acbc4a1127232436f69fbbc18683"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d51acbc4a1127232436f69fbbc18683">&#9670;&#160;</a></span>WIFI_NVS_KEY_SSID</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_NVS_KEY_SSID&#160;&#160;&#160;&quot;sta_ssid&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00195">195</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3be9b58c528a64824c7b4847f5589837" name="a3be9b58c528a64824c7b4847f5589837"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3be9b58c528a64824c7b4847f5589837">&#9670;&#160;</a></span>WIFI_NVS_NAMESPACE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_NVS_NAMESPACE&#160;&#160;&#160;&quot;wifi_config&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00194">194</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="ac16f4afbf3b99fa63b395c4f03e720d8" name="ac16f4afbf3b99fa63b395c4f03e720d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac16f4afbf3b99fa63b395c4f03e720d8">&#9670;&#160;</a></span>__wrap_esp_log_write()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void __wrap_esp_log_write </td>
+          <td>(</td>
+          <td class="paramtype">esp_log_level_t</td>          <td class="paramname"><span class="paramname"><em>level</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>tag</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>format</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"></td>          <td class="paramname"><span class="paramname"><em>...</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04711">4711</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9aed8f59f75d856e2916530518eff586" name="a9aed8f59f75d856e2916530518eff586"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9aed8f59f75d856e2916530518eff586">&#9670;&#160;</a></span>__wrap_esp_log_writev()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void __wrap_esp_log_writev </td>
+          <td>(</td>
+          <td class="paramtype">esp_log_level_t</td>          <td class="paramname"><span class="paramname"><em>level</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>tag</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>format</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">va_list</td>          <td class="paramname"><span class="paramname"><em>args</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04702">4702</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aeac0e653e9a5ab503812d90dac9623d5" name="aeac0e653e9a5ab503812d90dac9623d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeac0e653e9a5ab503812d90dac9623d5">&#9670;&#160;</a></span>http_get_advantage_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_advantage_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01324">1324</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1df4df74a1d4c242f385b8288f5243d4" name="a1df4df74a1d4c242f385b8288f5243d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1df4df74a1d4c242f385b8288f5243d4">&#9670;&#160;</a></span>http_get_board_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_board_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01256">1256</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a97ff386657b49592624586a42a5f38e4" name="a97ff386657b49592624586a42a5f38e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97ff386657b49592624586a42a5f38e4">&#9670;&#160;</a></span>http_get_captured_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_captured_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01307">1307</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afeadcd80458be0b8f189b25986dc9e72" name="afeadcd80458be0b8f189b25986dc9e72"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afeadcd80458be0b8f189b25986dc9e72">&#9670;&#160;</a></span>http_get_chess_js_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_chess_js_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03729">3729</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1b2ca6e53cae11465e829b142b4ee049" name="a1b2ca6e53cae11465e829b142b4ee049"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b2ca6e53cae11465e829b142b4ee049">&#9670;&#160;</a></span>http_get_demo_status_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_demo_status_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01026">1026</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad3a55001d3de8d4f584d7c64bed5f13d" name="ad3a55001d3de8d4f584d7c64bed5f13d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3a55001d3de8d4f584d7c64bed5f13d">&#9670;&#160;</a></span>http_get_history_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_history_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01290">1290</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac4be9f5032c10525d0b61493e402b758" name="ac4be9f5032c10525d0b61493e402b758"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4be9f5032c10525d0b61493e402b758">&#9670;&#160;</a></span>http_get_root_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_root_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04600">4600</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abe969da6ebebc1b67cb06e9fc8bf3125" name="abe969da6ebebc1b67cb06e9fc8bf3125"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe969da6ebebc1b67cb06e9fc8bf3125">&#9670;&#160;</a></span>http_get_status_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_status_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01273">1273</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae7ac8a7695f85cdf9c15b8045b2813b3" name="ae7ac8a7695f85cdf9c15b8045b2813b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7ac8a7695f85cdf9c15b8045b2813b3">&#9670;&#160;</a></span>http_get_test_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_test_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03800">3800</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab7d5385d7f569007c56c2c7a7fa7d6c3" name="ab7d5385d7f569007c56c2c7a7fa7d6c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7d5385d7f569007c56c2c7a7fa7d6c3">&#9670;&#160;</a></span>http_get_timer_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_timer_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01345">1345</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a860d44d17a7928a2ad3d09628635dd31" name="a860d44d17a7928a2ad3d09628635dd31"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a860d44d17a7928a2ad3d09628635dd31">&#9670;&#160;</a></span>http_get_web_lock_status_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_web_lock_status_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handler pro GET /api/web/lock-status. </p>
+<p>Vraci JSON s lock statusem web rozhrani.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">req</td><td>HTTP request </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00975">975</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aedaea596294dea3bc9a8670d696e8290" name="aedaea596294dea3bc9a8670d696e8290"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aedaea596294dea3bc9a8670d696e8290">&#9670;&#160;</a></span>http_get_wifi_status_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_get_wifi_status_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handler pro GET /api/wifi/status. </p>
+<p>Vrati aktualni stav WiFi (AP i STA).</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">req</td><td>HTTP request </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
+<p>Vraci JSON s informacemi o AP a STA statusu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01902">1902</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a94ab4e3ed0c9d94e819d7e4e9e66b9d8" name="a94ab4e3ed0c9d94e819d7e4e9e66b9d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94ab4e3ed0c9d94e819d7e4e9e66b9d8">&#9670;&#160;</a></span>http_post_demo_config_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_post_demo_config_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00997">997</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a475710334bf70a033c8877844b4becf7" name="a475710334bf70a033c8877844b4becf7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a475710334bf70a033c8877844b4becf7">&#9670;&#160;</a></span>http_post_timer_config_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_post_timer_config_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01366">1366</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a908aa1beee83594820b7c14d65c18278" name="a908aa1beee83594820b7c14d65c18278"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a908aa1beee83594820b7c14d65c18278">&#9670;&#160;</a></span>http_post_timer_pause_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_post_timer_pause_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01473">1473</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3500d692620d566066b284e7678946c6" name="a3500d692620d566066b284e7678946c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3500d692620d566066b284e7678946c6">&#9670;&#160;</a></span>http_post_timer_reset_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_post_timer_reset_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01533">1533</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a25c5ac166fb8596946684e3e3f9e0202" name="a25c5ac166fb8596946684e3e3f9e0202"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25c5ac166fb8596946684e3e3f9e0202">&#9670;&#160;</a></span>http_post_timer_resume_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_post_timer_resume_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01503">1503</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a55bff9badf4ff599d4b2a8e272f9f318" name="a55bff9badf4ff599d4b2a8e272f9f318"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55bff9badf4ff599d4b2a8e272f9f318">&#9670;&#160;</a></span>http_post_wifi_clear_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_post_wifi_clear_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handler pro POST /api/wifi/clear. </p>
+<p>Vymaze ulozenou WiFi konfiguraci z NVS.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">req</td><td>HTTP request </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
+<p>Vraci JSON: {"success": true/false, "message": "..."} </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01851">1851</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a6493232eb46ff49eb44d894c8c4a1daf" name="a6493232eb46ff49eb44d894c8c4a1daf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6493232eb46ff49eb44d894c8c4a1daf">&#9670;&#160;</a></span>http_post_wifi_config_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_post_wifi_config_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handler pro POST /api/wifi/config. </p>
+<p>Ulozi WiFi konfiguraci (SSID a heslo) do NVS.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">req</td><td>HTTP request </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
+<p>Ocekava JSON: {"ssid": "...", "password": "..."} Vraci JSON: {"success": true/false, "message": "..."} </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01579">1579</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3d0bd2243c20416d59e0fba4fcd733a6" name="a3d0bd2243c20416d59e0fba4fcd733a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d0bd2243c20416d59e0fba4fcd733a6">&#9670;&#160;</a></span>http_post_wifi_connect_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_post_wifi_connect_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handler pro POST /api/wifi/connect. </p>
+<p>Pripoji ESP32 k WiFi site s ulozenou konfiguraci.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">req</td><td>HTTP request </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
+<p>Vraci JSON: {"success": true/false, "message": "..."} </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01723">1723</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1e666336ebbd7c13672804089a310f19" name="a1e666336ebbd7c13672804089a310f19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e666336ebbd7c13672804089a310f19">&#9670;&#160;</a></span>http_post_wifi_disconnect_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_post_wifi_disconnect_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *</td>          <td class="paramname"><span class="paramname"><em>req</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handler pro POST /api/wifi/disconnect. </p>
+<p>Odpoji ESP32 od WiFi site.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">req</td><td>HTTP request </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
+<p>Vraci JSON: {"success": true/false, "message": "..."} </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01805">1805</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad190bb08e29e63b6f04a3715dae88706" name="ad190bb08e29e63b6f04a3715dae88706"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad190bb08e29e63b6f04a3715dae88706">&#9670;&#160;</a></span>is_demo_mode_enabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool is_demo_mode_enabled </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel extern">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get demo mode status. </p>
+<p>Checks if demo mode is currently active.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true if enabled, false otherwise </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00544">544</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a336ec184b985a0af307c5ad81f06ae9e" name="a336ec184b985a0af307c5ad81f06ae9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a336ec184b985a0af307c5ad81f06ae9e">&#9670;&#160;</a></span>start_http_server()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t start_http_server </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Spusti HTTP server. </p>
+<p>Tato funkce spusti HTTP server s REST API endpointy pro sachovy system. Registruje vsechny potrebne handlery pro web rozhrani.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
+<p>Funkce vytvori HTTP server s konfiguraci a registruje handlery pro:</p><ul>
+<li>Hlavni stranku (/)</li>
+<li>Stav sachovnice (/board)</li>
+<li>Status hry (/status)</li>
+<li>Historie tahu (/history)</li>
+<li>Captured figurky (/captured) </li>
+</ul>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01060">1060</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a12a90512dcfbad1de2475bba47af2c18" name="a12a90512dcfbad1de2475bba47af2c18"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12a90512dcfbad1de2475bba47af2c18">&#9670;&#160;</a></span>stop_http_server()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void stop_http_server </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Zastavi HTTP server. </p>
+<p>Tato funkce zastavi HTTP server a uvolni prostredky.</p>
+<p>Funkce zastavi HTTP server a nastavi handle na NULL. Pouziva se pri vypinani web serveru. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01244">1244</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a6e05201e522856e3cd984bade768be7e" name="a6e05201e522856e3cd984bade768be7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e05201e522856e3cd984bade768be7e">&#9670;&#160;</a></span>toggle_demo_mode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void toggle_demo_mode </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>enabled</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel extern">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Prepina demo mod zapnuto/vypnuto. </p>
+<p>Tato funkce umoznuje zapnout nebo vypnout demo mod, ktery automaticky hraje preddefinovane tahy. Uzivatel muze zapnout demo mod prikazem "DEMO ON" a vypnout prikazem "DEMO OFF".</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">enabled</td><td>true pro zapnuti, false pro vypnuti</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Demo mod umoznuje automaticke hrani preddefinovanych tahu. Kdyz je zapnuty, system automaticky hraje tahy z pole DEMO_MOVES. Kdyz je vypnuty, uzivatel muze hrat manualne. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00501">501</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="add53c7f34376bb856c868cab6321070b" name="add53c7f34376bb856c868cab6321070b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add53c7f34376bb856c868cab6321070b">&#9670;&#160;</a></span>web_is_locked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool web_is_locked </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zjisti, zda je web rozhrani zamcene. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je zamcene, false pokud je odemcene </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00673">673</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afd6d2236bd4fcbbe7ccbbb0e7b4a71de" name="afd6d2236bd4fcbbe7ccbbb0e7b4a71de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd6d2236bd4fcbbe7ccbbb0e7b4a71de">&#9670;&#160;</a></span>web_lock_load_from_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t web_lock_load_from_nvs </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nacte lock stav z NVS. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00629">629</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7a944cacc1ac5f2f8077a9244aaa44e3" name="a7a944cacc1ac5f2f8077a9244aaa44e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a944cacc1ac5f2f8077a9244aaa44e3">&#9670;&#160;</a></span>web_lock_save_to_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t web_lock_save_to_nvs </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>locked</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Ulozi lock stav do NVS. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">locked</td><td>True pro lock, false pro unlock </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00594">594</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a325753fb6460ffaa94c0c32237c8e7e1" name="a325753fb6460ffaa94c0c32237c8e7e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a325753fb6460ffaa94c0c32237c8e7e1">&#9670;&#160;</a></span>web_lock_set()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t web_lock_set </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>locked</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastavi lock stav a ulozi do NVS. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">locked</td><td>True pro lock, false pro unlock </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00681">681</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a74937acaf240abcaaac7d9260e412beb" name="a74937acaf240abcaaac7d9260e412beb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a74937acaf240abcaaac7d9260e412beb">&#9670;&#160;</a></span>web_server_enable_ssl()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_enable_ssl </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>enable</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zapni/vypni SSL. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">enable</td><td>true pro zapnuti SSL (HTTPS) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05056">5056</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae84a23138d1c5c146c9cadf884edaa85" name="ae84a23138d1c5c146c9cadf884edaa85"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae84a23138d1c5c146c9cadf884edaa85">&#9670;&#160;</a></span>web_server_execute_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_execute_command </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>command</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vykonaj web server prikaz. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">command</td><td>Prikaz k vykonani (<a class="el" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684" title="Typy web server prikazu.">web_command_type_t</a>) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04865">4865</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab47f0c904798d9ffc4f8e75f7ce8b5f3" name="ab47f0c904798d9ffc4f8e75f7ce8b5f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab47f0c904798d9ffc4f8e75f7ce8b5f3">&#9670;&#160;</a></span>web_server_get_client_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t web_server_get_client_count </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej pocet pripojenych klientu. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Pocet aktualne pripojenych klientu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05015">5015</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a46cb4e2e81f7578c9f230f5a3bcd11e9" name="a46cb4e2e81f7578c9f230f5a3bcd11e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46cb4e2e81f7578c9f230f5a3bcd11e9">&#9670;&#160;</a></span>web_server_get_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_get_status </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej status web serveru. </p>
+<p>Vypise stav serveru (aktivni, pocet klientu, uptime). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04938">4938</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aed7d37015ce007d6f84d759c94ad5f26" name="aed7d37015ce007d6f84d759c94ad5f26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed7d37015ce007d6f84d759c94ad5f26">&#9670;&#160;</a></span>web_server_get_uptime()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t web_server_get_uptime </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej uptime serveru. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Uptime v milisekundach od spusteni </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05017">5017</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3bba3e089bedf1e0e30e5e4cd1db5091" name="a3bba3e089bedf1e0e30e5e4cd1db5091"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3bba3e089bedf1e0e30e5e4cd1db5091">&#9670;&#160;</a></span>web_server_handle_api_board()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_handle_api_board </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj GET /api/board (sachovnice). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04984">4984</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4680b3adbb255bf863bcf5f81925b618" name="a4680b3adbb255bf863bcf5f81925b618"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4680b3adbb255bf863bcf5f81925b618">&#9670;&#160;</a></span>web_server_handle_api_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_handle_api_move </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj POST /api/move (tah). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04989">4989</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="acd8c0cf4c727a56b30cf72b6b48edcb4" name="acd8c0cf4c727a56b30cf72b6b48edcb4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd8c0cf4c727a56b30cf72b6b48edcb4">&#9670;&#160;</a></span>web_server_handle_api_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_handle_api_status </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj GET /api/status (stav hry). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04979">4979</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a483e27ca5d114ebfc2d8e6ea723bb804" name="a483e27ca5d114ebfc2d8e6ea723bb804"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a483e27ca5d114ebfc2d8e6ea723bb804">&#9670;&#160;</a></span>web_server_handle_root()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_handle_root </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj GET / (hlavni stranka). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04974">4974</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a29aa411112dd288259022706b7ff59ca" name="a29aa411112dd288259022706b7ff59ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a29aa411112dd288259022706b7ff59ca">&#9670;&#160;</a></span>web_server_is_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool web_server_is_active </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda je web server aktivni. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud server bezi </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05013">5013</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa8fab275f60059ceb3bc58df7650bf0b" name="aa8fab275f60059ceb3bc58df7650bf0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8fab275f60059ceb3bc58df7650bf0b">&#9670;&#160;</a></span>web_server_is_task_running()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool web_server_is_task_running </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda web server task bezi. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud task bezi </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05066">5066</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a81f3502fd237eb59ce2ebfc3999b9d36" name="a81f3502fd237eb59ce2ebfc3999b9d36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81f3502fd237eb59ce2ebfc3999b9d36">&#9670;&#160;</a></span>web_server_log_error()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_log_error </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>error_message</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zaloguj chybu web serveru. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">error_message</td><td>Chybova zprava </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05034">5034</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af8feae54c5bb7a79bc36e947985c7e9f" name="af8feae54c5bb7a79bc36e947985c7e9f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af8feae54c5bb7a79bc36e947985c7e9f">&#9670;&#160;</a></span>web_server_log_request()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_log_request </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>method</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>path</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zaloguj HTTP pozadavek. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">method</td><td>HTTP metoda (GET, POST, atd.) </td></tr>
+    <tr><td class="paramname">path</td><td>Cesta pozadavku (/api/board, atd.) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05026">5026</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aee13c30e5ba3aacbdb4adf76ac429f08" name="aee13c30e5ba3aacbdb4adf76ac429f08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee13c30e5ba3aacbdb4adf76ac429f08">&#9670;&#160;</a></span>web_server_process_commands()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_process_commands </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj web server prikazy z fronty. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04855">4855</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae0743c305f029ddda532f3823d8bd602" name="ae0743c305f029ddda532f3823d8bd602"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0743c305f029ddda532f3823d8bd602">&#9670;&#160;</a></span>web_server_reset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_reset </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resetuj web server. </p>
+<p>Provede kompletni reset web serveru. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05073">5073</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a46d1719629fd536b25bd288a334d338c" name="a46d1719629fd536b25bd288a334d338c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46d1719629fd536b25bd288a334d338c">&#9670;&#160;</a></span>web_server_set_config()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_set_config </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav konfiguraci web serveru. </p>
+<p>Zmeni konfiguraci serveru (port, max klientu, SSL). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04952">4952</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad915360105d028b5ebd3ca1b38e391d4" name="ad915360105d028b5ebd3ca1b38e391d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad915360105d028b5ebd3ca1b38e391d4">&#9670;&#160;</a></span>web_server_set_max_clients()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_set_max_clients </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>max_clients</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav maximum klientu. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">max_clients</td><td>Maximalni pocet soucastne pripojenych klientu </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05051">5051</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab18a2857822cb150c96fa252d484246a" name="ab18a2857822cb150c96fa252d484246a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab18a2857822cb150c96fa252d484246a">&#9670;&#160;</a></span>web_server_set_port()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_set_port </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t</td>          <td class="paramname"><span class="paramname"><em>port</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav port serveru. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">port</td><td>Cislo portu (80 = HTTP standard) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05046">5046</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1449ade4d0e7558ec4fdb355d19b2d05" name="a1449ade4d0e7558ec4fdb355d19b2d05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1449ade4d0e7558ec4fdb355d19b2d05">&#9670;&#160;</a></span>web_server_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_start </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spust web server. </p>
+<p>Inicializuje WiFi AP a spusti HTTP server. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04893">4893</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0d3daaa268fa6003470a334af7dbd2c1" name="a0d3daaa268fa6003470a334af7dbd2c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d3daaa268fa6003470a334af7dbd2c1">&#9670;&#160;</a></span>web_server_stop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_stop </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zastav web server. </p>
+<p>Zastavi HTTP server a WiFi AP. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04917">4917</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a76a1b24d8a4f73007def0e2675cb2b1c" name="a76a1b24d8a4f73007def0e2675cb2b1c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a76a1b24d8a4f73007def0e2675cb2b1c">&#9670;&#160;</a></span>web_server_stop_task()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_stop_task </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zastav web server task. </p>
+<p>Ukonci web server task a uvolni prostredky. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05068">5068</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a706a239d45aec91411ba21ec2fe1b6f9" name="a706a239d45aec91411ba21ec2fe1b6f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a706a239d45aec91411ba21ec2fe1b6f9">&#9670;&#160;</a></span>web_server_task_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_task_start </td>
+          <td>(</td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>pvParameters</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hlavni funkce Web Server tasku. </p>
+<p>Inicializuje WiFi AP, spusti HTTP server a zpracovava pozadavky.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pvParameters</td><td>Parametry tasku (nepouzivane) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04723">4723</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a6c97a0ccfbc6eb7b4c5fc2443d19a974" name="a6c97a0ccfbc6eb7b4c5fc2443d19a974"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c97a0ccfbc6eb7b4c5fc2443d19a974">&#9670;&#160;</a></span>web_server_task_wdt_reset_safe()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t web_server_task_wdt_reset_safe </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND. </p>
+<p>Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze)</dd></dl>
+<p>Funkce je pouzivana pro bezpecny reset watchdog timeru behem web server operaci. Zabranuje chybam pri startupu kdy task jeste neni registrovany. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00167">167</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a64790e5afc3435f96af702391bf6a24d" name="a64790e5afc3435f96af702391bf6a24d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64790e5afc3435f96af702391bf6a24d">&#9670;&#160;</a></span>web_server_update_state()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_update_state </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Aktualizuj stav web serveru. </p>
+<p>Periodicky aktualizuje interní stav serveru. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04961">4961</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a362473905ca28dd32196ec327d9ccaee" name="a362473905ca28dd32196ec327d9ccaee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a362473905ca28dd32196ec327d9ccaee">&#9670;&#160;</a></span>web_server_websocket_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_websocket_init </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializuj WebSocket. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04998">4998</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2cb5b9ee72f8acc55f6cb8f8b45f8bec" name="a2cb5b9ee72f8acc55f6cb8f8b45f8bec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2cb5b9ee72f8acc55f6cb8f8b45f8bec">&#9670;&#160;</a></span>web_server_websocket_send_update()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void web_server_websocket_send_update </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Posli aktualizaci pres WebSocket. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Data k poslani (JSON string) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05002">5002</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1b7f75613a5cab50704428a000610531" name="a1b7f75613a5cab50704428a000610531"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b7f75613a5cab50704428a000610531">&#9670;&#160;</a></span>wifi_clear_config_from_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t wifi_clear_config_from_nvs </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vymaze WiFi STA konfiguraci z NVS. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00547">547</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad3bda523e632b9d3152cdd73fe9d8d4c" name="ad3bda523e632b9d3152cdd73fe9d8d4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3bda523e632b9d3152cdd73fe9d8d4c">&#9670;&#160;</a></span>wifi_connect_sta()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t wifi_connect_sta </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pripoji ESP32 k WiFi site jako Station. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00411">411</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4a4813aac1f99fb986c17f6a4f5e40e2" name="a4a4813aac1f99fb986c17f6a4f5e40e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a4813aac1f99fb986c17f6a4f5e40e2">&#9670;&#160;</a></span>wifi_disconnect_sta()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t wifi_disconnect_sta </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Odpoji ESP32 od WiFi site. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00506">506</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac31e38637f7a5e5c8ce4d033b0955fec" name="ac31e38637f7a5e5c8ce4d033b0955fec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac31e38637f7a5e5c8ce4d033b0955fec">&#9670;&#160;</a></span>wifi_event_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void wifi_event_handler </td>
+          <td>(</td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>arg</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">esp_event_base_t</td>          <td class="paramname"><span class="paramname"><em>event_base</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int32_t</td>          <td class="paramname"><span class="paramname"><em>event_id</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>event_data</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Obsluhuje WiFi eventy. </p>
+<p>Tato funkce obsluhuje WiFi eventy pro Access Point i Station. Sleduje pripojeni a odpojeni klientu k AP a stav STA pripojeni.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">arg</td><td>Argument (nepouzivany) </td></tr>
+    <tr><td class="paramname">event_base</td><td>Typ eventu (WIFI_EVENT nebo IP_EVENT) </td></tr>
+    <tr><td class="paramname">event_id</td><td>ID eventu </td></tr>
+    <tr><td class="paramname">event_data</td><td>Data eventu</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Funkce sleduje:</p><ul>
+<li>Pripojeni a odpojeni klientu k WiFi hotspotu (AP)</li>
+<li>Pripojeni a odpojeni STA k WiFi siti</li>
+<li>Ziskani IP adresy pro STA </li>
+</ul>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00843">843</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2fb41e5bc5236e57873eb55f1eadb51c" name="a2fb41e5bc5236e57873eb55f1eadb51c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fb41e5bc5236e57873eb55f1eadb51c">&#9670;&#160;</a></span>wifi_get_sta_ip()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t wifi_get_sta_ip </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>buffer</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>max_len</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziska aktualni IP adresu STA rozhrani. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>Buffer pro IP adresu (min 16 znaku) </td></tr>
+    <tr><td class="paramname">max_len</td><td>Velikost bufferu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00332">332</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0dd2f78dc29e5c5cd031dcdf59d587e6" name="a0dd2f78dc29e5c5cd031dcdf59d587e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0dd2f78dc29e5c5cd031dcdf59d587e6">&#9670;&#160;</a></span>wifi_get_sta_ssid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t wifi_get_sta_ssid </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>buffer</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>max_len</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziska aktualni SSID STA rozhrani. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>Buffer pro SSID (min 33 znaku) </td></tr>
+    <tr><td class="paramname">max_len</td><td>Velikost bufferu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00341">341</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="adf48bce5b2fe5cafb51a5a5b928ca31d" name="adf48bce5b2fe5cafb51a5a5b928ca31d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf48bce5b2fe5cafb51a5a5b928ca31d">&#9670;&#160;</a></span>wifi_get_sta_status_json()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t wifi_get_sta_status_json </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>buffer</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>buffer_size</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Vytvori JSON s WiFi statusem (AP i STA). </p>
+<p>Tato funkce vytvori JSON string s aktualnim stavem WiFi (AP i STA).</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>Buffer pro JSON string </td></tr>
+    <tr><td class="paramname">buffer_size</td><td>Velikost bufferu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
+<p>Funkce vytvori JSON s informacemi o AP (SSID, IP, clients) a STA (SSID, IP, connected status). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00914">914</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a67b85e21ee1a283f1f8ba6b818e6bb3e" name="a67b85e21ee1a283f1f8ba6b818e6bb3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67b85e21ee1a283f1f8ba6b818e6bb3e">&#9670;&#160;</a></span>wifi_init_apsta()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t wifi_init_apsta </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Inicializuje WiFi Access Point a Station (APSTA). </p>
+<p>Tato funkce inicializuje WiFi v APSTA rezimu - soucasne jako Access Point pro web server a jako Station pro pripojeni k internetu.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
+<p>Funkce inicializuje netif, event loop, WiFi a nastavi AP i STA konfiguraci. Registruje event handler pro WiFi udalosti a spusti Access Point. Station interface je pripraven pro pripojeni k WiFi siti. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00707">707</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a96cbfc09f923b4548a4bb4c63f70237f" name="a96cbfc09f923b4548a4bb4c63f70237f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a96cbfc09f923b4548a4bb4c63f70237f">&#9670;&#160;</a></span>wifi_is_sta_connected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool wifi_is_sta_connected </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zjisti zda je STA pripojeno. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je STA pripojeno, false jinak </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00582">582</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0915923195ef83ed0a4a8ab10cfe3d24" name="a0915923195ef83ed0a4a8ab10cfe3d24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0915923195ef83ed0a4a8ab10cfe3d24">&#9670;&#160;</a></span>wifi_load_config_from_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t wifi_load_config_from_nvs </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>ssid</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>ssid_len</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>password</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>password_len</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nacte WiFi STA konfiguraci z NVS (pro externi pouziti). </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ssid</td><td>Buffer pro SSID (minimalne 33 znaku) </td></tr>
+    <tr><td class="paramname">ssid_len</td><td>Velikost bufferu pro SSID </td></tr>
+    <tr><td class="paramname">password</td><td>Buffer pro heslo (minimalne 65 znaku) </td></tr>
+    <tr><td class="paramname">password_len</td><td>Velikost bufferu pro heslo </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, ESP_ERR_NOT_FOUND pokud konfigurace neexistuje </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00289">289</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="acc62bf6d95aba71aede977266f96e962" name="acc62bf6d95aba71aede977266f96e962"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc62bf6d95aba71aede977266f96e962">&#9670;&#160;</a></span>wifi_save_config_to_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t wifi_save_config_to_nvs </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>ssid</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>password</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ulozi WiFi STA konfiguraci do NVS. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ssid</td><td>SSID WiFi site (max 32 znaku) </td></tr>
+    <tr><td class="paramname">password</td><td>Heslo WiFi site (max 64 znaku) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00351">351</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Dokumentace proměnných</h2>
+<a id="a91aeff1220701b1ecdc74ab211de8243" name="a91aeff1220701b1ecdc74ab211de8243"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91aeff1220701b1ecdc74ab211de8243">&#9670;&#160;</a></span>ap_netif</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_netif_t* ap_netif = NULL</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00222">222</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a31bf285a16bbf718a86c71d94f2b9f31" name="a31bf285a16bbf718a86c71d94f2b9f31"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a31bf285a16bbf718a86c71d94f2b9f31">&#9670;&#160;</a></span>chess_app_js_content</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char chess_app_js_content[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01922">1922</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a21f294411b76ec3adac8af9c73e83b13" name="a21f294411b76ec3adac8af9c73e83b13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21f294411b76ec3adac8af9c73e83b13">&#9670;&#160;</a></span>client_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t client_count = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00216">216</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4ed770cbe46604586e494bae84b62304" name="a4ed770cbe46604586e494bae84b62304"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ed770cbe46604586e494bae84b62304">&#9670;&#160;</a></span>game_command_queue</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QueueHandle_t game_command_queue</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel extern">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Fronta pro game prikazy (new game, move, status). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00089">89</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+
+</div>
+</div>
+<a id="a38326283e81a476ac89426aea7cf3250" name="a38326283e81a476ac89426aea7cf3250"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38326283e81a476ac89426aea7cf3250">&#9670;&#160;</a></span>html_chunk_banners</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char html_chunk_banners[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    <span class="stringliteral">&quot;&lt;!-- Review Mode Banner --&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;review-banner&#39; id=&#39;review-banner&#39;&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;review-text&#39;&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;span&gt;📋&lt;/span&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;span id=&#39;review-move-text&#39;&gt;Prohlížíš tah 0&lt;/span&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;button class=&#39;btn-exit-review&#39; onclick=&#39;exitReviewMode()&#39;&gt;Zpět na &quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;aktuální pozici&lt;/button&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;!-- Sandbox Mode Banner --&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;sandbox-banner&#39; id=&#39;sandbox-banner&#39;&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;sandbox-text&#39;&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;span&gt;🎮&lt;/span&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;span&gt;Sandbox Mode - Zkoušíš tahy lokálně&lt;/span&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;div style=&#39;display: flex; gap: 10px;&#39;&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;button class=&#39;btn-exit-sandbox&#39; id=&#39;sandbox-undo-btn&#39; &quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;onclick=&#39;undoSandboxMove()&#39; disabled&gt;↶ Undo (0/10)&lt;/button&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;button class=&#39;btn-exit-sandbox&#39; onclick=&#39;exitSandboxMode()&#39;&gt;Zpět na &quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;skutečnou pozici&lt;/button&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04485">4485</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a58b080500cd1f710432d056604d841b4" name="a58b080500cd1f710432d056604d841b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58b080500cd1f710432d056604d841b4">&#9670;&#160;</a></span>html_chunk_body</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char html_chunk_body[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    <span class="stringliteral">&quot;&lt;body&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;container&#39;&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;h1&gt;♟️ ESP32 Chess&lt;/h1&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;main-content&#39;&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;board-container&#39;&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;button class=&#39;btn-try-moves&#39; onclick=&#39;enterSandboxMode()&#39;&gt;Try &quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;Moves&lt;/button&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;div id=&#39;board&#39; class=&#39;board&#39;&gt;&lt;/div&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;div id=&#39;loading&#39; class=&#39;loading&#39;&gt;Loading board...&lt;/div&gt;&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04288">4288</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8bf9680c8995edd413cb2da4a543c3d6" name="a8bf9680c8995edd413cb2da4a543c3d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8bf9680c8995edd413cb2da4a543c3d6">&#9670;&#160;</a></span>html_chunk_demo_mode</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char html_chunk_demo_mode[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04515">4515</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3d913a16031d5b9a41a6dc6551e6ce61" name="a3d913a16031d5b9a41a6dc6551e6ce61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d913a16031d5b9a41a6dc6551e6ce61">&#9670;&#160;</a></span>html_chunk_end</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char html_chunk_end[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= <span class="stringliteral">&quot;&lt;/body&gt;&quot;</span></div>
+<div class="line">                                     <span class="stringliteral">&quot;&lt;/html&gt;&quot;</span></div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04593">4593</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a50be2765f30c79691d319bc9a1b6920c" name="a50be2765f30c79691d319bc9a1b6920c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50be2765f30c79691d319bc9a1b6920c">&#9670;&#160;</a></span>html_chunk_head</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char html_chunk_head[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03816">3816</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ada10d9693138282c09fb7cd6414e79d5" name="ada10d9693138282c09fb7cd6414e79d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada10d9693138282c09fb7cd6414e79d5">&#9670;&#160;</a></span>html_chunk_infopanel</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char html_chunk_infopanel[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04301">4301</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad68d8dce5b4bb5eb53f9201c4a146c2f" name="ad68d8dce5b4bb5eb53f9201c4a146c2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad68d8dce5b4bb5eb53f9201c4a146c2f">&#9670;&#160;</a></span>html_chunk_javascript</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char html_chunk_javascript[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    <span class="stringliteral">&quot;&lt;script src=&#39;/chess_app.js&#39;&gt;&lt;/script&gt;&quot;</span></div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04511">4511</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a19b0be42f085a9e121651e3a21813ce8" name="a19b0be42f085a9e121651e3a21813ce8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19b0be42f085a9e121651e3a21813ce8">&#9670;&#160;</a></span>httpd_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">httpd_handle_t httpd_handle = NULL</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00219">219</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab9623bd189e3125138776d88fc5d35ff" name="ab9623bd189e3125138776d88fc5d35ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9623bd189e3125138776d88fc5d35ff">&#9670;&#160;</a></span>json_buffer</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char json_buffer[2048]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00244">244</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae6a105bb6087d94dc1dff9c49c17a3d8" name="ae6a105bb6087d94dc1dff9c49c17a3d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae6a105bb6087d94dc1dff9c49c17a3d8">&#9670;&#160;</a></span>last_disconnect_reason</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int last_disconnect_reason</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    0</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00232">232</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a738f5dc6c12f15f0149e08de59f48064" name="a738f5dc6c12f15f0149e08de59f48064"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a738f5dc6c12f15f0149e08de59f48064">&#9670;&#160;</a></span>sta_connected</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool sta_connected = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00226">226</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae88cda9a42f3f54cda581d8f3df6a981" name="ae88cda9a42f3f54cda581d8f3df6a981"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae88cda9a42f3f54cda581d8f3df6a981">&#9670;&#160;</a></span>sta_connecting</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool sta_connecting</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    <span class="keyword">false</span></div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00227">227</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aea67e706fb77d2b28047d62252b54088" name="aea67e706fb77d2b28047d62252b54088"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aea67e706fb77d2b28047d62252b54088">&#9670;&#160;</a></span>sta_ip</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char sta_ip[16] = {0}</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00230">230</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8475209c3d16d25790fc4b67e18f3f57" name="a8475209c3d16d25790fc4b67e18f3f57"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8475209c3d16d25790fc4b67e18f3f57">&#9670;&#160;</a></span>sta_netif</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_netif_t* sta_netif = NULL</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00223">223</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8e71a432a4ef4bac3ead0d19184bad9e" name="a8e71a432a4ef4bac3ead0d19184bad9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e71a432a4ef4bac3ead0d19184bad9e">&#9670;&#160;</a></span>sta_ssid</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char sta_ssid[33] = {0}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00231">231</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;WEB_SERVER_TASK&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00147">147</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a35141cb45623cb3b7b4d96da35ed1831" name="a35141cb45623cb3b7b4d96da35ed1831"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35141cb45623cb3b7b4d96da35ed1831">&#9670;&#160;</a></span>task_running</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool task_running = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00212">212</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a42e66ee24fe5081421583e97925b3d7a" name="a42e66ee24fe5081421583e97925b3d7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42e66ee24fe5081421583e97925b3d7a">&#9670;&#160;</a></span>test_html</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char test_html[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03742">3742</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa21e15af227cd88b231854eef4d9a1cc" name="aa21e15af227cd88b231854eef4d9a1cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa21e15af227cd88b231854eef4d9a1cc">&#9670;&#160;</a></span>web_locked</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool web_locked = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00229">229</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aafa0fef29f6314e439892920011c0612" name="aafa0fef29f6314e439892920011c0612"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aafa0fef29f6314e439892920011c0612">&#9670;&#160;</a></span>web_server_active</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool web_server_active = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00213">213</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aaed4d7c5bc3e8140853498b965ec94e2" name="aaed4d7c5bc3e8140853498b965ec94e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaed4d7c5bc3e8140853498b965ec94e2">&#9670;&#160;</a></span>web_server_command_queue</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QueueHandle_t web_server_command_queue = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fronta pro web server prikazy (HTTP requests). </p>
+<p>Fronta pro web server prikazy. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00237">237</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a78e57b763d02a6d2f0e9e96a9bd4bdc4" name="a78e57b763d02a6d2f0e9e96a9bd4bdc4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78e57b763d02a6d2f0e9e96a9bd4bdc4">&#9670;&#160;</a></span>web_server_start_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t web_server_start_time = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00215">215</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa17b405ee779d94d3b6954dd83712591" name="aa17b405ee779d94d3b6954dd83712591"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa17b405ee779d94d3b6954dd83712591">&#9670;&#160;</a></span>web_server_status_queue</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QueueHandle_t web_server_status_queue = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fronta pro web server status (server state). </p>
+<p>Fronta pro web server status. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00236">236</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a6fd14c6866c5be5170e78061b5af1cca" name="a6fd14c6866c5be5170e78061b5af1cca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6fd14c6866c5be5170e78061b5af1cca">&#9670;&#160;</a></span>wifi_ap_active</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool wifi_ap_active = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00214">214</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_17f9138bad1f9d2ff44cddc9da54d444.html">web_server_task</a></li><li class="navelem"><a href="web__server__task_8c.html">web_server_task.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

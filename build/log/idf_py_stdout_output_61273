@@ -1,0 +1,29 @@
+Command: ninja all
+[1/15] Performing build step for 'bootloader'
+[1/1] cd /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader/esp-idf/esptool_py && /Users/alfred/.espressif/tools/python_env/idf5.5_py3.9_env/bin/python /Users/alfred/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader/bootloader.bin
+Bootloader binary size 0x5b70 bytes. 0x2490 bytes (29%) free.
+[2/15] No install step for 'bootloader'
+[3/15] Completed 'bootloader'
+[4/15] Building C object esp-idf/matrix_task/CMakeFiles/__idf_matrix_task.dir/matrix_task.c.obj
+[5/15] Building C object esp-idf/game_task/CMakeFiles/__idf_game_task.dir/game_task.c.obj
+[6/15] Linking C static library esp-idf/game_task/libgame_task.a
+[7/15] Linking C static library esp-idf/matrix_task/libmatrix_task.a
+[8/15] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
+[9/15] Building C object esp-idf/uart_task/CMakeFiles/__idf_uart_task.dir/uart_task.c.obj
+[10/15] Linking C static library esp-idf/uart_task/libuart_task.a
+[11/15] Linking C static library esp-idf/main/libmain.a
+[12/15] Generating esp-idf/esp_system/ld/sections.ld
+warning: default on the choice symbol SEC_CERT_DAC_PROVIDER (defined at /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/connectedhomeip/connectedhomeip/config/esp32/components/chip/Kconfig:979, /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/components/esp_matter/Kconfig:48) will have no effect, as defaults do not affect choice symbols
+warning: the choice symbol SEC_CERT_DAC_PROVIDER (defined at /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/connectedhomeip/connectedhomeip/config/esp32/components/chip/Kconfig:979, /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/components/esp_matter/Kconfig:48) is defined with a prompt outside the choice
+info: INFO: Symbol SEC_CERT_DAC_PROVIDER defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/components/esp_matter/Kconfig:48
+    /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/connectedhomeip/connectedhomeip/config/esp32/components/chip/Kconfig:979
+[13/15] Linking CXX executable esp32_chess_v24.elf
+[14/15] Generating binary image from built executable
+esptool.py v4.10.0
+Creating esp32c6 image...
+Merged 4 ELF sections
+Successfully created esp32c6 image.
+Generated /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/esp32_chess_v24.bin
+[15/15] cd /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/esp-idf/esptool_py && /Users/alfred/.espressif/tools/python_env/idf5.5_py3.9_env/bin/python /Users/alfred/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/partition_table/partition-table.bin /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/esp32_chess_v24.bin
+esp32_chess_v24.bin binary size 0x2199c0 bytes. Smallest app partition is 0x300000 bytes. 0xe6640 bytes (30%) free.

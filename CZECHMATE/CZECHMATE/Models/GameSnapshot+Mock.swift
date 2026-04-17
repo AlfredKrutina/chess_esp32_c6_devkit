@@ -39,8 +39,6 @@ extension GameSnapshot {
             ],
         ]
         let raw = try JSONSerialization.data(withJSONObject: json, options: [])
-        let fixed = GameJSONRepair.repairStatusDataIfNeeded(raw)
-        let dec = JSONDecoder.forGameSnapshot()
-        return try dec.decode(GameSnapshot.self, from: fixed)
+        return try GameSnapshot.decodeFromBoardDataRepairingAndNormalizing(raw)
     }
 }

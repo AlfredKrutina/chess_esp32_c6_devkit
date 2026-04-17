@@ -40,23 +40,41 @@ final class ChessboardBLEClient: NSObject, @unchecked Sendable {
     private var activePeripheral: CBPeripheral?
     private var snapshotCharacteristic: CBCharacteristic?
     private var commandCharacteristic: CBCharacteristic?
+    private var networkCharacteristic: CBCharacteristic?
+    private var cmdAckCharacteristic: CBCharacteristic?
 
     private var snapshotNotifyHandler: (@Sendable (Data) -> Void)?
+    private var cmdReplyHandler: (@Sendable (Data) -> Void)?
+    /// Aktualizováno jen při změně GATT spojení — čte UI z main vlákna **bez** `queue.sync` (jinak deadlock / zamrznutí).
+    private let gattLinkUIStateLock = NSLock()
+    private var gattLinkUIConnectedCache = false
     /// Voláno při BLE odpojení — signalizuje ukončení AsyncStream v BLEBoardTransport.
     private var snapshotDisconnectHandler: (@Sendable () -> Void)?
     private var jsonReassembly = Data()
+    /// Poslední přijatý díl v rámci jedné zprávy (1…total); 0 = žádná rozpracovaná zpráva.
     private var jsonChunkPart: Int = 0
     private var jsonChunkTotal: Int = 0
 
     private var readDataContinuation: CheckedContinuation<Data, Error>?
     /// Čekání na dokončení `setNotifyValue(true)` pro snapshot (jinak může UI „viset“ bez dat).
     private var notifyEnableContinuation: CheckedContinuation<Void, Error>?
+    private var cmdReplyNotifyContinuation: CheckedContinuation<Void, Error>?
     /// Po `discoverServices([UUID])` bez výsledku jednou zkusíme `discoverServices(nil)` (iOS / GATT cache).
     private var pendingDiscoverAllServices = false
     /// Opakované pokusy při 0 službách (ESP32 Wi‑Fi + BLE na jednom rádiu — ATT často odpovídá až po prodlevě).
     private var serviceDiscoveryEmptyAttempts = 0
     private let serviceDiscoveryDelaysSec: [TimeInterval] = [1.25, 0.6, 1.2, 1.8]
     private var discoveredPeripherals: [UUID: CBPeripheral] = [:]
+
+    /// Text aktuální fáze párování pro UI (voláno z BLE fronty, doručení na hlavní vlákno).
+    var onPairingPhase: ((String) -> Void)?
+
+    private func reportPairingPhase(_ message: String) {
+        let handler = onPairingPhase
+        DispatchQueue.main.async {
+            handler?(message)
+        }
+    }
 
     override init() {
         super.init()
@@ -93,6 +111,19 @@ final class ChessboardBLEClient: NSObject, @unchecked Sendable {
     func stopScanning() {
         central?.stopScan()
         scanHandler = nil
+    }
+
+    private func setGattLinkUIConnectedCache(_ value: Bool) {
+        gattLinkUIStateLock.lock()
+        gattLinkUIConnectedCache = value
+        gattLinkUIStateLock.unlock()
+    }
+
+    /// Pro indikátor připojení — jen cache (žádný `queue.sync` z UI vlákna).
+    func isGattPeripheralConnectedForLinkUI() -> Bool {
+        gattLinkUIStateLock.lock()
+        defer { gattLinkUIStateLock.unlock() }
+        return gattLinkUIConnectedCache
     }
 
     func connect(to device: DiscoveredBoardDevice) async throws {
@@ -134,6 +165,7 @@ final class ChessboardBLEClient: NSObject, @unchecked Sendable {
                 self.pendingDiscoverAllServices = false
                 self.serviceDiscoveryEmptyAttempts = 0
                 self.connectContinuation = cont
+                self.reportPairingPhase("Navazuji Bluetooth spojení se šachovnicí…")
                 c.connect(p, options: nil)
             }
         }
@@ -141,17 +173,37 @@ final class ChessboardBLEClient: NSObject, @unchecked Sendable {
 
     private var connectContinuation: CheckedContinuation<Void, Error>?
 
-    func startSnapshotNotifications(handler: @escaping @Sendable (Data) -> Void, disconnectHandler: @escaping @Sendable () -> Void) async throws {
+    func startSnapshotNotifications(
+        handler: @escaping @Sendable (Data) -> Void,
+        disconnectHandler: @escaping @Sendable () -> Void,
+        cmdReplyHandler: (@Sendable (Data) -> Void)? = nil
+    ) async throws {
         snapshotNotifyHandler = handler
         snapshotDisconnectHandler = disconnectHandler
+        self.cmdReplyHandler = cmdReplyHandler
         guard activePeripheral != nil, snapshotCharacteristic != nil else {
             throw BLETransportError.notConnected
         }
+        reportPairingPhase("Zapínám živý přenos stavu partie z desky…")
         try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
             queue.async { [weak self] in
                 self?.enqueueSnapshotNotifyEnable(continuation: cont)
             }
         }
+        if cmdReplyHandler != nil,
+           let ackCh = cmdAckCharacteristic,
+           ackCh.properties.contains(.notify) {
+            reportPairingPhase("Dokončuji kanál potvrzení příkazů…")
+            try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+                queue.async { [weak self] in
+                    self?.enqueueCmdAckNotifyEnable(continuation: cont)
+                }
+            }
+            AppDebugLog.staging("BLE: cmd_ack notify zapnuto (potvrzení příkazů z desky)")
+        } else if cmdReplyHandler != nil {
+            AppDebugLog.staging("BLE: cmd_ack char chybí nebo nemá notify — jen ATT chyby u zápisu příkazu")
+        }
+        reportPairingPhase("Čekám na první data ze šachovnice…")
         queue.async { [weak self] in
             guard let self, let p = self.activePeripheral, self.snapshotCharacteristic != nil else { return }
             let w = p.maximumWriteValueLength(for: .withResponse)
@@ -167,11 +219,20 @@ final class ChessboardBLEClient: NSObject, @unchecked Sendable {
             notifyEnableContinuation = nil
             c.resume(throwing: BLETransportError.notConnected)
         }
+        if let c = cmdReplyNotifyContinuation {
+            cmdReplyNotifyContinuation = nil
+            c.resume(throwing: BLETransportError.notConnected)
+        }
         if let p = activePeripheral, let ch = snapshotCharacteristic {
+            p.setNotifyValue(false, for: ch)
+        }
+        if let p = activePeripheral, let ch = cmdAckCharacteristic {
             p.setNotifyValue(false, for: ch)
         }
         snapshotNotifyHandler = nil
         snapshotDisconnectHandler = nil
+        cmdReplyHandler = nil
+        resetSnapshotChunkAssembly()
     }
 
     func disconnect() async {
@@ -182,6 +243,10 @@ final class ChessboardBLEClient: NSObject, @unchecked Sendable {
         activePeripheral = nil
         snapshotCharacteristic = nil
         commandCharacteristic = nil
+        networkCharacteristic = nil
+        cmdAckCharacteristic = nil
+        resetSnapshotChunkAssembly()
+        setGattLinkUIConnectedCache(false)
     }
 
     func writeCommandJSON(_ obj: [String: Any]) async throws {
@@ -201,6 +266,12 @@ final class ChessboardBLEClient: NSObject, @unchecked Sendable {
             continuation.resume(throwing: BLETransportError.notConnected)
             return
         }
+        let maxLen = p.maximumWriteValueLength(for: .withResponse)
+        if data.count > maxLen {
+            AppDebugLog.staging(
+                "BLE write command: \(data.count) B > maxWrite withResponse \(maxLen) B — zápis pravděpodobně selže; zkrát JSON nebo zvyš ATT MTU na desce."
+            )
+        }
         if let stale = writeContinuation {
             writeContinuation = nil
             stale.resume(throwing: BLETransportError.notConnected)
@@ -218,7 +289,21 @@ final class ChessboardBLEClient: NSObject, @unchecked Sendable {
             notifyEnableContinuation = nil
             stale.resume(throwing: BLETransportError.notConnected)
         }
+        resetSnapshotChunkAssembly()
         notifyEnableContinuation = continuation
+        p.setNotifyValue(true, for: ch)
+    }
+
+    private func enqueueCmdAckNotifyEnable(continuation: CheckedContinuation<Void, Error>) {
+        guard let p = activePeripheral, let ch = cmdAckCharacteristic, ch.properties.contains(.notify) else {
+            continuation.resume()
+            return
+        }
+        if let stale = cmdReplyNotifyContinuation {
+            cmdReplyNotifyContinuation = nil
+            stale.resume(throwing: BLETransportError.notConnected)
+        }
+        cmdReplyNotifyContinuation = continuation
         p.setNotifyValue(true, for: ch)
     }
 
@@ -233,6 +318,12 @@ final class ChessboardBLEClient: NSObject, @unchecked Sendable {
         }
         readDataContinuation = continuation
         p.readValue(for: ch)
+    }
+
+    private func resetSnapshotChunkAssembly() {
+        jsonReassembly = Data()
+        jsonChunkPart = 0
+        jsonChunkTotal = 0
     }
 
     private var writeContinuation: CheckedContinuation<Void, Error>?
@@ -250,26 +341,76 @@ final class ChessboardBLEClient: NSObject, @unchecked Sendable {
         return try decodeSnapshot(from: data)
     }
 
+    /// Přečte network info z BLE (IP adresa, SSID, online status).
+    /// Vrací JSON data: {"sta_connected":true,"sta_ip":"192.168.1.45",...}
+    func readNetworkInfo() async throws -> Data? {
+        guard let ch = networkCharacteristic, ch.properties.contains(.read), activePeripheral != nil else {
+            AppDebugLog.staging("BLE readNetworkInfo: network char není dostupná")
+            return nil
+        }
+        return try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Data, Error>) in
+            queue.async { [weak self] in
+                self?.enqueueReadNetwork(continuation: cont)
+            }
+        }
+    }
+
+    private var readNetworkContinuation: CheckedContinuation<Data, Error>?
+
+    private func enqueueReadNetwork(continuation: CheckedContinuation<Data, Error>) {
+        guard let ch = networkCharacteristic, let p = activePeripheral, ch.properties.contains(.read) else {
+            continuation.resume(throwing: BLETransportError.notConnected)
+            return
+        }
+        if let stale = readNetworkContinuation {
+            readNetworkContinuation = nil
+            stale.resume(throwing: BLETransportError.notConnected)
+        }
+        readNetworkContinuation = continuation
+        p.readValue(for: ch)
+    }
+
+    /// ESP posílá notify jako bloky `CM` + [part][total] + payload (viz `ble_task_push_snapshot_json`).
+    /// Stará logika dokončila zprávu při `part == total` i když chyběly předchozí díly (nebo dorazily mimo pořadí),
+    /// což poslalo useknutý JSON a na iOS padal decode (~„Unexpected character … column ~250“).
     private func appendChunk(_ data: Data) {
+        NotificationCenter.default.post(name: .czechmateBleSnapshotNotifyTraffic, object: nil)
         guard data.count >= 4, data[0] == 0x43, data[1] == 0x4D else {
             snapshotNotifyHandler?(data)
             return
         }
         let part = Int(data[2])
-        let of = Int(data[3])
+        let total = Int(data[3])
         let payload = data.dropFirst(4)
+        guard part >= 1, total >= 1, part <= total else {
+            AppDebugLog.staging(
+                "BLE snapshot chunk: neplatná hlavička part=\(part) total=\(total) pkt=\(data.count) B — zahazuji"
+            )
+            resetSnapshotChunkAssembly()
+            return
+        }
         if part == 1 {
             jsonReassembly = Data(payload)
             jsonChunkPart = 1
-            jsonChunkTotal = of
-        } else {
-            jsonReassembly.append(payload)
-            jsonChunkPart = part
-            jsonChunkTotal = of
+            jsonChunkTotal = total
+            if total == 1 {
+                snapshotNotifyHandler?(jsonReassembly)
+                resetSnapshotChunkAssembly()
+            }
+            return
         }
-        if part == of, part > 0 {
+        guard jsonChunkTotal == total, jsonChunkPart == part - 1 else {
+            AppDebugLog.staging(
+                "BLE snapshot chunk: špatné pořadí nebo total (dostal \(part)/\(total), očekáván další po \(jsonChunkPart)/\(jsonChunkTotal)) — zahazuji částečnou zprávu"
+            )
+            resetSnapshotChunkAssembly()
+            return
+        }
+        jsonReassembly.append(payload)
+        jsonChunkPart = part
+        if part == total {
             snapshotNotifyHandler?(jsonReassembly)
-            jsonReassembly = Data()
+            resetSnapshotChunkAssembly()
         }
     }
 }
@@ -281,6 +422,7 @@ extension ChessboardBLEClient: CBCentralManagerDelegate {
         case .poweredOn:
             restartBLEScanIfNeeded()
         case .poweredOff, .unauthorized, .unsupported:
+            setGattLinkUIConnectedCache(false)
             failPendingContinuations(with: BLETransportError.bluetoothUnavailable)
         default:
             break
@@ -309,14 +451,17 @@ extension ChessboardBLEClient: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         activePeripheral = peripheral
+        setGattLinkUIConnectedCache(true)
         pendingDiscoverAllServices = false
         serviceDiscoveryEmptyAttempts = 0
         let nm = peripheral.name ?? "nil"
+        reportPairingPhase("Spojení navázáno — krátká prodleva kvůli rádiu desky (Wi‑Fi + Bluetooth)…")
         AppDebugLog.staging(
             "BLE didConnect name=\(nm) id=\(peripheral.identifier.uuidString.prefix(8))… — discoverServices za \(serviceDiscoveryDelaysSec[0])s (Wi‑Fi+BLE coexistence)"
         )
         queue.asyncAfter(deadline: .now() + serviceDiscoveryDelaysSec[0]) { [weak self] in
             guard let self, self.activePeripheral?.identifier == peripheral.identifier else { return }
+            self.reportPairingPhase("Hledám službu šachovnice na desce…")
             peripheral.discoverServices([CZECHMATEBLEUUIDs.service])
         }
     }
@@ -327,6 +472,7 @@ extension ChessboardBLEClient: CBCentralManagerDelegate {
         } else {
             AppDebugLog.staging("BLE didFailToConnect (bez NSError)")
         }
+        setGattLinkUIConnectedCache(false)
         connectContinuation?.resume(throwing: error ?? BLETransportError.notConnected)
         connectContinuation = nil
     }
@@ -336,11 +482,16 @@ extension ChessboardBLEClient: CBCentralManagerDelegate {
             failPendingContinuations(with: error ?? BLETransportError.notConnected)
             snapshotCharacteristic = nil
             commandCharacteristic = nil
+            networkCharacteristic = nil
+            cmdAckCharacteristic = nil
             snapshotNotifyHandler = nil
+            cmdReplyHandler = nil
             snapshotDisconnectHandler?()
             snapshotDisconnectHandler = nil
+            resetSnapshotChunkAssembly()
         }
         activePeripheral = nil
+        setGattLinkUIConnectedCache(false)
     }
 
     /// Zruší čekání na připojení / read / write při pádu spojení nebo vypnutí BT (jinak může `connect()` viset navěky).
@@ -353,12 +504,20 @@ extension ChessboardBLEClient: CBCentralManagerDelegate {
             readDataContinuation = nil
             c.resume(throwing: error)
         }
+        if let c = readNetworkContinuation {
+            readNetworkContinuation = nil
+            c.resume(throwing: error)
+        }
         if let c = writeContinuation {
             writeContinuation = nil
             c.resume(throwing: error)
         }
         if let c = notifyEnableContinuation {
             notifyEnableContinuation = nil
+            c.resume(throwing: error)
+        }
+        if let c = cmdReplyNotifyContinuation {
+            cmdReplyNotifyContinuation = nil
             c.resume(throwing: error)
         }
     }
@@ -379,8 +538,14 @@ extension ChessboardBLEClient: CBPeripheralDelegate {
         if let s = list.first(where: { $0.uuid == CZECHMATEBLEUUIDs.service }) {
             pendingDiscoverAllServices = false
             serviceDiscoveryEmptyAttempts = 0
+            reportPairingPhase("Načítám komunikační kanály (GATT)…")
             peripheral.discoverCharacteristics(
-                [CZECHMATEBLEUUIDs.snapshotCharacteristic, CZECHMATEBLEUUIDs.commandCharacteristic],
+                [
+                    CZECHMATEBLEUUIDs.snapshotCharacteristic,
+                    CZECHMATEBLEUUIDs.commandCharacteristic,
+                    CZECHMATEBLEUUIDs.networkCharacteristic,
+                    CZECHMATEBLEUUIDs.commandAckCharacteristic
+                ],
                 for: s
             )
             return
@@ -393,6 +558,7 @@ extension ChessboardBLEClient: CBPeripheralDelegate {
                 let idx = min(serviceDiscoveryEmptyAttempts - 1, serviceDiscoveryDelaysSec.count - 1)
                 let delay = serviceDiscoveryDelaysSec[idx]
                 if serviceDiscoveryEmptyAttempts <= 2 {
+                    reportPairingPhase("Služby zatím neodpověděly — opakuji (\(serviceDiscoveryEmptyAttempts). pokus)…")
                     AppDebugLog.staging(
                         "BLE: 0 služeb — pokus \(serviceDiscoveryEmptyAttempts)/\(maxEmpty), znovu CZECHMATE UUID za \(delay)s"
                     )
@@ -404,6 +570,7 @@ extension ChessboardBLEClient: CBPeripheralDelegate {
                 }
                 if serviceDiscoveryEmptyAttempts == 3 {
                     pendingDiscoverAllServices = true
+                    reportPairingPhase("Zkouším úplný přehled služeb Bluetooth (obnova cache)…")
                     AppDebugLog.staging(
                         "BLE: stále 0 služeb — discoverServices(nil) za \(delay)s (celý GATT)"
                     )
@@ -413,6 +580,7 @@ extension ChessboardBLEClient: CBPeripheralDelegate {
                     }
                     return
                 }
+                reportPairingPhase("Poslední pokus obnovení služeb Bluetooth…")
                 AppDebugLog.staging(
                     "BLE: poslední pokus discover(nil) za \(delay)s"
                 )
@@ -426,6 +594,7 @@ extension ChessboardBLEClient: CBPeripheralDelegate {
 
         if !pendingDiscoverAllServices {
             pendingDiscoverAllServices = true
+            reportPairingPhase("Služba nenalezena v seznamu — obnovuji přehled GATT…")
             AppDebugLog.staging(
                 "BLE: služba CZECHMATE v seznamu není — zkouším discoverServices(nil) (GATT cache / iOS)"
             )
@@ -453,19 +622,53 @@ extension ChessboardBLEClient: CBPeripheralDelegate {
             if c.uuid == CZECHMATEBLEUUIDs.commandCharacteristic {
                 commandCharacteristic = c
             }
+            if c.uuid == CZECHMATEBLEUUIDs.networkCharacteristic {
+                networkCharacteristic = c
+            }
+            if c.uuid == CZECHMATEBLEUUIDs.commandAckCharacteristic {
+                cmdAckCharacteristic = c
+            }
         }
         if snapshotCharacteristic != nil, commandCharacteristic != nil {
-            AppDebugLog.staging("BLE GATT: snapshot + command char OK")
+            reportPairingPhase("Komunikační kanály jsou připraveny.")
+            AppDebugLog.staging(
+                "BLE GATT: snapshot + command OK (net=\(networkCharacteristic != nil) cmd_ack=\(cmdAckCharacteristic != nil))"
+            )
             connectContinuation?.resume()
             connectContinuation = nil
         } else {
-            AppDebugLog.staging("BLE GATT: chybí char (snap=\(snapshotCharacteristic != nil) cmd=\(commandCharacteristic != nil))")
+            AppDebugLog.staging("BLE GATT: chybí char (snap=\(snapshotCharacteristic != nil) cmd=\(commandCharacteristic != nil) net=\(networkCharacteristic != nil))")
             connectContinuation?.resume(throwing: BLETransportError.characteristicMissing)
             connectContinuation = nil
         }
     }
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        if characteristic.uuid == CZECHMATEBLEUUIDs.commandAckCharacteristic {
+            if let err = error {
+                AppDebugLog.stagingError("BLE cmd_ack notify value", err)
+                return
+            }
+            if let data = characteristic.value {
+                cmdReplyHandler?(data)
+            }
+            return
+        }
+
+        // Network characteristic read
+        if characteristic == networkCharacteristic {
+            if let cont = readNetworkContinuation {
+                readNetworkContinuation = nil
+                if let err = error {
+                    AppDebugLog.stagingError("BLE read network", err)
+                    cont.resume(throwing: err)
+                } else {
+                    cont.resume(returning: characteristic.value ?? Data())
+                }
+            }
+            return
+        }
+
         guard characteristic == snapshotCharacteristic else { return }
 
         // Čeká `readSnapshotFull` — musíme vždy resume (i při nil value / jen chybě), jinak
@@ -489,15 +692,59 @@ extension ChessboardBLEClient: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         guard characteristic == commandCharacteristic else { return }
         if let err = error {
-            AppDebugLog.stagingError("BLE write command", err)
-            writeContinuation?.resume(throwing: err)
+            let mapped = Self.mapBleCommandWriteError(err)
+            AppDebugLog.stagingError("BLE write command", mapped)
+            writeContinuation?.resume(throwing: mapped)
         } else {
             writeContinuation?.resume()
         }
         writeContinuation = nil
     }
 
+    /// Čitelná zpráva pro UI / log při ATT chybě zápisu na CMD (starší firmware bez `cmd_ack`).
+    private static func mapBleCommandWriteError(_ error: Error) -> Error {
+        let ns = error as NSError
+        guard ns.domain == CBATTErrorDomain else { return error }
+        guard let code = CBATTError.Code(rawValue: ns.code) else { return error }
+        let msg: String
+        switch code {
+        case .insufficientAuthentication, .insufficientEncryption:
+            msg = "Bluetooth: příkaz byl zamítnut (autentizace)."
+        case .readNotPermitted, .writeNotPermitted:
+            msg = "Bluetooth: zápis příkazu není povolen."
+        case .invalidHandle:
+            msg = "Bluetooth: neplatná GATT charakteristika příkazu."
+        case .invalidPdu:
+            msg = "Bluetooth: neplatný ATT rámec."
+        case .insufficientResources:
+            msg = "Bluetooth: deska nemá dost prostředků pro odpověď."
+        case .attributeNotFound:
+            msg = "Bluetooth: v příkazu chybí pole „cmd“ nebo je špatný formát JSON."
+        case .invalidAttributeValueLength:
+            msg = "Bluetooth: neplatné parametry příkazu."
+        case .unlikelyError:
+            msg = "Bluetooth: interní chyba při zpracování příkazu."
+        case .requestNotSupported:
+            msg = "Bluetooth: deska tento příkaz nezná (zkuste aktualizovat firmware)."
+        default:
+            return error
+        }
+        return NSError(domain: "CZECHMATEBLE", code: ns.code, userInfo: [NSLocalizedDescriptionKey: msg])
+    }
+
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        if characteristic.uuid == CZECHMATEBLEUUIDs.commandAckCharacteristic {
+            if let error {
+                AppDebugLog.stagingError("BLE cmd_ack notify subscription", error)
+                cmdReplyNotifyContinuation?.resume(throwing: error)
+            } else if characteristic.isNotifying {
+                cmdReplyNotifyContinuation?.resume()
+            } else {
+                cmdReplyNotifyContinuation?.resume(throwing: BLETransportError.notifySubscriptionFailed)
+            }
+            cmdReplyNotifyContinuation = nil
+            return
+        }
         guard characteristic.uuid == CZECHMATEBLEUUIDs.snapshotCharacteristic else { return }
         if let error {
             AppDebugLog.stagingError("BLE snapshot notify subscription", error)
@@ -525,16 +772,28 @@ extension ChessboardBLEClient: CBPeripheralDelegate {
 
 final class ChessboardBLEClient: @unchecked Sendable {
     static let shared = ChessboardBLEClient()
+    var onPairingPhase: ((String) -> Void)?
     func prepareCentral() {}
     var isBluetoothReady: Bool { false }
     func startScanning(onFound: @escaping @MainActor (DiscoveredBoardDevice) -> Void) {}
     func stopScanning() {}
+    func isGattPeripheralConnectedForLinkUI() -> Bool { false }
     func connect(to device: DiscoveredBoardDevice) async throws { throw BLETransportError.unsupported }
-    func startSnapshotNotifications(handler: @escaping @Sendable (Data) -> Void, disconnectHandler: @escaping @Sendable () -> Void) async throws { throw BLETransportError.unsupported }
+    func startSnapshotNotifications(
+        handler: @escaping @Sendable (Data) -> Void,
+        disconnectHandler: @escaping @Sendable () -> Void,
+        cmdReplyHandler: (@Sendable (Data) -> Void)? = nil
+    ) async throws {
+        _ = handler
+        _ = disconnectHandler
+        _ = cmdReplyHandler
+        throw BLETransportError.unsupported
+    }
     func stopSnapshotNotifications() {}
     func disconnect() async {}
     func writeCommandJSON(_ obj: [String: Any]) async throws { throw BLETransportError.unsupported }
     func readSnapshotFull(ifNoneMatch: String?) async throws -> GameSnapshot? { nil }
+    func readNetworkInfo() async throws -> Data? { nil }
 }
 
 #endif
@@ -542,11 +801,10 @@ final class ChessboardBLEClient: @unchecked Sendable {
 #if canImport(CoreBluetooth)
 extension ChessboardBLEClient {
     func decodeSnapshot(from data: Data) throws -> GameSnapshot {
-        let fixed = GameJSONRepair.repairStatusDataIfNeeded(data)
-        let dec = JSONDecoder.forGameSnapshot()
         do {
-            return try dec.decode(GameSnapshot.self, from: fixed)
+            return try GameSnapshot.decodeFromBoardDataRepairingAndNormalizing(data)
         } catch {
+            let fixed = GameJSONRepair.repairStatusDataIfNeeded(data)
             let preview = String(data: fixed.prefix(200), encoding: .utf8) ?? ""
             AppDebugLog.staging("BLE decodeSnapshot: \(error) preview=\(preview)")
             throw error

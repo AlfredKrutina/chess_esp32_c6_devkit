@@ -6,75 +6,73 @@ import Charts
 import SwiftData
 import SwiftUI
 
-struct StatsView: View {
+/// Obsah statistik (sdíleno se záložkou Pokrok).
+struct StatsTabContent: View {
     @Environment(BoardConnectionStore.self) private var store
     @Query(sort: \GameSessionEntity.startedAt, order: .reverse) private var sessions: [GameSessionEntity]
     @State private var exportText: String?
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: Theme.Spacing.l) {
-                    Section {
-                        VStack(alignment: .leading, spacing: Theme.Spacing.m) {
-                            AppSectionHeader(
-                                title: "Lokální přehled",
-                                subtitle: "Čísla z této instalace",
-                                systemImage: "chart.bar.doc.horizontal"
-                            )
-                            LabeledContent("Aktuální počet tahů") {
-                                Text("\(store.snapshot.map { Int($0.status.moveCount) } ?? 0)")
-                            }
-                            LabeledContent("Max. pozorovaný počet tahů") {
-                                Text("\(StatsRecorder.peakMoveCount)")
-                            }
-                            LabeledContent("Aktualizací snapshotu (od instalace)") {
-                                Text("\(StatsRecorder.snapshotUpdateCount)")
-                            }
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Spacing.l) {
+                Section {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.m) {
+                        AppSectionHeader(
+                            title: "Lokální přehled",
+                            subtitle: "Čísla z této instalace",
+                            systemImage: "chart.bar.doc.horizontal"
+                        )
+                        LabeledContent("Aktuální počet tahů") {
+                            Text("\(store.snapshot.map { Int($0.status.moveCount) } ?? 0)")
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .themeCard()
-                    }
-
-                    if sessions.isEmpty {
-                        ThemedBanner(style: .neutral) {
-                            Text("Zatím žádné uložené relace připojení — přibyde po spuštění pollingu na kartě Hra nebo v Nastavení.")
-                                .font(Theme.Typography.caption())
-                                .foregroundStyle(.secondary)
+                        LabeledContent("Max. pozorovaný počet tahů") {
+                            Text("\(StatsRecorder.peakMoveCount)")
+                        }
+                        LabeledContent("Aktualizací snapshotu (od instalace)") {
+                            Text("\(StatsRecorder.snapshotUpdateCount)")
                         }
                     }
-
-                    if !sessions.isEmpty {
-                        VStack(alignment: .leading, spacing: Theme.Spacing.s) {
-                            AppSectionHeader(
-                                title: "Relace připojení",
-                                subtitle: "SwiftData · start/stop pollingu",
-                                systemImage: "clock.arrow.circlepath"
-                            )
-                            ForEach(sessions.prefix(12), id: \.id) { s in
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("\(s.linkKind) · tahů max \(s.peakMoveCount)")
-                                        .font(.subheadline.weight(.medium))
-                                    Text(sessionLine(s))
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .padding(.vertical, 4)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .themeCard()
-                    }
-
-                    weeklyChartSection
-
-                    exportSection
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .themeCard()
                 }
-                .padding(Theme.Spacing.l)
+
+                if sessions.isEmpty {
+                    ThemedBanner(style: .neutral) {
+                        Text("Zatím žádné uložené relace připojení — přibyde po spuštění pollingu na kartě Hra nebo v Nastavení.")
+                            .font(Theme.Typography.caption())
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                if !sessions.isEmpty {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.s) {
+                        AppSectionHeader(
+                            title: "Relace připojení",
+                            subtitle: "SwiftData · start/stop pollingu",
+                            systemImage: "clock.arrow.circlepath"
+                        )
+                        ForEach(sessions.prefix(12), id: \.id) { s in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("\(s.linkKind) · tahů max \(s.peakMoveCount)")
+                                    .font(.subheadline.weight(.medium))
+                                Text(sessionLine(s))
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .themeCard()
+                }
+
+                weeklyChartSection
+
+                exportSection
             }
-            .navigationTitle("Statistiky")
-            .tint(Theme.accent)
+            .padding(Theme.Spacing.l)
         }
+        .background(Color(uiColor: .systemGroupedBackground))
     }
 
     private func sessionLine(_ s: GameSessionEntity) -> String {
@@ -129,6 +127,17 @@ struct StatsView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .themeCard()
+    }
+}
+
+struct StatsView: View {
+    var body: some View {
+        NavigationStack {
+            StatsTabContent()
+                .navigationTitle("Statistiky")
+                .navigationBarTitleDisplayMode(.inline)
+                .tint(Theme.accent)
+        }
     }
 }
 

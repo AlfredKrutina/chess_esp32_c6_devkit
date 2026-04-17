@@ -85,7 +85,8 @@ typedef enum {
   GAME_STATE_PLAYING = 6,           ///< Probihajici hra
   GAME_STATE_PROMOTION = 7,         ///< Ceka se na vyber promoci pescu
   GAME_STATE_ERROR_RECOVERY = 8,    ///< Obnova po chybe (novy stav)
-  GAME_STATE_WAITING_FOR_RETURN = 9 ///< Ceka se na vraceni figurky na misto
+  GAME_STATE_WAITING_FOR_RETURN = 9, ///< Ceka se na vraceni figurky na misto
+  GAME_STATE_WAITING_FOR_BOARD_SETUP = 10 ///< Ceka se na fyzicke rozestaveni figurek
 } game_state_t;
 
 /**
@@ -292,7 +293,9 @@ typedef enum {
   GAME_CMD_BOARD_SETUP_TUTORIAL =
       46, ///< Web tutoriál rozestavení; promotion_choice: 0=start,1=cancel,2=finish
   GAME_CMD_PUZZLE =
-      47 ///< Web puzzle: 0=cancel,1..5=start,101..105=prepare id 1..5
+      47, ///< Web puzzle: 0=cancel,1..5=start,101..105=prepare id 1..5
+  GAME_CMD_NEW_GAME_FROM_FEN =
+      48 ///< Nová hra z FEN (placement + strana); data v timer_data.fen_new_game
 } game_command_type_t;
 
 /**
@@ -310,6 +313,7 @@ typedef struct {
   uint8_t player; ///< Hrac provadejici prikaz (PLAYER_WHITE nebo PLAYER_BLACK)
   QueueHandle_t response_queue; ///< Fronta pro poslani odpovedi
   uint8_t promotion_choice;     ///< Volba promoci (pro promotion prikazy)
+  uint8_t promotion_from_remote; ///< 1 = WEB/BLE poslalo pole promotion u GAME_CMD_MOVE
 
   // Pole pro timer system
   union {
@@ -331,6 +335,9 @@ typedef struct {
       uint32_t dropped_mask_high; ///< Bity 32-63 pro polozena pole
       uint8_t action;            ///< 1=enter/update, 0=clear
     } matrix_guard;              ///< Data pro matrix guard rezim
+    struct {
+      char fen[120]; ///< FEN pro GAME_CMD_NEW_GAME_FROM_FEN (placement + w/b)
+    } fen_new_game;
   } timer_data;           ///< Union pro timer data
   bool is_demo_mode;      ///< Flag pro demo mode (skip resignation timer)
 } chess_move_command_t;
@@ -655,6 +662,7 @@ typedef struct {
   uint8_t log_level; ///< Uroven logovania (ESP_LOG_ERROR, ESP_LOG_INFO, atd.)
   uint32_t command_timeout_ms; ///< Timeout prikazu v milisekundach
   uint8_t brightness_level;    ///< Globalni jas LED (0-100%)
+  bool starting_position_check_enabled; ///< Hlídání počáteční pozice (defaultně vypnuto)
 } system_config_t;
 
 // Predni deklarace konfiguracnich funkci

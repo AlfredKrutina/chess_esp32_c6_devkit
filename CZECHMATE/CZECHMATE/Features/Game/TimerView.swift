@@ -9,6 +9,109 @@ import SwiftUI
 import UIKit
 #endif
 
+// MARK: - Logika zobrazení (jen režim s časem z desky)
+
+enum GameBoardTimerDisplay {
+    /// Zdroj pravdy = `clock` ve snímku z desky (stejný JSON jako pozice); doplněk `GET /api/timer` když ve snímku chybí.
+    static func resolvedClock(lastTimer: BoardTimerHTTPState?, snapshot: GameSnapshot?) -> BoardTimerHTTPState? {
+        guard let snap = snapshot else { return lastTimer }
+        return snap.clock ?? lastTimer
+    }
+
+    /// Kotva pro lokální odpočet: u vnořeného `clock` čas příjmu snímku, u samostatného HTTP čas příjmu `/api/timer`.
+    static func clockSyncDate(
+        lastTimerReceivedAt: Date?,
+        snapshot: GameSnapshot?,
+        snapshotReceivedAt: Date?
+    ) -> Date? {
+        guard let snap = snapshot else { return lastTimerReceivedAt ?? snapshotReceivedAt }
+        if snap.clock != nil { return snapshotReceivedAt }
+        return lastTimerReceivedAt ?? snapshotReceivedAt
+    }
+
+    @MainActor
+    static func shouldShowTimerUI(store: BoardConnectionStore) -> Bool {
+        guard store.puzzleBoardPreview == nil, let snap = store.snapshot else { return false }
+        guard let c = resolvedClock(lastTimer: store.lastTimerState, snapshot: snap) else { return false }
+        return c.isTimeControlEnabled
+    }
+}
+
+/// Jedna řada hodin (černý / bílý řádek) — jen pokud deska hlásí časový režim (ne „bez limitu“).
+struct GameBoardTimerLineIfNeeded: View {
+    @Environment(BoardConnectionStore.self) private var store
+    let board: [[String]]
+    let isBlackRow: Bool
+
+    var body: some View {
+        Group {
+            if GameBoardTimerDisplay.shouldShowTimerUI(store: store),
+               let s = store.snapshot {
+                let clock = GameBoardTimerDisplay.resolvedClock(lastTimer: store.lastTimerState, snapshot: s)
+                let syncAt = GameBoardTimerDisplay.clockSyncDate(
+                    lastTimerReceivedAt: store.timerClockReceivedAt,
+                    snapshot: s,
+                    snapshotReceivedAt: store.snapshotReceivedAt
+                )
+                BoardTimerLine(
+                    isBlackRow: isBlackRow,
+                    status: s.status,
+                    snapshotReceivedAt: store.snapshotReceivedAt,
+                    board: board,
+                    timerClock: clock,
+                    timerClockReceivedAt: syncAt
+                )
+            }
+        }
+    }
+}
+
+/// Pauza / pokračování — Wi‑Fi nebo BLE (`timer_pause` / `timer_resume` na firmwaru).
+struct BoardTimerPauseResumeRow: View {
+    @Environment(BoardConnectionStore.self) private var store
+    let status: GameStatus
+
+    var body: some View {
+        let gs = status.gameState.lowercased()
+        let paused = gs == "paused"
+        let ended = status.isGameFinished
+        HStack(spacing: 16) {
+            Button {
+                Task { await store.postTimerPauseToBoard() }
+            } label: {
+                Label("Pauza", systemImage: "pause.circle.fill")
+                    .font(.system(.caption, design: .rounded))
+            }
+            .buttonStyle(.bordered)
+            .disabled(ended || paused)
+            Button {
+                Task { await store.postTimerResumeToBoard() }
+            } label: {
+                Label("Pokračovat", systemImage: "play.circle.fill")
+                    .font(.system(.caption, design: .rounded))
+            }
+            .buttonStyle(.bordered)
+            .disabled(ended || !paused)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 2)
+    }
+}
+
+struct GameBoardTimerPauseStripIfNeeded: View {
+    @Environment(BoardConnectionStore.self) private var store
+
+    var body: some View {
+        Group {
+            if store.supportsTimerRemoteControls,
+               GameBoardTimerDisplay.shouldShowTimerUI(store: store),
+               let s = store.snapshot {
+                BoardTimerPauseResumeRow(status: s.status)
+            }
+        }
+    }
+}
+
 /// Zobrazí časy bílého/černého; s `whiteTimeMs`/`blackTimeMs` z `/api/timer` plynulý odpočet.
 struct TimerView: View {
     let whiteBase: UInt32?

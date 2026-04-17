@@ -1,0 +1,439 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru promotion_button_task.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('promotion__button__task_8c.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru promotion_button_task.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Promotion button task: ovladani tlacitek pro promoci pescu.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="promotion__button__task_8h_source.html">promotion_button_task.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_task_wdt.h&quot;</code><br />
+<code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
+<code>#include &quot;freertos/task.h&quot;</code><br />
+<code>#include &quot;freertos/queue.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro promotion_button_task.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="promotion__button__task_8c__incl.png" border="0" usemap="#apromotion__button__task_8c" loading="lazy" alt=""/></div>
+<map name="apromotion__button__task_8c" id="apromotion__button__task_8c">
+<area shape="rect" title="Promotion button task: ovladani tlacitek pro promoci pescu." alt="" coords="1113,5,1278,31"/>
+<area shape="rect" href="promotion__button__task_8h.html" title="Promotion Button Task hlavicka pro ESP32&#45;C6 sachovy projekt." alt="" coords="967,79,1131,105"/>
+<area shape="poly" title=" " alt="" coords="1173,31,1088,74,1087,69,1168,32"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="656,153,775,178"/>
+<area shape="poly" title=" " alt="" coords="1113,32,1017,53,911,82,825,114,753,148,751,143,823,109,909,76,1016,48,1118,31"/>
+<area shape="rect" title=" " alt="" coords="896,300,1039,326"/>
+<area shape="poly" title=" " alt="" coords="1195,29,1184,73,1164,131,1132,195,1112,226,1088,254,1056,279,1021,297,1019,292,1053,274,1084,250,1107,223,1127,193,1159,129,1179,71,1191,33"/>
+<area shape="rect" title=" " alt="" coords="1100,300,1216,326"/>
+<area shape="poly" title=" " alt="" coords="1202,29,1217,78,1223,129,1217,179,1198,238,1174,288,1171,284,1193,236,1212,178,1217,129,1212,80,1199,34"/>
+<area shape="rect" title=" " alt="" coords="900,226,1005,252"/>
+<area shape="poly" title=" " alt="" coords="1110,30,1018,51,980,64,956,81,941,111,937,146,940,181,946,213,942,210,935,182,932,146,936,110,952,77,977,60,1017,45,1115,28"/>
+<area shape="rect" title=" " alt="" coords="1283,79,1361,105"/>
+<area shape="poly" title=" " alt="" coords="1217,29,1290,71,1285,71,1216,34"/>
+<area shape="rect" title=" " alt="" coords="1385,79,1499,105"/>
+<area shape="poly" title=" " alt="" coords="1238,29,1388,74,1383,74,1237,34"/>
+<area shape="poly" title=" " alt="" coords="989,106,788,152,787,146,994,105"/>
+<area shape="rect" title=" " alt="" coords="305,300,369,326"/>
+<area shape="poly" title=" " alt="" coords="964,99,746,119,471,146,340,164,227,184,144,205,116,217,100,228,83,245,66,256,34,268,11,269,5,261,25,255,74,256,160,268,292,298,287,301,159,273,74,261,26,260,10,263,13,264,33,263,63,252,80,240,96,224,114,212,142,200,226,178,339,159,470,141,745,113,969,98"/>
+<area shape="rect" title=" " alt="" coords="206,300,281,326"/>
+<area shape="poly" title=" " alt="" coords="964,97,591,118,392,134,310,144,248,155,191,165,144,172,124,179,105,189,86,205,68,228,62,244,65,257,76,269,93,279,141,294,194,306,188,306,139,300,91,284,73,273,60,260,57,243,64,225,82,201,102,185,121,174,143,167,190,160,247,150,309,139,392,129,591,112,969,95"/>
+<area shape="poly" title=" " alt="" coords="1055,103,1067,132,1075,171,1076,213,1073,234,1064,253,1044,278,1017,295,1015,290,1040,274,1060,251,1067,232,1071,212,1070,171,1061,134,1053,108"/>
+<area shape="poly" title=" " alt="" coords="1059,103,1092,151,1127,223,1151,287,1147,284,1122,225,1088,154,1057,107"/>
+<area shape="rect" title=" " alt="" coords="724,300,798,326"/>
+<area shape="poly" title=" " alt="" coords="1052,103,1055,135,1053,174,1043,217,1033,236,1020,254,1005,265,985,274,931,289,814,309,813,303,930,284,983,269,1003,260,1016,250,1029,234,1038,215,1048,174,1050,135,1049,107"/>
+<area shape="poly" title=" " alt="" coords="1043,104,971,215,968,211,1039,106"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="617,226,723,252"/>
+<area shape="poly" title=" " alt="" coords="710,177,687,215,684,211,706,180"/>
+<area shape="poly" title=" " alt="" coords="653,168,573,174,478,183,395,201,363,213,343,228,335,241,332,255,332,287,328,284,326,254,330,239,339,225,361,208,393,196,478,178,572,169,659,167"/>
+<area shape="poly" title=" " alt="" coords="653,172,476,193,388,209,352,218,326,229,289,257,261,290,258,285,285,253,323,224,351,213,386,204,476,188,658,171"/>
+<area shape="poly" title=" " alt="" coords="733,176,783,211,845,250,928,294,923,293,842,254,780,215,731,181"/>
+<area shape="poly" title=" " alt="" coords="743,176,843,224,866,238,890,250,991,280,1088,301,1082,301,990,285,888,254,864,242,841,229,742,181"/>
+<area shape="poly" title=" " alt="" coords="721,176,738,226,756,286,751,284,733,227,718,181"/>
+<area shape="rect" title=" " alt="" coords="353,226,446,252"/>
+<area shape="poly" title=" " alt="" coords="664,178,461,227,460,221,659,180"/>
+<area shape="rect" title=" " alt="" coords="470,226,593,252"/>
+<area shape="poly" title=" " alt="" coords="687,178,578,223,576,218,682,180"/>
+<area shape="poly" title=" " alt="" coords="756,176,900,221,895,221,755,182"/>
+<area shape="rect" title=" " alt="" coords="111,226,227,252"/>
+<area shape="poly" title=" " alt="" coords="656,177,246,229,243,229,241,224,246,224,656,171"/>
+<area shape="poly" title=" " alt="" coords="619,252,385,304,384,299,614,252"/>
+<area shape="poly" title=" " alt="" coords="619,250,605,255,452,277,296,302,296,297,451,272,604,249,614,250"/>
+<area shape="poly" title=" " alt="" coords="721,250,905,296,899,296,721,255"/>
+<area shape="poly" title=" " alt="" coords="724,246,1088,301,1083,301,724,251"/>
+<area shape="poly" title=" " alt="" coords="686,250,737,291,731,290,685,255"/>
+</map>
+</div>
+</div>
+<p><a href="promotion__button__task_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a4a7c298b8b954ba4e407167ec242242b" id="r_a4a7c298b8b954ba4e407167ec242242b"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4a7c298b8b954ba4e407167ec242242b">promotion_button_task_init</a> (void)</td></tr>
+<tr class="memdesc:a4a7c298b8b954ba4e407167ec242242b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuj promotion button task.  <br /></td></tr>
+<tr class="memitem:a31932e440404a48bbeee15bd30220f31" id="r_a31932e440404a48bbeee15bd30220f31"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a31932e440404a48bbeee15bd30220f31">promotion_button_task</a> (void *pvParameters)</td></tr>
+<tr class="memdesc:a31932e440404a48bbeee15bd30220f31"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hlavni funkce promotion button tasku.  <br /></td></tr>
+<tr class="memitem:a8e3a45fc9ac9fcda6e243449b9de66ff" id="r_a8e3a45fc9ac9fcda6e243449b9de66ff"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8e3a45fc9ac9fcda6e243449b9de66ff">process_promotion_choice</a> (<a class="el" href="chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237">promotion_choice_t</a> choice)</td></tr>
+<tr class="memdesc:a8e3a45fc9ac9fcda6e243449b9de66ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj volbu promoci.  <br /></td></tr>
+<tr class="memitem:a0e0d52d07d70caef22af40a2969e79c3" id="r_a0e0d52d07d70caef22af40a2969e79c3"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0e0d52d07d70caef22af40a2969e79c3">simulate_promotion_button_press</a> (uint8_t button_index)</td></tr>
+<tr class="memdesc:a0e0d52d07d70caef22af40a2969e79c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simuluj stisknuti promotion tlacitka (pro testovani).  <br /></td></tr>
+<tr class="memitem:af6e9bc64868813a9a0c6134a471aefc9" id="r_af6e9bc64868813a9a0c6134a471aefc9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af6e9bc64868813a9a0c6134a471aefc9">promotion_button_is_initialized</a> (void)</td></tr>
+<tr class="memdesc:af6e9bc64868813a9a0c6134a471aefc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je promotion button task inicializovan.  <br /></td></tr>
+<tr class="memitem:acc92043a584171d17f29d9e0ae9bbd1a" id="r_acc92043a584171d17f29d9e0ae9bbd1a"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acc92043a584171d17f29d9e0ae9bbd1a">promotion_button_get_event_count</a> (void)</td></tr>
+<tr class="memdesc:acc92043a584171d17f29d9e0ae9bbd1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej pocet zpracovanych tlacitkovych udalosti.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;PROMOTION_BUTTON_TASK&quot;</td></tr>
+<tr class="memitem:abbaaee3316ba8718fb74559d7c93df9b" id="r_abbaaee3316ba8718fb74559d7c93df9b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abbaaee3316ba8718fb74559d7c93df9b">promotion_button_initialized</a> = false</td></tr>
+<tr class="memitem:ab36b66e9f95206af3b83dfa622d5cc7d" id="r_ab36b66e9f95206af3b83dfa622d5cc7d"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab36b66e9f95206af3b83dfa622d5cc7d">button_event_count</a> = 0</td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Promotion button task: ovladani tlacitek pro promoci pescu. </p>
+<p>Tento modul implementuje:</p><ul>
+<li>Inicializaci promotion button tasku a FreeRTOS komponent</li>
+<li>Zpracovani tlacitek pro volbu promoci (dama, vez, strelec, kun)</li>
+<li>Simulacni rezim bez hardware (pro development)</li>
+<li>Integration s game taskem pro promoci</li>
+<li>4 tlacitka pro ruzne typy promoci</li>
+</ul>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.0 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-08-16</dd></dl>
+<p>Tento task zpracovava tlacitka pro promoci pescu. Kdyz pesec dojde na konec sachovnice, hrac muze vybrat na co ho promenit pomoci tlacitek. Task detekuje stisknuti tlacitek a posila informaci do game tasku. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="promotion__button__task_8c_source.html">promotion_button_task.c</a>.</p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="a8e3a45fc9ac9fcda6e243449b9de66ff" name="a8e3a45fc9ac9fcda6e243449b9de66ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e3a45fc9ac9fcda6e243449b9de66ff">&#9670;&#160;</a></span>process_promotion_choice()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t process_promotion_choice </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237">promotion_choice_t</a></td>          <td class="paramname"><span class="paramname"><em>choice</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj volbu promoci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">choice</td><td>Typ promoci (QUEEN, ROOK, BISHOP, KNIGHT) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="promotion__button__task_8c_source.html#l00099">99</a> v souboru <a class="el" href="promotion__button__task_8c_source.html">promotion_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="acc92043a584171d17f29d9e0ae9bbd1a" name="acc92043a584171d17f29d9e0ae9bbd1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc92043a584171d17f29d9e0ae9bbd1a">&#9670;&#160;</a></span>promotion_button_get_event_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t promotion_button_get_event_count </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej pocet zpracovanych tlacitkovych udalosti. </p>
+<p>Ziskej pocet zpracovanych button udalosti.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Pocet udalosti </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="promotion__button__task_8c_source.html#l00179">179</a> v souboru <a class="el" href="promotion__button__task_8c_source.html">promotion_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af6e9bc64868813a9a0c6134a471aefc9" name="af6e9bc64868813a9a0c6134a471aefc9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6e9bc64868813a9a0c6134a471aefc9">&#9670;&#160;</a></span>promotion_button_is_initialized()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool promotion_button_is_initialized </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda je promotion button task inicializovan. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>True pokud je task inicializovan </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="promotion__button__task_8c_source.html#l00169">169</a> v souboru <a class="el" href="promotion__button__task_8c_source.html">promotion_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a31932e440404a48bbeee15bd30220f31" name="a31932e440404a48bbeee15bd30220f31"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a31932e440404a48bbeee15bd30220f31">&#9670;&#160;</a></span>promotion_button_task()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void promotion_button_task </td>
+          <td>(</td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>pvParameters</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hlavni funkce promotion button tasku. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pvParameters</td><td>Parametry tasku (nepouzivane) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="promotion__button__task_8c_source.html#l00076">76</a> v souboru <a class="el" href="promotion__button__task_8c_source.html">promotion_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4a7c298b8b954ba4e407167ec242242b" name="a4a7c298b8b954ba4e407167ec242242b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a7c298b8b954ba4e407167ec242242b">&#9670;&#160;</a></span>promotion_button_task_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t promotion_button_task_init </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializuj promotion button task. </p>
+<p>Inicializuje promotion button task.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="promotion__button__task_8c_source.html#l00042">42</a> v souboru <a class="el" href="promotion__button__task_8c_source.html">promotion_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0e0d52d07d70caef22af40a2969e79c3" name="a0e0d52d07d70caef22af40a2969e79c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e0d52d07d70caef22af40a2969e79c3">&#9670;&#160;</a></span>simulate_promotion_button_press()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t simulate_promotion_button_press </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_index</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simuluj stisknuti promotion tlacitka (pro testovani). </p>
+<p>Simuluj stisknuti promotion tlacitka.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_index</td><td>Index tlacitka (0=QUEEN, 1=ROOK, 2=BISHOP, 3=KNIGHT) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="promotion__button__task_8c_source.html#l00137">137</a> v souboru <a class="el" href="promotion__button__task_8c_source.html">promotion_button_task.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Dokumentace proměnných</h2>
+<a id="ab36b66e9f95206af3b83dfa622d5cc7d" name="ab36b66e9f95206af3b83dfa622d5cc7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab36b66e9f95206af3b83dfa622d5cc7d">&#9670;&#160;</a></span>button_event_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t button_event_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="promotion__button__task_8c_source.html#l00035">35</a> v souboru <a class="el" href="promotion__button__task_8c_source.html">promotion_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abbaaee3316ba8718fb74559d7c93df9b" name="abbaaee3316ba8718fb74559d7c93df9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbaaee3316ba8718fb74559d7c93df9b">&#9670;&#160;</a></span>promotion_button_initialized</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool promotion_button_initialized = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="promotion__button__task_8c_source.html#l00034">34</a> v souboru <a class="el" href="promotion__button__task_8c_source.html">promotion_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;PROMOTION_BUTTON_TASK&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="promotion__button__task_8c_source.html#l00031">31</a> v souboru <a class="el" href="promotion__button__task_8c_source.html">promotion_button_task.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_ab6b3e4c64325f478abea97ff504e20e.html">promotion_button_task</a></li><li class="navelem"><a href="promotion__button__task_8c.html">promotion_button_task.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

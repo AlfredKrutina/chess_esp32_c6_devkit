@@ -12,6 +12,7 @@ struct ThemedBanner<Content: View>: View {
     let style: Theme.BannerStyle
     var cornerRadius: CGFloat = 12
     @ViewBuilder let content: () -> Content
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         content()
@@ -20,6 +21,10 @@ struct ThemedBanner<Content: View>: View {
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .fill(style.backgroundColor)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(Theme.cardBorderColor(for: colorScheme).opacity(0.85), lineWidth: 0.5)
             )
     }
 }
@@ -65,10 +70,16 @@ struct AppEmptyState: View {
 
     var body: some View {
         VStack(spacing: Theme.Spacing.l) {
-            Image(systemName: systemImage)
-                .font(.system(size: 40, weight: .light))
-                .foregroundStyle(Theme.accent.opacity(0.85))
-                .accessibilityHidden(true)
+            ZStack {
+                Circle()
+                    .fill(Theme.accentMuted)
+                    .frame(width: 76, height: 76)
+                Image(systemName: systemImage)
+                    .font(.system(size: 32, weight: .medium))
+                    .foregroundStyle(Theme.accent)
+                    .symbolRenderingMode(.hierarchical)
+            }
+            .accessibilityHidden(true)
             VStack(spacing: Theme.Spacing.s) {
                 Text(title)
                     .font(Theme.Typography.sectionTitle())

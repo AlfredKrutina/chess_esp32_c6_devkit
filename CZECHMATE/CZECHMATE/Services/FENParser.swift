@@ -1,6 +1,6 @@
 //
 //  FENParser.swift
-//  CZECHMATE — piece placement → board[row][col], row 0 = rank 1 (jako firmware).
+//  CZECHMATE — piece placement → board[row][col], řádek 0 = rank 8 (jako normalizovaný snapshot / FENPlacementParser).
 //
 
 import Foundation
@@ -19,7 +19,7 @@ enum FENParser {
         guard ranks.count == 8 else { return nil }
         var rows: [[String]] = Array(repeating: Array(repeating: " ", count: 8), count: 8)
         for (i, rankStr) in ranks.enumerated() {
-            let rowIndex = 7 - i
+            let rowIndex = i
             var row: [String] = []
             for ch in rankStr {
                 if ch.isNumber {

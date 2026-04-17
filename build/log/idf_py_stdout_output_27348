@@ -1,0 +1,127 @@
+Command: ninja flash
+[1/10] Performing build step for 'bootloader'
+[1/1] cd /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader/esp-idf/esptool_py && /Users/alfred/.espressif/tools/python_env/idf5.5_py3.9_env/bin/python /Users/alfred/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader/bootloader.bin
+Bootloader binary size 0x5b70 bytes. 0x2490 bytes (29%) free.
+[2/10] No install step for 'bootloader'
+[3/10] Completed 'bootloader'
+[4/10] Building C object esp-idf/web_server_task/CMakeFiles/__idf_web_server_task.dir/web_server_task.c.obj
+[5/10] Linking C static library esp-idf/web_server_task/libweb_server_task.a
+[6/10] Generating esp-idf/esp_system/ld/sections.ld
+warning: default on the choice symbol SEC_CERT_DAC_PROVIDER (defined at /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/connectedhomeip/connectedhomeip/config/esp32/components/chip/Kconfig:979, /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/components/esp_matter/Kconfig:48) will have no effect, as defaults do not affect choice symbols
+warning: the choice symbol SEC_CERT_DAC_PROVIDER (defined at /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/connectedhomeip/connectedhomeip/config/esp32/components/chip/Kconfig:979, /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/components/esp_matter/Kconfig:48) is defined with a prompt outside the choice
+info: INFO: Symbol SEC_CERT_DAC_PROVIDER defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/connectedhomeip/connectedhomeip/config/esp32/components/chip/Kconfig:979
+    /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/components/esp_matter/Kconfig:48
+[7/10] Linking CXX executable esp32_chess_v24.elf
+[8/10] Generating binary image from built executable
+esptool.py v4.10.0
+Creating esp32c6 image...
+Merged 3 ELF sections
+Successfully created esp32c6 image.
+Generated /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/esp32_chess_v24.bin
+[9/10] cd /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/esp-idf/esptool_py && /Users/alfred/.espressif/tools/python_env/idf5.5_py3.9_env/bin/python /Users/alfred/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/partition_table/partition-table.bin /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/esp32_chess_v24.bin
+esp32_chess_v24.bin binary size 0x216310 bytes. Smallest app partition is 0x300000 bytes. 0xe9cf0 bytes (30%) free.
+[9/10] cd /Users/alfred/esp-idf/components/esptool_py && /opt/homebrew/bin/cmake -D IDF_PATH=/Users/alfred/esp-idf -D "SERIAL_TOOL=/Users/alfred/.espressif/tools/python_env/idf5.5_py3.9_env/bin/python;;/Users/alfred/esp-idf/components/esptool_py/esptool/esptool.py;--chip;esp32c6" -D "SERIAL_TOOL_ARGS=--before=default_reset;--after=hard_reset;write_flash;@flash_args" -D WORKING_DIRECTORY=/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build -P /Users/alfred/esp-idf/components/esptool_py/run_serial_tool.cmake
+esptool.py --chip esp32c6 -p /dev/cu.usbmodem101 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 80m --flash_size 16MB 0x0 bootloader/bootloader.bin 0x10000 esp32_chess_v24.bin 0x8000 partition_table/partition-table.bin
+esptool.py v4.10.0
+Serial port /dev/cu.usbmodem101
+Connecting...
+Chip is ESP32-C6 (QFN40) (revision v0.2)
+Features: WiFi 6, BT 5, IEEE802.15.4
+Crystal is 40MHz
+USB mode: USB-Serial/JTAG
+MAC: 98:a3:16:ff:fe:96:a4:34
+BASE MAC: 98:a3:16:96:a4:34
+MAC_EXT: ff:fe
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00000000 to 0x00005fff...
+Flash will be erased from 0x00010000 to 0x00226fff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+SHA digest in image updated
+Compressed 23408 bytes to 14390...
+Writing at 0x00000000... (100 %)
+Wrote 23408 bytes (14390 compressed) at 0x00000000 in 0.4 seconds (effective 446.1 kbit/s)...
+Hash of data verified.
+Compressed 2188048 bytes to 1114033...
+Writing at 0x00010000... (1 %)
+Writing at 0x0001c7fb... (2 %)
+Writing at 0x0002a2ca... (4 %)
+Writing at 0x000388cb... (5 %)
+Writing at 0x00046f0b... (7 %)
+Writing at 0x00052a11... (8 %)
+Writing at 0x000641e6... (10 %)
+Writing at 0x0007481e... (11 %)
+Writing at 0x00087241... (13 %)
+Writing at 0x00092e6e... (14 %)
+Writing at 0x00099f46... (16 %)
+Writing at 0x000a2546... (17 %)
+Writing at 0x000ab5c3... (19 %)
+Writing at 0x000b15c0... (20 %)
+Writing at 0x000b8a08... (22 %)
+Writing at 0x000c0d8b... (23 %)
+Writing at 0x000c90a8... (25 %)
+Writing at 0x000d1283... (26 %)
+Writing at 0x000d8f4f... (27 %)
+Writing at 0x000e0c9c... (29 %)
+Writing at 0x000e9314... (30 %)
+Writing at 0x000f15e7... (32 %)
+Writing at 0x000f865a... (33 %)
+Writing at 0x000ff675... (35 %)
+Writing at 0x001063e4... (36 %)
+Writing at 0x0010c421... (38 %)
+Writing at 0x0011248e... (39 %)
+Writing at 0x00118900... (41 %)
+Writing at 0x0011e7d9... (42 %)
+Writing at 0x00124d96... (44 %)
+Writing at 0x0012ac59... (45 %)
+Writing at 0x00130eb7... (47 %)
+Writing at 0x001376bc... (48 %)
+Writing at 0x0013e382... (50 %)
+Writing at 0x001458ec... (51 %)
+Writing at 0x0014eb46... (52 %)
+Writing at 0x001564c0... (54 %)
+Writing at 0x0015d519... (55 %)
+Writing at 0x00164a87... (57 %)
+Writing at 0x0016bb08... (58 %)
+Writing at 0x00172a9e... (60 %)
+Writing at 0x00179855... (61 %)
+Writing at 0x0018156b... (63 %)
+Writing at 0x00188250... (64 %)
+Writing at 0x0018e9a1... (66 %)
+Writing at 0x0019535c... (67 %)
+Writing at 0x0019bc9c... (69 %)
+Writing at 0x001a2547... (70 %)
+Writing at 0x001a8df3... (72 %)
+Writing at 0x001ae8ed... (73 %)
+Writing at 0x001b4468... (75 %)
+Writing at 0x001bad6d... (76 %)
+Writing at 0x001c0e78... (77 %)
+Writing at 0x001c6de1... (79 %)
+Writing at 0x001cce70... (80 %)
+Writing at 0x001d2d4d... (82 %)
+Writing at 0x001d8e4d... (83 %)
+Writing at 0x001df199... (85 %)
+Writing at 0x001e53b1... (86 %)
+Writing at 0x001eb75c... (88 %)
+Writing at 0x001f1bfa... (89 %)
+Writing at 0x001f7a5a... (91 %)
+Writing at 0x001fdc3c... (92 %)
+Writing at 0x00204995... (94 %)
+Writing at 0x0020af3d... (95 %)
+Writing at 0x00211f2b... (97 %)
+Writing at 0x0021807b... (98 %)
+Writing at 0x0021de27... (100 %)
+Wrote 2188048 bytes (1114033 compressed) at 0x00010000 in 17.2 seconds (effective 1016.9 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 105...
+Writing at 0x00008000... (100 %)
+Wrote 3072 bytes (105 compressed) at 0x00008000 in 0.0 seconds (effective 571.7 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...

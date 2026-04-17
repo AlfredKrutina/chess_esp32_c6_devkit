@@ -4,5 +4,5 @@
 idf_component_register(
     SRCS "ble_task.c" "ble_nimble_impl.c"
     INCLUDE_DIRS "include"
-    PRIV_REQUIRES bt esp_coex web_server_task
+    PRIV_REQUIRES bt esp_coex esp_timer web_server_task
 )

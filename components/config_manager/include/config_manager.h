@@ -108,6 +108,8 @@ esp_err_t config_reset_to_defaults(void);
 #define CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN "g_snap_min"
 /** @brief NVS klic pro boot tracker */
 #define CONFIG_NVS_KEY_BOOT_TRACKER "g_boot_trk"
+/** @brief NVS klic pro hlídání počáteční pozice */
+#define CONFIG_NVS_KEY_START_POS_CHECK "start_pos_chk"
 /** @brief Web UI preference (UTF-8 JSON: {"version":1,"prefs":{...}}) */
 #define CONFIG_NVS_KEY_UI_PREFS "ui_prefs_v1"
 /** @brief Max velikost JSON pro ui_prefs (NVS blob) */
@@ -128,6 +130,11 @@ esp_err_t config_save_ui_prefs_json(const char *json, size_t len);
  */
 esp_err_t config_load_ui_prefs_json(char *out_buf, size_t out_buf_size,
                                     size_t *out_len);
+
+/**
+ * @brief Vrátí chessHintLimit z uloženého UI prefs JSON (0–99, 0 = neomezeno / chybí klíč).
+ */
+int config_ui_prefs_get_chess_hint_limit(void);
 
 /**
  * @brief Nacte binarni blob z NVS pod danym klicem

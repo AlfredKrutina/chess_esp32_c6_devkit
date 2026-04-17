@@ -9,6 +9,7 @@ import SwiftUI
 struct SetupModeView: View {
     @Bindable var manager: BoardSetupManager
     @Environment(AppTabRouter.self) private var tabRouter
+    @Environment(BoardConnectionStore.self) private var store
 
     var body: some View {
         ZStack {
@@ -51,8 +52,14 @@ struct SetupModeView: View {
                     .buttonStyle(.themeSecondary)
                 default:
                     if let step = manager.currentStep {
-                        ChessPieceArtView(fenChar: step.pieceChar, size: 96, isLightSquare: true)
-                            .accessibilityHidden(true)
+                        // Stejné PNG jako na šachovnici (`ChessPieceArtView` + `.renderingMode(.original)` ve sdíleném balíčku).
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Color.secondary.opacity(0.12))
+                            ChessPieceArtView(fenChar: step.pieceChar, size: 104, isLightSquare: true)
+                        }
+                        .frame(width: 120, height: 120)
+                        .accessibilityLabel("Figurka \(String(step.pieceChar))")
                         Text(manager.headlineInstruction)
                             .font(.system(.title2, design: .rounded).weight(.semibold))
                             .multilineTextAlignment(.center)
@@ -69,6 +76,14 @@ struct SetupModeView: View {
                         Text(manager.progressLabel)
                             .font(Theme.Typography.caption())
                             .foregroundStyle(.secondary)
+                        Text(
+                            store.activeLinkKind == .bluetooth
+                                ? "Oranžové pole na šachovnici v aplikaci odpovídá poli, které svítí na desce přes Bluetooth — stejně jako na webu přes Wi‑Fi."
+                                : "Oranžové pole na šachovnici v aplikaci odpovídá poli, které svítí na desce."
+                        )
+                            .font(Theme.Typography.caption2())
+                            .foregroundStyle(.tertiary)
+                            .multilineTextAlignment(.center)
                         Text("Pokud pole nefunguje nebo deska nespolupracuje, můžeš krok přeskočit — figurku si doskladni podle obrázku.")
                             .font(Theme.Typography.caption2())
                             .foregroundStyle(.tertiary)

@@ -21,6 +21,8 @@ struct OnboardingView: View {
     let presentation: Presentation
 
     @State private var page = 0
+    /// Krátký výsledek po „Otestovat lokální síť“ (onboarding — oprávnění).
+    @State private var localNetworkProbeHint: String?
 
     init(presentation: Presentation = .firstLaunch) {
         self.presentation = presentation
@@ -29,9 +31,9 @@ struct OnboardingView: View {
     private var showContinueButton: Bool {
         switch presentation {
         case .firstLaunch:
-            return page < 6
+            return page < 7
         case .fromSettings:
-            return page < 5
+            return page < 6
         }
     }
 
@@ -101,28 +103,28 @@ struct OnboardingView: View {
         TabView(selection: $page) {
             onboardingLeadPage(
                 title: "CZECHMATE",
-                subtitle: "Fyzická šachovnice propojená s telefonem — stav hry, časy a nápovědy v reálném čase.",
+                subtitle: "Aplikace pro fyzickou šachovnici CZECHMATE s řídicí deskou (ESP32). Připojíš ji Bluetoothem nebo přes Wi‑Fi; v telefonu uvidíš pozici, časovač a ovládání podle toho, co dané spojení podporuje.",
                 systemImage: "checkerboard.rectangle"
             )
             .tag(0)
 
             onboardingPage(
-                title: "Jedna hra, dva světy",
-                subtitle: "Tahy na desce se okamžitě promítají do aplikace. Vidíš pozici, historii a hodiny stejně jako na šachovnici.",
+                title: "Jak přichází stav z desky",
+                subtitle: "Pozici a čas dostává aplikace průběžně — přes BLE notifikace nebo HTTP / WebSocket ve Wi‑Fi. Rychlost závisí na síti a na vytížení desky; při dobrém spojení bývá synchronizace svižná, ale není garantovaně okamžitá.",
                 systemImage: "arrow.triangle.2.circlepath"
             )
             .tag(1)
 
             onboardingPage(
-                title: "Nápovědy a LED",
-                subtitle: "Stockfish navrhne tah a zvýrazní ho v aplikaci i na podsvícené desce — přehledně, bez nutnosti otevírat web v prohlížeči.",
+                title: "Nápověda, LED a učící mód",
+                subtitle: "Nápověda k tahu ve hře počítá nejlepší tah přes internet (Stockfish / chess-api) — potřebuješ Wi‑Fi nebo mobilní data v telefonu; deska může zůstat jen na Bluetooth. Výsledek uvidíš v aplikaci a aplikace ho zkusí nasvítit na LED desce, pokud to spojení a firmware dovolí. Učící mód je navíc: po stažení modelu AI Trenéra (Gemma) běží slovní komentáře v telefonu a nejsou nutné k základní nápovědě tahu.",
                 systemImage: "lightbulb.max.fill"
             )
             .tag(2)
 
             onboardingPage(
-                title: "Jak připojit šachovnici",
-                subtitle: "V záložce Hra klepni na „Najít šachovnici“. Můžeš hledat přes Bluetooth, nebo přes Wi‑Fi v domácí síti (Bonjour). Plné ovládání časovače a vzdálených tahů přes HTTP funguje přes Wi‑Fi k ESP.",
+                title: "Bluetooth a Wi‑Fi",
+                subtitle: "V záložce Hra otevři „Najít šachovnici“. Bluetooth slouží k přímému spojení a základním příkazům. Úpravy časovače, část nastavení a práce přes webové API vyžadují, aby byl telefon ve stejné Wi‑Fi jako deska (nebo měl správně nastavenou URL). Bez fyzické desky můžeš zapnout ukázkovou šachovnici.",
                 systemImage: "link.circle.fill"
             )
             .tag(3)
@@ -131,24 +133,31 @@ struct OnboardingView: View {
                 title: "Záložky aplikace",
                 systemImage: "square.grid.2x2",
                 items: [
-                    ("Hra", "Živý stav desky, časovač, šachovnice, nápověda Stockfish."),
-                    ("Analýza", "Práce s pozicí a analýzou."),
-                    ("Puzzle", "Trénink kombinací."),
-                    ("Statistiky", "Přehled hraní a statistiky."),
-                    ("Nastavení", "URL desky, diagnostika, nápověda a detaily připojení."),
+                    ("Hra", "Připojení, živá pozice, časovač, tahy z obrazovky, nápověda tahu přes internet a volitelný učící mód s AI Trenérem."),
+                    ("Analýza", "Přehled partie, graf hodnocení tahů (když je zapnuté zhodnocení) a volná analýza — výpočty Stockfish přes internet."),
+                    ("Puzzle", "Trénink z Lichess a vestavěné sady — podle dostupnosti sítě a dat."),
+                    ("Pokrok", "Lokální přehledy a statistiky z aplikace."),
+                    ("Nastavení", "Adresa desky, diagnostika, znovu tento průvodce, nápověda k funkcím."),
                 ]
             )
             .tag(4)
 
             onboardingPage(
-                title: "Ještě pár tipů",
-                subtitle: "Časovač v aplikaci odpovídá stavu z desky. Zapni „Ukázkovou šachovnici“ v Najít šachovnici, pokud chceš vyzkoumat rozhraní bez ESP. Podrobnosti vždy v Nastavení → Nápověda a funkce.",
-                systemImage: "questionmark.circle.fill"
+                title: "Apple Watch",
+                subtitle: "Hodinky jsou doplněk: část příkazů jde Bluetoothem přímo na desku v dosahu, část přes iPhone. Pro spolehlivé příkazy přes telefon často musí být aplikace na iPhonu aktivní. iPad jako prostředník mezi hodinkami a telefonem nefunguje.",
+                systemImage: "applewatch"
             )
             .tag(5)
 
+            onboardingPage(
+                title: "Tipy na závěr",
+                subtitle: "Po dokončení úvodu se může zobrazit nabídka stažení AI Trenéra — je volitelná. Časovač v aplikaci vychází z dat desky a závisí na spojení. Úplný přehled funkcí najdeš v Nastavení → Nápověda a funkce.",
+                systemImage: "questionmark.circle.fill"
+            )
+            .tag(6)
+
             permissionsPage
-                .tag(6)
+                .tag(7)
         }
     }
 
@@ -156,28 +165,28 @@ struct OnboardingView: View {
         TabView(selection: $page) {
             onboardingLeadPage(
                 title: "CZECHMATE",
-                subtitle: "Fyzická šachovnice propojená s telefonem — stav hry, časy a nápovědy v reálném čase.",
+                subtitle: "Aplikace pro fyzickou šachovnici CZECHMATE s řídicí deskou (ESP32). Připojíš ji Bluetoothem nebo přes Wi‑Fi; v telefonu uvidíš pozici, časovač a ovládání podle toho, co dané spojení podporuje.",
                 systemImage: "checkerboard.rectangle"
             )
             .tag(0)
 
             onboardingPage(
-                title: "Jedna hra, dva světy",
-                subtitle: "Tahy na desce se okamžitě promítají do aplikace. Vidíš pozici, historii a hodiny stejně jako na šachovnici.",
+                title: "Jak přichází stav z desky",
+                subtitle: "Pozici a čas dostává aplikace průběžně — přes BLE notifikace nebo HTTP / WebSocket ve Wi‑Fi. Rychlost závisí na síti a na vytížení desky; při dobrém spojení bývá synchronizace svižná, ale není garantovaně okamžitá.",
                 systemImage: "arrow.triangle.2.circlepath"
             )
             .tag(1)
 
             onboardingPage(
-                title: "Nápovědy a LED",
-                subtitle: "Stockfish navrhne tah a zvýrazní ho v aplikaci i na podsvícené desce — přehledně, bez nutnosti otevírat web v prohlížeči.",
+                title: "Nápověda, LED a učící mód",
+                subtitle: "Nápověda k tahu ve hře počítá nejlepší tah přes internet (Stockfish / chess-api) — potřebuješ Wi‑Fi nebo mobilní data v telefonu; deska může zůstat jen na Bluetooth. Výsledek uvidíš v aplikaci a aplikace ho zkusí nasvítit na LED desce, pokud to spojení a firmware dovolí. Učící mód je navíc: po stažení modelu AI Trenéra (Gemma) běží slovní komentáře v telefonu a nejsou nutné k základní nápovědě tahu.",
                 systemImage: "lightbulb.max.fill"
             )
             .tag(2)
 
             onboardingPage(
-                title: "Jak připojit šachovnici",
-                subtitle: "V záložce Hra klepni na „Najít šachovnici“. Můžeš hledat přes Bluetooth, nebo přes Wi‑Fi v domácí síti (Bonjour). Plné ovládání časovače a vzdálených tahů přes HTTP funguje přes Wi‑Fi k ESP.",
+                title: "Bluetooth a Wi‑Fi",
+                subtitle: "V záložce Hra otevři „Najít šachovnici“. Bluetooth slouží k přímému spojení a základním příkazům. Úpravy časovače, část nastavení a práce přes webové API vyžadují, aby byl telefon ve stejné Wi‑Fi jako deska (nebo měl správně nastavenou URL). Bez fyzické desky můžeš zapnout ukázkovou šachovnici.",
                 systemImage: "link.circle.fill"
             )
             .tag(3)
@@ -186,17 +195,24 @@ struct OnboardingView: View {
                 title: "Záložky aplikace",
                 systemImage: "square.grid.2x2",
                 items: [
-                    ("Hra", "Živý stav desky, časovač, šachovnice, nápověda Stockfish."),
-                    ("Analýza", "Práce s pozicí a analýzou."),
-                    ("Puzzle", "Trénink kombinací."),
-                    ("Statistiky", "Přehled hraní a statistiky."),
-                    ("Nastavení", "URL desky, diagnostika, nápověda a detaily připojení."),
+                    ("Hra", "Připojení, živá pozice, časovač, tahy z obrazovky, nápověda tahu přes internet a volitelný učící mód s AI Trenérem."),
+                    ("Analýza", "Přehled partie, graf hodnocení tahů (když je zapnuté zhodnocení) a volná analýza — výpočty Stockfish přes internet."),
+                    ("Puzzle", "Trénink z Lichess a vestavěné sady — podle dostupnosti sítě a dat."),
+                    ("Pokrok", "Lokální přehledy a statistiky z aplikace."),
+                    ("Nastavení", "Adresa desky, diagnostika, tento průvodce, nápověda k funkcím."),
                 ]
             )
             .tag(4)
 
+            onboardingPage(
+                title: "Apple Watch",
+                subtitle: "Hodinky jsou doplněk: část příkazů jde Bluetoothem přímo na desku v dosahu, část přes iPhone. Pro spolehlivé příkazy přes telefon často musí být aplikace aktivní. iPad jako prostředník nefunguje. Na Watch je po instalaci krátký vlastní úvod.",
+                systemImage: "applewatch"
+            )
+            .tag(5)
+
             settingsClosingPage
-                .tag(5)
+                .tag(6)
         }
     }
 
@@ -308,7 +324,7 @@ struct OnboardingView: View {
                         .font(.title.weight(.bold))
                         .foregroundStyle(.white)
                 }
-                Text("Časovač v aplikaci sleduje stav z desky. Bez šachovnice zapni „Ukázkovou šachovnici“ v Najít šachovnici. Úplný popis funkcí je v Nastavení → Nápověda a funkce.")
+                Text("Časovač v aplikaci vychází z dat desky a závisí na spojení. Bez šachovnice zapni ukázkovou desku v připojení. Apple Watch mají vlastní krátký úvod po instalaci. Úplný přehled funkcí je v Nastavení → Nápověda a funkce.")
                     .font(.body)
                     .foregroundStyle(.white.opacity(0.88))
 
@@ -334,7 +350,7 @@ struct OnboardingView: View {
                 Text("Oprávnění")
                     .font(.largeTitle.weight(.bold))
                     .foregroundStyle(.white)
-                Text("Aby aplikace mohla komunikovat se šachovnicí, systém potřebuje povolit přístup k Bluetooth a k zařízením v lokální síti.")
+                Text("Pro komunikaci se šachovnicí iOS typicky vyžádá Bluetooth. Pro HTTP a WebSocket v domácí Wi‑Fi se může objevit dotaz na přístup k místní síti — bez něj telefon často neuvidí desku na lokální IP.")
                     .foregroundStyle(.white.opacity(0.88))
 
                 permissionBlock(
@@ -348,10 +364,15 @@ struct OnboardingView: View {
                     title: "Lokální síť",
                     text: "HTTP a WebSocket běží v domácí Wi-Fi (např. 192.168.x.x). První spojení může vyvolat systémový dialog.",
                     buttonTitle: "Otestovat lokální síť",
-                    action: {
-                        LocalNetworkPermissionProbe.probe(baseURLString: store.baseURLString)
-                    }
+                    action: scheduleLocalNetworkProbe
                 )
+
+                if let localNetworkProbeHint {
+                    Text(localNetworkProbeHint)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.82))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
                 Button {
                     onboardingCompleted = true
@@ -366,6 +387,17 @@ struct OnboardingView: View {
                 .padding(.top, 8)
             }
             .padding(28)
+        }
+    }
+
+    /// Mimo inline closure v `ViewBuilder` — vyhne se chybě „async call in a function that does not support concurrency“.
+    private func scheduleLocalNetworkProbe() {
+        let urlString = store.baseURLString
+        Task {
+            let outcome = await LocalNetworkPermissionProbe.probe(baseURLString: urlString)
+            await MainActor.run {
+                localNetworkProbeHint = Self.describeLocalNetworkProbeOutcome(outcome)
+            }
         }
     }
 
@@ -391,6 +423,19 @@ struct OnboardingView: View {
         }
         .padding(16)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(.white.opacity(0.08)))
+    }
+
+    private static func describeLocalNetworkProbeOutcome(_ outcome: LocalNetworkPermissionProbe.Outcome) -> String {
+        switch outcome {
+        case .invalidURL:
+            return "Neplatná nebo prázdná adresa — nejdřív nastav základní URL desky v připojení."
+        case .tcpConnected(let host, let port):
+            return "TCP k \(host):\(port) proběhl — lokální síť je povolená a host odpovídá."
+        case .failed(let message):
+            return message
+        case .timedOut:
+            return "Čas vypršel — pokud iOS nabídl dialog, povol „Místní síť“ pro CZECHMATE. Jinak ověř Wi‑Fi a IP desky."
+        }
     }
 }
 

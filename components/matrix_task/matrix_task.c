@@ -104,6 +104,7 @@
  */
 
 #include "matrix_task.h"
+#include "game_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "chess_types.h"
 #include "driver/gpio.h"
@@ -634,9 +635,17 @@ void matrix_detect_moves(void) {
     }
   }
 
-  bool ambiguous_state =
-      (lift_count > 1) || (drop_count > 1) ||
+  // Dvě UP za sebou: normálně ambiguous (matrix guard), ale guided capture
+  // (nejdřív oběť, pak útočník) a 3-krokové braní (vlastní → soupeř) to vyžadují.
+  bool multi_change = (lift_count > 1) || (drop_count > 1);
+  bool pending_lift_and_new_up =
       (last_piece_lifted != 255 && lift_count > 0);
+  bool ambiguous_state = multi_change;
+  if (!ambiguous_state && pending_lift_and_new_up) {
+    if (!(lift_count == 1 && game_matrix_allow_second_sequential_lift())) {
+      ambiguous_state = true;
+    }
+  }
 
   if (ambiguous_state) {
     if (!matrix_guard_mode_active) {
@@ -925,6 +934,33 @@ void matrix_reset(void) {
   scan_count = 0;
 
   ESP_LOGI(TAG, "Matrix reset completed");
+}
+
+void matrix_abort_ambiguous_guard_baseline(void) {
+  bool gave = false;
+  if (matrix_mutex != NULL) {
+    if (xSemaphoreTake(matrix_mutex, pdMS_TO_TICKS(300)) == pdTRUE) {
+      gave = true;
+    } else {
+      ESP_LOGW(TAG,
+               "matrix_abort_ambiguous: mutex timeout — partial clear (no memcpy)");
+    }
+  }
+
+  matrix_guard_mode_active = false;
+  memset(matrix_guard_expected_state, 0, sizeof(matrix_guard_expected_state));
+  last_piece_lifted = 255;
+  last_piece_placed = 255;
+  move_detection_timeout = 0;
+
+  if (gave) {
+    memcpy(matrix_previous, matrix_state, sizeof(matrix_state));
+    xSemaphoreGive(matrix_mutex);
+  }
+
+  ESP_LOGI(TAG,
+           "matrix_abort_ambiguous: local guard off, lift tracking cleared%s",
+           gave ? ", baseline synced" : "");
 }
 
 // ============================================================================

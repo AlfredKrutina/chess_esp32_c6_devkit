@@ -1,0 +1,22 @@
+var searchData=
+[
+  ['piece_5fblack_5fbishop_0',['PIECE_BLACK_BISHOP',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ae844e749448cbcaae2fda6a56bb70b86',1,'chess_types.h']]],
+  ['piece_5fblack_5fking_1',['PIECE_BLACK_KING',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6',1,'chess_types.h']]],
+  ['piece_5fblack_5fknight_2',['PIECE_BLACK_KNIGHT',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a3888c0ae958fcf54d7b4f77a26bdaa60',1,'chess_types.h']]],
+  ['piece_5fblack_5fpawn_3',['PIECE_BLACK_PAWN',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b',1,'chess_types.h']]],
+  ['piece_5fblack_5fqueen_4',['PIECE_BLACK_QUEEN',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a29e99921b92026f4b6bbeacf08289238',1,'chess_types.h']]],
+  ['piece_5fblack_5frook_5',['PIECE_BLACK_ROOK',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a26b69f7adf92c62bfa744b9e77907584',1,'chess_types.h']]],
+  ['piece_5fempty_6',['PIECE_EMPTY',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a78c1cf9cdf8f00b3f94fcc2f867180f1',1,'chess_types.h']]],
+  ['piece_5fwhite_5fbishop_7',['PIECE_WHITE_BISHOP',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ac5624ba607e63e7a6f7ebdab4b322992',1,'chess_types.h']]],
+  ['piece_5fwhite_5fking_8',['PIECE_WHITE_KING',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411',1,'chess_types.h']]],
+  ['piece_5fwhite_5fknight_9',['PIECE_WHITE_KNIGHT',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a4c99e4617db8d3f21a4dd23e497d0b0c',1,'chess_types.h']]],
+  ['piece_5fwhite_5fpawn_10',['PIECE_WHITE_PAWN',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d',1,'chess_types.h']]],
+  ['piece_5fwhite_5fqueen_11',['PIECE_WHITE_QUEEN',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a6d9b099ad26f6f85108b90494697d5dc',1,'chess_types.h']]],
+  ['piece_5fwhite_5frook_12',['PIECE_WHITE_ROOK',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ac403d9dfd1cf2dc0be0217a0a54c0a42',1,'chess_types.h']]],
+  ['player_5fblack_13',['PLAYER_BLACK',['../chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e',1,'chess_types.h']]],
+  ['player_5fwhite_14',['PLAYER_WHITE',['../chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f',1,'chess_types.h']]],
+  ['promotion_5fbishop_15',['PROMOTION_BISHOP',['../chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237af76338fd133ad75d03265525fab6a060',1,'chess_types.h']]],
+  ['promotion_5fknight_16',['PROMOTION_KNIGHT',['../chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237a38e92903ca7d679f019bbc0895c00910',1,'chess_types.h']]],
+  ['promotion_5fqueen_17',['PROMOTION_QUEEN',['../chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237ace7ae3bfdb598aeffb32c01d08805045',1,'chess_types.h']]],
+  ['promotion_5frook_18',['PROMOTION_ROOK',['../chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237a86adcf7f4dd13fe13c310740b684fd85',1,'chess_types.h']]]
+];

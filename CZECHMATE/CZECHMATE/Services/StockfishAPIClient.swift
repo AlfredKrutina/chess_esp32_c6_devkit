@@ -7,6 +7,18 @@
 
 import Foundation
 
+/// Session vhodná pro chess-api přes mobilní síť (explicitně povolí cellular / expensive / constrained).
+private let stockfishChessAPISession: URLSession = {
+    let cfg = URLSessionConfiguration.ephemeral
+    cfg.allowsCellularAccess = true
+    cfg.allowsExpensiveNetworkAccess = true
+    cfg.allowsConstrainedNetworkAccess = true
+    cfg.waitsForConnectivity = true
+    cfg.timeoutIntervalForRequest = 20
+    cfg.timeoutIntervalForResource = 30
+    return URLSession(configuration: cfg)
+}()
+
 struct StockfishBestMove: Sendable {
     let from: String
     let to: String
@@ -34,9 +46,12 @@ enum StockfishAPIError: Error, LocalizedError, Sendable {
 actor StockfishAPIClient {
     private nonisolated let session: URLSession
     private let apiURL: URL
+    /// Jednou za život procesu: lehká kontrola dostupnosti hostitele před prvním POST (staging log v konzoli).
+    private var ranReachabilityProbeThisProcess = false
 
-    init(session: URLSession = .shared, apiURL: URL? = nil) {
-        self.session = session
+    /// - Parameter session: výchozí je dedikovaná session s povolenými mobilními daty; pro testy lze předat vlastní.
+    init(session: URLSession? = nil, apiURL: URL? = nil) {
+        self.session = session ?? stockfishChessAPISession
         if let apiURL {
             self.apiURL = apiURL
         } else {
@@ -47,12 +62,43 @@ actor StockfishAPIClient {
         }
     }
 
+    /// HEAD na kořen domény, při chybě krátký GET na `apiURL` — jen `[staging]` výpis, neblokuje POST.
+    private func runReachabilityProbeOnceIfNeeded() async {
+        guard !ranReachabilityProbeThisProcess else { return }
+        ranReachabilityProbeThisProcess = true
+        if let root = URL(string: "https://chess-api.com/") {
+            var headReq = URLRequest(url: root)
+            headReq.httpMethod = "HEAD"
+            headReq.timeoutInterval = 5
+            do {
+                let (_, resp) = try await session.data(for: headReq)
+                let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
+                AppDebugLog.staging("chess-api reachability: HEAD / → HTTP \(code)")
+                return
+            } catch {
+                AppDebugLog.stagingError("chess-api reachability HEAD /", error)
+            }
+        }
+        var getReq = URLRequest(url: apiURL)
+        getReq.httpMethod = "GET"
+        getReq.timeoutInterval = 5
+        do {
+            let (_, resp) = try await session.data(for: getReq)
+            let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
+            AppDebugLog.staging("chess-api reachability: GET \(apiURL.absoluteString) → HTTP \(code)")
+        } catch {
+            AppDebugLog.stagingError("chess-api reachability GET v1", error)
+        }
+    }
+
     /// Hloubka 1–18 jako na webu (hint).
     func fetchBestMove(fen: String, depth: Int = 10) async throws -> StockfishBestMove {
+        await runReachabilityProbeOnceIfNeeded()
         let d = min(18, max(1, depth))
         var req = URLRequest(url: apiURL)
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue("application/json", forHTTPHeaderField: "Accept")
         req.timeoutInterval = 15
         let body = ["fen": fen, "depth": d] as [String: Any]
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
@@ -75,16 +121,18 @@ actor StockfishAPIClient {
 
         var from = dataObj["from"] as? String
         var to = dataObj["to"] as? String
-        if from == nil || to == nil, let move = dataObj["move"] as? String, move.count >= 4 {
-            let m = move.lowercased()
-            from = String(m.prefix(2))
-            to = String(m.dropFirst(2).prefix(2))
+        if from == nil || to == nil, let move = dataObj["move"] as? String {
+            let m = move.lowercased().filter { $0.isLetter || $0.isNumber }
+            if m.count >= 4 {
+                from = from ?? String(m.prefix(2))
+                to = to ?? String(m.dropFirst(2).prefix(2))
+            }
         }
         guard let f = from, let t = to, f.count == 2, t.count == 2 else {
             throw StockfishAPIError.missingMove
         }
 
-        let evalPawns = parseEval(from: dataObj) ?? parseEval(from: obj)
+        let evalPawns = parseEval(from: dataObj) ?? parseEval(from: obj) ?? nestedResultEval(from: dataObj) ?? nestedResultEval(from: obj)
         let text = dataObj["text"] as? String
 
         return StockfishBestMove(
@@ -107,12 +155,31 @@ actor StockfishAPIClient {
     }
 }
 
+private nonisolated func doubleFromJSON(_ v: Any?) -> Double? {
+    switch v {
+    case let d as Double: return d
+    case let i as Int: return Double(i)
+    case let n as NSNumber: return n.doubleValue
+    case let s as String:
+        let t = s.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t.isEmpty else { return nil }
+        return Double(t.replacingOccurrences(of: ",", with: "."))
+    default: return nil
+    }
+}
+
+/// Parsování evaluace v souladu s `parseEvalFromApiObject` ve `chess_app.js` (chess-api.com).
 private nonisolated func parseEval(from obj: [String: Any]) -> Double? {
-    if let e = obj["eval"] as? Double { return e }
-    if let e = obj["eval"] as? Int { return Double(e) }
-    if let cp = obj["centipawns"] as? Int { return Double(cp) / 100.0 }
-    if let cp = obj["centipawns"] as? Double { return cp / 100.0 }
-    if let sc = obj["score"] as? Double { return sc }
-    if let ev = (obj["evaluation"] as? [String: Any])?["eval"] as? Double { return ev }
+    if let e = doubleFromJSON(obj["eval"]) { return e }
+    if let cp = doubleFromJSON(obj["centipawns"]) { return cp / 100.0 }
+    if let cp = doubleFromJSON(obj["cp"]) { return cp / 100.0 }
+    if let sc = doubleFromJSON(obj["score"]) { return sc }
+    if let ev = obj["evaluation"] as? [String: Any], let e = doubleFromJSON(ev["eval"]) { return e }
+    if let e = doubleFromJSON(obj["evaluation"]) { return e }
     return nil
+}
+
+private nonisolated func nestedResultEval(from obj: [String: Any]) -> Double? {
+    guard let res = obj["result"] as? [String: Any] else { return nil }
+    return parseEval(from: res)
 }

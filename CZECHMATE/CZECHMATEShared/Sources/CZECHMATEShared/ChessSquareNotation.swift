@@ -1,6 +1,7 @@
 //
 //  ChessSquareNotation.swift
-//  CZECHMATEShared — UCI „e2“, row 0 = rank 1.
+//  CZECHMATEShared — algebraické pole → index do `board[][]` jako ve snímku z aplikace:
+//  řádek 0 = rank 8 (černá nahoře), řádek 7 = rank 1 (stejně jako `FirmwareSquareNotation` v iOS).
 //
 
 import Foundation
@@ -15,7 +16,7 @@ public enum ChessSquareNotation {
         else { return nil }
         let col = Int(file.asciiValue! - Character("a").asciiValue!)
         guard (0 ..< 8).contains(col) else { return nil }
-        let row = rank - 1
+        let row = 8 - rank
         return (row, col)
     }
 }

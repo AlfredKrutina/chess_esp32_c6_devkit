@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru demo_mode_helpers.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('demo__mode__helpers_8c.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru demo_mode_helpers.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Demo Mode Helper Functions for ESP32-C6 Chess System.  
+<a href="#details">...</a></p>
+
+<p><a href="demo__mode__helpers_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:ab5480af4a47935696e63f5cb45a754cc" id="r_ab5480af4a47935696e63f5cb45a754cc"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab5480af4a47935696e63f5cb45a754cc">demo_is_castling_move</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> <a class="el" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[8][8])</td></tr>
+<tr class="memdesc:ab5480af4a47935696e63f5cb45a754cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detect if a move is castling (king moves 2 squares).  <br /></td></tr>
+<tr class="memitem:a1e81ab60269dcc2083cbe4acf50b3cbf" id="r_a1e81ab60269dcc2083cbe4acf50b3cbf"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1e81ab60269dcc2083cbe4acf50b3cbf">demo_get_castling_rook_squares</a> (uint8_t king_from_row, uint8_t king_from_col, uint8_t king_to_col, uint8_t *<a class="el" href="game__task_8c.html#a2e655fa25f4bbdd873eabad03e266985">rook_from_row</a>, uint8_t *<a class="el" href="game__task_8c.html#aaf08ecb764a4aa8e2ce3d75d9bcf58f2">rook_from_col</a>, uint8_t *<a class="el" href="game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0">rook_to_row</a>, uint8_t *<a class="el" href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a>)</td></tr>
+<tr class="memdesc:a1e81ab60269dcc2083cbe4acf50b3cbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate rook positions for castling move.  <br /></td></tr>
+<tr class="memitem:a765d58ac494ce1812d1a714d714915b4" id="r_a765d58ac494ce1812d1a714d714915b4"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a765d58ac494ce1812d1a714d714915b4">demo_is_promotion_move</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> <a class="el" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[8][8])</td></tr>
+<tr class="memdesc:a765d58ac494ce1812d1a714d714915b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detect if a move is pawn promotion.  <br /></td></tr>
+<tr class="memitem:a610e6026c21231070bf571b79be34430" id="r_a610e6026c21231070bf571b79be34430"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a610e6026c21231070bf571b79be34430">demo_ensure_safe_timing</a> (uint32_t *last_move_time_ms, uint32_t interval_ms)</td></tr>
+<tr class="memdesc:a610e6026c21231070bf571b79be34430"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensure safe timing before executing demo move.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Demo Mode Helper Functions for ESP32-C6 Chess System. </p>
+<p>This file contains helper functions for demo mode operation including:</p><ul>
+<li>Castling detection and execution</li>
+<li>Promotion detection</li>
+<li>Timing protection</li>
+<li>Highlight clearing</li>
+</ul>
+<p>These functions will be integrated into <a class="el" href="game__task_8c.html" title="Game Task - Sachova logika a sprava stavu hry.">game_task.c</a> </p>
+
+<p class="definition">Definice v souboru <a class="el" href="demo__mode__helpers_8c_source.html">demo_mode_helpers.c</a>.</p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="a610e6026c21231070bf571b79be34430" name="a610e6026c21231070bf571b79be34430"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a610e6026c21231070bf571b79be34430">&#9670;&#160;</a></span>demo_ensure_safe_timing()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void demo_ensure_safe_timing </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t *</td>          <td class="paramname"><span class="paramname"><em>last_move_time_ms</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>interval_ms</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Ensure safe timing before executing demo move. </p>
+<p>Waits if necessary to maintain minimum interval between moves. Also clears highlights to prevent visual glitches.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">last_move_time_ms</td><td>Timestamp of last move </td></tr>
+    <tr><td class="paramname">interval_ms</td><td>Required interval between moves </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="demo__mode__helpers_8c_source.html#l00123">123</a> v souboru <a class="el" href="demo__mode__helpers_8c_source.html">demo_mode_helpers.c</a>.</p>
+
+</div>
+</div>
+<a id="a1e81ab60269dcc2083cbe4acf50b3cbf" name="a1e81ab60269dcc2083cbe4acf50b3cbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e81ab60269dcc2083cbe4acf50b3cbf">&#9670;&#160;</a></span>demo_get_castling_rook_squares()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void demo_get_castling_rook_squares </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_to_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>rook_from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>rook_from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>rook_to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>rook_to_col</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Calculate rook positions for castling move. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">king_from_row</td><td>King source row </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">king_from_col</td><td>King source column </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">king_to_col</td><td>King destination column </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">rook_from_row</td><td>Rook source row </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">rook_from_col</td><td>Rook source column </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">rook_to_row</td><td>Rook destination row </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">rook_to_col</td><td>Rook destination column </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="demo__mode__helpers_8c_source.html#l00059">59</a> v souboru <a class="el" href="demo__mode__helpers_8c_source.html">demo_mode_helpers.c</a>.</p>
+
+</div>
+</div>
+<a id="ab5480af4a47935696e63f5cb45a754cc" name="ab5480af4a47935696e63f5cb45a754cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5480af4a47935696e63f5cb45a754cc">&#9670;&#160;</a></span>demo_is_castling_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool demo_is_castling_move </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a></td>          <td class="paramname"><span class="paramname"><em>board</em></span>[8][8]&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Detect if a move is castling (king moves 2 squares). </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Source row (0-7) </td></tr>
+    <tr><td class="paramname">from_col</td><td>Source column (0-7) </td></tr>
+    <tr><td class="paramname">to_row</td><td>Destination row (0-7) </td></tr>
+    <tr><td class="paramname">to_col</td><td>Destination column (0-7) </td></tr>
+    <tr><td class="paramname">board</td><td>Pointer to board array </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true if move is castling, false otherwise </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="demo__mode__helpers_8c_source.html#l00028">28</a> v souboru <a class="el" href="demo__mode__helpers_8c_source.html">demo_mode_helpers.c</a>.</p>
+
+</div>
+</div>
+<a id="a765d58ac494ce1812d1a714d714915b4" name="a765d58ac494ce1812d1a714d714915b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a765d58ac494ce1812d1a714d714915b4">&#9670;&#160;</a></span>demo_is_promotion_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool demo_is_promotion_move </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a></td>          <td class="paramname"><span class="paramname"><em>board</em></span>[8][8]&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Detect if a move is pawn promotion. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Source row (0-7) </td></tr>
+    <tr><td class="paramname">from_col</td><td>Source column (0-7) </td></tr>
+    <tr><td class="paramname">to_row</td><td>Destination row (0-7) </td></tr>
+    <tr><td class="paramname">board</td><td>Pointer to board array </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true if move is promotion, false otherwise </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="demo__mode__helpers_8c_source.html#l00092">92</a> v souboru <a class="el" href="demo__mode__helpers_8c_source.html">demo_mode_helpers.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a href="demo__mode__helpers_8c.html">demo_mode_helpers.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

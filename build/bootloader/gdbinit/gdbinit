@@ -1,0 +1,2 @@
+source /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader/gdbinit/symbols
+source /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader/gdbinit/connect

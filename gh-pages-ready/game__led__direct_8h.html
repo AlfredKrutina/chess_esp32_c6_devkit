@@ -1,0 +1,641 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru game_led_direct.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('game__led__direct_8h.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru game_led_direct.h</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>PRIME LED FUNKCE PRO GAME TASK - Zadny Queue Hell.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro game_led_direct.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="game__led__direct_8h__incl.png" border="0" usemap="#agame__led__direct_8h" loading="lazy" alt=""/></div>
+<map name="agame__led__direct_8h" id="agame__led__direct_8h">
+<area shape="rect" title="PRIME LED FUNKCE PRO GAME TASK &#45; Zadny Queue Hell." alt="" coords="87,5,214,31"/>
+<area shape="rect" title=" " alt="" coords="5,153,70,178"/>
+<area shape="poly" title=" " alt="" coords="144,33,58,142,54,139,139,30"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="144,79,251,105"/>
+<area shape="poly" title=" " alt="" coords="159,29,184,66,179,66,158,34"/>
+<area shape="poly" title=" " alt="" coords="171,108,80,148,77,144,169,103"/>
+<area shape="rect" title=" " alt="" coords="94,153,168,178"/>
+<area shape="poly" title=" " alt="" coords="189,104,154,143,151,139,184,106"/>
+<area shape="rect" title=" " alt="" coords="192,153,336,178"/>
+<area shape="poly" title=" " alt="" coords="210,102,245,141,240,141,207,107"/>
+<area shape="rect" title=" " alt="" coords="360,153,475,178"/>
+<area shape="poly" title=" " alt="" coords="235,103,368,147,363,148,234,108"/>
+<area shape="rect" title=" " alt="" coords="499,153,573,178"/>
+<area shape="poly" title=" " alt="" coords="251,101,486,150,481,154,251,106"/>
+</map>
+</div>
+</div>
+<p><a href="game__led__direct_8h_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a65d45d8068e75012a3bf91d813a86993" id="r_a65d45d8068e75012a3bf91d813a86993"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a65d45d8068e75012a3bf91d813a86993">game_show_move_direct</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</td></tr>
+<tr class="memdesc:a65d45d8068e75012a3bf91d813a86993"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz tah s primymi LED volanimi.  <br /></td></tr>
+<tr class="memitem:aad4c6f489504e1aace2045420bcec3d1" id="r_aad4c6f489504e1aace2045420bcec3d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad4c6f489504e1aace2045420bcec3d1">game_show_piece_lift_direct</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:aad4c6f489504e1aace2045420bcec3d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz zvednutí figurky s primymi LED volanimi.  <br /></td></tr>
+<tr class="memitem:af337fa678e02039015341d7fa45e3ccc" id="r_af337fa678e02039015341d7fa45e3ccc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af337fa678e02039015341d7fa45e3ccc">game_show_valid_moves_direct</a> (uint8_t *valid_positions, uint8_t count)</td></tr>
+<tr class="memdesc:af337fa678e02039015341d7fa45e3ccc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz platne tahy s primymi LED volanimi.  <br /></td></tr>
+<tr class="memitem:a11c32da99485731ac1e0cae4f2174fcd" id="r_a11c32da99485731ac1e0cae4f2174fcd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a11c32da99485731ac1e0cae4f2174fcd">game_show_error_direct</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:a11c32da99485731ac1e0cae4f2174fcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz chybu s primymi LED volanimi.  <br /></td></tr>
+<tr class="memitem:a8b43b89b88ce59ea25698ac5a8280bf2" id="r_a8b43b89b88ce59ea25698ac5a8280bf2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8b43b89b88ce59ea25698ac5a8280bf2">game_clear_highlights_direct</a> (void)</td></tr>
+<tr class="memdesc:a8b43b89b88ce59ea25698ac5a8280bf2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vymaz zvyrazneni s primymi LED volanimi.  <br /></td></tr>
+<tr class="memitem:a002b9dd58ec7cfbcac57367df453f258" id="r_a002b9dd58ec7cfbcac57367df453f258"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a002b9dd58ec7cfbcac57367df453f258">game_show_state_direct</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *<a class="el" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>)</td></tr>
+<tr class="memdesc:a002b9dd58ec7cfbcac57367df453f258"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz stav hry s primymi LED volanimi.  <br /></td></tr>
+<tr class="memitem:a0ace822d82e2da6de18559787be957d0" id="r_a0ace822d82e2da6de18559787be957d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ace822d82e2da6de18559787be957d0">game_show_check_direct</a> (uint8_t king_row, uint8_t king_col)</td></tr>
+<tr class="memdesc:a0ace822d82e2da6de18559787be957d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz sach s primymi LED volanimi.  <br /></td></tr>
+<tr class="memitem:aea44edb838b9522e00dfd55da1856986" id="r_aea44edb838b9522e00dfd55da1856986"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aea44edb838b9522e00dfd55da1856986">game_show_checkmate_direct</a> (uint8_t king_row, uint8_t king_col)</td></tr>
+<tr class="memdesc:aea44edb838b9522e00dfd55da1856986"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz mat s primymi LED volanimi.  <br /></td></tr>
+<tr class="memitem:a47ce5497c44b6af58ed04cc1c3d806b8" id="r_a47ce5497c44b6af58ed04cc1c3d806b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a47ce5497c44b6af58ed04cc1c3d806b8">game_show_promotion_direct</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:a47ce5497c44b6af58ed04cc1c3d806b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz promoci s primymi LED volanimi.  <br /></td></tr>
+<tr class="memitem:aa112414da6cba72225e1b2958c958fa3" id="r_aa112414da6cba72225e1b2958c958fa3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa112414da6cba72225e1b2958c958fa3">game_show_castling_direct</a> (uint8_t king_from_row, uint8_t king_from_col, uint8_t king_to_row, uint8_t king_to_col, uint8_t <a class="el" href="game__task_8c.html#a2e655fa25f4bbdd873eabad03e266985">rook_from_row</a>, uint8_t <a class="el" href="game__task_8c.html#aaf08ecb764a4aa8e2ce3d75d9bcf58f2">rook_from_col</a>, uint8_t <a class="el" href="game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0">rook_to_row</a>, uint8_t <a class="el" href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a>)</td></tr>
+<tr class="memdesc:aa112414da6cba72225e1b2958c958fa3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobraz rosadu s primymi LED volanimi.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>PRIME LED FUNKCE PRO GAME TASK - Zadny Queue Hell. </p>
+<p>RESENI: Misto xQueueSend(led_command_queue) pouzivat prime LED volani</p><ul>
+<li>Zadny queue hell</li>
+<li>Zadne timing problemy</li>
+<li>Okamzite LED aktualizace</li>
+</ul>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.5 - DIRECT SYSTEM </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-09-02</dd></dl>
+<p>Tento modul poskytuje prime LED funkce pro game task bez pouziti front. Eliminuje queue hell a timing problemy tim, ze vola LED funkce primo. Vsechny funkce jsou thread-safe diky pouziti mutexu v led_task. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="game__led__direct_8h_source.html">game_led_direct.h</a>.</p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="a8b43b89b88ce59ea25698ac5a8280bf2" name="a8b43b89b88ce59ea25698ac5a8280bf2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b43b89b88ce59ea25698ac5a8280bf2">&#9670;&#160;</a></span>game_clear_highlights_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_clear_highlights_direct </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vymaz zvyrazneni s primymi LED volanimi. </p>
+<p>Vymaze vsechna LED zvyrazneni na sachovnici (zachova tlacitka).</p>
+<dl class="section note"><dt>Poznámka</dt><dd>PRIME VOLANI - zadny queue</dd></dl>
+<p>Vymaz zvyrazneni s primymi LED volanimi.</p>
+<p>Vymaže všechna zvýraznění na šachovnici, zachová LED na tlačítkách. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__direct_8c_source.html#l00147">147</a> v souboru <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="aa112414da6cba72225e1b2958c958fa3" name="aa112414da6cba72225e1b2958c958fa3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa112414da6cba72225e1b2958c958fa3">&#9670;&#160;</a></span>game_show_castling_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_show_castling_direct </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_to_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>rook_from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>rook_from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>rook_to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>rook_to_col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz rosadu s primymi LED volanimi. </p>
+<p>Zobrazi animaci rosady - pohyb krale a veze.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">king_from_row</td><td>Zdrojovy radek krale (0-7) </td></tr>
+    <tr><td class="paramname">king_from_col</td><td>Zdrojovy sloupec krale (0-7) </td></tr>
+    <tr><td class="paramname">king_to_row</td><td>Cilovy radek krale (0-7) </td></tr>
+    <tr><td class="paramname">king_to_col</td><td>Cilovy sloupec krale (0-7) </td></tr>
+    <tr><td class="paramname">rook_from_row</td><td>Zdrojovy radek veze (0-7) </td></tr>
+    <tr><td class="paramname">rook_from_col</td><td>Zdrojovy sloupec veze (0-7) </td></tr>
+    <tr><td class="paramname">rook_to_row</td><td>Cilovy radek veze (0-7) </td></tr>
+    <tr><td class="paramname">rook_to_col</td><td>Cilovy sloupec veze (0-7)</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Poznámka</dt><dd>PRIME VOLANI - zadny queue</dd></dl>
+<p>Zobraz rosadu s primymi LED volanimi.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">king_from_row</td><td>Řádek zdrojového pole krále </td></tr>
+    <tr><td class="paramname">king_from_col</td><td>Sloupec zdrojového pole krále </td></tr>
+    <tr><td class="paramname">king_to_row</td><td>Řádek cílového pole krále </td></tr>
+    <tr><td class="paramname">king_to_col</td><td>Sloupec cílového pole krále </td></tr>
+    <tr><td class="paramname">rook_from_row</td><td>Řádek zdrojového pole věže </td></tr>
+    <tr><td class="paramname">rook_from_col</td><td>Sloupec zdrojového pole věže </td></tr>
+    <tr><td class="paramname">rook_to_row</td><td>Řádek cílového pole věže </td></tr>
+    <tr><td class="paramname">rook_to_col</td><td>Sloupec cílového pole věže</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Zobrazí oranžovou barvu na zdrojových polích a zelenou na cílových polích. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__direct_8c_source.html#l00414">414</a> v souboru <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="a0ace822d82e2da6de18559787be957d0" name="a0ace822d82e2da6de18559787be957d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ace822d82e2da6de18559787be957d0">&#9670;&#160;</a></span>game_show_check_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_show_check_direct </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz sach s primymi LED volanimi. </p>
+<p>Zobrazi cervenou blikajici LED na pozici krale v sachu.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">king_row</td><td>Radek krale (0-7) </td></tr>
+    <tr><td class="paramname">king_col</td><td>Sloupec krale (0-7)</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Poznámka</dt><dd>PRIME VOLANI - zadny queue</dd></dl>
+<p>Zobraz sach s primymi LED volanimi.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">king_row</td><td>Řádek krále v šachu </td></tr>
+    <tr><td class="paramname">king_col</td><td>Sloupec krále v šachu</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Zobrazí fialovou barvu na králi v šachu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__direct_8c_source.html#l00193">193</a> v souboru <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="aea44edb838b9522e00dfd55da1856986" name="aea44edb838b9522e00dfd55da1856986"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aea44edb838b9522e00dfd55da1856986">&#9670;&#160;</a></span>game_show_checkmate_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_show_checkmate_direct </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz mat s primymi LED volanimi. </p>
+<p>Zobrazi intenzivni cervenou blikajici animaci na pozici krale v matu.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">king_row</td><td>Radek krale (0-7) </td></tr>
+    <tr><td class="paramname">king_col</td><td>Sloupec krale (0-7)</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Poznámka</dt><dd>PRIME VOLANI - zadny queue</dd></dl>
+<p>Zobraz mat s primymi LED volanimi.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">king_row</td><td>Řádek krále v matu </td></tr>
+    <tr><td class="paramname">king_col</td><td>Sloupec krále v matu</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Spustí vítěznou animaci na pozici krále v matu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__direct_8c_source.html#l00365">365</a> v souboru <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="a11c32da99485731ac1e0cae4f2174fcd" name="a11c32da99485731ac1e0cae4f2174fcd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11c32da99485731ac1e0cae4f2174fcd">&#9670;&#160;</a></span>game_show_error_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_show_error_direct </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz chybu s primymi LED volanimi. </p>
+<p>Zobrazi cervenou LED na pozici kde doslo k chybe.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Radek chyby (0-7) </td></tr>
+    <tr><td class="paramname">col</td><td>Sloupec chyby (0-7)</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Poznámka</dt><dd>PRIME VOLANI - zadny queue</dd></dl>
+<p>Zobraz chybu s primymi LED volanimi.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Řádek pole s chybou </td></tr>
+    <tr><td class="paramname">col</td><td>Sloupec pole s chybou</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Zobrazí červenou barvu na poli s chybou. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__direct_8c_source.html#l00132">132</a> v souboru <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="a65d45d8068e75012a3bf91d813a86993" name="a65d45d8068e75012a3bf91d813a86993"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65d45d8068e75012a3bf91d813a86993">&#9670;&#160;</a></span>game_show_move_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_show_move_direct </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>from_col</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>to_col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz tah s primymi LED volanimi. </p>
+<p>Zobrazi animaci tahu s postupnym svicenim zdrojoveho a ciloveho pole. Pouziva barvy: zluta (zdroj), zelena (cil), cervena (capture).</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Zdrojovy radek (0-7) </td></tr>
+    <tr><td class="paramname">from_col</td><td>Zdrojovy sloupec (0-7) </td></tr>
+    <tr><td class="paramname">to_row</td><td>Cilovy radek (0-7) </td></tr>
+    <tr><td class="paramname">to_col</td><td>Cilovy sloupec (0-7)</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Poznámka</dt><dd>PRIME VOLANI - zadny queue</dd></dl>
+<p>Zobraz tah s primymi LED volanimi.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from_row</td><td>Řádek zdrojového pole </td></tr>
+    <tr><td class="paramname">from_col</td><td>Sloupec zdrojového pole </td></tr>
+    <tr><td class="paramname">to_row</td><td>Řádek cílového pole </td></tr>
+    <tr><td class="paramname">to_col</td><td>Sloupec cílového pole</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Zobrazí animaci tahu s progresivním osvětlením zdrojového a cílového pole. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__direct_8c_source.html#l00043">43</a> v souboru <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="aad4c6f489504e1aace2045420bcec3d1" name="aad4c6f489504e1aace2045420bcec3d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad4c6f489504e1aace2045420bcec3d1">&#9670;&#160;</a></span>game_show_piece_lift_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_show_piece_lift_direct </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz zvednutí figurky s primymi LED volanimi. </p>
+<p>Zobrazi jemnou pulzujici zluto-oranzovou animaci na pozici zvednute figurky.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Radek figurky (0-7) </td></tr>
+    <tr><td class="paramname">col</td><td>Sloupec figurky (0-7)</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Poznámka</dt><dd>PRIME VOLANI - zadny queue</dd></dl>
+<p>Zobraz zvednutí figurky s primymi LED volanimi.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Řádek pole </td></tr>
+    <tr><td class="paramname">col</td><td>Sloupec pole</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Zobrazí jemný pulzující efekt na poli se zvednutou figurkou. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__direct_8c_source.html#l00084">84</a> v souboru <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="a47ce5497c44b6af58ed04cc1c3d806b8" name="a47ce5497c44b6af58ed04cc1c3d806b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47ce5497c44b6af58ed04cc1c3d806b8">&#9670;&#160;</a></span>game_show_promotion_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_show_promotion_direct </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>row</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>col</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz promoci s primymi LED volanimi. </p>
+<p>Zobrazi zlato-bilou blikajici animaci na pozici promovaneho pescu.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Radek promoci (0-7) </td></tr>
+    <tr><td class="paramname">col</td><td>Sloupec promoci (0-7)</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Poznámka</dt><dd>PRIME VOLANI - zadny queue</dd></dl>
+<p>Zobraz promoci s primymi LED volanimi.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Řádek pole s promocí </td></tr>
+    <tr><td class="paramname">col</td><td>Sloupec pole s promocí</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Zobrazí žlutou barvu na poli s promocí. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__direct_8c_source.html#l00390">390</a> v souboru <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="a002b9dd58ec7cfbcac57367df453f258" name="a002b9dd58ec7cfbcac57367df453f258"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a002b9dd58ec7cfbcac57367df453f258">&#9670;&#160;</a></span>game_show_state_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_show_state_direct </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *</td>          <td class="paramname"><span class="paramname"><em>board</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz stav hry s primymi LED volanimi. </p>
+<p>Zobrazi aktualni pozici vsech figurek na sachovnici pomoci LED. Bile figurky = bila barva, cerne figurky = modra barva.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">board</td><td>Ukazatel na pole stavu sachovnice (64 prvku)</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Poznámka</dt><dd>PRIME VOLANI - zadny queue</dd></dl>
+<p>Zobraz stav hry s primymi LED volanimi.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">board</td><td>Pole s figurkami (8x8)</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Zobrazí všechny figurky na šachovnici pomocí LED. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__direct_8c_source.html#l00162">162</a> v souboru <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="af337fa678e02039015341d7fa45e3ccc" name="af337fa678e02039015341d7fa45e3ccc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af337fa678e02039015341d7fa45e3ccc">&#9670;&#160;</a></span>game_show_valid_moves_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_show_valid_moves_direct </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>valid_positions</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>count</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobraz platne tahy s primymi LED volanimi. </p>
+<p>Zobrazi jemnou zelenou vlnu na vsech pozicich kam muze figurka tahn out.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">valid_positions</td><td>Pole LED indexu platnych pozic </td></tr>
+    <tr><td class="paramname">count</td><td>Pocet platnych pozic</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Poznámka</dt><dd>PRIME VOLANI - zadny queue</dd></dl>
+<p>Zobraz platne tahy s primymi LED volanimi.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">valid_positions</td><td>Pole LED indexů platných tahů </td></tr>
+    <tr><td class="paramname">count</td><td>Počet platných tahů</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Zobrazí zelenou vlnu na všech polích s platnými tahy. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__direct_8c_source.html#l00108">108</a> v souboru <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a href="dir_33cc7e91f7e0627bade559bf776868f5.html">include</a></li><li class="navelem"><a href="game__led__direct_8h.html">game_led_direct.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

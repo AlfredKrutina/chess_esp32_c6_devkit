@@ -6,7 +6,7 @@
 import Foundation
 
 /// Odpověď `GET /api/timer` / vnořený `clock` ve snapshotu (viz `timer_get_json` ve firmware).
-struct BoardTimerHTTPState: Codable {
+struct BoardTimerHTTPState: Codable, Equatable {
     let whiteTimeMs: UInt32
     let blackTimeMs: UInt32
     let timerRunning: Bool
@@ -29,7 +29,7 @@ struct BoardTimerHTTPState: Codable {
         case avgMoveTimeMs = "avg_move_time_ms"
     }
 
-    struct TimerConfigPart: Codable {
+    struct TimerConfigPart: Codable, Equatable {
         let type: Int
         let name: String
         let description: String
@@ -44,6 +44,9 @@ struct BoardTimerHTTPState: Codable {
             case isFast = "is_fast"
         }
     }
+
+    /// `TIME_CONTROL_NONE` ve firmware = typ **0** — hra bez odpočtu; hlavní UI pak neukazuje časomíru.
+    var isTimeControlEnabled: Bool { config.type != 0 }
 }
 
 /// `wifi_get_sta_status_json` / GET /api/wifi/status.

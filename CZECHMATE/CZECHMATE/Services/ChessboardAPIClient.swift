@@ -131,15 +131,30 @@ actor ChessboardAPIClient {
 
     /// Dekóduje tělo `GET /api/game/snapshot` / WS.
     private nonisolated func decodeSnapshot(_ data: Data) throws -> GameSnapshot {
-        let fixed = GameJSONRepair.repairStatusDataIfNeeded(data)
-        let decoder = JSONDecoder.forGameSnapshot()
         do {
-            return try decoder.decode(GameSnapshot.self, from: fixed)
+            return try GameSnapshot.decodeFromBoardDataRepairingAndNormalizing(data)
         } catch {
+            let fixed = GameJSONRepair.repairStatusDataIfNeeded(data)
             let preview = String(data: fixed.prefix(240), encoding: .utf8) ?? ""
             AppDebugLog.staging("JSON decode GameSnapshot failed: \(error) preview=\(preview)")
             throw ChessboardAPIError.decodeFailed(error.localizedDescription)
         }
+    }
+
+    /// Z JSON těla chyby od ESP (`message` / `error`) — stejný záměr jako BLE `cmd_ack.message`.
+    private nonisolated static func extractESPJSONErrorMessage(from data: Data) -> String? {
+        guard !data.isEmpty,
+              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return nil }
+        if let m = obj["message"] as? String {
+            let t = m.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !t.isEmpty { return t }
+        }
+        if let e = obj["error"] as? String {
+            let t = e.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !t.isEmpty { return t }
+        }
+        return nil
     }
 
     nonisolated func validateHTTP(response: URLResponse, data: Data, treat403AsWebLock: Bool = false) throws {
@@ -152,9 +167,11 @@ actor ChessboardAPIClient {
         }
         guard (200 ... 299).contains(http.statusCode) else {
             let text = String(data: data, encoding: .utf8)
-            let snippet = text.map { String($0.prefix(200)) } ?? ""
-            AppDebugLog.staging("HTTP \(http.statusCode) — \(snippet)")
-            throw ChessboardAPIError.httpStatus(http.statusCode, text)
+            let detail = Self.extractESPJSONErrorMessage(from: data)
+                ?? text.map { String($0.prefix(200)) }
+            let logLine = detail ?? ""
+            AppDebugLog.staging("HTTP \(http.statusCode) — \(logLine)")
+            throw ChessboardAPIError.httpStatus(http.statusCode, detail ?? text)
         }
     }
 }

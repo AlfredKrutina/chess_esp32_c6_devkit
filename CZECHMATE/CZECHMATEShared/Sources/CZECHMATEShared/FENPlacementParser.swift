@@ -1,6 +1,6 @@
 //
 //  FENPlacementParser.swift
-//  CZECHMATEShared — první pole FEN → board[row][col], row 0 = rank 1 (jako firmware).
+//  CZECHMATEShared — první pole FEN → board[row][col], řádek 0 = rank 8 (jako normalizovaný snapshot / golden JSON).
 //
 
 import Foundation
@@ -19,7 +19,7 @@ public enum FENPlacementParser {
         guard ranks.count == 8 else { return nil }
         var board = Array(repeating: Array(repeating: " ", count: 8), count: 8)
         for (fenRankIndex, rankStr) in ranks.enumerated() {
-            let ourRow = 7 - fenRankIndex
+            let ourRow = fenRankIndex
             var col = 0
             for ch in rankStr {
                 if let skip = ch.wholeNumberValue {

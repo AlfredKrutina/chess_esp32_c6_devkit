@@ -7,7 +7,6 @@ set(MAIN_REQUIRES
     button_task
     uart_task
     game_task
-    animation_task
     web_server_task
     led_state_manager
     visual_error_system

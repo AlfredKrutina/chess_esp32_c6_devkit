@@ -9,9 +9,9 @@ import SwiftUI
 import UIKit
 #endif
 
-/// Řádky `board` odpovídají firmware: row 0 = rank 1 (bílá základna), col 0 = a.
-/// Nepřevrácený pohled: bílý dole (řada 1 u spodního okraje), a vlevo — mapování `r = 7 - visRow`, `c = visCol`.
-/// Pohled pro černého (`flipped`): černý dole (řada 8), h vlevo — `r = visRow`, `c = 7 - visCol` (otočení o 180°).
+/// Řádky `board` jako ve snímku po normalizaci: row 0 = rank 8 (černá nahoře), col 0 = a.
+/// Nepřevrácený pohled: černá strana nahoře, bílá dole — `r = visRow`, `c = visCol`.
+/// `flipped`: pohled o 180° — `r = 7 - visRow`, `c = 7 - visCol`.
 struct ChessBoardView: View {
     let board: [[String]]
     var flipped: Bool = false
@@ -31,15 +31,16 @@ struct ChessBoardView: View {
     var animatePieces: Bool = true
     /// Popisky řad a sloupců (a–h, 1–8) — v Nastavení.
     var showCoordinates: Bool = true
+    /// Barvy polí — Nastavení → Grafický styl šachovnice.
+    var boardStyle: ChessBoardStyle = .wooden
+    /// Odlišná paleta (béžová / fialová) pro režim Sandbox — jen vizuál.
+    var sandboxFieldColors: Bool = false
 
     @Binding var zoom: CGFloat
     @State private var pinchBase: CGFloat = 1.0
     @Namespace private var pieceSpace
     @State private var pieceIdTracker = PieceIdentityTracker()
     @State private var pieceIdGrid: [[String]] = Array(repeating: Array(repeating: "", count: 8), count: 8)
-
-    private let light = Color(red: 0.96, green: 0.88, blue: 0.72)
-    private let dark = Color(red: 0.55, green: 0.40, blue: 0.28)
 
     init(
         board: [[String]],
@@ -56,7 +57,9 @@ struct ChessBoardView: View {
         invalidMoveFlashTo: String? = nil,
         onRemoteSquareTap: ((String) -> Void)? = nil,
         animatePieces: Bool = true,
-        showCoordinates: Bool = true
+        showCoordinates: Bool = true,
+        boardStyle: ChessBoardStyle = .wooden,
+        sandboxFieldColors: Bool = false
     ) {
         self.board = board
         self.flipped = flipped
@@ -73,6 +76,8 @@ struct ChessBoardView: View {
         self.onRemoteSquareTap = onRemoteSquareTap
         self.animatePieces = animatePieces
         self.showCoordinates = showCoordinates
+        self.boardStyle = boardStyle
+        self.sandboxFieldColors = sandboxFieldColors
     }
 
     private var fromIndex: (row: Int, col: Int)? {
@@ -120,12 +125,12 @@ struct ChessBoardView: View {
         return ChessSquareNotation.indices(from: h)
     }
 
-    /// Firmware indexy z indexů mřížky na obrazovce (řádek 0 = horní řádek displeje).
+    /// Indexy do `board[][]` z mřížky na displeji (horní řádek = rank 8 při `flipped == false`).
     private func boardIndices(visualRow: Int, visualCol: Int) -> (row: Int, col: Int) {
         if flipped {
-            (visualRow, 7 - visualCol)
+            (7 - visualRow, 7 - visualCol)
         } else {
-            (7 - visualRow, visualCol)
+            (visualRow, visualCol)
         }
     }
 
@@ -181,7 +186,8 @@ struct ChessBoardView: View {
             #if os(iOS)
             .scaleEffect(zoom)
             .contentShape(Rectangle())
-            .gesture(
+            // Současná gesta — nesmí „sežrat“ jednoduché klepnutí na pole (vzdálené tahy).
+            .simultaneousGesture(
                 MagnificationGesture()
                     .onChanged { value in
                         let z = pinchBase * value
@@ -191,11 +197,14 @@ struct ChessBoardView: View {
                         pinchBase = zoom
                     }
             )
-            .onTapGesture(count: 2) {
-                zoom = 1.0
-                pinchBase = 1.0
-                HapticSettings.lightImpactIfEnabled()
-            }
+            .simultaneousGesture(
+                TapGesture(count: 2)
+                    .onEnded { _ in
+                        zoom = 1.0
+                        pinchBase = 1.0
+                        HapticSettings.lightImpactIfEnabled()
+                    }
+            )
             .onChange(of: zoom) { _, new in
                 pinchBase = new
             }
@@ -205,8 +214,11 @@ struct ChessBoardView: View {
             #endif
         }
         .frame(maxWidth: .infinity)
+        // Nevkládat vlastní `aspectRatio` sem: rodič dává bounding box (typicky čtverec z `aspectRatio(1, .fit)`).
+        // Dřív 1.06 + `clipped()` zmenšovalo výšku pro `GeometryReader` — spodní řada (řada 1) a písmena a–h byly oříznuté.
+        // `scaleEffect` zoom layoutem neroste; při silném pinch může mírně přetéct — drží to vnější karta kolem desky.
         #if os(iOS)
-        .aspectRatio(1.06, contentMode: .fit)
+        .padding(.vertical, 2)
         #endif
         .shadow(color: .black.opacity(0.35), radius: 12, y: 6)
     }
@@ -239,7 +251,8 @@ struct ChessBoardView: View {
 
     private func squareName(row: Int, col: Int) -> String {
         let fileChar = Character(UnicodeScalar(97 + col)!)
-        return "\(fileChar)\(row + 1)".lowercased()
+        let rank = 8 - row
+        return "\(fileChar)\(rank)".lowercased()
     }
 
     private func pieceIdAt(row: Int, col: Int) -> String {
@@ -264,7 +277,8 @@ struct ChessBoardView: View {
     }
 
     private func squareView(row: Int, col: Int, cell: CGFloat) -> some View {
-        let isLight = (row + col) % 2 == 0
+        let rankNumber = 8 - row
+        let isLight = (col + rankNumber) % 2 == 0
         let piece = pieceChar(row: row, col: col)
         let pieceInstanceId = pieceIdAt(row: row, col: col)
         let isFrom = fromIndex.map { $0.row == row && $0.col == col } ?? false
@@ -279,9 +293,16 @@ struct ChessBoardView: View {
             (invalidFlashFromIndex.map { $0.row == row && $0.col == col } ?? false)
             || (invalidFlashToIndex.map { $0.row == row && $0.col == col } ?? false)
 
+        let fieldLight = sandboxFieldColors
+            ? Color(red: 0.93, green: 0.89, blue: 0.83)
+            : boardStyle.squareLight
+        let fieldDark = sandboxFieldColors
+            ? Color(red: 0.36, green: 0.29, blue: 0.43)
+            : boardStyle.squareDark
+
         return ZStack {
             Rectangle()
-                .fill(isLight ? light : dark)
+                .fill(isLight ? fieldLight : fieldDark)
 
             if isErrInvalid {
                 RoundedRectangle(cornerRadius: 4, style: .continuous)
@@ -345,7 +366,7 @@ struct ChessBoardView: View {
 
     private func squareAccessibilityLabel(row: Int, col: Int, piece: Character) -> String {
         let fileChar = Character(UnicodeScalar(97 + col)!)
-        let sq = "\(fileChar)\(row + 1)"
+        let sq = "\(fileChar)\(8 - row)"
         let name = pieceVoiceName(piece)
         if name.isEmpty {
             return "Pole \(sq), prázdné"

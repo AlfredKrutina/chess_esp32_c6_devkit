@@ -12,10 +12,12 @@ struct GameSnapshot: Decodable, Sendable {
     let board: [[String]]
     let timestamp: UInt64
     let status: GameStatus
-    let history: MoveHistory
+    let history: GameMoveHistory
     let captured: CapturedPieces
     /// Stejná data jako `GET /api/timer` — přítomné u nového firmware v jednom snímku (bez druhého HTTP).
     let clock: BoardTimerHTTPState?
+    /// Volitelné ID partie z firmware / webu — stabilní klíč pro souhrn (když je v JSON).
+    let gameId: String?
 
     /// Explicitní klíče — dekódovat přes `JSONDecoder.forGameSnapshot()` (viz
     /// `JSONDecoder+GameSnapshot.swift`). `convertFromSnakeCase` rozbije `GameStatus`.
@@ -27,28 +29,33 @@ struct GameSnapshot: Decodable, Sendable {
         case history
         case captured
         case clock
+        case gameId = "game_id"
+    }
+
+    func replacingStatus(_ newStatus: GameStatus) -> GameSnapshot {
+        GameSnapshot(
+            stateVersion: stateVersion,
+            board: board,
+            timestamp: timestamp,
+            status: newStatus,
+            history: history,
+            captured: captured,
+            clock: clock,
+            gameId: gameId
+        )
     }
 }
 
-struct MoveHistory: Decodable, Sendable {
-    let moves: [HistoryMove]
+struct GameMoveHistory: Decodable, Sendable {
+    let moves: [GameHistoryMove]
 }
 
-struct HistoryMove: Decodable, Sendable {
-    let from: String
-    let to: String
-    let piece: String
-    let timestamp: UInt32?
-    /// SAN z firmwaru / enginu (volitelné). Když chybí, zobrazíme kompaktní notaci z from/to/piece.
+struct GameHistoryMove: Decodable, Sendable {
+    let from: String?
+    let to: String?
+    let piece: String?
+    let timestamp: UInt64?
     let san: String?
-
-    enum CodingKeys: String, CodingKey {
-        case from
-        case to
-        case piece
-        case timestamp
-        case san
-    }
 }
 
 struct CapturedPieces: Decodable, Sendable {
@@ -60,3 +67,4 @@ struct CapturedPieces: Decodable, Sendable {
         case blackCaptured = "black_captured"
     }
 }
+

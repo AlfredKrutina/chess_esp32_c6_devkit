@@ -1,6 +1,6 @@
 # CZECHMATE v2.5
 
-**Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením a webovým rozhraním**
+**Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením, webovým serverem, Flutter klientem (mobil / desktop) a nativní iOS aplikací v repu (`CZECHMATE/`)**
 
 *Šachmat, udělaný v Česku*
 
@@ -26,11 +26,13 @@ CZECHMATE je pokročilý šachový systém, který umožňuje hrát šachy na fy
 
 - **Fyzická šachovnice** - 8x8 Reed Switch matice pro automatickou detekci figurek
 - **LED osvětlení** - 64 LED na šachovnici + 9 LED na tlačítkách pro vizuální feedback
+- **Flutter aplikace (`flutter_czechmate/`)** - Multiplatformní klient (Dart/Flutter): BLE (`flutter_blue_plus`), HTTP a WebSocket pro spojení s deskou a webem.
+- **Nativní iOS Aplikace (`CZECHMATE/`)** - Swift / SwiftUI, BLE (NimBLE), Apple Watch a widgety (legacy / paralelní ke Flutteru podle toho, co používáš).
 - **Kompletní šachová logika** - Všechna pravidla včetně rošády, en passant, promoce, šach, mat
 - **Webové rozhraní** - HTTP server pro vzdálenou hru přes prohlížeč s real-time aktualizací
 - **UART konzole** - Textové příkazy pro ovládání, ladění a testování
 - **LED animace** - Vizuální feedback pro tahy, šach, mat, remízu a konec hry (sjednocená vítězná animace)
-- **FreeRTOS multitasking** - Paralelní tasky pro plynulý chod systému (LED, matice, hra, web, MQTT, časovače)
+- **FreeRTOS multitasking** - Paralelní tasky (LED, matice, hra, web, BLE, MQTT, časovače); samostatný **`animation_task` je vypnutý** — LED animace běží v **`led_task`** přes **`unified_animation_manager`** / **`game_led_animations`** (komponenta `animation_task/` zůstává v repu kvůli API, FreeRTOS task se ve `main.c` nevytváří).
 - **Integrace s Home Assistant** - MQTT světlo přes `ha_light_task` (dynamické LED scény řízené z HA)
 - **Automatický start nové hry** - Pokud jsou všechny figurky fyzicky v počáteční pozici po ~2 sekundách, spustí se nová hra
 - **Hra proti Botovi (Stockfish)** - Možnost hrát proti AI enginu s nastavitelnou obtížností (ELO) a volbou strany
@@ -85,22 +87,25 @@ Toto řešení mi umožnilo použít stejné piny pro matici i tlačítka, což 
 
 Systém používá FreeRTOS pro multitasking. To byla pro mě úplně nová oblast - před tím jsem programoval hlavně sekvenční kód. Naučil jsem se, jak správně navrhnout tasky, jak používat fronty pro komunikaci a jak synchronizovat přístup ke sdíleným zdrojům pomocí mutexů.
 
-Systém má 8 hlavních FreeRTOS tasků s různými prioritami:
+Systém má několik hlavních FreeRTOS tasků s různými prioritami:
 
 | Task | Priorita | Popis | Stack Size |
 |------|----------|-------|------------|
 | `led_task` | 7 | Ovládání WS2812B LED - nejvyšší priorita pro kritický timing | 16KB |
 | `matrix_task` | 6 | Realtime skenování 8x8 matice - vysoká priorita, nesmí zmeškat detekci pohybu | 8KB |
 | `button_task` | 5 | Zpracování tlačítek - uživatelský vstup | 3KB |
+| `ble_task` | 4 | Bluetooth LE NimBLE GATT server (mobilní klienti: iOS / Flutter) | 8KB |
 | `game_task` | 4 | Šachová logika a stav hry - kritická pro odezvu | 10KB |
 | `uart_task` | 3 | UART konzole a příkazy - může čekat | 10KB |
-| `animation_task` | 3 | LED animace - non-blocking | 2KB |
 | `web_server_task` | 3 | HTTP web server - komunikace | 20KB |
+| `ha_light_task` | 2 | MQTT Home Assistant světelná integrace | 4KB |
 | `test_task` | 1 | Testovací funkce - nejnižší priorita | 4KB |
 
 **Proč jsou priority takto nastavené?**
 
-To jsem se naučil tvrdě - když jsem měl špatně nastavené priority, systém se choval divně. LED task má nejvyšší prioritu (7), protože WS2812B LED vyžadují přesný timing a nesmí být přerušeny. Matrix task má prioritu 6 pro real-time detekci pohybu figurek. Button task má prioritu 5 pro rychlou odezvu na uživatelský vstup. Game task musí být rychlý (priorita 4), aby hra reagovala okamžitě. Web server a test task mohou čekat - nejsou real-time.
+To jsem se naučil tvrdě - když jsem měl špatně nastavené priority, systém se choval divně. LED task má nejvyšší prioritu (7), protože WS2812B LED vyžadují přesný timing a nesmí být přerušeny. Matrix task má prioritu 6 pro real-time detekci pohybu figurek. BLE komunikace a Game task mají prioritu 4, aby odezva k mobilní aplikaci i herní logika byly bez prodlevy. Web server a test task mohou čekat - nejsou real-time.
+
+**Poznámka k animacím:** Dřívější samostatný FreeRTOS task `animation_task` (priorita 3) je **vypnutý**; animace jsou integrované do pipeline LED tasku a sdílených modulů výše — menší režie tasků a konzistentnější timing s RMT.
 
 ### Komunikace mezi tasky
 
@@ -134,6 +139,9 @@ components/
 │   ├── game_led_direct.c        # Přímé LED funkce
 │   └── demo_mode_helpers.c      # Pomocné funkce pro demo mód
 │
+├── ble_task/                    # Bluetooth LE komunikace
+│   └── ble_nimble_impl.c        # NimBLE GATT server pro iOS app
+│
 ├── matrix_task/                 # Skenování 8x8 matice
 │   └── matrix_task.c             # Reed switch skenování
 │
@@ -150,10 +158,10 @@ components/
 │   ├── web_server_task.c        # HTTP server implementace + embed JS
 │   └── chess_app.js             # Zdroj embedded JavaScriptu (nekompiluje se)
 │
-├── animation_task/              # LED animace
-│   └── animation_task.c          # Animation system
+├── animation_task/              # Legacy API / typy (FreeRTOS task nevytváří se)
+│   └── animation_task.c
 │
-├── unified_animation_manager/   # Unified animation system
+├── unified_animation_manager/   # Unified animation system (běžící cesta)
 │   └── unified_animation_manager.c
 │
 ├── led_state_manager/           # Správa LED stavů
@@ -171,10 +179,10 @@ components/
 ├── ha_light_task/               # MQTT/HA integrace pro světlo
 │   └── ha_light_task.c
 │
-├── promotion_button_task/       # Tlačítka pro promoci (fyzická tlačítka)
+├── promotion_button_task/       # (Nepoužívá se, sdruženo do button_task)
 │   └── promotion_button_task.c
 │
-├── reset_button_task/           # Reset tlačítko
+├── reset_button_task/           # (Nepoužívá se, sdruženo do button_task)
 │   └── reset_button_task.c
 │
 └── visual_error_system/         # Vizuální error handling
@@ -277,6 +285,19 @@ Webové rozhraní umožňuje:
 
 - **Integrace s Home Assistant a stav systému** - Web vrstvu doplňuje MQTT integrace (`ha_light_task`) pro ovládání RGB světla z Home Assistant.
 - **Stav hry, error stavy a konec hry** - Jsou zobrazovány konzistentně na webu i na fyzických LED (zvednutá figurka, nevalidní tah, error recovery).
+
+### Flutter klient (`flutter_czechmate/`)
+
+- **Stack:** Flutter 3.x, Riverpod, `flutter_blue_plus` (BLE), `http`, `web_socket_channel`, balíček `chess`.
+- **Účel:** Jedna codebase pro Android / iOS / desktop; komunikace s firmware (BLE) a s webovým backendem dle potřeby.
+- **Build:** z kořene `cd flutter_czechmate && flutter pub get && flutter run` (vyžaduje nainstalovaný Flutter SDK).
+
+### Nativní iOS Aplikace (CZECHMATE)
+
+Šachovnici doplňuje **iOS aplikace ve Swiftu / SwiftUI** ve složce `CZECHMATE/`.
+- **Ekosystém Apple**: iPhone, **Apple Watch** (`CZECHMATEWatchApp`), **Widgety** (`CZECHMATEWidgets`).
+- **Bluetooth LE**: NimBLE na ESP32; na straně iOS asynchronní streamy a správa spojení.
+- **Vztah k Flutteru:** Flutter projekt je novější paralelní klient; oba mohou sdílet stejné BLE služby / kontrakty z firmware.
 
 ### ⚙️ Nastavení a Přizpůsobení (Web UI)
 
@@ -485,7 +506,7 @@ free_chess_v1_mqtt_HA/
 │   ├── button_task/               # Button handling
 │   ├── uart_task/                 # UART konzole
 │   ├── web_server_task/           # HTTP web server
-│   ├── animation_task/            # LED animace
+│   ├── animation_task/            # Legacy animace (task v main vypnutý)
 │   ├── game_led_animations/       # Animace tahů / konců her
 │   ├── unified_animation_manager/ # Společný systém animací
 │   ├── led_state_manager/         # Správa barev/stavů LED
@@ -502,8 +523,10 @@ free_chess_v1_mqtt_HA/
 │   ├── diagrams/                # Mermaid HTML/txt, PNG architektury
 │   └── doxygen/                 # Doxygen výstup (generované)
 │
-├── build/                         # Build výstup (generovaný, ignorovaný v .gitignore)
-├── CZECHMATE/                     # Xcode projekt (iOS aplikace)
+├── build/                         # Build výstup ESP-IDF (generovaný, v .gitignore)
+├── flutter_czechmate/             # Flutter klient (BLE / HTTP / WS)
+├── CZECHMATE/                     # Xcode — nativní iOS (Swift), Watch, Widgety
+├── context/                       # Podklady pro vývoj / AI (doplňuješ ručně; nemusí být v remote)
 ├── CMakeLists.txt                 # Build konfigurace
 ├── Doxyfile                       # Doxygen konfigurace
 ├── generate_docs.sh              # Skript pro generování dokumentace
@@ -608,7 +631,12 @@ A: Máme spoustu nápadů - viz sekce "Budoucí vylepšení". Hlavně bychom cht
 
 ## 📝 Historie verzí
 
-### v2.5.0 (aktuální)
+### v2.5.1 / firmware (aktuální stav repa, 2026-04)
+- ✅ **Flutter klient** `flutter_czechmate/` (BLE, HTTP, WebSocket)
+- ✅ **Vypnutý FreeRTOS `animation_task`** — animace přes `led_task` + `unified_animation_manager`
+- ✅ MQTT / Home Assistant integrace (`ha_light_task`) beze změny konceptu
+
+### v2.5.0
 - ✅ **Hra proti Botovi** (Stockfish integrace)
 - ✅ **Chytrá nápověda** a analýza tahů
 - ✅ **Výukový systém** s odměnami
@@ -618,7 +646,7 @@ A: Máme spoustu nápadů - viz sekce "Budoucí vylepšení". Hlavně bychom cht
 - ✅ Kompletní šachová logika včetně všech pravidel
 - ✅ Webové rozhraní s real-time aktualizací
 - ✅ LED animace pro všechny stavy hry
-- ✅ FreeRTOS multitasking s 8 tasky
+- ✅ FreeRTOS multitasking (počet tasků se měnil; `animation_task` později vypnut)
 - ✅ Time-multiplexing GPIO pinů
 - ✅ Kompletní Doxygen dokumentace
 - ✅ Unified animation manager
@@ -653,9 +681,7 @@ Máme spoustu nápadů, co bychom chtěli přidat:
 - **Statistics** - Pokročilejší statistiky her
 - **Opening book** - Databáze zahájení
 - **Endgame database** - Databáze koncovek
-- **WebSocket** - Real-time komunikace (viz [docs/planning/CZECHMATE_MASTERPLAN.md](docs/planning/CZECHMATE_MASTERPLAN.md))
-- **Mobile app** - Nativní iOS app v `CZECHMATE/`; plán v `docs/planning/`
-- **Bluetooth LE** - Primární kanál pro mobil (viz masterplan)
+- **WebSocket** - Real-time komunikace přes webové rozhraní
 - **Voice commands** - Hlasové ovládání (možná trochu sci-fi, ale proč ne?)
 
 ---
@@ -776,8 +802,8 @@ Pokud máte jakékoli otázky nebo připomínky k projektu, neváhejte se ozvat.
 
 **Poznámka:** Tento projekt je aktivně vyvíjen. Pro nejnovější informace, bug reporty a technické detaily se podívejte do [docs/](docs/) složky.
 
-**Verze dokumentace:** 2.5.0
-**Poslední aktualizace:** 2026-02-14
+**Verze dokumentace:** 2.5.1 (README)
+**Poslední aktualizace:** 2026-04-17
 
 ---
 

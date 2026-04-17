@@ -61,7 +61,10 @@ function setPieceElementFromFen(el, ch) {
     if (src) {
         const isWhite = ch >= 'A' && ch <= 'Z';
         el.className = 'piece has-img ' + (isWhite ? 'white' : 'black');
-        el.innerHTML = '<img src="' + src + '" alt="" draggable="false">';
+        // BUG FIX 2: Fallback na Unicode když obrázek selže (CDN výpadek/CORS/blokátor)
+        const unicodeFallback = pieceSymbols[ch] || ch;
+        const colorClass = isWhite ? 'white' : 'black';
+        el.innerHTML = '<img src="' + src + '" alt="" draggable="false" onerror="this.parentNode.textContent=\'' + unicodeFallback + '\';this.parentNode.className=\'piece ' + colorClass + '\';">';
     } else {
         el.innerHTML = '';
         el.textContent = pieceSymbols[ch] || ch;
@@ -72,7 +75,9 @@ function setPieceElementFromFen(el, ch) {
 function pieceImgHtml(ch) {
     const s = pieceImgSrc(ch);
     if (s) {
-        return '<img src="' + s + '" class="endgame-piece-img" alt="" draggable="false">';
+        // BUG FIX 2: Fallback na Unicode když obrázek selže
+        const unicodeFallback = pieceSymbols[ch] || ch;
+        return '<img src="' + s + '" class="endgame-piece-img" alt="" draggable="false" onerror="this.parentNode.textContent=\'' + unicodeFallback + '\';this.parentNode.className=\'piece ' + (ch >= 'A' && ch <= 'Z' ? 'white' : 'black') + '\';">';
     }
     return pieceSymbols[ch] || ch;
 }
@@ -375,6 +380,43 @@ function applyDevicePrefsToDom() {
     loadBotSettings();
     if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
 }
+
+// Starting position check functions
+function loadStartingPositionCheck() {
+    var checkbox = document.getElementById('starting-position-check');
+    if (!checkbox) return;
+    fetch('/api/settings/start_pos_check')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (typeof data.enabled === 'boolean') {
+                checkbox.checked = data.enabled;
+            }
+        })
+        .catch(function(e) {
+            console.log('Failed to load starting position check setting:', e);
+        });
+}
+window.loadStartingPositionCheck = loadStartingPositionCheck;
+
+function saveStartingPositionCheck(enabled) {
+    fetch('/api/settings/start_pos_check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !!enabled })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            console.log('Starting position check saved:', data.enabled);
+        } else {
+            console.error('Failed to save starting position check:', data.message);
+        }
+    })
+    .catch(function(e) {
+        console.error('Error saving starting position check:', e);
+    });
+}
+window.saveStartingPositionCheck = saveStartingPositionCheck;
 
 window.onHintDepthChange = function (v) {
     devicePrefs.chessHintDepth = v;
@@ -746,19 +788,30 @@ function enterSandboxMode() {
     sandboxMode = true;
     sandboxBoard = JSON.parse(JSON.stringify(boardData));
     sandboxHistory = [];
-    const banner = document.getElementById('sandbox-banner');
-    banner.classList.add('active');
+    var banner = document.getElementById('sandbox-banner');
+    if (banner) banner.classList.add('active');
+    var boardEl = document.getElementById('board');
+    if (boardEl) boardEl.classList.add('sandbox-active');
     clearHighlights();
-    updateUndoButton(); // Aktualizovat tlačítko undo při vstupu do sandbox mode
+    updateUndoButton();
+    if (typeof console !== 'undefined' && console.log) {
+        console.log('[Sandbox] zapnuto — tahy jen lokálně, vizuálně odlišná šachovnice');
+    }
 }
 
 function exitSandboxMode() {
     sandboxMode = false;
     sandboxBoard = [];
     sandboxHistory = [];
-    document.getElementById('sandbox-banner').classList.remove('active');
+    var boardEl = document.getElementById('board');
+    if (boardEl) boardEl.classList.remove('sandbox-active');
+    var banner = document.getElementById('sandbox-banner');
+    if (banner) banner.classList.remove('active');
     clearHighlights();
     fetchData();
+    if (typeof console !== 'undefined' && console.log) {
+        console.log('[Sandbox] vypnuto — obnovuji pozici z desky (HTTP)');
+    }
 }
 
 function makeSandboxMove(fromRow, fromCol, toRow, toCol) {
@@ -1555,10 +1608,14 @@ window.requestHint = requestHint;
 // ============================================================================
 
 function updateBoard(board) {
+    // V sandboxu neprepisovat boardData (zůstane skutečná pozice z desky pro fetch po výstupu).
+    var skipReplaceBoardData = sandboxMode && board === sandboxBoard;
     // Only clear hint when board actually changed (new move), not on every periodic fetch
-    var boardUnchanged = boardData && board.length === 8 && boardData.length === 8 &&
+    var boardUnchanged = !skipReplaceBoardData && boardData && board.length === 8 && boardData.length === 8 &&
         JSON.stringify(board) === JSON.stringify(boardData);
-    boardData = board;
+    if (!skipReplaceBoardData) {
+        boardData = board;
+    }
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
@@ -4310,6 +4367,37 @@ async function clearWiFiConfig() {
     }
 }
 
+/** Celý NVS oddíl + restart (stejné jako BLE `factory_reset`). */
+async function factoryResetDevice() {
+    if (!confirm('Tovární reset: smaže VŠECHNO v NVS (WiFi, MQTT, uložená partie, UI) a desku restartuje. Pokračovat?')) {
+        return;
+    }
+    if (!confirm('Naposledy: opravdu vymazat celou NVS flash?')) {
+        return;
+    }
+    try {
+        const response = await fetch('/api/system/factory_reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ confirm: 'erase_all_nvs' })
+        });
+        var data = {};
+        try {
+            data = await response.json();
+        } catch (e) {
+            data = {};
+        }
+        if (response.ok && data.success) {
+            alert('Reset naplánován — deska za chvíli naběhne s prázdnou NVS.');
+        } else {
+            alert('Factory reset selhal: ' + (data.message || response.status));
+        }
+    } catch (error) {
+        console.error('factoryResetDevice:', error);
+        alert('Chyba při factory resetu');
+    }
+}
+
 /** True if API vrací uložené STA SSID z NVS (ne zástupný text z firmware). */
 function wifiStatusHasSavedStaSsid(staSsid) {
     if (staSsid == null || typeof staSsid !== 'string') {
@@ -4361,6 +4449,7 @@ window.saveWiFiConfig = saveWiFiConfig;
 window.connectSTA = connectSTA;
 window.disconnectSTA = disconnectSTA;
 window.clearWiFiConfig = clearWiFiConfig;
+window.factoryResetDevice = factoryResetDevice;
 
 // Start WiFi status update loop (every 5 seconds)
 let wifiStatusInterval = null;
@@ -4522,4 +4611,11 @@ function prevReviewMove() {
 function nextReviewMove() {
     if (!reviewMode || currentReviewIndex >= historyData.length - 1) return;
     enterReviewMode(currentReviewIndex + 1);
+}
+
+// Initialize starting position check setting on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadStartingPositionCheck);
+} else {
+    loadStartingPositionCheck();
 }

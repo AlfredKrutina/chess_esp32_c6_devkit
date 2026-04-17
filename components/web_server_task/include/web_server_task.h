@@ -41,6 +41,8 @@
 #ifndef WEB_SERVER_TASK_H
 #define WEB_SERVER_TASK_H
 
+#include <stdbool.h>
+
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
@@ -361,6 +363,13 @@ esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
  * REST kde je uvedeno).
  */
 esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len);
+
+/**
+ * @brief Vytáhne řetězec z pole "cmd" z BLE JSON (pro potvrzovací notify).
+ * @return true pokud byl cmd nalezen a zkopírován do cmd_out
+ */
+bool web_server_ble_extract_cmd_for_ack(const char *json, char *cmd_out,
+                                        size_t cmd_out_sz);
 
 /**
  * @brief Ziska aktualni IP adresu STA rozhrani

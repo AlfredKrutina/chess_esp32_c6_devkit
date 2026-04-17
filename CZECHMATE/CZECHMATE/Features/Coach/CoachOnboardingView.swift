@@ -60,6 +60,7 @@ struct CoachOnboardingView: View {
             .toolbarBackground(Color.black.opacity(0.2), for: .navigationBar)
         }
         .preferredColorScheme(.dark)
+        .onAppear { modelDownload.reconcileWithDisk() }
     }
 
     private var hero: some View {
@@ -83,15 +84,19 @@ struct CoachOnboardingView: View {
     private var copyBlock: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(
-                "Pro nejlepší zážitek si stáhněte AI Trenéra. Běží 100 % offline přímo ve vašem telefonu a pomůže vám pochopit každý tah."
+                "Jednorázově stáhneš balíček modelu Gemma (přibližně 1,3 GB) přes HTTPS — jde o skutečné stažení ze sítě. Po uložení do telefonu běží AI Trenér lokálně a pomůže ti slovně pochopit plán v pozici."
             )
             .font(.system(.body, design: .rounded))
             .foregroundStyle(.white.opacity(0.92))
             .fixedSize(horizontal: false, vertical: true)
 
-            Label("Soukromí: žádná data neodcházejí na server", systemImage: "lock.shield.fill")
-                .font(.system(.caption, design: .rounded))
-                .foregroundStyle(.white.opacity(0.75))
+            Label(
+                "Po stažení zůstává výstup modelu v telefonu. Nejlepší tah a eval pro trenéra i nápovědu ve hře ale počítá Stockfish přes internet — bez sítě tyto části nepoběží.",
+                systemImage: "lock.shield.fill"
+            )
+            .font(.system(.caption, design: .rounded))
+            .foregroundStyle(.white.opacity(0.75))
+            .fixedSize(horizontal: false, vertical: true)
         }
         .padding(18)
         .background(
@@ -112,6 +117,14 @@ struct CoachOnboardingView: View {
                     .foregroundStyle(.white.opacity(0.75))
             }
 
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Zdroj souboru: \(modelDownload.downloadSourceHostForDisplay)")
+                Text("Přenos: systémová URLSession (skutečná síť)")
+            }
+            .font(.system(.caption2, design: .rounded))
+            .foregroundStyle(.white.opacity(0.65))
+            .fixedSize(horizontal: false, vertical: true)
+
             ProgressView(value: modelDownload.progress, total: 1.0)
                 .tint(Theme.accent)
                 .scaleEffect(x: 1, y: 1.35, anchor: .center)
@@ -129,6 +142,15 @@ struct CoachOnboardingView: View {
                     .font(.system(.caption, design: .rounded))
                     .foregroundStyle(.orange.opacity(0.95))
                     .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if modelDownload.isModelInstalled, !CoachMediaPipeBuildAvailability.isMediaPipeLinked {
+                Text(
+                    "Model je uložený, ale v tomto buildu chybí MediaPipe. Pro výpočet na zařízení v Xcode otevři CZECHMATE.xcworkspace po „pod install“ v adresáři CZECHMATE (ne jen .xcodeproj)."
+                )
+                .font(.system(.caption, design: .rounded))
+                .foregroundStyle(.orange.opacity(0.95))
+                .fixedSize(horizontal: false, vertical: true)
             }
 
             HStack(spacing: 12) {

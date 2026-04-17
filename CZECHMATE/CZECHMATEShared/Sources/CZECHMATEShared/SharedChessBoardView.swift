@@ -44,12 +44,12 @@ public struct SharedChessBoardView: View {
         return ChessSquareNotation.indices(from: h)
     }
 
-    /// Stejná logika jako CZECHMATE `ChessBoardView`: bílý dole = `flipped == false`.
+    /// Stejná logika jako CZECHMATE `ChessBoardView`: `board` má řádek 0 = rank 8; bílý dole = `flipped == false`.
     private func boardIndices(visualRow: Int, visualCol: Int, flipped: Bool) -> (row: Int, col: Int) {
         if flipped {
-            (visualRow, 7 - visualCol)
+            (7 - visualRow, 7 - visualCol)
         } else {
-            (7 - visualRow, visualCol)
+            (visualRow, visualCol)
         }
     }
 
@@ -113,7 +113,8 @@ public struct SharedChessBoardView: View {
     }
 
     private func squareView(row: Int, col: Int, cell: CGFloat) -> some View {
-        let isLight = (row + col) % 2 == 0
+        let rankNumber = 8 - row
+        let isLight = (col + rankNumber) % 2 == 0
         let piece = (row < board.count && col < board[row].count) ? board[row][col] : " "
         let isFrom = fromIndex.map { $0.row == row && $0.col == col } ?? false
         let isTo = toIndex.map { $0.row == row && $0.col == col } ?? false

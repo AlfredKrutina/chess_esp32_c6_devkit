@@ -29,8 +29,9 @@ final class BoardSetupManager {
     enum Mode: Equatable {
         /// Firmware prázdná logická deska + `matrix_occupied` v `/api/status`.
         case standardStartingPosition
-        /// Vlastní FEN (puzzle): ověření přes `GameSnapshot.board`, volitelně POST nové hry s FEN.
-        case fenGuidedPlacement(postNewGameWithFEN: Bool)
+        /// Puzzle / vlastní FEN: prázdná logická deska (`setup_tutorial` start před průvodcem), krok podle `matrix_occupied`;
+        /// po posledním poli volitelně `new_game`+FEN na MCU (`loadFenWhenDone`).
+        case fenGuidedPlacement(loadFenWhenDone: Bool)
     }
 
     enum Phase: Equatable {
@@ -89,8 +90,10 @@ final class BoardSetupManager {
     }
 
     var usesMatrixSensors: Bool {
-        if case .standardStartingPosition = mode { return true }
-        return false
+        switch mode {
+        case .standardStartingPosition, .fenGuidedPlacement:
+            return true
+        }
     }
 
     init(mode: Mode, targetFEN: String, store: BoardConnectionStore) {
@@ -127,9 +130,11 @@ final class BoardSetupManager {
 
     func cancel() async {
         stopLoops()
+        store?.syncSetupWizardTargetSquare(nil)
         occStable = 0
         pieceStable = 0
-        if case .standardStartingPosition = mode {
+        switch mode {
+        case .standardStartingPosition, .fenGuidedPlacement:
             try? await store?.postSetupTutorialAPI(.cancel)
         }
         try? await store?.postSetupHintClearOnly()
@@ -152,6 +157,7 @@ final class BoardSetupManager {
         currentIndex += 1
         if currentIndex >= steps.count {
             stopLoops()
+            store?.syncSetupWizardTargetSquare(nil)
             await finalizeAfterAllPiecesPlaced()
             return
         }
@@ -204,17 +210,16 @@ final class BoardSetupManager {
     private func pollMatrixIfRunning() async {
         guard phase == .running, let step = currentStep, usesMatrixSensors else { return }
         guard let idx = BoardSetupFENSteps.matrixIndex(forSquare: step.square) else { return }
-        do {
-            guard let st = try await store?.fetchESPGameStatus() else { return }
-            guard let row = st.matrixOccupied, row.indices.contains(idx), row[idx] == 1 else {
-                occStable = 0
-                return
-            }
-            occStable += 1
-            scheduleAdvanceIfStable()
-        } catch {
+        guard let row = await store?.matrixOccupiedForBoardSetupWizard() else {
             occStable = 0
+            return
         }
+        guard row.indices.contains(idx), row[idx] == 1 else {
+            occStable = 0
+            return
+        }
+        occStable += 1
+        scheduleAdvanceIfStable()
     }
 
     private func scheduleAdvanceIfStable() {
@@ -241,6 +246,7 @@ final class BoardSetupManager {
         currentIndex += 1
         if currentIndex >= steps.count {
             stopLoops()
+            store?.syncSetupWizardTargetSquare(nil)
             await finalizeAfterAllPiecesPlaced()
             return
         }
@@ -248,11 +254,16 @@ final class BoardSetupManager {
     }
 
     private func applyHighlightForCurrentStep() async {
-        guard let sq = currentStep?.square else { return }
+        guard let sq = currentStep?.square else {
+            store?.syncSetupWizardTargetSquare(nil)
+            return
+        }
+        store?.syncSetupWizardTargetSquare(sq)
         try? await store?.postSetupHintDestinationOnly(to: sq)
     }
 
     private func finalizeAfterAllPiecesPlaced() async {
+        store?.syncSetupWizardTargetSquare(nil)
         switch mode {
         case .standardStartingPosition:
             phase = .validatingFinish
@@ -265,7 +276,24 @@ final class BoardSetupManager {
                 lastAPIError = msg
                 phase = .failed(msg)
             }
-        case .fenGuidedPlacement:
+        case .fenGuidedPlacement(let loadFenWhenDone):
+            phase = .validatingFinish
+            try? await store?.postSetupTutorialAPI(.cancel)
+            if loadFenWhenDone {
+                guard let store else {
+                    let msg = "Chybí spojení s deskou."
+                    lastAPIError = msg
+                    phase = .failed(msg)
+                    return
+                }
+                let ok = await store.applyPuzzleFenOnBoardAfterGuidedSetup(targetFEN)
+                if !ok {
+                    let msg = store.lastError ?? "Nepodařilo se nahrát pozici na desku."
+                    lastAPIError = msg
+                    phase = .failed(msg)
+                    return
+                }
+            }
             lastAPIError = nil
             phase = .completed
         }
@@ -274,7 +302,7 @@ final class BoardSetupManager {
     /// Po poslední figurce počkáme na ustálení reedů; při HTTP 409 z ESP zopakujeme (firmware dělá majority vote).
     private func postFinishSetupTutorialWithRetries() async throws {
         guard let store else {
-            throw BoardSetupStoreError.wifiRequired
+            throw BoardSetupStoreError.boardConnectionRequired
         }
         let settleNs: UInt64 = 300_000_000
         let retryDelayNs: UInt64 = 400_000_000

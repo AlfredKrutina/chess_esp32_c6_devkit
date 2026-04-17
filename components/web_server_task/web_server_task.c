@@ -143,8 +143,12 @@
 #include "../ble_task/include/ble_task.h"
 #include "../config_manager/include/config_manager.h"
 #include "nvs.h"
-// #include "nvs_flash.h" // UNUSED
+#include "nvs_flash.h"
+#include "esp_partition.h"
+#include "esp_system.h"
+#include "cJSON.h"
 #include "freertos/semphr.h"
+#include "freertos/task.h"
 #include <ctype.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -289,6 +293,10 @@ static char snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
 /** Ochrana sestavení snapshotu (HTTP + BLE paralelně). */
 static SemaphoreHandle_t snapshot_build_mutex;
 
+/** Fronta pingů — build snapshot jen v web_server_task (ne v esp_timer: malý stack). */
+static QueueHandle_t snapshot_notify_queue;
+static void czechmate_ensure_snapshot_notify_queue(void);
+
 // ============================================================================
 // PREDBEZNE DEKLARACE
 // ============================================================================
@@ -337,6 +345,7 @@ static esp_err_t http_post_wifi_config_handler(httpd_req_t *req);
 static esp_err_t http_post_wifi_connect_handler(httpd_req_t *req);
 static esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req);
 static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req);
+static esp_err_t http_post_factory_reset_handler(httpd_req_t *req);
 static esp_err_t http_get_wifi_status_handler(httpd_req_t *req);
 static esp_err_t http_get_wifi_status_handler(httpd_req_t *req);
 static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req);
@@ -657,6 +666,51 @@ esp_err_t wifi_clear_config_from_nvs(void) {
   ESP_LOGI(TAG, "WiFi config cleared from NVS");
 
   return ESP_OK;
+}
+
+/** Zpráva pro asynchronní STA provisioning z BLE (wifi_connect_sta může trvat až ~30 s). */
+typedef struct {
+  char ssid[33];
+  char password[65];
+} wifi_ble_prov_msg_t;
+
+static void wifi_ble_prov_task(void *arg) {
+  wifi_ble_prov_msg_t *m = (wifi_ble_prov_msg_t *)arg;
+  const char ack_cmd[] = "{\"cmd\":\"wifi_sta_config\"}";
+
+  if (m == NULL) {
+    vTaskDelete(NULL);
+    return;
+  }
+
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "BLE wifi_sta_config: blocked (web locked)");
+    ble_task_notify_command_result(ESP_ERR_INVALID_STATE, ack_cmd);
+    free(m);
+    vTaskDelete(NULL);
+    return;
+  }
+
+  ESP_LOGI(TAG, "BLE wifi_sta_config: task start SSID=%s", m->ssid);
+  esp_err_t err = wifi_save_config_to_nvs(m->ssid, m->password);
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "BLE wifi_sta_config: NVS save failed %s", esp_err_to_name(err));
+    ble_task_notify_command_result(err, ack_cmd);
+    free(m);
+    vTaskDelete(NULL);
+    return;
+  }
+
+  err = wifi_connect_sta();
+  ble_task_push_network_info();
+  if (err == ESP_OK) {
+    ESP_LOGI(TAG, "BLE wifi_sta_config: STA connected");
+  } else {
+    ESP_LOGW(TAG, "BLE wifi_sta_config: connect failed %s", esp_err_to_name(err));
+  }
+  ble_task_notify_command_result(err, ack_cmd);
+  free(m);
+  vTaskDelete(NULL);
 }
 
 bool wifi_is_sta_connected(void) { return sta_connected; }
@@ -1138,6 +1192,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     sta_connecting = false;
     sta_ip[0] = '\0';
     czechmate_mdns_refresh_sta_txt();
+    ble_task_push_network_info(); // Notify BLE clients about disconnect
     if (!sta_manual_disconnect && sta_reconnect_timer != NULL) {
       esp_timer_start_once(sta_reconnect_timer,
                            (uint64_t)sta_reconnect_delay_ms * 1000);
@@ -1158,12 +1213,14 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     sta_connecting = false;
     sta_reconnect_delay_ms = STA_RECONNECT_DELAY_MIN_MS; // Reset backoff
     czechmate_mdns_refresh_sta_txt();
+    ble_task_push_network_info(); // Notify BLE clients about new IP
   } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_LOST_IP) {
     ESP_LOGI(TAG, "STA: Lost IP");
     sta_connected = false;
     sta_connecting = false; // Resetovat flag pripojovani
     sta_ip[0] = '\0';
     czechmate_mdns_refresh_sta_txt();
+    ble_task_push_network_info(); // Notify BLE clients about lost IP
   }
 }
 
@@ -1709,6 +1766,70 @@ static esp_err_t http_post_settings_led_guidance_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
+/**
+ * @brief Handler pro GET /api/settings/start_pos_check
+ *
+ * Vrati stav hlidani pocatecni pozice (enabled true/false).
+ */
+static esp_err_t http_get_settings_start_pos_check_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "GET /api/settings/start_pos_check");
+
+  bool enabled = game_get_starting_position_check();
+
+  char resp[64];
+  snprintf(resp, sizeof(resp), "{\"enabled\":%s}", enabled ? "true" : "false");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, resp, strlen(resp));
+  return ESP_OK;
+}
+
+/**
+ * @brief Handler pro POST /api/settings/start_pos_check
+ *
+ * Nastavi stav hlidani pocatecni pozice a ulozi do NVS.
+ * Body: {"enabled": true/false}
+ */
+static esp_err_t http_post_settings_start_pos_check_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/settings/start_pos_check");
+
+  if (web_is_locked()) {
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
+    return ESP_OK;
+  }
+
+  char content[64];
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
+    return ESP_OK;
+  }
+  content[ret] = '\0';
+
+  bool enabled = (strstr(content, "\"enabled\":true") != NULL) ||
+                 (strstr(content, "\"enabled\": true") != NULL);
+
+  // Nastavit v game_task
+  game_set_starting_position_check(enabled);
+
+  // Ulozit do NVS
+  system_config_t config;
+  if (config_load_from_nvs(&config) == ESP_OK) {
+    config.starting_position_check_enabled = enabled;
+    config_save_to_nvs(&config);
+    ESP_LOGI(TAG, "Starting position check saved to NVS: %s", enabled ? "ON" : "OFF");
+  }
+
+  char resp[64];
+  snprintf(resp, sizeof(resp), "{\"success\":true,\"enabled\":%s}", enabled ? "true" : "false");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, resp, strlen(resp));
+  return ESP_OK;
+}
+
 static esp_err_t http_post_light_command_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/light/command");
 
@@ -1996,6 +2117,21 @@ static esp_err_t start_http_server(void) {
       .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &settings_led_guidance_uri);
 
+  // Handlery pro Start Position Check nastaveni
+  httpd_uri_t settings_start_pos_check_get_uri = {
+      .uri = "/api/settings/start_pos_check",
+      .method = HTTP_GET,
+      .handler = http_get_settings_start_pos_check_handler,
+      .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &settings_start_pos_check_get_uri);
+
+  httpd_uri_t settings_start_pos_check_post_uri = {
+      .uri = "/api/settings/start_pos_check",
+      .method = HTTP_POST,
+      .handler = http_post_settings_start_pos_check_handler,
+      .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &settings_start_pos_check_post_uri);
+
   httpd_uri_t timer_pause_uri = {.uri = "/api/timer/pause",
                                  .method = HTTP_POST,
                                  .handler = http_post_timer_pause_handler,
@@ -2039,6 +2175,12 @@ static esp_err_t start_http_server(void) {
                                 .handler = http_post_wifi_clear_handler,
                                 .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &wifi_clear_uri);
+
+  httpd_uri_t factory_reset_uri = {.uri = "/api/system/factory_reset",
+                                   .method = HTTP_POST,
+                                   .handler = http_post_factory_reset_handler,
+                                   .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &factory_reset_uri);
 
   httpd_uri_t wifi_status_uri = {.uri = "/api/wifi/status",
                                  .method = HTTP_GET,
@@ -2224,8 +2366,8 @@ static void inject_web_status_fields(char *buf, size_t buf_size) {
     return;
   }
   size_t remaining = buf_size - (size_t)(last_brace - buf);
-  /* První blok ~350 B + druhý ~120 B — při těsném bufferu raději neposlat useknutý JSON. */
-  if (remaining < 400) {
+  /* První blok ~370 B (+ chess_hint_limit) + druhý ~120 B — při těsném bufferu raději neposlat useknutý JSON. */
+  if (remaining < 430) {
     ESP_LOGE(TAG,
              "[STAGING] inject_web_status_fields: remaining=%zu B too small for "
              "web fields (cap=%zu)",
@@ -2233,6 +2375,7 @@ static void inject_web_status_fields(char *buf, size_t buf_size) {
     return;
   }
   uint8_t b = cached_brightness_valid ? cached_brightness : 50;
+  int hint_lim = config_ui_prefs_get_chess_hint_limit();
   int wr =
       snprintf(last_brace, remaining,
                ",\"web_locked\":%s,\"internet_connected\":%s,\"brightness\":%d,"
@@ -2240,7 +2383,8 @@ static void inject_web_status_fields(char *buf, size_t buf_size) {
                "\"matrix_guard_active\":%s,"
                "\"matrix_guard_conflicts\":%u,"
                "\"matrix_guard_lifted_low\":%lu,\"matrix_guard_lifted_high\":%lu,"
-               "\"matrix_guard_dropped_low\":%lu,\"matrix_guard_dropped_high\":%lu}",
+               "\"matrix_guard_dropped_low\":%lu,\"matrix_guard_dropped_high\":%lu,"
+               "\"chess_hint_limit\":%d}",
                web_is_locked() ? "true" : "false",
                sta_connected ? "true" : "false", (int)b,
                game_get_guided_capture_hints_enabled() ? "true" : "false",
@@ -2250,7 +2394,8 @@ static void inject_web_status_fields(char *buf, size_t buf_size) {
                (unsigned long)game_get_matrix_guard_lifted_mask_low(),
                (unsigned long)game_get_matrix_guard_lifted_mask_high(),
                (unsigned long)game_get_matrix_guard_dropped_mask_low(),
-               (unsigned long)game_get_matrix_guard_dropped_mask_high());
+               (unsigned long)game_get_matrix_guard_dropped_mask_high(),
+               hint_lim);
   if (wr < 0 || (size_t)wr >= remaining) {
     ESP_LOGE(TAG,
              "[STAGING] inject_web_status_fields: first snprintf truncated "
@@ -2302,6 +2447,9 @@ static void snapshot_build_mutex_give(void) {
     xSemaphoreGive(snapshot_build_mutex);
   }
 }
+
+/** Pod `snapshot_build_mutex` — žádný paralelní build; šetří ~1 KiB stacku na NimBLE host task. */
+static char s_clock_json_build_scratch[TIMER_HTTP_JSON_MAX];
 
 /** Stejný JSON jako GET /api/game/snapshot — do bufferu `out` (HTTP i BLE). */
 static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
@@ -2374,10 +2522,11 @@ static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
   }
   pos += (size_t)n;
 
-  char clock_json[TIMER_HTTP_JSON_MAX];
-  ret = game_get_timer_json(clock_json, sizeof(clock_json));
+  ret = game_get_timer_json(s_clock_json_build_scratch,
+                            sizeof(s_clock_json_build_scratch));
   if (ret == ESP_OK) {
-    n = snprintf(out + pos, cap - pos, ",\"clock\":%s}", clock_json);
+    n = snprintf(out + pos, cap - pos, ",\"clock\":%s}",
+                 s_clock_json_build_scratch);
   } else {
 #ifndef NDEBUG
     ESP_LOGW(TAG, "build_snapshot: game_get_timer_json failed: %s",
@@ -2508,11 +2657,64 @@ static bool json_extract_cmd_string(const char *buf, char *cmd_out, size_t cmd_s
   return i > 0;
 }
 
+bool web_server_ble_extract_cmd_for_ack(const char *json, char *cmd_out,
+                                        size_t cmd_out_sz) {
+  if (json == NULL || cmd_out == NULL || cmd_out_sz == 0) {
+    return false;
+  }
+  return json_extract_cmd_string(json, cmd_out, cmd_out_sz);
+}
+
+/** Musí přesně sedět s webem (`POST /api/system/factory_reset`) a iOS. */
+#define CZECHMATE_FACTORY_RESET_CONFIRM "erase_all_nvs"
+
+static bool json_body_has_factory_confirm(const char *json) {
+  if (json == NULL) {
+    return false;
+  }
+  if (strstr(json, "\"confirm\"") == NULL) {
+    return false;
+  }
+  return strstr(json, CZECHMATE_FACTORY_RESET_CONFIRM) != NULL;
+}
+
+static void factory_reset_worker(void *ignored) {
+  (void)ignored;
+  vTaskDelay(pdMS_TO_TICKS(500));
+  ESP_LOGW(TAG,
+           "[STAGING] factory_reset: raw erase default NVS partition + restart");
+
+  const esp_partition_t *nvs_part = esp_partition_find_first(
+      ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+  esp_err_t er = ESP_FAIL;
+  if (nvs_part != NULL) {
+    er = esp_partition_erase_range(nvs_part, 0, nvs_part->size);
+    ESP_LOGW(TAG, "esp_partition_erase_range(label=%s size=%u): %s",
+             nvs_part->label, (unsigned)nvs_part->size, esp_err_to_name(er));
+  } else {
+    er = nvs_flash_erase();
+    ESP_LOGW(TAG, "nvs_flash_erase (no nvs partition label): %s",
+             esp_err_to_name(er));
+  }
+
+  esp_restart();
+}
+
+static esp_err_t factory_reset_schedule(void) {
+  BaseType_t ok =
+      xTaskCreate(factory_reset_worker, "fac_rst", 4096, NULL, 10, NULL);
+  if (ok != pdPASS) {
+    ESP_LOGE(TAG, "factory_reset: xTaskCreate failed");
+    return ESP_FAIL;
+  }
+  return ESP_OK;
+}
+
 esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   if (json == NULL || json_len == 0) {
     return ESP_ERR_INVALID_ARG;
   }
-  char buf[384];
+  char buf[768];
   size_t n = json_len < sizeof(buf) - 1 ? json_len : sizeof(buf) - 1;
   memcpy(buf, json, n);
   buf[n] = '\0';
@@ -2525,6 +2727,63 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
 
   if (strcmp(cmd, "ping") == 0) {
     ESP_LOGI(TAG, "BLE cmd: ping");
+    return ESP_OK;
+  }
+  if (strcmp(cmd, "factory_reset") == 0) {
+    if (!json_body_has_factory_confirm(buf)) {
+      ESP_LOGW(TAG, "BLE factory_reset: missing/invalid confirm");
+      return ESP_ERR_INVALID_ARG;
+    }
+    ESP_LOGW(TAG, "[STAGING] BLE factory_reset: scheduling NVS erase + restart");
+    return factory_reset_schedule();
+  }
+  if (strcmp(cmd, "wifi_sta_config") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "BLE wifi_sta_config blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      ESP_LOGE(TAG, "BLE wifi_sta_config: invalid JSON");
+      return ESP_FAIL;
+    }
+    cJSON *sj = cJSON_GetObjectItemCaseSensitive(root, "ssid");
+    if (!cJSON_IsString(sj) || sj->valuestring == NULL || sj->valuestring[0] == '\0') {
+      cJSON_Delete(root);
+      return ESP_ERR_INVALID_ARG;
+    }
+    const char *pwd = "";
+    cJSON *pj = cJSON_GetObjectItemCaseSensitive(root, "password");
+    if (cJSON_IsString(pj) && pj->valuestring != NULL) {
+      pwd = pj->valuestring;
+    }
+    size_t slen = strlen(sj->valuestring);
+    size_t plen = strlen(pwd);
+    if (slen > 32U) {
+      cJSON_Delete(root);
+      return ESP_ERR_INVALID_ARG;
+    }
+    if (plen > 64U) {
+      cJSON_Delete(root);
+      return ESP_ERR_INVALID_ARG;
+    }
+    wifi_ble_prov_msg_t *msg = (wifi_ble_prov_msg_t *)calloc(1, sizeof(wifi_ble_prov_msg_t));
+    if (msg == NULL) {
+      cJSON_Delete(root);
+      return ESP_FAIL;
+    }
+    strncpy(msg->ssid, sj->valuestring, sizeof(msg->ssid) - 1);
+    strncpy(msg->password, pwd, sizeof(msg->password) - 1);
+    cJSON_Delete(root);
+
+    BaseType_t ok =
+        xTaskCreate(wifi_ble_prov_task, "wifi_ble_prov", 8192, msg, 5, NULL);
+    if (ok != pdPASS) {
+      ESP_LOGE(TAG, "BLE wifi_sta_config: xTaskCreate failed");
+      free(msg);
+      return ESP_FAIL;
+    }
+    ESP_LOGI(TAG, "BLE wifi_sta_config: provisioning task queued");
     return ESP_OK;
   }
   if (strcmp(cmd, "hint_highlight") == 0) {
@@ -2576,11 +2835,700 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return ESP_OK;
   }
 
+  if (strcmp(cmd, "light_command") == 0) {
+    bool state = true;
+    int r = 255, g = 255, b = 255;
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      ESP_LOGE(TAG, "BLE light_command: invalid JSON");
+      return ESP_FAIL;
+    }
+    cJSON *stj = cJSON_GetObjectItemCaseSensitive(root, "state");
+    if (cJSON_IsBool(stj) && cJSON_IsFalse(stj)) {
+      state = false;
+    }
+    cJSON *jr = cJSON_GetObjectItemCaseSensitive(root, "r");
+    cJSON *jg = cJSON_GetObjectItemCaseSensitive(root, "g");
+    cJSON *jb = cJSON_GetObjectItemCaseSensitive(root, "b");
+    if (cJSON_IsNumber(jr)) {
+      r = (int)cJSON_GetNumberValue(jr);
+    }
+    if (cJSON_IsNumber(jg)) {
+      g = (int)cJSON_GetNumberValue(jg);
+    }
+    if (cJSON_IsNumber(jb)) {
+      b = (int)cJSON_GetNumberValue(jb);
+    }
+    cJSON_Delete(root);
+    if (r < 0) {
+      r = 0;
+    }
+    if (r > 255) {
+      r = 255;
+    }
+    if (g < 0) {
+      g = 0;
+    }
+    if (g > 255) {
+      g = 255;
+    }
+    if (b < 0) {
+      b = 0;
+    }
+    if (b > 255) {
+      b = 255;
+    }
+    if (!ha_light_request_web_lamp(state, (uint8_t)r, (uint8_t)g, (uint8_t)b)) {
+      ESP_LOGW(TAG, "BLE light_command: ha_light_request_web_lamp failed");
+      return ESP_ERR_INVALID_STATE;
+    }
+    ESP_LOGI(TAG, "BLE light_command state=%d rgb=%d,%d,%d", (int)state, r, g, b);
+    return ESP_OK;
+  }
+  if (strcmp(cmd, "light_game_mode") == 0) {
+    ha_light_report_activity("web_game_mode");
+    ESP_LOGI(TAG, "BLE light_game_mode");
+    return ESP_OK;
+  }
+
+  /* ============================================
+   * NOVÉ BLE PŘÍKAZY - Začátek
+   * ============================================ */
+  if (strcmp(cmd, "move") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] move blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    // BLE move command: {"cmd": "move", "from": "e2", "to": "e4", "promotion": "q"}
+    char from[8] = {0};
+    char to[8] = {0};
+    char promotion[8] = {0};
+
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      ESP_LOGE(TAG, "Invalid JSON in move command");
+      return ESP_FAIL;
+    }
+
+    cJSON *from_obj = cJSON_GetObjectItemCaseSensitive(root, "from");
+    cJSON *to_obj = cJSON_GetObjectItemCaseSensitive(root, "to");
+    cJSON *promo_obj = cJSON_GetObjectItemCaseSensitive(root, "promotion");
+
+    if (cJSON_IsString(from_obj) && cJSON_IsString(to_obj)) {
+      strncpy(from, from_obj->valuestring, sizeof(from) - 1);
+      strncpy(to, to_obj->valuestring, sizeof(to) - 1);
+      if (cJSON_IsString(promo_obj)) {
+        strncpy(promotion, promo_obj->valuestring, sizeof(promotion) - 1);
+      }
+
+      if (game_command_queue != NULL) {
+        chess_move_command_t move_cmd = {0};
+        move_cmd.type = GAME_CMD_MOVE;
+        strncpy(move_cmd.from_notation, from, sizeof(move_cmd.from_notation) - 1);
+        strncpy(move_cmd.to_notation, to, sizeof(move_cmd.to_notation) - 1);
+
+        /* Stejne jako promotion_choice_t (0=Q,1=R,2=B,3=N) — viz
+         * game_process_promotion_command */
+        if (strlen(promotion) > 0) {
+          switch (promotion[0]) {
+          case 'q':
+          case 'Q':
+            move_cmd.promotion_choice = PROMOTION_QUEEN;
+            break;
+          case 'r':
+          case 'R':
+            move_cmd.promotion_choice = PROMOTION_ROOK;
+            break;
+          case 'b':
+          case 'B':
+            move_cmd.promotion_choice = PROMOTION_BISHOP;
+            break;
+          case 'n':
+          case 'N':
+            move_cmd.promotion_choice = PROMOTION_KNIGHT;
+            break;
+          default:
+            move_cmd.promotion_choice = PROMOTION_QUEEN;
+            break;
+          }
+        }
+        move_cmd.promotion_from_remote = (strlen(promotion) > 0) ? 1U : 0U;
+
+        if (xQueueSend(game_command_queue, &move_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+          ESP_LOGI(TAG, "[BLE] move: %s -> %s (promo: %s)", from, to,
+                   strlen(promotion) > 0 ? promotion : "none");
+        } else {
+          ESP_LOGE(TAG, "[BLE] move: failed to send to game queue");
+        }
+      }
+    } else {
+      ESP_LOGW(TAG, "[BLE] move: missing from/to fields");
+      cJSON_Delete(root);
+      return ESP_ERR_INVALID_ARG;
+    }
+    cJSON_Delete(root);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "new_game") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] new_game blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    if (game_command_queue == NULL) {
+      return ESP_FAIL;
+    }
+    chess_move_command_t new_cmd = {0};
+    new_cmd.type = GAME_CMD_NEW_GAME;
+    cJSON *root = cJSON_Parse(buf);
+    if (root != NULL) {
+      cJSON *fj = cJSON_GetObjectItemCaseSensitive(root, "fen");
+      if (cJSON_IsString(fj) && fj->valuestring != NULL &&
+          fj->valuestring[0] != '\0') {
+        new_cmd.type = GAME_CMD_NEW_GAME_FROM_FEN;
+        strncpy(new_cmd.timer_data.fen_new_game.fen, fj->valuestring,
+                sizeof(new_cmd.timer_data.fen_new_game.fen) - 1);
+        new_cmd.timer_data.fen_new_game.fen[sizeof(new_cmd.timer_data.fen_new_game.fen) - 1] = '\0';
+      }
+      cJSON_Delete(root);
+    }
+    if (xQueueSend(game_command_queue, &new_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+      ESP_LOGI(TAG, "[BLE] new_game: type=%d", (int)new_cmd.type);
+    } else {
+      ESP_LOGE(TAG, "[BLE] new_game: failed to send to game queue");
+      return ESP_FAIL;
+    }
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "undo") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] undo blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    if (game_command_queue != NULL) {
+      chess_move_command_t undo_cmd = {0};
+      undo_cmd.type = GAME_CMD_UNDO_MOVE;
+      if (xQueueSend(game_command_queue, &undo_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+        ESP_LOGI(TAG, "[BLE] undo: command sent");
+      } else {
+        ESP_LOGE(TAG, "[BLE] undo: failed to send to game queue");
+      }
+    }
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "promotion") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] promotion blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      ESP_LOGE(TAG, "Invalid JSON in promotion command");
+      return ESP_FAIL;
+    }
+    cJSON *choice_obj = cJSON_GetObjectItemCaseSensitive(root, "choice");
+    if (cJSON_IsString(choice_obj) && game_command_queue != NULL) {
+      chess_move_command_t promo_cmd = {0};
+      promo_cmd.type = GAME_CMD_PROMOTION;
+      switch (choice_obj->valuestring[0]) {
+      case 'q':
+      case 'Q':
+        promo_cmd.promotion_choice = PROMOTION_QUEEN;
+        break;
+      case 'r':
+      case 'R':
+        promo_cmd.promotion_choice = PROMOTION_ROOK;
+        break;
+      case 'b':
+      case 'B':
+        promo_cmd.promotion_choice = PROMOTION_BISHOP;
+        break;
+      case 'n':
+      case 'N':
+        promo_cmd.promotion_choice = PROMOTION_KNIGHT;
+        break;
+      default:
+        promo_cmd.promotion_choice = PROMOTION_QUEEN;
+        break;
+      }
+      if (xQueueSend(game_command_queue, &promo_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+        ESP_LOGI(TAG, "[BLE] promotion: choice %s", choice_obj->valuestring);
+      } else {
+        ESP_LOGE(TAG, "[BLE] promotion: failed to send to game queue");
+      }
+    }
+    cJSON_Delete(root);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "timer_config") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] timer_config blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    chess_move_command_t tcmd = {0};
+    tcmd.type = GAME_CMD_SET_TIME_CONTROL;
+
+    char *type_str = strstr(buf, "\"type\":");
+    if (type_str == NULL) {
+      ESP_LOGW(TAG, "[BLE] timer_config: missing type");
+      return ESP_ERR_INVALID_ARG;
+    }
+    int type_value;
+    if (sscanf(type_str, "\"type\":%d", &type_value) != 1) {
+      ESP_LOGW(TAG, "[BLE] timer_config: invalid type");
+      return ESP_ERR_INVALID_ARG;
+    }
+    if (type_value < 0 || type_value > 14) {
+      ESP_LOGW(TAG, "[BLE] timer_config: type out of range");
+      return ESP_ERR_INVALID_ARG;
+    }
+    tcmd.timer_data.timer_config.time_control_type = (uint8_t)type_value;
+
+    if (type_value == 14) {
+      char *minutes_str = strstr(buf, "\"custom_minutes\":");
+      char *increment_str = strstr(buf, "\"custom_increment\":");
+      if (minutes_str) {
+        int minutes;
+        if (sscanf(minutes_str, "\"custom_minutes\":%d", &minutes) == 1) {
+          if (minutes >= 1 && minutes <= 180) {
+            tcmd.timer_data.timer_config.custom_minutes = (uint32_t)minutes;
+          } else {
+            ESP_LOGW(TAG, "[BLE] timer_config: minutes out of range");
+            return ESP_ERR_INVALID_ARG;
+          }
+        }
+      }
+      if (increment_str) {
+        int increment;
+        if (sscanf(increment_str, "\"custom_increment\":%d", &increment) ==
+            1) {
+          if (increment >= 0 && increment <= 60) {
+            tcmd.timer_data.timer_config.custom_increment =
+                (uint32_t)increment;
+          } else {
+            ESP_LOGW(TAG, "[BLE] timer_config: increment out of range");
+            return ESP_ERR_INVALID_ARG;
+          }
+        }
+      }
+      if (minutes_str == NULL || increment_str == NULL) {
+        ESP_LOGW(TAG, "[BLE] timer_config: custom needs minutes+increment");
+        return ESP_ERR_INVALID_ARG;
+      }
+    }
+
+    if (game_command_queue == NULL ||
+        xQueueSend(game_command_queue, &tcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+      ESP_LOGE(TAG, "[BLE] timer_config: queue send failed");
+      return ESP_FAIL;
+    }
+    ESP_LOGI(TAG, "[BLE] timer_config: type=%d", type_value);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "timer_pause") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] timer_pause blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    chess_move_command_t tcmd = {0};
+    tcmd.type = GAME_CMD_PAUSE_TIMER;
+    if (game_command_queue == NULL ||
+        xQueueSend(game_command_queue, &tcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+      return ESP_FAIL;
+    }
+    ESP_LOGI(TAG, "[BLE] timer_pause");
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "timer_resume") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] timer_resume blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    chess_move_command_t tcmd = {0};
+    tcmd.type = GAME_CMD_RESUME_TIMER;
+    if (game_command_queue == NULL ||
+        xQueueSend(game_command_queue, &tcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+      return ESP_FAIL;
+    }
+    ESP_LOGI(TAG, "[BLE] timer_resume");
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "timer_reset") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] timer_reset blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    chess_move_command_t tcmd = {0};
+    tcmd.type = GAME_CMD_RESET_TIMER;
+    if (game_command_queue == NULL ||
+        xQueueSend(game_command_queue, &tcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+      return ESP_FAIL;
+    }
+    ESP_LOGI(TAG, "[BLE] timer_reset");
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "virtual_action") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] virtual_action blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    char action[16] = {0};
+    char square[8] = {0};
+    char choice[8] = {0};
+
+    const char *action_start = strstr(buf, "\"action\"");
+    if (action_start != NULL) {
+      action_start = strchr(action_start, ':');
+      if (action_start != NULL) {
+        action_start++;
+        while (*action_start == ' ' || *action_start == '\"') {
+          action_start++;
+        }
+        const char *action_end = strchr(action_start, '\"');
+        if (action_end != NULL && action_end > action_start) {
+          size_t len = (size_t)(action_end - action_start);
+          if (len < sizeof(action)) {
+            strncpy(action, action_start, len);
+          }
+        }
+      }
+    }
+
+    const char *square_start = strstr(buf, "\"square\"");
+    if (square_start != NULL) {
+      square_start = strchr(square_start, ':');
+      if (square_start != NULL) {
+        square_start++;
+        while (*square_start == ' ' || *square_start == '\"') {
+          square_start++;
+        }
+        const char *square_end = strchr(square_start, '\"');
+        if (square_end != NULL && square_end > square_start) {
+          size_t len = (size_t)(square_end - square_start);
+          if (len < sizeof(square)) {
+            strncpy(square, square_start, len);
+          }
+        }
+      }
+    }
+
+    const char *choice_start = strstr(buf, "\"choice\"");
+    if (choice_start != NULL) {
+      choice_start = strchr(choice_start, ':');
+      if (choice_start != NULL) {
+        choice_start++;
+        while (*choice_start == ' ' || *choice_start == '\"') {
+          choice_start++;
+        }
+        const char *choice_end = strchr(choice_start, '\"');
+        if (choice_end != NULL && choice_end > choice_start) {
+          size_t len = (size_t)(choice_end - choice_start);
+          if (len < sizeof(choice)) {
+            strncpy(choice, choice_start, len);
+          }
+        }
+      }
+    }
+
+    if (strlen(action) == 0) {
+      ESP_LOGW(TAG, "[BLE] virtual_action: missing action");
+      return ESP_ERR_INVALID_ARG;
+    }
+
+    chess_move_command_t vacmd = {0};
+    if (strcmp(action, "pickup") == 0) {
+      vacmd.type = GAME_CMD_PICKUP;
+    } else if (strcmp(action, "drop") == 0) {
+      vacmd.type = GAME_CMD_DROP;
+    } else if (strcmp(action, "promote") == 0) {
+      vacmd.type = GAME_CMD_PROMOTION;
+    } else {
+      ESP_LOGW(TAG, "[BLE] virtual_action: invalid action");
+      return ESP_ERR_INVALID_ARG;
+    }
+
+    if (strcmp(action, "pickup") == 0) {
+      if (strlen(square) == 0) {
+        ESP_LOGW(TAG, "[BLE] virtual_action: pickup needs square");
+        return ESP_ERR_INVALID_ARG;
+      }
+      strncpy(vacmd.from_notation, square, sizeof(vacmd.from_notation) - 1);
+    } else if (strcmp(action, "drop") == 0) {
+      if (strlen(square) == 0) {
+        ESP_LOGW(TAG, "[BLE] virtual_action: drop needs square");
+        return ESP_ERR_INVALID_ARG;
+      }
+      strncpy(vacmd.to_notation, square, sizeof(vacmd.to_notation) - 1);
+    } else if (strcmp(action, "promote") == 0) {
+      if (strlen(choice) == 0) {
+        strcpy(choice, "Q");
+      }
+      if (strcasecmp(choice, "Q") == 0) {
+        vacmd.promotion_choice = PROMOTION_QUEEN;
+      } else if (strcasecmp(choice, "R") == 0) {
+        vacmd.promotion_choice = PROMOTION_ROOK;
+      } else if (strcasecmp(choice, "B") == 0) {
+        vacmd.promotion_choice = PROMOTION_BISHOP;
+      } else if (strcasecmp(choice, "N") == 0) {
+        vacmd.promotion_choice = PROMOTION_KNIGHT;
+      } else {
+        vacmd.promotion_choice = PROMOTION_QUEEN;
+      }
+      if (strlen(square) > 0) {
+        strncpy(vacmd.to_notation, square, sizeof(vacmd.to_notation) - 1);
+      }
+    }
+
+    if (game_command_queue == NULL ||
+        xQueueSend(game_command_queue, &vacmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+      ESP_LOGE(TAG, "[BLE] virtual_action: queue send failed");
+      return ESP_FAIL;
+    }
+    ESP_LOGI(TAG, "[BLE] virtual_action: %s", action);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "demo_config") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] demo_config blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    bool enabled = false;
+    cJSON *en = cJSON_GetObjectItemCaseSensitive(root, "enabled");
+    if (cJSON_IsBool(en)) {
+      enabled = cJSON_IsTrue(en);
+    }
+    cJSON *sp = cJSON_GetObjectItemCaseSensitive(root, "speed_ms");
+    if (cJSON_IsNumber(sp)) {
+      double v = cJSON_GetNumberValue(sp);
+      if (v >= 0 && v <= 600000) {
+        set_demo_speed_ms((uint32_t)v);
+      }
+    }
+    cJSON_Delete(root);
+    toggle_demo_mode(enabled);
+    ESP_LOGI(TAG, "[BLE] demo_config enabled=%d", (int)enabled);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "demo_start") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] demo_start blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    toggle_demo_mode(true);
+    ESP_LOGI(TAG, "[BLE] demo_start");
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "settings_auto_lamp_timeout") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *sec = cJSON_GetObjectItemCaseSensitive(root, "seconds");
+    int seconds_val = -1;
+    if (cJSON_IsNumber(sec)) {
+      seconds_val = (int)cJSON_GetNumberValue(sec);
+    }
+    cJSON_Delete(root);
+    if (seconds_val < 5) {
+      seconds_val = 5;
+    }
+    if (seconds_val > 7200) {
+      seconds_val = 7200;
+    }
+    if (ha_light_set_activity_timeout_sec((uint32_t)seconds_val) != ESP_OK) {
+      return ESP_ERR_INVALID_ARG;
+    }
+    ESP_LOGI(TAG, "[BLE] settings_auto_lamp_timeout %d", seconds_val);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "settings_guided_hints") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    bool enabled = false;
+    cJSON *en = cJSON_GetObjectItemCaseSensitive(root, "enabled");
+    if (cJSON_IsBool(en)) {
+      enabled = cJSON_IsTrue(en);
+    }
+    cJSON_Delete(root);
+    system_config_t syscfg;
+    if (config_load_from_nvs(&syscfg) != ESP_OK) {
+      return ESP_FAIL;
+    }
+    syscfg.guided_capture_hints_enabled = enabled;
+    syscfg.led_guidance_level = enabled ? (uint8_t)5 : (uint8_t)4;
+    config_save_to_nvs(&syscfg);
+    game_set_led_guidance_level(syscfg.led_guidance_level);
+    ESP_LOGI(TAG, "[BLE] settings_guided_hints enabled=%d", (int)enabled);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "settings_led_guidance") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *lv = cJSON_GetObjectItemCaseSensitive(root, "level");
+    int level = -1;
+    if (cJSON_IsNumber(lv)) {
+      level = (int)cJSON_GetNumberValue(lv);
+    }
+    cJSON_Delete(root);
+    if (level < 1 || level > 5) {
+      return ESP_ERR_INVALID_ARG;
+    }
+    system_config_t syscfg;
+    if (config_load_from_nvs(&syscfg) != ESP_OK) {
+      return ESP_FAIL;
+    }
+    syscfg.led_guidance_level = (uint8_t)level;
+    syscfg.guided_capture_hints_enabled = (level >= 5);
+    config_save_to_nvs(&syscfg);
+    game_set_led_guidance_level((uint8_t)level);
+    ESP_LOGI(TAG, "[BLE] settings_led_guidance level=%d", level);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "mqtt_config") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *hj = cJSON_GetObjectItemCaseSensitive(root, "host");
+    if (!cJSON_IsString(hj) || hj->valuestring == NULL ||
+        hj->valuestring[0] == '\0' || strlen(hj->valuestring) > 127) {
+      cJSON_Delete(root);
+      return ESP_ERR_INVALID_ARG;
+    }
+    uint16_t port = 1883;
+    cJSON *pj = cJSON_GetObjectItemCaseSensitive(root, "port");
+    if (cJSON_IsNumber(pj)) {
+      double pv = cJSON_GetNumberValue(pj);
+      if (pv > 0 && pv <= 65535) {
+        port = (uint16_t)pv;
+      }
+    }
+    const char *user_str = NULL;
+    cJSON *uj = cJSON_GetObjectItemCaseSensitive(root, "username");
+    if (cJSON_IsString(uj) && uj->valuestring != NULL && uj->valuestring[0]) {
+      user_str = uj->valuestring;
+    }
+    const char *pass_str = NULL;
+    cJSON *pwj = cJSON_GetObjectItemCaseSensitive(root, "password");
+    if (cJSON_IsString(pwj) && pwj->valuestring != NULL && pwj->valuestring[0]) {
+      pass_str = pwj->valuestring;
+    }
+    esp_err_t merr = mqtt_save_config_to_nvs(hj->valuestring, port, user_str,
+                                             pass_str);
+    cJSON_Delete(root);
+    if (merr != ESP_OK) {
+      ESP_LOGW(TAG, "[BLE] mqtt_config save failed: %s",
+               esp_err_to_name(merr));
+      return merr;
+    }
+    if (wifi_is_sta_connected()) {
+      (void)ha_light_reinit_mqtt();
+    }
+    ESP_LOGI(TAG, "[BLE] mqtt_config OK");
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "setup_tutorial") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *aj = cJSON_GetObjectItemCaseSensitive(root, "action");
+    const char *act = NULL;
+    if (cJSON_IsString(aj) && aj->valuestring != NULL) {
+      act = aj->valuestring;
+    }
+    bool want_start = (act != NULL && strcmp(act, "start") == 0);
+    bool want_cancel = (act != NULL && strcmp(act, "cancel") == 0);
+    bool want_finish = (act != NULL && strcmp(act, "finish") == 0);
+    int nact = (want_start ? 1 : 0) + (want_cancel ? 1 : 0) +
+               (want_finish ? 1 : 0);
+    cJSON_Delete(root);
+    if (nact != 1) {
+      return ESP_ERR_INVALID_ARG;
+    }
+
+    if (want_finish) {
+      if (!game_is_board_setup_tutorial_active()) {
+        return ESP_ERR_INVALID_ARG;
+      }
+      if (!game_finish_board_setup_tutorial_from_web()) {
+        if (game_is_board_setup_tutorial_active()) {
+          return ESP_ERR_NOT_FINISHED;
+        }
+        return ESP_FAIL;
+      }
+      return ESP_OK;
+    }
+
+    if (game_command_queue == NULL) {
+      ESP_LOGE(TAG, "[BLE] setup_tutorial: game_command_queue NULL");
+      return ESP_FAIL;
+    }
+    chess_move_command_t gcmd = {0};
+    gcmd.type = GAME_CMD_BOARD_SETUP_TUTORIAL;
+    gcmd.promotion_choice = want_start ? 0U : 1U;
+    gcmd.response_queue = NULL;
+    if (xQueueSend(game_command_queue, &gcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+      ESP_LOGE(TAG, "[BLE] setup_tutorial: queue send failed");
+      return ESP_FAIL;
+    }
+    if (want_cancel) {
+      led_command_t lcmd = {0};
+      lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
+      led_execute_command_new(&lcmd);
+    }
+    ESP_LOGI(TAG, "[BLE] setup_tutorial action=%s queued",
+             want_start ? "start" : "cancel");
+    return ESP_OK;
+  }
+
+  /* ============================================
+   * NOVÉ BLE PŘÍKAZY - Konec
+   * ============================================ */
+
   ESP_LOGW(TAG, "BLE JSON: unknown cmd \"%s\"", cmd);
   return ESP_ERR_NOT_SUPPORTED;
 }
 
 static void czechmate_push_ble_snapshot(void) {
+  (void)web_server_task_wdt_reset_safe();
   size_t len = 0;
   if (build_snapshot_json(&len) != ESP_OK) {
     return;
@@ -2768,6 +3716,7 @@ static void ws_broadcast_snapshot(void) {
       continue;
     }
     ws_count++;
+    (void)web_server_task_wdt_reset_safe();
     esp_err_t err = httpd_ws_send_data(httpd_handle, fds[i], &ws_pkt);
     if (err != ESP_OK) {
       ESP_LOGD(TAG, "WS send fd %d: %s", fds[i], esp_err_to_name(err));
@@ -2780,14 +3729,22 @@ static void ws_broadcast_snapshot(void) {
 
 static void ws_broadcast_timer_cb(void *arg) {
   (void)arg;
-  ESP_LOGD(TAG, "[STAGING] WS watchdog tick (slow periodic)");
-  ws_broadcast_snapshot();
+  ESP_LOGD(TAG,
+           "[STAGING] WS watchdog tick → defer snapshot (esp_timer stack too small)");
+  czechmate_ensure_snapshot_notify_queue();
+  if (snapshot_notify_queue == NULL) {
+    ESP_LOGW(TAG, "WS watchdog: snapshot_notify_queue missing, skip");
+    return;
+  }
+  uint8_t ping = 1;
+  if (xQueueSend(snapshot_notify_queue, &ping, 0) != pdTRUE) {
+    ESP_LOGD(TAG, "[STAGING] WS watchdog: notify coalesced (queue full)");
+  }
 }
 #endif /* CONFIG_HTTPD_WS_SUPPORT */
 
 /** Fronta „ping“ z game_task — WS + BLE snapshot v web_server_task (neblokuje
  * game_task na httpd_ws_send_data / malloc). Musí být mimo #if WS — BLE vždy. */
-static QueueHandle_t snapshot_notify_queue;
 
 static void czechmate_ensure_snapshot_notify_queue(void) {
   if (snapshot_notify_queue != NULL) {
@@ -2811,6 +3768,9 @@ void web_server_process_snapshot_notify_queue(void) {
   if (n == 0) {
     return;
   }
+  /* Snapshot + WS odeslání může blokovat dlouho (httpd send timeout) — bez
+   * resetu TWDT hlásí web_server_task timeout. */
+  (void)web_server_task_wdt_reset_safe();
   size_t fh = esp_get_free_heap_size();
   if (fh < 10240) {
     ESP_LOGW(TAG,
@@ -2820,7 +3780,9 @@ void web_server_process_snapshot_notify_queue(void) {
 #if CONFIG_HTTPD_WS_SUPPORT
   ws_broadcast_snapshot();
 #endif
+  (void)web_server_task_wdt_reset_safe();
   czechmate_push_ble_snapshot();
+  (void)web_server_task_wdt_reset_safe();
 }
 
 /** Silná implementace — přepíše slabou z game_hooks (WS + BLE, nezávislé na
@@ -3288,34 +4250,16 @@ static esp_err_t http_post_game_move_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  // VALIDACE PROMOCE: Zkontrolovat zda je cíl na promotion rank
-  // Promotion rank: 1. řádek (rank 1) pro černé, 8. řádek (rank 8) pro bílé
-  bool is_promotion_rank = false;
-  if (strlen(to) >= 2) {
-    char rank = to[1]; // Druhý znak je rank (1-8)
-    if (rank == '1' || rank == '8') {
-      is_promotion_rank = true;
-    }
-  }
-
-  // VALIDACE: Pokud je to promoce, promotion parametr je povinný
-  if (is_promotion_rank && strlen(promotion) == 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Promotion required for "
-                    "move to promotion rank\"}",
-                    -1);
-    return ESP_FAIL;
-  }
-
-  // VAROVÁNÍ: Pokud to není promoce, ale promotion parametr je poskytnut
-  if (!is_promotion_rank && strlen(promotion) > 0) {
+  /* Promoce se týká jen tahu PĚŠCE na poslední řadu. Dříve zde HTTP vracelo 400
+   * pro každý tah na řádky 1/8 bez "promotion" — to blokovalo legální tahy
+   * dámy, věže, střelce a jezdce na poslední řadu. Game task validuje tah a u
+   * pěšce spustí promotion flow (pending + volba z UI/tlačítek). */
+  bool dest_back_rank =
+      (strlen(to) >= 2 && (to[1] == '1' || to[1] == '8'));
+  if (!dest_back_rank && strlen(promotion) > 0) {
     ESP_LOGW(TAG,
-             "Promotion parameter provided for non-promotion move %s->%s, "
-             "ignoring",
+             "Promotion parameter for %s->%s (cíl není řádek 1/8), ignoring",
              from, to);
-    // Ignorovat promotion parametr, ale pokračovat
   }
 
   // Pripravit command pro game task
@@ -3324,26 +4268,31 @@ static esp_err_t http_post_game_move_handler(httpd_req_t *req) {
   strncpy(cmd.from_notation, from, sizeof(cmd.from_notation) - 1);
   strncpy(cmd.to_notation, to, sizeof(cmd.to_notation) - 1);
 
-  // Zpracovat promotion choice (pouze pokud je to skutečně promoce)
-  if (is_promotion_rank && strlen(promotion) > 0) {
-    if (strcasecmp(promotion, "Q") == 0)
+  cmd.promotion_choice = PROMOTION_QUEEN;
+  if (strlen(promotion) > 0) {
+    switch (promotion[0]) {
+    case 'q':
+    case 'Q':
       cmd.promotion_choice = PROMOTION_QUEEN;
-    else if (strcasecmp(promotion, "R") == 0)
+      break;
+    case 'r':
+    case 'R':
       cmd.promotion_choice = PROMOTION_ROOK;
-    else if (strcasecmp(promotion, "B") == 0)
+      break;
+    case 'b':
+    case 'B':
       cmd.promotion_choice = PROMOTION_BISHOP;
-    else if (strcasecmp(promotion, "N") == 0)
+      break;
+    case 'n':
+    case 'N':
       cmd.promotion_choice = PROMOTION_KNIGHT;
-    else
+      break;
+    default:
       cmd.promotion_choice = PROMOTION_QUEEN;
-  } else if (is_promotion_rank) {
-    // Promoce bez promotion parametru - mělo by být zachyceno výše, ale pro
-    // jistotu
-    cmd.promotion_choice = PROMOTION_QUEEN; // Default fallback
-  } else {
-    // Není to promoce - promotion_choice není relevantní
-    cmd.promotion_choice = PROMOTION_QUEEN; // Default (nebude použito)
+      break;
+    }
   }
+  cmd.promotion_from_remote = (strlen(promotion) > 0) ? 1U : 0U;
 
   // Odeslat do fronty
   if (game_command_queue == NULL) {
@@ -3606,13 +4555,36 @@ static esp_err_t http_post_game_new_handler(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  // Vytvořit NEW_GAME příkaz
   chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_NEW_GAME;
-  cmd.player = 0;            // Neznámé
-  cmd.response_queue = NULL; // Web nepotřebuje response
+  cmd.player = 0;
+  cmd.response_queue = NULL;
 
-  // Odeslat do fronty
+  char body[256] = {0};
+  int r = httpd_req_recv(req, body, (int)sizeof(body) - 1);
+  if (r > 0) {
+    body[r] = '\0';
+    cJSON *root = cJSON_Parse(body);
+    if (root != NULL) {
+      cJSON *fj = cJSON_GetObjectItemCaseSensitive(root, "fen");
+      if (cJSON_IsString(fj) && fj->valuestring != NULL &&
+          fj->valuestring[0] != '\0') {
+        cmd.type = GAME_CMD_NEW_GAME_FROM_FEN;
+        strncpy(cmd.timer_data.fen_new_game.fen, fj->valuestring,
+                sizeof(cmd.timer_data.fen_new_game.fen) - 1);
+        cmd.timer_data.fen_new_game.fen[sizeof(cmd.timer_data.fen_new_game.fen) -
+                                        1] = '\0';
+        cJSON_Delete(root);
+      } else {
+        cJSON_Delete(root);
+        cmd.type = GAME_CMD_NEW_GAME;
+      }
+    } else {
+      cmd.type = GAME_CMD_NEW_GAME;
+    }
+  } else {
+    cmd.type = GAME_CMD_NEW_GAME;
+  }
+
   if (game_command_queue == NULL) {
     ESP_LOGE(TAG, "Game command queue not available");
     httpd_resp_set_status(req, "500 Internal Server Error");
@@ -3631,9 +4603,8 @@ static esp_err_t http_post_game_new_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  ESP_LOGI(TAG, "✅ NEW_GAME command sent successfully");
+  ESP_LOGI(TAG, "✅ game/new command sent (type=%d)", (int)cmd.type);
 
-  // Odpovědět úspěchem
   httpd_resp_set_status(req, "200 OK");
   httpd_resp_set_type(req, "application/json");
   httpd_resp_send(req, "{\"success\":true,\"message\":\"New game started\"}",
@@ -4298,6 +5269,56 @@ static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
 }
 
 /**
+ * @brief POST /api/system/factory_reset
+ *
+ * Smaže celý NVS oddíl (raw erase) a restartuje MCU. Neřeší web lock — záchranná
+ * cesta. Tělo musí obsahovat: {"confirm":"erase_all_nvs"}
+ */
+static esp_err_t http_post_factory_reset_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/system/factory_reset");
+
+  char content[160] = {0};
+  int rlen = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (rlen <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"No JSON body\"}", -1);
+    return ESP_OK;
+  }
+  content[rlen] = '\0';
+
+  if (!json_body_has_factory_confirm(content)) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(
+        req,
+        "{\"success\":false,\"message\":\"JSON must include confirm "
+        "erase_all_nvs\"}",
+        -1);
+    return ESP_OK;
+  }
+
+  esp_err_t qerr = factory_reset_schedule();
+  if (qerr != ESP_OK) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(
+        req, "{\"success\":false,\"message\":\"Could not queue reset task\"}",
+        -1);
+    return ESP_OK;
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req,
+                  "{\"success\":true,\"message\":\"NVS erase scheduled\","
+                  "\"rebooting\":true}",
+                  -1);
+  return ESP_OK;
+}
+
+/**
  * @brief Handler pro GET /api/wifi/status
  *
  * Vrati aktualni stav WiFi (AP i STA).
@@ -4327,7 +5348,7 @@ static esp_err_t http_get_wifi_status_handler(httpd_req_t *req) {
 
 // ============================================================================
 // TEST PAGE - MINIMAL TIMER TEST (for debugging)
-// chess_app.js embedded (183789 bytes, 4525 lines)
+// chess_app.js embedded (187802 bytes, 4621 lines)
 static const char chess_app_js_content[] =
     "// ============================================================================\n"
     "// CHESS WEB APP - EXTRACTED JAVASCRIPT FOR SYNTAX CHECKING\n"
@@ -4392,7 +5413,10 @@ static const char chess_app_js_content[] =
     "    if (src) {\n"
     "        const isWhite = ch >= 'A' && ch <= 'Z';\n"
     "        el.className = 'piece has-img ' + (isWhite ? 'white' : 'black');\n"
-    "        el.innerHTML = '<img src=\"' + src + '\" alt=\"\" draggable=\"false\">';\n"
+    "        // BUG FIX 2: Fallback na Unicode když obrázek selže (CDN výpadek/CORS/blokátor)\n"
+    "        const unicodeFallback = pieceSymbols[ch] || ch;\n"
+    "        const colorClass = isWhite ? 'white' : 'black';\n"
+    "        el.innerHTML = '<img src=\"' + src + '\" alt=\"\" draggable=\"false\" onerror=\"this.parentNode.textContent=\\'' + unicodeFallback + '\\';this.parentNode.className=\\'piece ' + colorClass + '\\';\">';\n"
     "    } else {\n"
     "        el.innerHTML = '';\n"
     "        el.textContent = pieceSymbols[ch] || ch;\n"
@@ -4403,7 +5427,9 @@ static const char chess_app_js_content[] =
     "function pieceImgHtml(ch) {\n"
     "    const s = pieceImgSrc(ch);\n"
     "    if (s) {\n"
-    "        return '<img src=\"' + s + '\" class=\"endgame-piece-img\" alt=\"\" draggable=\"false\">';\n"
+    "        // BUG FIX 2: Fallback na Unicode když obrázek selže\n"
+    "        const unicodeFallback = pieceSymbols[ch] || ch;\n"
+    "        return '<img src=\"' + s + '\" class=\"endgame-piece-img\" alt=\"\" draggable=\"false\" onerror=\"this.parentNode.textContent=\\'' + unicodeFallback + '\\';this.parentNode.className=\\'piece ' + (ch >= 'A' && ch <= 'Z' ? 'white' : 'black') + '\\';\">';\n"
     "    }\n"
     "    return pieceSymbols[ch] || ch;\n"
     "}\n"
@@ -4706,6 +5732,43 @@ static const char chess_app_js_content[] =
     "    loadBotSettings();\n"
     "    if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();\n"
     "}\n"
+    "\n"
+    "// Starting position check functions\n"
+    "function loadStartingPositionCheck() {\n"
+    "    var checkbox = document.getElementById('starting-position-check');\n"
+    "    if (!checkbox) return;\n"
+    "    fetch('/api/settings/start_pos_check')\n"
+    "        .then(function(r) { return r.json(); })\n"
+    "        .then(function(data) {\n"
+    "            if (typeof data.enabled === 'boolean') {\n"
+    "                checkbox.checked = data.enabled;\n"
+    "            }\n"
+    "        })\n"
+    "        .catch(function(e) {\n"
+    "            console.log('Failed to load starting position check setting:', e);\n"
+    "        });\n"
+    "}\n"
+    "window.loadStartingPositionCheck = loadStartingPositionCheck;\n"
+    "\n"
+    "function saveStartingPositionCheck(enabled) {\n"
+    "    fetch('/api/settings/start_pos_check', {\n"
+    "        method: 'POST',\n"
+    "        headers: { 'Content-Type': 'application/json' },\n"
+    "        body: JSON.stringify({ enabled: !!enabled })\n"
+    "    })\n"
+    "    .then(function(r) { return r.json(); })\n"
+    "    .then(function(data) {\n"
+    "        if (data.success) {\n"
+    "            console.log('Starting position check saved:', data.enabled);\n"
+    "        } else {\n"
+    "            console.error('Failed to save starting position check:', data.message);\n"
+    "        }\n"
+    "    })\n"
+    "    .catch(function(e) {\n"
+    "        console.error('Error saving starting position check:', e);\n"
+    "    });\n"
+    "}\n"
+    "window.saveStartingPositionCheck = saveStartingPositionCheck;\n"
     "\n"
     "window.onHintDepthChange = function (v) {\n"
     "    devicePrefs.chessHintDepth = v;\n"
@@ -5077,19 +6140,30 @@ static const char chess_app_js_content[] =
     "    sandboxMode = true;\n"
     "    sandboxBoard = JSON.parse(JSON.stringify(boardData));\n"
     "    sandboxHistory = [];\n"
-    "    const banner = document.getElementById('sandbox-banner');\n"
-    "    banner.classList.add('active');\n"
+    "    var banner = document.getElementById('sandbox-banner');\n"
+    "    if (banner) banner.classList.add('active');\n"
+    "    var boardEl = document.getElementById('board');\n"
+    "    if (boardEl) boardEl.classList.add('sandbox-active');\n"
     "    clearHighlights();\n"
-    "    updateUndoButton(); // Aktualizovat tlačítko undo při vstupu do sandbox mode\n"
+    "    updateUndoButton();\n"
+    "    if (typeof console !== 'undefined' && console.log) {\n"
+    "        console.log('[Sandbox] zapnuto — tahy jen lokálně, vizuálně odlišná šachovnice');\n"
+    "    }\n"
     "}\n"
     "\n"
     "function exitSandboxMode() {\n"
     "    sandboxMode = false;\n"
     "    sandboxBoard = [];\n"
     "    sandboxHistory = [];\n"
-    "    document.getElementById('sandbox-banner').classList.remove('active');\n"
+    "    var boardEl = document.getElementById('board');\n"
+    "    if (boardEl) boardEl.classList.remove('sandbox-active');\n"
+    "    var banner = document.getElementById('sandbox-banner');\n"
+    "    if (banner) banner.classList.remove('active');\n"
     "    clearHighlights();\n"
     "    fetchData();\n"
+    "    if (typeof console !== 'undefined' && console.log) {\n"
+    "        console.log('[Sandbox] vypnuto — obnovuji pozici z desky (HTTP)');\n"
+    "    }\n"
     "}\n"
     "\n"
     "function makeSandboxMove(fromRow, fromCol, toRow, toCol) {\n"
@@ -5886,10 +6960,14 @@ static const char chess_app_js_content[] =
     "// ============================================================================\n"
     "\n"
     "function updateBoard(board) {\n"
+    "    // V sandboxu neprepisovat boardData (zůstane skutečná pozice z desky pro fetch po výstupu).\n"
+    "    var skipReplaceBoardData = sandboxMode && board === sandboxBoard;\n"
     "    // Only clear hint when board actually changed (new move), not on every periodic fetch\n"
-    "    var boardUnchanged = boardData && board.length === 8 && boardData.length === 8 &&\n"
+    "    var boardUnchanged = !skipReplaceBoardData && boardData && board.length === 8 && boardData.length === 8 &&\n"
     "        JSON.stringify(board) === JSON.stringify(boardData);\n"
-    "    boardData = board;\n"
+    "    if (!skipReplaceBoardData) {\n"
+    "        boardData = board;\n"
+    "    }\n"
     "    const loading = document.getElementById('loading');\n"
     "    if (loading) loading.style.display = 'none';\n"
     "\n"
@@ -8641,6 +9719,37 @@ static const char chess_app_js_content[] =
     "    }\n"
     "}\n"
     "\n"
+    "/** Celý NVS oddíl + restart (stejné jako BLE `factory_reset`). */\n"
+    "async function factoryResetDevice() {\n"
+    "    if (!confirm('Tovární reset: smaže VŠECHNO v NVS (WiFi, MQTT, uložená partie, UI) a desku restartuje. Pokračovat?')) {\n"
+    "        return;\n"
+    "    }\n"
+    "    if (!confirm('Naposledy: opravdu vymazat celou NVS flash?')) {\n"
+    "        return;\n"
+    "    }\n"
+    "    try {\n"
+    "        const response = await fetch('/api/system/factory_reset', {\n"
+    "            method: 'POST',\n"
+    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            body: JSON.stringify({ confirm: 'erase_all_nvs' })\n"
+    "        });\n"
+    "        var data = {};\n"
+    "        try {\n"
+    "            data = await response.json();\n"
+    "        } catch (e) {\n"
+    "            data = {};\n"
+    "        }\n"
+    "        if (response.ok && data.success) {\n"
+    "            alert('Reset naplánován — deska za chvíli naběhne s prázdnou NVS.');\n"
+    "        } else {\n"
+    "            alert('Factory reset selhal: ' + (data.message || response.status));\n"
+    "        }\n"
+    "    } catch (error) {\n"
+    "        console.error('factoryResetDevice:', error);\n"
+    "        alert('Chyba při factory resetu');\n"
+    "    }\n"
+    "}\n"
+    "\n"
     "/** True if API vrací uložené STA SSID z NVS (ne zástupný text z firmware). */\n"
     "function wifiStatusHasSavedStaSsid(staSsid) {\n"
     "    if (staSsid == null || typeof staSsid !== 'string') {\n"
@@ -8692,6 +9801,7 @@ static const char chess_app_js_content[] =
     "window.connectSTA = connectSTA;\n"
     "window.disconnectSTA = disconnectSTA;\n"
     "window.clearWiFiConfig = clearWiFiConfig;\n"
+    "window.factoryResetDevice = factoryResetDevice;\n"
     "\n"
     "// Start WiFi status update loop (every 5 seconds)\n"
     "let wifiStatusInterval = null;\n"
@@ -8853,6 +9963,13 @@ static const char chess_app_js_content[] =
     "function nextReviewMove() {\n"
     "    if (!reviewMode || currentReviewIndex >= historyData.length - 1) return;\n"
     "    enterReviewMode(currentReviewIndex + 1);\n"
+    "}\n"
+    "\n"
+    "// Initialize starting position check setting on page load\n"
+    "if (document.readyState === 'loading') {\n"
+    "    document.addEventListener('DOMContentLoaded', loadStartingPositionCheck);\n"
+    "} else {\n"
+    "    loadStartingPositionCheck();\n"
     "}\n";
 
 static esp_err_t http_get_chess_js_handler(httpd_req_t *req) {
@@ -9967,6 +11084,12 @@ static const char html_chunk_head[] =
     "to { transform: translateY(0); } "
     "}"
     ".sandbox-banner.active { display: flex; }"
+    "#board.sandbox-active { "
+    "border-color: #9C27B0; "
+    "box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.45); "
+    "} "
+    "#board.sandbox-active .square.light { background: #ede4d3; } "
+    "#board.sandbox-active .square.dark { background: #5c4a6e; } "
     ".sandbox-text { font-weight: 600; }"
     ".btn-exit-sandbox { "
     "padding: 8px 20px; "
@@ -10521,6 +11644,12 @@ static const char html_chunk_settings_sit[] =
     "<button id='wifi-clear-btn' class='set-btn set-btn-sm set-btn-danger' "
     "onclick='clearWiFiConfig()'>Smazat "
     "WiFi</button>"
+    "<p class='set-hint' style='margin-top:10px;font-size:12px;opacity:0.85'>"
+    "Tovární reset smaže <strong>celou NVS</strong> (WiFi, MQTT, partie, UI) a "
+    "desku restartuje.</p>"
+    "<button type='button' id='factory-reset-btn' class='set-btn set-btn-sm "
+    "set-btn-danger' onclick='factoryResetDevice()'>Tovární reset (celá "
+    "NVS)</button>"
     "</div>";
 
 // Section Hra proti Počítači
@@ -10646,6 +11775,11 @@ static const char html_chunk_settings_zarizeni[] =
     "if(e)e.textContent=(this.value||\"\")+\" s\";' "
     "onchange='setAutoLampTimeout(this.value)'>"
     "<span class='set-note'> 5 s až 120 min (7200 s)</span>"
+    "<label class='set-check' style='margin-top:8px;'>"
+    "<input type='checkbox' id='starting-position-check' "
+    "onchange=\"if(typeof saveStartingPositionCheck=='function')saveStartingPositionCheck(this.checked);\"> "
+    "<span>Kontrolovat počáteční pozici figurek</span></label>"
+    "<p class='set-note'>Před zahájením hry ověřit, zda jsou figurky správně rozestaveny (výchozí: vypnuto)</p>"
     "<div class='set-row'><span class='set-label'>Zámek</span><span "
     "id='web-lock-status' class='set-value'>—</span></div>"
     "<div class='set-row'><span class='set-label'>Online</span><span "
@@ -11592,6 +12726,7 @@ void web_server_websocket_init(void) {
     ws_broadcast_timer = NULL;
     return;
   }
+  czechmate_ensure_snapshot_notify_queue();
   ESP_LOGI(TAG,
            "WebSocket: watchdog broadcast 3 s + okamžitý push při změně stavu");
 #else

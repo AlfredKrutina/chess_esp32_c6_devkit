@@ -123,6 +123,7 @@ public struct ChessPieceArtView: View {
         if let name = ChessPieceGlyph.assetImageName(for: fenChar) {
             let s = ChessPieceGlyph.layerStyle(for: fenChar, isLightSquare: isLightSquare)
             Image(name, bundle: .main)
+                .renderingMode(.original)
                 .resizable()
                 .interpolation(.high)
                 .scaledToFit()

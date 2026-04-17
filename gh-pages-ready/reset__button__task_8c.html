@@ -1,0 +1,439 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru reset_button_task.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('reset__button__task_8c.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru reset_button_task.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Reset button task: ovladani reset tlacitka pro restart hry.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="reset__button__task_8h_source.html">reset_button_task.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_task_wdt.h&quot;</code><br />
+<code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
+<code>#include &quot;freertos/task.h&quot;</code><br />
+<code>#include &quot;freertos/queue.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro reset_button_task.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="reset__button__task_8c__incl.png" border="0" usemap="#areset__button__task_8c" loading="lazy" alt=""/></div>
+<map name="areset__button__task_8c" id="areset__button__task_8c">
+<area shape="rect" title="Reset button task: ovladani reset tlacitka pro restart hry." alt="" coords="936,5,1073,31"/>
+<area shape="rect" href="reset__button__task_8h.html" title="Reset Button Task hlavicka pro ESP32&#45;C6 sachovy projekt." alt="" coords="730,153,866,178"/>
+<area shape="poly" title=" " alt="" coords="990,31,828,146,826,141,985,32"/>
+<area shape="rect" title=" " alt="" coords="138,226,282,252"/>
+<area shape="poly" title=" " alt="" coords="933,24,710,42,418,69,277,87,155,107,64,130,34,142,17,154,9,168,10,180,17,191,31,200,73,215,125,227,121,230,72,221,29,205,14,195,5,182,4,167,13,151,32,137,62,125,154,102,276,82,418,64,710,37,939,23"/>
+<area shape="rect" title=" " alt="" coords="919,226,1024,252"/>
+<area shape="poly" title=" " alt="" coords="1011,29,1022,58,1030,95,1034,137,1026,179,1014,200,998,218,996,214,1010,197,1021,177,1028,137,1025,96,1017,59,1008,34"/>
+<area shape="rect" title=" " alt="" coords="779,226,894,252"/>
+<area shape="poly" title=" " alt="" coords="1000,30,961,97,901,180,864,218,861,213,897,177,957,94,996,33"/>
+<area shape="rect" title=" " alt="" coords="1093,79,1170,105"/>
+<area shape="poly" title=" " alt="" coords="1027,29,1099,71,1094,71,1026,34"/>
+<area shape="rect" title=" " alt="" coords="1195,79,1308,105"/>
+<area shape="poly" title=" " alt="" coords="1047,29,1197,74,1192,74,1046,34"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="492,79,610,105"/>
+<area shape="poly" title=" " alt="" coords="934,31,626,81,625,76,939,29"/>
+<area shape="rect" title=" " alt="" coords="494,226,568,252"/>
+<area shape="poly" title=" " alt="" coords="755,179,584,227,583,221,750,179"/>
+<area shape="poly" title=" " alt="" coords="730,178,297,230,297,225,729,172"/>
+<area shape="poly" title=" " alt="" coords="828,176,930,220,925,220,827,181"/>
+<area shape="poly" title=" " alt="" coords="806,176,825,214,820,211,803,181"/>
+<area shape="rect" title=" " alt="" coords="592,226,657,252"/>
+<area shape="poly" title=" " alt="" coords="771,178,669,223,668,217,766,179"/>
+<area shape="rect" title=" " alt="" coords="681,226,755,252"/>
+<area shape="poly" title=" " alt="" coords="787,178,744,218,741,214,782,180"/>
+<area shape="poly" title=" " alt="" coords="534,104,508,127,488,154,486,169,489,185,509,217,504,215,485,187,480,169,483,152,504,123,529,106"/>
+<area shape="poly" title=" " alt="" coords="489,96,369,105,224,116,97,133,54,143,32,155,24,167,24,178,30,188,42,197,79,212,125,225,121,227,77,217,39,201,26,191,19,179,19,166,28,151,52,138,96,128,223,111,369,100,494,95"/>
+<area shape="poly" title=" " alt="" coords="611,96,770,116,847,131,901,150,935,179,960,214,955,212,931,183,898,155,845,136,769,121,611,101"/>
+<area shape="poly" title=" " alt="" coords="611,93,684,98,764,108,835,125,862,137,880,151,887,167,884,185,862,217,860,213,879,183,882,168,876,154,859,141,833,130,763,113,684,103,611,98"/>
+<area shape="poly" title=" " alt="" coords="572,103,598,123,619,151,628,182,629,213,625,210,623,183,614,154,594,127,570,108"/>
+<area shape="poly" title=" " alt="" coords="572,103,606,124,641,151,674,182,701,215,696,213,670,186,638,155,603,128,571,108"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="498,153,604,178"/>
+<area shape="poly" title=" " alt="" coords="553,103,553,138,549,135,550,107"/>
+<area shape="rect" title=" " alt="" coords="42,153,135,178"/>
+<area shape="poly" title=" " alt="" coords="491,104,151,155,150,150,492,98"/>
+<area shape="rect" title=" " alt="" coords="159,153,282,178"/>
+<area shape="poly" title=" " alt="" coords="492,106,292,151,291,146,497,104"/>
+<area shape="rect" title=" " alt="" coords="306,153,423,178"/>
+<area shape="poly" title=" " alt="" coords="522,104,412,149,410,144,517,106"/>
+<area shape="poly" title=" " alt="" coords="550,177,541,213,537,209,546,180"/>
+<area shape="poly" title=" " alt="" coords="500,178,283,225,282,220,495,178"/>
+<area shape="poly" title=" " alt="" coords="600,176,776,222,770,222,599,182"/>
+<area shape="poly" title=" " alt="" coords="564,176,604,216,599,215,562,181"/>
+<area shape="poly" title=" " alt="" coords="580,176,678,220,673,220,579,181"/>
+</map>
+</div>
+</div>
+<p><a href="reset__button__task_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:adf092b27f7d985c1b6e1f5980a1ec99e" id="r_adf092b27f7d985c1b6e1f5980a1ec99e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adf092b27f7d985c1b6e1f5980a1ec99e">reset_button_task_init</a> (void)</td></tr>
+<tr class="memdesc:adf092b27f7d985c1b6e1f5980a1ec99e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuj reset button task.  <br /></td></tr>
+<tr class="memitem:a2b2018c335a91336642118cc74af7b4a" id="r_a2b2018c335a91336642118cc74af7b4a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2b2018c335a91336642118cc74af7b4a">reset_button_task</a> (void *pvParameters)</td></tr>
+<tr class="memdesc:a2b2018c335a91336642118cc74af7b4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hlavni funkce reset button tasku.  <br /></td></tr>
+<tr class="memitem:a828ddd0ce9a37f1fbe484e6663d96a57" id="r_a828ddd0ce9a37f1fbe484e6663d96a57"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a828ddd0ce9a37f1fbe484e6663d96a57">process_reset_request</a> (bool reset_request)</td></tr>
+<tr class="memdesc:a828ddd0ce9a37f1fbe484e6663d96a57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj pozadavek na reset hry.  <br /></td></tr>
+<tr class="memitem:a9d96f74aeb8c8ab64a9ea78a857747dc" id="r_a9d96f74aeb8c8ab64a9ea78a857747dc"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9d96f74aeb8c8ab64a9ea78a857747dc">simulate_reset_button_press</a> (bool pressed)</td></tr>
+<tr class="memdesc:a9d96f74aeb8c8ab64a9ea78a857747dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simuluj stisknuti reset tlacitka (pro testovani).  <br /></td></tr>
+<tr class="memitem:a9c119f00a30675bdd20fd69a03775b71" id="r_a9c119f00a30675bdd20fd69a03775b71"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9c119f00a30675bdd20fd69a03775b71">reset_button_is_initialized</a> (void)</td></tr>
+<tr class="memdesc:a9c119f00a30675bdd20fd69a03775b71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je reset button task inicializovan.  <br /></td></tr>
+<tr class="memitem:a06d02f46f762a840863c8353f7e7f506" id="r_a06d02f46f762a840863c8353f7e7f506"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a06d02f46f762a840863c8353f7e7f506">reset_button_get_event_count</a> (void)</td></tr>
+<tr class="memdesc:a06d02f46f762a840863c8353f7e7f506"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej pocet zpracovanych tlacitkovych udalosti.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;RESET_BUTTON_TASK&quot;</td></tr>
+<tr class="memitem:a2a86e8e816b985c84e78ba6b842e52bf" id="r_a2a86e8e816b985c84e78ba6b842e52bf"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a86e8e816b985c84e78ba6b842e52bf">reset_button_initialized</a> = false</td></tr>
+<tr class="memitem:ab36b66e9f95206af3b83dfa622d5cc7d" id="r_ab36b66e9f95206af3b83dfa622d5cc7d"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab36b66e9f95206af3b83dfa622d5cc7d">button_event_count</a> = 0</td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Reset button task: ovladani reset tlacitka pro restart hry. </p>
+<p>Tento modul implementuje:</p><ul>
+<li>Inicializaci reset button tasku a FreeRTOS komponent</li>
+<li>Zpracovani reset tlacitka pro restart hry</li>
+<li>Simulacni rezim bez hardware (pro development)</li>
+<li>Integration s game taskem pro reset</li>
+<li>Jedno tlacitko pro reset cele hry</li>
+</ul>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.0 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-08-16</dd></dl>
+<p>Tento task zpracovava reset tlacitko pro restart hry. Kdyz hrac stiskne reset tlacitko, hra se restartuje do vychoziho stavu. Task detekuje stisknuti tlacitka a posila prikaz do game tasku. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="reset__button__task_8c_source.html">reset_button_task.c</a>.</p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="a828ddd0ce9a37f1fbe484e6663d96a57" name="a828ddd0ce9a37f1fbe484e6663d96a57"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a828ddd0ce9a37f1fbe484e6663d96a57">&#9670;&#160;</a></span>process_reset_request()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t process_reset_request </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>reset_request</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj pozadavek na reset hry. </p>
+<p>Zpracuj pozadavek na reset.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">reset_request</td><td>True pokud ma byt hra resetovana </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="reset__button__task_8c_source.html#l00098">98</a> v souboru <a class="el" href="reset__button__task_8c_source.html">reset_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a06d02f46f762a840863c8353f7e7f506" name="a06d02f46f762a840863c8353f7e7f506"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06d02f46f762a840863c8353f7e7f506">&#9670;&#160;</a></span>reset_button_get_event_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t reset_button_get_event_count </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej pocet zpracovanych tlacitkovych udalosti. </p>
+<p>Ziskej pocet zpracovanych button udalosti.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Pocet udalosti </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="reset__button__task_8c_source.html#l00149">149</a> v souboru <a class="el" href="reset__button__task_8c_source.html">reset_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9c119f00a30675bdd20fd69a03775b71" name="a9c119f00a30675bdd20fd69a03775b71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c119f00a30675bdd20fd69a03775b71">&#9670;&#160;</a></span>reset_button_is_initialized()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool reset_button_is_initialized </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda je reset button task inicializovan. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>True pokud je task inicializovan </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="reset__button__task_8c_source.html#l00139">139</a> v souboru <a class="el" href="reset__button__task_8c_source.html">reset_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2b2018c335a91336642118cc74af7b4a" name="a2b2018c335a91336642118cc74af7b4a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b2018c335a91336642118cc74af7b4a">&#9670;&#160;</a></span>reset_button_task()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void reset_button_task </td>
+          <td>(</td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>pvParameters</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hlavni funkce reset button tasku. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pvParameters</td><td>Parametry tasku (nepouzivane) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="reset__button__task_8c_source.html#l00075">75</a> v souboru <a class="el" href="reset__button__task_8c_source.html">reset_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="adf092b27f7d985c1b6e1f5980a1ec99e" name="adf092b27f7d985c1b6e1f5980a1ec99e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf092b27f7d985c1b6e1f5980a1ec99e">&#9670;&#160;</a></span>reset_button_task_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t reset_button_task_init </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializuj reset button task. </p>
+<p>Inicializuje reset button task.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="reset__button__task_8c_source.html#l00041">41</a> v souboru <a class="el" href="reset__button__task_8c_source.html">reset_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9d96f74aeb8c8ab64a9ea78a857747dc" name="a9d96f74aeb8c8ab64a9ea78a857747dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d96f74aeb8c8ab64a9ea78a857747dc">&#9670;&#160;</a></span>simulate_reset_button_press()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t simulate_reset_button_press </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>pressed</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simuluj stisknuti reset tlacitka (pro testovani). </p>
+<p>Simuluj stisknuti/uvolneni reset tlacitka.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pressed</td><td>True pokud je tlacitko stisknuto </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="reset__button__task_8c_source.html#l00121">121</a> v souboru <a class="el" href="reset__button__task_8c_source.html">reset_button_task.c</a>.</p>
+
+</div>
+</div>
+<a name="doc-var-members" id="doc-var-members"></a><h2 id="header-doc-var-members" class="groupheader">Dokumentace proměnných</h2>
+<a id="ab36b66e9f95206af3b83dfa622d5cc7d" name="ab36b66e9f95206af3b83dfa622d5cc7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab36b66e9f95206af3b83dfa622d5cc7d">&#9670;&#160;</a></span>button_event_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t button_event_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="reset__button__task_8c_source.html#l00034">34</a> v souboru <a class="el" href="reset__button__task_8c_source.html">reset_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2a86e8e816b985c84e78ba6b842e52bf" name="a2a86e8e816b985c84e78ba6b842e52bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a86e8e816b985c84e78ba6b842e52bf">&#9670;&#160;</a></span>reset_button_initialized</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool reset_button_initialized = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="reset__button__task_8c_source.html#l00033">33</a> v souboru <a class="el" href="reset__button__task_8c_source.html">reset_button_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;RESET_BUTTON_TASK&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="reset__button__task_8c_source.html#l00030">30</a> v souboru <a class="el" href="reset__button__task_8c_source.html">reset_button_task.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_d81a3c6208ed0beed325ac804e7f20d3.html">reset_button_task</a></li><li class="navelem"><a href="reset__button__task_8c.html">reset_button_task.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

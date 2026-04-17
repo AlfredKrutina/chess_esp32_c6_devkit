@@ -23,6 +23,7 @@
 #include "esp_system.h"
 #include "nvs.h"
 #include "nvs_flash.h"
+#include <stdio.h>
 #include <string.h>
 
 static const char *TAG = "CONFIG_MANAGER";
@@ -37,7 +38,9 @@ static const system_config_t default_config = {.verbose_mode = false,
                                                .log_level = ESP_LOG_ERROR,
                                                .command_timeout_ms = 5000,
                                                .brightness_level =
-                                                   CONFIG_DEFAULT_BRIGHTNESS};
+                                                   CONFIG_DEFAULT_BRIGHTNESS,
+                                               .starting_position_check_enabled =
+                                                   false};
 
 esp_err_t config_manager_init(void) {
   ESP_LOGI(TAG, "Initializing configuration manager...");
@@ -130,6 +133,16 @@ esp_err_t config_load_from_nvs(system_config_t *config) {
     config->brightness_level = default_config.brightness_level;
   }
 
+  // Load starting position check enabled
+  uint8_t start_pos_check_temp;
+  ret = nvs_get_u8(nvs_handle, "start_pos_chk", &start_pos_check_temp);
+  if (ret != ESP_OK) {
+    config->starting_position_check_enabled =
+        default_config.starting_position_check_enabled;
+  } else {
+    config->starting_position_check_enabled = (bool)start_pos_check_temp;
+  }
+
   nvs_close(nvs_handle);
 
   ESP_LOGI(TAG, "Configuration loaded from NVS successfully");
@@ -141,6 +154,8 @@ esp_err_t config_load_from_nvs(system_config_t *config) {
   ESP_LOGI(TAG, "  Log Level: %d", config->log_level);
   ESP_LOGI(TAG, "  Timeout: %lu ms", config->command_timeout_ms);
   ESP_LOGI(TAG, "  Brightness: %d%%", config->brightness_level);
+  ESP_LOGI(TAG, "  Starting position check: %s",
+           config->starting_position_check_enabled ? "ON" : "OFF");
 
   return ESP_OK;
 }
@@ -213,6 +228,15 @@ esp_err_t config_save_to_nvs(const system_config_t *config) {
   ret = nvs_set_u8(nvs_handle, "brightness", config->brightness_level);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "Failed to save brightness");
+    nvs_close(nvs_handle);
+    return ret;
+  }
+
+  // Save starting position check enabled
+  ret = nvs_set_u8(nvs_handle, "start_pos_chk",
+                   (uint8_t)config->starting_position_check_enabled);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to save starting position check setting");
     nvs_close(nvs_handle);
     return ret;
   }
@@ -372,4 +396,37 @@ esp_err_t config_load_ui_prefs_json(char *out_buf, size_t out_buf_size,
   out_buf[len] = '\0';
   *out_len = len;
   return ESP_OK;
+}
+
+int config_ui_prefs_get_chess_hint_limit(void) {
+  char buf[CONFIG_UI_PREFS_MAX_BYTES + 1];
+  size_t len = 0;
+  esp_err_t err = config_load_ui_prefs_json(buf, sizeof(buf), &len);
+  if (err != ESP_OK || len == 0) {
+    return 0;
+  }
+  buf[len] = '\0';
+  const char *p = strstr(buf, "\"chessHintLimit\"");
+  if (p == NULL) {
+    return 0;
+  }
+  p = strchr(p, ':');
+  if (p == NULL) {
+    return 0;
+  }
+  p++;
+  while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') {
+    p++;
+  }
+  int v = 0;
+  if (sscanf(p, "%d", &v) != 1) {
+    return 0;
+  }
+  if (v < 0) {
+    v = 0;
+  }
+  if (v > 99) {
+    v = 99;
+  }
+  return v;
 }

@@ -126,15 +126,16 @@ final class SoundManager {
         if let san = m.san?.uppercased(), san.contains("O-O") { return true }
         let pk = m.piece
         guard pk == "K" || pk == "k" else { return false }
-        guard let f = ChessSquareNotation.indices(from: m.from),
-              let t = ChessSquareNotation.indices(from: m.to) else { return false }
+        guard let fromSq = m.from, let toSq = m.to,
+              let f = ChessSquareNotation.indices(from: fromSq),
+              let t = ChessSquareNotation.indices(from: toSq) else { return false }
         return abs(t.col - f.col) == 2
     }
 
     private static func isPromotion(_ m: HistoryMove) -> Bool {
         if let san = m.san, san.contains("=") { return true }
-        guard m.piece.lowercased() == "p" else { return false }
-        guard let to = ChessSquareNotation.indices(from: m.to) else { return false }
+        guard let piece = m.piece, piece.lowercased() == "p" else { return false }
+        guard let toSq = m.to, let to = ChessSquareNotation.indices(from: toSq) else { return false }
         return to.row == 0 || to.row == 7
     }
 

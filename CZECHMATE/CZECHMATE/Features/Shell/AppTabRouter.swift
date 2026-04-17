@@ -10,9 +10,8 @@ enum AppMainTab: Int, Hashable, CaseIterable {
     case game = 0
     case analysis = 1
     case puzzle = 2
-    case learn = 3
-    case stats = 4
-    case settings = 5
+    case progress = 3
+    case settings = 4
 }
 
 @Observable

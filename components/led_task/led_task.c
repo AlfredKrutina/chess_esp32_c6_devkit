@@ -313,6 +313,7 @@ typedef struct {
 // Forward declarations
 static void led_send_status_to_uart_immediate(QueueHandle_t response_queue);
 void led_execute_command_new(const led_command_t *cmd);
+bool led_is_booting(void);
 static esp_err_t led_hardware_init(void);
 // static void led_hardware_update(void);  // REMOVED: Obsolete with immediate
 // refresh
@@ -480,30 +481,17 @@ void led_set_brightness_global(uint8_t brightness) {
         pdTRUE) {
       global_brightness = brightness;
 
-      // Force refresh logic inside mutex
       led_changes_pending = true;
       for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
         led_pending_changes[i] = led_states[i];
         led_changed_flags[i] = true;
       }
 
-      // Note: led_commit_pending_changes should NOT be called with mutex held
-      // if it takes long But here we want atomicity. However, led_strip_refresh
-      // might take time. Actually, led_commit_pending_changes does NOT take
-      // mutex itself, so we are safe from deadlock recursion. BUT it calls
-      // led_task_wdt_reset_safe -> ok. It calls led_strip_set_pixel -> ok. It
-      // calls led_strip_refresh -> RMT driver.
-
-      // CRITICAL DEEP THOUGHT: led_commit_pending_changes was designed to be
-      // called from the task loop. If we call it here (from Web Task), we are
-      // hijacking the LED strip driver. If LED task is currently sleeping
-      // (vTaskDelay), this is fine. If LED task is blocked on mutex, we hold
-      // it, so it waits. This seems correct: We hold the lock, we do the
-      // update, we release.
-      led_commit_pending_changes();
-
+      /* Commit nechat na LED task smyčce — volání led_commit_pending_changes()
+       * z HTTP/BLE vlákna vedlo k viditelnému „zhasnutí“ při změně jasu. */
       xSemaphoreGive(led_unified_mutex);
-      ESP_LOGI(TAG, "Global brightness set to %d%% (direct call)", brightness);
+      ESP_LOGI(TAG, "Global brightness set to %d%% (deferred to LED task)",
+               brightness);
     } else {
       ESP_LOGW(TAG, "Failed to set brightness: Mutex timeout");
     }
@@ -1001,6 +989,13 @@ void led_enhanced_castling_clear(void);
  * @brief Execute LED command with full command structure
  */
 void led_execute_command_new(const led_command_t *cmd) {
+  if (!cmd) {
+    return;
+  }
+  if (led_is_booting()) {
+    ESP_LOGD(TAG, "Skip LED command during boot (type=%d)", (int)cmd->type);
+    return;
+  }
   ESP_LOGI(TAG, "🔄 led_execute_command_new: type=%d", cmd->type);
   switch (cmd->type) {
   case LED_CMD_SET_PIXEL:
@@ -2842,6 +2837,10 @@ void led_set_pixel_safe(uint8_t led_index, uint8_t red, uint8_t green,
                         uint8_t blue) {
   if (led_index >= CHESS_LED_COUNT_TOTAL)
     return;
+  /* Boot animace v main.c používá led_set_pixel_internal + force update. */
+  if (led_is_booting()) {
+    return;
+  }
 
   led_set_pixel_internal(led_index, red, green, blue);
 }

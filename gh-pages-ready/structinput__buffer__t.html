@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace struktury input_buffer_t</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('structinput__buffer__t.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace struktury input_buffer_t</div></div>
+</div><!--header-->
+<div class="contents">
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Datové položky</h2></td></tr>
+<tr class="memitem:a610a358b649f0993a69f3f5fe1ae885b" id="r_a610a358b649f0993a69f3f5fe1ae885b"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a610a358b649f0993a69f3f5fe1ae885b">buffer</a> [256]</td></tr>
+<tr class="memitem:a49d086081ae7176f57ff7ee4f5564375" id="r_a49d086081ae7176f57ff7ee4f5564375"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a49d086081ae7176f57ff7ee4f5564375">pos</a></td></tr>
+<tr class="memitem:a46a4cd3407d6ca0eadb41800b7e52e54" id="r_a46a4cd3407d6ca0eadb41800b7e52e54"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a46a4cd3407d6ca0eadb41800b7e52e54">length</a></td></tr>
+<tr class="memitem:a2dd4c5a97c85c19099c1696e5083e69c" id="r_a2dd4c5a97c85c19099c1696e5083e69c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2dd4c5a97c85c19099c1696e5083e69c">cursor_visible</a></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock">
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00404">404</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+</div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Dokumentace položek</h2>
+<a id="a610a358b649f0993a69f3f5fe1ae885b" name="a610a358b649f0993a69f3f5fe1ae885b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a610a358b649f0993a69f3f5fe1ae885b">&#9670;&#160;</a></span>buffer</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char input_buffer_t::buffer[256]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00405">405</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2dd4c5a97c85c19099c1696e5083e69c" name="a2dd4c5a97c85c19099c1696e5083e69c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2dd4c5a97c85c19099c1696e5083e69c">&#9670;&#160;</a></span>cursor_visible</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool input_buffer_t::cursor_visible</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00408">408</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a46a4cd3407d6ca0eadb41800b7e52e54" name="a46a4cd3407d6ca0eadb41800b7e52e54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46a4cd3407d6ca0eadb41800b7e52e54">&#9670;&#160;</a></span>length</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t input_buffer_t::length</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00407">407</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a49d086081ae7176f57ff7ee4f5564375" name="a49d086081ae7176f57ff7ee4f5564375"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a49d086081ae7176f57ff7ee4f5564375">&#9670;&#160;</a></span>pos</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t input_buffer_t::pos</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00406">406</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+
+</div>
+</div>
+<hr/>Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru:<ul>
+<li><a class="el" href="uart__task_8c_source.html">uart_task.c</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="structinput__buffer__t.html">input_buffer_t</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

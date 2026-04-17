@@ -279,6 +279,9 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #if __has_warning("-Watimport-in-framework-header")
 #pragma clang diagnostic ignored "-Watimport-in-framework-header"
 #endif
+@import CoreBluetooth;
+@import Foundation;
+@import ObjectiveC;
 #endif
 
 #endif
@@ -300,6 +303,34 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #endif
 
 #if defined(__OBJC__)
+
+/// Unified BLE state machine for both iPhone and Watch
+SWIFT_CLASS("_TtC15CZECHMATEShared15BLEStateMachine")
+@interface BLEStateMachine : NSObject
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+@class CBPeripheral;
+@class CBService;
+@class CBCharacteristic;
+@interface BLEStateMachine (SWIFT_EXTENSION(CZECHMATEShared)) <CBPeripheralDelegate>
+- (void)peripheral:(CBPeripheral * _Nonnull)peripheral didDiscoverServices:(NSError * _Nullable)error;
+- (void)peripheral:(CBPeripheral * _Nonnull)peripheral didDiscoverCharacteristicsForService:(CBService * _Nonnull)service error:(NSError * _Nullable)error;
+- (void)peripheral:(CBPeripheral * _Nonnull)peripheral didUpdateValueForCharacteristic:(CBCharacteristic * _Nonnull)characteristic error:(NSError * _Nullable)error;
+- (void)peripheral:(CBPeripheral * _Nonnull)peripheral didWriteValueForCharacteristic:(CBCharacteristic * _Nonnull)characteristic error:(NSError * _Nullable)error;
+@end
+
+@class CBCentralManager;
+@class NSString;
+@class NSNumber;
+@interface BLEStateMachine (SWIFT_EXTENSION(CZECHMATEShared)) <CBCentralManagerDelegate>
+- (void)centralManagerDidUpdateState:(CBCentralManager * _Nonnull)central;
+- (void)centralManager:(CBCentralManager * _Nonnull)central didDiscoverPeripheral:(CBPeripheral * _Nonnull)peripheral advertisementData:(NSDictionary<NSString *, id> * _Nonnull)advertisementData RSSI:(NSNumber * _Nonnull)RSSI;
+- (void)centralManager:(CBCentralManager * _Nonnull)central didConnectPeripheral:(CBPeripheral * _Nonnull)peripheral;
+- (void)centralManager:(CBCentralManager * _Nonnull)central didFailToConnectPeripheral:(CBPeripheral * _Nonnull)peripheral error:(NSError * _Nullable)error;
+- (void)centralManager:(CBCentralManager * _Nonnull)central didDisconnectPeripheral:(CBPeripheral * _Nonnull)peripheral error:(NSError * _Nullable)error;
+@end
 
 #endif
 #if __has_attribute(external_source_symbol)

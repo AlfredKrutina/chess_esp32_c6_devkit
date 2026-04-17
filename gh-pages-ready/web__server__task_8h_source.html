@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor web_server_task.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('web__server__task_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">web_server_task.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="web__server__task_8h.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="preprocessor">#ifndef WEB_SERVER_TASK_H</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#define WEB_SERVER_TASK_H</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="preprocessor">#include &quot;esp_err.h&quot;</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="preprocessor">#include &quot;freertos/FreeRTOS.h&quot;</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">#include &quot;freertos/queue.h&quot;</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="preprocessor">#include &quot;<a class="code" href="freertos__chess_8h.html">freertos_chess.h</a>&quot;</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="comment">// TYPY WEB SERVER PRIKAZU</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span></div>
+<div class="foldopen" id="foldopen00060" data-start="{" data-end="};">
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684">   60</a></span><span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684aad9719bd0826f4a39d8295eff4581e7f">   61</a></span>  <a class="code hl_enumvalue" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684aad9719bd0826f4a39d8295eff4581e7f">WEB_CMD_START_SERVER</a>, </div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684a7538e0d87ed15a4ba791f6b29c76ac0e">   62</a></span>  <a class="code hl_enumvalue" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684a7538e0d87ed15a4ba791f6b29c76ac0e">WEB_CMD_STOP_SERVER</a>,  </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0">   63</a></span>  <a class="code hl_enumvalue" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0">WEB_CMD_GET_STATUS</a>,   </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno"><a class="line" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92">   64</a></span>  <a class="code hl_enumvalue" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92">WEB_CMD_SET_CONFIG</a>    </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>} <a class="code hl_enumeration" href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684">web_command_type_t</a>;</div>
+</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="comment">// PROTOTYPY FUNKCI</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a706a239d45aec91411ba21ec2fe1b6f9">web_server_task_start</a>(<span class="keywordtype">void</span> *pvParameters);</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="comment">// Zpracovani prikazu</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#aee13c30e5ba3aacbdb4adf76ac429f08">web_server_process_commands</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#ae84a23138d1c5c146c9cadf884edaa85">web_server_execute_command</a>(uint8_t command);</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="comment">// Funkce pro ovladani web serveru</span></div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a1449ade4d0e7558ec4fdb355d19b2d05">web_server_start</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a0d3daaa268fa6003470a334af7dbd2c1">web_server_stop</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a46cb4e2e81f7578c9f230f5a3bcd11e9">web_server_get_status</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a46d1719629fd536b25bd288a334d338c">web_server_set_config</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="comment">// Sprava stavu</span></div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span></div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a64790e5afc3435f96af702391bf6a24d">web_server_update_state</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="comment">// HTTP request handlery</span></div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span></div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a483e27ca5d114ebfc2d8e6ea723bb804">web_server_handle_root</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span></div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#acd8c0cf4c727a56b30cf72b6b48edcb4">web_server_handle_api_status</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span></div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a3bba3e089bedf1e0e30e5e4cd1db5091">web_server_handle_api_board</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span></div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a4680b3adbb255bf863bcf5f81925b618">web_server_handle_api_move</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span> </div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="comment">// WebSocket funkce</span></div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span></div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a362473905ca28dd32196ec327d9ccaee">web_server_websocket_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span></div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a2cb5b9ee72f8acc55f6cb8f8b45f8bec">web_server_websocket_send_update</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *data);</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span><span class="comment">// Utility funkce</span></div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span></div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="keywordtype">bool</span> <a class="code hl_function" href="web__server__task_8h.html#a29aa411112dd288259022706b7ff59ca">web_server_is_active</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span></div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>uint32_t <a class="code hl_function" href="web__server__task_8h.html#ab47f0c904798d9ffc4f8e75f7ce8b5f3">web_server_get_client_count</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span></div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>uint32_t <a class="code hl_function" href="web__server__task_8h.html#aed7d37015ce007d6f84d759c94ad5f26">web_server_get_uptime</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span></div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#af8feae54c5bb7a79bc36e947985c7e9f">web_server_log_request</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *method, <span class="keyword">const</span> <span class="keywordtype">char</span> *path);</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span></div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a81f3502fd237eb59ce2ebfc3999b9d36">web_server_log_error</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *error_message);</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="comment">// Konfiguracni funkce</span></div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span></div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#ab18a2857822cb150c96fa252d484246a">web_server_set_port</a>(uint16_t port);</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#ad915360105d028b5ebd3ca1b38e391d4">web_server_set_max_clients</a>(uint32_t max_clients);</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a74937acaf240abcaaac7d9260e412beb">web_server_enable_ssl</a>(<span class="keywordtype">bool</span> enable);</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="comment">// Funkce pro status a ovladani</span></div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span></div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="keywordtype">bool</span> <a class="code hl_function" href="web__server__task_8h.html#aa8fab275f60059ceb3bc58df7650bf0b">web_server_is_task_running</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span></div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#a76a1b24d8a4f73007def0e2675cb2b1c">web_server_stop_task</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span></div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span><span class="keywordtype">void</span> <a class="code hl_function" href="web__server__task_8h.html#ae0743c305f029ddda532f3823d8bd602">web_server_reset</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span><span class="comment">// WiFi funkce pro externi pouziti (UART prikazy)</span></div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>esp_err_t <a class="code hl_function" href="web__server__task_8h.html#acc62bf6d95aba71aede977266f96e962">wifi_save_config_to_nvs</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *ssid, <span class="keyword">const</span> <span class="keywordtype">char</span> *password);</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>esp_err_t <a class="code hl_function" href="web__server__task_8h.html#ad3bda523e632b9d3152cdd73fe9d8d4c">wifi_connect_sta</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span></div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>esp_err_t <a class="code hl_function" href="web__server__task_8h.html#a4a4813aac1f99fb986c17f6a4f5e40e2">wifi_disconnect_sta</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span></div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>esp_err_t <a class="code hl_function" href="web__server__task_8h.html#a1b7f75613a5cab50704428a000610531">wifi_clear_config_from_nvs</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span></div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span><span class="keywordtype">bool</span> <a class="code hl_function" href="web__server__task_8h.html#a96cbfc09f923b4548a4bb4c63f70237f">wifi_is_sta_connected</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span></div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span><span class="keywordtype">bool</span> <a class="code hl_function" href="web__server__task_8h.html#add53c7f34376bb856c868cab6321070b">web_is_locked</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>esp_err_t <a class="code hl_function" href="web__server__task_8h.html#a325753fb6460ffaa94c0c32237c8e7e1">web_lock_set</a>(<span class="keywordtype">bool</span> locked);</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span></div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>esp_err_t <a class="code hl_function" href="web__server__task_8h.html#afd6d2236bd4fcbbe7ccbbb0e7b4a71de">web_lock_load_from_nvs</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span></div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>esp_err_t <a class="code hl_function" href="web__server__task_8h.html#a0915923195ef83ed0a4a8ab10cfe3d24">wifi_load_config_from_nvs</a>(<span class="keywordtype">char</span> *ssid, <span class="keywordtype">size_t</span> ssid_len, <span class="keywordtype">char</span> *password,</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>                                    <span class="keywordtype">size_t</span> password_len);</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span></div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>esp_err_t <a class="code hl_function" href="web__server__task_8h.html#a2fb41e5bc5236e57873eb55f1eadb51c">wifi_get_sta_ip</a>(<span class="keywordtype">char</span> *buffer, <span class="keywordtype">size_t</span> max_len);</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span></div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>esp_err_t <a class="code hl_function" href="web__server__task_8h.html#a0dd2f78dc29e5c5cd031dcdf59d587e6">wifi_get_sta_ssid</a>(<span class="keywordtype">char</span> *buffer, <span class="keywordtype">size_t</span> max_len);</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="comment">// EXTERNI PROMENNE</span></div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span></div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span><span class="keyword">extern</span> QueueHandle_t <a class="code hl_variable" href="freertos__chess_8c.html#aa17b405ee779d94d3b6954dd83712591">web_server_status_queue</a>;</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span><span class="keyword">extern</span> QueueHandle_t <a class="code hl_variable" href="freertos__chess_8c.html#aaed4d7c5bc3e8140853498b965ec94e2">web_server_command_queue</a>;</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span> </div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>}</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span><span class="preprocessor">#endif </span><span class="comment">// WEB_SERVER_TASK_H</span></div>
+<div class="ttc" id="afreertos__chess_8c_html_aa17b405ee779d94d3b6954dd83712591"><div class="ttname"><a href="freertos__chess_8c.html#aa17b405ee779d94d3b6954dd83712591">web_server_status_queue</a></div><div class="ttdeci">QueueHandle_t web_server_status_queue</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00236">web_server_task.c:236</a></div></div>
+<div class="ttc" id="afreertos__chess_8c_html_aaed4d7c5bc3e8140853498b965ec94e2"><div class="ttname"><a href="freertos__chess_8c.html#aaed4d7c5bc3e8140853498b965ec94e2">web_server_command_queue</a></div><div class="ttdeci">QueueHandle_t web_server_command_queue</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00237">web_server_task.c:237</a></div></div>
+<div class="ttc" id="afreertos__chess_8h_html"><div class="ttname"><a href="freertos__chess_8h.html">freertos_chess.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - Hlavni systemova hlavicka.</div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a0915923195ef83ed0a4a8ab10cfe3d24"><div class="ttname"><a href="web__server__task_8h.html#a0915923195ef83ed0a4a8ab10cfe3d24">wifi_load_config_from_nvs</a></div><div class="ttdeci">esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password, size_t password_len)</div><div class="ttdoc">Nacte WiFi STA konfiguraci z NVS (pro externi pouziti).</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00289">web_server_task.c:289</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a0d3daaa268fa6003470a334af7dbd2c1"><div class="ttname"><a href="web__server__task_8h.html#a0d3daaa268fa6003470a334af7dbd2c1">web_server_stop</a></div><div class="ttdeci">void web_server_stop(void)</div><div class="ttdoc">Zastav web server.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04917">web_server_task.c:4917</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a0dd2f78dc29e5c5cd031dcdf59d587e6"><div class="ttname"><a href="web__server__task_8h.html#a0dd2f78dc29e5c5cd031dcdf59d587e6">wifi_get_sta_ssid</a></div><div class="ttdeci">esp_err_t wifi_get_sta_ssid(char *buffer, size_t max_len)</div><div class="ttdoc">Ziska aktualni SSID STA rozhrani.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00341">web_server_task.c:341</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a1449ade4d0e7558ec4fdb355d19b2d05"><div class="ttname"><a href="web__server__task_8h.html#a1449ade4d0e7558ec4fdb355d19b2d05">web_server_start</a></div><div class="ttdeci">void web_server_start(void)</div><div class="ttdoc">Spust web server.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04893">web_server_task.c:4893</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a1b7f75613a5cab50704428a000610531"><div class="ttname"><a href="web__server__task_8h.html#a1b7f75613a5cab50704428a000610531">wifi_clear_config_from_nvs</a></div><div class="ttdeci">esp_err_t wifi_clear_config_from_nvs(void)</div><div class="ttdoc">Vymaze WiFi STA konfiguraci z NVS.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00547">web_server_task.c:547</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a29aa411112dd288259022706b7ff59ca"><div class="ttname"><a href="web__server__task_8h.html#a29aa411112dd288259022706b7ff59ca">web_server_is_active</a></div><div class="ttdeci">bool web_server_is_active(void)</div><div class="ttdoc">Overi zda je web server aktivni.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05013">web_server_task.c:5013</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a2c7befe5d1c5ab38fe478aae4ae86684"><div class="ttname"><a href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684">web_command_type_t</a></div><div class="ttdeci">web_command_type_t</div><div class="ttdoc">Typy web server prikazu.</div><div class="ttdef"><b>Definition</b> <a href="#l00060">web_server_task.h:60</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92"><div class="ttname"><a href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92">WEB_CMD_SET_CONFIG</a></div><div class="ttdeci">@ WEB_CMD_SET_CONFIG</div><div class="ttdoc">Nastav konfiguraci serveru.</div><div class="ttdef"><b>Definition</b> <a href="#l00064">web_server_task.h:64</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a2c7befe5d1c5ab38fe478aae4ae86684a7538e0d87ed15a4ba791f6b29c76ac0e"><div class="ttname"><a href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684a7538e0d87ed15a4ba791f6b29c76ac0e">WEB_CMD_STOP_SERVER</a></div><div class="ttdeci">@ WEB_CMD_STOP_SERVER</div><div class="ttdoc">Zastav web server.</div><div class="ttdef"><b>Definition</b> <a href="#l00062">web_server_task.h:62</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a2c7befe5d1c5ab38fe478aae4ae86684aad9719bd0826f4a39d8295eff4581e7f"><div class="ttname"><a href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684aad9719bd0826f4a39d8295eff4581e7f">WEB_CMD_START_SERVER</a></div><div class="ttdeci">@ WEB_CMD_START_SERVER</div><div class="ttdoc">Spust web server.</div><div class="ttdef"><b>Definition</b> <a href="#l00061">web_server_task.h:61</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0"><div class="ttname"><a href="web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0">WEB_CMD_GET_STATUS</a></div><div class="ttdeci">@ WEB_CMD_GET_STATUS</div><div class="ttdoc">Ziskej status serveru.</div><div class="ttdef"><b>Definition</b> <a href="#l00063">web_server_task.h:63</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a2cb5b9ee72f8acc55f6cb8f8b45f8bec"><div class="ttname"><a href="web__server__task_8h.html#a2cb5b9ee72f8acc55f6cb8f8b45f8bec">web_server_websocket_send_update</a></div><div class="ttdeci">void web_server_websocket_send_update(const char *data)</div><div class="ttdoc">Posli aktualizaci pres WebSocket.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05002">web_server_task.c:5002</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a2fb41e5bc5236e57873eb55f1eadb51c"><div class="ttname"><a href="web__server__task_8h.html#a2fb41e5bc5236e57873eb55f1eadb51c">wifi_get_sta_ip</a></div><div class="ttdeci">esp_err_t wifi_get_sta_ip(char *buffer, size_t max_len)</div><div class="ttdoc">Ziska aktualni IP adresu STA rozhrani.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00332">web_server_task.c:332</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a325753fb6460ffaa94c0c32237c8e7e1"><div class="ttname"><a href="web__server__task_8h.html#a325753fb6460ffaa94c0c32237c8e7e1">web_lock_set</a></div><div class="ttdeci">esp_err_t web_lock_set(bool locked)</div><div class="ttdoc">Nastavi lock stav a ulozi do NVS.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00681">web_server_task.c:681</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a362473905ca28dd32196ec327d9ccaee"><div class="ttname"><a href="web__server__task_8h.html#a362473905ca28dd32196ec327d9ccaee">web_server_websocket_init</a></div><div class="ttdeci">void web_server_websocket_init(void)</div><div class="ttdoc">Inicializuj WebSocket.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04998">web_server_task.c:4998</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a3bba3e089bedf1e0e30e5e4cd1db5091"><div class="ttname"><a href="web__server__task_8h.html#a3bba3e089bedf1e0e30e5e4cd1db5091">web_server_handle_api_board</a></div><div class="ttdeci">void web_server_handle_api_board(void)</div><div class="ttdoc">Zpracuj GET /api/board (sachovnice).</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04984">web_server_task.c:4984</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a4680b3adbb255bf863bcf5f81925b618"><div class="ttname"><a href="web__server__task_8h.html#a4680b3adbb255bf863bcf5f81925b618">web_server_handle_api_move</a></div><div class="ttdeci">void web_server_handle_api_move(void)</div><div class="ttdoc">Zpracuj POST /api/move (tah).</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04989">web_server_task.c:4989</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a46cb4e2e81f7578c9f230f5a3bcd11e9"><div class="ttname"><a href="web__server__task_8h.html#a46cb4e2e81f7578c9f230f5a3bcd11e9">web_server_get_status</a></div><div class="ttdeci">void web_server_get_status(void)</div><div class="ttdoc">Ziskej status web serveru.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04938">web_server_task.c:4938</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a46d1719629fd536b25bd288a334d338c"><div class="ttname"><a href="web__server__task_8h.html#a46d1719629fd536b25bd288a334d338c">web_server_set_config</a></div><div class="ttdeci">void web_server_set_config(void)</div><div class="ttdoc">Nastav konfiguraci web serveru.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04952">web_server_task.c:4952</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a483e27ca5d114ebfc2d8e6ea723bb804"><div class="ttname"><a href="web__server__task_8h.html#a483e27ca5d114ebfc2d8e6ea723bb804">web_server_handle_root</a></div><div class="ttdeci">void web_server_handle_root(void)</div><div class="ttdoc">Zpracuj GET / (hlavni stranka).</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04974">web_server_task.c:4974</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a4a4813aac1f99fb986c17f6a4f5e40e2"><div class="ttname"><a href="web__server__task_8h.html#a4a4813aac1f99fb986c17f6a4f5e40e2">wifi_disconnect_sta</a></div><div class="ttdeci">esp_err_t wifi_disconnect_sta(void)</div><div class="ttdoc">Odpoji ESP32 od WiFi site.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00506">web_server_task.c:506</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a64790e5afc3435f96af702391bf6a24d"><div class="ttname"><a href="web__server__task_8h.html#a64790e5afc3435f96af702391bf6a24d">web_server_update_state</a></div><div class="ttdeci">void web_server_update_state(void)</div><div class="ttdoc">Aktualizuj stav web serveru.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04961">web_server_task.c:4961</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a706a239d45aec91411ba21ec2fe1b6f9"><div class="ttname"><a href="web__server__task_8h.html#a706a239d45aec91411ba21ec2fe1b6f9">web_server_task_start</a></div><div class="ttdeci">void web_server_task_start(void *pvParameters)</div><div class="ttdoc">Hlavni funkce Web Server tasku.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04723">web_server_task.c:4723</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a74937acaf240abcaaac7d9260e412beb"><div class="ttname"><a href="web__server__task_8h.html#a74937acaf240abcaaac7d9260e412beb">web_server_enable_ssl</a></div><div class="ttdeci">void web_server_enable_ssl(bool enable)</div><div class="ttdoc">Zapni/vypni SSL.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05056">web_server_task.c:5056</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a76a1b24d8a4f73007def0e2675cb2b1c"><div class="ttname"><a href="web__server__task_8h.html#a76a1b24d8a4f73007def0e2675cb2b1c">web_server_stop_task</a></div><div class="ttdeci">void web_server_stop_task(void)</div><div class="ttdoc">Zastav web server task.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05068">web_server_task.c:5068</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a81f3502fd237eb59ce2ebfc3999b9d36"><div class="ttname"><a href="web__server__task_8h.html#a81f3502fd237eb59ce2ebfc3999b9d36">web_server_log_error</a></div><div class="ttdeci">void web_server_log_error(const char *error_message)</div><div class="ttdoc">Zaloguj chybu web serveru.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05034">web_server_task.c:5034</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a96cbfc09f923b4548a4bb4c63f70237f"><div class="ttname"><a href="web__server__task_8h.html#a96cbfc09f923b4548a4bb4c63f70237f">wifi_is_sta_connected</a></div><div class="ttdeci">bool wifi_is_sta_connected(void)</div><div class="ttdoc">Zjisti zda je STA pripojeno.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00582">web_server_task.c:582</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_aa8fab275f60059ceb3bc58df7650bf0b"><div class="ttname"><a href="web__server__task_8h.html#aa8fab275f60059ceb3bc58df7650bf0b">web_server_is_task_running</a></div><div class="ttdeci">bool web_server_is_task_running(void)</div><div class="ttdoc">Overi zda web server task bezi.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05066">web_server_task.c:5066</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_ab18a2857822cb150c96fa252d484246a"><div class="ttname"><a href="web__server__task_8h.html#ab18a2857822cb150c96fa252d484246a">web_server_set_port</a></div><div class="ttdeci">void web_server_set_port(uint16_t port)</div><div class="ttdoc">Nastav port serveru.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05046">web_server_task.c:5046</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_ab47f0c904798d9ffc4f8e75f7ce8b5f3"><div class="ttname"><a href="web__server__task_8h.html#ab47f0c904798d9ffc4f8e75f7ce8b5f3">web_server_get_client_count</a></div><div class="ttdeci">uint32_t web_server_get_client_count(void)</div><div class="ttdoc">Ziskej pocet pripojenych klientu.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05015">web_server_task.c:5015</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_acc62bf6d95aba71aede977266f96e962"><div class="ttname"><a href="web__server__task_8h.html#acc62bf6d95aba71aede977266f96e962">wifi_save_config_to_nvs</a></div><div class="ttdeci">esp_err_t wifi_save_config_to_nvs(const char *ssid, const char *password)</div><div class="ttdoc">Ulozi WiFi STA konfiguraci do NVS.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00351">web_server_task.c:351</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_acd8c0cf4c727a56b30cf72b6b48edcb4"><div class="ttname"><a href="web__server__task_8h.html#acd8c0cf4c727a56b30cf72b6b48edcb4">web_server_handle_api_status</a></div><div class="ttdeci">void web_server_handle_api_status(void)</div><div class="ttdoc">Zpracuj GET /api/status (stav hry).</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04979">web_server_task.c:4979</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_ad3bda523e632b9d3152cdd73fe9d8d4c"><div class="ttname"><a href="web__server__task_8h.html#ad3bda523e632b9d3152cdd73fe9d8d4c">wifi_connect_sta</a></div><div class="ttdeci">esp_err_t wifi_connect_sta(void)</div><div class="ttdoc">Pripoji ESP32 k WiFi site jako Station.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00411">web_server_task.c:411</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_ad915360105d028b5ebd3ca1b38e391d4"><div class="ttname"><a href="web__server__task_8h.html#ad915360105d028b5ebd3ca1b38e391d4">web_server_set_max_clients</a></div><div class="ttdeci">void web_server_set_max_clients(uint32_t max_clients)</div><div class="ttdoc">Nastav maximum klientu.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05051">web_server_task.c:5051</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_add53c7f34376bb856c868cab6321070b"><div class="ttname"><a href="web__server__task_8h.html#add53c7f34376bb856c868cab6321070b">web_is_locked</a></div><div class="ttdeci">bool web_is_locked(void)</div><div class="ttdoc">Zjisti, zda je web rozhrani zamcene.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00673">web_server_task.c:673</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_ae0743c305f029ddda532f3823d8bd602"><div class="ttname"><a href="web__server__task_8h.html#ae0743c305f029ddda532f3823d8bd602">web_server_reset</a></div><div class="ttdeci">void web_server_reset(void)</div><div class="ttdoc">Resetuj web server.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05073">web_server_task.c:5073</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_ae84a23138d1c5c146c9cadf884edaa85"><div class="ttname"><a href="web__server__task_8h.html#ae84a23138d1c5c146c9cadf884edaa85">web_server_execute_command</a></div><div class="ttdeci">void web_server_execute_command(uint8_t command)</div><div class="ttdoc">Vykonaj web server prikaz.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04865">web_server_task.c:4865</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_aed7d37015ce007d6f84d759c94ad5f26"><div class="ttname"><a href="web__server__task_8h.html#aed7d37015ce007d6f84d759c94ad5f26">web_server_get_uptime</a></div><div class="ttdeci">uint32_t web_server_get_uptime(void)</div><div class="ttdoc">Ziskej uptime serveru.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05017">web_server_task.c:5017</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_aee13c30e5ba3aacbdb4adf76ac429f08"><div class="ttname"><a href="web__server__task_8h.html#aee13c30e5ba3aacbdb4adf76ac429f08">web_server_process_commands</a></div><div class="ttdeci">void web_server_process_commands(void)</div><div class="ttdoc">Zpracuj web server prikazy z fronty.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l04855">web_server_task.c:4855</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_af8feae54c5bb7a79bc36e947985c7e9f"><div class="ttname"><a href="web__server__task_8h.html#af8feae54c5bb7a79bc36e947985c7e9f">web_server_log_request</a></div><div class="ttdeci">void web_server_log_request(const char *method, const char *path)</div><div class="ttdoc">Zaloguj HTTP pozadavek.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l05026">web_server_task.c:5026</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_afd6d2236bd4fcbbe7ccbbb0e7b4a71de"><div class="ttname"><a href="web__server__task_8h.html#afd6d2236bd4fcbbe7ccbbb0e7b4a71de">web_lock_load_from_nvs</a></div><div class="ttdeci">esp_err_t web_lock_load_from_nvs(void)</div><div class="ttdoc">Nacte lock stav z NVS.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00629">web_server_task.c:629</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_17f9138bad1f9d2ff44cddc9da54d444.html">web_server_task</a></li><li class="navelem"><a href="dir_dd43ffc1cdd951e881f480cb706d2add.html">include</a></li><li class="navelem"><a href="web__server__task_8h.html">web_server_task.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

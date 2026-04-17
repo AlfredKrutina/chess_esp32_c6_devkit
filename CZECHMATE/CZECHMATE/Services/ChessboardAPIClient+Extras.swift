@@ -150,6 +150,18 @@ extension ChessboardAPIClient {
         try await postWiFiSimple(path: "api/wifi/clear")
     }
 
+    /// `POST /api/system/factory_reset` — smaže celý NVS oddíl na desce a restart (nezávislé na web lock).
+    func postFactoryReset() async throws {
+        let url = currentBaseURL().appendingPathComponent("api/system/factory_reset")
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let body = #"{"confirm":"erase_all_nvs"}"#
+        req.httpBody = body.data(using: .utf8)
+        let (data, response) = try await session.data(for: req)
+        try validateHTTP(response: response, data: data, treat403AsWebLock: false)
+    }
+
     private func postWiFiSimple(path: String) async throws {
         let url = currentBaseURL().appendingPathComponent(path)
         var req = URLRequest(url: url)

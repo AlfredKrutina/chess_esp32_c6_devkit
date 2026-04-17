@@ -19,6 +19,7 @@ struct GameView: View {
     @EnvironmentObject private var modelDownloadManager: ModelDownloadManager
     @EnvironmentObject private var chessCoachManager: ChessCoachManager
     @State private var isHintBusy = false
+    @State private var bleQuickReconnectBusy = false
     @State private var showConnection = false
     @State private var showHelp = false
     @State private var pollingWaitStarted: Date?
@@ -27,6 +28,7 @@ struct GameView: View {
     @AppStorage("czechmate.gameBoardOnlyMode") private var boardOnlyMode = false
     @AppStorage("czechmate.moveAnimationsEnabled") private var moveAnimationsEnabled = true
     @AppStorage("czechmate.showBoardCoordinates") private var showBoardCoordinates = true
+    @AppStorage("czechmate.boardStyleRaw") private var boardStyleRaw = ChessBoardStyle.wooden.rawValue
     @State private var boardZoom: CGFloat = 1.0
     @State private var remoteMoveFrom: String?
     @State private var showPromotionPick = false
@@ -45,6 +47,8 @@ struct GameView: View {
     @State private var showPositionCoachSheet = false
     @State private var lastSeenMoveCount: UInt32 = 0
     @AppStorage("czechmate.coach.userLevel") private var coachUserLevel = 4
+    @State private var transientBoardMessage: String?
+    @State private var transientBoardMessageDismissID = UUID()
 
     var body: some View {
         NavigationStack {
@@ -65,7 +69,7 @@ struct GameView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    ConnectionStatusBadge()
+                    ConnectionStatusBadge(onTap: { showConnection = true })
                 }
                 ToolbarItem(placement: .principal) {
                     HStack(spacing: 8) {
@@ -195,6 +199,7 @@ struct GameView: View {
                 )
             }
             .onAppear {
+                modelDownloadManager.reconcileWithDisk()
                 if !store.isPolling {
                     store.startPolling()
                 }
@@ -212,6 +217,12 @@ struct GameView: View {
             .onChange(of: learningModeManager.isLearningModeActive) { _, active in
                 chessCoachManager.syncLearningModeAndModel(
                     learningModeActive: active,
+                    modelDownload: modelDownloadManager
+                )
+            }
+            .onChange(of: modelDownloadManager.isModelInstalled) { _, _ in
+                chessCoachManager.syncLearningModeAndModel(
+                    learningModeActive: learningModeManager.isLearningModeActive,
                     modelDownload: modelDownloadManager
                 )
             }
@@ -254,11 +265,6 @@ struct GameView: View {
                 lastFeedbackSnapshot = next
             }
             .tint(Theme.accent)
-        }
-        .overlay {
-            if let mgr = store.boardSetupManager {
-                SetupModeView(manager: mgr)
-            }
         }
     }
 
@@ -378,6 +384,7 @@ struct GameView: View {
     private var boardOnlyScroll: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.m) {
+                PrePuzzleRestoreBanner(onFailureMessage: { showLegacyTransientBoardMessage($0) })
                 if let board = activeBoard {
                     boardSection(board: board)
                 }
@@ -479,7 +486,7 @@ struct GameView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Label("Učící mód", systemImage: "graduationcap.fill")
                         .font(Theme.Typography.subsection())
-                    Text("Časovače jsou skryté — soustředíš se na pochopení pozice. Trenér reaguje na hrubky a může navrhnout plán.")
+                    Text("Časovače jsou skryté — soustředíš se na pozici. Komentáře trenéra běží lokálně po stažení modelu; odhad hrubek a nápovědy tahu stále spoléhají na Stockfish přes internet.")
                         .font(Theme.Typography.caption())
                         .foregroundStyle(.secondary)
                 }
@@ -487,6 +494,18 @@ struct GameView: View {
         }
 
         firmwareStateBanners
+
+        if let phase = store.pairingPhaseMessage, !phase.isEmpty {
+            ThemedBanner(style: .accent, cornerRadius: 10) {
+                HStack(alignment: .center, spacing: 10) {
+                    ProgressView()
+                    Text(phase)
+                        .font(Theme.Typography.caption())
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.leading)
+                }
+            }
+        }
 
         if let msg = store.connectionStallMessage {
             ThemedBanner(style: .error, cornerRadius: 10) {
@@ -498,33 +517,30 @@ struct GameView: View {
 
         if !network.isInternetLikelyForStockfish {
             ThemedBanner(style: .warning, cornerRadius: 8) {
-                Label("Pro nápovědu Stockfish je potřeba internet.", systemImage: "wifi.slash")
-                    .font(Theme.Typography.caption2())
-                    .foregroundStyle(Theme.Semantic.warningForeground)
+                Label(
+                    store.activeLinkKind == .bluetooth
+                        ? "Pro nápovědu, analýzu a zhodnocení tahů (Stockfish) zapni mobilní data nebo Wi‑Fi v telefonu. Deska může zůstat připojená jen přes Bluetooth."
+                        : "Pro nápovědu tahu, analýzu a automatické zhodnocení tahů (Stockfish) je potřeba internet (Wi‑Fi nebo mobilní data). Samotné čtení pozice z desky může jít jen přes Bluetooth.",
+                    systemImage: "antenna.radiowaves.left.and.right.slash"
+                )
+                .font(Theme.Typography.caption2())
+                .foregroundStyle(Theme.Semantic.warningForeground)
+            }
+        } else if network.isConstrained, store.activeLinkKind == .bluetooth {
+            ThemedBanner(style: .neutral, cornerRadius: 8) {
+                Label(
+                    "Úsporný síťový režim (např. nízká data) — výpočet Stockfish může být pomalejší. Deska zůstává na Bluetooth.",
+                    systemImage: "leaf.fill"
+                )
+                .font(Theme.Typography.caption2())
+                .foregroundStyle(.secondary)
             }
         }
     }
 
     @ViewBuilder
     private func boardSection(board: [[String]]) -> some View {
-        if store.puzzleBoardPreview != nil {
-            ThemedBanner(style: .neutral) {
-                VStack(alignment: .leading, spacing: Theme.Spacing.s) {
-                    HStack {
-                        Label("Puzzle — statická pozice", systemImage: "puzzlepiece.extension")
-                            .font(Theme.Typography.subsection())
-                        Spacer()
-                        Button("Zavřít") {
-                            store.clearPuzzlePosition()
-                        }
-                        .buttonStyle(.themeSecondary)
-                    }
-                    Text("Tahy nejdou odeslat na desku — jde o náhled pozice z Lichess.")
-                        .font(Theme.Typography.caption())
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
+        PuzzlePreviewModeBanner()
 
         if let s = store.snapshot, store.puzzleBoardPreview == nil {
             statusLine(s)
@@ -535,46 +551,40 @@ struct GameView: View {
         }
 
         VStack(spacing: 8) {
-            if let s = store.snapshot, store.puzzleBoardPreview == nil, !learningModeManager.isLearningModeActive {
-                BoardTimerLine(
-                    isBlackRow: true,
-                    status: s.status,
-                    snapshotReceivedAt: store.snapshotReceivedAt,
-                    board: board,
-                    timerClock: store.lastTimerState,
-                    timerClockReceivedAt: store.timerClockReceivedAt
-                )
-                if store.supportsWiFiRemoteCommands {
-                    timerPauseResumeRow(status: s.status)
-                }
+            if store.snapshot != nil, store.puzzleBoardPreview == nil, !learningModeManager.isLearningModeActive {
+                GameBoardTimerLineIfNeeded(board: board, isBlackRow: true)
+                GameBoardTimerPauseStripIfNeeded()
             }
 
             ZStack(alignment: .topTrailing) {
                 ChessBoardView(
                     board: board,
                     flipped: boardFlipped,
-                    highlightFrom: store.hintSquareFrom,
-                    highlightTo: store.hintSquareTo,
+                    highlightFrom: store.boardHintHighlightFrom,
+                    highlightTo: store.boardHintHighlightTo,
                     lastMoveFrom: store.snapshot?.history.moves.last?.from,
                     lastMoveTo: store.snapshot?.history.moves.last?.to,
                     zoom: $boardZoom,
-                    remoteSelectionSquare: remoteMovesEnabled && store.supportsWiFiRemoteCommands && store.puzzleBoardPreview == nil
+                    remoteSelectionSquare: remoteMovesEnabled && store.supportsRemoteChessCommands && store.puzzleBoardPreview == nil
                         ? remoteMoveFrom
                         : nil,
                     errorInvalidSquare: store.snapshot?.status.errorState?.invalidPos,
                     errorOriginalSquare: store.snapshot?.status.errorState?.originalPos,
                     invalidMoveFlashFrom: invalidFlashFrom,
                     invalidMoveFlashTo: invalidFlashTo,
-                    onRemoteSquareTap: remoteMovesEnabled && store.supportsWiFiRemoteCommands && store.puzzleBoardPreview == nil
+                    onRemoteSquareTap: remoteMovesEnabled && store.supportsRemoteChessCommands && store.puzzleBoardPreview == nil
                         && store.snapshot?.status.webLocked != true
+                        && store.snapshot?.status.isErrorRecoveryActive != true
+                        && store.snapshot?.status.castlingInProgress != true
                         ? { sq in
                             if let snap = store.snapshot {
-                                handleRemoteSquareTap(sq, board: snap.board)
+                                handleRemoteSquareTap(sq, snap: snap)
                             }
                         }
                         : nil,
                     animatePieces: moveAnimationsEnabled,
-                    showCoordinates: showBoardCoordinates
+                    showCoordinates: showBoardCoordinates,
+                    boardStyle: ChessBoardStyle(rawValue: boardStyleRaw) ?? .wooden
                 )
                 Button {
                     boardFlipped.toggle()
@@ -597,15 +607,27 @@ struct GameView: View {
                     .shadow(color: .black.opacity(0.06), radius: 10, y: 3)
             )
 
-            if let s = store.snapshot, store.puzzleBoardPreview == nil, !learningModeManager.isLearningModeActive {
-                BoardTimerLine(
-                    isBlackRow: false,
-                    status: s.status,
-                    snapshotReceivedAt: store.snapshotReceivedAt,
-                    board: board,
-                    timerClock: store.lastTimerState,
-                    timerClockReceivedAt: store.timerClockReceivedAt
+            if let msg = transientBoardMessage {
+                TransientBoardMessageBanner(
+                    message: msg,
+                    onDismiss: {
+                        transientBoardMessage = nil
+                    }
                 )
+                .task(id: transientBoardMessageDismissID) {
+                    try? await Task.sleep(nanoseconds: 4_000_000_000)
+                    await MainActor.run {
+                        transientBoardMessage = nil
+                    }
+                }
+            }
+
+            if remoteMovesEnabled {
+                RemoteMovesHintBanner(remoteMovesEnabled: true)
+            }
+
+            if store.snapshot != nil, store.puzzleBoardPreview == nil, !learningModeManager.isLearningModeActive {
+                GameBoardTimerLineIfNeeded(board: board, isBlackRow: false)
             }
             if let s = store.snapshot, store.puzzleBoardPreview == nil {
                 MoveHistoryView(
@@ -636,33 +658,6 @@ struct GameView: View {
             invalidFlashFrom = nil
             invalidFlashTo = nil
         }
-    }
-
-    @ViewBuilder
-    private func timerPauseResumeRow(status: GameStatus) -> some View {
-        let gs = status.gameState.lowercased()
-        let paused = gs == "paused"
-        let ended = status.isGameFinished
-        HStack(spacing: 16) {
-            Button {
-                Task { await store.postTimerPauseToBoard() }
-            } label: {
-                Label("Pauza", systemImage: "pause.circle.fill")
-                    .font(.system(.caption, design: .rounded))
-            }
-            .buttonStyle(.bordered)
-            .disabled(ended || paused)
-            Button {
-                Task { await store.postTimerResumeToBoard() }
-            } label: {
-                Label("Pokračovat", systemImage: "play.circle.fill")
-                    .font(.system(.caption, design: .rounded))
-            }
-            .buttonStyle(.bordered)
-            .disabled(ended || !paused)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 2)
     }
 
     private func statusLine(_ s: GameSnapshot) -> some View {
@@ -725,6 +720,8 @@ struct GameView: View {
     /// Stav z MCU / webu — parita s webovým panelem (chyby, puzzle, matice, konec partie).
     @ViewBuilder
     private var firmwareStateBanners: some View {
+        PrePuzzleRestoreBanner(onFailureMessage: { showLegacyTransientBoardMessage($0) })
+
         if let st = store.snapshot?.status {
             if st.isErrorRecoveryActive {
                 ThemedBanner(style: .error) {
@@ -876,6 +873,27 @@ struct GameView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.themePrimary)
+                if let dev = store.lastSavedBLEBoardForReconnect {
+                    Button {
+                        Task {
+                            bleQuickReconnectBusy = true
+                            await store.reconnectLastSavedBLEBoard()
+                            bleQuickReconnectBusy = false
+                            pollingWaitStarted = Date()
+                        }
+                    } label: {
+                        if bleQuickReconnectBusy {
+                            ProgressView()
+                                .frame(maxWidth: .infinity)
+                        } else {
+                            Text("Znovu „\(dev.displayName)“ (Bluetooth)")
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Theme.accent)
+                    .disabled(bleQuickReconnectBusy)
+                }
                 Button {
                     store.useMockBoard = true
                     store.startPolling()
@@ -899,19 +917,40 @@ struct GameView: View {
     }
 
     private var emptyStateBlock: some View {
-        AppEmptyState(
-            systemImage: "antenna.radiowaves.left.and.right.slash",
-            title: "Žádná data z desky",
-            message: "Připoj šachovnici v Najít šachovnici, nebo v Nastavení spusť polling a ulož URL desky.",
-            primaryButtonTitle: "Otevřít připojení",
-            primaryAction: { showConnection = true }
-        )
+        VStack(spacing: Theme.Spacing.m) {
+            AppEmptyState(
+                systemImage: "antenna.radiowaves.left.and.right.slash",
+                title: "Žádná data z desky",
+                message: "Připoj šachovnici v Najít šachovnici, nebo v Nastavení obnov připojení. S mobilními daty můžeš mít desku na Bluetooth a nápovědu Stockfish přes internet — v Nastavení zapni „Nepřepínat na Wi‑Fi po Bluetooth“.",
+                primaryButtonTitle: "Otevřít připojení",
+                primaryAction: { showConnection = true }
+            )
+            if let dev = store.lastSavedBLEBoardForReconnect {
+                Button {
+                    Task {
+                        bleQuickReconnectBusy = true
+                        await store.reconnectLastSavedBLEBoard()
+                        bleQuickReconnectBusy = false
+                    }
+                } label: {
+                    if bleQuickReconnectBusy {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Label("Znovu „\(dev.displayName)“ přes Bluetooth", systemImage: "dot.radiowaves.left.and.right")
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .buttonStyle(.bordered)
+                .disabled(bleQuickReconnectBusy)
+            }
+        }
         .themeCard()
     }
 
     @ViewBuilder
     private var timerControlCard: some View {
-        if store.supportsWiFiRemoteCommands {
+        if store.supportsTimerRemoteControls {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("Časovač na desce")
@@ -959,16 +998,19 @@ struct GameView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Ovládání hry")
                     .font(.system(.subheadline, design: .rounded).weight(.semibold))
-                if store.supportsWiFiRemoteCommands {
-                    Toggle("Tahy z aplikace (klepni od → kam)", isOn: $remoteMovesEnabled)
+                if store.supportsRemoteChessCommands {
+                    Toggle(GameRemoteMovesCopy.toggleTitle, isOn: $remoteMovesEnabled)
                         .font(.system(.body, design: .rounded))
-                    Text("Posílá tahy na ESP přes Wi‑Fi. Deska může být mimo sync.")
+                        .accessibilityHint(legacyRemoteMovesAccessibilityHint)
+                    Text("Posílá tahy na desku přes Wi‑Fi (`/api/move`) nebo Bluetooth (GATT `move`).")
                         .font(.system(.caption2, design: .rounded))
                         .foregroundStyle(.tertiary)
                     Button("Nová hra na desce") {
                         showNewGameSetup = true
                     }
                     .buttonStyle(.themePrimary)
+                }
+                if store.supportsRemoteChessCommands {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Virtuální pickup / drop")
                             .font(.system(.caption, design: .rounded).weight(.semibold))
@@ -1004,8 +1046,9 @@ struct GameView: View {
                         }
                     }
                     .font(.system(.caption, design: .rounded))
-                } else {
-                    Text("Nová hra a vzdálené tahy vyžadují Wi‑Fi k desce.")
+                }
+                if !store.supportsRemoteChessCommands {
+                    Text("Nová hra a odeslání tahů z aplikace vyžadují připojení k desce (Bluetooth nebo Wi‑Fi).")
                         .font(.system(.caption, design: .rounded))
                         .foregroundStyle(.secondary)
                 }
@@ -1014,23 +1057,9 @@ struct GameView: View {
         }
     }
 
-    private func needsPromotion(from: String, to: String, board: [[String]]) -> Bool {
-        guard let fi = ChessSquareNotation.indices(from: from),
-              let ti = ChessSquareNotation.indices(from: to) else { return false }
-        let piece = pieceChar(board: board, row: fi.row, col: fi.col)
-        guard piece == "P" || piece == "p" else { return false }
-        let rank = ti.row + 1
-        return rank == 1 || rank == 8
-    }
-
-    private func pieceChar(board: [[String]], row: Int, col: Int) -> Character {
-        guard row >= 0, row < 8, col >= 0, col < 8,
-              row < board.count, col < board[row].count else { return " " }
-        return board[row][col].first ?? " "
-    }
-
-    private func handleRemoteSquareTap(_ sq: String, board: [[String]]) {
-        guard store.supportsWiFiRemoteCommands, store.snapshot?.status.webLocked != true else { return }
+    private func handleRemoteSquareTap(_ sq: String, snap: GameSnapshot) {
+        let board = snap.board
+        guard store.supportsRemoteChessCommands, store.snapshot?.status.webLocked != true else { return }
         if let from = remoteMoveFrom {
             if from == sq {
                 remoteMoveFrom = nil
@@ -1039,7 +1068,7 @@ struct GameView: View {
                 #endif
                 return
             }
-            if needsPromotion(from: from, to: sq, board: board) {
+            if RemoteChessMoveLegality.moveNeedsPromotionPrompt(board: board, from: from, to: sq) {
                 promotionPair = (from, sq)
                 showPromotionPick = true
             } else {
@@ -1053,22 +1082,38 @@ struct GameView: View {
                         SoundManager.shared.playMoveSound()
                     } else {
                         triggerInvalidMoveFlash(from: from, to: sq)
+                        let msg = (store.lastError?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { $0.isEmpty ? nil : $0 }
+                            ?? "Deska tah ne přijala. Zkontroluj pravidla, zámek z webu nebo spojení."
+                        showLegacyTransientBoardMessage(msg)
                     }
                 }
             }
         } else {
-            remoteMoveFrom = sq
-            #if os(iOS)
-            HapticSettings.lightImpactIfEnabled()
-            #endif
-            SoundManager.shared.playPieceSelectSound()
+            if let ch = RemoteChessMoveLegality.pieceChar(board: board, square: sq),
+               RemoteChessMoveLegality.isOwnPiece(ch, currentPlayer: snap.status.currentPlayer) {
+                remoteMoveFrom = sq
+                #if os(iOS)
+                HapticSettings.lightImpactIfEnabled()
+                #endif
+                SoundManager.shared.playPieceSelectSound()
+            } else {
+                #if os(iOS)
+                HapticSettings.notificationErrorIfEnabled()
+                #endif
+            }
         }
     }
 
     private func confirmPromotion(_ letter: String) {
         guard let p = promotionPair else { return }
         Task {
-            let ok = await store.postRemoteMove(from: p.from, to: p.to, promotion: letter)
+            let gs = store.snapshot?.status.gameState.lowercased() ?? ""
+            let ok: Bool
+            if gs == "promotion" {
+                ok = await store.postRemotePromotion(choice: letter)
+            } else {
+                ok = await store.postRemoteMove(from: p.from, to: p.to, promotion: letter)
+            }
             promotionPair = nil
             remoteMoveFrom = nil
             if ok {
@@ -1078,8 +1123,28 @@ struct GameView: View {
                 SoundManager.shared.playMoveSound()
             } else {
                 triggerInvalidMoveFlash(from: p.from, to: p.to)
+                let msg = (store.lastError?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { $0.isEmpty ? nil : $0 }
+                    ?? "Promoce nebo tah nebyl přijat."
+                showLegacyTransientBoardMessage(msg)
             }
         }
+    }
+
+    private func showLegacyTransientBoardMessage(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        transientBoardMessage = trimmed
+        transientBoardMessageDismissID = UUID()
+    }
+
+    private var legacyRemoteMovesAccessibilityHint: String {
+        var s = GameRemoteMovesCopy.usageHint
+        if remoteMovesEnabled,
+           let r = store.remoteChessFromAppBlockedReason?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !r.isEmpty {
+            s += " " + r
+        }
+        return s
     }
 
     private var groupedBackground: Color {
@@ -1146,6 +1211,20 @@ struct GameView: View {
             Label("Nápověda (Stockfish + LED)", systemImage: "sparkles")
                 .font(Theme.Typography.subsection())
                 .foregroundStyle(.secondary)
+            Picker("Úroveň nápovědy", selection: Bindable(store).moveHintTier) {
+                ForEach(MoveHintTier.allCases) { tier in
+                    Text(tier.shortTitle).tag(tier)
+                }
+            }
+            .pickerStyle(.segmented)
+            Text(store.moveHintTier.detailDescription)
+                .font(Theme.Typography.caption2())
+                .foregroundStyle(.tertiary)
+            if store.activeLinkKind == .bluetooth, !network.isInternetLikelyForStockfish {
+                Text("Zapni mobilní data nebo Wi‑Fi — výpočet nápovědy běží přes internet, deska zůstane na Bluetooth.")
+                    .font(Theme.Typography.caption2())
+                    .foregroundStyle(Theme.Semantic.warningForeground)
+            }
             HStack(spacing: 10) {
                 Button {
                     Task {

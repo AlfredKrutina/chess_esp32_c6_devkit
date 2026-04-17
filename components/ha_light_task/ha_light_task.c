@@ -31,16 +31,16 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_mac.h"
-#include "esp_system.h"
 #include "esp_netif.h"
+#include "esp_system.h"
 #include "esp_task_wdt.h"
 #include "esp_timer.h"
 #include "esp_wifi.h"
+#include "freertos/semphr.h"
 #include "freertos_chess.h"
 #include "game_task.h"
 #include "led_task.h"
 #include "mqtt_client.h"
-#include "freertos/semphr.h"
 #include "nvs.h"
 #include "nvs_flash.h"
 #include <stdio.h>
@@ -50,7 +50,8 @@ static const char *TAG = "HA_LIGHT_TASK";
 
 /** Min. volný heap před esp_mqtt_client_start (interní úloha + zásobník). */
 #define HA_MQTT_MIN_FREE_HEAP_BYTES (18 * 1024)
-/** Pod tímto prahem ukončíme MQTT klienta (uvolní sockety / úlohy) — prevence errno 11 / RST. */
+/** Pod tímto prahem ukončíme MQTT klienta (uvolní sockety / úlohy) — prevence
+ * errno 11 / RST. */
 #define HA_MQTT_STOP_HEAP_BYTES (10 * 1024)
 
 // ============================================================================
@@ -91,8 +92,10 @@ static const char *TAG = "HA_LIGHT_TASK";
 static bool task_running = false;
 static ha_mode_t current_mode = HA_MODE_GAME;
 
-// Activity tracking – doba (s) po které se přepne do režimu lampa (načteno z NVS)
-static uint32_t activity_timeout_auto_sec = HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC;
+// Activity tracking – doba (s) po které se přepne do režimu lampa (načteno z
+// NVS)
+static uint32_t activity_timeout_auto_sec =
+    HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC;
 static uint32_t last_activity_time_ms = 0;
 
 // WiFi STA status (shared with web_server_task via events)
@@ -135,7 +138,8 @@ extern QueueHandle_t matrix_event_queue;
 // Interní fronta pro HA task
 static QueueHandle_t ha_light_cmd_queue = NULL;
 
-// Mutex pro thread-safe pristup k ha_light_state (HTTP handler cte, HA task pise)
+// Mutex pro thread-safe pristup k ha_light_state (HTTP handler cte, HA task
+// pise)
 static SemaphoreHandle_t ha_light_state_mutex = NULL;
 
 // Forward declarations
@@ -173,7 +177,8 @@ static esp_err_t ha_light_task_wdt_reset_safe(void) {
   return ESP_OK;
 }
 
-/** Handle hlavní smyčky — esp_task_wdt_reset jen z ha_light_task (ne z MQTT). */
+/** Handle hlavní smyčky — esp_task_wdt_reset jen z ha_light_task (ne z MQTT).
+ */
 static TaskHandle_t s_ha_light_task_hdl;
 
 static void ha_light_wdt_feed_if_own_task(void) {
@@ -246,8 +251,8 @@ void ha_light_report_activity(const char *activity_type) {
    * nevrátí desku z režimu lampy po rychlé sérii jiných událostí. */
   static uint32_t last_report_time = 0;
   uint32_t current_time = esp_timer_get_time() / 1000;
-  const bool force_queue = (activity_type != NULL &&
-                            strcmp(activity_type, "web_game_mode") == 0);
+  const bool force_queue =
+      (activity_type != NULL && strcmp(activity_type, "web_game_mode") == 0);
   if (!force_queue && current_time - last_report_time < 500) {
     return;
   }
@@ -282,11 +287,14 @@ static void ha_light_check_activity_timeout(void) {
 
   if (elapsed_ms >= timeout_ms) {
     if (ha_light_check_wifi_sta_connected()) {
-      ESP_LOGI(TAG, "Activity timeout (%lu s) reached - auto-switching to HA mode",
+      ESP_LOGI(TAG,
+               "Activity timeout (%lu s) reached - auto-switching to HA mode",
                (unsigned long)activity_timeout_auto_sec);
       ha_light_switch_to_ha_mode();
     } else {
-      ESP_LOGD(TAG, "Timeout reached but WiFi STA not connected - staying in GAME mode");
+      ESP_LOGD(
+          TAG,
+          "Timeout reached but WiFi STA not connected - staying in GAME mode");
     }
   }
 }
@@ -787,7 +795,8 @@ static void ha_light_handle_mqtt_command(const char *topic, const char *data,
     ha_light_state.g = new_g;
     ha_light_state.b = new_b;
     ha_light_state.brightness = new_brightness;
-    strncpy(ha_light_state.effect, new_effect, sizeof(ha_light_state.effect) - 1);
+    strncpy(ha_light_state.effect, new_effect,
+            sizeof(ha_light_state.effect) - 1);
     ha_light_state.effect[sizeof(ha_light_state.effect) - 1] = '\0';
     xSemaphoreGive(ha_light_state_mutex);
   }
@@ -818,8 +827,7 @@ static void ha_light_publish_state(void) {
     return;
   }
   if (esp_get_free_heap_size() < HA_MQTT_STOP_HEAP_BYTES) {
-    ESP_LOGD(TAG,
-             "[STAGING] ha_light_publish_state: skip (heap < %d B)",
+    ESP_LOGD(TAG, "[STAGING] ha_light_publish_state: skip (heap < %d B)",
              HA_MQTT_STOP_HEAP_BYTES);
     return;
   }
@@ -1058,7 +1066,8 @@ static void lamp_nvs_save(void) {
   ha_light_task_wdt_reset_safe();
   nvs_close(handle);
   if (err != ESP_OK) {
-    ESP_LOGW(TAG, "lamp_nvs_save: nvs_commit failed (%s)", esp_err_to_name(err));
+    ESP_LOGW(TAG, "lamp_nvs_save: nvs_commit failed (%s)",
+             esp_err_to_name(err));
   }
 }
 
@@ -1081,7 +1090,9 @@ static void lamp_nvs_save_auto_timeout(void) {
  */
 ha_mode_t ha_light_get_mode(void) { return current_mode; }
 
-uint32_t ha_light_get_activity_timeout_sec(void) { return activity_timeout_auto_sec; }
+uint32_t ha_light_get_activity_timeout_sec(void) {
+  return activity_timeout_auto_sec;
+}
 
 esp_err_t ha_light_set_activity_timeout_sec(uint32_t sec) {
   if (sec < HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC) {
@@ -1092,15 +1103,16 @@ esp_err_t ha_light_set_activity_timeout_sec(uint32_t sec) {
   }
   activity_timeout_auto_sec = sec;
   lamp_nvs_save_auto_timeout();
-  ESP_LOGI(TAG, "Auto lamp timeout set to %lu s (saved to NVS)", (unsigned long)sec);
+  ESP_LOGI(TAG, "Auto lamp timeout set to %lu s (saved to NVS)",
+           (unsigned long)sec);
   return ESP_OK;
 }
 
 /**
  * @brief Ziskej aktualni stav lampy (thread-safe pro HTTP handler)
  */
-void ha_light_get_state(uint8_t *r, uint8_t *g, uint8_t *b,
-                        uint8_t *brightness, bool *state) {
+void ha_light_get_state(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t *brightness,
+                        bool *state) {
   if (r)
     *r = 255;
   if (g)
@@ -1133,7 +1145,8 @@ void ha_light_get_state(uint8_t *r, uint8_t *g, uint8_t *b,
 
 /**
  * @brief Pozadavek na nastaveni lampy z webu
- * @return true pokud prikaz odeslan do fronty, false pokud fronta NULL nebo plna
+ * @return true pokud prikaz odeslan do fronty, false pokud fronta NULL nebo
+ * plna
  */
 bool ha_light_request_web_lamp(bool state, uint8_t r, uint8_t g, uint8_t b) {
   ha_light_command_t cmd;
@@ -1279,7 +1292,8 @@ void ha_light_task_start(void *pvParameters) {
         xQueueReceive(ha_light_cmd_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
       if (cmd.type == HA_CMD_WEB_LAMP) {
         if (ha_light_state_mutex != NULL &&
-            xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+            xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) ==
+                pdTRUE) {
           ha_light_state.state = (cmd.u.web_lamp.state != 0);
           ha_light_state.r = cmd.u.web_lamp.r;
           ha_light_state.g = cmd.u.web_lamp.g;
@@ -1296,8 +1310,7 @@ void ha_light_task_start(void *pvParameters) {
 
         // If currently in HA mode, switch back to GAME mode on first activity
         if (current_mode == HA_MODE_HA) {
-          ESP_LOGI(TAG,
-                   "Switching from HA mode to GAME mode (activity: %s)",
+          ESP_LOGI(TAG, "Switching from HA mode to GAME mode (activity: %s)",
                    activity_name ? activity_name : "unknown");
           ha_light_switch_to_game_mode();
         }
@@ -1354,14 +1367,14 @@ void ha_light_task_start(void *pvParameters) {
         ha_light_task_wdt_reset_safe();
         ha_light_init_mqtt();
       } else if (wifi_connected && sta_connected && mqtt_client == NULL) {
-        /* Opakovat po uvolnění heap; při NO_MEM nečastěji než 1×/30 s (šetří CPU a WDT) */
+        /* Opakovat po uvolnění heap; při NO_MEM nečastěji než 1×/30 s (šetří
+         * CPU a WDT) */
         if (current_time_ms - last_mqtt_retry_ms >= 30000) {
           last_mqtt_retry_ms = current_time_ms;
           ha_light_task_wdt_reset_safe();
           esp_err_t mr = ha_light_init_mqtt();
           if (mr == ESP_ERR_NO_MEM) {
-            ESP_LOGW(TAG,
-                     "MQTT retry skipped/low heap: free=%zu B",
+            ESP_LOGW(TAG, "MQTT retry skipped/low heap: free=%zu B",
                      (size_t)esp_get_free_heap_size());
           }
         }
@@ -1382,7 +1395,7 @@ void ha_light_task_start(void *pvParameters) {
     // Monitor game activity (checks queues for activity)
     ha_light_monitor_game_activity();
 
-    // Check activity timeout (5 minutes)
+    // Check activity timeout (5 minutes or value that is set in ap or web)
     ha_light_check_activity_timeout();
 
     // Periodically publish state (every 30 seconds)

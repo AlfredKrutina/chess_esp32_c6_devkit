@@ -8,6 +8,9 @@ import SwiftUI
 struct BoardDiscoveryView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(BoardConnectionStore.self) private var store
+    @AppStorage("czechmate.developerModeUnlocked") private var developerModeUnlocked = false
+    /// Stejný klíč jako v Nastavení — při připojení přes Bluetooth neprovádět automatický přechod na HTTP přes IP desky v LAN.
+    @AppStorage(BoardConnectionStore.preferBluetoothOnlyKey) private var preferBluetoothOnly = false
 
     @State private var lanDiscovery = LANBoardDiscoveryService()
     @State private var bleTransport = BLEBoardTransport()
@@ -44,58 +47,126 @@ struct BoardDiscoveryView: View {
                     Button("Zavřít") { dismiss() }
                 }
             }
+            .tint(Theme.accent)
         }
     }
 
+    private var showAdvancedHTTPDeveloperSection: Bool {
+        #if DEBUG
+        return true
+        #else
+        return developerModeUnlocked
+        #endif
+    }
+
     private var chooseView: some View {
-        VStack(spacing: 20) {
-            Text("Vyber, jak chceš desku najít. Doporučujeme Bluetooth — obvykle nemusíš nic nastavovat v routeru.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+        ScrollView {
+            VStack(spacing: 22) {
+                VStack(spacing: 8) {
+                    Image(systemName: "link.circle.fill")
+                        .font(.system(size: 40))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(Theme.accent)
+                    Text("Připojení k desce")
+                        .font(.title3.weight(.semibold))
+                    Text("Bluetooth funguje bez Wi‑Fi v telefonu — stačí zapnuté Bluetooth. Wi‑Fi v domácnosti slouží jen k vyhledání desky přes Bonjour. Ruční adresa je v Nastavení.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal)
+                .padding(.top, 8)
+
+                VStack(spacing: 12) {
+                    Button {
+                        phase = .bleList
+                        startBLEScan()
+                    } label: {
+                        Label("Hledat přes Bluetooth", systemImage: "dot.radiowaves.left.and.right")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.borderedProminent)
+
+                    Button {
+                        phase = .wifiList
+                        lanDiscovery.startSearch()
+                    } label: {
+                        Label("Hledat přes Wi‑Fi (domácí síť)", systemImage: "wifi")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.bordered)
+                }
                 .padding(.horizontal)
 
-            Button {
-                phase = .bleList
-                startBLEScan()
-            } label: {
-                Label("Hledat přes Bluetooth", systemImage: "dot.radiowaves.left.and.right")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .padding(.horizontal)
-
-            Button {
-                phase = .wifiList
-                lanDiscovery.startSearch()
-            } label: {
-                Label("Hledat přes Wi‑Fi v domácnosti", systemImage: "wifi")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .padding(.horizontal)
-
-            Toggle("Ukázková šachovnice (bez ESP)", isOn: Bindable(store).useMockBoard)
+                VStack(alignment: .leading, spacing: 10) {
+                    Toggle("Ukázková šachovnice (bez desky)", isOn: Bindable(store).useMockBoard)
+                    if store.useMockBoard {
+                        Text("Stejné rozhraní jako u živé hry — vhodné bez ESP.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 .padding()
-            if store.useMockBoard {
-                Text("Zobrazí se šachovnice, časovače a historie jako u živé hry (bez fyzické desky). Po zapnutí se stav načte hned v záložce Hra.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color(uiColor: .secondarySystemGroupedBackground))
+                )
+                .padding(.horizontal)
 
-            if let statusText {
-                Text(statusText)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
+                if showAdvancedHTTPDeveloperSection {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Ladění")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        NavigationLink {
+                            ConnectionSettingsView()
+                                .environment(store)
+                        } label: {
+                            Label("HTTP, WebSocket a polling", systemImage: "wrench.and.screwdriver")
+                        }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(Color(uiColor: .tertiarySystemGroupedBackground))
+                        )
+                        Text("Úplná diagnostika a NVS je v Nastavení → Vývojář a diagnostika.")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+                    .padding(.horizontal)
+                }
+
+                if let statusText {
+                    Text(statusText)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                        .padding(.horizontal)
+                }
             }
+            .padding(.vertical)
         }
-        .padding(.vertical)
     }
 
     private var bleListView: some View {
         List {
+            Section {
+                Toggle(isOn: $preferBluetoothOnly) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Jen Bluetooth (nepřepínat na Wi‑Fi)")
+                        Text("Vhodné bez Wi‑Fi v telefonu nebo když chceš ovládat desku výhradně přes GATT — i když je deska zároveň v domácí síti.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            } header: {
+                Text("Režim připojení")
+            }
+
             Section {
                 if bleDevices.isEmpty {
                     Text(isScanningBLE ? "Hledám šachovnici poblíž…" : "Žádná deska v dosahu. Zapni Bluetooth a měj šachovnici zapnutou.")
@@ -125,7 +196,7 @@ struct BoardDiscoveryView: View {
             }
         }
         .overlay {
-            if isBusy { ProgressView("Připojuji…") }
+            connectionProgressOverlay
         }
         .onAppear {
             if bleDevices.isEmpty { startBLEScan() }
@@ -185,10 +256,35 @@ struct BoardDiscoveryView: View {
             }
         }
         .overlay {
-            if isBusy { ProgressView("Připojuji…") }
+            connectionProgressOverlay
         }
         .onDisappear {
             lanDiscovery.stopSearch()
+        }
+    }
+
+    private var phaseLabelForConnectionOverlay: String {
+        if let p = store.pairingPhaseMessage, !p.isEmpty { return p }
+        return "Připojuji…"
+    }
+
+    @ViewBuilder
+    private var connectionProgressOverlay: some View {
+        if isBusy {
+            ZStack {
+                Color.black.opacity(0.22).ignoresSafeArea()
+                VStack(spacing: 14) {
+                    ProgressView()
+                    Text(phaseLabelForConnectionOverlay)
+                        .font(.footnote)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(22)
+                .frame(maxWidth: 320)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
         }
     }
 
@@ -225,10 +321,13 @@ struct BoardDiscoveryView: View {
         isBusy = true
         statusText = nil
         defer { isBusy = false }
+        store.pairingPhaseMessage = "Ověřuji adresu šachovnice v síti (Bonjour)…"
         guard let url = await lanDiscovery.resolveURL(for: dev) else {
+            store.pairingPhaseMessage = nil
             statusText = "Nepodařilo se najít adresu šachovnice v síti."
             return
         }
+        store.pairingPhaseMessage = "Otevírám spojení s deskou přes Wi‑Fi…"
         store.startWiFiTransport(url: url)
         store.useMockBoard = false
         dismiss()
@@ -238,6 +337,7 @@ struct BoardDiscoveryView: View {
         isBusy = true
         statusText = nil
         defer { isBusy = false }
+        store.pairingPhaseMessage = "Připojuji k hotspotu desky (192.168.4.1)…"
         let url = URL(string: "http://192.168.4.1")!
         store.startWiFiTransport(url: url)
         store.useMockBoard = false

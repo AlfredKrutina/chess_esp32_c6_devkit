@@ -468,6 +468,7 @@ static uint8_t en_passant_victim_col = 0;
 
 // Move history
 static chess_move_t move_history[MAX_MOVES_HISTORY];
+static move_type_t move_history_kind[MAX_MOVES_HISTORY];
 static uint32_t history_index = 0;
 
 // Task state
@@ -501,6 +502,36 @@ static non_blocking_blink_state_t blink_state = {false, 0,   0,    10,
                                                  0,     300, false};
 
 // ============================================================================
+// STARTING POSITION CHECK SETTINGS
+// ============================================================================
+
+/**
+ * @brief Hlídání počáteční pozice - zapnuto/vypnuto
+ *
+ * Pokud je zapnuto, systém hlídá zda jsou figurky správně rozestaveny
+ * před začátkem hry. Defaultně vypnuto (false).
+ */
+static bool starting_position_check_enabled = false;
+
+/**
+ * @brief Nastaví hlídání počáteční pozice
+ * @param enabled true pro zapnutí, false pro vypnutí
+ */
+void game_set_starting_position_check(bool enabled) {
+  starting_position_check_enabled = enabled;
+  ESP_LOGI(TAG, "Starting position check: %s",
+           enabled ? "ENABLED" : "DISABLED");
+}
+
+/**
+ * @brief Vrací stav hlídání počáteční pozice
+ * @return true pokud je hlídání zapnuto, jinak false
+ */
+bool game_get_starting_position_check(void) {
+  return starting_position_check_enabled;
+}
+
+// ============================================================================
 // PROMOTION STATE - PHYSICAL BUTTON SUPPORT
 // ============================================================================
 
@@ -520,6 +551,11 @@ static struct {
 // Mutex to protect promotion_state from race conditions.
 // Prevents concurrent access from web, UART, button, and matrix tasks
 static SemaphoreHandle_t promotion_mutex = NULL;
+
+/** Nastaveno v game_process_chess_move před game_execute_move; spotřebuje se na
+ * začátku game_execute_move (okamžitá promoce z API místo promotion pending). */
+static bool s_uart_move_immediate_promotion;
+static promotion_choice_t s_uart_move_immediate_promotion_piece;
 
 // ============================================================================
 // KING RESIGNATION SYSTEM
@@ -1312,6 +1348,8 @@ const char *game_get_game_state_string(void) {
     return "Promotion";
   case GAME_STATE_IDLE:
     return "Idle";
+  case GAME_STATE_WAITING_FOR_BOARD_SETUP:
+    return "WaitingForBoardSetup";
   default:
     return "Unknown";
   }
@@ -1591,6 +1629,52 @@ static bool game_is_board_in_starting_position(void) {
 }
 
 /**
+ * @brief Zobrazí červené LED na polích, kde chybí figurky v počáteční pozici
+ * 
+ * Používá se ve stavu GAME_STATE_WAITING_FOR_BOARD_SETUP pro indikaci
+ * uživateli, která pole musí obsadit figurkami.
+ */
+static void game_show_missing_pieces_led(void) {
+  uint8_t matrix_state[64] = {0};
+  matrix_get_state(matrix_state);
+  
+  // Vyčistit desku
+  led_clear_board_only();
+  
+  // Definice očekávané počáteční pozice (row-major order)
+  // Rows 0-1 a 6-7 by měly být obsazené, rows 2-5 prázdné
+  for (int row = 0; row < 2; row++) {
+    for (int col = 0; col < 8; col++) {
+      int idx = row * 8 + col;
+      if (matrix_state[idx] == 0) {
+        // Chybí figurka na bílém základním řádku
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Červená
+      }
+    }
+  }
+  for (int row = 6; row < 8; row++) {
+    for (int col = 0; col < 8; col++) {
+      int idx = row * 8 + col;
+      if (matrix_state[idx] == 0) {
+        // Chybí figurka na černém základním řádku
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Červená
+      }
+    }
+  }
+  for (int row = 2; row < 6; row++) {
+    for (int col = 0; col < 8; col++) {
+      int idx = row * 8 + col;
+      if (matrix_state[idx] != 0) {
+        // Náhodná figurka uprostřed desky - také červeně
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Červená
+      }
+    }
+  }
+  
+  ESP_LOGI(TAG, "🔴 LED: Showing missing pieces in red");
+}
+
+/**
  * @brief Inicializuje sachovnici do vychoziho stavu
  *
  * Tato funkce nastavi sachovnici do standardniho vychoziho stavu.
@@ -1743,6 +1827,7 @@ void game_reset_game(void) {
 
   // Clear move history
   memset(move_history, 0, sizeof(move_history));
+  memset(move_history_kind, 0, sizeof(move_history_kind));
   history_index = 0;
   puzzle_active = false;
   puzzle_active_id = 0;
@@ -1816,6 +1901,11 @@ void game_reset_game(void) {
   lifted_piece_col = 0;
   lifted_piece = PIECE_EMPTY;
 
+  /* Každý plný reset hry končí tutoriál rozestavení; vstup do tutoriálu ho hned
+   * znovu zapne (game_enter_board_setup_tutorial). Dřív zůstával true po „Nová
+   * hra“ z webu → ignorovaný matrix guard a zamrzlá detekce z matice. */
+  board_setup_tutorial_active = false;
+
   // Reset auto-new game detection flags.
   // This allows auto-new game to work after manual resets or when pieces are
   // manually arranged into starting position
@@ -1829,6 +1919,8 @@ void game_reset_game(void) {
 
   // Reinitialize board
   game_initialize_board();
+
+  matrix_abort_ambiguous_guard_baseline();
 
   ESP_LOGI(TAG, "Game reset completed");
   game_bump_revision_and_notify();
@@ -2221,7 +2313,23 @@ void game_start_new_game(void) {
   game_reset_timer();
   ESP_LOGI(TAG, "Timer reset for new game");
 
-  // Set game state
+  // BUG FIX 1: Kontrola fyzické desky před aktivací hry (pouze pokud je hlídání zapnuto)
+  if (starting_position_check_enabled && !game_is_board_in_starting_position()) {
+    // Deska není fyzicky připravena - přejít do stavu čekání
+    current_game_state = GAME_STATE_WAITING_FOR_BOARD_SETUP;
+    game_active = false;
+    
+    // LED indikace: červené blikání chybějících polí
+    game_show_missing_pieces_led();
+    
+    // Notify web
+    game_bump_revision_and_notify();
+    
+    ESP_LOGW(TAG, "Board not in starting position - waiting for physical setup");
+    return;
+  }
+
+  // Set game state - pouze když je deska OK
   current_game_state = GAME_STATE_ACTIVE;
   game_active = true;
   game_start_time = esp_timer_get_time() / 1000;
@@ -2299,6 +2407,105 @@ void game_start_new_game(void) {
     ESP_LOGI(
         TAG,
         "⏸️  Boot sequence: Skipping movable pieces highlight (first game)");
+  }
+  game_bump_revision_and_notify();
+}
+
+void game_start_new_game_from_fen(const char *fen) {
+  if (fen == NULL || fen[0] == '\0') {
+    game_start_new_game();
+    return;
+  }
+
+  ESP_LOGI(TAG, "Starting new game from FEN...");
+  game_task_wdt_reset_safe();
+  (void)config_erase_key_from_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL);
+  (void)config_erase_key_from_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN);
+  (void)config_erase_key_from_nvs(CONFIG_NVS_KEY_BOOT_TRACKER);
+  game_task_wdt_reset_safe();
+
+  snapshot_save_failed = false;
+  snapshot_restore_failed = false;
+
+  game_reset_game();
+  game_task_wdt_reset_safe();
+  game_reset_timer();
+
+  player_t fen_player = PLAYER_WHITE;
+  if (!game_load_position_from_fen(fen, &fen_player)) {
+    ESP_LOGE(TAG, "FEN parse failed, falling back to standard new game");
+    game_start_new_game();
+    return;
+  }
+
+  white_king_moved = true;
+  black_king_moved = true;
+  white_rook_a_moved = true;
+  white_rook_h_moved = true;
+  black_rook_a_moved = true;
+  black_rook_h_moved = true;
+  en_passant_available = false;
+  en_passant_target_row = 0;
+  en_passant_target_col = 0;
+  en_passant_victim_row = 0;
+  en_passant_victim_col = 0;
+
+  puzzle_active = false;
+  puzzle_active_id = 0;
+  puzzle_setup_active = false;
+  puzzle_setup_id = 0;
+  puzzle_feedback = PUZZLE_FEEDBACK_NONE;
+  board_setup_tutorial_active = false;
+
+  current_player = fen_player;
+  current_game_state = GAME_STATE_ACTIVE;
+  game_active = true;
+  game_start_time = esp_timer_get_time() / 1000;
+  last_move_time = game_start_time;
+
+  if (game_is_timer_active()) {
+    game_start_timer_move(fen_player == PLAYER_WHITE);
+  }
+
+  white_time_total = 0;
+  black_time_total = 0;
+  white_moves_count = 0;
+  black_moves_count = 0;
+  white_captures = 0;
+  black_captures = 0;
+  white_checks = 0;
+  black_checks = 0;
+  white_castles = 0;
+  black_castles = 0;
+  moves_without_capture = 0;
+  max_moves_without_capture = 0;
+  position_history_count = 0;
+  game_result = GAME_STATE_IDLE;
+  game_saved = false;
+  saved_game_name[0] = '\0';
+  total_games++;
+
+  if (total_games > 1) {
+    unified_animation_stop_all();
+    led_stop_endgame_animation();
+    stop_endgame_animation();
+  }
+
+  while (led_is_booting()) {
+    vTaskDelay(pdMS_TO_TICKS(100));
+    game_task_wdt_reset_safe();
+  }
+
+  game_check_promotion_needed();
+  auto_new_game_in_starting_position = false;
+  auto_new_game_triggered = false;
+  auto_new_game_blocked_until_move = false;
+
+  if (total_games >= 1) {
+    vTaskDelay(pdMS_TO_TICKS(100));
+    game_task_wdt_reset_safe();
+    game_highlight_movable_pieces();
+    game_task_wdt_reset_safe();
   }
   game_bump_revision_and_notify();
 }
@@ -3758,6 +3965,14 @@ game_state_t game_analyze_position(player_t player) {
 }
 
 bool game_execute_move(const chess_move_t *move) {
+  if (!move) {
+    return false;
+  }
+
+  const bool api_immediate_promo = s_uart_move_immediate_promotion;
+  const promotion_choice_t api_promo_choice = s_uart_move_immediate_promotion_piece;
+  s_uart_move_immediate_promotion = false;
+
   move_error_t error = game_is_valid_move(move);
   if (error != MOVE_ERROR_NONE) {
     ESP_LOGW(TAG, "Invalid move attempted: %d", error);
@@ -3815,30 +4030,35 @@ bool game_execute_move(const chess_move_t *move) {
     // 3. Check for promotion
     else if ((source_piece == PIECE_WHITE_PAWN && move->to_row == 7) ||
              (source_piece == PIECE_BLACK_PAWN && move->to_row == 0)) {
-      // Detekovat jako MOVE_TYPE_PROMOTION a OKAMŽITĚ nastavit
-      // promotion_state.pending
       extended_move.move_type = MOVE_TYPE_PROMOTION;
 
-      // OKAMŽITĚ nastavit promotion_state před voláním
-      // game_execute_move_enhanced() Toto zajistí, že
-      // game_execute_move_enhanced() neprovádí auto-promoci Použít recursive
-      // mutex funkce (promotion_mutex je recursive mutex)
-      if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) ==
-          pdTRUE) {
-        promotion_state.pending = true;
-        promotion_state.square_row = move->to_row;
-        promotion_state.square_col = move->to_col;
-        promotion_state.player = current_player;
-        xSemaphoreGiveRecursive(promotion_mutex);
-
+      if (api_immediate_promo && api_promo_choice <= PROMOTION_KNIGHT) {
+        extended_move.promotion_piece = api_promo_choice;
         ESP_LOGI(TAG,
-                 "⏸️  Promotion detected - setting pending state at %c%d for %s "
-                 "player",
-                 'a' + move->to_col, move->to_row + 1,
-                 current_player == PLAYER_WHITE ? "White" : "Black");
+                 "👑 API immediate promotion (choice=%d) — skip pending state",
+                 (int)api_promo_choice);
       } else {
-        ESP_LOGE(TAG,
-                 "❌ Failed to acquire promotion mutex during move detection!");
+        // OKAMŽITĚ nastavit promotion_state před voláním
+        // game_execute_move_enhanced() Toto zajistí, že
+        // game_execute_move_enhanced() neprovádí auto-promoci Použít recursive
+        // mutex funkce (promotion_mutex je recursive mutex)
+        if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) ==
+            pdTRUE) {
+          promotion_state.pending = true;
+          promotion_state.square_row = move->to_row;
+          promotion_state.square_col = move->to_col;
+          promotion_state.player = current_player;
+          xSemaphoreGiveRecursive(promotion_mutex);
+
+          ESP_LOGI(TAG,
+                   "⏸️  Promotion detected - setting pending state at %c%d for %s "
+                   "player",
+                   'a' + move->to_col, move->to_row + 1,
+                   current_player == PLAYER_WHITE ? "White" : "Black");
+        } else {
+          ESP_LOGE(TAG,
+                   "❌ Failed to acquire promotion mutex during move detection!");
+        }
       }
     }
 
@@ -3894,6 +4114,7 @@ bool game_execute_move(const chess_move_t *move) {
         move_history[history_index].piece = source_piece;
         move_history[history_index].captured_piece = dest_piece;
         move_history[history_index].timestamp = esp_timer_get_time() / 1000;
+        move_history_kind[history_index] = extended_move.move_type;
         history_index++;
       }
 
@@ -3977,52 +4198,58 @@ bool game_execute_move(const chess_move_t *move) {
                       // až po dokončení rošády
     }
 
-    // Check for promotion - start promotion animation
+    // Check for promotion - start promotion animation (jen když nebyla API okamžitá)
     if (extended_move.move_type == MOVE_TYPE_PROMOTION) {
-      ESP_LOGI(TAG, "👑 PROMOTION DETECTED! Starting promotion animation...");
+      const bool api_promo_inline =
+          api_immediate_promo && api_promo_choice <= PROMOTION_KNIGHT;
+      if (!api_promo_inline) {
+        ESP_LOGI(TAG, "👑 PROMOTION DETECTED! Starting promotion animation...");
 
-      // #2: Mutex protection for promotion_state
-      // Použít recursive mutex funkce (promotion_mutex je recursive mutex)
-      if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) ==
-          pdTRUE) {
-        // Set promotion state to pending
-        // This blocks further moves and enables selection via buttons/UART/web
-        promotion_state.pending = true;
-        promotion_state.square_row = move->to_row;
-        promotion_state.square_col = move->to_col;
-        promotion_state.player = current_player;
-        xSemaphoreGiveRecursive(promotion_mutex);
+        // #2: Mutex protection for promotion_state
+        // Použít recursive mutex funkce (promotion_mutex je recursive mutex)
+        if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) ==
+            pdTRUE) {
+          // Set promotion state to pending
+          // This blocks further moves and enables selection via buttons/UART/web
+          promotion_state.pending = true;
+          promotion_state.square_row = move->to_row;
+          promotion_state.square_col = move->to_col;
+          promotion_state.player = current_player;
+          xSemaphoreGiveRecursive(promotion_mutex);
 
-        ESP_LOGI(TAG, "⏸️  Promotion pending at %c%d for %s player",
-                 'a' + move->to_col, move->to_row + 1,
-                 current_player == PLAYER_WHITE ? "White" : "Black");
-      } else {
-        ESP_LOGE(TAG, "❌ Failed to acquire promotion mutex!");
-        return false;
+          ESP_LOGI(TAG, "⏸️  Promotion pending at %c%d for %s player",
+                   'a' + move->to_col, move->to_row + 1,
+                   current_player == PLAYER_WHITE ? "White" : "Black");
+        } else {
+          ESP_LOGE(TAG, "❌ Failed to acquire promotion mutex!");
+          return false;
+        }
+
+        // Start promotion animation
+        led_command_t promote_cmd = {
+            .type = LED_CMD_ANIM_PROMOTE,
+            .led_index = chess_pos_to_led_index(move->to_row, move->to_col),
+            .red = 255,
+            .green = 215,
+            .blue = 0, // Gold
+            .duration_ms = 2000,
+            .data = NULL};
+        led_execute_command_new(&promote_cmd);
+
+        // Update LED button indications (green for promotion buttons)
+        game_check_promotion_needed();
+
+        // CRITICAL: Return here WITHOUT changing player
+        // Player will change AFTER promotion selection in
+        // game_process_promotion_command()
+        ESP_LOGI(
+            TAG,
+            "🏁 Promotion flow started - awaiting selection (buttons/UART/web)");
+        game_persist_after_valid_move();
+        return success; // Don't change player - wait for promotion choice
       }
-
-      // Start promotion animation
-      led_command_t promote_cmd = {
-          .type = LED_CMD_ANIM_PROMOTE,
-          .led_index = chess_pos_to_led_index(move->to_row, move->to_col),
-          .red = 255,
-          .green = 215,
-          .blue = 0, // Gold
-          .duration_ms = 2000,
-          .data = NULL};
-      led_execute_command_new(&promote_cmd);
-
-      // Update LED button indications (green for promotion buttons)
-      game_check_promotion_needed();
-
-      // CRITICAL: Return here WITHOUT changing player
-      // Player will change AFTER promotion selection in
-      // game_process_promotion_command()
-      ESP_LOGI(
-          TAG,
-          "🏁 Promotion flow started - awaiting selection (buttons/UART/web)");
-      game_persist_after_valid_move();
-      return success; // Don't change player - wait for promotion choice
+      ESP_LOGI(TAG,
+               "👑 Inline API promotion — continuing (player switch below)");
     }
 
     // KONTROLA DOKONČENÍ ROŠÁDY
@@ -4064,6 +4291,14 @@ bool game_execute_move(const chess_move_t *move) {
 
         // Zlatá animace dokončení rošády
         show_castling_completion_animation();
+
+        /* Vždy ukončit stav rošády před přepnutím hráče / kontrolou konce hry.
+         * Dříve se in_progress vynulovalo jen v ne-endgame větvi — po matu/patu
+         * zůstalo true a validace dál odmítala tahy jako „čeká se na věž“. */
+        castling_state.in_progress = false;
+        STAGING_LOGI(TAG,
+                     "castling: completion cleared in_progress (before endgame "
+                     "check)");
 
         // TEPRVE NYÍ změnit hráče po dokončení rošády
         player_t previous_player = current_player;
@@ -4136,9 +4371,6 @@ bool game_execute_move(const chess_move_t *move) {
               .data = &player_color // Předat barvu hráče
           };
           led_execute_command_new(&player_change_cmd);
-
-          // Resetovat castling state
-          castling_state.in_progress = false;
 
           // Zobrazit pohyblivé figury pro nového hráče
           led_clear_board_only();
@@ -4312,17 +4544,41 @@ void game_set_guided_capture_hints_enabled(bool enabled) {
                enabled ? "ON" : "OFF");
 
   if (guided_capture_state.active) {
-    if (enabled) {
-      game_show_guided_capture_leds();
-    } else {
-      led_clear_board_only();
-      game_highlight_movable_pieces();
-    }
+    game_show_guided_capture_leds();
   }
 }
 
 bool game_get_guided_capture_hints_enabled(void) {
   return guided_capture_hints_enabled;
+}
+
+bool game_matrix_allow_second_sequential_lift(void) {
+  if (matrix_guard_pause_state.active) {
+    return false;
+  }
+  if (guided_capture_state.active) {
+    return true;
+  }
+  if (resignation_state.active || promotion_state.pending ||
+      castling_state.in_progress || game_is_castle_animation_active() ||
+      error_recovery_state.waiting_for_move_correction ||
+      capture_in_progress) {
+    return false;
+  }
+  if (!piece_lifted || lifted_piece == PIECE_EMPTY) {
+    return false;
+  }
+  bool is_white_piece =
+      (lifted_piece >= PIECE_WHITE_PAWN && lifted_piece <= PIECE_WHITE_KING);
+  bool is_black_piece =
+      (lifted_piece >= PIECE_BLACK_PAWN && lifted_piece <= PIECE_BLACK_KING);
+  if (current_player == PLAYER_WHITE && is_white_piece) {
+    return true;
+  }
+  if (current_player == PLAYER_BLACK && is_black_piece) {
+    return true;
+  }
+  return false;
 }
 
 uint8_t game_get_led_guidance_level(void) { return led_guidance_level; }
@@ -4813,7 +5069,10 @@ static void game_handle_matrix_guard_command(const chess_move_command_t *cmd) {
   }
 
   if (game_matrix_guard_mode_conflict_active()) {
-    STAGING_LOGI(TAG, "Matrix guard ignored due to active special mode");
+    STAGING_LOGI(TAG,
+                 "Matrix guard ignored (special mode) — clearing matrix local "
+                 "guard so UP/DN continues");
+    matrix_abort_ambiguous_guard_baseline();
     return;
   }
 
@@ -5227,6 +5486,12 @@ static bool game_guided_capture_has_mode_conflict(void) {
   return false;
 }
 
+/**
+ * Hledá vlastní figury, které mohou *sebrat na poli* (target_row,target_col).
+ * En passant končí na prázdném poli za obětí — tah sem tedy typicky neprojde
+ * přes game_is_valid_move(..., to=victim square); guided capture se v e.p.
+ * situaci neaktivuje a hráč použije normální tah / 3-krokové braní.
+ */
 static bool game_find_legal_attackers_to_square(uint8_t target_row,
                                                 uint8_t target_col,
                                                 piece_t target_piece) {
@@ -5273,11 +5538,40 @@ static bool game_refresh_guided_attackers(void) {
                                              guided_capture_state.target_piece);
 }
 
+/** True if the currently lifted piece is one of the legal guided attackers. */
+static bool game_guided_capture_is_selected_attacker_lifted(void) {
+  if (!guided_capture_state.active || !piece_lifted ||
+      lifted_piece == PIECE_EMPTY) {
+    return false;
+  }
+  for (uint8_t i = 0; i < guided_capture_state.attacker_count; i++) {
+    if (guided_capture_state.attacker_rows[i] == lifted_piece_row &&
+        guided_capture_state.attacker_cols[i] == lifted_piece_col &&
+        guided_capture_state.attacker_pieces[i] == lifted_piece) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Refresh guided-capture LEDs:
+ * - Útočník zvednutý: jen fialové pole oběti (kam položit).
+ * - Výběr útočníka: vždy fialová oběť; žlutí jen legální útočníci pokud
+ *   guided_capture_hints_enabled NEBO led_guidance_level ≥ 3 (žluté figurky).
+ *   Jinak jen fialová (úrovně 1–2).
+ */
 static void game_show_guided_capture_leds(void) {
   if (!guided_capture_state.active) {
     return;
   }
-  if (!guided_capture_hints_enabled) {
+
+  if (game_guided_capture_is_selected_attacker_lifted()) {
+    led_clear_board_only();
+    led_set_pixel_safe(
+        chess_pos_to_led_index(guided_capture_state.target_row,
+                               guided_capture_state.target_col),
+        128, 0, 128); // Purple = drop here to complete capture
     return;
   }
 
@@ -5285,12 +5579,17 @@ static void game_show_guided_capture_leds(void) {
   led_set_pixel_safe(
       chess_pos_to_led_index(guided_capture_state.target_row,
                              guided_capture_state.target_col),
-      128, 0, 128); // Purple target
+      128, 0, 128); // Purple = opponent square / capture target
 
-  for (uint8_t i = 0; i < guided_capture_state.attacker_count; i++) {
-    led_set_pixel_safe(chess_pos_to_led_index(guided_capture_state.attacker_rows[i],
-                                              guided_capture_state.attacker_cols[i]),
-                       255, 255, 0); // Yellow attackers
+  bool show_attacker_squares = guided_capture_hints_enabled ||
+                               game_led_guidance_show_movable_yellow();
+  if (show_attacker_squares) {
+    for (uint8_t i = 0; i < guided_capture_state.attacker_count; i++) {
+      led_set_pixel_safe(
+          chess_pos_to_led_index(guided_capture_state.attacker_rows[i],
+                                 guided_capture_state.attacker_cols[i]),
+          255, 255, 0); // Yellow = pieces that can capture here
+    }
   }
 }
 
@@ -5325,6 +5624,15 @@ static void game_enter_guided_capture(uint8_t target_row, uint8_t target_col,
 static void game_process_pickup_command(const chess_move_command_t *cmd) {
   if (!cmd)
     return;
+
+  // BUG FIX 1: Během čekání na rozestavení blokovat tahy
+  if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+    game_send_response_to_uart(
+        "⏳ Hra čeká na fyzické rozestavení figurek. "
+        "Umístěte všechny figurky na výchozí pozice.",
+        true, (QueueHandle_t)cmd->response_queue);
+    return;
+  }
 
   if (matrix_guard_pause_state.active) {
     if (game_cmd_is_matrix_origin(cmd)) {
@@ -5555,7 +5863,8 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
 
     for (uint8_t i = 0; i < guided_capture_state.attacker_count; i++) {
       if (guided_capture_state.attacker_rows[i] == from_row &&
-          guided_capture_state.attacker_cols[i] == from_col) {
+          guided_capture_state.attacker_cols[i] == from_col &&
+          guided_capture_state.attacker_pieces[i] == piece) {
         is_allowed_attacker = true;
         break;
       }
@@ -5574,7 +5883,10 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
     if (!is_allowed_attacker) {
       game_show_guided_capture_leds();
       game_send_response_to_uart(
-          "⚠️ Guided capture active: lift highlighted YELLOW piece only.", true,
+          guided_capture_hints_enabled
+              ? "⚠️ Guided capture active: lift highlighted YELLOW piece only."
+              : "⚠️ Guided capture active: lift your piece, then drop on PURPLE.",
+          true,
           (QueueHandle_t)cmd->response_queue);
       return;
     }
@@ -5583,9 +5895,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
     lifted_piece_row = from_row;
     lifted_piece_col = from_col;
     lifted_piece = piece;
-    if (guided_capture_hints_enabled) {
-      game_show_guided_capture_leds();
-    }
+    game_show_guided_capture_leds();
     game_send_response_to_uart(
         "✅ Attacker lifted. Drop on PURPLE target square to capture.", false,
         (QueueHandle_t)cmd->response_queue);
@@ -5677,12 +5987,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
                    "Guided capture armed for %s, attackers=%u, player=%s",
                    safe_notation, guided_capture_state.attacker_count,
                    current_player == PLAYER_WHITE ? "White" : "Black");
-      if (guided_capture_hints_enabled) {
-        game_show_guided_capture_leds();
-      } else {
-        led_clear_board_only();
-        game_highlight_movable_pieces();
-      }
+      game_show_guided_capture_leds();
 
       char guided_msg[256];
       snprintf(guided_msg, sizeof(guided_msg),
@@ -5862,7 +6167,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
     }
 
     // Give FreeRTOS scheduler time to process LED commands
-    vTaskDelay(pdMS_TO_TICKS(50));
+    vTaskDelay(pdMS_TO_TICKS(10)); // BUG FIX 3a: Změněno z 50ms na 10ms
 
     // Nastavit lifted piece state
     piece_lifted = true;
@@ -5925,7 +6230,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
   lifted_piece = piece;
 
   // Give FreeRTOS scheduler time to process LED commands
-  vTaskDelay(pdMS_TO_TICKS(50));
+  vTaskDelay(pdMS_TO_TICKS(10)); // BUG FIX 3a: Změněno z 50ms na 10ms
 
   // Show possible moves
   ESP_LOGI(TAG, "🔄 Showing possible moves from %s", cmd->from_notation);
@@ -5972,7 +6277,7 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
   }
 
   // Give FreeRTOS scheduler time to process LED commands
-  vTaskDelay(pdMS_TO_TICKS(50));
+  vTaskDelay(pdMS_TO_TICKS(10)); // BUG FIX 3a: Změněno z 50ms na 10ms
 
   // MATRIX COMPATIBILITY: Show opponent pieces after pickup (same as matrix
   // flow)
@@ -6014,6 +6319,15 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
 void game_process_drop_command(const chess_move_command_t *cmd) {
   if (!cmd)
     return;
+
+  // BUG FIX 1: Během čekání na rozestavení blokovat tahy
+  if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+    game_send_response_to_uart(
+        "⏳ Hra čeká na fyzické rozestavení figurek. "
+        "Umístěte všechny figurky na výchozí pozice.",
+        true, (QueueHandle_t)cmd->response_queue);
+    return;
+  }
 
   if (matrix_guard_pause_state.active) {
     if (game_cmd_is_matrix_origin(cmd)) {
@@ -6081,7 +6395,10 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       }
       game_show_guided_capture_leds();
       game_send_response_to_uart(
-          "⚠️ Guided capture active: lift highlighted YELLOW piece first.", true,
+          guided_capture_hints_enabled
+              ? "⚠️ Guided capture active: lift highlighted YELLOW piece first."
+              : "⚠️ Guided capture active: lift your piece first, then drop on PURPLE.",
+          true,
           (QueueHandle_t)cmd->response_queue);
       return;
     }
@@ -6104,7 +6421,10 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       lifted_piece_col = 0;
       game_show_guided_capture_leds();
       game_send_response_to_uart(
-          "⚠️ This piece is not allowed. Use highlighted YELLOW attacker.", true,
+          guided_capture_hints_enabled
+              ? "⚠️ This piece is not allowed. Use highlighted YELLOW attacker."
+              : "⚠️ This piece is not allowed. Use a piece that can capture.",
+          true,
           (QueueHandle_t)cmd->response_queue);
       return;
     }
@@ -6125,9 +6445,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       lifted_piece = PIECE_EMPTY;
       lifted_piece_row = 0;
       lifted_piece_col = 0;
-      if (guided_capture_hints_enabled) {
-        game_show_guided_capture_leds();
-      }
+      game_show_guided_capture_leds();
       game_send_response_to_uart(
           "⚠️ Wrong destination. Lift attacker again and drop on PURPLE target.",
           true,
@@ -6150,9 +6468,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     if (!game_execute_move(&guided_capture_move)) {
       STAGING_LOGI(TAG, "Guided capture rejected %c%d -> %c%d", 'a' + source_col,
                    source_row + 1, 'a' + to_col, to_row + 1);
-      if (guided_capture_hints_enabled) {
-        game_show_guided_capture_leds();
-      }
+      game_show_guided_capture_leds();
       game_send_response_to_uart(
           "❌ Guided capture rejected by legality checks. Try another attacker.",
           true, (QueueHandle_t)cmd->response_queue);
@@ -9482,6 +9798,12 @@ void game_process_chess_move(const chess_move_command_t *cmd) {
     ESP_LOGI(TAG, "🔄 Step 3: Executing move %s -> %s", cmd->from_notation,
              cmd->to_notation);
 
+    s_uart_move_immediate_promotion =
+        (cmd->promotion_from_remote != 0) &&
+        (cmd->promotion_choice <= (uint8_t)PROMOTION_KNIGHT);
+    s_uart_move_immediate_promotion_piece =
+        (promotion_choice_t)cmd->promotion_choice;
+
     if (game_execute_move(&move)) {
       ESP_LOGI(TAG, "✅ UART move executed successfully: %s -> %s",
                cmd->from_notation, cmd->to_notation);
@@ -9758,6 +10080,185 @@ void game_process_chess_move(const chess_move_command_t *cmd) {
   }
 }
 
+static void undo_pop_last_capture_list(piece_t captured, bool mover_is_white) {
+  if (captured == PIECE_EMPTY) {
+    return;
+  }
+  if (mover_is_white) {
+    if (white_captured_index > 0) {
+      white_captured_index--;
+      if (white_captured_count > 0) {
+        white_captured_count--;
+      }
+      if (white_captures > 0) {
+        white_captures--;
+      }
+    }
+  } else {
+    if (black_captured_index > 0) {
+      black_captured_index--;
+      if (black_captured_count > 0) {
+        black_captured_count--;
+      }
+      if (black_captures > 0) {
+        black_captures--;
+      }
+    }
+  }
+}
+
+static bool game_undo_last_move_impl(void) {
+  if (history_index == 0) {
+    ESP_LOGW(TAG, "Undo: no moves in history");
+    return false;
+  }
+
+  uint32_t idx = history_index - 1;
+  chess_move_t m = move_history[idx];
+  move_type_t kind = move_history_kind[idx];
+
+  bool mover_white =
+      (m.piece >= PIECE_WHITE_PAWN && m.piece <= PIECE_WHITE_KING);
+  uint8_t fr = m.from_row;
+  uint8_t fc = m.from_col;
+  uint8_t tr = m.to_row;
+  uint8_t tc = m.to_col;
+
+  bool toggle_player_after = true;
+  if (kind == MOVE_TYPE_CASTLE_KING || kind == MOVE_TYPE_CASTLE_QUEEN) {
+    /* Rošáda: hráč se nemění po tahu krále; až po položení věže. Undo dokončené
+     * rošády musí zase přepnout na protihráče → toggle true jen když věž už byla
+     * v logice přesunutá na „mezilehlé“ pole. */
+    uint8_t rook_castle_col =
+        (tc > fc) ? (uint8_t)(tc - 1) : (uint8_t)(tc + 1);
+    piece_t rook_piece =
+        (m.piece == PIECE_WHITE_KING) ? PIECE_WHITE_ROOK : PIECE_BLACK_ROOK;
+    toggle_player_after = (board[fr][rook_castle_col] == rook_piece);
+  } else if (kind == MOVE_TYPE_PROMOTION) {
+    piece_t at_dest = board[tr][tc];
+    if ((at_dest == PIECE_WHITE_PAWN || at_dest == PIECE_BLACK_PAWN) &&
+        promotion_state.pending) {
+      toggle_player_after = false;
+    }
+  }
+
+  switch (kind) {
+  case MOVE_TYPE_EN_PASSANT: {
+    board[tr][tc] = PIECE_EMPTY;
+    board[fr][fc] = m.piece;
+    piece_t victim_pawn =
+        mover_white ? PIECE_BLACK_PAWN : PIECE_WHITE_PAWN;
+    board[fr][tc] = victim_pawn;
+    break;
+  }
+  case MOVE_TYPE_PROMOTION: {
+    piece_t at_dest = board[tr][tc];
+    if ((at_dest == PIECE_WHITE_PAWN || at_dest == PIECE_BLACK_PAWN) &&
+        promotion_state.pending) {
+      if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) ==
+          pdTRUE) {
+        promotion_state.pending = false;
+        promotion_state.square_row = 0;
+        promotion_state.square_col = 0;
+        xSemaphoreGiveRecursive(promotion_mutex);
+      }
+    }
+    board[tr][tc] = m.captured_piece;
+    board[fr][fc] = m.piece;
+    break;
+  }
+  default:
+    board[tr][tc] = m.captured_piece;
+    board[fr][fc] = m.piece;
+    break;
+  }
+
+  if (kind == MOVE_TYPE_CASTLE_KING || kind == MOVE_TYPE_CASTLE_QUEEN) {
+    uint8_t rook_home_col = (tc > fc) ? 7u : 0u;
+    uint8_t rook_castle_col =
+        (tc > fc) ? (uint8_t)(tc - 1) : (uint8_t)(tc + 1);
+    piece_t rook_piece =
+        (m.piece == PIECE_WHITE_KING) ? PIECE_WHITE_ROOK : PIECE_BLACK_ROOK;
+    if (board[fr][rook_castle_col] == rook_piece) {
+      board[fr][rook_castle_col] = PIECE_EMPTY;
+      board[fr][rook_home_col] = rook_piece;
+    }
+  }
+
+  if (kind == MOVE_TYPE_CAPTURE) {
+    undo_pop_last_capture_list(m.captured_piece, mover_white);
+  }
+
+  if (kind == MOVE_TYPE_CASTLE_KING || kind == MOVE_TYPE_CASTLE_QUEEN) {
+    castling_state.in_progress = false;
+  }
+
+  history_index--;
+  if (move_count > 0) {
+    move_count--;
+  }
+  if (advantage_history_count > 0) {
+    advantage_history_count--;
+  }
+
+  if (mover_white) {
+    if (white_moves_count > 0) {
+      white_moves_count--;
+    }
+  } else {
+    if (black_moves_count > 0) {
+      black_moves_count--;
+    }
+  }
+
+  if (toggle_player_after) {
+    current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK
+                                                      : PLAYER_WHITE;
+  }
+
+  if (history_index > 0) {
+    chess_move_t *p = &move_history[history_index - 1];
+    last_move_from_row = p->from_row;
+    last_move_from_col = p->from_col;
+    last_move_to_row = p->to_row;
+    last_move_to_col = p->to_col;
+    has_last_move = true;
+  } else {
+    has_last_move = false;
+  }
+
+  if (current_game_state == GAME_STATE_FINISHED) {
+    current_game_state = GAME_STATE_ACTIVE;
+    game_active = true;
+  }
+
+  piece_lifted = false;
+  lifted_piece_row = 0;
+  lifted_piece_col = 0;
+  lifted_piece = PIECE_EMPTY;
+
+  game_end_timer_move();
+  game_start_timer_move(current_player == PLAYER_WHITE);
+
+  game_check_resync_needed_after_restore();
+  if (!matrix_guard_pause_state.active) {
+    led_clear_board_only();
+    game_highlight_movable_pieces();
+  } else {
+    STAGING_LOGI(TAG,
+                 "undo: matrix guard active — highlight squares until physical "
+                 "board matches logic (conflicts=%u)",
+                 (unsigned)matrix_guard_pause_state.conflict_count);
+  }
+
+  game_persist_after_valid_move();
+  game_bump_revision_and_notify();
+
+  ESP_LOGI(TAG, "Undo applied (kind=%d), side to move: %s", (int)kind,
+           current_player == PLAYER_WHITE ? "White" : "Black");
+  return true;
+}
+
 void game_process_commands(void) {
   // AKTUALIZOVAT non-blocking blink
   game_update_error_blink();
@@ -9795,6 +10296,13 @@ void game_process_commands(void) {
                                    (QueueHandle_t)chess_cmd.response_queue);
         break;
 
+      case GAME_CMD_NEW_GAME_FROM_FEN:
+        ESP_LOGI(TAG, "Processing NEW_GAME_FROM_FEN");
+        game_start_new_game_from_fen(chess_cmd.timer_data.fen_new_game.fen);
+        game_send_response_to_uart("New game from FEN started", false,
+                                   (QueueHandle_t)chess_cmd.response_queue);
+        break;
+
       case GAME_CMD_RESET_GAME: // 1
         ESP_LOGI(TAG, "Processing RESET GAME command from UART");
         game_reset_game();
@@ -9810,7 +10318,13 @@ void game_process_commands(void) {
 
       case GAME_CMD_UNDO_MOVE: // 3
         ESP_LOGI(TAG, "Processing UNDO MOVE command from UART");
-        // TODO: Implement undo move
+        if (game_undo_last_move_impl()) {
+          game_send_response_to_uart("Last move undone", false,
+                                     (QueueHandle_t)chess_cmd.response_queue);
+        } else {
+          game_send_response_to_uart("Nothing to undo", true,
+                                     (QueueHandle_t)chess_cmd.response_queue);
+        }
         break;
 
       case GAME_CMD_GET_STATUS: // 4
@@ -10226,6 +10740,19 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
   ESP_LOGI(TAG, "🚨 Invalid move detected - smart error handling");
   ESP_LOGI(TAG, "   Move: %c%d -> %c%d", 'a' + move->from_col,
            move->from_row + 1, 'a' + move->to_col, move->to_row + 1);
+
+  // Remote / zastaralý UI může poslat tah z prázdného pole. Simulace „figurka je
+  // fyzicky na to“ kopíruje board[from] na board[to]; když je from prázdné,
+  // smaže se figurka na cíli (logicky „zmizí“). HW recovery v tomto případě
+  // nedává smysl — desku neměnit.
+  piece_t src_piece = board[move->from_row][move->from_col];
+  if (src_piece == PIECE_EMPTY) {
+    ESP_LOGW(TAG,
+             "[STAGING] game_handle_invalid_move: empty source square — "
+             "skipping board mutation and LED recovery (error=%d)",
+             (int)error);
+    return;
+  }
 
   // Chytrý error handling podle požadavků
 
@@ -11466,6 +11993,18 @@ void game_task_start(void *pvParameters) {
              "Timer system initialization failed, continuing without timer");
   }
 
+  // Load configuration from NVS
+  system_config_t config;
+  esp_err_t config_ret = config_load_from_nvs(&config);
+  if (config_ret == ESP_OK) {
+    starting_position_check_enabled = config.starting_position_check_enabled;
+    ESP_LOGI(TAG, "Configuration loaded: starting_position_check=%s",
+             starting_position_check_enabled ? "ON" : "OFF");
+  } else {
+    ESP_LOGW(TAG, "Failed to load configuration, using defaults");
+    starting_position_check_enabled = false; // Default: disabled
+  }
+
   /*
    * Start logicke hry: vychozi deska, pak NVS nebo boot tracker.
    * - Platny klic v NVS: vypnout nucenou novou hru z boot trackeru, nacist snapshot,
@@ -11528,6 +12067,57 @@ void game_task_start(void *pvParameters) {
     // Process game commands
     game_process_commands();
 
+    // BUG FIX 1: Automatický přechod z WAITING_FOR_BOARD_SETUP do ACTIVE
+    if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+      // Pokud je hlídání počáteční pozice vypnuto, přejdeme rovnou do ACTIVE
+      bool should_check_position = starting_position_check_enabled;
+      bool position_ok = should_check_position ? game_is_board_in_starting_position() : true;
+      
+      if (position_ok) {
+        // Deska je připravena (nebo hlídání je vypnuto) - aktivovat hru
+        current_game_state = GAME_STATE_ACTIVE;
+        game_active = true;
+        game_start_time = esp_timer_get_time() / 1000;
+        last_move_time = game_start_time;
+        
+        // Zastavit případné běžící animace
+        unified_animation_stop_all();
+        led_stop_endgame_animation();
+        stop_endgame_animation();
+        
+        // Vyčistit LED
+        led_clear_board_only();
+        
+        // Aktualizovat promotion LED indikace
+        game_check_promotion_needed();
+        
+        // Spustit timer pro bílého hráče pokud je aktivní
+        if (game_is_timer_active()) {
+          game_start_timer_move(true);
+        }
+        
+        // Zvýraznit pohyblivé figurky
+        game_highlight_movable_pieces();
+        
+        // Notify web
+        game_bump_revision_and_notify();
+        
+        if (should_check_position) {
+          ESP_LOGI(TAG, "✅ Board setup complete - game now ACTIVE, White to move");
+        } else {
+          ESP_LOGI(TAG, "✅ Game ACTIVE (starting position check disabled), White to move");
+        }
+      } else {
+        // Periodicky aktualizovat LED indikaci chybějících figur
+        static uint32_t last_led_update = 0;
+        uint32_t now = esp_timer_get_time() / 1000;
+        if (now - last_led_update > 500) { // Každých 500ms
+          game_show_missing_pieces_led();
+          last_led_update = now;
+        }
+      }
+    }
+
     // Process matrix events (moves)
     // DEPRECATED: Matrix events are now processed via game_command_queue
     // game_process_matrix_events();  // No longer needed
@@ -11543,8 +12133,13 @@ void game_task_start(void *pvParameters) {
 
     // Auto new game detection (kdyz jsou figurky v pocatecni pozici 2s)
     // Logic update: Must not be blocked (require 1 move)
+    // BUG FIX 1: Během WAITING_FOR_BOARD_SETUP nesmí auto-new game zasáhnout
+    // BUG FIX 2: Auto-new game jen když je hlídání počáteční pozice zapnuto
     bool in_start_pos =
-        !board_setup_tutorial_active && game_is_board_in_starting_position();
+        starting_position_check_enabled &&
+        !board_setup_tutorial_active && 
+        current_game_state != GAME_STATE_WAITING_FOR_BOARD_SETUP &&
+        game_is_board_in_starting_position();
 
     if (in_start_pos && !auto_new_game_triggered &&
         !auto_new_game_blocked_until_move) {
@@ -12215,6 +12810,47 @@ uint32_t game_generate_legal_moves(player_t player) {
 // ============================================================================
 
 /**
+ * Převod PROMOTION_* na piece_t podle barvy pěšce.
+ * POZOR: piece_t není seřazené Q,R,B,N za sebou — PIECE_WHITE_QUEEN+1 je KRAL,
+ * ne věž (viz chess_types.h). Dříve „PIECE_WHITE_QUEEN + choice“ dávalo při
+ * volbě věže druhého bílého krále na šachovnici.
+ */
+static piece_t game_piece_for_promotion_choice(piece_t pawn,
+                                                promotion_choice_t choice) {
+  if (pawn == PIECE_WHITE_PAWN) {
+    switch (choice) {
+    case PROMOTION_ROOK:
+      return PIECE_WHITE_ROOK;
+    case PROMOTION_BISHOP:
+      return PIECE_WHITE_BISHOP;
+    case PROMOTION_KNIGHT:
+      return PIECE_WHITE_KNIGHT;
+    case PROMOTION_QUEEN:
+    default:
+      return PIECE_WHITE_QUEEN;
+    }
+  }
+  if (pawn == PIECE_BLACK_PAWN) {
+    switch (choice) {
+    case PROMOTION_ROOK:
+      return PIECE_BLACK_ROOK;
+    case PROMOTION_BISHOP:
+      return PIECE_BLACK_BISHOP;
+    case PROMOTION_KNIGHT:
+      return PIECE_BLACK_KNIGHT;
+    case PROMOTION_QUEEN:
+    default:
+      return PIECE_BLACK_QUEEN;
+    }
+  }
+  ESP_LOGW(TAG,
+           "game_piece_for_promotion_choice: očekáván pesec, mám piece=%d — "
+           "vracím bílou damu",
+           (int)pawn);
+  return PIECE_WHITE_QUEEN;
+}
+
+/**
  * @brief Execute an enhanced chess move on the board
  */
 bool game_execute_move_enhanced(chess_move_extended_t *move) {
@@ -12276,15 +12912,11 @@ bool game_execute_move_enhanced(chess_move_extended_t *move) {
                'a' + move->to_col, move->to_row + 1);
     } else {
       // Promotion není pending - promotion_piece je nastaveno, provést promoci
-      piece_t promoted_piece;
-      if (current_player == PLAYER_WHITE) {
-        promoted_piece = PIECE_WHITE_QUEEN + move->promotion_piece;
-      } else {
-        promoted_piece = PIECE_BLACK_QUEEN + move->promotion_piece;
-      }
+      piece_t promoted_piece =
+          game_piece_for_promotion_choice(move->piece, move->promotion_piece);
       board[move->to_row][move->to_col] = promoted_piece;
       ESP_LOGI(TAG, "✅ Promotion executed immediately with piece %d",
-               move->promotion_piece);
+               (int)move->promotion_piece);
     }
   }
 
@@ -12529,6 +13161,10 @@ bool game_detect_new_game_setup(void) {
  * @deprecated Matrix events are now sent as GAME_CMD_PICKUP to
  * game_command_queue and processed by game_process_pickup_command(). This
  * function is kept for compatibility.
+ *
+ * Do not wire this back into the matrix path: it rejects opponent lifts and
+ * would break guided capture (opponent-first) and related LED flows.
+ *
  * @param row Row coordinate
  * @param col Column coordinate
  */
@@ -14533,6 +15169,13 @@ void game_refresh_leds(void) {
 
   // Clear board first (to remove HA colors)
   led_clear_board_only();
+
+  if (matrix_guard_pause_state.active) {
+    ESP_LOGI(TAG, "  - Restoring MATRIX GUARD LEDs (physical vs logic)");
+    game_render_matrix_guard_leds();
+    game_check_promotion_needed();
+    return;
+  }
 
   // 1. Check for Error Recovery State
   if (error_recovery_state.waiting_for_move_correction) {

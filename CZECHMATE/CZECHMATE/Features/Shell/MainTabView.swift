@@ -6,9 +6,13 @@
 import SwiftData
 import SwiftUI
 
+// MARK: - Game Views
+// GameContainerView and related views are in the same module
+
 struct MainTabView: View {
     @Environment(AppTabRouter.self) private var tabRouter
     @Environment(BoardConnectionStore.self) private var boardStore
+    @Environment(NetworkStatusMonitor.self) private var networkMonitor
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var modelDownloadManager: ModelDownloadManager
     @EnvironmentObject private var learningModeManager: LearningModeManager
@@ -22,7 +26,7 @@ struct MainTabView: View {
             get: { tabRouter.selectedTab },
             set: { tabRouter.selectedTab = $0 }
         )) {
-            GameView()
+            GameContainerView()
                 .tabItem {
                     Label("Hra", systemImage: "checkerboard.rectangle")
                 }
@@ -37,16 +41,11 @@ struct MainTabView: View {
                     Label("Puzzle", systemImage: "puzzlepiece.extension")
                 }
                 .tag(AppMainTab.puzzle)
-            LearnView()
+            ProgressTabView()
                 .tabItem {
-                    Label("Výuka", systemImage: "graduationcap.fill")
+                    Label("Pokrok", systemImage: "square.split.2x1")
                 }
-                .tag(AppMainTab.learn)
-            StatsView()
-                .tabItem {
-                    Label("Statistiky", systemImage: "chart.bar.fill")
-                }
-                .tag(AppMainTab.stats)
+                .tag(AppMainTab.progress)
             SettingsTabView()
                 .tabItem {
                     Label("Nastavení", systemImage: "gearshape.fill")
@@ -54,6 +53,8 @@ struct MainTabView: View {
                 .tag(AppMainTab.settings)
         }
         .tint(Theme.accent)
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
         .sheet(isPresented: $showCoachIntroFromLaunch) {
             CoachOnboardingView(
                 modelDownload: modelDownloadManager,
@@ -67,9 +68,20 @@ struct MainTabView: View {
                 }
             )
         }
+        #if os(iOS)
+        .sheet(isPresented: Bindable(boardStore).offerWiFiProvisionSheet) {
+            BoardWiFiProvisionFromBLESheet()
+                .environment(boardStore)
+        }
+        #endif
         .onAppear {
-            // Spojení s deskou (Wi‑Fi / mock) hned po vstupu do aplikace — WebSocket zůstane aktivní i na jiných záložkách.
-            boardStore.startPolling()
+            modelDownloadManager.reconcileWithDisk()
+            boardStore.attachWifiPathHandoff(using: networkMonitor)
+            AppDebugLog.coachTrace(
+                "MainTabView onAppear coachIntro=\(!coachAutoIntroConsumed) modelInstalled=\(modelDownloadManager.isModelInstalled)"
+            )
+            // Obnovení spojení: poslední Bluetooth (nebo preferBluetoothOnly), jinak Wi‑Fi polling / mock.
+            Task { await boardStore.resumeConnectionIfNeeded() }
             if !coachAutoIntroConsumed {
                 coachAutoIntroConsumed = true
                 showCoachIntroFromLaunch = true

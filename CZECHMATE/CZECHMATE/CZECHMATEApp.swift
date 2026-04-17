@@ -10,6 +10,10 @@ import SwiftUI
 
 @main
 struct CZECHMATEApp: App {
+    init() {
+        AppProcessContext.logBootstrap()
+    }
+
     private var sharedModelContainer: ModelContainer = {
         SwiftDataAppSupport.ensureApplicationSupportDirectoryExists()
         let schema = Schema([PuzzleLibraryItem.self, GameSessionEntity.self])

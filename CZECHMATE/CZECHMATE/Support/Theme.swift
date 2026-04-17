@@ -72,16 +72,37 @@ enum Theme {
         static func caption() -> Font { .system(.caption, design: .rounded) }
         static func caption2() -> Font { .system(.caption2, design: .rounded) }
     }
+
+    /// Jemný obrys karet / bannerů podle režimu (oddělení od `systemGroupedBackground`).
+    static func cardBorderColor(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark
+            ? Color.white.opacity(0.09)
+            : Color.black.opacity(0.06)
+    }
+
+    static func cardShadowOpacity(for colorScheme: ColorScheme) -> Double {
+        colorScheme == .dark ? 0.35 : 0.06
+    }
+
+    // MARK: - Sandbox (lokální náhled — doplňuje zelený accent, ne ho nahrazuje)
+
+    enum Sandbox {
+        static let accent = Color(red: 0.52, green: 0.38, blue: 0.74)
+        static let fill = accent.opacity(0.12)
+        static let fillStrong = accent.opacity(0.18)
+        static let stroke = accent.opacity(0.32)
+    }
 }
 
 // MARK: - Karty
 
 struct ThemeCardModifier: ViewModifier {
     var cornerRadius: CGFloat = 12
+    @Environment(\.colorScheme) private var colorScheme
 
     func body(content: Content) -> some View {
         content
-            .padding(16)
+            .padding(Theme.Spacing.l)
             .background {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     #if os(iOS)
@@ -91,7 +112,15 @@ struct ThemeCardModifier: ViewModifier {
                     #else
                     .fill(Color.gray.opacity(0.14))
                     #endif
-                    .shadow(color: .black.opacity(0.06), radius: 8, y: 2)
+                    .shadow(
+                        color: .black.opacity(Theme.cardShadowOpacity(for: colorScheme)),
+                        radius: colorScheme == .dark ? 10 : 8,
+                        y: colorScheme == .dark ? 4 : 2
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                            .stroke(Theme.cardBorderColor(for: colorScheme), lineWidth: 0.5)
+                    }
             }
     }
 }
@@ -114,6 +143,7 @@ struct ThemePrimaryButtonStyle: ButtonStyle {
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(Theme.accent.opacity(configuration.isPressed ? 0.85 : 1))
+                    .shadow(color: Theme.accent.opacity(configuration.isPressed ? 0.12 : 0.22), radius: 6, y: 3)
             )
     }
 }
@@ -140,6 +170,26 @@ extension ButtonStyle where Self == ThemeSecondaryButtonStyle {
     static var themeSecondary: ThemeSecondaryButtonStyle { ThemeSecondaryButtonStyle() }
 }
 
+/// Sekundární akce na celou šířku — obrys (ghost), stejná výška jako primární.
+struct ThemeOutlineButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(.headline, design: .rounded).weight(.semibold))
+            .foregroundStyle(Theme.accent)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(Theme.accent, lineWidth: 2)
+            )
+            .opacity(configuration.isPressed ? 0.88 : 1)
+    }
+}
+
+extension ButtonStyle where Self == ThemeOutlineButtonStyle {
+    static var themeOutline: ThemeOutlineButtonStyle { ThemeOutlineButtonStyle() }
+}
+
 // MARK: - Toolbar: ikonová tlačítka (nápověda, připojení)
 
 /// Kompaktní kulaté tlačítko v toolbaru — čitelnější než holý SF Symbol.
@@ -153,9 +203,9 @@ struct ThemeToolbarIconChip: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(tint)
-                .frame(width: 34, height: 34)
+                .frame(width: 44, height: 44)
                 .background {
                     Circle()
                         .fill(background)
@@ -164,5 +214,19 @@ struct ThemeToolbarIconChip: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(accessibilityLabel)
+    }
+}
+
+// MARK: - Accessibility
+
+extension View {
+    /// Přidá VoiceOver hint jen když je neprázdný (prázdný řetězec by škodil).
+    @ViewBuilder
+    func accessibilityOptionalHint(_ hint: String?) -> some View {
+        if let hint, !hint.isEmpty {
+            self.accessibilityHint(hint)
+        } else {
+            self
+        }
     }
 }

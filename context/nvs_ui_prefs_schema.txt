@@ -1,0 +1,28 @@
+Web UI preferences stored in NVS (chess_config namespace, key ui_prefs_v1).
+
+Format: UTF-8 JSON object:
+{
+  "version": 1,
+  "prefs": {
+    "chessHintDepth": number (1-18),
+    "chessEvaluateMove": boolean,
+    "chessHintLimit": number (>=0),
+    "chessHintAwardBest": boolean,
+    "chessHintAwardGood": boolean,
+    "chessHintAwardCapture": boolean,
+    "chessShowHintStats": boolean,
+    "chessBotLedTargetOnlyAfterLift": boolean,
+    "chessTutorialsEnabled": boolean,
+    "chess_confirm_new_game": boolean,
+    "botSettings": { "mode": "pvp"|"bot", "strength": string, "side": "white"|"black"|"random" }
+  }
+}
+
+Max blob size: CONFIG_UI_PREFS_MAX_BYTES (3072) in firmware.
+
+Other NVS (not in this JSON):
+- system_config_t keys: verbose, quiet, guided_hint, log_level, timeout, brightness
+- Game snapshots: g_snap_full, g_snap_min
+- Boot tracker: g_boot_trk
+- Timer: timer_system namespace (tc_type, tc_min, tc_inc)
+- WiFi, MQTT, web lock, lamp: separate namespaces

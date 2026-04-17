@@ -28,7 +28,15 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessPieceGlyph.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessSquareNotation.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/CompanionStrings.swift"
         },
         {
           "kind" : "file",
@@ -36,7 +44,19 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/MaterialEvaluator.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/SharedChessBoardView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/Sync/BLEStateMachine.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/Sync/MoveConflictResolver.swift"
         },
         {
           "kind" : "file",
@@ -52,9 +72,14 @@
       "moduleOutputPath" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/Modules/CZECHMATEShared.swiftmodule",
       "objects" : [
         "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessMatchActivityAttributes.swift.o",
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessPieceGlyph.swift.o",
         "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessSquareNotation.swift.o",
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/CompanionStrings.swift.o",
         "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/FENPlacementParser.swift.o",
-        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/SharedChessBoardView.swift.o"
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/MaterialEvaluator.swift.o",
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/SharedChessBoardView.swift.o",
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/BLEStateMachine.swift.o",
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/MoveConflictResolver.swift.o"
       ],
       "otherArguments" : [
         "-target",
@@ -119,7 +144,15 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessPieceGlyph.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/ChessSquareNotation.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/CompanionStrings.swift.o"
         },
         {
           "kind" : "file",
@@ -127,7 +160,19 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/MaterialEvaluator.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/SharedChessBoardView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/BLEStateMachine.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/MoveConflictResolver.swift.o"
         },
         {
           "kind" : "file",
@@ -137,9 +182,14 @@
       "prepareForIndexing" : false,
       "sources" : [
         "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessMatchActivityAttributes.swift",
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessPieceGlyph.swift",
         "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessSquareNotation.swift",
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/CompanionStrings.swift",
         "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/FENPlacementParser.swift",
-        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/SharedChessBoardView.swift"
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/MaterialEvaluator.swift",
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/SharedChessBoardView.swift",
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/Sync/BLEStateMachine.swift",
+        "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/Sync/MoveConflictResolver.swift"
       ],
       "tempsPath" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build",
       "wholeModuleOptimization" : false
@@ -157,9 +207,14 @@
       "czechmateshared",
       "-c",
       "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessMatchActivityAttributes.swift",
+      "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessPieceGlyph.swift",
       "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessSquareNotation.swift",
+      "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/CompanionStrings.swift",
       "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/FENPlacementParser.swift",
+      "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/MaterialEvaluator.swift",
       "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/SharedChessBoardView.swift",
+      "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/Sync/BLEStateMachine.swift",
+      "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/Sync/MoveConflictResolver.swift",
       "-I",
       "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/Modules",
       "-target",
@@ -249,7 +304,15 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessPieceGlyph.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/ChessSquareNotation.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/CompanionStrings.swift"
         },
         {
           "kind" : "file",
@@ -257,7 +320,19 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/MaterialEvaluator.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/SharedChessBoardView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/Sync/BLEStateMachine.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/Sources/CZECHMATEShared/Sync/MoveConflictResolver.swift"
         }
       ],
       "outputFilePath" : "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/CZECHMATE/CZECHMATEShared/.build/arm64-apple-macosx/debug/CZECHMATEShared.build/sources"

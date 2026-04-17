@@ -1,0 +1,16 @@
+Command: ninja all
+warning: default on the choice symbol SEC_CERT_DAC_PROVIDER (defined at /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/connectedhomeip/connectedhomeip/config/esp32/components/chip/Kconfig:979, /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/components/esp_matter/Kconfig:48) will have no effect, as defaults do not affect choice symbols
+warning: the choice symbol SEC_CERT_DAC_PROVIDER (defined at /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/connectedhomeip/connectedhomeip/config/esp32/components/chip/Kconfig:979, /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/components/esp_matter/Kconfig:48) is defined with a prompt outside the choice
+info: INFO: Symbol SEC_CERT_DAC_PROVIDER defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/components/esp_matter/Kconfig:48
+    /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_matter/connectedhomeip/connectedhomeip/config/esp32/components/chip/Kconfig:979
+ESP Insights Project commit: HEAD-HASH-NOTFOUND
+CMake Deprecation Warning at managed_components/espressif__esp-serial-flasher/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+

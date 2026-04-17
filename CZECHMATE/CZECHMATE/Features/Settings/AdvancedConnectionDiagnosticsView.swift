@@ -36,7 +36,13 @@ struct AdvancedConnectionDiagnosticsView: View {
                     }
                 }
                 LabeledContent("Internet (Stockfish)") {
-                    Text(network.isInternetLikelyForStockfish ? "pravděpodobně ano" : "nejasné / nedostupné")
+                    Text(network.isInternetLikelyForStockfish ? "ano (Wi‑Fi nebo mobilní data)" : "nejasné / nedostupné")
+                }
+                LabeledContent("Wi‑Fi rozhraní (LAN desky)") {
+                    Text(network.isWiFiInterfaceActive ? "aktivní — HTTP na 192.168… typicky možné" : "ne — k STA IP přes HTTP často jen přes Bluetooth")
+                }
+                LabeledContent("Omezující síť") {
+                    Text(network.isConstrained ? "ano (Low Data / constrained — chess-api se stejně zkusí)" : "ne")
                 }
                 #if DEBUG
                 LabeledContent("WS snímků (dbg)") {

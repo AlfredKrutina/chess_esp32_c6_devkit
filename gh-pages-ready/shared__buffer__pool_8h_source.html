@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor shared_buffer_pool.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('shared__buffer__pool_8h_source.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">shared_buffer_pool.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="shared__buffer__pool_8h.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#ifndef SHARED_BUFFER_POOL_H</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="preprocessor">#define SHARED_BUFFER_POOL_H</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="preprocessor">#include &quot;esp_err.h&quot;</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">// MAKRA PRO SNADNE POUZITI</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="shared__buffer__pool_8h.html#a70318c0bb964a91191f81e8b06a264eb">   58</a></span><span class="preprocessor">#define get_shared_buffer(size) get_shared_buffer_debug(size, __FILE__, __LINE__)</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="comment">// STRUKTURY</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span></div>
+<div class="foldopen" id="foldopen00069" data-start="{" data-end="};">
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="structbuffer__pool__stats__t.html">   69</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="structbuffer__pool__stats__t.html#ab36127065062a985fffa4951c5b033b3">   70</a></span>    uint32_t <a class="code hl_variable" href="structbuffer__pool__stats__t.html#ab36127065062a985fffa4951c5b033b3">pool_size</a>;          </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="structbuffer__pool__stats__t.html#a8273dd396e87398156b713e2770687cc">   71</a></span>    uint32_t <a class="code hl_variable" href="structbuffer__pool__stats__t.html#a8273dd396e87398156b713e2770687cc">buffer_size</a>;        </div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno"><a class="line" href="structbuffer__pool__stats__t.html#a42990bc34dd3c40cfb396f6aa3723bbc">   72</a></span>    uint32_t <a class="code hl_variable" href="structbuffer__pool__stats__t.html#a42990bc34dd3c40cfb396f6aa3723bbc">current_usage</a>;      </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="structbuffer__pool__stats__t.html#ae2d19a60f60e93b6b4144919fa1ef156">   73</a></span>    uint32_t <a class="code hl_variable" href="structbuffer__pool__stats__t.html#ae2d19a60f60e93b6b4144919fa1ef156">peak_usage</a>;         </div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno"><a class="line" href="structbuffer__pool__stats__t.html#add17a4e17bdbbc10a693d74443db4325">   74</a></span>    uint32_t <a class="code hl_variable" href="structbuffer__pool__stats__t.html#add17a4e17bdbbc10a693d74443db4325">total_allocations</a>;  </div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno"><a class="line" href="structbuffer__pool__stats__t.html#a0bc82e1e4f4f20bc8f3cf31fc0d0148c">   75</a></span>    uint32_t <a class="code hl_variable" href="structbuffer__pool__stats__t.html#a0bc82e1e4f4f20bc8f3cf31fc0d0148c">total_releases</a>;     </div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="structbuffer__pool__stats__t.html#a36dc96032c4fe870bc181bbbb9fdb2dd">   76</a></span>    uint32_t <a class="code hl_variable" href="structbuffer__pool__stats__t.html#a36dc96032c4fe870bc181bbbb9fdb2dd">allocation_failures</a>;</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>} <a class="code hl_struct" href="structbuffer__pool__stats__t.html">buffer_pool_stats_t</a>;</div>
+</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="comment">// INICIALIZACNI FUNKCE</span></div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>esp_err_t <a class="code hl_function" href="shared__buffer__pool_8h.html#a57e203054eac9c4b6834783c64844d9b">buffer_pool_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span></div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="keywordtype">void</span> <a class="code hl_function" href="shared__buffer__pool_8h.html#ab7941cd3b2567eec4538fb234680a9bf">buffer_pool_deinit</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="comment">// FUNKCE PRO ALOKACI/UVOLNENI BUFFERU</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span></div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="keywordtype">char</span>* <a class="code hl_function" href="shared__buffer__pool_8h.html#a985626f60ba733d611f238158cd15aac">get_shared_buffer_debug</a>(<span class="keywordtype">size_t</span> min_size, <span class="keyword">const</span> <span class="keywordtype">char</span>* file, <span class="keywordtype">int</span> line);</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span></div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>esp_err_t <a class="code hl_function" href="shared__buffer__pool_8h.html#a2dcea7230ff8c3509b7b7adaeba9874e">release_shared_buffer</a>(<span class="keywordtype">char</span>* buffer);</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span><span class="comment">// UTILITY A STATUS FUNKCE</span></div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span></div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span><span class="keywordtype">void</span> <a class="code hl_function" href="shared__buffer__pool_8h.html#a78258eeac6ef7d0f8d2cf999f0605b0c">buffer_pool_print_status</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span><a class="code hl_struct" href="structbuffer__pool__stats__t.html">buffer_pool_stats_t</a> <a class="code hl_function" href="shared__buffer__pool_8h.html#a8d1141e7eeb3bedad5c0d1ad575a953d">buffer_pool_get_stats</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span></div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="keywordtype">bool</span> <a class="code hl_function" href="shared__buffer__pool_8h.html#acd58d78b420eb7bbeb83dd9b2d249be4">buffer_pool_is_healthy</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span></div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span><span class="keywordtype">void</span> <a class="code hl_function" href="shared__buffer__pool_8h.html#a212c8f17c9792d37e2c884ef14ed8e69">buffer_pool_detect_leaks</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="comment">// POMOCNA MAKRA</span></div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span></div>
+<div class="foldopen" id="foldopen00184" data-start="" data-end="">
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno"><a class="line" href="shared__buffer__pool_8h.html#a4fd36e7fb9f9dff5eaa936115b4a5e48">  184</a></span><span class="preprocessor">#define SAFE_GET_BUFFER(ptr, size, cleanup_label) do { \</span></div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="preprocessor">    ptr = get_shared_buffer(size); \</span></div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="preprocessor">    if (ptr == NULL) { \</span></div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="preprocessor">        ESP_LOGE(&quot;BUFFER&quot;, &quot;Failed to allocate buffer of size %zu&quot;, size); \</span></div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span><span class="preprocessor">        goto cleanup_label; \</span></div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="preprocessor">    } \</span></div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span><span class="preprocessor">} while(0)</span></div>
+</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span></div>
+<div class="foldopen" id="foldopen00197" data-start="" data-end="">
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno"><a class="line" href="shared__buffer__pool_8h.html#ab1e2b3bd6e04fde2a413dd3dae10c415">  197</a></span><span class="preprocessor">#define SAFE_RELEASE_BUFFER(ptr) do { \</span></div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="preprocessor">    if (ptr != NULL) { \</span></div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="preprocessor">        release_shared_buffer(ptr); \</span></div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span><span class="preprocessor">        ptr = NULL; \</span></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span><span class="preprocessor">    } \</span></div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span><span class="preprocessor">} while(0)</span></div>
+</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>}</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span><span class="preprocessor">#endif </span><span class="comment">// SHARED_BUFFER_POOL_H</span></div>
+<div class="ttc" id="ashared__buffer__pool_8h_html_a212c8f17c9792d37e2c884ef14ed8e69"><div class="ttname"><a href="shared__buffer__pool_8h.html#a212c8f17c9792d37e2c884ef14ed8e69">buffer_pool_detect_leaks</a></div><div class="ttdeci">void buffer_pool_detect_leaks(void)</div><div class="ttdoc">Detekuj potencialni buffer leaky.</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8c_source.html#l00359">shared_buffer_pool.c:359</a></div></div>
+<div class="ttc" id="ashared__buffer__pool_8h_html_a2dcea7230ff8c3509b7b7adaeba9874e"><div class="ttname"><a href="shared__buffer__pool_8h.html#a2dcea7230ff8c3509b7b7adaeba9874e">release_shared_buffer</a></div><div class="ttdeci">esp_err_t release_shared_buffer(char *buffer)</div><div class="ttdoc">Uvolni sdileny buffer zpet do poolu.</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8c_source.html#l00203">shared_buffer_pool.c:203</a></div></div>
+<div class="ttc" id="ashared__buffer__pool_8h_html_a57e203054eac9c4b6834783c64844d9b"><div class="ttname"><a href="shared__buffer__pool_8h.html#a57e203054eac9c4b6834783c64844d9b">buffer_pool_init</a></div><div class="ttdeci">esp_err_t buffer_pool_init(void)</div><div class="ttdoc">Inicializuje shared buffer pool.</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8c_source.html#l00068">shared_buffer_pool.c:68</a></div></div>
+<div class="ttc" id="ashared__buffer__pool_8h_html_a78258eeac6ef7d0f8d2cf999f0605b0c"><div class="ttname"><a href="shared__buffer__pool_8h.html#a78258eeac6ef7d0f8d2cf999f0605b0c">buffer_pool_print_status</a></div><div class="ttdeci">void buffer_pool_print_status(void)</div><div class="ttdoc">Vypis detailni status buffer poolu do konzole.</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8c_source.html#l00263">shared_buffer_pool.c:263</a></div></div>
+<div class="ttc" id="ashared__buffer__pool_8h_html_a8d1141e7eeb3bedad5c0d1ad575a953d"><div class="ttname"><a href="shared__buffer__pool_8h.html#a8d1141e7eeb3bedad5c0d1ad575a953d">buffer_pool_get_stats</a></div><div class="ttdeci">buffer_pool_stats_t buffer_pool_get_stats(void)</div><div class="ttdoc">Ziskej statistiky buffer poolu.</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8c_source.html#l00301">shared_buffer_pool.c:301</a></div></div>
+<div class="ttc" id="ashared__buffer__pool_8h_html_a985626f60ba733d611f238158cd15aac"><div class="ttname"><a href="shared__buffer__pool_8h.html#a985626f60ba733d611f238158cd15aac">get_shared_buffer_debug</a></div><div class="ttdeci">char * get_shared_buffer_debug(size_t min_size, const char *file, int line)</div><div class="ttdoc">Ziskej sdileny buffer z poolu (interni funkce).</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8c_source.html#l00143">shared_buffer_pool.c:143</a></div></div>
+<div class="ttc" id="ashared__buffer__pool_8h_html_ab7941cd3b2567eec4538fb234680a9bf"><div class="ttname"><a href="shared__buffer__pool_8h.html#ab7941cd3b2567eec4538fb234680a9bf">buffer_pool_deinit</a></div><div class="ttdeci">void buffer_pool_deinit(void)</div><div class="ttdoc">Deinicializuje buffer pool a uvolni prostredky.</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8c_source.html#l00109">shared_buffer_pool.c:109</a></div></div>
+<div class="ttc" id="ashared__buffer__pool_8h_html_acd58d78b420eb7bbeb83dd9b2d249be4"><div class="ttname"><a href="shared__buffer__pool_8h.html#acd58d78b420eb7bbeb83dd9b2d249be4">buffer_pool_is_healthy</a></div><div class="ttdeci">bool buffer_pool_is_healthy(void)</div><div class="ttdoc">Overi zda je buffer pool ve zdravem stavu.</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8c_source.html#l00322">shared_buffer_pool.c:322</a></div></div>
+<div class="ttc" id="astructbuffer__pool__stats__t_html"><div class="ttname"><a href="structbuffer__pool__stats__t.html">buffer_pool_stats_t</a></div><div class="ttdoc">Struktura statistik buffer poolu.</div><div class="ttdef"><b>Definition</b> <a href="#l00069">shared_buffer_pool.h:69</a></div></div>
+<div class="ttc" id="astructbuffer__pool__stats__t_html_a0bc82e1e4f4f20bc8f3cf31fc0d0148c"><div class="ttname"><a href="structbuffer__pool__stats__t.html#a0bc82e1e4f4f20bc8f3cf31fc0d0148c">buffer_pool_stats_t::total_releases</a></div><div class="ttdeci">uint32_t total_releases</div><div class="ttdoc">Celkovy pocet uvolneni.</div><div class="ttdef"><b>Definition</b> <a href="#l00075">shared_buffer_pool.h:75</a></div></div>
+<div class="ttc" id="astructbuffer__pool__stats__t_html_a36dc96032c4fe870bc181bbbb9fdb2dd"><div class="ttname"><a href="structbuffer__pool__stats__t.html#a36dc96032c4fe870bc181bbbb9fdb2dd">buffer_pool_stats_t::allocation_failures</a></div><div class="ttdeci">uint32_t allocation_failures</div><div class="ttdoc">Pocet selhanych alokaci.</div><div class="ttdef"><b>Definition</b> <a href="#l00076">shared_buffer_pool.h:76</a></div></div>
+<div class="ttc" id="astructbuffer__pool__stats__t_html_a42990bc34dd3c40cfb396f6aa3723bbc"><div class="ttname"><a href="structbuffer__pool__stats__t.html#a42990bc34dd3c40cfb396f6aa3723bbc">buffer_pool_stats_t::current_usage</a></div><div class="ttdeci">uint32_t current_usage</div><div class="ttdoc">Aktualne alokovane buffery.</div><div class="ttdef"><b>Definition</b> <a href="#l00072">shared_buffer_pool.h:72</a></div></div>
+<div class="ttc" id="astructbuffer__pool__stats__t_html_a8273dd396e87398156b713e2770687cc"><div class="ttname"><a href="structbuffer__pool__stats__t.html#a8273dd396e87398156b713e2770687cc">buffer_pool_stats_t::buffer_size</a></div><div class="ttdeci">uint32_t buffer_size</div><div class="ttdoc">Velikost jednoho bufferu v bajtech.</div><div class="ttdef"><b>Definition</b> <a href="#l00071">shared_buffer_pool.h:71</a></div></div>
+<div class="ttc" id="astructbuffer__pool__stats__t_html_ab36127065062a985fffa4951c5b033b3"><div class="ttname"><a href="structbuffer__pool__stats__t.html#ab36127065062a985fffa4951c5b033b3">buffer_pool_stats_t::pool_size</a></div><div class="ttdeci">uint32_t pool_size</div><div class="ttdoc">Celkovy pocet bufferu v poolu.</div><div class="ttdef"><b>Definition</b> <a href="#l00070">shared_buffer_pool.h:70</a></div></div>
+<div class="ttc" id="astructbuffer__pool__stats__t_html_add17a4e17bdbbc10a693d74443db4325"><div class="ttname"><a href="structbuffer__pool__stats__t.html#add17a4e17bdbbc10a693d74443db4325">buffer_pool_stats_t::total_allocations</a></div><div class="ttdeci">uint32_t total_allocations</div><div class="ttdoc">Celkovy pocet alokaci.</div><div class="ttdef"><b>Definition</b> <a href="#l00074">shared_buffer_pool.h:74</a></div></div>
+<div class="ttc" id="astructbuffer__pool__stats__t_html_ae2d19a60f60e93b6b4144919fa1ef156"><div class="ttname"><a href="structbuffer__pool__stats__t.html#ae2d19a60f60e93b6b4144919fa1ef156">buffer_pool_stats_t::peak_usage</a></div><div class="ttdeci">uint32_t peak_usage</div><div class="ttdoc">Maximalni dosazen e pouziti.</div><div class="ttdef"><b>Definition</b> <a href="#l00073">shared_buffer_pool.h:73</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_5c6c08d104c204cc3ac851f4559ad479.html">freertos_chess</a></li><li class="navelem"><a href="dir_f37fe88dea145212e3c3ec30fa23d01d.html">include</a></li><li class="navelem"><a href="shared__buffer__pool_8h.html">shared_buffer_pool.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

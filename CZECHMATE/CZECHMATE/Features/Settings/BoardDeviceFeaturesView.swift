@@ -1,6 +1,6 @@
 //
 //  BoardDeviceFeaturesView.swift
-//  Parita s webem: NVS prefs, MQTT, demo, LED — jen přes HTTP k ESP.
+//  Parita s webem: NVS prefs přes HTTP; demo / MQTT / auto lampa / LED guidance i přes BLE (`supportsOnDeviceSettingsWrite`).
 //
 
 import SwiftUI
@@ -49,10 +49,19 @@ struct BoardDeviceFeaturesView: View {
             } header: {
                 Text("Synchronizace NVS")
             } footer: {
-                Text("Stejná data jako webové UI (`/api/settings/ui`). Po načtení se sloučí hloubka nápovědy a eval s tímto iPhonem.")
+                Text(
+                    store.supportsWiFiRemoteCommands
+                        ? "Stejná data jako webové UI (`/api/settings/ui`). Po načtení se sloučí hloubka nápovědy a eval s tímto iPhonem."
+                        : "Hromadné GET/POST `/api/settings/ui` potřebuje HTTP (Wi‑Fi) k desce. Při spojení jen přes Bluetooth použij jednotlivé přepínače a tlačítka v této obrazovce (GATT), případně dočasně přepni na Wi‑Fi v Najít šachovnici."
+                )
             }
 
             Section {
+                Picker("Síla nápovědy v aplikaci", selection: Bindable(store).moveHintTier) {
+                    ForEach(MoveHintTier.allCases) { tier in
+                        Text(tier.shortTitle).tag(tier)
+                    }
+                }
                 Stepper("Hloubka nápovědy: \(store.boardUIPrefsPayload.chessHintDepth)", value: Bindable(store).boardUIPrefsPayload.chessHintDepth, in: 1 ... 18)
                 Toggle("Zhodnocení tahu (eval)", isOn: Bindable(store).boardUIPrefsPayload.chessEvaluateMove)
                 Stepper("Limit nápověd / stranu (0 = neomezeno): \(store.boardUIPrefsPayload.chessHintLimit)", value: Bindable(store).boardUIPrefsPayload.chessHintLimit, in: 0 ... 99)
@@ -79,7 +88,7 @@ struct BoardDeviceFeaturesView: View {
             } header: {
                 Text("Šachová pravidla v NVS")
             } footer: {
-                Text("Změny ulož tlačítkem „Uložit do desky“ výše; hloubka z Nastavení → Stockfish se při POST sloučí.")
+                Text("H1–H3 je jen v aplikaci (cíl / výchozí pole / celý tah). Ostatní změny ulož tlačítkem „Uložit do desky“. Hloubka výpočtu z Nastavení → Diagnostika → Stockfish a FEN se při POST sloučí.")
             }
 
             Section {
@@ -105,7 +114,7 @@ struct BoardDeviceFeaturesView: View {
                         isBusy = false
                     }
                 }
-                .disabled(!store.supportsWiFiRemoteCommands || isBusy)
+                .disabled(!store.supportsOnDeviceSettingsWrite || isBusy)
             } header: {
                 Text("Lampa — časovač nečinnosti")
             }
@@ -133,7 +142,7 @@ struct BoardDeviceFeaturesView: View {
                         isBusy = false
                     }
                 }
-                .disabled(!store.supportsWiFiRemoteCommands || mqttHost.isEmpty || isBusy)
+                .disabled(!store.supportsOnDeviceSettingsWrite || mqttHost.isEmpty || isBusy)
                 if let m = mqttStatus {
                     Text("Stav: \(m.mode) · MQTT \(m.mqttConnected ? "OK" : "offline") · Wi‑Fi \(m.wifiConnected ? "OK" : "bez STA")")
                         .font(.footnote)
@@ -147,6 +156,8 @@ struct BoardDeviceFeaturesView: View {
                 .disabled(!store.supportsWiFiRemoteCommands)
             } header: {
                 Text("MQTT (Home Assistant / broker)")
+            } footer: {
+                Text("Krok za krokem a uživatelský návod: Nastavení → Chytrá domácnost → Home Assistant a MQTT.")
             }
 
             Section {
@@ -165,7 +176,7 @@ struct BoardDeviceFeaturesView: View {
                         isBusy = false
                     }
                 }
-                .disabled(!store.supportsWiFiRemoteCommands || isBusy)
+                .disabled(!store.supportsOnDeviceSettingsWrite || isBusy)
                 Button("Spustit demo") {
                     Task {
                         isBusy = true
@@ -174,7 +185,7 @@ struct BoardDeviceFeaturesView: View {
                         isBusy = false
                     }
                 }
-                .disabled(!store.supportsWiFiRemoteCommands || isBusy)
+                .disabled(!store.supportsOnDeviceSettingsWrite || isBusy)
                 if let d = demoStatus {
                     Text("Demo aktivní: \(d.enabled ? "ano" : "ne")")
                         .font(.footnote)

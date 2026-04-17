@@ -12,7 +12,10 @@ struct DeveloperSettingsView: View {
     @State private var espWiFiSSID = ""
     @State private var espWiFiPassword = ""
     @State private var espWiFiBusy = false
+    @State private var showFactoryResetConfirm = false
     @State private var showDevFENDisclosure = false
+    @AppStorage(BoardConnectionStore.preferBluetoothOnlyKey) private var preferBluetoothOnly = false
+    @AppStorage(AppDebugLog.coachTraceLogsDefaultsKey) private var coachTraceLogs = false
 
     var body: some View {
         Form {
@@ -32,7 +35,7 @@ struct DeveloperSettingsView: View {
             } header: {
                 Text("Stockfish a FEN")
             } footer: {
-                Text("Evaluace tahů a nápověda v Hře. FEN je technický export aktuálního snímku.")
+                Text("Automatické hodnocení tahů a tlačítko nápovědy ve hře používají Stockfish přes internet. FEN je technický zápis aktuální pozice.")
             }
 
             Section {
@@ -73,13 +76,21 @@ struct DeveloperSettingsView: View {
                         .foregroundStyle(.secondary)
                 }
                 Toggle("WebSocket + REST watchdog", isOn: Bindable(store).useWebSocket)
+                Toggle(
+                    "Vynutit jen Bluetooth (nepřepínat na Wi‑Fi po STA)",
+                    isOn: $preferBluetoothOnly
+                )
             } header: {
                 Text("Síť a transport")
             } footer: {
-                Text("Stejné jako ruční připojení v hlavním Nastavení — zde pro rychlé ladění bez opuštění vývojářské sekce.")
+                Text(
+                    "Stejný přepínač „Nepřepínat na Wi‑Fi“ je i v Nastavení → Připojení. Zde pro rychlé ladění bez opuštění vývojářské sekce. "
+                        + "Volba „jen Bluetooth“ zabrání automatickému přechodu na HTTP, když deska nabídne IP v domácí síti — příkazy zůstanou na GATT."
+                )
             }
 
             Section {
+                Toggle("Podrobné logy (trenér / model)", isOn: $coachTraceLogs)
                 NavigationLink {
                     AdvancedConnectionDiagnosticsView()
                 } label: {
@@ -87,6 +98,10 @@ struct DeveloperSettingsView: View {
                 }
             } header: {
                 Text("Logy a metriky")
+            } footer: {
+                Text(
+                    "Při zapnutí se v konzoli Xcode nebo v zařízení (Console.app) tisknou značky [coach] u AI trenéra, stažení modelu a MediaPipe. V ladění se navíc vždy tiskne [staging:coach]."
+                )
             }
 
             Section {
@@ -120,7 +135,7 @@ struct DeveloperSettingsView: View {
                         await refreshEspWiFiLine()
                     }
                 }
-                .disabled(espWiFiBusy || espWiFiSSID.isEmpty || espWiFiPassword.isEmpty || !store.supportsWiFiRemoteCommands)
+                .disabled(espWiFiBusy || espWiFiSSID.isEmpty || espWiFiPassword.isEmpty || !store.canConfigureBoardWiFiCredentials)
                 Button("Odpojit ESP od STA") {
                     Task {
                         espWiFiBusy = true
@@ -140,10 +155,17 @@ struct DeveloperSettingsView: View {
                 }
                 .disabled(espWiFiBusy || !store.supportsWiFiRemoteCommands)
                 ESPWiFiStatusBlock(showTitle: false)
+                Button("Tovární reset desky (celá NVS)…", role: .destructive) {
+                    showFactoryResetConfirm = true
+                }
+                .disabled(espWiFiBusy || !store.supportsFactoryReset)
             } header: {
                 Text("Wi‑Fi na šachovnici (ESP)")
             } footer: {
-                Text("REST /api/wifi/* — vyžaduje HTTP k desce.")
+                Text(
+                    "Uložit STA: HTTP (`/api/wifi/*`) nebo Bluetooth (`wifi_sta_config`). "
+                        + "Tovární reset smaže celý NVS oddíl (včetně Wi‑Fi, MQTT, partie) — `POST /api/system/factory_reset` nebo BLE `factory_reset` s potvrzením."
+                )
             }
 
             if let err = store.lastError {
@@ -163,6 +185,23 @@ struct DeveloperSettingsView: View {
         .tint(Theme.accent)
         .onAppear {
             Task { await refreshEspWiFiLine() }
+        }
+        .confirmationDialog(
+            "Smazat celou NVS na desce a restartovat?",
+            isPresented: $showFactoryResetConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Zrušit", role: .cancel) {}
+            Button("Smazat celou NVS", role: .destructive) {
+                Task {
+                    espWiFiBusy = true
+                    await store.factoryResetBoard()
+                    espWiFiBusy = false
+                    await refreshEspWiFiLine()
+                }
+            }
+        } message: {
+            Text("Stejné jako na webu v záložce Nastavení → Síť. Po úspěchu deska zmizí z Wi‑Fi a naběhne znovu.")
         }
     }
 

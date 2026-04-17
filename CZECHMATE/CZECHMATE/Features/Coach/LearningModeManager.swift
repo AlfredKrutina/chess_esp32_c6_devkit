@@ -42,15 +42,17 @@ final class LearningModeManager: ObservableObject {
 
     private var lastHandledBlunderMoveCount: Int?
 
-    /// Volat po dokončení (simulovaného) stažení modelu.
+    /// Volat po dokončení reálného stažení modelu (soubor na disku) nebo po přeskočení, pokud už model je.
     func completePendingActivationIfNeeded(modelReady: Bool) {
         guard modelReady, pendingActivateAfterModel else { return }
+        AppDebugLog.coachTrace("LearningMode pending activation → ON (model ready)")
         pendingActivateAfterModel = false
         isLearningModeActive = true
     }
 
     /// Zrušení čekání na model (uživatel zavřel onboarding).
     func cancelPendingActivation() {
+        AppDebugLog.coachTrace("LearningMode cancel pending activation")
         pendingActivateAfterModel = false
     }
 
@@ -77,9 +79,7 @@ final class LearningModeManager: ObservableObject {
             moveCountAtTrigger: moveCount,
             coachMessage: msg
         )
-        #if DEBUG
-        AppDebugLog.staging("LearningMode: eval-drop brake moveCount=\(moveCount) drop=\(scoreDrop)")
-        #endif
+        AppDebugLog.coachTrace("LearningMode eval-drop brake moveCount=\(moveCount) drop=\(scoreDrop)")
     }
 
     /// Po vyhodnocení tahu z vedlejšího procesu (grade == blunder).
@@ -98,9 +98,7 @@ final class LearningModeManager: ObservableObject {
             moveCountAtTrigger: currentMoveCount,
             coachMessage: msg
         )
-        #if DEBUG
-        AppDebugLog.staging("LearningMode: grade blunder brake moveCount=\(currentMoveCount)")
-        #endif
+        AppDebugLog.coachTrace("LearningMode grade blunder brake moveCount=\(currentMoveCount)")
     }
 
     func dismissBlunderBrake() {
@@ -110,9 +108,7 @@ final class LearningModeManager: ObservableObject {
     /// Volat po dokončení generování textu trenéra (stream skončil bez chyby).
     func registerCoachAdviceStreamCompleted() {
         coachAdviceStreamsCompleted += 1
-        #if DEBUG
-        AppDebugLog.staging("LearningMode: coach advice stream completed count=\(coachAdviceStreamsCompleted)")
-        #endif
+        AppDebugLog.coachTrace("LearningMode coach advice stream completed total=\(coachAdviceStreamsCompleted)")
     }
 
     func resetBlunderTrackingForNewGame() {

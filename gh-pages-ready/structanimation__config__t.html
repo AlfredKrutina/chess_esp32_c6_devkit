@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace struktury animation_config_t</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('structanimation__config__t.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace struktury animation_config_t</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Konfigurace animation manageru.  
+ <a href="#details">...</a></p>
+
+<p><code>#include &lt;<a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Datové položky</h2></td></tr>
+<tr class="memitem:a23691ea10ec49cd03cc0ec7d1d24c052" id="r_a23691ea10ec49cd03cc0ec7d1d24c052"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a23691ea10ec49cd03cc0ec7d1d24c052">max_concurrent_animations</a></td></tr>
+<tr class="memdesc:a23691ea10ec49cd03cc0ec7d1d24c052"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximalni pocet soucasne bezicich animaci.  <br /></td></tr>
+<tr class="memitem:aedd96ef71c0b884f50fcb1a69e0ee024" id="r_aedd96ef71c0b884f50fcb1a69e0ee024"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aedd96ef71c0b884f50fcb1a69e0ee024">update_frequency_hz</a></td></tr>
+<tr class="memdesc:aedd96ef71c0b884f50fcb1a69e0ee024"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frekvence aktualizaci v Hz.  <br /></td></tr>
+<tr class="memitem:a74ff887373a2bd67b497e6e74e7f3e86" id="r_a74ff887373a2bd67b497e6e74e7f3e86"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a74ff887373a2bd67b497e6e74e7f3e86">enable_smooth_interpolation</a></td></tr>
+<tr class="memdesc:a74ff887373a2bd67b497e6e74e7f3e86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Povolit plynule interpolace.  <br /></td></tr>
+<tr class="memitem:ae14543413a4b18a194570af26986ff82" id="r_ae14543413a4b18a194570af26986ff82"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae14543413a4b18a194570af26986ff82">enable_trail_effects</a></td></tr>
+<tr class="memdesc:ae14543413a4b18a194570af26986ff82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Povolit sledujici efekty.  <br /></td></tr>
+<tr class="memitem:a06a10b970ebd4a1ece687dda50d2026a" id="r_a06a10b970ebd4a1ece687dda50d2026a"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a06a10b970ebd4a1ece687dda50d2026a">default_duration_ms</a></td></tr>
+<tr class="memdesc:a06a10b970ebd4a1ece687dda50d2026a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vychozi delka animace v ms.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Konfigurace animation manageru. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00102">102</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+</div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Dokumentace položek</h2>
+<a id="a06a10b970ebd4a1ece687dda50d2026a" name="a06a10b970ebd4a1ece687dda50d2026a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06a10b970ebd4a1ece687dda50d2026a">&#9670;&#160;</a></span>default_duration_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t animation_config_t::default_duration_ms</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vychozi delka animace v ms. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00107">107</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a74ff887373a2bd67b497e6e74e7f3e86" name="a74ff887373a2bd67b497e6e74e7f3e86"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a74ff887373a2bd67b497e6e74e7f3e86">&#9670;&#160;</a></span>enable_smooth_interpolation</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool animation_config_t::enable_smooth_interpolation</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Povolit plynule interpolace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00105">105</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="ae14543413a4b18a194570af26986ff82" name="ae14543413a4b18a194570af26986ff82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae14543413a4b18a194570af26986ff82">&#9670;&#160;</a></span>enable_trail_effects</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool animation_config_t::enable_trail_effects</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Povolit sledujici efekty. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00106">106</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a23691ea10ec49cd03cc0ec7d1d24c052" name="a23691ea10ec49cd03cc0ec7d1d24c052"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23691ea10ec49cd03cc0ec7d1d24c052">&#9670;&#160;</a></span>max_concurrent_animations</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_config_t::max_concurrent_animations</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Maximalni pocet soucasne bezicich animaci. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00103">103</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="aedd96ef71c0b884f50fcb1a69e0ee024" name="aedd96ef71c0b884f50fcb1a69e0ee024"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aedd96ef71c0b884f50fcb1a69e0ee024">&#9670;&#160;</a></span>update_frequency_hz</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t animation_config_t::update_frequency_hz</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Frekvence aktualizaci v Hz. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="unified__animation__manager_8h_source.html#l00104">104</a> v souboru <a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a>.</p>
+
+</div>
+</div>
+<hr/>Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru:<ul>
+<li><a class="el" href="unified__animation__manager_8h_source.html">unified_animation_manager.h</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="structanimation__config__t.html">animation_config_t</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

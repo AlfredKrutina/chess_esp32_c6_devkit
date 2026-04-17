@@ -98,11 +98,10 @@ actor ChessboardWebSocketClient {
     }
 
     private nonisolated static func decodeSnapshot(from data: Data) -> GameSnapshot? {
-        let fixed = GameJSONRepair.repairStatusDataIfNeeded(data)
-        let decoder = JSONDecoder.forGameSnapshot()
         do {
-            return try decoder.decode(GameSnapshot.self, from: fixed)
+            return try GameSnapshot.decodeFromBoardDataRepairingAndNormalizing(data)
         } catch {
+            let fixed = GameJSONRepair.repairStatusDataIfNeeded(data)
             let preview = String(data: fixed.prefix(160), encoding: .utf8) ?? ""
             AppDebugLog.staging("WebSocket frame JSON decode failed: \(error) preview=\(preview)")
             return nil

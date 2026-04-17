@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import CZECHMATEShared
 
 @MainActor
 enum BoardCompanionSync {
@@ -20,15 +21,17 @@ enum BoardCompanionSync {
         let now = Date()
         if now.timeIntervalSince(lastWatchPushAt) >= watchMinInterval {
             lastWatchPushAt = now
-            let fen = FENBuilder.boardAndStatusToFEN(board: snap.board, status: snap.status, history: snap.history) ?? ""
-            WatchConnectivityBridge.pushCompanionContext(snapshot: snap, timer: timer, fen: fen)
+            let fen = FENBuilder.boardAndStatusToFEN(board: snap.board, status: snap.status, halfmoveCount: snap.history.moves.count) ?? ""
+            WatchConnectivityBridgeEnhanced.pushCompanionContext(snapshot: snap, timer: timer, fen: fen)
         }
         let timerRunning = timer?.timerRunning ?? snap.status.isTimerRunning
         let laInterval = timerRunning ? liveActivityMinIntervalTimerActive : liveActivityMinInterval
         if now.timeIntervalSince(lastLiveActivityAt) >= laInterval {
             lastLiveActivityAt = now
-            Task {
-                await MatchLiveActivityManager.shared.applySnapshot(snap, timer: timer)
+            if MatchLiveActivityManager.isLiveActivityEnabledByUser {
+                Task {
+                    await MatchLiveActivityManager.shared.applySnapshot(snap, timer: timer)
+                }
             }
         }
         #endif
@@ -38,7 +41,7 @@ enum BoardCompanionSync {
     static func onConnectionStopped(notifyWatchConnectionLost: Bool = false) {
         #if os(iOS)
         if notifyWatchConnectionLost {
-            WatchConnectivityBridge.pushConnectionLost()
+            WatchConnectivityBridgeEnhanced.pushConnectionLost()
         }
         Task {
             await MatchLiveActivityManager.shared.connectionStopped()
@@ -46,3 +49,14 @@ enum BoardCompanionSync {
         #endif
     }
 }
+
+#if os(iOS)
+extension BoardCompanionSync {
+    /// Horizont pro ActivityKit `staleDate` — těsně za dalším plánovaným throttlovaným updatem.
+    static func liveActivityStaleDate(now: Date = .init(), timerRunning: Bool) -> Date {
+        let minInterval = timerRunning ? liveActivityMinIntervalTimerActive : liveActivityMinInterval
+        return now.addingTimeInterval(minInterval * 2 + 0.35)
+    }
+}
+#endif
+

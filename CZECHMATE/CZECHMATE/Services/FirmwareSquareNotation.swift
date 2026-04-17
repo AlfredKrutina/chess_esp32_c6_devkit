@@ -1,6 +1,6 @@
 //
 //  FirmwareSquareNotation.swift
-//  Mapování „e2“ → indexy do `board[][]` ze snapshotu: řádek 0 = horní strana desky (rank 8), řádek 7 = spodek (rank 1).
+//  Mapování „e2“ → indexy do `board[][]` (shodné s CZECHMATEShared.ChessSquareNotation): řádek 0 = rank 8, řádek 7 = rank 1.
 //
 
 import Foundation

@@ -38,6 +38,12 @@ final class MockBoardTransport: BoardTransport {
         #endif
     }
 
+    func postHintHighlightDestinationOnly(to square: String) async throws {
+        #if DEBUG
+        print("[staging] MockBoardTransport hint destination-only \(square)")
+        #endif
+    }
+
     func postHintClear() async throws {}
 
     func postBrightness(percent: Int) async throws {

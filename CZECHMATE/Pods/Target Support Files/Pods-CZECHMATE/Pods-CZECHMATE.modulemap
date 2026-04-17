@@ -1,0 +1,6 @@
+framework module Pods_CZECHMATE {
+  umbrella header "Pods-CZECHMATE-umbrella.h"
+
+  export *
+  module * { export * }
+}

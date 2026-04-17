@@ -50,6 +50,8 @@ protocol BoardTransport: AnyObject {
 
     /// Nápověda na desku přes firmware (stejné jako HTTP hint).
     func postHintHighlight(from: String, to: String) async throws
+    /// Jen jedno pole (`to` v API) — slabší nápověda než plný tah.
+    func postHintHighlightDestinationOnly(to square: String) async throws
     func postHintClear() async throws
     func postBrightness(percent: Int) async throws
     func fetchSnapshot(ifNoneMatch: String?) async throws -> GameSnapshot?

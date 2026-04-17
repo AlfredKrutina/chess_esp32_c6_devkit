@@ -19,14 +19,14 @@ struct CoachBubbleView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            coachAvatar
+            CoachTrainerAvatarView()
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 6) {
                     Text("AI Trenér")
                         .font(.system(.caption, design: .rounded).weight(.semibold))
                         .foregroundStyle(.secondary)
                     if isThinking {
-                        ThinkingDotsView()
+                        CoachThinkingDotsView()
                     }
                 }
                 Text(displayedSubstring)
@@ -108,7 +108,16 @@ struct CoachBubbleView: View {
         #endif
     }
 
-    private var coachAvatar: some View {
+}
+
+// MARK: - Avatar (sdílený chat + plán pozice)
+
+struct CoachTrainerAvatarView: View {
+    var size: CGFloat = 44
+
+    private var iconSize: CGFloat { max(14, size * 0.45) }
+
+    var body: some View {
         ZStack {
             Circle()
                 .fill(
@@ -121,9 +130,9 @@ struct CoachBubbleView: View {
                         endPoint: .bottomTrailing
                     )
                 )
-                .frame(width: 44, height: 44)
+                .frame(width: size, height: size)
             Image(systemName: "crown.fill")
-                .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: iconSize, weight: .semibold))
                 .foregroundStyle(.white)
         }
         .accessibilityHidden(true)
@@ -132,7 +141,7 @@ struct CoachBubbleView: View {
 
 // MARK: - iMessage-style tečky
 
-private struct ThinkingDotsView: View {
+struct CoachThinkingDotsView: View {
     @State private var phase = 0
     private let timer = Timer.publish(every: 0.45, on: .main, in: .common).autoconnect()
 

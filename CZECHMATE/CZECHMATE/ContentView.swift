@@ -1,9 +1,14 @@
 //
 //  ContentView.swift
-//  CZECHMATE
+//  CZECHMATE — Main app container with modular architecture
 //
 
+import CZECHMATEShared
 import SwiftUI
+
+#if os(iOS)
+import UIKit
+#endif
 
 struct ContentView: View {
     @State private var boardStore = BoardConnectionStore()
@@ -48,8 +53,10 @@ struct ContentView: View {
             }
         )
         .onAppear {
+            boardStore.networkHandoffMonitor = networkMonitor
+            boardStore.attachWifiPathHandoff(using: networkMonitor)
             #if os(iOS)
-            WatchConnectivityBridge.activateShared()
+            WatchConnectivityBridgeEnhanced.activateShared()
             #endif
         }
         #if os(iOS)

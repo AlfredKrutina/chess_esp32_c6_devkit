@@ -19,9 +19,10 @@ enum MoveHistoryNotation {
 
     /// Kompaktní notace z from/to/piece (bez plného SAN enginu).
     private static func engineCompact(_ m: HistoryMove) -> String {
-        let from = m.from.lowercased()
-        let to = m.to.lowercased()
-        let pc = m.piece.first ?? " "
+        guard let fromRaw = m.from, let toRaw = m.to else { return "—" }
+        let from = fromRaw.lowercased()
+        let to = toRaw.lowercased()
+        let pc = m.piece?.first ?? " "
         if let cs = castlingNotation(from: from, to: to, piece: pc) {
             return cs
         }
@@ -75,7 +76,8 @@ enum MoveHistoryNotation {
 
 // MARK: - Řádky (1. bílý / černý)
 
-private struct MoveHistoryPlyRow: Identifiable {
+/// Sdílené řádky historie (horizontální `MoveHistoryView` i vertikální souhrn partie).
+struct MoveHistoryPlyRow: Identifiable {
     var id: Int { moveNumber }
     let moveNumber: Int
     let whiteIndex: Int
@@ -129,11 +131,19 @@ struct MoveHistoryView: View {
     @Binding var selectedMoveIndex: Int?
     /// Když false, jen zobrazení (např. Analýza).
     var interactive: Bool
+    /// `globalIndex` = index v `moves` (0…n-1); vrátí stupeň evaluace po tomto tahu, pokud je známý.
+    var gradeForGlobalMoveIndex: ((Int) -> MoveGrade?)?
 
-    init(moves: [HistoryMove], selectedMoveIndex: Binding<Int?> = .constant(nil), interactive: Bool = true) {
+    init(
+        moves: [HistoryMove],
+        selectedMoveIndex: Binding<Int?> = .constant(nil),
+        interactive: Bool = true,
+        gradeForGlobalMoveIndex: ((Int) -> MoveGrade?)? = nil
+    ) {
         self.moves = moves
         _selectedMoveIndex = selectedMoveIndex
         self.interactive = interactive
+        self.gradeForGlobalMoveIndex = gradeForGlobalMoveIndex
     }
 
     private var rows: [MoveHistoryPlyRow] { MoveHistoryPlyRow.build(from: moves) }
@@ -232,19 +242,32 @@ struct MoveHistoryView: View {
             Button {
                 selectedMoveIndex = globalIndex
             } label: {
-                plyText(text, emphasized: on)
+                plyText(text, emphasized: on, globalIndex: globalIndex)
             }
             .buttonStyle(.plain)
         } else {
-            plyText(text, emphasized: on)
+            plyText(text, emphasized: on, globalIndex: globalIndex)
         }
     }
 
-    private func plyText(_ text: String, emphasized: Bool) -> some View {
-        Text(text)
+    private func plyText(_ text: String, emphasized: Bool, globalIndex: Int) -> some View {
+        let grade = gradeForGlobalMoveIndex?(globalIndex)
+        let baseColor: Color = {
+            guard let g = grade, g != .error else {
+                return emphasized ? Theme.accent : Color.primary
+            }
+            switch g {
+            case .best, .good: return Theme.Semantic.success
+            case .inaccuracy: return Color.orange.opacity(0.95)
+            case .mistake: return Theme.Semantic.warningForeground
+            case .blunder: return Theme.Semantic.errorForeground
+            case .error: return Color.primary
+            }
+        }()
+        return Text(text)
             .font(.system(.caption, design: .rounded))
             .fontWeight(emphasized ? .semibold : .regular)
-            .foregroundStyle(emphasized ? Theme.accent : Color.primary)
+            .foregroundStyle(baseColor)
     }
 }
 

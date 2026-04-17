@@ -157,6 +157,7 @@
 // ESP-IDF UART driver functions
 // No POSIX includes needed
 
+#include "../ble_task/include/ble_task.h"
 #include "../freertos_chess/include/chess_types.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../matrix_task/include/matrix_task.h"
@@ -164,7 +165,6 @@
 #include "../uart_commands_extended/include/uart_commands_extended.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "../web_server_task/include/web_server_task.h"
-#include "../ble_task/include/ble_task.h"
 #include "config_manager.h"
 #include "esp_system.h"
 #include "freertos_chess.h"
@@ -263,9 +263,9 @@ static const char *TAG = "UART_TASK";
   } while (0)
 
 // Optimalizované konstanty pro ESP32-C6
-#define CHUNK_DELAY_MS 2       // Minimální delay
+#define CHUNK_DELAY_MS 2                     // Minimální delay
 #define MAX_CHUNK_SIZE UART_MESSAGE_TEXT_MAX /* uart_queue_message.h */
-#define STACK_SAFETY_LIMIT 512 // Minimální volný stack
+#define STACK_SAFETY_LIMIT 512               // Minimální volný stack
 
 // UART configuration - only use if UART is enabled
 #if CONFIG_ESP_CONSOLE_UART_NUM >= 0
@@ -372,7 +372,8 @@ void uart_write_string_immediate(const char *str) {
 // ENHANCED INPUT BUFFERING AND LINE EDITING
 // ============================================================================
 
-/* Paměť: dříve 20×256 = 5120 B + vstup; nyní 8×192 + 192 ≈ 1728 B (~3,4 KiB úspora BSS) */
+/* Paměť: dříve 20×256 = 5120 B + vstup; nyní 8×192 + 192 ≈ 1728 B (~3,4 KiB
+ * úspora BSS) */
 #define UART_CMD_BUFFER_SIZE 192
 #define UART_CMD_HISTORY_SIZE 8
 #define UART_MAX_ARGS 10
@@ -1634,6 +1635,7 @@ void uart_cmd_help_game(void) {
   uart_send_formatted("  CASTLE kingside - Castle kingside (O-O)");
   uart_send_formatted("  CASTLE queenside - Castle queenside (O-O-O)");
   uart_send_formatted("  PROMOTE e8=Q   - Promote pawn to Queen");
+  uart_send_formatted("  STARTPOS ON/OFF - Toggle starting position check");
 
   uart_send_formatted("");
   if (color_enabled)
@@ -1714,10 +1716,12 @@ void uart_cmd_help_system(void) {
   if (color_enabled)
     uart_write_string_immediate("\033[0m"); // reset colors
   uart_send_formatted("  VERBOSE ON/OFF - Control logging verbosity");
-  uart_send_formatted("  QUIET / Q      - Toggle quiet mode (zkratka Q; stejné jako příkaz Q)");
+  uart_send_formatted(
+      "  QUIET / Q      - Toggle quiet mode (zkratka Q; stejné jako příkaz Q)");
   uart_send_formatted("  CONFIG         - Show/set system configuration");
   uart_send_formatted("  CONFIG show    - Show current configuration");
   uart_send_formatted("  CONFIG key value - Set configuration key=value");
+  uart_send_formatted("  STARTPOS ON/OFF - Toggle starting position check");
 
   uart_send_formatted("");
   if (color_enabled)
@@ -1904,8 +1908,7 @@ void uart_cmd_help_web(void) {
     uart_write_string_immediate("\033[0m"); // reset colors
 
   uart_send_formatted("  1. Access Point (Direct Connection):");
-  uart_send_formatted("     • Connect to WiFi: '%s'",
-                      web_server_get_ap_ssid());
+  uart_send_formatted("     • Connect to WiFi: '%s'", web_server_get_ap_ssid());
   uart_send_formatted("     • Password:        '12345678'");
   uart_send_formatted("     • Open Browser:    http://192.168.4.1");
 
@@ -2032,12 +2035,9 @@ void uart_cmd_help_app(void) {
   uart_send_formatted("🧩 UUID (must match CZECHMATEBLEUUIDs.swift):");
   if (color_enabled)
     uart_write_string_immediate("\033[0m"); // reset colors
-  uart_send_formatted(
-      "  Svc A0B40001-9267-4AB6-BDCC-E8336F8A8D9E");
-  uart_send_formatted(
-      "  Snap A0B40002-9267-4AB6-BDCC-E8336F8A8D9E");
-  uart_send_formatted(
-      "  Cmd  A0B40003-9267-4AB6-BDCC-E8336F8A8D9E");
+  uart_send_formatted("  Svc A0B40001-9267-4AB6-BDCC-E8336F8A8D9E");
+  uart_send_formatted("  Snap A0B40002-9267-4AB6-BDCC-E8336F8A8D9E");
+  uart_send_formatted("  Cmd  A0B40003-9267-4AB6-BDCC-E8336F8A8D9E");
 
   uart_send_formatted("");
   if (color_enabled)
@@ -2090,8 +2090,7 @@ void uart_cmd_help_app(void) {
   uart_send_formatted("🌐 Wi‑Fi:");
   if (color_enabled)
     uart_write_string_immediate("\033[0m"); // reset colors
-  uart_send_formatted(
-      "  Stejna deska: HTTP snapshot / REST — HELP WEB");
+  uart_send_formatted("  Stejna deska: HTTP snapshot / REST — HELP WEB");
 
   uart_send_formatted("");
   if (color_enabled)
@@ -2489,6 +2488,68 @@ command_result_t uart_cmd_reset(const char *args) {
 }
 
 // ============================================================================
+// STARTING POSITION CHECK COMMANDS
+// ============================================================================
+
+/**
+ * @brief Toggle starting position check (hlidani postaveni figurek)
+ */
+command_result_t uart_cmd_start_pos_check(const char *args) {
+  extern void game_set_starting_position_check(bool enabled);
+  extern bool game_get_starting_position_check(void);
+  extern esp_err_t config_save_to_nvs(const system_config_t *config);
+  extern esp_err_t config_load_from_nvs(system_config_t *config);
+
+  SAFE_WDT_RESET();
+
+  if (strlen(args) == 0) {
+    // No args - just show status
+    bool enabled = game_get_starting_position_check();
+    uart_send_formatted("♟️ Starting Position Check: %s",
+                        enabled ? "ENABLED ✅" : "DISABLED ❌");
+    uart_send_formatted("   Use 'STARTPOS ON' or 'STARTPOS OFF' to control");
+    return CMD_SUCCESS;
+  }
+
+  // Parse ON/OFF
+  char arg_upper[10];
+  strncpy(arg_upper, args, sizeof(arg_upper) - 1);
+  arg_upper[sizeof(arg_upper) - 1] = '\0';
+
+  // Convert to uppercase
+  for (int i = 0; arg_upper[i]; i++) {
+    arg_upper[i] = toupper((unsigned char)arg_upper[i]);
+  }
+
+  if (strcmp(arg_upper, "ON") == 0 || strcmp(arg_upper, "1") == 0) {
+    game_set_starting_position_check(true);
+    // Save to NVS
+    system_config_t config;
+    if (config_load_from_nvs(&config) == ESP_OK) {
+      config.starting_position_check_enabled = true;
+      config_save_to_nvs(&config);
+    }
+    uart_send_success("♟️ Starting Position Check ENABLED");
+    uart_send_formatted("   Board must be in starting position before game");
+  } else if (strcmp(arg_upper, "OFF") == 0 || strcmp(arg_upper, "0") == 0) {
+    game_set_starting_position_check(false);
+    // Save to NVS
+    system_config_t config;
+    if (config_load_from_nvs(&config) == ESP_OK) {
+      config.starting_position_check_enabled = false;
+      config_save_to_nvs(&config);
+    }
+    uart_send_success("♟️ Starting Position Check DISABLED");
+    uart_send_formatted("   Game can start with any board setup");
+  } else {
+    uart_send_error("Invalid argument. Use 'STARTPOS ON' or 'STARTPOS OFF'");
+    return CMD_ERROR_INVALID_PARAMETER;
+  }
+
+  return CMD_SUCCESS;
+}
+
+// ============================================================================
 // COMMAND TABLE DEFINITION
 // ============================================================================
 
@@ -2613,6 +2674,14 @@ static const uart_command_t commands[] = {
      "",
      false,
      {"HIST", "MOVES", "GAME", "", ""}},
+
+    // Starting position check commands
+    {"STARTPOS",
+     uart_cmd_start_pos_check,
+     "Toggle starting position check",
+     "STARTPOS ON/OFF",
+     true,
+     {"POS_CHECK", "POS", "CHECK", "", ""}},
 
     // Debug commands
     {"SELF_TEST",
@@ -4061,9 +4130,12 @@ command_result_t uart_cmd_ble(const char *args) {
   uart_send_formatted("");
   uart_send_formatted("UUIDs (128-bit, viz CZECHMATEBLEUUIDs.swift):");
   uart_send_formatted("  Service   A0B40001-9267-4AB6-BDCC-E8336F8A8D9E");
-  uart_send_formatted("  Snapshot  A0B40002-9267-4AB6-BDCC-E8336F8A8D9E  (READ+NOTIFY)");
-  uart_send_formatted("  Command   A0B40003-9267-4AB6-BDCC-E8336F8A8D9E  (WRITE)");
-  uart_send_formatted("Notifikace snapshotu: po subscribe + změně hry (czechmate_on_game_state_changed).");
+  uart_send_formatted(
+      "  Snapshot  A0B40002-9267-4AB6-BDCC-E8336F8A8D9E  (READ+NOTIFY)");
+  uart_send_formatted(
+      "  Command   A0B40003-9267-4AB6-BDCC-E8336F8A8D9E  (WRITE)");
+  uart_send_formatted("Notifikace snapshotu: po subscribe + změně hry "
+                      "(czechmate_on_game_state_changed).");
   uart_send_formatted("Detail: HELP APP");
   uart_send_formatted(
       "═══════════════════════════════════════════════════════════════");
@@ -5198,7 +5270,8 @@ esp_err_t uart_check_memory_health(void) {
   size_t free_heap = esp_get_free_heap_size();
   size_t min_free_heap = esp_get_minimum_free_heap_size();
 
-  /* ESP32-C6 + WiFi + BLE + HTTP: běžně ~15–30 KiB volných — nebrat jako chybu */
+  /* ESP32-C6 + WiFi + BLE + HTTP: běžně ~15–30 KiB volných — nebrat jako chybu
+   */
   enum {
     heap_critical = 5120,
     heap_warning = 12288,
@@ -7487,7 +7560,8 @@ void uart_task_legacy_loop(void) {
       uart_check_memory_health();
     }
 
-    /* Status řádku: při 1 ms smyčce = každých ~6 s (dřívější komentář „60 s“ byl nepřesný) */
+    /* Status řádku: při 1 ms smyčce = každých ~6 s (dřívější komentář „60 s“
+     * byl nepřesný) */
     if (loop_count % 6000 == 0) {
       ESP_LOGI(TAG, "UART Task Status: Commands=%lu, Errors=%lu", command_count,
                error_count);

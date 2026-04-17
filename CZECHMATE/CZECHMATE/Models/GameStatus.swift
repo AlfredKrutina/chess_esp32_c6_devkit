@@ -41,6 +41,10 @@ struct GameStatus: Decodable, Sendable {
     let lightG: Int?
     let lightB: Int?
     let autoLampTimeoutSec: Int?
+    /// Z NVS web UI prefs (`chessHintLimit`), injektované ve firmware do status JSON jako `chess_hint_limit`. `nil` = starší firmware / klíč chybí.
+    let chessHintLimit: Int?
+    /// Reed matice 0…63 během `board_setup_tutorial` / puzzle setup (stejné jako `/api/status`).
+    let matrixOccupied: [Int]?
 
     /// Hodiny běží jen v aktivní hře (firmware vrací např. „Active“).
     var isTimerRunning: Bool {
@@ -93,6 +97,97 @@ struct GameStatus: Decodable, Sendable {
         case lightG = "light_g"
         case lightB = "light_b"
         case autoLampTimeoutSec = "auto_lamp_timeout_sec"
+        case chessHintLimit = "chess_hint_limit"
+        case matrixOccupied = "matrix_occupied"
+    }
+
+    /// Po POST jasu / barvy někdy přijde snapshot s `light_state: false` dřív, než firmware doplní stav — sloučit s předchozím „zapnuto“.
+    func coalescingTransientLampOff(previousLampOn: GameStatus) -> GameStatus {
+        guard previousLampOn.lightState == true, lightState == false else { return self }
+        return GameStatus(
+            gameState: gameState,
+            currentPlayer: currentPlayer,
+            moveCount: moveCount,
+            whiteTime: whiteTime,
+            blackTime: blackTime,
+            inCheck: inCheck,
+            checkmate: checkmate,
+            stalemate: stalemate,
+            webLocked: webLocked,
+            internetConnected: internetConnected,
+            brightness: brightness ?? previousLampOn.brightness,
+            castlingInProgress: castlingInProgress,
+            gameEnd: gameEnd,
+            pieceLifted: pieceLifted,
+            errorState: errorState,
+            restoreState: restoreState,
+            boardSetupTutorial: boardSetupTutorial,
+            puzzle: puzzle,
+            guidedCaptureHintsEnabled: guidedCaptureHintsEnabled,
+            ledGuidanceLevel: ledGuidanceLevel,
+            matrixGuardActive: matrixGuardActive,
+            matrixGuardConflicts: matrixGuardConflicts,
+            matrixGuardLiftedLow: matrixGuardLiftedLow,
+            matrixGuardLiftedHigh: matrixGuardLiftedHigh,
+            matrixGuardDroppedLow: matrixGuardDroppedLow,
+            matrixGuardDroppedHigh: matrixGuardDroppedHigh,
+            lightMode: lightMode ?? previousLampOn.lightMode,
+            lightState: true,
+            lightR: lightR ?? previousLampOn.lightR,
+            lightG: lightG ?? previousLampOn.lightG,
+            lightB: lightB ?? previousLampOn.lightB,
+            autoLampTimeoutSec: autoLampTimeoutSec ?? previousLampOn.autoLampTimeoutSec,
+            chessHintLimit: chessHintLimit ?? previousLampOn.chessHintLimit,
+            matrixOccupied: matrixOccupied ?? previousLampOn.matrixOccupied
+        )
+    }
+
+    /// Po převrácení řádků `board` ve snímku (MCU a1↓ → rank 8 nahoře): `piece_lifted.row` z ESP je v souřadnicích MCU.
+    func withPieceLiftedRowMirroredVertically() -> GameStatus {
+        guard let pl = pieceLifted, pl.lifted else { return self }
+        let mirrored = PieceLifted(
+            lifted: pl.lifted,
+            row: 7 - pl.row,
+            col: pl.col,
+            piece: pl.piece,
+            notation: pl.notation
+        )
+        return GameStatus(
+            gameState: gameState,
+            currentPlayer: currentPlayer,
+            moveCount: moveCount,
+            whiteTime: whiteTime,
+            blackTime: blackTime,
+            inCheck: inCheck,
+            checkmate: checkmate,
+            stalemate: stalemate,
+            webLocked: webLocked,
+            internetConnected: internetConnected,
+            brightness: brightness,
+            castlingInProgress: castlingInProgress,
+            gameEnd: gameEnd,
+            pieceLifted: mirrored,
+            errorState: errorState,
+            restoreState: restoreState,
+            boardSetupTutorial: boardSetupTutorial,
+            puzzle: puzzle,
+            guidedCaptureHintsEnabled: guidedCaptureHintsEnabled,
+            ledGuidanceLevel: ledGuidanceLevel,
+            matrixGuardActive: matrixGuardActive,
+            matrixGuardConflicts: matrixGuardConflicts,
+            matrixGuardLiftedLow: matrixGuardLiftedLow,
+            matrixGuardLiftedHigh: matrixGuardLiftedHigh,
+            matrixGuardDroppedLow: matrixGuardDroppedLow,
+            matrixGuardDroppedHigh: matrixGuardDroppedHigh,
+            lightMode: lightMode,
+            lightState: lightState,
+            lightR: lightR,
+            lightG: lightG,
+            lightB: lightB,
+            autoLampTimeoutSec: autoLampTimeoutSec,
+            chessHintLimit: chessHintLimit,
+            matrixOccupied: matrixOccupied
+        )
     }
 }
 

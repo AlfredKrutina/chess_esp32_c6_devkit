@@ -1,0 +1,603 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru game_led_animations.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.4.0</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Hledat',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('game__led__animations_8h.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Dokumentace souboru game_led_animations.h</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>ESP32-C6 Chess System - Advanced LED Animations Header.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;esp_err.h&quot;</code><br />
+<code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
+<code>#include &quot;freertos/timers.h&quot;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro game_led_animations.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="game__led__animations_8h__incl.png" border="0" usemap="#agame__led__animations_8h" loading="lazy" alt=""/></div>
+<map name="agame__led__animations_8h" id="agame__led__animations_8h">
+<area shape="rect" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="250,5,408,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,80,105"/>
+<area shape="poly" title=" " alt="" coords="281,34,95,80,94,75,280,29"/>
+<area shape="rect" title=" " alt="" coords="104,79,248,105"/>
+<area shape="poly" title=" " alt="" coords="306,31,216,75,215,70,301,32"/>
+<area shape="rect" title=" " alt="" coords="271,79,387,105"/>
+<area shape="poly" title=" " alt="" coords="331,29,331,65,327,62,327,33"/>
+<area shape="rect" title=" " alt="" coords="412,79,476,105"/>
+<area shape="poly" title=" " alt="" coords="349,29,414,71,409,70,348,34"/>
+<area shape="rect" title=" " alt="" coords="500,79,574,105"/>
+<area shape="poly" title=" " alt="" coords="365,29,490,73,485,74,364,34"/>
+</map>
+</div>
+</div>
+<p><a href="game__led__animations_8h_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Datové struktury</h2></td></tr>
+<tr class="memitem:rgb_5Fcolor_5Ft" id="r_rgb_5Fcolor_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structrgb__color__t.html">rgb_color_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">RGB barva.  <a href="structrgb__color__t.html#details">...</a><br /></td></tr>
+<tr class="memitem:wave_5Ft" id="r_wave_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structwave__t.html">wave_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stav jedné vlny.  <a href="structwave__t.html#details">...</a><br /></td></tr>
+<tr class="memitem:wave_5Fanimation_5Fstate_5Ft" id="r_wave_5Fanimation_5Fstate_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structwave__animation__state__t.html">wave_animation_state_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stav vlnové animace.  <a href="structwave__animation__state__t.html#details">...</a><br /></td></tr>
+<tr class="memitem:firework_5Ft" id="r_firework_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfirework__t.html">firework_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stav ohňostroje.  <a href="structfirework__t.html#details">...</a><br /></td></tr>
+<tr class="memitem:subtle_5Fanimation_5Fstate_5Ft" id="r_subtle_5Fanimation_5Fstate_5Ft"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsubtle__animation__state__t.html">subtle_animation_state_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stav jemné animace.  <a href="structsubtle__animation__state__t.html#details">...</a><br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-define-members" class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:a1767d604401a9b047932166494ed7b9e" id="r_a1767d604401a9b047932166494ed7b9e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1767d604401a9b047932166494ed7b9e">MAX_WAVES</a>&#160;&#160;&#160;5</td></tr>
+<tr class="memitem:ad146c422c93828b517dc1801a40ca01f" id="r_ad146c422c93828b517dc1801a40ca01f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad146c422c93828b517dc1801a40ca01f">MAX_FIREWORKS</a>&#160;&#160;&#160;6</td></tr>
+<tr class="memitem:aff587ca038d004104b274391cb221113" id="r_aff587ca038d004104b274391cb221113"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aff587ca038d004104b274391cb221113">init_endgame_animation_system</a>()</td></tr>
+<tr class="memdesc:aff587ca038d004104b274391cb221113"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias pro kompatibilitu s existujícím kódem.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-enum-members" class="groupheader"><a id="enum-members" name="enum-members"></a>
+Výčty</h2></td></tr>
+<tr class="memitem:a30603ef39ed3a32a5ae1be1274874159" id="r_a30603ef39ed3a32a5ae1be1274874159"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a> { <br />
+&#160;&#160;<a class="el" href="#a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757">ENDGAME_ANIM_VICTORY_WAVE</a> = 1
+, <a class="el" href="#a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6">ENDGAME_ANIM_VICTORY_CIRCLES</a> = 2
+, <a class="el" href="#a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415">ENDGAME_ANIM_VICTORY_CASCADE</a> = 3
+, <a class="el" href="#a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37">ENDGAME_ANIM_VICTORY_FIREWORKS</a> = 4
+, <br />
+&#160;&#160;<a class="el" href="#a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99">ENDGAME_ANIM_VICTORY_CROWN</a> = 5
+, <a class="el" href="#a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9">ENDGAME_ANIM_MAX</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:a30603ef39ed3a32a5ae1be1274874159"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typy endgame animací  <a href="#a30603ef39ed3a32a5ae1be1274874159">...</a><br /></td></tr>
+<tr class="memitem:aaf8aea34899d30734001c2e6a651bc08" id="r_aaf8aea34899d30734001c2e6a651bc08"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a> { <br />
+&#160;&#160;<a class="el" href="#aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03">SUBTLE_ANIM_GENTLE_WAVE</a> = 0
+, <a class="el" href="#aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0">SUBTLE_ANIM_WARM_GLOW</a> = 1
+, <a class="el" href="#aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4">SUBTLE_ANIM_COOL_PULSE</a> = 2
+, <a class="el" href="#aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf">SUBTLE_ANIM_WHITE_WINS</a> = 3
+, <br />
+&#160;&#160;<a class="el" href="#aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3">SUBTLE_ANIM_BLACK_WINS</a> = 4
+, <a class="el" href="#aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f">SUBTLE_ANIM_DRAW</a> = 5
+<br />
+ }</td></tr>
+<tr class="memdesc:aaf8aea34899d30734001c2e6a651bc08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typy jemných animací  <a href="#aaf8aea34899d30734001c2e6a651bc08">...</a><br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a9c35ac742c83bf78240d93599dd54556" id="r_a9c35ac742c83bf78240d93599dd54556"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9c35ac742c83bf78240d93599dd54556">game_led_animations_init</a> (void)</td></tr>
+<tr class="memdesc:a9c35ac742c83bf78240d93599dd54556"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializace animačního systému.  <br /></td></tr>
+<tr class="memitem:a512b0ba5745a638b00545a16423c4e17" id="r_a512b0ba5745a638b00545a16423c4e17"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a512b0ba5745a638b00545a16423c4e17">start_endgame_animation</a> (<a class="el" href="#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a> animation_type, uint8_t king_position)</td></tr>
+<tr class="memdesc:a512b0ba5745a638b00545a16423c4e17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spuštění endgame animace.  <br /></td></tr>
+<tr class="memitem:ad8316144bc70b897342c47d341b52b5b" id="r_ad8316144bc70b897342c47d341b52b5b"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad8316144bc70b897342c47d341b52b5b">stop_endgame_animation</a> (void)</td></tr>
+<tr class="memdesc:ad8316144bc70b897342c47d341b52b5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastavení endgame animace.  <br /></td></tr>
+<tr class="memitem:abc332d95d86dbce7893f640161167edb" id="r_abc332d95d86dbce7893f640161167edb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abc332d95d86dbce7893f640161167edb">is_endgame_animation_running</a> (void)</td></tr>
+<tr class="memdesc:abc332d95d86dbce7893f640161167edb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kontrola zda běží endgame animace.  <br /></td></tr>
+<tr class="memitem:a657e1bb5d40ff05278f1fd817295a34b" id="r_a657e1bb5d40ff05278f1fd817295a34b"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a657e1bb5d40ff05278f1fd817295a34b">get_endgame_animation_name</a> (<a class="el" href="#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a> animation_type)</td></tr>
+<tr class="memdesc:a657e1bb5d40ff05278f1fd817295a34b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Získání názvu animace.  <br /></td></tr>
+<tr class="memitem:ac3099afed7bffbea6eaba00603a015a9" id="r_ac3099afed7bffbea6eaba00603a015a9"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac3099afed7bffbea6eaba00603a015a9">start_subtle_piece_animation</a> (uint8_t piece_position, <a class="el" href="#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a> anim_type)</td></tr>
+<tr class="memdesc:ac3099afed7bffbea6eaba00603a015a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spuštění jemné animace pro figurku.  <br /></td></tr>
+<tr class="memitem:abb3b14cd5eb31a70450c0a404902e4e0" id="r_abb3b14cd5eb31a70450c0a404902e4e0"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abb3b14cd5eb31a70450c0a404902e4e0">start_subtle_button_animation</a> (uint8_t button_id, <a class="el" href="#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a> anim_type)</td></tr>
+<tr class="memdesc:abb3b14cd5eb31a70450c0a404902e4e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spuštění jemné animace pro tlačítko.  <br /></td></tr>
+<tr class="memitem:a7d2e178a6334fe293dd266e15b194ceb" id="r_a7d2e178a6334fe293dd266e15b194ceb"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7d2e178a6334fe293dd266e15b194ceb">stop_all_subtle_animations</a> (void)</td></tr>
+<tr class="memdesc:a7d2e178a6334fe293dd266e15b194ceb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastavení všech jemných animací  <br /></td></tr>
+<tr class="memitem:acb38fb824c92dc6d289f623bc15fcac6" id="r_acb38fb824c92dc6d289f623bc15fcac6"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acb38fb824c92dc6d289f623bc15fcac6">activate_subtle_animations_for_movable_pieces</a> (uint8_t *movable_positions, uint8_t count)</td></tr>
+<tr class="memdesc:acb38fb824c92dc6d289f623bc15fcac6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktivace jemných animací pro pohyblivé figurky.  <br /></td></tr>
+<tr class="memitem:ae9a2e770a4936e32e42c67ebb236ce01" id="r_ae9a2e770a4936e32e42c67ebb236ce01"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae9a2e770a4936e32e42c67ebb236ce01">activate_subtle_animations_for_buttons</a> (uint8_t *available_buttons, uint8_t count)</td></tr>
+<tr class="memdesc:ae9a2e770a4936e32e42c67ebb236ce01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktivace jemných animací pro dostupná tlačítka.  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>ESP32-C6 Chess System - Advanced LED Animations Header. </p>
+<p>Header pro pokročilé LED animace s kompletním API</p>
+<p>Author: Alfred Krutina Version: 2.5 - ADVANCED ANIMATIONS Date: 2025-09-04 </p>
+
+<p class="definition">Definice v souboru <a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>.</p>
+</div><a name="doc-define-members" id="doc-define-members"></a><h2 id="header-doc-define-members" class="groupheader">Dokumentace definic maker</h2>
+<a id="aff587ca038d004104b274391cb221113" name="aff587ca038d004104b274391cb221113"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff587ca038d004104b274391cb221113">&#9670;&#160;</a></span>init_endgame_animation_system</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define init_endgame_animation_system</td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Hodnota:</b><div class="fragment"><div class="line"><a class="code hl_function" href="game__led__animations_8c.html#a9c35ac742c83bf78240d93599dd54556">game_led_animations_init</a>()</div>
+<div class="ttc" id="agame__led__animations_8c_html_a9c35ac742c83bf78240d93599dd54556"><div class="ttname"><a href="game__led__animations_8c.html#a9c35ac742c83bf78240d93599dd54556">game_led_animations_init</a></div><div class="ttdeci">esp_err_t game_led_animations_init(void)</div><div class="ttdoc">Inicializace animačního systému.</div><div class="ttdef"><b>Definition</b> <a href="game__led__animations_8c_source.html#l00609">game_led_animations.c:609</a></div></div>
+</div><!-- fragment -->
+<p>Alias pro kompatibilitu s existujícím kódem. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8h_source.html#l00206">206</a> v souboru <a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>.</p>
+
+</div>
+</div>
+<a id="ad146c422c93828b517dc1801a40ca01f" name="ad146c422c93828b517dc1801a40ca01f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad146c422c93828b517dc1801a40ca01f">&#9670;&#160;</a></span>MAX_FIREWORKS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MAX_FIREWORKS&#160;&#160;&#160;6</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8h_source.html#l00030">30</a> v souboru <a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>.</p>
+
+</div>
+</div>
+<a id="a1767d604401a9b047932166494ed7b9e" name="a1767d604401a9b047932166494ed7b9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1767d604401a9b047932166494ed7b9e">&#9670;&#160;</a></span>MAX_WAVES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MAX_WAVES&#160;&#160;&#160;5</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8h_source.html#l00029">29</a> v souboru <a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>.</p>
+
+</div>
+</div>
+<a name="doc-enum-members" id="doc-enum-members"></a><h2 id="header-doc-enum-members" class="groupheader">Dokumentace výčtových typů</h2>
+<a id="a30603ef39ed3a32a5ae1be1274874159" name="a30603ef39ed3a32a5ae1be1274874159"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30603ef39ed3a32a5ae1be1274874159">&#9670;&#160;</a></span>endgame_animation_type_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typy endgame animací </p>
+<table class="fieldtable">
+<tr><th colspan="2">Hodnoty výčtu</th></tr><tr><td class="fieldname"><a id="a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757" name="a30603ef39ed3a32a5ae1be1274874159a7559cb124fcc149b6ba6375635c70757"></a>ENDGAME_ANIM_VICTORY_WAVE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6" name="a30603ef39ed3a32a5ae1be1274874159a79de3a208cf30fd7a25d2232fdcdfde6"></a>ENDGAME_ANIM_VICTORY_CIRCLES&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415" name="a30603ef39ed3a32a5ae1be1274874159a25765c0de51d15b25fa32fb63a71a415"></a>ENDGAME_ANIM_VICTORY_CASCADE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37" name="a30603ef39ed3a32a5ae1be1274874159a53c907e548a6c685bad62bfe17a88f37"></a>ENDGAME_ANIM_VICTORY_FIREWORKS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99" name="a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99"></a>ENDGAME_ANIM_VICTORY_CROWN&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9" name="a30603ef39ed3a32a5ae1be1274874159a2e296498d5b85c7d2d71fbd804fc78d9"></a>ENDGAME_ANIM_MAX&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8h_source.html#l00039">39</a> v souboru <a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>.</p>
+
+</div>
+</div>
+<a id="aaf8aea34899d30734001c2e6a651bc08" name="aaf8aea34899d30734001c2e6a651bc08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf8aea34899d30734001c2e6a651bc08">&#9670;&#160;</a></span>subtle_anim_type_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typy jemných animací </p>
+<table class="fieldtable">
+<tr><th colspan="2">Hodnoty výčtu</th></tr><tr><td class="fieldname"><a id="aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03" name="aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03"></a>SUBTLE_ANIM_GENTLE_WAVE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0" name="aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0"></a>SUBTLE_ANIM_WARM_GLOW&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4" name="aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4"></a>SUBTLE_ANIM_COOL_PULSE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf" name="aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf"></a>SUBTLE_ANIM_WHITE_WINS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3" name="aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3"></a>SUBTLE_ANIM_BLACK_WINS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f" name="aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f"></a>SUBTLE_ANIM_DRAW&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8h_source.html#l00051">51</a> v souboru <a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>.</p>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Dokumentace funkcí</h2>
+<a id="ae9a2e770a4936e32e42c67ebb236ce01" name="ae9a2e770a4936e32e42c67ebb236ce01"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9a2e770a4936e32e42c67ebb236ce01">&#9670;&#160;</a></span>activate_subtle_animations_for_buttons()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t activate_subtle_animations_for_buttons </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>available_buttons</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>count</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Aktivace jemných animací pro dostupná tlačítka. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">available_buttons</td><td>Pole dostupných tlačítek </td></tr>
+    <tr><td class="paramname">count</td><td>Počet tlačítek </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+
+</div>
+</div>
+<a id="acb38fb824c92dc6d289f623bc15fcac6" name="acb38fb824c92dc6d289f623bc15fcac6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb38fb824c92dc6d289f623bc15fcac6">&#9670;&#160;</a></span>activate_subtle_animations_for_movable_pieces()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t activate_subtle_animations_for_movable_pieces </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>movable_positions</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>count</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Aktivace jemných animací pro pohyblivé figurky. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">movable_positions</td><td>Pole pozic pohyblivých figur </td></tr>
+    <tr><td class="paramname">count</td><td>Počet pozic </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+
+</div>
+</div>
+<a id="a9c35ac742c83bf78240d93599dd54556" name="a9c35ac742c83bf78240d93599dd54556"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c35ac742c83bf78240d93599dd54556">&#9670;&#160;</a></span>game_led_animations_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_led_animations_init </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializace animačního systému. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, error kód při selhání </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00609">609</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+
+</div>
+</div>
+<a id="a657e1bb5d40ff05278f1fd817295a34b" name="a657e1bb5d40ff05278f1fd817295a34b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a657e1bb5d40ff05278f1fd817295a34b">&#9670;&#160;</a></span>get_endgame_animation_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * get_endgame_animation_name </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a></td>          <td class="paramname"><span class="paramname"><em>animation_type</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Získání názvu animace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">animation_type</td><td>Typ animace </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Název animace jako string </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00709">709</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+
+</div>
+</div>
+<a id="abc332d95d86dbce7893f640161167edb" name="abc332d95d86dbce7893f640161167edb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc332d95d86dbce7893f640161167edb">&#9670;&#160;</a></span>is_endgame_animation_running()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool is_endgame_animation_running </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Kontrola zda běží endgame animace. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud běží animace </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00705">705</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+
+</div>
+</div>
+<a id="a512b0ba5745a638b00545a16423c4e17" name="a512b0ba5745a638b00545a16423c4e17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a512b0ba5745a638b00545a16423c4e17">&#9670;&#160;</a></span>start_endgame_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t start_endgame_animation </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="#a30603ef39ed3a32a5ae1be1274874159">endgame_animation_type_t</a></td>          <td class="paramname"><span class="paramname"><em>animation_type</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>king_position</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spuštění endgame animace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">animation_type</td><td>Typ animace (1-5) </td></tr>
+    <tr><td class="paramname">king_position</td><td>Pozice vítězného krále (0-63) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, error kód při selhání </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00653">653</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+
+</div>
+</div>
+<a id="abb3b14cd5eb31a70450c0a404902e4e0" name="abb3b14cd5eb31a70450c0a404902e4e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb3b14cd5eb31a70450c0a404902e4e0">&#9670;&#160;</a></span>start_subtle_button_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t start_subtle_button_animation </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>button_id</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a></td>          <td class="paramname"><span class="paramname"><em>anim_type</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spuštění jemné animace pro tlačítko. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">button_id</td><td>ID tlačítka (0-8) </td></tr>
+    <tr><td class="paramname">anim_type</td><td>Typ jemné animace </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, error kód při selhání </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00465">465</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+
+</div>
+</div>
+<a id="ac3099afed7bffbea6eaba00603a015a9" name="ac3099afed7bffbea6eaba00603a015a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3099afed7bffbea6eaba00603a015a9">&#9670;&#160;</a></span>start_subtle_piece_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t start_subtle_piece_animation </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>piece_position</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="#aaf8aea34899d30734001c2e6a651bc08">subtle_anim_type_t</a></td>          <td class="paramname"><span class="paramname"><em>anim_type</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spuštění jemné animace pro figurku. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">piece_position</td><td>Pozice figurky (0-63) </td></tr>
+    <tr><td class="paramname">anim_type</td><td>Typ jemné animace </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, error kód při selhání </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00448">448</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+
+</div>
+</div>
+<a id="a7d2e178a6334fe293dd266e15b194ceb" name="a7d2e178a6334fe293dd266e15b194ceb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d2e178a6334fe293dd266e15b194ceb">&#9670;&#160;</a></span>stop_all_subtle_animations()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stop_all_subtle_animations </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zastavení všech jemných animací </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00720">720</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+
+</div>
+</div>
+<a id="ad8316144bc70b897342c47d341b52b5b" name="ad8316144bc70b897342c47d341b52b5b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8316144bc70b897342c47d341b52b5b">&#9670;&#160;</a></span>stop_endgame_animation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stop_endgame_animation </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zastavení endgame animace. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__led__animations_8c_source.html#l00689">689</a> v souboru <a class="el" href="game__led__animations_8c_source.html">game_led_animations.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a href="dir_1181698f7cc37b6be6aee502a0a15bc1.html">game_led_animations</a></li><li class="navelem"><a href="dir_8469098ac891347999a5a46e0fb7673a.html">include</a></li><li class="navelem"><a href="game__led__animations_8h.html">game_led_animations.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

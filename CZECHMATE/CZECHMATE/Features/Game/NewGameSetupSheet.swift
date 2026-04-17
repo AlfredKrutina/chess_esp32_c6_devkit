@@ -9,10 +9,10 @@ struct NewGameSetupSheet: View {
     @Environment(BoardConnectionStore.self) private var store
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedPreset: ChessTimeControlPreset? = .blitz5_0
-    @State private var customMinutes: Int = 10
-    @State private var customIncrement: Int = 5
-    @State private var mode: SetupMode = .preset
+    @State private var selectedPreset: ChessTimeControlPreset?
+    @State private var customMinutes: Int
+    @State private var customIncrement: Int
+    @State private var mode: SetupMode
     @State private var isWorking = false
     @State private var errorText: String?
     @State private var showConfirmNewGame = false
@@ -22,10 +22,40 @@ struct NewGameSetupSheet: View {
         case custom = "Vlastní"
     }
 
+    init() {
+        if let saved = LastNewGameTimeSelection.load() {
+            switch saved {
+            case .presetChoice(let p):
+                _selectedPreset = State(initialValue: p)
+                _mode = State(initialValue: .preset)
+                _customMinutes = State(initialValue: 10)
+                _customIncrement = State(initialValue: 5)
+            case .customChoice(let m, let inc):
+                _selectedPreset = State(initialValue: .no_time_limit)
+                _mode = State(initialValue: .custom)
+                _customMinutes = State(initialValue: m)
+                _customIncrement = State(initialValue: inc)
+            }
+        } else {
+            _selectedPreset = State(initialValue: .no_time_limit)
+            _mode = State(initialValue: .preset)
+            _customMinutes = State(initialValue: 10)
+            _customIncrement = State(initialValue: 5)
+        }
+        _isWorking = State(initialValue: false)
+        _errorText = State(initialValue: nil)
+        _showConfirmNewGame = State(initialValue: false)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Spacing.l) {
+                    Text("Stejné předvolby času a vlastní nastavení (typ 14) jako na webovém rozhraní šachovnice — odešle se na desku a spustí novou partii.")
+                        .font(Theme.Typography.caption())
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
                     Picker("Režim", selection: $mode) {
                         ForEach(SetupMode.allCases, id: \.self) { m in
                             Text(m.rawValue).tag(m)
@@ -47,27 +77,23 @@ struct NewGameSetupSheet: View {
                         }
                     }
 
-                    Button {
-                        if store.boardUIPrefsPayload.chess_confirm_new_game {
-                            showConfirmNewGame = true
-                        } else {
-                            Task { await startGame() }
-                        }
-                    } label: {
-                        if isWorking {
-                            ProgressView()
-                                .frame(maxWidth: .infinity)
-                        } else {
-                            Text("Začít hru")
-                                .frame(maxWidth: .infinity)
+                    if store.isBluetoothOnlyBoardPath {
+                        ThemedBanner(style: .neutral) {
+                            Text(
+                                "Přes Bluetooth se pošle nastavení času i nová hra (stejná logika jako přes Wi‑Fi). "
+                                    + "Hodiny v aplikaci berou čas z posledního snímku (`clock` v JSON z desky), ne z samostatného HTTP — u novějšího firmwaru běží odpočet i bez Wi‑Fi k šachovnici."
+                            )
+                            .font(Theme.Typography.caption())
+                            .foregroundStyle(.secondary)
                         }
                     }
-                    .buttonStyle(.themePrimary)
-                    .disabled(isWorking || !store.supportsWiFiRemoteCommands)
                 }
                 .padding(Theme.Spacing.l)
             }
             .background(Color(uiColor: .systemGroupedBackground))
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                startGameFloatingBar
+            }
             .navigationTitle("Nová hra")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -84,6 +110,45 @@ struct NewGameSetupSheet: View {
             } message: {
                 Text("Aktuální partie na desce se přepíše novou hrou s vybraným časem.")
             }
+        }
+        .task {
+            await store.cancelBoardSetupWizardIfActive()
+        }
+    }
+
+    /// Přilepený spodek sheetu — „Začít hru“ je vždy po ruce bez rolování dlouhého obsahu.
+    private var startGameFloatingBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+                .opacity(0.4)
+            VStack(spacing: Theme.Spacing.s) {
+                Button {
+                    if store.boardUIPrefsPayload.chess_confirm_new_game {
+                        showConfirmNewGame = true
+                    } else {
+                        Task { await startGame() }
+                    }
+                } label: {
+                    if isWorking {
+                        ProgressView()
+                            .tint(.white)
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Text("Začít hru")
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .buttonStyle(.themePrimary)
+                .disabled(isWorking || !store.supportsRemoteChessCommands)
+            }
+            .padding(.horizontal, Theme.Spacing.l)
+            .padding(.top, Theme.Spacing.m)
+            .padding(.bottom, Theme.Spacing.m)
+            .frame(maxWidth: .infinity)
+        }
+        .background {
+            Color(uiColor: .systemGroupedBackground)
+                .ignoresSafeArea(edges: .bottom)
         }
     }
 

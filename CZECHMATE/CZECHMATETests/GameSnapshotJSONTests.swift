@@ -46,6 +46,7 @@ final class GameSnapshotJSONTests: XCTestCase {
         XCTAssertEqual(snap.status.errorState?.active, false)
         XCTAssertEqual(snap.status.matrixGuardActive, false)
         XCTAssertEqual(snap.status.lightMode, "game")
+        XCTAssertEqual(snap.status.chessHintLimit, 3)
     }
 
     func testDecodeClockFromSnapshot() throws {
@@ -126,6 +127,85 @@ final class GameSnapshotJSONTests: XCTestCase {
         XCTAssertEqual(snap.history.moves[0].to, "e4")
     }
 
+    /// MCU `game_get_board_json`: řádek 0 = a1–h1 (bílá). Po dekódování musí být jako golden (rank 8 nahoře) a e2–e4 legální.
+    func testFirmwareBoardRowsNormalizeForLocalMoveValidation() throws {
+        let whiteBack = ["R", "N", "B", "Q", "K", "B", "N", "R"]
+        let blackBack = ["r", "n", "b", "q", "k", "b", "n", "r"]
+        var rows: [[String]] = []
+        rows.append(whiteBack)
+        rows.append((0 ..< 8).map { _ in "P" })
+        for _ in 2 ..< 6 {
+            rows.append(Array(repeating: " ", count: 8))
+        }
+        rows.append((0 ..< 8).map { _ in "p" })
+        rows.append(blackBack)
+        let root: [String: Any] = [
+            "state_version": 9,
+            "board": rows,
+            "timestamp": 1,
+            "status": [
+                "game_state": "active",
+                "current_player": "White",
+                "move_count": 0,
+                "in_check": false,
+                "game_end": ["ended": false],
+            ] as [String: Any],
+            "history": ["moves": []],
+            "captured": [
+                "white_captured": [String](),
+                "black_captured": [String](),
+            ],
+        ]
+        let data = try JSONSerialization.data(withJSONObject: root)
+        let snap = try GameSnapshot.decodeFromBoardDataRepairingAndNormalizing(data)
+        XCTAssertEqual(snap.board[0][0].trimmingCharacters(in: .whitespaces), "r")
+        XCTAssertEqual(snap.board[7][4].trimmingCharacters(in: .whitespaces), "K")
+        let block = RemoteChessMoveLegality.validate(snapshot: snap, from: "e2", to: "e4", promotion: nil)
+        XCTAssertNil(block, "Očekáván legální první tah bílého po normalizaci řádků")
+    }
+
+    /// Po převrácení řádků musí `piece_lifted.row` odpovídat kanonické mřížce (MCU řádek 1 → řádek 6).
+    func testFirmwareNormalizationMirrorsPieceLiftedRow() throws {
+        let whiteBack = ["R", "N", "B", "Q", "K", "B", "N", "R"]
+        let blackBack = ["r", "n", "b", "q", "k", "b", "n", "r"]
+        var rows: [[String]] = []
+        rows.append(whiteBack)
+        rows.append((0 ..< 8).map { _ in "P" })
+        for _ in 2 ..< 6 {
+            rows.append(Array(repeating: " ", count: 8))
+        }
+        rows.append((0 ..< 8).map { _ in "p" })
+        rows.append(blackBack)
+        let root: [String: Any] = [
+            "state_version": 9,
+            "board": rows,
+            "timestamp": 1,
+            "status": [
+                "game_state": "active",
+                "current_player": "White",
+                "move_count": 0,
+                "in_check": false,
+                "game_end": ["ended": false],
+                "piece_lifted": [
+                    "lifted": true,
+                    "row": 1,
+                    "col": 4,
+                    "piece": "P",
+                    "notation": "e2",
+                ],
+            ] as [String: Any],
+            "history": ["moves": []],
+            "captured": [
+                "white_captured": [String](),
+                "black_captured": [String](),
+            ],
+        ]
+        let data = try JSONSerialization.data(withJSONObject: root)
+        let snap = try GameSnapshot.decodeFromBoardDataRepairingAndNormalizing(data)
+        XCTAssertEqual(snap.status.pieceLifted?.row, 6)
+        XCTAssertEqual(snap.status.pieceLifted?.col, 4)
+    }
+
     private static let goldenRepresentativeJSON: String = """
     {
       "state_version": 1,
@@ -204,7 +284,8 @@ final class GameSnapshotJSONTests: XCTestCase {
         "light_r": 255,
         "light_g": 255,
         "light_b": 255,
-        "auto_lamp_timeout_sec": 300
+        "auto_lamp_timeout_sec": 300,
+        "chess_hint_limit": 3
       },
       "history": {
         "moves": []

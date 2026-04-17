@@ -49,6 +49,9 @@ CONFIG_BT_NIMBLE_ENABLED=y
 # Větší MSYS pool — při AP/STA + HTTP může default nestačit na ATT; pomáhá proti „0 služeb“ na iOS.
 CONFIG_BT_NIMBLE_MSYS_1_BLOCK_COUNT=32
 CONFIG_BT_NIMBLE_MSYS_2_BLOCK_COUNT=32
+# Host task: default 4096 nestačí — GATT read snapshotu volá build_snapshot (clock_json ~1 KiB na stacku)
+# + NimBLE/HS + coexistence → Guru Meditation „Stack protection fault“ v nimble_host (viz log).
+CONFIG_BT_NIMBLE_HOST_TASK_STACK_SIZE=8192
 
 # WiFi + BLE na jednom čipu (nutné pro stabilní provoz obojího).
 CONFIG_ESP_COEX_ENABLED=y

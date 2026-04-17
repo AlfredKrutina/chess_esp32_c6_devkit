@@ -1,0 +1,21 @@
+Quick NVS map (firmware + web)
+
+chess_config (namespace):
+  verbose, quiet, guided_hint, log_level, timeout, echo, brightness  -> system_config_t
+  g_snap_full, g_snap_min  -> game snapshots
+  g_boot_trk               -> boot tracker
+  ui_prefs_v1              -> web UI JSON (see nvs_ui_prefs_schema.txt)
+
+timer: timer_system namespace (see timer_system.c)
+
+wifi_chess / web / mqtt / lamp: see web_server_task.c and ha_light_task.c
+
+Factory reset (celý NVS oddíl + restart):
+- POST /api/system/factory_reset  JSON: {"confirm":"erase_all_nvs"}  (nezávislé na web lock)
+- BLE JSON: {"cmd":"factory_reset","confirm":"erase_all_nvs"}
+- Implementace: esp_partition_erase_range na data/nvs, pak esp_restart()
+
+Manual QA (plan):
+- Boot: uložená partie v NVS → dva restarty bez tahu v okně 60 s → stále obnova (game_nvs_has_valid_snapshot).
+- Web: GET/POST /api/settings/ui, při locku POST zamítnut.
+- Timer: výběr v UI odpovídá /api/timer po načtení (bez chess_time_control v localStorage).

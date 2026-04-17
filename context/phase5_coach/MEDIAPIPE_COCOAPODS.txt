@@ -1,0 +1,14 @@
+MediaPipe LLM Inference (Gemma 2B .bin) — CZECHMATE
+=====================================================
+
+Google AI Edge distribuuje iOS knihovnu jako CocoaPods: MediaPipeTasksGenAI + MediaPipeTasksGenAIC.
+Swift Package „MediaPipeTasksGenai“ v dokumentaci odkazuje na stejný produkt; SPM URL v oficiálním návodu není.
+
+Postup:
+1) cd CZECHMATE && pod install
+2) Otevři CZECHMATE.xcworkspace (ne .xcodeproj), aby se propojily Pods.
+3) Stáhni Gemma 2B IT kvantizovaný pro MediaPipe (.bin), např. z Kaggle podle AI Edge docs.
+4) Ulož soubor jako Application Support/ChessCoachModels/coach_gemma_mediapipe.bin (viz ModelDownloadManager).
+
+Bez CocoaPods se projekt při buildu z .xcodeproj složí s „prázdným“ stubem ChessGemmaInference (#if canImport(MediaPipeTasksGenAI));
+lokální LLM pak neběží — zůstane záložní mock v ChessCoachManager.

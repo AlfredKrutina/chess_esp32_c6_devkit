@@ -191,6 +191,11 @@ void game_reset_game(void);
 void game_start_new_game(void);
 
 /**
+ * @brief Nová hra z FEN (jen rozestavení + strana na tahu). Bez kontroly fyzické výchozí pozice.
+ */
+void game_start_new_game_from_fen(const char *fen);
+
+/**
  * @brief Monotónní verze stavu hry (ETag / If-None-Match na snapshotu).
  */
 uint32_t game_get_state_revision(void);
@@ -429,6 +434,12 @@ void game_set_guided_capture_hints_enabled(bool enabled);
  * @brief Vrátí stav LED nápovědy guided capture
  */
 bool game_get_guided_capture_hints_enabled(void);
+
+/**
+ * @brief Matrix: povolit druhé UP v řadě (oběť v ruce + útočník, nebo 3-krokové braní).
+ * @details Bez toho matrix_detect_moves() vyhodnotí stav jako ambiguous a zapne guard.
+ */
+bool game_matrix_allow_second_sequential_lift(void);
 
 /**
  * @brief Úroveň LED nápovědy při hře (1 = minimum … 5 = plná).
@@ -883,6 +894,24 @@ bool game_is_timer_active(void);
  * @return true pokud promoce ceka na dokonceni pro daneho hrace
  */
 bool game_is_promotion_available(player_t player);
+
+// ============================================================================
+// NASTAVENI HLÍDÁNÍ POČÁTEČNÍ POZICE
+// ============================================================================
+
+/**
+ * @brief Nastaví hlídání počáteční pozice
+ *
+ * @param enabled true pro zapnutí, false pro vypnutí
+ */
+void game_set_starting_position_check(bool enabled);
+
+/**
+ * @brief Vrací stav hlídání počáteční pozice
+ *
+ * @return true pokud je hlídání zapnuto, jinak false
+ */
+bool game_get_starting_position_check(void);
 
 #ifdef __cplusplus
 }
