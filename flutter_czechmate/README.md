@@ -1,14 +1,6 @@
-# Flutter CzechMate (`flutter_czechmate/`)
+# Flutter CzechMate
 
-Multiplatformní klient k projektu **CZECHMATE** (ESP32 šachovnice + webová vrstva). Dart balíček v `pubspec.yaml` je pojmenovaný `czechmate`; složka v repu zůstává `flutter_czechmate/`.
-
-## Stack
-
-- Flutter 3.x, **Riverpod**
-- **BLE:** `flutter_blue_plus`
-- **Síť:** `http`, `web_socket_channel` (komunikace s deskou přes HTTP/WS dle nasazení)
-- Šachová logika: balíček `chess`
-- Analýza / engine: integrace Stockfish přes API klienta v repu (viz `lib/core/services/`)
+Klient pro projekt **CZECHMATE** (ESP32 šachovnice). V gitu je hlavní mobilní klient tady; nativní Xcode projekt `CZECHMATE/` je záměrně mimo git.
 
 ## Spuštění
 
@@ -18,15 +10,12 @@ flutter pub get
 flutter run
 ```
 
-Vyžaduje nainstalovaný [Flutter SDK](https://docs.flutter.dev/get-started/install).
+## Stack
 
-## Oblasti v repu (orientace)
+Flutter 3.x, Riverpod, `flutter_blue_plus`, HTTP + případně WebSocket, balíček `chess` pro pravidla na zařízení.
 
-- `lib/features/game/` — hra, šachovnice, hodiny  
-- `lib/features/connection/` — BLE / session  
-- `lib/features/coach/` — AI trenér  
-- `lib/core/services/` — BLE, board API, prefs, live activity, hodinky, …  
-- **iOS:** rozšíření pro **Live Activities** (`ios/ChessLiveActivityExtension/`, `LiveActivityNativeController.swift`)  
-- **Android:** modul **Wear OS** (`android/wear/`), notifikace šachových hodin  
+## Dokumentace
 
-Podrobnosti k firmware a nativní iOS aplikaci: kořenový [`README.md`](../README.md), [`docs/reference/`](../docs/reference/), [`docs/diagrams/`](../docs/diagrams/).
+**Rozpis obrazovek, BLE vs HTTP, diagramy:** [`docs/flutter/README.md`](../docs/flutter/README.md)
+
+Mapa celého repa (firmware + Flutter): [`docs/README.md`](../docs/README.md)

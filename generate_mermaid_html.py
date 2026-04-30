@@ -122,7 +122,7 @@ def generate_html(sections, output_file):
     # Generovat obsah
     content_html = ['<main class="content">']
     content_html.append('<h1>CZECHMATE firmware — sekvenční diagramy</h1>')
-    content_html.append('<p class="intro">Knihovna sekvencí z <code>mermaid_diagrams.txt</code>. Přehledové grafy (tasky, boot, fronty, mutexy, BLE): soubor <strong>docs/diagrams/README.md</strong> v repozitáři (vedle tohoto HTML je i <a href="README.md">README.md</a> při lokálním prohlížení). Verze firmware: kořenový <code>CMakeLists.txt</code> → <code>PROJECT_VERSION</code>.</p>')
+    content_html.append('<p class="intro">Sekvence z <code>mermaid_diagrams.txt</code>. Obrázky tasků a front: <a href="README.md">README.md</a> ve stejné složce (nebo <code>docs/diagrams/README.md</code> v repu). Verze firmware je v kořenovém <code>CMakeLists.txt</code>.</p>')
     
     for section in sections:
         section_id = f"section-{section['letter'].lower()}"

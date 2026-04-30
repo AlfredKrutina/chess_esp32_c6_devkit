@@ -1,84 +1,51 @@
-# Diagramy — firmware CZECHMATE
+# Diagramy (firmware)
 
-Tato stránka je **rozcestník a rozšířený popis**: čísla tasků, front a mutexů sedí s [`freertos_chess.h`](../../components/freertos_chess/include/freertos_chess.h) a pořadím v [`main/main.c`](../../main/main.c). Detailní textové rozpití komunikace je v [**reference/KOMUNIKACE_MEZI_TASKY.md**](../reference/KOMUNIKACE_MEZI_TASKY.md).
+Čísla priorit, velikostí front a stacků najdeš v [`freertos_chess.h`](../../components/freertos_chess/include/freertos_chess.h). Pořadí startu tasků v [`main/main.c`](../../main/main.c). Když potřebuješ popsat komunikaci řádek po řádku, je tam [`reference/KOMUNIKACE_MEZI_TASKY.md`](../reference/KOMUNIKACE_MEZI_TASKY.md).
 
-| Artefakt | K čemu |
-|----------|--------|
-| **`sources/*.mmd`** | Zdroj pravdy pro obrázky · editovat a spustit `./scripts/render_docs.sh` |
-| **`*.svg` / `*.png`** (vedle tohoto README) | Stejné jméno jako `.mmd` — náhled v GitHubu i offline |
-| **`mermaid_diagrams.txt`** | 26+ **sekvenčních** diagramů → [`diagrams_mermaid.html`](diagrams_mermaid.html) |
-| **`main_flow_diagram.txt`** | Jedna dlouhá sekvence „celá smyčka“ pro ladění |
+Obrázky SVG ti vyrobí `./scripts/render_docs.sh` ze složky [`sources/`](sources/) (stejné jméno jako `.mmd`).
 
 ---
 
-## Obsah
+## Jak číst šipky
 
-Úvodní tabulky → inicializace → pořadí tasků a fronty → boot → hlavní / vedlejší fronty → mutexy → topologie → matice → komponenty → HTML knihovna.
-
----
-
-## 1. Konvence a čtení diagramů
-
-- **Plná šipka** mezi taskem a frontou obvykle znamená `xQueueSend` / producent vs. **spotřebitel** (`xQueueReceive`).  
-- **Čárkovaná šipka** = volitelná větev (`menuconfig`) nebo nepřímé volání API (např. BLE → sdílený dispatch ve web vrstvě).  
-- **`main_system_init()`** proběhne **dřív** než jakýkoli `xTaskCreate` z `create_system_tasks()` — včetně **`ble_task_init()`** (NimBLE host task).  
-- **`animation_task`** a **`matter_task`** jsou v `main.c` **zakomentované**; fronty pro animace mohou existovat, ale samostatný animační task se **nevytváří**.
+- Plná šipka na frontu = typicky někdo posílá (`xQueueSend`), druhý bere (`xQueueReceive`).
+- Čárkovaná = volitelné (menuconfig) nebo nepřímé volání (např. BLE přes funkce web vrstvy).
+- `main_system_init()` doběhne dřív než `create_system_tasks()` — včetně `ble_task_init()`.
+- `animation_task` a `matter_task` se v `main.c` nevytváří (zakomentované).
 
 ---
 
-## 2. Konstanty — tasky (priorita · stack)
+## Tasky — priorita a stack
 
-| Task | Priorita | Stack | Poznámka |
-|------|----------|-------|----------|
-| `led_task` | 7 | 8 KiB | WS2812B, batch, animace |
-| `matrix_task` | 6 | 4 KiB | Reed matice + příkazy z fronty |
-| `button_task` | 5 | 3 KiB | Multiplex tlačítek |
-| `game_task` | 4 | 6 KiB | Šachy, NVS, smyčka typicky **100 ms** |
-| `uart_task` | 3 | 5 KiB | Po boot animaci **resume** |
-| `web_server_task` | 3 | 20 KiB | WiFi + HTTP |
-| `ha_light_task` | 3 | 8 KiB | MQTT po WiFi STA |
-| `test_task` | 1 | 4 KiB | Jen **`CONFIG_CHESS_ENABLE_TEST_TASK`** |
-
----
-
-## 3. Konstanty — fronty
-
-| Konstanta | Hodnota | Typ zprávy (zjednodušeně) |
-|-----------|---------|---------------------------|
-| `GAME_QUEUE_SIZE` | 24 | Herní příkazy (`chess_move_command_t` …) |
-| `BUTTON_QUEUE_SIZE` | 5 | `button_event_t` |
-| `UART_QUEUE_SIZE` | 10 | UART vstupní řádky / `game_response_t` na výstupní frontě |
-| `MATRIX_QUEUE_SIZE` | 8 | Příkazy pro matrix |
-| `ANIMATION_QUEUE_SIZE` | 5 | API bez běžícího `animation_task` |
-| `WEB_SERVER_QUEUE_SIZE` | 10 | Web interní fronty |
-| `SCREEN_SAVER_QUEUE_SIZE` | 3 | Rezerva |
-| `TEST_COMMAND_QUEUE_SIZE` | 16 | Jen s test taskem |
+| Task | P | Stack | Poznámka |
+|------|---|-------|----------|
+| led_task | 7 | 8 KiB | WS2812B |
+| matrix_task | 6 | 4 KiB | reed matice |
+| button_task | 5 | 3 KiB | multiplex tlačítek |
+| game_task | 4 | 6 KiB | šachy, NVS, smyčka ~100 ms |
+| uart_task | 3 | 5 KiB | po boot animaci resume |
+| web_server_task | 3 | 20 KiB | WiFi + HTTP |
+| ha_light_task | 3 | 8 KiB | MQTT |
+| test_task | 1 | 4 KiB | jen `CONFIG_CHESS_ENABLE_TEST_TASK` |
 
 ---
 
-## 4. Inicializace a BLE
+## Fronty (kapacity z hlavičky)
 
-`ble_task_init()` se volá **uvnitř** `main_system_init()` — **ne** až po spuštění FreeRTOS tasků z `create_system_tasks()`.
-
-![main_system_init a BLE flow](boot_sequence.svg)  
-*Zdroj: [`sources/boot_sequence.mmd`](sources/boot_sequence.mmd)*
-
----
-
-## 5. Pořadí `xTaskCreate` a runtime fronty
-
-Řádek **led → matrix → button → uart (suspend) → game → web → ha_light** je pořadí z `main.c`. Volitelný **test_task** je mezi game a web v kódu pouze pokud je zapnutý `CONFIG_CHESS_ENABLE_TEST_TASK` — na grafu je jako čárkovaná větev.
-
-Šipky na **`game_command_queue`** / **`button_event_queue`** ukazují **běhové** předávání zpráv (ne pořadí startu).
-
-![Tasky a fronty](tasks_architecture.svg)  
-*Zdroj: [`sources/tasks_architecture.mmd`](sources/tasks_architecture.mmd)*
+| Konstanta | Počet |
+|-----------|-------|
+| GAME_QUEUE_SIZE | 24 |
+| BUTTON_QUEUE_SIZE | 5 |
+| UART_QUEUE_SIZE | 10 |
+| MATRIX_QUEUE_SIZE | 8 |
+| ANIMATION_QUEUE_SIZE | 5 |
+| WEB_SERVER_QUEUE_SIZE | 10 |
+| SCREEN_SAVER_QUEUE_SIZE | 3 |
+| TEST_COMMAND_QUEUE_SIZE | 16 |
 
 ---
 
-## 6. Boot sekvence
-
-Stejný obsah jako obrázek výše — sekvenční pohled:
+## Časová řada: init → BLE → tasky
 
 ```mermaid
 sequenceDiagram
@@ -86,81 +53,132 @@ sequenceDiagram
   participant SYS as main_system_init
   participant FC as chess_system_init
   participant CR as create_system_tasks
-  AM->>SYS: uart_mutex + FC + timery + endgame UART reg BLE
-  SYS->>FC: fronty matrix_mutex game_mutex
+  AM->>SYS: mutex UART + FC + timery + endgame + UART příkazy + BLE
+  SYS->>FC: fronty, matrix_mutex, game_mutex
   FC-->>SYS: OK
-  SYS-->>AM: ESP_OK
+  SYS-->>AM: OK
   AM->>CR: xTaskCreate řada
-  CR->>CR: boot LED · initialize_chess_game · resume uart
+  CR->>CR: 1 s čekání · boot LED · initialize_chess_game · resume UART
+```
+
+![Boot SVG](boot_sequence.svg)
+
+---
+
+## Pořadí xTaskCreate + kde tečou herní zprávy
+
+Řádek **led → matrix → button → uart (nejprve suspend) → game → [test] → web → ha** je z `main.c`. Šipky dolů na fronty ukazují **provoz**, ne pořadí startu.
+
+![Tasky + fronty](tasks_architecture.svg)
+
+---
+
+## Kdo feeduje game_command_queue a kdo ho čte
+
+```mermaid
+flowchart TB
+  MT[matrix_task] --> GQ[(game_command_queue)]
+  UT[uart_task] --> GQ
+  WT[web_server_task] --> GQ
+  BLE[NimBLE + web dispatch] --> GQ
+  GQ --> GT[game_task]
+  BT[button_task] --> BQ[(button_event_queue)]
+  BQ --> GT
+```
+
+![Fronty SVG](queues_flow.svg)
+
+---
+
+## Tlačítko → fronta → hra
+
+```mermaid
+sequenceDiagram
+  participant BT as button_task
+  participant BQ as button_event_queue
+  participant GT as game_task
+  BT->>BQ: stisk / dlouhý stisk / …
+  loop každý tick game_task
+    GT->>BQ: receive non-blocking
+    GT->>GT: promoce / reset / … dle typu
+  end
 ```
 
 ---
 
-## 7. Hlavní herní fronty
-
-![Hlavní fronty](queues_flow.svg)  
-*Zdroj: [`sources/queues_flow.mmd`](sources/queues_flow.mmd)*
-
----
-
-## 8. Vedlejší příkazové fronty
-
-UART (diagnostika) a volitelný **test_task** posílají příkazy na **`matrix_command_queue`**; test může část událostí tlačítek pumpovat přes **`button_command_queue`**.
-
-![Vedlejší fronty](auxiliary_queues.svg)  
-*Zdroj: [`sources/auxiliary_queues.mmd`](sources/auxiliary_queues.mmd)*
-
----
-
-## 9. Mutexy
-
-![Mutexy](mutex_map.svg)  
-*Zdroj: [`sources/mutex_map.mmd`](sources/mutex_map.mmd)*
-
----
-
-## 10. Topologie vstupů a výstupů
-
-BLE příkazy procházejí **`web_server_ble_command_dispatch()`** (viz `ble_nimble_impl.c`), ne přímým `xQueueSend` z jednoho malého souboru — proto šipka míří na „sdílený“ dispatch směrem k herní frontě.
-
-![Topologie](system_topology.svg)  
-*Zdroj: [`sources/system_topology.mmd`](sources/system_topology.mmd)*
-
----
-
-## 11. Tah ze senzorové matice
+## Matrix → tah
 
 ```mermaid
 sequenceDiagram
   participant MT as matrix_task
   participant GQ as game_command_queue
   participant GT as game_task
-  MT->>GQ: GAME_CMD_PICKUP / DROP
-  loop vTaskDelayUntil ~100 ms
-    GT->>GQ: drain příkazů (non-blocking batch)
-    GT->>GT: pravidla · legálnost · stav
+  MT->>GQ: PICKUP / DROP
+  loop ~100 ms
+    GT->>GQ: vyprázdnění fronty příkazů
+    GT->>GT: legálnost, pravidla
   end
 ```
 
 ---
 
-## 12. Komponenty vs. aktivní task
+## UART: vstup a odpověď zpět
 
-| Složka v `components/` | Stav |
-|--------------------------|------|
-| `freertos_chess`, `game_task`, `led_task`, `matrix_task`, `button_task`, `uart_task`, `web_server_task`, `ble_task`, `ha_light_task` | Aktivní integrace v běhu |
-| `animation_task` | Kód v CMake · **task z `main.c` nevytváří se** |
-| `matter_task` | Zakomentováno v `main.c` |
-| `promotion_button_task`, `reset_button_task`, `screen_saver_task` | Knihovny — **bez `xTaskCreate` v aktuálním `main.c`** (promoce často přes `button_task` / `game_task`) |
-
----
-
-## 13. Sekvenční knihovna (HTML)
-
-1. Uprav [`mermaid_diagrams.txt`](mermaid_diagrams.txt) (sekce `# ČÁST A:` …).  
-2. Spusť z kořene repa: `./scripts/render_docs.sh`.  
-3. Otevři [`diagrams_mermaid.html`](diagrams_mermaid.html) — levé menu = sekce A–J, každý poddiagram má vlastní kotvu.
+```mermaid
+flowchart LR
+  SER[Vestavěný USB serial] --> UT[uart_task]
+  UT --> GQ[(game_command_queue)]
+  GQ --> GT[game_task]
+  GT --> URQ[(uart_response_queue)]
+  URQ --> UT
+  UT --> SER
+```
 
 ---
 
-*Verze firmware: [`CMakeLists.txt`](../../CMakeLists.txt) · `PROJECT_VERSION`.*
+## Vedlejší fronty (UART test, matrix příkazy)
+
+UART umí poslat příkaz i na `matrix_command_queue`; test task stejně (když je zapnutý).
+
+![Aux SVG](auxiliary_queues.svg)
+
+---
+
+## Mutexy (kdo s čím počítá)
+
+![Mutex SVG](mutex_map.svg)
+
+```mermaid
+flowchart TB
+  uart_mutex -.-> uart_task
+  matrix_mutex -.-> matrix_task
+  game_mutex -.-> game_task
+  led_unified_mutex -.-> led_task
+  game_task -.->|led_set_pixel_safe atd.| led_unified_mutex
+```
+
+---
+
+## Celkový obrázek vstupů
+
+![Topology SVG](system_topology.svg)
+
+---
+
+## CMake komponenty bez vlastního tasku v main.c
+
+| Složka | Realita |
+|--------|---------|
+| animation_task | knihovna v buildu, samostatný task z main.c ne |
+| matter_task | vypnuto |
+| promotion_button_task, reset_button_task, screen_saver_task | žádný `xTaskCreate` v současném main.c |
+
+---
+
+## Sekvenční HTML (hodně diagramů najednou)
+
+Soubor `mermaid_diagrams.txt` se přegeneruje do `diagrams_mermaid.html` přes `python3 generate_mermaid_html.py` nebo `./scripts/render_docs.sh`. Dlouhá jednovětevnač je `main_flow_diagram.txt` (hodí se zkopírovat do mermaid.live).
+
+---
+
+*Firmware verze: `CMakeLists.txt` → `PROJECT_VERSION`.*

@@ -17,6 +17,7 @@ on:
     - 'docs/diagrams/**'
     - 'docs/reference/**'
     - 'docs/README.md'
+    - 'docs/flutter/**'
     - 'scripts/render_docs.sh'
     - 'gh-pages-ready/README.md'
     - 'gh-pages-ready/.nojekyll'

@@ -477,9 +477,13 @@ Matěj řešil především hardware problémy:
 
 ---
 
-## 📚 Dokumentace
+## Dokumentace
 
-Vytvořili jsme kompletní dokumentaci pomocí Doxygen. Dokumentace je dostupná v několika formátech:
+- **[docs/README.md](docs/README.md)** — co je v repu, kam sáhnout (vhodné i pro AI nástroje)
+- **[docs/flutter/README.md](docs/flutter/README.md)** — Flutter klient, diagramy, složky v `lib/`
+- **[docs/diagrams/README.md](docs/diagrams/README.md)** — firmware: tasky, fronty, SVG
+
+Dále Doxygen z C zdrojáků:
 
 ### HTML dokumentace (doporučeno)
 
@@ -518,7 +522,7 @@ Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování 
 [Mermaid — sekvenční diagramy (HTML)](docs/diagrams/diagrams_mermaid.html) — knihovna sekvencí z `mermaid_diagrams.txt`  
 [Architektura tasků](docs/diagrams/tasks_architecture.md) — stejný graf jako v README + tabulka front · SVG/PNG z **`./scripts/render_docs.sh`** / CI ([`docs-diagrams.yml`](.github/workflows/docs-diagrams.yml))
 
-**Další dokumentace:** [docs/README.md](docs/README.md), [docs/reference/](docs/reference/). Složky `context/`, `docs/planning/` a `docs/archive/` jsou v [.gitignore](.gitignore).
+**Reference texty:** [docs/reference/](docs/reference/). V `.gitignore` zůstávají mimo remote např. `context/`, `docs/planning/`, `docs/archive/` — lokální poznámky.
 
 ### GitHub Pages (veřejná dokumentace)
 
@@ -555,10 +559,11 @@ chess_esp32_c6_devkit/
 │   ├── reset_button_task/         # Reset tlačítko
 │   └── ...                        # Další pomocné komponenty
 │
-├── docs/                          # Rozcestník README.md + reference/ + diagrams/
-│   ├── README.md                  # Kam jít pro diagramy vs. reference
+├── docs/                          # Mapa repa + firmware diagramy + Flutter popis
+│   ├── README.md                  # Přehled celého projektu (Firmware + Flutter)
+│   ├── flutter/README.md          # Flutter appka, diagramy, lib/
 │   ├── reference/                 # WEB_UI_DEPLOY, komunikace tasků, souřadnice
-│   ├── diagrams/                # README + Mermaid HTML/SVG/PNG, zdroje .mmd
+│   ├── diagrams/                # Firmware diagramy (Mermaid, SVG, HTML)
 │   └── doxygen/                 # Doxygen výstup — generuj lokálně (viz docs/.gitignore)
 │
 ├── build/                         # Build výstup ESP-IDF (generovaný, v .gitignore)
