@@ -1,5 +1,6 @@
-# Komplexní Mermaid Sequence Diagram - Hlavní Flow CZECHMATE v2.5.1
-# Zkopírujte tento text do https://mermaid.live/ pro vizualizaci
+# Komplexní Mermaid Sequence Diagram — hlavní smyčka (jedna stránka)
+# Aktuální přehled tasků a menších diagramů: README.md ve stejné složce
+# Zkopírujte do https://mermaid.live/ pro vizualizaci
 #
 # Tento diagram zachytává hlavní flow programu po inicializaci:
 # - Všechny hlavní tasky a jejich smyčky

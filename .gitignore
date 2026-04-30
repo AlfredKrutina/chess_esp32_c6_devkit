@@ -5,15 +5,13 @@
 
 # =============================================================================
 # Podklady pro AI / interní plány — nejsou součástí hlavní dokumentace v remote
-# (zdroj pravdy pro lidi: kořenové README.md + docs/reference/ + docs/diagrams/)
+# (zdroj pravdy pro lidi: kořenové README.md + docs/README.md + reference/ + diagrams/)
 # =============================================================================
 /context/
 
 /docs/archive/
 /docs/planning/
 
-# Rozcestník v docs byl zrušen ve prospěch jednoho README v kořeni
-/docs/README.md
 
 # =============================================================================
 # ESP-IDF / toolchain

@@ -1,5 +1,7 @@
 # Detailní popis komunikace mezi tasky a hardware - CZECHMATE v2.5.1
 
+**Diagramy (Mermaid):** [docs/diagrams/README.md](../diagrams/README.md) — přehledové grafy; tento soubor je detailní rozbor textem.
+
 Konstanty velikostí front a stacků: `components/freertos_chess/include/freertos_chess.h`. Pořadí a vytváření tasků: `main/main.c` (`animation_task` se **nevytváří**; BLE přes `ble_task_init()` / NimBLE host task).
 
 ## 📋 Přehled typů komunikace

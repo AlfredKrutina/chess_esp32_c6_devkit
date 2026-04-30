@@ -22,20 +22,35 @@ elif [[ -d docs/doxygen ]]; then
   echo "    (přeskočeno: vygeneruj nejdřív Doxygen — ./generate_docs.sh)"
 fi
 
-MM_SRC="docs/diagrams/sources/tasks_architecture.mmd"
-MM_SVG="docs/diagrams/tasks_architecture.svg"
-MM_PNG="docs/diagrams/tasks_architecture.png"
+render_mmd() {
+  local src="$1"
+  local base
+  base="$(basename "$src" .mmd)"
+  local out_dir="docs/diagrams"
+  local svg="${out_dir}/${base}.svg"
+  local png="${out_dir}/${base}.png"
+  if command -v mmdc >/dev/null 2>&1; then
+    echo "==> mmdc → $svg (+ PNG)"
+    mmdc -i "$src" -o "$svg" -b transparent
+    mmdc -i "$src" -o "$png" -b transparent -w 1800 2>/dev/null || true
+  elif command -v npx >/dev/null 2>&1; then
+    echo "==> npx mermaid-cli → $svg (+ PNG)"
+    npx --yes @mermaid-js/mermaid-cli -i "$src" -o "$svg" -b transparent
+    npx --yes @mermaid-js/mermaid-cli -i "$src" -o "$png" -b transparent -w 1800 2>/dev/null || true
+  else
+    echo "==> Přeskočeno SVG/PNG pro $base (nainstaluj mermaid-cli nebo npx)"
+    return 0
+  fi
+}
 
-if command -v mmdc >/dev/null 2>&1; then
-  echo "==> mmdc → $MM_SVG (+ PNG)"
-  mmdc -i "$MM_SRC" -o "$MM_SVG" -b transparent
-  mmdc -i "$MM_SRC" -o "$MM_PNG" -b transparent -w 1800 2>/dev/null || true
-elif command -v npx >/dev/null 2>&1; then
-  echo "==> npx @mermaid-js/mermaid-cli → $MM_SVG (+ PNG) — první běh stáhne závislosti"
-  npx --yes @mermaid-js/mermaid-cli -i "$MM_SRC" -o "$MM_SVG" -b transparent
-  npx --yes @mermaid-js/mermaid-cli -i "$MM_SRC" -o "$MM_PNG" -b transparent -w 1800 2>/dev/null || true
-else
-  echo "==> Přeskočeno SVG/PNG (nainstaluj: npm install -g @mermaid-js/mermaid-cli, nebo zajisti npx)"
+shopt -s nullglob
+for MM_SRC in docs/diagrams/sources/*.mmd; do
+  render_mmd "$MM_SRC"
+done
+shopt -u nullglob
+
+if ! command -v mmdc >/dev/null 2>&1 && ! command -v npx >/dev/null 2>&1; then
+  echo "==> Celkově přeskočeny SVG/PNG (chybí mmdc i npx)"
 fi
 
 echo "Hotovo."

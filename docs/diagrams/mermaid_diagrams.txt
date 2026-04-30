@@ -1,5 +1,6 @@
-# Mermaid Sequence Diagramy pro CZECHMATE v2.5.1 (firmware podle main.c + freertos_chess.h, 2026-04)
-# Vložte obsah tohoto souboru do https://mermaid.live/ pro vizualizaci
+# Mermaid Sequence Diagramy pro CZECHMATE (firmware podle main.c + freertos_chess.h)
+# Přehledové grafy + aktuální tasky: docs/diagrams/README.md
+# Vložte vybranou sekci do https://mermaid.live/ nebo použijte diagrams_mermaid.html po ./scripts/render_docs.sh
 #
 # Struktura:
 # - ČÁST A: System Overview (1 diagram)

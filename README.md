@@ -122,43 +122,75 @@ Jedna z nejdůležitějších věcí, kterou jsem se naučil, je správná komun
 
 - **Timers** - Pro periodické úlohy
 
-### Diagram architektury tasků (Mermaid)
+### Diagramy firmware (Mermaid)
 
-Na GitHubu se diagram vykreslí přímo v náhledu README. Zdroj pro příkazovou řadu / CI: [`docs/diagrams/sources/tasks_architecture.mmd`](docs/diagrams/sources/tasks_architecture.mmd) (`./scripts/render_docs.sh` → SVG/PNG).
+Úplný přehled v **[`docs/diagrams/README.md`](docs/diagrams/README.md)** (tasky, boot, fronty, matice, BLE/web). Zdroje `.mmd` v [`docs/diagrams/sources/`](docs/diagrams/sources/) → `./scripts/render_docs.sh` vygeneruje SVG/PNG vedle stejného jména.
+
+#### Tasky, init a fronty
 
 ```mermaid
 flowchart TB
-  subgraph Tasks["FreeRTOS tasky — create_system_tasks()"]
-    LED["led_task<br/>P7 · 8 KiB stack"]
-    MAT["matrix_task<br/>P6 · 4 KiB"]
-    BTN["button_task<br/>P5 · 3 KiB"]
-    UART["uart_task<br/>P3 · 5 KiB<br/>(po bootu resume)"]
-    GAME["game_task<br/>P4 · 6 KiB"]
-    WEB["web_server_task<br/>P3 · 20 KiB"]
-    HA["ha_light_task<br/>P3 · 8 KiB"]
-    TEST["test_task<br/>P1 · 4 KiB<br/>jen CONFIG_CHESS_ENABLE_TEST_TASK"]
+  subgraph Init["main_system_init"]
+    SYS["chess_system_init · timery · ble_task_init"]
   end
 
-  subgraph BLE["Bluetooth LE"]
-    NIM["NimBLE host task<br/>ble_task_init → ble_nimble_stack_init<br/>není xTaskCreate ble_task"]
+  subgraph Tasks["create_system_tasks()"]
+    LED["led_task · P7 · 8 KiB"]
+    MAT["matrix_task · P6 · 4 KiB"]
+    BTN["button_task · P5 · 3 KiB"]
+    UART["uart_task · P3 · 5 KiB"]
+    GAME["game_task · P4 · 6 KiB"]
+    WEB["web_server_task · P3 · 20 KiB"]
+    HA["ha_light_task · P3 · 8 KiB"]
+    TEST["test_task · P1 · menuconfig"]
   end
 
-  subgraph Disabled["Nevytváří se"]
-    ANIM["animation_task — animace v led_task"]
-    MATTER["matter_task — zakázáno"]
+  subgraph BLE["BLE"]
+    NIM["NimBLE host task"]
   end
 
-  MAIN[["app_main"]] --> Tasks
+  MAIN[["app_main"]] --> SYS
+  SYS --> Tasks
   MAIN --> NIM
 
-  GQ[("game_command_queue<br/>24 × chess_move_command_t")]
-  BQ[("button_event_queue<br/>5")]
+  GQ[("game_command_queue · 24")]
+  BQ[("button_event_queue · 5")]
   MAT --> GQ
   BTN --> BQ
   UART --> GQ
   WEB --> GQ
-  GAME --> GQ
-  GAME -.-> BQ
+  BQ --> GAME
+  GQ --> GAME
+```
+
+#### Boot sekvence
+
+```mermaid
+sequenceDiagram
+  participant AM as app_main
+  participant SYS as main_system_init
+  participant CH as chess_system_init
+  participant BT as create_system_tasks
+  AM->>SYS: TWDT, init_console
+  SYS->>CH: fronty a mutexy
+  SYS->>SYS: ble_task_init
+  AM->>BT: xTaskCreate ···
+  BT->>BT: boot animace · initialize_chess_game
+  BT->>BT: vTaskResume uart_task
+```
+
+#### Herní fronty (zjednodušeně)
+
+```mermaid
+flowchart LR
+  MAT[matrix_task] --> GQ[game_command_queue]
+  UART[uart_task] --> GQ
+  WEB[web_server_task] --> GQ
+  BTN[button_task] --> BQ[button_event_queue]
+  GQ --> GAME[game_task]
+  BQ --> GAME
+  GAME --> URQ[uart_response_queue]
+  URQ --> UART
 ```
 
 ### Struktura komponent
@@ -517,10 +549,11 @@ Pro tisk a sdílení:
 
 Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování příkazů, speciální tahy, error handling a další.
 
-[Mermaid — sekvenční diagramy](docs/diagrams/diagrams_mermaid.html) — kompletní diagramy programových toků  
-[Architektura tasků (Mermaid v Markdownu)](docs/diagrams/tasks_architecture.md) — vektor **[tasks_architecture.svg](docs/diagrams/tasks_architecture.svg)** / PNG generuje **`./scripts/render_docs.sh`** nebo CI ([`.github/workflows/docs-diagrams.yml`](.github/workflows/docs-diagrams.yml))
+[Přehled diagramů (README)](docs/diagrams/README.md) — tasky, boot, fronty, matice, BLE/web v jedné stránce  
+[Mermaid — sekvenční diagramy (HTML)](docs/diagrams/diagrams_mermaid.html) — knihovna sekvencí z `mermaid_diagrams.txt`  
+[Architektura tasků](docs/diagrams/tasks_architecture.md) — stejný graf jako v README + tabulka front · SVG/PNG z **`./scripts/render_docs.sh`** / CI ([`docs-diagrams.yml`](.github/workflows/docs-diagrams.yml))
 
-**Další dokumentace v repu:** [docs/reference/](docs/reference/) (deploy web UI, komunikace tasků, souřadnice), [docs/diagrams/](docs/diagrams/) (Mermaid HTML/SVG, sekvence). Složky `context/`, `docs/planning/` a `docs/archive/` jsou v [.gitignore](.gitignore) — lokální podklady pro AI / plány, nejsou určené k sdílení v remote.
+**Další dokumentace:** [docs/README.md](docs/README.md), [docs/reference/](docs/reference/). Složky `context/`, `docs/planning/` a `docs/archive/` jsou v [.gitignore](.gitignore).
 
 ### GitHub Pages (veřejná dokumentace)
 
@@ -557,9 +590,10 @@ chess_esp32_c6_devkit/
 │   ├── reset_button_task/         # Reset tlačítko
 │   └── ...                        # Další pomocné komponenty
 │
-├── docs/                          # Ve remote: reference/ + diagrams/ (+ .gitignore pro doxygen)
+├── docs/                          # Rozcestník README.md + reference/ + diagrams/
+│   ├── README.md                  # Kam jít pro diagramy vs. reference
 │   ├── reference/                 # WEB_UI_DEPLOY, komunikace tasků, souřadnice
-│   ├── diagrams/                # Mermaid HTML/SVG/PNG, zdroje .mmd
+│   ├── diagrams/                # README + Mermaid HTML/SVG/PNG, zdroje .mmd
 │   └── doxygen/                 # Doxygen výstup — generuj lokálně (viz docs/.gitignore)
 │
 ├── build/                         # Build výstup ESP-IDF (generovaný, v .gitignore)

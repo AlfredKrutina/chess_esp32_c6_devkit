@@ -1,0 +1,12 @@
+%% Herní fronty — freertos_chess.h (GAME_QUEUE_SIZE, BUTTON_QUEUE_SIZE, UART_QUEUE_SIZE)
+flowchart TB
+  MT[matrix_task] -->|pickup/drop| GQ[("game_command_queue · 24")]
+  BTN[button_task] -->|button_event_t| BQ[("button_event_queue · 5")]
+  UART[uart_task] -->|příkazy/tahy| GQ
+  WEB[web_server_task] -->|HTTP| GQ
+
+  BQ -->|receive| GT[game_task]
+  GQ -->|receive| GT
+
+  GT -->|game_response_t| URQ[("uart_response_queue · 10")]
+  URQ --> UART

@@ -10,6 +10,7 @@ on:
       - 'docs/diagrams/mermaid_diagrams.txt'
       - 'docs/diagrams/sources/**'
       - 'docs/diagrams/tasks_architecture.md'
+      - 'docs/diagrams/README.md'
       - 'generate_mermaid_html.py'
       - 'scripts/render_docs.sh'
       - '.github/workflows/docs-diagrams.yml'
@@ -17,6 +18,8 @@ on:
     paths:
       - 'docs/diagrams/mermaid_diagrams.txt'
       - 'docs/diagrams/sources/**'
+      - 'docs/diagrams/tasks_architecture.md'
+      - 'docs/diagrams/README.md'
       - 'generate_mermaid_html.py'
       - 'scripts/render_docs.sh'
       - '.github/workflows/docs-diagrams.yml'
@@ -51,8 +54,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/diagrams/diagrams_mermaid.html \
-                  docs/diagrams/tasks_architecture.svg \
-                  docs/diagrams/tasks_architecture.png || true
+                  docs/diagrams/*.svg \
+                  docs/diagrams/*.png || true
           if git diff --staged --quiet; then
             echo "Žádné změny výstupů."
           else

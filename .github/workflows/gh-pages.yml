@@ -16,6 +16,7 @@ on:
     - 'generate_mermaid_html.py'
     - 'docs/diagrams/**'
     - 'docs/reference/**'
+    - 'docs/README.md'
     - 'scripts/render_docs.sh'
     - 'gh-pages-ready/README.md'
     - 'gh-pages-ready/.nojekyll'
