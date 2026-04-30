@@ -1,6 +1,6 @@
 # CZECHMATE v2.5
 
-**Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením, webovým serverem, Flutter klientem (mobil / desktop) a nativní iOS aplikací v repu (`CZECHMATE/`)**
+**Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením, webovým serverem a Flutter klientem (`flutter_czechmate/`).** Nativní Xcode projekt `CZECHMATE/` je jen lokálně (není v gitu).
 
 *Šachmat, udělaný v Česku*
 
@@ -27,7 +27,7 @@ CZECHMATE je pokročilý šachový systém, který umožňuje hrát šachy na fy
 - **Fyzická šachovnice** - 8x8 Reed Switch matice pro automatickou detekci figurek
 - **LED osvětlení** - 64 LED na šachovnici + 9 LED na tlačítkách pro vizuální feedback
 - **Flutter aplikace (`flutter_czechmate/`)** - Multiplatformní klient (Dart/Flutter): BLE (`flutter_blue_plus`), HTTP a WebSocket pro spojení s deskou a webem.
-- **Nativní iOS Aplikace (`CZECHMATE/`)** - Swift / SwiftUI, BLE (NimBLE), Apple Watch a widgety (legacy / paralelní ke Flutteru podle toho, co používáš).
+- **Mobilní aplikace** — primárně **Flutter** (`flutter_czechmate/`) pro Android / iOS / desktop. Případná nativní iOS appka ve složce `CZECHMATE/` drž lokálně (mimo tento repozitář).
 - **Kompletní šachová logika** - Všechna pravidla včetně rošády, en passant, promoce, šach, mat
 - **Webové rozhraní** - HTTP server pro vzdálenou hru přes prohlížeč s real-time aktualizací
 - **UART konzole** - Textové příkazy pro ovládání, ladění a testování
@@ -89,21 +89,21 @@ Systém používá FreeRTOS pro multitasking. To byla pro mě úplně nová obla
 
 Systém má několik hlavních FreeRTOS tasků s různými prioritami:
 
-| Task | Priorita | Popis | Stack Size |
-|------|----------|-------|------------|
-| `led_task` | 7 | Ovládání WS2812B LED - nejvyšší priorita pro kritický timing | 16KB |
-| `matrix_task` | 6 | Realtime skenování 8x8 matice - vysoká priorita, nesmí zmeškat detekci pohybu | 8KB |
-| `button_task` | 5 | Zpracování tlačítek - uživatelský vstup | 3KB |
-| `ble_task` | 4 | Bluetooth LE NimBLE GATT server (mobilní klienti: iOS / Flutter) | 8KB |
-| `game_task` | 4 | Šachová logika a stav hry - kritická pro odezvu | 10KB |
-| `uart_task` | 3 | UART konzole a příkazy - může čekat | 10KB |
-| `web_server_task` | 3 | HTTP web server - komunikace | 20KB |
-| `ha_light_task` | 2 | MQTT Home Assistant světelná integrace | 4KB |
-| `test_task` | 1 | Testovací funkce - nejnižší priorita | 4KB |
+| Task / runtime | Priorita | Popis | Stack Size |
+|----------------|----------|-------|------------|
+| `led_task` | 7 | WS2812B LED, batch commit, animace (`unified_animation_manager`) | 8KB |
+| `matrix_task` | 6 | Sken 8×8 matice + time-multiplex s tlačítky | 4KB |
+| `button_task` | 5 | Tlačítka (promoce, reset, …) | 3KB |
+| `game_task` | 4 | Šachová logika a stav hry | 6KB |
+| `uart_task` | 3 | USB Serial JTAG konzole (po boot animaci resume) | 5KB |
+| `web_server_task` | 3 | HTTP server, REST, volitelně WebSocket `/ws` (`CONFIG_HTTPD_WS_SUPPORT`) | 20KB |
+| `ha_light_task` | 3 | MQTT Home Assistant (RGB light) | 8KB |
+| `test_task` | 1 | Automatické testy (jen pokud `CONFIG_CHESS_ENABLE_TEST_TASK`) | 4KB |
+| **NimBLE host** | (ESP-IDF) | GATT pro mobilní klienty — startuje se `ble_task_init()` → `nimble_port_freertos_init`, **není** samostatný `xTaskCreate("ble_task")` v `main.c` | (řídí stack NimBLE) |
 
 **Proč jsou priority takto nastavené?**
 
-To jsem se naučil tvrdě - když jsem měl špatně nastavené priority, systém se choval divně. LED task má nejvyšší prioritu (7), protože WS2812B LED vyžadují přesný timing a nesmí být přerušeny. Matrix task má prioritu 6 pro real-time detekci pohybu figurek. BLE komunikace a Game task mají prioritu 4, aby odezva k mobilní aplikaci i herní logika byly bez prodlevy. Web server a test task mohou čekat - nejsou real-time.
+To jsem se naučil tvrdě - když jsem měl špatně nastavené priority, systém se choval divně. LED task má nejvyšší prioritu (7), protože WS2812B LED vyžadují přesný timing a nesmí být přerušeny. Matrix task má prioritu 6 pro real-time detekci pohybu figurek. **Game task** má prioritu **4** (stav hry a tahy). **UART, web server i HA light task** mají prioritu **3** (I/O a síť); přenosové BLE běží v **NimBLE host tasku** z ESP-IDF (viz `ble_task_init`), ne jako řádek v tabulce výše. **Test task** má prioritu **1** a zapíná se jen v menuconfig.
 
 **Poznámka k animacím:** Dřívější samostatný FreeRTOS task `animation_task` (priorita 3) je **vypnutý**; animace jsou integrované do pipeline LED tasku a sdílených modulů výše — menší režie tasků a konzistentnější timing s RMT.
 
@@ -111,16 +111,55 @@ To jsem se naučil tvrdě - když jsem měl špatně nastavené priority, systé
 
 Jedna z nejdůležitějších věcí, kterou jsem se naučil, je správná komunikace mezi tasky:
 
-- **FreeRTOS Queues** - Pro asynchronní komunikaci mezi tasky
-  - `game_command_queue` - Příkazy pro game_task (20 zpráv)
+- **FreeRTOS Queues** - Pro asynchronní komunikaci mezi tasky (velikosti viz `GAME_QUEUE_SIZE` atd. v `freertos_chess.h`)
+  - `game_command_queue` - Příkazy pro `game_task` (**24** zpráv typu `chess_move_command_t`)
   - `button_event_queue` - Eventy z tlačítek (5 zpráv)
   - LED se ovládají přímými voláními (fronta byla odstraněna pro lepší výkon)
 
 - **Mutexes** - Pro thread-safe přístup ke sdíleným zdrojům
   - `uart_mutex` - Ochrana UART výstupu
-  - `led_state_mutex` - Ochrana LED bufferu
+  - `led_unified_mutex` - Ochrana LED bufferu / batch commit v `led_task`
 
 - **Timers** - Pro periodické úlohy
+
+### Diagram architektury tasků (Mermaid)
+
+Na GitHubu se diagram vykreslí přímo v náhledu README. Zdroj pro příkazovou řadu / CI: [`docs/diagrams/sources/tasks_architecture.mmd`](docs/diagrams/sources/tasks_architecture.mmd) (`./scripts/render_docs.sh` → SVG/PNG).
+
+```mermaid
+flowchart TB
+  subgraph Tasks["FreeRTOS tasky — create_system_tasks()"]
+    LED["led_task<br/>P7 · 8 KiB stack"]
+    MAT["matrix_task<br/>P6 · 4 KiB"]
+    BTN["button_task<br/>P5 · 3 KiB"]
+    UART["uart_task<br/>P3 · 5 KiB<br/>(po bootu resume)"]
+    GAME["game_task<br/>P4 · 6 KiB"]
+    WEB["web_server_task<br/>P3 · 20 KiB"]
+    HA["ha_light_task<br/>P3 · 8 KiB"]
+    TEST["test_task<br/>P1 · 4 KiB<br/>jen CONFIG_CHESS_ENABLE_TEST_TASK"]
+  end
+
+  subgraph BLE["Bluetooth LE"]
+    NIM["NimBLE host task<br/>ble_task_init → ble_nimble_stack_init<br/>není xTaskCreate ble_task"]
+  end
+
+  subgraph Disabled["Nevytváří se"]
+    ANIM["animation_task — animace v led_task"]
+    MATTER["matter_task — zakázáno"]
+  end
+
+  MAIN[["app_main"]] --> Tasks
+  MAIN --> NIM
+
+  GQ[("game_command_queue<br/>24 × chess_move_command_t")]
+  BQ[("button_event_queue<br/>5")]
+  MAT --> GQ
+  BTN --> BQ
+  UART --> GQ
+  WEB --> GQ
+  GAME --> GQ
+  GAME -.-> BQ
+```
 
 ### Struktura komponent
 
@@ -288,16 +327,10 @@ Webové rozhraní umožňuje:
 
 ### Flutter klient (`flutter_czechmate/`)
 
-- **Stack:** Flutter 3.x, Riverpod, `flutter_blue_plus` (BLE), `http`, `web_socket_channel`, balíček `chess`.
-- **Účel:** Jedna codebase pro Android / iOS / desktop; komunikace s firmware (BLE) a s webovým backendem dle potřeby.
-- **Build:** z kořene `cd flutter_czechmate && flutter pub get && flutter run` (vyžaduje nainstalovaný Flutter SDK).
-
-### Nativní iOS Aplikace (CZECHMATE)
-
-Šachovnici doplňuje **iOS aplikace ve Swiftu / SwiftUI** ve složce `CZECHMATE/`.
-- **Ekosystém Apple**: iPhone, **Apple Watch** (`CZECHMATEWatchApp`), **Widgety** (`CZECHMATEWidgets`).
-- **Bluetooth LE**: NimBLE na ESP32; na straně iOS asynchronní streamy a správa spojení.
-- **Vztah k Flutteru:** Flutter projekt je novější paralelní klient; oba mohou sdílet stejné BLE služby / kontrakty z firmware.
+- **Stack:** Flutter 3.x, Riverpod, `flutter_blue_plus` (BLE), HTTP, WebSocket, balíček `chess`, integrace Stockfish/API dle nastavení.
+- **Účel:** Jedna codebase pro Android / iOS / desktop; spojení s deskou (BLE a/nebo HTTP/WebSocket k webové vrstvě ESP32).
+- **Mobilní rozšíření (stav repa):** mimo jiné podpora **Live Activities** (iOS), **Wear OS** modul a chess clock notifikace na Androidu — viz zdroje v `flutter_czechmate/ios/` a `flutter_czechmate/android/wear/`.
+- **Build:** z kořene `cd flutter_czechmate && flutter pub get && flutter run` (vyžaduje Flutter SDK).
 
 ### ⚙️ Nastavení a Přizpůsobení (Web UI)
 
@@ -364,7 +397,7 @@ Tento projekt nás naučil neuvěřitelně moc věcí. Když jsme začínali, zn
 
 ### Webové technologie
 - **HTTP server** - Implementace HTTP serveru na embedded zařízení
-- **WebSocket** - Real-time komunikace (plánováno)
+- **WebSocket** - Endpoint `/ws` pokud je v buildu zapnuté `CONFIG_HTTPD_WS_SUPPORT` (jinak polling přes REST)
 - **JavaScript** - Embedded JavaScript pro webové rozhraní
 - **REST API** - API pro komunikaci s webovým rozhraním
 
@@ -409,7 +442,7 @@ Matěj řešil především hardware problémy:
 
 **Hardware řešení (Matěj):** Matěj navrhl zapojení s diodami 1N4148, které umožňují sdílení pinů. Každé tlačítko je připojené přes diody ke všem řádkům matice, což umožňuje detekci tlačítka během button scan fáze.
 
-**Software řešení (Alfred):** Implementoval jsem time-multiplexing - během 30ms cyklu se střídá skenování matice a tlačítek. To bylo technicky náročné, protože jsem musel zajistit, aby se stavy neovlivňovaly a aby diody správně izolovaly signály.
+**Software řešení (Alfred):** Implementoval jsem time-multiplexing - během 25ms cyklu se střídá skenování matice a tlačítek (viz sekce Time-Multiplexing výše). To bylo technicky náročné, protože jsem musel zajistit, aby se stavy neovlivňovaly a aby diody správně izolovaly signály.
 
 ### 2. Šachová logika
 
@@ -484,16 +517,24 @@ Pro tisk a sdílení:
 
 Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování příkazů, speciální tahy, error handling a další.
 
-[Mermaid — sekvenční diagramy](docs/diagrams/diagrams_mermaid.html) — kompletní diagramy programových toků
+[Mermaid — sekvenční diagramy](docs/diagrams/diagrams_mermaid.html) — kompletní diagramy programových toků  
+[Architektura tasků (Mermaid v Markdownu)](docs/diagrams/tasks_architecture.md) — vektor **[tasks_architecture.svg](docs/diagrams/tasks_architecture.svg)** / PNG generuje **`./scripts/render_docs.sh`** nebo CI ([`.github/workflows/docs-diagrams.yml`](.github/workflows/docs-diagrams.yml))
 
-Více informací o dokumentaci: [docs/README.md](docs/README.md). Plán iOS aplikace, Stockfish integrace a optimalizace serveru: [docs/planning/CZECHMATE_MASTERPLAN.md](docs/planning/CZECHMATE_MASTERPLAN.md).
+**Další dokumentace v repu:** [docs/reference/](docs/reference/) (deploy web UI, komunikace tasků, souřadnice), [docs/diagrams/](docs/diagrams/) (Mermaid HTML/SVG, sekvence). Složky `context/`, `docs/planning/` a `docs/archive/` jsou v [.gitignore](.gitignore) — lokální podklady pro AI / plány, nejsou určené k sdílení v remote.
+
+### GitHub Pages (veřejná dokumentace)
+
+Po pushi na `main` workflow [.github/workflows/gh-pages.yml](.github/workflows/gh-pages.yml) nasadí složku [`gh-pages-ready/`](gh-pages-ready/) na větev **`gh-pages`**.
+
+1. V repozitáři na GitHubu: **Settings → Pages → Build and deployment → Source:** **Deploy from a branch** → Branch **gh-pages**, folder **/ (root)** → Save.  
+2. Po minutě běží web na `https://<uživatel>.github.io/<název-repa>/` (úvodní stránka z Doxygen v `gh-pages-ready/index.html`, Mermaid: [`diagrams_mermaid.html`](gh-pages-ready/diagrams_mermaid.html)).
 
 ---
 
 ## 📁 Struktura projektu
 
 ```
-free_chess_v1_mqtt_HA/
+chess_esp32_c6_devkit/
 ├── main/                          # Hlavní aplikace
 │   ├── main.c                     # Startup, inicializace, task creation
 │   └── CMakeLists.txt
@@ -516,17 +557,15 @@ free_chess_v1_mqtt_HA/
 │   ├── reset_button_task/         # Reset tlačítko
 │   └── ...                        # Další pomocné komponenty
 │
-├── docs/                          # Dokumentace (rozcestník: docs/README.md)
-│   ├── planning/                  # CZECHMATE iOS + masterplan, návrhy
-│   ├── reference/               # WEB_UI_DEPLOY, tasky, souřadnice
-│   ├── archive/                 # Starší analýzy a dílčí poznámky
-│   ├── diagrams/                # Mermaid HTML/txt, PNG architektury
-│   └── doxygen/                 # Doxygen výstup (generované)
+├── docs/                          # Ve remote: reference/ + diagrams/ (+ .gitignore pro doxygen)
+│   ├── reference/                 # WEB_UI_DEPLOY, komunikace tasků, souřadnice
+│   ├── diagrams/                # Mermaid HTML/SVG/PNG, zdroje .mmd
+│   └── doxygen/                 # Doxygen výstup — generuj lokálně (viz docs/.gitignore)
 │
 ├── build/                         # Build výstup ESP-IDF (generovaný, v .gitignore)
 ├── flutter_czechmate/             # Flutter klient (BLE / HTTP / WS)
-├── CZECHMATE/                     # Xcode — nativní iOS (Swift), Watch, Widgety
-├── context/                       # Podklady pro vývoj / AI (doplňuješ ručně; nemusí být v remote)
+├── CZECHMATE/                     # Xcode projekt — .gitignore (jen lokálně)
+├── context/                       # AI podklady — .gitignore (není v remote)
 ├── CMakeLists.txt                 # Build konfigurace
 ├── Doxyfile                       # Doxygen konfigurace
 ├── generate_docs.sh              # Skript pro generování dokumentace
@@ -611,7 +650,7 @@ idf.py -p /dev/ttyUSB0 monitor
 
 **Webové rozhraní nefunguje:**
 - Zkontrolujte WiFi připojení - IP adresa by měla být v UART logu
-- Zkontrolujte, že web server task běží (priorita 2)
+- Zkontrolujte, že web server task běží (priorita 3)
 - Zkontrolujte firewall - možná blokuje připojení
 
 ---
@@ -632,9 +671,11 @@ A: Máme spoustu nápadů - viz sekce "Budoucí vylepšení". Hlavně bychom cht
 ## 📝 Historie verzí
 
 ### v2.5.1 / firmware (aktuální stav repa, 2026-04)
-- ✅ **Flutter klient** `flutter_czechmate/` (BLE, HTTP, WebSocket)
-- ✅ **Vypnutý FreeRTOS `animation_task`** — animace přes `led_task` + `unified_animation_manager`
-- ✅ MQTT / Home Assistant integrace (`ha_light_task`) beze změny konceptu
+- ✅ **Flutter klient** `flutter_czechmate/` (BLE, HTTP, WebSocket; iOS Live Activities / Wear OS v portu)
+- ✅ **Vypnutý FreeRTOS `animation_task`** — animace přes `led_task` + `unified_animation_manager` / `game_led_animations`
+- ✅ **Menší stacky** u LED/matrix/game/uart oproti starším README tabulkám — hodnoty z `freertos_chess.h`
+- ✅ MQTT / Home Assistant (`ha_light_task`, priorita 3, stack 8KB)
+- ✅ **BLE:** NimBLE přes `ble_task_init()` (host task od ESP-IDF, ne vlastní jméno tasku v tabulce výše)
 
 ### v2.5.0
 - ✅ **Hra proti Botovi** (Stockfish integrace)
@@ -681,7 +722,7 @@ Máme spoustu nápadů, co bychom chtěli přidat:
 - **Statistics** - Pokročilejší statistiky her
 - **Opening book** - Databáze zahájení
 - **Endgame database** - Databáze koncovek
-- **WebSocket** - Real-time komunikace přes webové rozhraní
+- **WebSocket** - Rozšířit použití `/ws` ve všech klientech (firmware už umí za podmínky `CONFIG_HTTPD_WS_SUPPORT`)
 - **Voice commands** - Hlasové ovládání (možná trochu sci-fi, ale proč ne?)
 
 ---
@@ -803,7 +844,7 @@ Pokud máte jakékoli otázky nebo připomínky k projektu, neváhejte se ozvat.
 **Poznámka:** Tento projekt je aktivně vyvíjen. Pro nejnovější informace, bug reporty a technické detaily se podívejte do [docs/](docs/) složky.
 
 **Verze dokumentace:** 2.5.1 (README)
-**Poslední aktualizace:** 2026-04-17
+**Poslední aktualizace:** 2026-04-30
 
 ---
 

@@ -1,4 +1,6 @@
-# Detailní popis komunikace mezi tasky a hardware - CZECHMATE v2.4
+# Detailní popis komunikace mezi tasky a hardware - CZECHMATE v2.5.1
+
+Konstanty velikostí front a stacků: `components/freertos_chess/include/freertos_chess.h`. Pořadí a vytváření tasků: `main/main.c` (`animation_task` se **nevytváří**; BLE přes `ble_task_init()` / NimBLE host task).
 
 ## 📋 Přehled typů komunikace
 
@@ -17,17 +19,17 @@ Systém používá **3 hlavní typy komunikace** mezi tasky:
 
 **Typ:** GPIO skenování (hardware polling)  
 **Mechanismus:** Multiplexní skenování 8×8 matice reed switchů  
-**Frekvence:** Každých 10ms (v main loop matrix_task)
+**Frekvence:** Timer callback s celkovým multiplex cyklem ~**25 ms** (cca 20 ms sken matice + okno pro tlačítka); vlastní smyčka `matrix_task` může běžet s `vTaskDelayUntil(10 ms)` pro příkazy/WDT — viz `matrix_task.c`.
 
-**Hardware:**
-- **ROW SELECT:** GPIO 10-17 (aktivní LOW) - výběr řádku
-- **COLUMN READ:** GPIO 0-7,14,16,17 (pull-up) - čtení reed switchů
+**Hardware (aktuální mapování, konzistentní s README):**
+- **ROWS (výstupy):** GPIO 10, 11, 18, 19, 20, 21, 22, 23  
+- **COLS (vstupy + pull-up):** GPIO 0, 1, 2, 3, 6, 4, 16, 17  
 - **Reed switch:** LOW = figurka přítomna, HIGH = prázdné pole
 
 **Flow:**
 ```
 Matrix Hardware (Reed Switches)
-    ↓ [GPIO Multiplex Scan - každých 10ms]
+    ↓ [GPIO Multiplex Scan v timer callback ~25ms]
 matrix_task::matrix_scan_all()
     ↓ [Debouncing - 3 skeny = 30ms]
 matrix_task::matrix_detect_moves()
@@ -107,12 +109,12 @@ UART Hardware (USB Serial)
 
 ## 📨 2. TASK → QUEUE → TASK KOMUNIKACE (Asynchronní)
 
-### 2.1 game_command_queue (20 zpráv)
+### 2.1 game_command_queue (24 zpráv)
 
 **Typ:** FreeRTOS Queue (FIFO)  
-**Velikost:** 20 zpráv  
-**Timeout při odeslání:** 100ms (pdMS_TO_TICKS(100))  
-**Timeout při přijetí:** 100ms (pdMS_TO_TICKS(100))
+**Velikost:** `GAME_QUEUE_SIZE` **24** zpráv (`chess_move_command_t`)  
+**Timeout při odeslání:** typicky 100ms (`pdMS_TO_TICKS(100)`)  
+**Timeout při přijetí:** v `game_process_commands()` často non-blocking `0` — viz `game_task`
 
 **Struktura zprávy:** `chess_move_command_t`
 ```c
@@ -233,10 +235,10 @@ game_task
 
 ---
 
-### 2.2 uart_response_queue (20 zpráv)
+### 2.2 uart_response_queue (10 zpráv)
 
 **Typ:** FreeRTOS Queue (FIFO)  
-**Velikost:** 20 zpráv  
+**Velikost:** `UART_QUEUE_SIZE` **10** položek (`game_response_t`)  
 **Směr:** game_task → uart_task
 
 **Struktura:** `game_response_t`
@@ -278,19 +280,19 @@ UART Hardware
 
 **Funkce:** `led_set_pixel_safe()`, `led_clear_all_safe()`, ...  
 **Typ:** Thread-safe funkce s mutex ochranou  
-**Ochrana:** `led_state_mutex` (uvnitř funkce)
+**Ochrana:** `led_unified_mutex` (v `led_task.c`; dříve dokumentováno jako `led_state_mutex`)
 
 **Flow:**
 ```
 game_task::game_execute_move()
     ↓ [Volání thread-safe funkce]
 led_set_pixel_safe(led_index, red, green, blue)
-    ↓ [xSemaphoreTake(led_state_mutex, portMAX_DELAY)]  // ← UVNITŘ funkce
+    ↓ [xSemaphoreTake(led_unified_mutex, timeout)]  // ← UVNITŘ funkce
     ↓ [led_set_pixel_internal() - přímá změna LED bufferu]
-    ↓ [xSemaphoreGive(led_state_mutex)]
+    ↓ [xSemaphoreGive(led_unified_mutex)]
 led_task::led_main_loop()  // Běží paralelně
     ↓ [Každých 33ms]
-    ↓ [xSemaphoreTake(led_state_mutex, ...)]
+    ↓ [xSemaphoreTake(led_unified_mutex, ...)]
     ↓ [led_privileged_batch_commit() - atomický commit]
     ↓ [led_strip_refresh() - WS2812B protokol]
 LED Hardware
@@ -343,25 +345,25 @@ HTTP Response (JSON)
 
 ## 🔧 4. MUTEXY (Ochrana sdílených zdrojů)
 
-### 4.1 led_state_mutex
+### 4.1 led_unified_mutex
 
-**Ochrana:** LED buffer (`led_states[]`, `led_pending_changes[]`)  
+**Ochrana:** LED buffer (`led_states[]`, pending změny, batch commit)  
 **Použití:**
-- `led_set_pixel_safe()` - automaticky bere mutex
-- `led_task::led_privileged_batch_commit()` - bere mutex před commitem
+- `led_set_pixel_safe()` - bere mutex uvnitř (s definovaným timeoutem ticků)
+- `led_task::led_privileged_batch_commit()` - bere mutex před commitem a refresh
 
-**Kritické sekce:**
+**Kritické sekce (koncept):**
 ```c
-// V led_set_pixel_safe() (volající task):
-xSemaphoreTake(led_state_mutex, portMAX_DELAY);
-led_set_pixel_internal(...);  // Změna bufferu
-xSemaphoreGive(led_state_mutex);
+// V led_set_pixel_safe():
+xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS);
+// ... změna bufferu ...
+xSemaphoreGive(led_unified_mutex);
 
-// V led_task (LED task):
-xSemaphoreTake(led_state_mutex, ...);
-led_privileged_batch_commit();  // Atomický commit
-led_strip_refresh();  // Hardware refresh
-xSemaphoreGive(led_state_mutex);
+// V led_task:
+xSemaphoreTake(led_unified_mutex, ...);
+led_privileged_batch_commit();
+led_strip_refresh();
+xSemaphoreGive(led_unified_mutex);
 ```
 
 **Timeout:** `portMAX_DELAY` (blocking)
@@ -440,7 +442,7 @@ led_task::led_main_loop()
 led_process_commands()  // Zpracování příkazů z fronty (pokud existuje)
 led_update_animation()  // Aktualizace animací
 led_update_endgame_wave()  // Endgame efekty
-    ↓ [xSemaphoreTake(led_state_mutex)]
+    ↓ [xSemaphoreTake(led_unified_mutex)]
 led_privileged_batch_commit()  // Atomický commit všech změn
     ↓ [led_strip_refresh() - JEDEN refresh všech LED]
 WS2812B Protokol (800kHz, timing-critical)
@@ -477,17 +479,17 @@ Terminal (PC)
 
 | Z → Do | Typ | Mechanismus | Timeout | Ochrana |
 |--------|-----|-------------|---------|---------|
-| Matrix HW → matrix_task | GPIO Scan | Polling každých 10ms | - | matrix_mutex (GPIO) |
+| Matrix HW → matrix_task | GPIO Scan | Timer multiplex ~25ms + task smyčka | - | matrix_mutex (GPIO) |
 | Button HW → button_task | GPIO Scan | Polling každých 5ms | - | - |
 | UART HW ↔ uart_task | UART Read/Write | Non-blocking | - | uart_mutex (write) |
-| matrix_task → game_task | Queue | game_command_queue (20 msgs) | 100ms | - |
-| button_task → game_task | Queue | button_event_queue (5 msgs) | 100ms | - |
-| uart_task → game_task | Queue | game_command_queue (20 msgs) | 100ms | - |
-| web_task → game_task | Queue | game_command_queue (20 msgs) | 100ms | - |
-| game_task → uart_task | Queue | uart_response_queue (20 msgs) | 100ms | game_mutex |
-| game_task → led_task | Direct Call | led_set_pixel_safe() | portMAX_DELAY | led_state_mutex (uvnitř) |
+| matrix_task → game_task | Queue | game_command_queue (24) | 100ms | - |
+| button_task → game_task | Queue | button_event_queue (5) | 100ms | - |
+| uart_task → game_task | Queue | game_command_queue (24) | 100ms | - |
+| web_task → game_task | Queue | game_command_queue (24) | 100ms | - |
+| game_task → uart_task | Queue | uart_response_queue (10) | 100ms | game_mutex |
+| game_task → led_task | Direct Call | led_set_pixel_safe() | timeout v LED API | led_unified_mutex (uvnitř) |
 | web_task → game_task | Direct Call | game_get_status_json() | portMAX_DELAY | game_mutex (uvnitř) |
-| led_task → LED HW | WS2812B | led_strip_refresh() | - | led_state_mutex |
+| led_task → LED HW | WS2812B | led_strip_refresh() | - | led_unified_mutex |
 | uart_task → UART HW | UART Write | printf() / uart_write_bytes() | - | uart_mutex |
 
 ---
@@ -497,12 +499,12 @@ Terminal (PC)
 ### 1. Queue Overflow
 - **Problém:** Pokud fronta je plná, `xQueueSend` vrátí `pdFALSE` → zpráva se ztratí
 - **Řešení:** Timeout 100ms, kontrola návratové hodnoty
-- **Kritické fronty:** `game_command_queue` (20 msgs), `button_event_queue` (5 msgs)
+- **Kritické fronty:** `game_command_queue` (24), `button_event_queue` (5)
 
 ### 2. Mutex Deadlock
 - **Problém:** Pokud task drží mutex a je přerušen vyšší prioritou → deadlock
 - **Řešení:** Krátké timeouty, vyhýbání se `portMAX_DELAY` kde je to možné
-- **Kritické mutexy:** `game_mutex` (1000ms timeout v některých funkcích)
+- **Kritické mutexy:** `game_mutex`, `led_unified_mutex`
 
 ### 3. Timing-Critical Operations
 - **Problém:** LED refresh nesmí být přerušen
@@ -527,17 +529,17 @@ Pro vytvoření propracovaného diagramu použijte:
 
 2. **Označení timeoutů:**
    - Fronty: "100ms timeout"
-   - Mutexy: "mutex: led_state_mutex"
+   - Mutexy: "mutex: led_unified_mutex"
 
 3. **Velikost front:**
-   - game_command_queue: "20 msgs"
+   - game_command_queue: "24 msgs"
    - button_event_queue: "5 msgs"
 
 4. **Kritické operace:**
    - LED refresh: "P7, timing-critical"
-   - Matrix scan: "P6, 10ms"
+   - Matrix scan: "P6, multiplex ~25ms"
 
 ---
 
-**Datum:** 2025-01-16  
-**Verze:** 2.4.0
+**Datum:** 2026-04-30  
+**Verze:** 2.5.1

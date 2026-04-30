@@ -1,48 +1,23 @@
-# CZECHMATE - Dokumentace pro GitHub Pages
+# CZECHMATE — GitHub Pages (zdrojová složka)
 
-Tato složka obsahuje připravenou dokumentaci pro GitHub Pages.
+Obsah této složky se při pushi na **`main`** / **`master`** automaticky nasadí na větev **`gh-pages`** ([workflow `gh-pages.yml`](../.github/workflows/gh-pages.yml)).
 
-## 📖 Jak nahrát na GitHub Pages
+## Jednorázové nastavení na GitHubu
 
-### Metoda 1: Přes GitHub Web UI
+**Settings → Pages → Build and deployment:** zdroj **Deploy from a branch** → branch **`gh-pages`**, složka **`/` (root)** → Save.
 
-1. Vytvořte nový repozitář na GitHubu (nebo použijte existující)
-2. V repozitáři vytvořte nový branch s názvem `gh-pages`:
-   - GitHub → Branches → New branch → název: `gh-pages`
-3. Nahrajte obsah této složky do root gh-pages branch:
-   - GitHub → Upload files → vyberte všechny soubory z této složky
-4. Commit změny
-5. Aktivujte GitHub Pages:
-   - Settings → Pages → Source: `gh-pages` branch → Save
-6. Počkejte 1-2 minuty na nasazení
-7. Dokumentace bude dostupná na: `https://[username].github.io/[repo-name]/`
+Veřejná URL: `https://<uživatel>.github.io/<repo>/`
 
-### Metoda 2: Přes Git (pokud máte git repo)
+## Ruční nasazení (bez Actions)
 
 ```bash
-# Vytvořte gh-pages branch
 git checkout --orphan gh-pages
 git rm -rf . 2>/dev/null || true
-
-# Zkopírujte obsah této složky
-cp -r gh-pages-ready/* .
-
-# Commit a push
+cp -r gh-pages-ready/. .
 git add .
-git commit -m "Add documentation"
-git push -u origin gh-pages
-
-# Vraťte se na hlavní branch
-git checkout main  # nebo master
-```
-
-### Metoda 3: Přes GitHub CLI (gh)
-
-```bash
-# Pokud máte GitHub CLI nainstalovaný
-cd gh-pages-ready
-gh repo create [repo-name] --public --source=. --remote=origin
-git push -u origin gh-pages
+git commit -m "Pages"
+git push -u origin gh-pages --force
+git checkout main
 ```
 
 ## 📁 Struktura
@@ -60,5 +35,5 @@ Po nasazení budou všechny odkazy fungovat:
 
 ---
 
-**Verze dokumentace:** 2.4.0  
-**Vygenerováno:** Automaticky pomocí prepare_gh_pages.sh
+**Verze dokumentace:** 2.5.1 (sladit s kořenovým [README.md](../README.md))  
+**Vygenerováno:** `./scripts/render_docs.sh` nebo `python3 generate_mermaid_html.py`; pak nahraj tento adresář na větev `gh-pages`.

@@ -25,6 +25,6 @@ pick_flutter() {
 FLUTTER="$(pick_flutter)"
 "$FLUTTER" pub get
 if [[ ! -d android ]] || [[ ! -d ios ]]; then
-  "$FLUTTER" create . --project-name flutter_czechmate
+  "$FLUTTER" create . --project-name czechmate
 fi
 exec "$FLUTTER" run --dart-define=STAGING=true "$@"

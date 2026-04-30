@@ -1,14 +1,13 @@
-# ESP32-C6 Chess v2.4 - CMakeLists.txt
+# ESP32-C6 CZECHMATE — CMakeLists.txt
 # Complete chess system with WS2812B + 8x8 Matrix + Button LED Feedback
 # Author: Alfred Krutina
-# Version: 2.4
-# Date: 2025-08-24
+# Version label aligned with user-facing docs (README); binary name zůstává esp32_chess_v24 kvůli CI/partition zvyklostem.
 
 cmake_minimum_required(VERSION 3.16)
 
 # Project configuration
 set(PROJECT_NAME "esp32_chess_v24")
-set(PROJECT_VERSION "2.4.0")
+set(PROJECT_VERSION "2.5.1")
 
 # Include ESP-IDF build system
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)

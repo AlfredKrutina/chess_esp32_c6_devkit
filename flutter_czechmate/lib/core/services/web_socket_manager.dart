@@ -29,6 +29,7 @@ class SnapshotWebSocketClient {
     required void Function(GameSnapshot snap) onSnapshot,
     required void Function(Object error) onError,
     required void Function() onDisconnect,
+    void Function()? onMessageReceived,
   }) {
     disconnect();
     final uri = websocketUriFromBase(baseHttpUrl);
@@ -36,6 +37,7 @@ class SnapshotWebSocketClient {
     _channel = ch;
     _sub = ch.stream.listen(
       (dynamic data) {
+        onMessageReceived?.call();
         try {
           if (data is String) {
             onSnapshot(GameSnapshotCodec.decodeRepairingAndNormalizing(data));

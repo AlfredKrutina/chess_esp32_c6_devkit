@@ -1,4 +1,6 @@
-# Systém souřadnic v CZECHMATE v2.4
+# Systém souřadnic v CZECHMATE (v2.5.1)
+
+> Konvence **row/col** a funkce `convert_notation_to_coords` / `convert_coords_to_notation` ověř ve zdroji `game_task` — tento dokument popisuje standardní mapování **a1 = [0,0]**.
 
 ## Převod šachové notace na souřadnice
 
@@ -128,3 +130,7 @@ col: 0   1   2   3   4   5   6   7
 - **Col 7** = File h
 - **e2 → [1, 4]** ✓
 - **e4 → [3, 4]** ✓
+
+---
+
+**Dokument:** referenční · **Aktualizace:** 2026-04-30

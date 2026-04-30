@@ -8,5 +8,8 @@
 	<true/>
 	<key>com.apple.security.network.server</key>
 	<true/>
+	<!-- Outgoing HTTPS (Stockfish cloud APIs, Coach LLM, LAN board HTTP). -->
+	<key>com.apple.security.network.client</key>
+	<true/>
 </dict>
 </plist>

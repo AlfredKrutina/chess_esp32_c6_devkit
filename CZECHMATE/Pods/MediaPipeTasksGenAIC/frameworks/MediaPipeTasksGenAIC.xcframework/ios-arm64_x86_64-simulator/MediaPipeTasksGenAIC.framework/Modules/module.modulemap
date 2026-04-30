@@ -1,6 +1,0 @@
-framework module MediaPipeTasksGenAIC {
-  umbrella header "MediaPipeTasksGenAIC.h"
-
-  export *
-  module * { export * }
-}

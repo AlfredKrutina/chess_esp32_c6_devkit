@@ -1,6 +1,6 @@
 {
-    "name": "flutter_czechmate",
-    "short_name": "flutter_czechmate",
+    "name": "czechmate",
+    "short_name": "czechmate",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -1,0 +1,35 @@
+# =============================================================================
+# Nativní iOS (Xcode) — v remote jen Flutter klient flutter_czechmate/
+# =============================================================================
+/CZECHMATE/
+
+# =============================================================================
+# Podklady pro AI / interní plány — nejsou součástí hlavní dokumentace v remote
+# (zdroj pravdy pro lidi: kořenové README.md + docs/reference/ + docs/diagrams/)
+# =============================================================================
+/context/
+
+/docs/archive/
+/docs/planning/
+
+# Rozcestník v docs byl zrušen ve prospěch jednoho README v kořeni
+/docs/README.md
+
+# =============================================================================
+# ESP-IDF / toolchain
+# =============================================================================
+/build/
+/sdkconfig.old
+
+# Doxygen výstup (generuj: ./generate_docs.sh)
+/docs/doxygen/html/
+/docs/doxygen/rtf/
+/docs/doxygen/latex/
+# =============================================================================
+# Ostatní
+# =============================================================================
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*~

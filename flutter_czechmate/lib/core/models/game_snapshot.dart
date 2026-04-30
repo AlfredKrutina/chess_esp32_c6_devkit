@@ -39,6 +39,42 @@ class GameSnapshot {
     );
   }
 
+  GameSnapshot normalizingBoardRowsFromFirmwareExportIfNeeded() {
+    if (!_boardAppearsFirmwareWhiteNearRowZero(board)) return this;
+    final flipped = board.reversed.toList();
+    final newStatus = status.withPieceLiftedRowMirroredVertically();
+    return GameSnapshot(
+      stateVersion: stateVersion,
+      board: flipped,
+      timestamp: timestamp,
+      status: newStatus,
+      history: history,
+      captured: captured,
+      clock: clock,
+      gameId: gameId,
+    );
+  }
+
+  static bool _boardAppearsFirmwareWhiteNearRowZero(List<List<String>> board) {
+    if (board.length != 8) return false;
+    int? whiteKingRow;
+    int? blackKingRow;
+    for (int r = 0; r < 8; r++) {
+      if (board[r].length != 8) return false;
+      for (int c = 0; c < 8; c++) {
+        final raw = board[r][c].trim();
+        if (raw.isEmpty) continue;
+        final ch = raw[0];
+        if (ch == 'K') whiteKingRow = r;
+        if (ch == 'k') blackKingRow = r;
+      }
+    }
+    if (whiteKingRow != null && blackKingRow != null) {
+      return whiteKingRow < blackKingRow;
+    }
+    return false;
+  }
+
   factory GameSnapshot.fromJson(Map<String, dynamic> json) {
     final rawBoard = json['board'] as List<dynamic>? ?? [];
     BoardTimerState? clock;

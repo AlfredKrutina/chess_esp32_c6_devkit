@@ -1,12 +1,12 @@
-# Doxyfile pro ESP32-C6 Chess v2.4
-# Generování finální dokumentace projektu
+# Doxyfile pro ESP32-C6 CZECHMATE v2.5.1
+# Generování finální dokumentace projektu (číslo verze sladit s README / CMake při release)
 
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
 
 PROJECT_NAME           = "CZECHMATE"
-PROJECT_NUMBER         = "2.4.0"
+PROJECT_NUMBER         = "2.5.1"
 PROJECT_BRIEF          = "Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku"
 PROJECT_LOGO           = 
 OUTPUT_DIRECTORY       = docs/doxygen

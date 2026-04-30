@@ -1,0 +1,33 @@
+%% Zdroj pro Mermaid CLI (mmdc) — drž ve shodě s docs/diagrams/tasks_architecture.md
+flowchart TB
+  subgraph Tasks["FreeRTOS tasky — create_system_tasks()"]
+    LED["led_task<br/>P7 · 8 KiB stack"]
+    MAT["matrix_task<br/>P6 · 4 KiB"]
+    BTN["button_task<br/>P5 · 3 KiB"]
+    UART["uart_task<br/>P3 · 5 KiB<br/>(po bootu resume)"]
+    GAME["game_task<br/>P4 · 6 KiB"]
+    WEB["web_server_task<br/>P3 · 20 KiB"]
+    HA["ha_light_task<br/>P3 · 8 KiB"]
+    TEST["test_task<br/>P1 · 4 KiB<br/>jen CONFIG_CHESS_ENABLE_TEST_TASK"]
+  end
+
+  subgraph BLE["Bluetooth LE"]
+    NIM["NimBLE host task<br/>ble_task_init() → ble_nimble_stack_init()<br/>není vlastní xTaskCreate ble_task"]
+  end
+
+  subgraph Disabled["Nevytváří se"]
+    ANIM["animation_task<br/>komentář v main.c — animace v led_task"]
+    MATTER["matter_task<br/>zakázáno"]
+  end
+
+  MAIN[["app_main"]] --> Tasks
+  MAIN --> NIM
+
+  GQ[("game_command_queue<br/>24 × chess_move_command_t")]
+  BQ[("button_event_queue<br/>5")]
+  MAT --> GQ
+  BTN --> BQ
+  UART --> GQ
+  WEB --> GQ
+  GAME --> GQ
+  GAME -.-> BQ

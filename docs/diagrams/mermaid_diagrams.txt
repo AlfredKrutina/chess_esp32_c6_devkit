@@ -1,4 +1,4 @@
-# Mermaid Sequence Diagramy pro CZECHMATE v2.4
+# Mermaid Sequence Diagramy pro CZECHMATE v2.5.1 (firmware podle main.c + freertos_chess.h, 2026-04)
 # Vložte obsah tohoto souboru do https://mermaid.live/ pro vizualizaci
 #
 # Struktura:
@@ -11,7 +11,12 @@
 # - ČÁST G: Endgame a Timer (2 diagramy)
 # - ČÁST H: Hardware tasky - detail (4-5 diagramů)
 # - ČÁST I: Web Server (2 diagramy)
-# - ČÁST J: Test Task (2-3 diagramy)
+# - ČÁST J: Test Task (2-3 diagramy; zapnutí menuconfig CONFIG_CHESS_ENABLE_TEST_TASK)
+#
+# Globální poznámky k verzi:
+# - FreeRTOS animation_task se ve main.c NEVYTVAŘÍ — animace v led_task + unified_animation_manager.
+# - BLE: ble_task_init() spouští NimBLE host task (nimble_port_freertos_init), není samostatný „ble_task“ v tabulce priorit.
+# - game_command_queue = 24 položek; uart_response_queue = 10 (UART_QUEUE_SIZE).
 
 # =============================================================================
 # ČÁST A: SYSTEM OVERVIEW
@@ -26,19 +31,19 @@
 sequenceDiagram
     participant HW as ESP32_Hardware
     participant M as app_main
-    participant LT as ledTask_P7_16KB
-    participant MT as matrixTask_P6_8KB
+    participant LT as ledTask_P7_8KB
+    participant MT as matrixTask_P6_4KB
     participant BT as buttonTask_P5_3KB
-    participant GT as gameTask_P4_10KB
-    participant UT as uartTask_P3_10KB
-    participant AT as animationTask_P3_2KB
+    participant GT as gameTask_P4_6KB
+    participant UT as uartTask_P3_5KB
     participant WT as webServerTask_P3_20KB
+    participant HT as haLightTask_P3_8KB
     participant TT as testTask_P1_4KB
-    participant GQ as gameCommandQueue_50
+    participant GQ as gameCommandQueue_24
     participant BQ as buttonEventQueue_5
     participant AQ as animationCommandQueue_5
-    participant URQ as uartResponseQueue
-    participant LM as ledMutex
+    participant URQ as uartResponseQueue_10
+    participant LM as ledUnifiedMutex
     participant MM as matrixMutex
     participant UM as uartMutex
     participant WDT as Watchdog
@@ -48,33 +53,38 @@ sequenceDiagram
     M->>WDT: esp_task_wdt_reconfigure(10s timeout)
     M->>WDT: esp_task_wdt_add(NULL) - Main task registrace
 
-    Note over M: Vytvoření front a mutexů
-    M->>GQ: xQueueCreate(50) - game_command_queue
+    Note over M: Fronty/mutexy inicializuje freertos_chess (zjednodušeně „z main flow“)
+    M->>GQ: xQueueCreate(24) - game_command_queue
     M->>BQ: xQueueCreate(5) - button_event_queue
-    M->>AQ: xQueueCreate(5) - animation_command_queue
+    M->>AQ: xQueueCreate(5) - animation_command_queue (legacy rozhraní)
     M->>URQ: xQueueCreate(10) - uart_response_queue
-    M->>LM: xSemaphoreCreateMutex() - led_mutex
+    M->>LM: led_unified_mutex (v led_task init)
     M->>MM: xSemaphoreCreateMutex() - matrix_mutex
     M->>UM: xSemaphoreCreateMutex() - uart_mutex
 
-    Note over M: Vytváření tasků podle priority (vzestupně: P1→P7)
-    M->>TT: xTaskCreate(test_task, P1, 4KB)
-    M->>AT: xTaskCreate(animation_task, P3, 2KB)
-    M->>WT: xTaskCreate(web_server_task, P3, 20KB)
-    M->>UT: xTaskCreate(uart_task, P3, 10KB) - SUSPENDED
-    M->>GT: xTaskCreate(game_task, P4, 10KB)
+    Note over M: Pořadí xTaskCreate jako v main.c (test_task jen pokud menuconfig)
+    M->>LT: xTaskCreate(led_task, P7, 8KB)
+    M->>MT: xTaskCreate(matrix_task, P6, 4KB)
     M->>BT: xTaskCreate(button_task, P5, 3KB)
-    M->>MT: xTaskCreate(matrix_task, P6, 8KB)
-    M->>LT: xTaskCreate(led_task, P7, 16KB)
+    M->>UT: xTaskCreate(uart_task, P3, 5KB) - SUSPENDED
+    M->>GT: xTaskCreate(game_task, P4, 6KB)
+    Note over M: animation_task — VYPNUTÝ blok v main.c (animace v led_task)
+    opt CONFIG_CHESS_ENABLE_TEST_TASK
+        M->>TT: xTaskCreate(test_task, P1, 4KB)
+    end
+    M->>WT: xTaskCreate(web_server_task, P3, 20KB)
+    M->>HT: xTaskCreate(ha_light_task, P3, 8KB)
 
-    Note over TT,LT: WDT registrace každého tasku (interně)
-    TT->>WDT: esp_task_wdt_add(NULL)
-    AT->>WDT: esp_task_wdt_add(NULL)
-    WT->>WDT: esp_task_wdt_add(NULL)
-    GT->>WDT: esp_task_wdt_add(NULL)
-    BT->>WDT: esp_task_wdt_add(NULL)
-    MT->>WDT: esp_task_wdt_add(NULL)
+    Note over M: ble_task_init() → NimBLE host task (ESP-IDF), není řádek výše
+
+    Note over TT,LT: TWDT: tasky se typicky registrují uvnitř vlastního startu
     LT->>WDT: esp_task_wdt_add(NULL)
+    MT->>WDT: esp_task_wdt_add(NULL)
+    BT->>WDT: esp_task_wdt_add(NULL)
+    UT->>WDT: esp_task_wdt_add(NULL)
+    GT->>WDT: esp_task_wdt_add(NULL)
+    WT->>WDT: esp_task_wdt_add(NULL)
+    HT->>WDT: esp_task_wdt_add(NULL)
 
     Note over M: Boot animace a inicializace hry
     M->>LT: show_boot_animation_and_board()
@@ -86,22 +96,22 @@ sequenceDiagram
     Note over MT,GT: Hlavní komunikační kanály
     MT->>GQ: GAME_CMD_PICKUP/DROP (fyzické tahy)
     BT->>BQ: BUTTON_EVENT_PRESS (promoce, reset)
-    GT->>AQ: Animation commands (endgame animace)
+    Note over GT,LT: Endgame/tahové animace: game_task → led_task / unified_animation_manager (ne samostatný animation_task)
     UT->>GQ: GAME_CMD_MAKE_MOVE (UART tahy)
     WT->>GQ: GAME_CMD_MAKE_MOVE (Web tahy)
     GT->>URQ: Response messages (UART odpovědi)
-    GT->>LM: led_set_pixel_safe() - PŘÍMÉ VOLÁNÍ s mutex
+    GT->>LM: led_set_pixel_safe() - mutex led_unified_mutex
     GT->>MM: Matrix operations - s mutex ochranou
     UT->>UM: UART output - s mutex ochranou
 
     Note over GT: game_task hlavní smyčka (100ms):<br/>game_process_commands() → game_update_timer_display() → Auto new game detection
-    Note over MT: matrix_task hlavní smyčka (25ms):<br/>Time-multiplexing: 20ms matrix scan, 5ms button scan
-    Note over LT: led_task hlavní smyčka (33ms):<br/>Batch update systém, WS2812B refresh
-    Note over BT: button_task hlavní smyčka (5ms):<br/>GPIO scan, Debounce (50ms), Event detection
-    Note over UT: uart_task hlavní smyčka (1ms):<br/>Input processing, Command parsing, Response queue
-    Note over AT: animation_task hlavní smyčka (50ms):<br/>Animation frame execution, LED animace
-    Note over WT: web_server_task hlavní smyčka:<br/>HTTP server, WiFi AP/STA, REST API
-    Note over TT: test_task hlavní smyčka:<br/>Test execution, Hardware/System/Performance/Integration tests
+    Note over MT: matrix: timer callback ~25ms<br/>time-multiplex 20ms matice / 5ms tlačítka (+ vlastní smyčka tasku)
+    Note over LT: led_task (~33ms):<br/>batch commit, WS2812B refresh, animace
+    Note over BT: button_task (5ms):<br/>GPIO scan, debounce
+    Note over UT: uart_task (1ms):<br/>vstup, parsování, uart_response_queue
+    Note over WT: web_server_task:<br/>HTTP, WiFi AP/STA, REST (+ volitelně /ws)
+    Note over HT: ha_light_task:<br/>MQTT Home Assistant RGB light
+    Note over TT: test_task (volitelný):<br/>menuconfig CONFIG_CHESS_ENABLE_TEST_TASK
 
 # =============================================================================
 # ČÁST B: STARTUP A INICIALIZACE
@@ -127,13 +137,13 @@ sequenceDiagram
     participant UT as uartTask
 
     HW->>M: Boot → app_main()
-    Note over M: ESP32-C6 Chess v2.4 - Inicializace systému
+    Note over M: ESP32-C6 Chess v2.5.1 - Inicializace systému
     M->>WDT: esp_task_wdt_reconfigure() - 10s timeout (init)
     M->>WDT: esp_task_wdt_add(NULL) - Registrace main task
     M->>NVS: nvs_flash_init() - Non-Volatile Storage
     NVS-->>M: ESP_OK
     
-    M->>Q: xQueueCreate(game_command_queue, 50)
+    M->>Q: xQueueCreate(game_command_queue, 24)
     M->>Q: xQueueCreate(button_event_queue, 5)
     M->>Q: xQueueCreate(animation_command_queue, 5)
     M->>Q: xQueueCreate(uart_response_queue, 10)
@@ -144,15 +154,18 @@ sequenceDiagram
     M->>MTX: xSemaphoreCreateMutex() - matrix_mutex
     MTX-->>M: Mutex handles
     
-    Note over T: Vytváření tasků - v pořadí priority (P1→P7)
-    M->>T: xTaskCreate(test_task, P1, 4KB)
-    M->>T: xTaskCreate(animation_task, P3, 2KB)
-    M->>T: xTaskCreate(web_server_task, P3, 20KB)
-    M->>T: xTaskCreate(uart_task, P3, 10KB) - SUSPENDED
-    M->>T: xTaskCreate(game_task, P4, 10KB)
+    Note over T: Vytváření tasků - pořadí jako v main.c (priority jsou vlastní konstanty)
+    M->>T: xTaskCreate(led_task, P7, 8KB)
+    M->>T: xTaskCreate(matrix_task, P6, 4KB)
     M->>T: xTaskCreate(button_task, P5, 3KB)
-    M->>T: xTaskCreate(matrix_task, P6, 8KB)
-    M->>T: xTaskCreate(led_task, P7, 16KB)
+    M->>T: xTaskCreate(uart_task, P3, 5KB) - SUSPENDED
+    M->>T: xTaskCreate(game_task, P4, 6KB)
+    Note over T: animation_task zakázán v main.c
+    opt test task zapnutý v menuconfig
+        M->>T: xTaskCreate(test_task, P1, 4KB)
+    end
+    M->>T: xTaskCreate(web_server_task, P3, 20KB)
+    M->>T: xTaskCreate(ha_light_task, P3, 8KB)
     
     Note over M: vTaskDelay(1000ms) - Čekání na inicializaci tasků
     M->>LT: show_boot_animation_and_board() - Boot animace
@@ -175,26 +188,26 @@ sequenceDiagram
     participant BT as buttonTask
     participant GT as gameTask
     participant UT as uartTask
-    participant AT as animationTask
     participant WT as webServerTask
+    participant HT as haLightTask
     participant TT as testTask
     participant WDT as Watchdog
     participant HW as Hardware
 
-    Note over M: Vytváření a inicializace všech tasků
+    Note over M: Vytváření a inicializace tasků (main.c)
 
-    M->>LT: xTaskCreate(led_task, P7, 16KB)
+    M->>LT: xTaskCreate(led_task, P7, 8KB)
     activate LT
     LT->>LT: led_task_start()
     LT->>HW: led_hardware_init() - WS2812B init, GPIO config
     LT->>WDT: esp_task_wdt_add(NULL) - WDT registrace
     deactivate LT
 
-    M->>MT: xTaskCreate(matrix_task, P6, 8KB)
+    M->>MT: xTaskCreate(matrix_task, P6, 4KB)
     activate MT
     MT->>MT: matrix_task_start()
     MT->>HW: matrix_reset() - GPIO init, Row/Column pins config
-    MT->>HW: FreeRTOS timer init - matrix_scan_timer_callback (25ms)
+    MT->>HW: FreeRTOS timer - matrix scan / multiplex ~25ms
     MT->>WDT: esp_task_wdt_add(NULL)
     deactivate MT
 
@@ -205,27 +218,30 @@ sequenceDiagram
     BT->>WDT: esp_task_wdt_add(NULL)
     deactivate BT
 
-    M->>GT: xTaskCreate(game_task, P4, 10KB)
+    M->>UT: xTaskCreate(uart_task, P3, 5KB) - SUSPENDED
+    activate UT
+    UT->>UT: uart_task_start() - Počáteční stav: SUSPENDED
+    UT->>HW: USB Serial JTAG console
+    UT->>WDT: esp_task_wdt_add(NULL)
+    Note over UT: Task je SUSPENDED - resume po boot animaci
+    deactivate UT
+
+    M->>GT: xTaskCreate(game_task, P4, 6KB)
     activate GT
     GT->>GT: game_task_start()
     GT->>GT: game_initialize() - Board init, State variables init
     GT->>WDT: esp_task_wdt_add(NULL)
     deactivate GT
 
-    M->>UT: xTaskCreate(uart_task, P3, 10KB) - SUSPENDED
-    activate UT
-    UT->>UT: uart_task_start() - Počáteční stav: SUSPENDED
-    UT->>HW: UART/Console init (USB Serial JTAG)
-    UT->>WDT: esp_task_wdt_add(NULL)
-    Note over UT: Task je SUSPENDED - resume po boot animaci
-    deactivate UT
+    Note over M: animation_task_start — nepoužívá se (komentář v main.c)
 
-    M->>AT: xTaskCreate(animation_task, P3, 2KB)
-    activate AT
-    AT->>AT: animation_task_start()
-    AT->>AT: animation_initialize_system() - Animation buffers init
-    AT->>WDT: esp_task_wdt_add(NULL)
-    deactivate AT
+    opt CONFIG_CHESS_ENABLE_TEST_TASK
+        M->>TT: xTaskCreate(test_task, P1, 4KB)
+        activate TT
+        TT->>TT: test_task_start()
+        TT->>WDT: esp_task_wdt_add(NULL)
+        deactivate TT
+    end
 
     M->>WT: xTaskCreate(web_server_task, P3, 20KB)
     activate WT
@@ -235,14 +251,15 @@ sequenceDiagram
     WT->>WDT: esp_task_wdt_add(NULL)
     deactivate WT
 
-    M->>TT: xTaskCreate(test_task, P1, 4KB)
-    activate TT
-    TT->>TT: test_task_start()
-    TT->>TT: test_initialize_system() - Test suites init
-    TT->>WDT: esp_task_wdt_add(NULL)
-    deactivate TT
+    M->>HT: xTaskCreate(ha_light_task, P3, 8KB)
+    activate HT
+    HT->>HT: ha_light_task_start()
+    HT->>WDT: esp_task_wdt_add(NULL)
+    deactivate HT
 
-    Note over M: Všechny tasky vytvořeny a inicializovány<br/>WDT registrovány, hardware připraven
+    Note over M: ble_task_init() spustí NimBLE mimo tento diagram
+
+    Note over M: Tasky vytvořeny dle main.c — animace integrované v led_task
 
 # -----------------------------------------------------------------------------
 # B3. Boot animation flow
@@ -585,8 +602,6 @@ sequenceDiagram
     participant GQ as gameCommandQueue
     participant G as gameTask
     participant L as ledTask
-    participant A as animationTask
-    participant AQ as animationCommandQueue
 
     Note over M: Skenování 8x8 matice přes FreeRTOS timer<br/>Detekce Reed Switchů pomocí time-multiplexingu
     
@@ -619,11 +634,7 @@ sequenceDiagram
         Note over L: Move path animace - žlutá → zelená přechod
         
         opt Endgame detekován (šachmat/pat/remíza)
-            G->>AQ: xQueueSend() - animation command pro endgame animaci
-            activate AQ
-            A->>AQ: xQueueReceive()
-            deactivate AQ
-            A->>L: led_set_pixel_safe() - Endgame wave animace
+            G->>L: start_endgame_animation() / unified path — vlnové efekty v led_task (bez animation_task)
         end
         
         G->>L: led_clear_board_only() - Zhasnutí zvýraznění
@@ -923,8 +934,6 @@ sequenceDiagram
 sequenceDiagram
     participant G as gameTask
     participant L as ledTask
-    participant AQ as animationCommandQueue
-    participant A as animationTask
     participant U as uartTask
     participant WS as webServerTask
     participant TS as TimerSystem
@@ -1231,62 +1240,25 @@ sequenceDiagram
     end
 
 # -----------------------------------------------------------------------------
-# H5. Animation task detail
+# H5. Animation task detail — LEGACY / VYPNUTO ve firmware
 # -----------------------------------------------------------------------------
-# Detailní flow animation tasku: animation command queue, frame execution,
-# LED animace.
+# Drive samostatný FreeRTOS animation_task + animation_command_queue.
+# Aktuálně main.c nevytváří animation_task; animace v led_task (batch + vlny).
 
 sequenceDiagram
     participant G as gameTask
-    participant AQ as animationCommandQueue
-    participant A as animationTask
     participant L as ledTask
 
-    Note over A: animation_task_start() - Hlavní smyčka (50ms cyklus)
+    Note over G,L: Produkcni cesta (zjednodušeně)
     
-    loop Každý cyklus (50ms)
-        A->>A: esp_task_wdt_reset_safe() - Watchdog reset
-        
-        Note over A: Zpracování animation commands
-        A->>AQ: animation_process_commands() - Zpracování příkazů z fronty
-        loop Pro všechny příkazy v frontě
-            A->>AQ: xQueueReceive(animation_command_queue, 0)
-            activate AQ
-            alt Command type 0 (Stop all)
-                A->>A: animation_stop_all()
-            else Command type 1 (Pause all)
-                A->>A: animation_pause_all()
-            else Command type 2 (Resume all)
-                A->>A: animation_resume_all()
-            end
-            deactivate AQ
-        end
-        
-        Note over A: Frame execution pro aktivní animace
-        loop Pro všechny aktivní animace
-            alt animation.state == ANIM_TASK_STATE_RUNNING
-                A->>A: animation_execute_frame() - Generování frame
-                alt ANIM_TASK_TYPE_WAVE
-                    A->>A: animation_generate_wave_frame()
-                else ANIM_TASK_TYPE_PULSE
-                    A->>A: animation_generate_pulse_frame()
-                else ANIM_TASK_TYPE_FADE
-                    A->>A: animation_generate_fade_frame()
-                else ANIM_TASK_TYPE_GAME_OVER
-                    A->>A: animation_execute_game_over()
-                end
-                A->>L: led_set_pixel_safe() - Odeslání frame do LED
-                A->>A: anim->current_frame++ - Příprava na další frame
-                alt anim->current_frame >= anim->total_frames
-                    A->>A: animation_stop() - Animace dokončena
-                end
-            end
-        end
-        
-        A->>A: vTaskDelayUntil(50ms) - Čekání na další cyklus
+    loop led_task cyklus (~33 ms)
+        L->>L: led_process_commands()
+        L->>L: led_update_animation()
+        L->>L: led_update_endgame_wave()
+        L->>L: led_privileged_batch_commit() + led_strip_refresh()
     end
     
-    Note over G: game_task posílá animation commands přes animation_command_queue
+    Note over G: Po tahu / endgame: LED příkazy z game_task<br/>bez běžícího animation_task (viz unified_animation_manager)
 
 # =============================================================================
 # ČÁST I: WEB SERVER

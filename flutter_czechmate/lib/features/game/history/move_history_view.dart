@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/game_snapshot.dart';
 import '../../connection/board_session_notifier.dart';
+import '../state/game_ui_notifier.dart';
 
 class MoveHistoryView extends ConsumerWidget {
   const MoveHistoryView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final ui = ref.watch(gameUiNotifierProvider);
     final raw =
         ref.watch(boardSessionNotifierProvider).snapshot?.history.moves;
     final moves = raw == null ? <GameHistoryMove>[] : List<GameHistoryMove>.of(raw);
@@ -31,8 +33,19 @@ class MoveHistoryView extends ConsumerWidget {
             final label = m.san ?? '${m.from ?? '?'}→${m.to ?? '?'}';
             return ListTile(
               dense: true,
+              enabled: !ui.sandboxMode,
+              selected:
+                  !ui.sandboxMode && ui.historyReviewMoveIndex == i,
               title: Text('${i + 1}. $label'),
               subtitle: m.piece != null ? Text('figura: ${m.piece}') : null,
+              onTap: ui.sandboxMode
+                  ? null
+                  : () {
+                      ref.read(gameUiNotifierProvider.notifier).setHistoryReviewIndex(
+                            i,
+                            ref.read(boardSessionNotifierProvider).snapshot,
+                          );
+                    },
             );
           },
         ),

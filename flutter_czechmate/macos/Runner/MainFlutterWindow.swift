@@ -10,6 +10,9 @@ class MainFlutterWindow: NSWindow {
 
     RegisterGeneratedPlugins(registry: flutterViewController)
 
+    let messenger = flutterViewController.engine.binaryMessenger
+    CzechMateMacPlatformChannels.registerLiveActivityAndWatch(messenger: messenger)
+
     super.awakeFromNib()
   }
 }

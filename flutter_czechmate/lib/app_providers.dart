@@ -1,8 +1,18 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/services/board_api_client.dart';
+import 'core/services/live_activity_service.dart';
 import 'core/services/prefs_repository.dart';
+import 'core/services/stockfish_api_client.dart';
+import 'core/services/watch_connectivity_service.dart';
+
+/// Spodní navigace (`_MainShell`) — indexy viz [AppMainTab] v `app_navigation.dart`.
+final mainNavTabIndexProvider = StateProvider<int>((ref) => 0);
+
+/// Záložka Pokrok: 0 = Výuka, 1 = Statistiky (jako `ProgressTabView` na iOS).
+final progressSegmentProvider = StateProvider<int>((ref) => 0);
 
 /// Přepsat v `main()` přes `ProviderScope(overrides: [...])`.
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
@@ -17,4 +27,32 @@ final boardApiClientProvider = Provider<BoardApiClient>((ref) {
 
 final prefsRepositoryProvider = Provider<PrefsRepository>((ref) {
   return PrefsRepository(ref.watch(sharedPreferencesProvider));
+});
+
+final liveActivityServiceProvider = Provider<LiveActivityService>((ref) {
+  return LiveActivityService();
+});
+
+final watchConnectivityServiceProvider = Provider<WatchConnectivityService>((ref) {
+  return WatchConnectivityService();
+});
+
+final stockfishApiClientProvider = Provider<StockfishApiClient>((ref) {
+  final base = ref.read(prefsRepositoryProvider).stockfishApiBaseUrl;
+  final c = StockfishApiClient(baseUrl: base);
+  ref.onDispose(c.close);
+  return c;
+});
+
+/// Parita `NWPathMonitor` — stav připojení pro Stockfish / upozornění na Wi‑Fi vs. data.
+final networkConnectivityProvider = StreamProvider<List<ConnectivityResult>>((ref) async* {
+  final c = Connectivity();
+  try {
+    yield await c.checkConnectivity();
+  } catch (_) {
+    yield <ConnectivityResult>[ConnectivityResult.none];
+  }
+  await for (final list in c.onConnectivityChanged) {
+    yield list;
+  }
 });

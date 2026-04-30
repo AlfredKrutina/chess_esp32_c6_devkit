@@ -20,6 +20,10 @@ class TimerDisplay extends ConsumerWidget {
     BoardTimerState? t = session.timer;
     final c = session.snapshot?.clock;
     if (c != null) t = c;
+    final snap = session.snapshot;
+    final gameOver = snap != null &&
+        (snap.status.gameEnd?.ended == true ||
+            snap.status.gameState.toLowerCase() == 'finished');
     if (t == null || !t.isTimeControlEnabled) {
       return const Card(
         child: Padding(
@@ -28,6 +32,7 @@ class TimerDisplay extends ConsumerWidget {
         ),
       );
     }
+    final running = !gameOver && t.timerRunning;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -50,10 +55,15 @@ class TimerDisplay extends ConsumerWidget {
             Column(
               children: [
                 Icon(
-                  t.gamePaused ? Icons.pause_circle : Icons.timer,
+                  (gameOver || t.gamePaused) ? Icons.pause_circle : Icons.timer,
                   size: 22,
                 ),
-                Text(t.timerRunning ? 'běží' : 'stojí', style: const TextStyle(fontSize: 11)),
+                Text(
+                  gameOver
+                      ? 'konec partie'
+                      : (running ? 'běží' : 'stojí'),
+                  style: const TextStyle(fontSize: 11),
+                ),
               ],
             ),
             Column(

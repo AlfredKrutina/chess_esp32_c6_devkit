@@ -1,4 +1,4 @@
-# Komplexní Mermaid Sequence Diagram - Hlavní Flow CZECHMATE v2.4
+# Komplexní Mermaid Sequence Diagram - Hlavní Flow CZECHMATE v2.5.1
 # Zkopírujte tento text do https://mermaid.live/ pro vizualizaci
 #
 # Tento diagram zachytává hlavní flow programu po inicializaci:
@@ -11,7 +11,7 @@
 sequenceDiagram
     participant WDT as Watchdog
     participant LT as ledTask_P7_33ms
-    participant MT as matrixTask_P6_10ms
+    participant MT as matrixTask_P6_25msMux
     participant BT as buttonTask_P5_5ms
     participant GT as gameTask_P4_100ms
     participant UT as uartTask_P3_1ms
@@ -51,15 +51,15 @@ sequenceDiagram
     end
 
     rect rgb(255, 240, 240)
-        Note over MT,GPIO: MATRIX TASK (Priorita 6, 10ms cyklus + 20ms timer)<br/>MUTEX: matrix_mutex - Ochrana GPIO operací při skenování 8x8 matice
+        Note over MT,GPIO: MATRIX TASK (Priorita 6)<br/>Timer callback ~25ms: 20ms matice + 5ms okno tlačítek; task smyčka často 10ms<br/>MUTEX: matrix_mutex
         
-        loop Každých 10ms (matrix_task hlavní smyčka)
+        loop matrix_task smyčka (typicky 10ms)
             MT->>WDT: esp_task_wdt_reset_safe()
             MT->>MT: matrix_process_commands()
             MT->>MT: vTaskDelayUntil(10ms)
         end
         
-        Note over MT: Matrix scanning přes FreeRTOS timer callback (každých 20ms)
+        Note over MT: Plný scan řádků/sloupců v timer callback (multiplex)
         MT->>MM: xSemaphoreTake(matrix_mutex)
         activate MM
         Note over MT,MM: Ochrana GPIO operací - prevence konfliktů při skenování

@@ -1,0 +1,542 @@
+import 'dart:math' as math;
+import 'dart:ui' show FontFeature;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../connection/board_session_notifier.dart';
+import '../../connection/board_session_state.dart';
+
+/// Barva + štítek pro předvolby (Hue-like scény).
+class BoardLampPreset {
+  const BoardLampPreset(this.label, this.r, this.g, this.b, this.icon);
+
+  final String label;
+  final int r;
+  final int g;
+  final int b;
+  final IconData icon;
+}
+
+/// Disk hue × saturace (střed = bílá, okraj = plná barva), hodnota V zvlášť.
+class _HueSatDiskPainter extends CustomPainter {
+  _HueSatDiskPainter({required this.step});
+
+  final double step;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = Offset(size.width / 2, size.height / 2);
+    final r = size.shortestSide / 2;
+    for (double y = -r; y <= r; y += step) {
+      for (double x = -r; x <= r; x += step) {
+        final p = Offset(x, y);
+        final dist = p.distance;
+        if (dist > r) continue;
+        final sat = dist <= 1 ? 0.0 : (dist / r).clamp(0.0, 1.0);
+        var hue = 0.0;
+        if (dist > 1.5) {
+          hue = (math.atan2(p.dy, p.dx) * 180 / math.pi + 90) % 360;
+          if (hue < 0) hue += 360;
+        }
+        final color =
+            HSVColor.fromAHSV(1.0, hue, sat, 1.0).toColor();
+        canvas.drawRect(
+          Rect.fromCenter(center: c + p, width: step + 1, height: step + 1),
+          Paint()..color = color,
+        );
+      }
+    }
+    final rim = Paint()
+      ..color = Colors.white.withValues(alpha: 0.12)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    canvas.drawCircle(c, r, rim);
+  }
+
+  @override
+  bool shouldRepaint(covariant _HueSatDiskPainter oldDelegate) =>
+      oldDelegate.step != step;
+}
+
+class _HueSatThumbPainter extends CustomPainter {
+  _HueSatThumbPainter({
+    required this.hue,
+    required this.saturation,
+    required this.diskRadius,
+  });
+
+  final double hue;
+  final double saturation;
+  final double diskRadius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = Offset(size.width / 2, size.height / 2);
+    final rThumb = (diskRadius * saturation).clamp(0.0, diskRadius);
+    final angle = hue * math.pi / 180 - math.pi / 2;
+    final pos = c + Offset(math.cos(angle), math.sin(angle)) * rThumb;
+    final fill = HSVColor.fromAHSV(1.0, hue, saturation.clamp(0, 1), 1.0).toColor();
+    canvas.drawCircle(
+      pos,
+      10,
+      Paint()
+        ..color = fill
+        ..isAntiAlias = true,
+    );
+    canvas.drawCircle(
+      pos,
+      10,
+      Paint()
+        ..color = Colors.white.withValues(alpha: 0.9)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _HueSatThumbPainter oldDelegate) =>
+      oldDelegate.hue != hue ||
+      oldDelegate.saturation != saturation ||
+      oldDelegate.diskRadius != diskRadius;
+}
+
+/// Náhled 8×8 — odhad rozptylu RGB pod desku (ne přesné LED mapování).
+class _BoardGlowPreview extends StatelessWidget {
+  const _BoardGlowPreview({
+    required this.rgb,
+    required this.intensity,
+    required this.lampOn,
+  });
+
+  final Color rgb;
+  final double intensity;
+  final bool lampOn;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final glow = lampOn ? rgb : rgb.withValues(alpha: 0.25);
+    final v = lampOn ? intensity : 0.12;
+
+    return AspectRatio(
+      aspectRatio: 1,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CustomPaint(
+              painter: _GlowSquaresPainter(glow: glow, blend: v),
+            ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    glow.withValues(alpha: 0.35 * v),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.85],
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  lampOn ? 'Náhled rozptylu světla' : 'Lampa vypnutá',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.75),
+                      ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GlowSquaresPainter extends CustomPainter {
+  _GlowSquaresPainter({required this.glow, required this.blend});
+
+  final Color glow;
+  final double blend;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final sq = size.width / 8;
+    for (var row = 0; row < 8; row++) {
+      for (var col = 0; col < 8; col++) {
+        final dark = (row + col).isOdd;
+        final base = dark ? const Color(0xFF151C24) : const Color(0xFF1E2730);
+        final lit = Color.alphaBlend(
+          glow.withValues(alpha: (dark ? 0.07 : 0.05) + 0.42 * blend),
+          base,
+        );
+        canvas.drawRect(
+          Rect.fromLTWH(col * sq, row * sq, sq + 0.5, sq + 0.5),
+          Paint()..color = lit,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GlowSquaresPainter oldDelegate) =>
+      oldDelegate.glow != glow || oldDelegate.blend != blend;
+}
+
+/// Hue-like studio pro lampu desky — výběr barvy, jas, náhled, předvolby.
+class BoardLampStudioPanel extends ConsumerStatefulWidget {
+  const BoardLampStudioPanel({super.key});
+
+  static const presets = <BoardLampPreset>[
+    BoardLampPreset('Teplá bílá', 255, 214, 170, Icons.wb_incandescent_outlined),
+    BoardLampPreset('Studená bílá', 220, 235, 255, Icons.wb_cloudy_outlined),
+    BoardLampPreset('Klidná modrá', 70, 140, 255, Icons.water_drop_outlined),
+    BoardLampPreset('Lesní zelená', 66, 200, 120, Icons.forest_outlined),
+    BoardLampPreset('Teplo', 255, 120, 48, Icons.local_fire_department_outlined),
+    BoardLampPreset('Fialová scéna', 160, 96, 255, Icons.auto_awesome),
+    BoardLampPreset('Červená', 255, 48, 48, Icons.favorite_outline),
+    BoardLampPreset('Jantar', 255, 180, 32, Icons.light_mode_outlined),
+  ];
+
+  @override
+  ConsumerState<BoardLampStudioPanel> createState() =>
+      _BoardLampStudioPanelState();
+}
+
+class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
+  double _hue = 0;
+  double _saturation = 0;
+  double _value = 1;
+  double _boardBright = 50;
+  bool _lampOn = true;
+  bool _busy = false;
+  int _autoTimeoutSec = 300;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncFromSnapshot());
+  }
+
+  void _syncFromSnapshot() {
+    final st = ref.read(boardSessionNotifierProvider).snapshot?.status;
+    if (st == null || !mounted) return;
+    final r = st.lightR ?? 255;
+    final g = st.lightG ?? 255;
+    final b = st.lightB ?? 255;
+    final hsv = HSVColor.fromColor(Color.fromARGB(255, r, g, b));
+    setState(() {
+      _hue = hsv.hue;
+      _saturation = hsv.saturation;
+      _value = hsv.value;
+      if (st.brightness != null) _boardBright = st.brightness!.toDouble();
+      if (st.lightState != null) _lampOn = st.lightState!;
+      if (st.autoLampTimeoutSec != null) {
+        _autoTimeoutSec = st.autoLampTimeoutSec!.clamp(5, 7200);
+      }
+    });
+  }
+
+  Color _previewRgb() {
+    final c = HSVColor.fromAHSV(1.0, _hue, _saturation.clamp(0, 1), _value.clamp(0, 1))
+        .toColor();
+    return Color.fromARGB(255, c.red, c.green, c.blue);
+  }
+
+  List<int> _rgbInts() {
+    final c = _previewRgb();
+    return [c.red, c.green, c.blue];
+  }
+
+  Future<void> _run(Future<void> Function() fn, {String? ok}) async {
+    final session = ref.read(boardSessionNotifierProvider);
+    if (!_canControl(session)) return;
+    setState(() => _busy = true);
+    try {
+      await fn();
+      await ref.read(boardSessionNotifierProvider.notifier).refreshNow();
+      if (mounted) {
+        _syncFromSnapshot();
+        if (ok != null) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok)));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  bool _canControl(BoardSessionState session) {
+    final w = session.wifiBaseUrl?.trim();
+    return (session.transport == BoardTransport.wifi &&
+            w != null &&
+            w.isNotEmpty) ||
+        session.transport == BoardTransport.ble;
+  }
+
+  void _applyPreset(BoardLampPreset p) {
+    final hsv = HSVColor.fromColor(Color.fromARGB(255, p.r, p.g, p.b));
+    setState(() {
+      _hue = hsv.hue;
+      _saturation = hsv.saturation;
+      _value = hsv.value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final session = ref.watch(boardSessionNotifierProvider);
+    final can = _canControl(session);
+    final rgb = _previewRgb();
+    final cs = Theme.of(context).colorScheme;
+    final diskSize = math.min(240.0, MediaQuery.sizeOf(context).width - 80);
+    final diskR = diskSize / 2 - 12;
+    final narrow = MediaQuery.sizeOf(context).width < 560;
+
+    final diskColumn = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Barva', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 6),
+        Text(
+          'Klepnutí nebo táhnutí — odstín a sytost (střed = bílá).',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 8),
+        Center(
+          child: SizedBox(
+            width: diskSize,
+            height: diskSize,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onPanDown: (d) => _onDiskDrag(d.localPosition, diskSize),
+              onPanUpdate: (d) => _onDiskDrag(d.localPosition, diskSize),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  ClipOval(
+                    child: CustomPaint(
+                      size: Size.square(diskSize),
+                      painter: _HueSatDiskPainter(
+                        step: math.max(3.0, diskSize / 55),
+                      ),
+                    ),
+                  ),
+                  CustomPaint(
+                    size: Size.square(diskSize),
+                    painter: _HueSatThumbPainter(
+                      hue: _hue,
+                      saturation: _saturation,
+                      diskRadius: diskR,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    final slidersColumn = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Světlost barvy', style: Theme.of(context).textTheme.titleSmall),
+        Slider(
+          value: _value.clamp(0.01, 1.0),
+          min: 0.05,
+          max: 1.0,
+          onChanged: _busy || !can ? null : (v) => setState(() => _value = v),
+        ),
+        Text('Jas LED (%)', style: Theme.of(context).textTheme.titleSmall),
+        Slider(
+          value: _boardBright.clamp(0, 100),
+          max: 100,
+          divisions: 20,
+          label: '${_boardBright.round()} %',
+          onChanged: _busy || !can ? null : (v) => setState(() => _boardBright = v),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Lampa zapnutá'),
+          value: _lampOn,
+          onChanged: _busy || !can ? null : (v) => setState(() => _lampOn = v),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          height: 72,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: rgb.withValues(alpha: _lampOn ? 0.35 : 0.12),
+            border: Border.all(color: cs.outline.withValues(alpha: 0.35)),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            'RGB (${rgb.red}, ${rgb.green}, ${rgb.blue})',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+          ),
+        ),
+      ],
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (!can)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              'Pro ovládání lampy připoj desku přes Wi‑Fi nebo Bluetooth.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.error),
+            ),
+          ),
+        Text('Náhled desky', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 280),
+          child: _BoardGlowPreview(
+            rgb: rgb,
+            intensity: (_boardBright / 100).clamp(0.05, 1.0),
+            lampOn: _lampOn,
+          ),
+        ),
+        const SizedBox(height: 16),
+        if (narrow) ...[
+          diskColumn,
+          const SizedBox(height: 16),
+          slidersColumn,
+        ] else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(flex: 5, child: diskColumn),
+              const SizedBox(width: 12),
+              Expanded(flex: 4, child: slidersColumn),
+            ],
+          ),
+        const SizedBox(height: 16),
+        Text('Scény', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final p in BoardLampStudioPanel.presets)
+              FilterChip(
+                avatar: Icon(p.icon, size: 18),
+                label: Text(p.label),
+                selected: false,
+                onSelected: _busy || !can
+                    ? null
+                    : (_) => _applyPreset(p),
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: !can || _busy
+                    ? null
+                    : () {
+                        final t = _rgbInts();
+                        _run(
+                          () async {
+                            final n = ref.read(boardSessionNotifierProvider.notifier);
+                            await n.postBoardBrightness(_boardBright.round());
+                            await n.postBoardLightCommand(
+                              lampState: _lampOn,
+                              r: t[0],
+                              g: t[1],
+                              b: t[2],
+                            );
+                          },
+                          ok: 'Barva a jas odeslány na desku',
+                        );
+                      },
+                icon: _busy
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.send_rounded),
+                label: const Text('Použít na desku'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: !can || _busy
+                    ? null
+                    : () => _run(
+                          () => ref
+                              .read(boardSessionNotifierProvider.notifier)
+                              .postBoardLightGameMode(),
+                          ok: 'Režim lampy podle partie',
+                        ),
+                icon: const Icon(Icons.sports_esports_outlined),
+                label: const Text('Režim partie'),
+              ),
+            ),
+          ],
+        ),
+        const Divider(height: 32),
+        Text('Automatické zhasnutí', style: Theme.of(context).textTheme.titleSmall),
+        Text(
+          '${_autoTimeoutSec}s (${(_autoTimeoutSec / 60).toStringAsFixed(1)} min)',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        Slider(
+          min: 5,
+          max: 7200,
+          value: _autoTimeoutSec.toDouble().clamp(5, 7200),
+          onChanged: !can || _busy
+              ? null
+              : (v) => setState(() => _autoTimeoutSec = v.round()),
+        ),
+        FilledButton.tonal(
+          onPressed: !can || _busy
+              ? null
+              : () => _run(
+                    () => ref
+                        .read(boardSessionNotifierProvider.notifier)
+                        .postBoardAutoLampTimeout(_autoTimeoutSec),
+                    ok: 'Časovač auto zhasnutí uložen',
+                  ),
+          child: const Text('Uložit časovač'),
+        ),
+      ],
+    );
+  }
+
+  void _onDiskDrag(Offset local, double diskSize) {
+    final c = Offset(diskSize / 2, diskSize / 2);
+    final maxR = diskSize / 2 - 8;
+    final d = local - c;
+    final dist = d.distance;
+    final sat = dist <= 2 ? 0.0 : (dist / maxR).clamp(0.0, 1.0);
+    double hue = _hue;
+    if (dist > 2) {
+      hue = (math.atan2(d.dy, d.dx) * 180 / math.pi + 90) % 360;
+      if (hue < 0) hue += 360;
+    }
+    setState(() {
+      _hue = hue;
+      _saturation = sat;
+    });
+  }
+}
