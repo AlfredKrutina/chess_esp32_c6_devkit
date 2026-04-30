@@ -1,0 +1,8 @@
+%% Vedlejší příkazové fronty — UART diagnostika a volitelný test_task (menuconfig)
+flowchart LR
+  UT[uart_task] -->|matrix příkazy| MCQ[("matrix_command_queue · 8")]
+  TT[test_task] -->|jen CONFIG…TEST_TASK| MCQ
+  MCQ --> MT[matrix_task]
+
+  TT -->|syntetické události| BCQ[("button_command_queue · 5")]
+  BCQ --> BT[button_task]

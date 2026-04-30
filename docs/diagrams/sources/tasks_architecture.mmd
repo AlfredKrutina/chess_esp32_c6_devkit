@@ -1,38 +1,44 @@
-%% Zdroj pro Mermaid CLI — drž ve shodě s docs/diagrams/tasks_architecture.md a main/main.c (create_system_tasks)
+%% Pořadí xTaskCreate = řádek níže zleva doprava (main.c). Šipky na fronty = runtime tok zpráv.
 flowchart TB
-  subgraph Init["Před schedulerem (app_main)"]
-    SYS["main_system_init()<br/>chess_system_init, timery,<br/>UART příkazy, ble_task_init()"]
+  subgraph SYS["main_system_init()"]
+    direction TB
+    CH["chess_system_init"]
+    TM["chess_start_timers · kontrola front"]
+    EG["init_endgame_animation_system"]
+    UR["register_extended_uart_commands"]
+    BLE["ble_task_init → NimBLE"]
+    CH --> TM --> EG --> UR --> BLE
   end
 
-  subgraph Tasks["FreeRTOS tasky — create_system_tasks()"]
-    LED["led_task<br/>P7 · 8 KiB"]
-    MAT["matrix_task<br/>P6 · 4 KiB"]
-    BTN["button_task<br/>P5 · 3 KiB"]
-    UART["uart_task<br/>P3 · 5 KiB<br/>resume po boot animaci"]
-    GAME["game_task<br/>P4 · 6 KiB"]
-    WEB["web_server_task<br/>P3 · 20 KiB"]
-    HA["ha_light_task<br/>P3 · 8 KiB"]
-    TEST["test_task<br/>P1 · 4 KiB<br/>jen CONFIG_CHESS_ENABLE_TEST_TASK"]
-  end
-
-  subgraph BLE["Bluetooth LE"]
-    NIM["NimBLE host task<br/>z ble_task_init()<br/>žádný vlastní ble_task"]
-  end
-
-  subgraph Disabled["V main.c vypnuto"]
-    ANIM["animation_task — zakomentováno"]
-    MATTER["matter_task — zakomentováno"]
+  subgraph OFF["V main.c zakázáno"]
+    AN[animation_task]
+    MA[matter_task]
   end
 
   MAIN[["app_main"]] --> SYS
-  SYS --> Tasks
-  MAIN --> NIM
+
+  CR["create_system_tasks()"]
+  SYS --> CR
+
+  L["led_task P7 8KiB"]
+  M["matrix_task P6 4KiB"]
+  B["button_task P5 3KiB"]
+  U["uart_task P3 5KiB suspend→resume"]
+  G["game_task P4 6KiB"]
+  T["test_task P1 menuconfig"]
+  W["web_server_task P3 20KiB"]
+  H["ha_light_task P3 8KiB"]
+
+  CR --> L
+  L --> M --> B --> U --> G --> W --> H
+  G -.->|CONFIG_CHESS_ENABLE_TEST_TASK| T
 
   GQ[("game_command_queue · 24")]
   BQ[("button_event_queue · 5")]
-  MAT --> GQ
-  BTN --> BQ
-  UART --> GQ
-  WEB --> GQ
-  BQ --> GAME
-  GQ --> GAME
+
+  M --> GQ
+  B --> BQ
+  U --> GQ
+  W --> GQ
+  BQ --> G
+  GQ --> G

@@ -121,8 +121,8 @@ def generate_html(sections, output_file):
     
     # Generovat obsah
     content_html = ['<main class="content">']
-    content_html.append('<h1>Mermaid Sequence Diagramy - CZECHMATE v2.4</h1>')
-    content_html.append('<p class="intro">Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování příkazů, speciální tahy, error handling a další.</p>')
+    content_html.append('<h1>CZECHMATE firmware — sekvenční diagramy</h1>')
+    content_html.append('<p class="intro">Knihovna sekvencí z <code>mermaid_diagrams.txt</code>. Přehledové grafy (tasky, boot, fronty, mutexy, BLE): soubor <strong>docs/diagrams/README.md</strong> v repozitáři (vedle tohoto HTML je i <a href="README.md">README.md</a> při lokálním prohlížení). Verze firmware: kořenový <code>CMakeLists.txt</code> → <code>PROJECT_VERSION</code>.</p>')
     
     for section in sections:
         section_id = f"section-{section['letter'].lower()}"
@@ -158,7 +158,7 @@ def generate_html(sections, output_file):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mermaid Diagramy - CZECHMATE v2.4</title>
+    <title>CZECHMATE — Mermaid diagramy (sekvenční)</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
         * {{
@@ -321,10 +321,16 @@ def generate_html(sections, output_file):
     <script>
         mermaid.initialize({{
             startOnLoad: true,
-            theme: 'default',
+            theme: 'neutral',
+            securityLevel: 'loose',
+            sequence: {{
+                useMaxWidth: true,
+                mirrorActors: false
+            }},
             flowchart: {{
                 useMaxWidth: true,
-                htmlLabels: true
+                htmlLabels: true,
+                curve: 'basis'
             }}
         }});
     </script>

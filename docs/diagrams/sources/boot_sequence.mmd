@@ -1,19 +1,22 @@
-%% Pořadí startu — app_main + main_system_init + create_system_tasks (main.c)
+%% Pořadí podle main/main.c — main_system_init před create_system_tasks; BLE před xTaskCreate
 sequenceDiagram
   participant AM as app_main
   participant SYS as main_system_init
-  participant CH as chess_system_init
-  participant BT as create_system_tasks
+  participant FC as chess_system_init
+  participant CR as create_system_tasks
 
-  AM->>SYS: init_console, TWDT
-  SYS->>CH: fronty, mutexy, timery
-  CH-->>SYS: ESP_OK
+  AM->>SYS: uart_mutex, chess_system_init
+  SYS->>FC: fronty + matrix_mutex + game_mutex
+  SYS->>SYS: chess_start_timers
+  SYS->>SYS: kontrola front
+  SYS->>SYS: init_endgame_animation_system
   SYS->>SYS: register_extended_uart_commands
-  SYS->>SYS: ble_task_init (NimBLE host task)
+  SYS->>SYS: ble_task_init → NimBLE
   SYS-->>AM: ESP_OK
 
-  AM->>BT: xTaskCreate led…ha_light
-  Note over BT: uart_task suspended
-  BT->>BT: show_boot_animation_and_board
-  BT->>BT: initialize_chess_game (NVS / nová hra)
-  BT->>BT: vTaskResume(uart_task)
+  AM->>CR: create_system_tasks
+  Note over CR: led → matrix → button → uart suspend → game → [test] → web → ha_light
+  CR->>CR: delay 1 s
+  CR->>CR: show_boot_animation_and_board
+  CR->>CR: initialize_chess_game
+  CR->>CR: vTaskResume uart_task

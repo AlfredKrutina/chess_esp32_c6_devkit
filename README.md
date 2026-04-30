@@ -122,76 +122,41 @@ Jedna z nejdůležitějších věcí, kterou jsem se naučil, je správná komun
 
 - **Timers** - Pro periodické úlohy
 
-### Diagramy firmware (Mermaid)
+### Diagramy firmware
 
-Úplný přehled v **[`docs/diagrams/README.md`](docs/diagrams/README.md)** (tasky, boot, fronty, matice, BLE/web). Zdroje `.mmd` v [`docs/diagrams/sources/`](docs/diagrams/sources/) → `./scripts/render_docs.sh` vygeneruje SVG/PNG vedle stejného jména.
+Kompletní přehled (tabulky **priorit, stacků, front**, obrázky SVG, mutexy, správné pořadí **`main_system_init` → `ble_task_init` → `create_system_tasks`**, BLE přes `web_server_ble_command_dispatch`): **[`docs/diagrams/README.md`](docs/diagrams/README.md)**.
 
-#### Tasky, init a fronty
+| Náhled | Popis |
+|--------|--------|
+| [![tasks](docs/diagrams/tasks_architecture.svg)](docs/diagrams/README.md) | Pořadí `xTaskCreate` + runtime fronty |
+| [![boot](docs/diagrams/boot_sequence.svg)](docs/diagrams/README.md) | `main_system_init` včetně BLE před tasky |
+| [![queues](docs/diagrams/queues_flow.svg)](docs/diagrams/README.md) | Matrix / UART / web → `game_command_queue` |
 
-```mermaid
-flowchart TB
-  subgraph Init["main_system_init"]
-    SYS["chess_system_init · timery · ble_task_init"]
-  end
-
-  subgraph Tasks["create_system_tasks()"]
-    LED["led_task · P7 · 8 KiB"]
-    MAT["matrix_task · P6 · 4 KiB"]
-    BTN["button_task · P5 · 3 KiB"]
-    UART["uart_task · P3 · 5 KiB"]
-    GAME["game_task · P4 · 6 KiB"]
-    WEB["web_server_task · P3 · 20 KiB"]
-    HA["ha_light_task · P3 · 8 KiB"]
-    TEST["test_task · P1 · menuconfig"]
-  end
-
-  subgraph BLE["BLE"]
-    NIM["NimBLE host task"]
-  end
-
-  MAIN[["app_main"]] --> SYS
-  SYS --> Tasks
-  MAIN --> NIM
-
-  GQ[("game_command_queue · 24")]
-  BQ[("button_event_queue · 5")]
-  MAT --> GQ
-  BTN --> BQ
-  UART --> GQ
-  WEB --> GQ
-  BQ --> GAME
-  GQ --> GAME
-```
-
-#### Boot sekvence
-
-```mermaid
-sequenceDiagram
-  participant AM as app_main
-  participant SYS as main_system_init
-  participant CH as chess_system_init
-  participant BT as create_system_tasks
-  AM->>SYS: TWDT, init_console
-  SYS->>CH: fronty a mutexy
-  SYS->>SYS: ble_task_init
-  AM->>BT: xTaskCreate ···
-  BT->>BT: boot animace · initialize_chess_game
-  BT->>BT: vTaskResume uart_task
-```
-
-#### Herní fronty (zjednodušeně)
+Zdroje: [`docs/diagrams/sources/*.mmd`](docs/diagrams/sources/) → `./scripts/render_docs.sh` vygeneruje SVG/PNG.
 
 ```mermaid
 flowchart LR
-  MAT[matrix_task] --> GQ[game_command_queue]
-  UART[uart_task] --> GQ
-  WEB[web_server_task] --> GQ
-  BTN[button_task] --> BQ[button_event_queue]
-  GQ --> GAME[game_task]
-  BQ --> GAME
-  GAME --> URQ[uart_response_queue]
-  URQ --> UART
+  subgraph IN["Vstupy"]
+    MT[matrix]
+    BTN[button]
+    SER[uart]
+    WEB[web]
+    BLE["BLE → web_server_ble_command_dispatch"]
+  end
+  GQ[(game_command_queue)]
+  BQ[(button_event_queue)]
+  GT[game_task]
+  MT --> GQ
+  SER --> GQ
+  WEB --> GQ
+  BLE --> GQ
+  BTN --> BQ
+  GQ --> GT
+  BQ --> GT
+  GT --> URQ[(uart_response_queue)] --> SER
 ```
+
+*(BLE příkazy nejdou přímo z jedné řádkové funkce na frontu — používají sdílený dispatch ve web vrstvě; viz `docs/diagrams/README.md`.)*
 
 ### Struktura komponent
 

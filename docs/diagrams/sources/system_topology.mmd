@@ -1,0 +1,32 @@
+%% Runtime: vstupy → game_task → LED / UART odpovědi · BLE příkazy jdou přes web_server_ble_command_dispatch (viz ble_nimble_impl.c)
+flowchart TB
+  subgraph IN["Vstupy"]
+    MAT[matrix_task<br/>reed 8×8]
+    BTN[button_task<br/>multiplex tlačítka]
+    SER[uart_task<br/>USB Serial JTAG]
+    HTTP[web_server_task<br/>HTTP handler]
+    BLECH[NimBLE GATT<br/>ble_task host]
+  end
+
+  GQ[("game_command_queue")]
+  BQ[("button_event_queue")]
+  GT[game_task<br/>šachy · NVS · LED API]
+
+  MAT --> GQ
+  SER --> GQ
+  HTTP --> GQ
+  BLECH -->|"web_server_ble_command_dispatch()"| GQ
+  BTN --> BQ
+
+  GQ --> GT
+  BQ --> GT
+
+  LT[led_task<br/>WS2812B]
+  URQ[("uart_response_queue")]
+
+  GT --> LT
+  GT --> URQ
+  URQ --> SER
+
+  HA[ha_light_task<br/>MQTT]
+  HTTP -.->|"WiFi AP/STA"| HA

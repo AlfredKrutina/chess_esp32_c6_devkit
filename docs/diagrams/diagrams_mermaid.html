@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mermaid Diagramy - CZECHMATE v2.4</title>
+    <title>CZECHMATE — Mermaid diagramy (sekvenční)</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
         * {
@@ -231,8 +231,8 @@
 </ul>
 </nav>
         <main class="content">
-<h1>Mermaid Sequence Diagramy - CZECHMATE v2.4</h1>
-<p class="intro">Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování příkazů, speciální tahy, error handling a další.</p>
+<h1>CZECHMATE firmware — sekvenční diagramy</h1>
+<p class="intro">Knihovna sekvencí z <code>mermaid_diagrams.txt</code>. Přehledové grafy (tasky, boot, fronty, mutexy, BLE): soubor <strong>docs/diagrams/README.md</strong> v repozitáři (vedle tohoto HTML je i <a href="README.md">README.md</a> při lokálním prohlížení). Verze firmware: kořenový <code>CMakeLists.txt</code> → <code>PROJECT_VERSION</code>.</p>
 <section id="section-a" class="section">
   <h2>A. SYSTEM OVERVIEW</h2>
   <div id="diagram-a1" class="diagram-container">
@@ -240,89 +240,67 @@
     <p class="diagram-description">Kompletní přehled architektury systému: všechny tasky, jejich priority, stack sizes, fronty, mutexy a hlavní komunikační kanály mezi tasky.</p>
     <div class="mermaid">
 sequenceDiagram
-    participant HW as ESP32_Hardware
-    participant M as app_main
-    participant LT as ledTask_P7_8KB
-    participant MT as matrixTask_P6_4KB
-    participant BT as buttonTask_P5_3KB
-    participant GT as gameTask_P4_6KB
-    participant UT as uartTask_P3_5KB
-    participant WT as webServerTask_P3_20KB
-    participant HT as haLightTask_P3_8KB
-    participant TT as testTask_P1_4KB
-    participant GQ as gameCommandQueue_24
-    participant BQ as buttonEventQueue_5
-    participant AQ as animationCommandQueue_5
-    participant URQ as uartResponseQueue_10
-    participant LM as ledUnifiedMutex
-    participant MM as matrixMutex
-    participant UM as uartMutex
-    participant WDT as Watchdog
+    participant AM as app_main
+    participant SYS as main_system_init
+    participant FC as chess_system_init
+    participant CR as create_system_tasks
+    participant WDT as TaskWDT
+    participant LT as led_task
+    participant MT as matrix_task
+    participant BT as button_task
+    participant UT as uart_task
+    participant GT as game_task
+    participant WT as web_server_task
+    participant HT as ha_light_task
+    participant TT as test_task
+    participant GQ as game_command_queue
+    participant BQ as button_event_queue
+    participant URQ as uart_response_queue
 
-    Note over HW,M: ESP32-C6 Boot → app_main() inicializace
+    Note over AM: Boot → TWDT + console dřív než main_system_init (viz main.c)
 
-    M-&gt;&gt;WDT: esp_task_wdt_reconfigure(10s timeout)
-    M-&gt;&gt;WDT: esp_task_wdt_add(NULL) - Main task registrace
+    AM-&gt;&gt;WDT: esp_task_wdt_reconfigure / esp_task_wdt_add(main)
 
-    Note over M: Fronty/mutexy inicializuje freertos_chess (zjednodušeně „z main flow“)
-    M-&gt;&gt;GQ: xQueueCreate(24) - game_command_queue
-    M-&gt;&gt;BQ: xQueueCreate(5) - button_event_queue
-    M-&gt;&gt;AQ: xQueueCreate(5) - animation_command_queue (legacy rozhraní)
-    M-&gt;&gt;URQ: xQueueCreate(10) - uart_response_queue
-    M-&gt;&gt;LM: led_unified_mutex (v led_task init)
-    M-&gt;&gt;MM: xSemaphoreCreateMutex() - matrix_mutex
-    M-&gt;&gt;UM: xSemaphoreCreateMutex() - uart_mutex
+    AM-&gt;&gt;SYS: main_system_init()
+    Note over SYS: uart_mutex v main.c před chess_system_init
+    SYS-&gt;&gt;FC: chess_system_init — xQueueCreate fronty (GQ 24, BQ 5, URQ 10, matrix_*, animation_*, web_*, …), matrix_mutex, game_mutex
+    SYS-&gt;&gt;SYS: chess_start_timers()
+    SYS-&gt;&gt;SYS: ověření všech front (game, matrix, button, uart, web, animation…)
+    SYS-&gt;&gt;SYS: init_endgame_animation_system()
+    SYS-&gt;&gt;SYS: register_extended_uart_commands()
+    SYS-&gt;&gt;SYS: ble_task_init() → NimBLE host task (není samostatný ble_task z xTaskCreate)
+    SYS--&gt;&gt;AM: ESP_OK
 
-    Note over M: Pořadí xTaskCreate jako v main.c (test_task jen pokud menuconfig)
-    M-&gt;&gt;LT: xTaskCreate(led_task, P7, 8KB)
-    M-&gt;&gt;MT: xTaskCreate(matrix_task, P6, 4KB)
-    M-&gt;&gt;BT: xTaskCreate(button_task, P5, 3KB)
-    M-&gt;&gt;UT: xTaskCreate(uart_task, P3, 5KB) - SUSPENDED
-    M-&gt;&gt;GT: xTaskCreate(game_task, P4, 6KB)
-    Note over M: animation_task — VYPNUTÝ blok v main.c (animace v led_task)
+    AM-&gt;&gt;CR: create_system_tasks()
+    Note over CR: Pořadí xTaskCreate přesně jako v main.c
+    CR-&gt;&gt;LT: xTaskCreate led_task · P7 · 8 KiB
+    CR-&gt;&gt;MT: xTaskCreate matrix_task · P6 · 4 KiB
+    CR-&gt;&gt;BT: xTaskCreate button_task · P5 · 3 KiB
+    CR-&gt;&gt;UT: xTaskCreate uart_task · P3 · 5 KiB → vTaskSuspend
+    CR-&gt;&gt;GT: xTaskCreate game_task · P4 · 6 KiB
+    Note over CR: animation_task zakomentován — animace v led_task / unified_animation_manager
     opt CONFIG_CHESS_ENABLE_TEST_TASK
-        M-&gt;&gt;TT: xTaskCreate(test_task, P1, 4KB)
+        CR-&gt;&gt;TT: xTaskCreate test_task · P1 · 4 KiB
     end
-    M-&gt;&gt;WT: xTaskCreate(web_server_task, P3, 20KB)
-    M-&gt;&gt;HT: xTaskCreate(ha_light_task, P3, 8KB)
+    CR-&gt;&gt;WT: xTaskCreate web_server_task · P3 · 20 KiB
+    CR-&gt;&gt;HT: xTaskCreate ha_light_task · P3 · 8 KiB
 
-    Note over M: ble_task_init() → NimBLE host task (ESP-IDF), není řádek výše
+    CR-&gt;&gt;CR: vTaskDelay 1000 ms (stabilizace před boot LED)
+    CR-&gt;&gt;LT: show_boot_animation_and_board()
+    CR-&gt;&gt;GT: initialize_chess_game() (NVS / nová hra — viz game_task_start)
+    CR-&gt;&gt;UT: vTaskResume(uart_task)
 
-    Note over TT,LT: TWDT: tasky se typicky registrují uvnitř vlastního startu
-    LT-&gt;&gt;WDT: esp_task_wdt_add(NULL)
-    MT-&gt;&gt;WDT: esp_task_wdt_add(NULL)
-    BT-&gt;&gt;WDT: esp_task_wdt_add(NULL)
-    UT-&gt;&gt;WDT: esp_task_wdt_add(NULL)
-    GT-&gt;&gt;WDT: esp_task_wdt_add(NULL)
-    WT-&gt;&gt;WDT: esp_task_wdt_add(NULL)
-    HT-&gt;&gt;WDT: esp_task_wdt_add(NULL)
+    Note over LT,HT: led_unified_mutex vzniká v led_task_start; TWDT typicky esp_task_wdt_add uvnitř každého tasku
 
-    Note over M: Boot animace a inicializace hry
-    M-&gt;&gt;LT: show_boot_animation_and_board()
-    M-&gt;&gt;GT: initialize_chess_game()
-    M-&gt;&gt;UT: vTaskResume(uart_task_handle)
-
-    Note over M: FreeRTOS Scheduler převezme řízení
-
-    Note over MT,GT: Hlavní komunikační kanály
-    MT-&gt;&gt;GQ: GAME_CMD_PICKUP/DROP (fyzické tahy)
-    BT-&gt;&gt;BQ: BUTTON_EVENT_PRESS (promoce, reset)
-    Note over GT,LT: Endgame/tahové animace: game_task → led_task / unified_animation_manager (ne samostatný animation_task)
-    UT-&gt;&gt;GQ: GAME_CMD_MAKE_MOVE (UART tahy)
-    WT-&gt;&gt;GQ: GAME_CMD_MAKE_MOVE (Web tahy)
-    GT-&gt;&gt;URQ: Response messages (UART odpovědi)
-    GT-&gt;&gt;LM: led_set_pixel_safe() - mutex led_unified_mutex
-    GT-&gt;&gt;MM: Matrix operations - s mutex ochranou
-    UT-&gt;&gt;UM: UART output - s mutex ochranou
-
-    Note over GT: game_task hlavní smyčka (100ms):&lt;br/&gt;game_process_commands() → game_update_timer_display() → Auto new game detection
-    Note over MT: matrix: timer callback ~25ms&lt;br/&gt;time-multiplex 20ms matice / 5ms tlačítka (+ vlastní smyčka tasku)
-    Note over LT: led_task (~33ms):&lt;br/&gt;batch commit, WS2812B refresh, animace
-    Note over BT: button_task (5ms):&lt;br/&gt;GPIO scan, debounce
-    Note over UT: uart_task (1ms):&lt;br/&gt;vstup, parsování, uart_response_queue
-    Note over WT: web_server_task:&lt;br/&gt;HTTP, WiFi AP/STA, REST (+ volitelně /ws)
-    Note over HT: ha_light_task:&lt;br/&gt;MQTT Home Assistant RGB light
-    Note over TT: test_task (volitelný):&lt;br/&gt;menuconfig CONFIG_CHESS_ENABLE_TEST_TASK
+    Note over MT,URQ: Runtime — MT→GQ pickup/drop; BT→BQ; UT/WT→GQ příkazy/tahy; GT čte GQ+BQ; GT→URQ odpovědi konzoli
+    Note over GT: game_task smyčka vTaskDelayUntil 100 ms + batch příkazů z front (viz game_task.c)
+    Note over MT: matrix_task timer multiplex ~25 ms; vlastní smyčka často 10 ms
+    Note over LT: led_task ~33 ms batch + WS2812B refresh
+    Note over BT: button_task ~5 ms scan / debounce
+    Note over UT: uart_task ~1 ms smyčka vstupu + výstup pod uart_mutex
+    Note over WT: web WiFi AP/STA HTTP REST (+ volitelně WS)
+    Note over HT: ha_light_task MQTT Home Assistant (po WiFi STA)
+    Note over TT: test_task jen pokud CONFIG_CHESS_ENABLE_TEST_TASK
 
 # =============================================================================
     </div>
@@ -1724,10 +1702,16 @@ sequenceDiagram
     <script>
         mermaid.initialize({
             startOnLoad: true,
-            theme: 'default',
+            theme: 'neutral',
+            securityLevel: 'loose',
+            sequence: {
+                useMaxWidth: true,
+                mirrorActors: false
+            },
             flowchart: {
                 useMaxWidth: true,
-                htmlLabels: true
+                htmlLabels: true,
+                curve: 'basis'
             }
         });
     </script>

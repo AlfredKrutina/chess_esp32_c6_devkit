@@ -9,7 +9,7 @@ Verze projektu je v kořenovém [`CMakeLists.txt`](../CMakeLists.txt) (`PROJECT_
 
 ## Diagramy — kde začít
 
-1. **[diagrams/README.md](diagrams/README.md)** — nadpisy + diagramy (tasky, fronty, boot, tah z matice).
+1. **[diagrams/README.md](diagrams/README.md)** — hlavní dokumentace: tabulky konstant, obrázky SVG/PNG ze `sources/*.mmd`, konvence, BLE přes `main_system_init`, komponenty vs. task.
 2. Lokální HTML se všemi sekvenčními diagramy: po `./scripts/render_docs.sh` otevři [`diagrams/diagrams_mermaid.html`](diagrams/diagrams_mermaid.html).
 3. Zdroj sekvencí pro HTML / úpravy: [`diagrams/mermaid_diagrams.txt`](diagrams/mermaid_diagrams.txt).
 4. Jeden dlouhý sekvenční „hlavní smyčka“ (ladění): [`diagrams/main_flow_diagram.txt`](diagrams/main_flow_diagram.txt).
