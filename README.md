@@ -131,21 +131,26 @@ Kompletní přehled (tabulky **priorit, stacků, front**, obrázky SVG, mutexy, 
 | [![tasks](docs/diagrams/tasks_architecture.svg)](docs/diagrams/README.md) | Pořadí `xTaskCreate` + runtime fronty |
 | [![boot](docs/diagrams/boot_sequence.svg)](docs/diagrams/README.md) | `main_system_init` včetně BLE před tasky |
 | [![queues](docs/diagrams/queues_flow.svg)](docs/diagrams/README.md) | Matrix / UART / web → `game_command_queue` |
+| [![led](docs/diagrams/led_pipeline.svg)](docs/diagrams/README.md) | LED batch / mutex (zjednodušení) |
+| [![flutter](docs/diagrams/client_app_layers.svg)](docs/flutter/README.md) | Flutter: features → Riverpod → služby |
 
 Zdroje: [`docs/diagrams/sources/*.mmd`](docs/diagrams/sources/) → `./scripts/render_docs.sh` vygeneruje SVG/PNG.
 
+Nápady na další grafy (lokální poznámky, **není v gitu**): soubor `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` — vzor začátku [`docs/diagrams/DIAGRAM_BACKLOG.local.example.md`](docs/diagrams/DIAGRAM_BACKLOG.local.example.md).
+
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#455a64'}}}%%
 flowchart LR
   subgraph IN["Vstupy"]
-    MT[matrix]
-    BTN[button]
-    SER[uart]
-    WEB[web]
-    BLE["BLE → web_server_ble_command_dispatch"]
+    MT[matrix]:::t
+    BTN[button]:::t
+    SER[uart]:::t
+    WEB[web]:::t
+    BLE[BLE dispatch]:::b
   end
-  GQ[(game_command_queue)]
-  BQ[(button_event_queue)]
-  GT[game_task]
+  GQ[(game_command_queue)]:::q
+  BQ[(button_event_queue)]:::q
+  GT[game_task]:::g
   MT --> GQ
   SER --> GQ
   WEB --> GQ
@@ -153,7 +158,12 @@ flowchart LR
   BTN --> BQ
   GQ --> GT
   BQ --> GT
-  GT --> URQ[(uart_response_queue)] --> SER
+  GT --> URQ[(uart_response_queue)]:::q --> SER
+
+  classDef t fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef b fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#1a237e
+  classDef q fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#bf360c
+  classDef g fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
 ```
 
 *(BLE příkazy nejdou přímo z jedné řádkové funkce na frontu — používají sdílený dispatch ve web vrstvě; viz `docs/diagrams/README.md`.)*

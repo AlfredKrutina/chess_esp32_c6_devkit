@@ -1,22 +1,21 @@
-%% Pořadí podle main/main.c — main_system_init před create_system_tasks; BLE před xTaskCreate
+%% Init před tasky — barevné fáze
+%%{init: {'theme':'base', 'themeVariables': {'actorBkg':'#e3f2fd','actorBorder':'#1565c0','actorTextColor':'#0d47a1','signalColor':'#37474f'}}}%%
 sequenceDiagram
   participant AM as app_main
   participant SYS as main_system_init
   participant FC as chess_system_init
   participant CR as create_system_tasks
 
-  AM->>SYS: uart_mutex, chess_system_init
-  SYS->>FC: fronty + matrix_mutex + game_mutex
-  SYS->>SYS: chess_start_timers
-  SYS->>SYS: kontrola front
-  SYS->>SYS: init_endgame_animation_system
-  SYS->>SYS: register_extended_uart_commands
-  SYS->>SYS: ble_task_init → NimBLE
-  SYS-->>AM: ESP_OK
-
-  AM->>CR: create_system_tasks
-  Note over CR: led → matrix → button → uart suspend → game → [test] → web → ha_light
-  CR->>CR: delay 1 s
-  CR->>CR: show_boot_animation_and_board
-  CR->>CR: initialize_chess_game
-  CR->>CR: vTaskResume uart_task
+  rect rgb(227, 242, 253)
+    AM->>SYS: uart_mutex · timery · kontrola front
+  end
+  rect rgb(255, 243, 224)
+    SYS->>FC: fronty · matrix_mutex · game_mutex
+    FC-->>SYS: OK
+  end
+  rect rgb(232, 245, 233)
+    SYS->>SYS: endgame · UART registry · ble_task_init
+    SYS-->>AM: ESP_OK
+    AM->>CR: xTaskCreate řada
+    CR->>CR: boot LED · init hry · resume UART
+  end

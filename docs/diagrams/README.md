@@ -1,36 +1,38 @@
 # Diagramy (firmware)
 
-Čísla priorit, velikostí front a stacků najdeš v [`freertos_chess.h`](../../components/freertos_chess/include/freertos_chess.h). Pořadí startu tasků v [`main/main.c`](../../main/main.c). Když potřebuješ popsat komunikaci řádek po řádku, je tam [`reference/KOMUNIKACE_MEZI_TASKY.md`](../reference/KOMUNIKACE_MEZI_TASKY.md).
+Čísla ber z [`freertos_chess.h`](../../components/freertos_chess/include/freertos_chess.h) a [`main/main.c`](../../main/main.c). Delší popis komunikace: [`reference/KOMUNIKACE_MEZI_TASKY.md`](../reference/KOMUNIKACE_MEZI_TASKY.md).
 
-Obrázky SVG ti vyrobí `./scripts/render_docs.sh` ze složky [`sources/`](sources/) (stejné jméno jako `.mmd`).
+**Nápady na další grafy** si piš lokálně do souboru **`LOCAL_DIAGRAM_BACKLOG.md`** — je v `.gitignore`, do remote neleze. Start šablony: [`DIAGRAM_BACKLOG.local.example.md`](DIAGRAM_BACKLOG.local.example.md).
 
----
-
-## Jak číst šipky
-
-- Plná šipka na frontu = typicky někdo posílá (`xQueueSend`), druhý bere (`xQueueReceive`).
-- Čárkovaná = volitelné (menuconfig) nebo nepřímé volání (např. BLE přes funkce web vrstvy).
-- `main_system_init()` doběhne dřív než `create_system_tasks()` — včetně `ble_task_init()`.
-- `animation_task` a `matter_task` se v `main.c` nevytváří (zakomentované).
+SVG z této složky: `./scripts/render_docs.sh` nad [`sources/*.mmd`](sources/).
 
 ---
 
-## Tasky — priorita a stack
+## Legenda šipek
+
+- Plná šipka na frontu ≈ `xQueueSend` / `xQueueReceive`.
+- Čárkovaná = optional (`menuconfig`) nebo nepřímé volání (BLE přes web dispatch).
+- `main_system_init()` včetně `ble_task_init()` doběhne **před** `create_system_tasks()`.
+- `animation_task` / `matter_task` se z `main.c` nespouštějí.
+
+---
+
+## Tasky — priorita · stack
 
 | Task | P | Stack | Poznámka |
 |------|---|-------|----------|
 | led_task | 7 | 8 KiB | WS2812B |
-| matrix_task | 6 | 4 KiB | reed matice |
-| button_task | 5 | 3 KiB | multiplex tlačítek |
-| game_task | 4 | 6 KiB | šachy, NVS, smyčka ~100 ms |
-| uart_task | 3 | 5 KiB | po boot animaci resume |
-| web_server_task | 3 | 20 KiB | WiFi + HTTP |
+| matrix_task | 6 | 4 KiB | reed |
+| button_task | 5 | 3 KiB | multiplex |
+| game_task | 4 | 6 KiB | ~100 ms smyčka |
+| uart_task | 3 | 5 KiB | resume po boot LED |
+| web_server_task | 3 | 20 KiB | WiFi HTTP |
 | ha_light_task | 3 | 8 KiB | MQTT |
-| test_task | 1 | 4 KiB | jen `CONFIG_CHESS_ENABLE_TEST_TASK` |
+| test_task | 1 | 4 KiB | jen menuconfig |
 
 ---
 
-## Fronty (kapacity z hlavičky)
+## Fronty (kapacity)
 
 | Konstanta | Počet |
 |-----------|-------|
@@ -45,62 +47,113 @@ Obrázky SVG ti vyrobí `./scripts/render_docs.sh` ze složky [`sources/`](sourc
 
 ---
 
-## Časová řada: init → BLE → tasky
+## Init → BLE → tasky
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'actorBkg':'#e3f2fd','actorBorder':'#1565c0','signalColor':'#37474f'}}}%%
 sequenceDiagram
   participant AM as app_main
   participant SYS as main_system_init
   participant FC as chess_system_init
   participant CR as create_system_tasks
-  AM->>SYS: mutex UART + FC + timery + endgame + UART příkazy + BLE
-  SYS->>FC: fronty, matrix_mutex, game_mutex
-  FC-->>SYS: OK
-  SYS-->>AM: OK
-  AM->>CR: xTaskCreate řada
-  CR->>CR: 1 s čekání · boot LED · initialize_chess_game · resume UART
+  rect rgb(227, 242, 253)
+    AM->>SYS: uart_mutex · timery · kontrola front
+  end
+  rect rgb(255, 243, 224)
+    SYS->>FC: fronty · mutexy
+    FC-->>SYS: OK
+  end
+  rect rgb(232, 245, 233)
+    SYS->>SYS: endgame · UART registry · BLE
+    SYS-->>AM: ESP_OK
+    AM->>CR: xTaskCreate
+    CR->>CR: boot LED · init hry · resume UART
+  end
 ```
 
-![Boot SVG](boot_sequence.svg)
+![boot_sequence.svg](boot_sequence.svg)
 
 ---
 
-## Pořadí xTaskCreate + kde tečou herní zprávy
+## Pořadí tasků + runtime fronty
 
-Řádek **led → matrix → button → uart (nejprve suspend) → game → [test] → web → ha** je z `main.c`. Šipky dolů na fronty ukazují **provoz**, ne pořadí startu.
-
-![Tasky + fronty](tasks_architecture.svg)
+![tasks_architecture.svg](tasks_architecture.svg)
 
 ---
 
-## Kdo feeduje game_command_queue a kdo ho čte
+## Produkce → `game_command_queue` → `game_task`
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#455a64'}}}%%
 flowchart TB
-  MT[matrix_task] --> GQ[(game_command_queue)]
-  UT[uart_task] --> GQ
-  WT[web_server_task] --> GQ
-  BLE[NimBLE + web dispatch] --> GQ
-  GQ --> GT[game_task]
-  BT[button_task] --> BQ[(button_event_queue)]
+  subgraph PROD["Posílá příkazy"]
+    MT[matrix_task]:::taskN
+    BTN[button_task]:::taskN
+    UART[uart_task]:::taskN
+    WEB[web_server_task]:::taskN
+    BLE[NimBLE dispatch]:::bleN
+  end
+  GQ[("game_command_queue")]:::queueN
+  BQ[("button_event_queue")]:::queueN
+  GT[game_task]:::gameN
+
+  MT --> GQ
+  UART --> GQ
+  WEB --> GQ
+  BLE --> GQ
+  BTN --> BQ
+  GQ --> GT
   BQ --> GT
+
+  classDef taskN fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef queueN fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#bf360c
+  classDef gameN fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
+  classDef bleN fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#1a237e
 ```
 
-![Fronty SVG](queues_flow.svg)
+![queues_flow.svg](queues_flow.svg)
 
 ---
 
-## Tlačítko → fronta → hra
+## UART tam a zpět
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#455a64'}}}%%
+flowchart LR
+  SER[USB serial]:::hw
+  UT[uart_task]:::t
+  GQ[(game_command_queue)]:::q
+  GT[game_task]:::g
+  URQ[(uart_response_queue)]:::q
+
+  SER <--> UT
+  UT --> GQ
+  GQ --> GT
+  GT --> URQ
+  URQ --> UT
+
+  classDef hw fill:#eceff1,stroke:#546e7a,stroke-width:2px,color:#263238
+  classDef t fill:#fff8e1,stroke:#f9a825,stroke-width:2px,color:#f57f17
+  classDef q fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#bf360c
+  classDef g fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
+```
+
+---
+
+## Tlačítko → fronta → `game_task`
+
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'signalColor':'#37474f'}}}%%
 sequenceDiagram
-  participant BT as button_task
-  participant BQ as button_event_queue
-  participant GT as game_task
-  BT->>BQ: stisk / dlouhý stisk / …
-  loop každý tick game_task
-    GT->>BQ: receive non-blocking
-    GT->>GT: promoce / reset / … dle typu
+  rect rgb(232, 245, 233)
+    participant BT as button_task
+    participant BQ as button_event_queue
+    participant GT as game_task
+    BT->>BQ: událost
+    loop tick ~100 ms
+      GT->>BQ: receive (non-blocking)
+      GT->>GT: promoce / reset / …
+    end
   end
 ```
 
@@ -109,75 +162,89 @@ sequenceDiagram
 ## Matrix → tah
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'signalColor':'#37474f'}}}%%
 sequenceDiagram
-  participant MT as matrix_task
-  participant GQ as game_command_queue
-  participant GT as game_task
-  MT->>GQ: PICKUP / DROP
-  loop ~100 ms
-    GT->>GQ: vyprázdnění fronty příkazů
-    GT->>GT: legálnost, pravidla
+  rect rgb(227, 242, 253)
+    participant MT as matrix_task
+    participant GQ as game_command_queue
+    participant GT as game_task
+    MT->>GQ: PICKUP / DROP
+    loop tick
+      GT->>GQ: drain příkazů
+      GT->>GT: pravidla
+    end
   end
 ```
 
 ---
 
-## UART: vstup a odpověď zpět
+## LED batch (zjednodušení)
 
-```mermaid
-flowchart LR
-  SER[Vestavěný USB serial] --> UT[uart_task]
-  UT --> GQ[(game_command_queue)]
-  GQ --> GT[game_task]
-  GT --> URQ[(uart_response_queue)]
-  URQ --> UT
-  UT --> SER
-```
+![led_pipeline.svg](led_pipeline.svg)  
+Zdroj: [`sources/led_pipeline.mmd`](sources/led_pipeline.mmd)
 
 ---
 
-## Vedlejší fronty (UART test, matrix příkazy)
+## Vedlejší fronty
 
-UART umí poslat příkaz i na `matrix_command_queue`; test task stejně (když je zapnutý).
-
-![Aux SVG](auxiliary_queues.svg)
+![auxiliary_queues.svg](auxiliary_queues.svg)
 
 ---
 
-## Mutexy (kdo s čím počítá)
+## Mutexy
 
-![Mutex SVG](mutex_map.svg)
+![mutex_map.svg](mutex_map.svg)
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#78909c'}}}%%
 flowchart TB
-  uart_mutex -.-> uart_task
-  matrix_mutex -.-> matrix_task
-  game_mutex -.-> game_task
-  led_unified_mutex -.-> led_task
-  game_task -.->|led_set_pixel_safe atd.| led_unified_mutex
+  UM[uart_mutex]:::mx
+  MM[matrix_mutex]:::mx
+  GM[game_mutex]:::mx
+  LM[led_unified_mutex]:::mx
+  UT[uart_task]:::t
+  MT[matrix_task]:::t
+  GT[game_task]:::t
+  LT[led_task]:::t
+  UM -.-> UT
+  MM -.-> MT
+  GM -.-> GT
+  LM -.-> LT
+  GT -.-> LM
+  GT -.-> MM
+  classDef mx fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f
+  classDef t fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
 ```
 
 ---
 
-## Celkový obrázek vstupů
+## Topologie vstupů
 
-![Topology SVG](system_topology.svg)
+![system_topology.svg](system_topology.svg)
 
 ---
 
-## CMake komponenty bez vlastního tasku v main.c
+## Flutter vrstvy (stejný export co `render_docs`)
 
-| Složka | Realita |
-|--------|---------|
-| animation_task | knihovna v buildu, samostatný task z main.c ne |
+Obrázek je vygenerovaný z [`sources/client_app_layers.mmd`](sources/client_app_layers.mmd) — používá ho i [`docs/flutter/README.md`](../flutter/README.md).
+
+![client_app_layers.svg](client_app_layers.svg)
+
+---
+
+## CMake komponenty bez tasku z `main.c`
+
+| Složka | Poznámka |
+|--------|----------|
+| animation_task | build ano, `xTaskCreate` ne |
 | matter_task | vypnuto |
-| promotion_button_task, reset_button_task, screen_saver_task | žádný `xTaskCreate` v současném main.c |
+| promotion_button_task, reset_button_task, screen_saver_task | žádný task v současném `main.c` |
 
 ---
 
-## Sekvenční HTML (hodně diagramů najednou)
+## Sekvenční HTML
 
-Soubor `mermaid_diagrams.txt` se přegeneruje do `diagrams_mermaid.html` přes `python3 generate_mermaid_html.py` nebo `./scripts/render_docs.sh`. Dlouhá jednovětevnač je `main_flow_diagram.txt` (hodí se zkopírovat do mermaid.live).
+`mermaid_diagrams.txt` → `diagrams_mermaid.html` přes `generate_mermaid_html.py` nebo `./scripts/render_docs.sh`. Dlouhý jeden diagram: `main_flow_diagram.txt`.
 
 ---
 

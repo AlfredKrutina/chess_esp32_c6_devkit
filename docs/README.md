@@ -9,23 +9,28 @@ Verze firmware: `CMakeLists.txt` → `PROJECT_VERSION`. Kořenové **`README.md`
 ## Struktura (zjednodušeně)
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#546e7a','clusterBkg':'#fafafa'}}}%%
 flowchart TB
   subgraph FW["Firmware ESP-IDF"]
-    M[main/]
-    C[components/]
-    CM[CMakeLists.txt · sdkconfig · partitions.csv]
+    M[main/]:::fw
+    C[components/]:::fw
+    CM[sdkconfig · CMake]:::fw
   end
   subgraph APP["Klient"]
-    FL[flutter_czechmate/]
+    FL[flutter_czechmate/]:::app
   end
-  subgraph DOC["Dokumentace"]
-    DG[docs/diagrams/]
-    RF[docs/reference/]
-    DF[docs/flutter/]
+  subgraph DOC["docs/"]
+    DG[diagrams/]:::doc
+    RF[reference/]:::doc
+    DF[flutter/]:::doc
   end
   FW <-->|BLE · HTTP| FL
   DOC -.-> FW
   DOC -.-> FL
+
+  classDef fw fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
+  classDef app fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
+  classDef doc fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
 ```
 
 | Cesta | Obsah |
@@ -47,6 +52,7 @@ flowchart TB
 - **Firmware — dlouhý text o frontách:** [`docs/reference/KOMUNIKACE_MEZI_TASKY.md`](reference/KOMUNIKACE_MEZI_TASKY.md)  
 - **Flutter — vrstvy, BLE, složky:** [`docs/flutter/README.md`](flutter/README.md)  
 - **Sekvenční diagramy v HTML:** po `./scripts/render_docs.sh` soubor [`docs/diagrams/diagrams_mermaid.html`](diagrams/diagrams_mermaid.html) (zdroj řádků v `docs/diagrams/mermaid_diagrams.txt`)
+- **Nápady na nové diagramy (jen lokálně, ne v gitu):** `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` — začni zkopírováním [`docs/diagrams/DIAGRAM_BACKLOG.local.example.md`](diagrams/DIAGRAM_BACKLOG.local.example.md)
 
 ---
 

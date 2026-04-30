@@ -1,15 +1,22 @@
-%% Mutexy: kde vznikají — typičtí držitelé (zdroj: main.c, freertos_chess.c, led_task.c)
+%% Mutexy — viz main.c / freertos_chess / led_task
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#78909c'}}}%%
 flowchart TB
-  subgraph MX["Mutex"]
-    UM[uart_mutex]
-    MM[matrix_mutex]
-    GM[game_mutex]
-    LM[led_unified_mutex]
-  end
+  UM[uart_mutex]:::mx
+  MM[matrix_mutex]:::mx
+  GM[game_mutex]:::mx
+  LM[led_unified_mutex]:::mx
 
-  UT[uart_task] -.-> UM
-  MT[matrix_task] -.-> MM
-  GT[game_task] -.-> GM
-  LT[led_task] -.-> LM
-  GT -.->|"led_set_pixel_safe atd."| LM
-  GT -.->|"matrix API"| MM
+  UT[uart_task]:::task
+  MT[matrix_task]:::task
+  GT[game_task]:::task
+  LT[led_task]:::task
+
+  UM -.-> UT
+  MM -.-> MT
+  GM -.-> GT
+  LM -.-> LT
+  GT -.->|LED API| LM
+  GT -.->|matrix API| MM
+
+  classDef mx fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f
+  classDef task fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20

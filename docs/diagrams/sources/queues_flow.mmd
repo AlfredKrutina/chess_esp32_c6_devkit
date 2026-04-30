@@ -1,12 +1,27 @@
-%% Herní fronty — freertos_chess.h (GAME_QUEUE_SIZE, BUTTON_QUEUE_SIZE, UART_QUEUE_SIZE)
+%% Herní fronty — barvy: producenti zelená · fronty oranžová · spotřebitel modrá
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#455a64'}}}%%
 flowchart TB
-  MT[matrix_task] -->|pickup/drop| GQ[("game_command_queue · 24")]
-  BTN[button_task] -->|button_event_t| BQ[("button_event_queue · 5")]
-  UART[uart_task] -->|příkazy/tahy| GQ
-  WEB[web_server_task] -->|HTTP| GQ
+  subgraph PROD["Do front"]
+    MT[matrix_task]:::taskN
+    BTN[button_task]:::taskN
+    UART[uart_task]:::taskN
+    WEB[web_server_task]:::taskN
+  end
 
-  BQ -->|receive| GT[game_task]
-  GQ -->|receive| GT
+  GQ[("game_command_queue · 24")]:::queueN
+  BQ[("button_event_queue · 5")]:::queueN
+  GT[game_task]:::gameN
+  URQ[("uart_response_queue · 10")]:::queueN
 
-  GT -->|game_response_t| URQ[("uart_response_queue · 10")]
+  MT -->|pickup/drop| GQ
+  BTN -->|button_event_t| BQ
+  UART -->|tah / příkaz| GQ
+  WEB -->|HTTP| GQ
+  BQ --> GT
+  GQ --> GT
+  GT -->|game_response_t| URQ
   URQ --> UART
+
+  classDef taskN fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef queueN fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#bf360c
+  classDef gameN fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1

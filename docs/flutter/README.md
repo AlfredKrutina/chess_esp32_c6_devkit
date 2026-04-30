@@ -1,128 +1,159 @@
 # Flutter aplikace (`flutter_czechmate/`)
 
-Dart klient k šachovnici CZECHMATE. Komunikuje s ESP32 přes **BLE** (GATT) nebo přes **HTTP / WebSocket**, podle toho jak máš desku nahozenou a co aplikace zrovna používá. Stav aplikace drží hlavně **Riverpod**.
+Dart klient k desce CZECHMATE: **BLE** nebo **HTTP / WebSocket**. Stav drží hlavně **Riverpod**.
 
 Spuštění: `cd flutter_czechmate && flutter pub get && flutter run`.
 
+Dlouhý lokální seznam nápadů na nové diagramy: **`docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md`** (gitignored) — šablona začátku [`DIAGRAM_BACKLOG.local.example.md`](../diagrams/DIAGRAM_BACKLOG.local.example.md).
+
 ---
 
-## Co kde je v `lib/`
+## Vrstvy (features → Riverpod → služby → deska)
+
+![Vrstvy klienta](../diagrams/client_app_layers.svg)  
+Zdroj Mermaid: [`../diagrams/sources/client_app_layers.mmd`](../diagrams/sources/client_app_layers.mmd)
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#7b1fa2','clusterBkg':'#fafafa'}}}%%
 flowchart TB
-  subgraph UI["features/ — obrazovky"]
-    G[game]
-    C[connection]
-    CO[coach]
-    A[analysis]
-    PU[puzzle]
-    LE[learn]
-    S[settings]
+  subgraph UI["features/"]
+    direction LR
+    GA[game]:::u
+    CN[connection]:::u
+    CH[coach]:::u
+    XX[…]:::u
   end
-  subgraph CORE["core/"]
-    SV[services — BLE, API, prefs, hodinky, …]
-    MD[models]
-    UT[utils]
+  subgraph RP["Riverpod"]
+    NT[notifiers]:::r
   end
-  UI --> CORE
+  subgraph SV["core/services"]
+    BLE[BLE]:::s
+    HTTP[HTTP / WS]:::s
+    PF[prefs · native]:::s
+  end
+  subgraph BD["ESP32"]
+    FW[firmware]:::e
+  end
+  UI --> RP --> SV
+  BLE <-->|GATT| FW
+  HTTP <-->|TCP| FW
+
+  classDef u fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
+  classDef r fill:#ede7f6,stroke:#5e35b1,stroke-width:2px,color:#311b92
+  classDef s fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef e fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#e65100
 ```
 
-| Složka | Účel |
-|--------|------|
-| `features/game/` | Šachovnice, partie, hodiny, report |
-| `features/connection/` | Hledání desky, session, diagnostika |
-| `features/coach/` | Chat s AI / LLM backendy |
-| `features/analysis/` | Evaluace tahů, grafy |
-| `features/settings/` | Zařízení, vývojářské volby, MQTT/HA obrazovky |
-| `core/services/` | `ble_czechmate_client`, `board_api_client`, `web_socket_manager`, Stockfish klient, Live Activity, hodinky |
-| `core/models/` | Snapshot hry, time control, coach backend enumy |
-| `app_providers.dart` | Globální Riverpod setup |
+---
+
+## Tabulka `lib/`
+
+| Složka | Co tam je |
+|--------|-----------|
+| `features/game/` | Partie, šachovnice, hodiny, report |
+| `features/connection/` | Scan, session, diagnostika |
+| `features/coach/` | AI chat, LLM klienti |
+| `features/analysis/` | Evaluace, grafy |
+| `features/settings/` | Zařízení, MQTT/HA obrazovky |
+| `core/services/` | `ble_czechmate_client`, `board_api_client`, `web_socket_manager`, Stockfish, Live Activity, hodinky |
+| `core/models/` | Snapshot, časové kontroly, enumy |
+| `app_providers.dart` | Globální providery |
 | `app_navigation.dart` | Routy |
 
 ---
 
-## Jak proudí tah od uživatele k desce
+## Tah z UI na hardware
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'actorBkg':'#f3e5f5','actorBorder':'#7b1fa2','signalColor':'#37474f'}}}%%
 sequenceDiagram
-  participant U as UI widget
-  participant N as Notifier Riverpod
-  participant BLE as BleCzechMateClient / session
-  participant D as ESP32 firmware
-  U->>N: tap / drag figurky
-  N->>BLE: příkaz nebo tah v JSON podle protokolu
-  BLE->>D: GATT write nebo HTTP POST
-  D-->>BLE: notifikace / odpověď / snapshot
-  BLE-->>N: parse stav
-  N-->>U: překreslení šachovnice
+  rect rgb(243, 229, 245)
+    participant W as Widget
+    participant N as Notifier
+    participant X as BLE / HTTP klient
+    participant D as ESP32
+    W->>N: gesto / stisk
+    N->>X: příkaz / JSON
+    X->>D: GATT nebo HTTP
+    D-->>X: odpověď / snapshot
+    X-->>N: parsovat
+    N-->>W: překreslit šachovnici
+  end
 ```
 
 ---
 
-## BLE vs síť (zjednodušeně)
+## BLE vs WiFi na desce
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#546e7a'}}}%%
 flowchart LR
-  subgraph Mob["Telefon"]
-    APP[Flutter]
+  subgraph Phone["Telefon"]
+    APP[Flutter]:::p
   end
-  subgraph Deska["ESP32"]
-    NIM[NimBLE]
-    WEB[web_server_task]
-    GT[game_task]
+  subgraph Board["ESP32"]
+    NIM[NimBLE]:::b
+    WEB[web_server_task]:::b
+    GT[game_task]:::g
   end
   APP <-->|GATT| NIM
-  APP <-->|HTTP / WS| WEB
-  NIM --> WEB
+  APP <-->|HTTP| WEB
+  NIM --> GT
   WEB --> GT
+  classDef p fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
+  classDef b fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#1a237e
+  classDef g fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#e65100
 ```
 
-Na firmware straně BLE příkazy často končí ve stejné logice jako web (`web_server_ble_command_dispatch` v `ble_nimble_impl.c`). Proto v aplikaci nemusí být úplně jiný „jazyk“ pro každý kanál — záleží na konkrétním endpointu/GATT charakteristikách implementovaných v repu.
+Příkazy z BLE často jdou přes **`web_server_ble_command_dispatch`** na firmware — nemusí existovat úplně oddělený „BLE protokol“ od web API.
 
 ---
 
-## Životní cyklus „session“ k desce
+## Session stavy
 
 ```mermaid
+%%{init: {'theme':'base'}}%%
 stateDiagram-v2
-  [*] --> Discovery: otevřu připojení
-  Discovery --> Connecting: vybrané zařízení
-  Connecting --> InGame: handshake OK
-  InGame --> InGame: tahy / přestávky
-  InGame --> Discovery: ztráta spojení / uživatel zpět
+  [*] --> Hledání
+  Hledání --> Připojuji: výběr zařízení
+  Připojuji --> Ve_hře: handshake OK
+  Ve_hře --> Ve_hře: tahy
+  Ve_hře --> Hledání: výpadek / zpět
 ```
 
-Implementace: `board_session_notifier.dart`, `board_session_state.dart`, obrazovky v `features/connection/`.
+Implementace: `board_session_notifier.dart`, `features/connection/`.
 
 ---
 
-## Coach (AI)
+## Coach
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#6a1b9a'}}}%%
 flowchart LR
-  UI[Coach UI] --> CM[coach_manager / notifiers]
-  CM --> LLM[coach_llm_clients · HTTP API]
-  CM --> LOC[Volitelně lokální / mock služby]
-  CM --> SNAP[game snapshot z aktuální partie]
+  UI[Coach UI]:::u --> CM[coach_manager]:::r
+  CM --> LLM[HTTP LLM]:::s
+  CM --> SN[snapshot partie]:::x
+  classDef u fill:#f3e5f5,stroke:#7b1fa2,color:#4a148c
+  classDef r fill:#ede7f6,stroke:#5e35b1,color:#311b92
+  classDef s fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20
+  classDef x fill:#fff3e0,stroke:#ef6c00,color:#e65100
 ```
 
-Soubory: `features/coach/*`, `core/services/coach_ai_completion_service.dart`, `coach_llm_clients.dart`.
+---
+
+## Nativní části
+
+| Platforma | Extra |
+|-----------|--------|
+| iOS | Live Activities, případně Watch bridge |
+| Android | Wear modul, notifikace hodin |
 
 ---
 
-## Nativní části mimo Dart
+## Firmware diagramy
 
-| Platforma | Co je navíc |
-|-----------|-------------|
-| **iOS** | Live Activities (`ios/ChessLiveActivityExtension/`, `LiveActivityNativeController.swift`), Watch bridge dle aktuálního stavu projektu |
-| **Android** | Wear modul (`android/wear/`), notifikace šachových hodin v `MainActivity` / Kotlin pomocné třídy |
+[`docs/diagrams/README.md`](../diagrams/README.md) — FreeRTOS, fronty, LED pipeline.
 
 ---
 
-## Čtení na firmware stranu
-
-Diagramy FreeRTOS a front: [`docs/diagrams/README.md`](../diagrams/README.md). Checklist integrace: [`docs/reference/CZECHMATE_INTEGRATION_CHECKLIST.md`](../reference/CZECHMATE_INTEGRATION_CHECKLIST.md).
-
----
-
-Krátký úvod přímo ve složce appky: [`flutter_czechmate/README.md`](../../flutter_czechmate/README.md).
+Krátký úvod u samotné appky: [`flutter_czechmate/README.md`](../../flutter_czechmate/README.md).

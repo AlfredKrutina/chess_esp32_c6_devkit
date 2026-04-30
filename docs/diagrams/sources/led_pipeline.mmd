@@ -1,0 +1,19 @@
+%% LED batch — zjednodušený tok (led_task)
+%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#546e7a'}}}%%
+flowchart LR
+  GT[game_task · volání API]:::g
+  LT[led_task smyčka]:::l
+  MU[(led_unified_mutex)]:::m
+  BUF[(pending / batch)]:::b
+  HW[WS2812B GPIO7]:::h
+
+  GT -->|led_set_pixel_safe| LT
+  LT --> MU
+  LT --> BUF
+  BUF -->|batch commit| HW
+
+  classDef g fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
+  classDef l fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef m fill:#fce4ec,stroke:#ad1457,stroke-width:2px,color:#880e4f
+  classDef b fill:#fff8e1,stroke:#ff8f00,stroke-width:2px,color:#e65100
+  classDef h fill:#eceff1,stroke:#455a64,stroke-width:2px,color:#263238

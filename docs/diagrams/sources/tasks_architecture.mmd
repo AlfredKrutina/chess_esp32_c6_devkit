@@ -1,40 +1,40 @@
-%% Pořadí xTaskCreate = řádek níže zleva doprava (main.c). Šipky na fronty = runtime tok zpráv.
+%% Pořadí xTaskCreate z main.c · runtime šipky na fronty · barvy: init / task / queue / disabled
+%%{init: {'theme':'base', 'themeVariables': {'fontFamily':'system-ui,Segoe UI,sans-serif','lineColor':'#455a64','clusterBkg':'#fafafa'}}}%%
 flowchart TB
   subgraph SYS["main_system_init()"]
     direction TB
     CH["chess_system_init"]
-    TM["chess_start_timers · kontrola front"]
-    EG["init_endgame_animation_system"]
-    UR["register_extended_uart_commands"]
+    TM["timery · kontrola front"]
+    EG["endgame anim · UART příkazy"]
     BLE["ble_task_init → NimBLE"]
-    CH --> TM --> EG --> UR --> BLE
+    CH --> TM --> EG --> BLE
   end
 
-  subgraph OFF["V main.c zakázáno"]
+  subgraph OFF["main.c nevytváří task"]
     AN[animation_task]
     MA[matter_task]
   end
 
-  MAIN[["app_main"]] --> SYS
+  MAIN[["app_main"]]:::mainN
+  CR["create_system_tasks()"]:::mainN
 
-  CR["create_system_tasks()"]
+  L["led_task · P7 · 8K"]:::taskN
+  M["matrix_task · P6 · 4K"]:::taskN
+  B["button_task · P5 · 3K"]:::taskN
+  U["uart_task · P3 · suspend→resume"]:::taskN
+  G["game_task · P4 · 6K"]:::taskN
+  T["test_task · P1 · optional"]:::optN
+  W["web_server_task · P3 · 20K"]:::taskN
+  H["ha_light_task · P3 · 8K"]:::taskN
+
+  GQ[("game_command_queue · 24")]:::queueN
+  BQ[("button_event_queue · 5")]:::queueN
+
+  MAIN --> SYS
   SYS --> CR
-
-  L["led_task P7 8KiB"]
-  M["matrix_task P6 4KiB"]
-  B["button_task P5 3KiB"]
-  U["uart_task P3 5KiB suspend→resume"]
-  G["game_task P4 6KiB"]
-  T["test_task P1 menuconfig"]
-  W["web_server_task P3 20KiB"]
-  H["ha_light_task P3 8KiB"]
-
   CR --> L
   L --> M --> B --> U --> G --> W --> H
-  G -.->|CONFIG_CHESS_ENABLE_TEST_TASK| T
-
-  GQ[("game_command_queue · 24")]
-  BQ[("button_event_queue · 5")]
+  G -.->|menuconfig| T
 
   M --> GQ
   B --> BQ
@@ -42,3 +42,11 @@ flowchart TB
   W --> GQ
   BQ --> G
   GQ --> G
+
+  classDef mainN fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px,color:#311b92
+  classDef taskN fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef queueN fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#e65100
+  classDef optN fill:#fffde7,stroke:#f9a825,stroke-width:2px,color:#f57f17
+
+  style SYS fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+  style OFF fill:#ffebee,stroke:#c62828,stroke-dasharray: 5 5

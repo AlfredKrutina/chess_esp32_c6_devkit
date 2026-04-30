@@ -1,0 +1,34 @@
+%% Flutter klient — vrstvy (logicky, ne compile závislosti)
+%%{init: {'theme':'base', 'themeVariables': {'clusterBkg':'#fafafa','lineColor':'#7b1fa2'}}}%%
+flowchart TB
+  subgraph UI["features/ · obrazovky"]
+    direction LR
+    G[game]:::f1
+    C[connection]:::f1
+    CO[coach]:::f1
+    O[ostatní]:::f1
+  end
+
+  subgraph RV["Riverpod notifiers"]
+    N[state / session]:::rv
+  end
+
+  subgraph SV["core/services"]
+    BLE[BLE klient]:::sv
+    HTTP[board API · WS]:::sv
+    PR[prefs · native]:::sv
+  end
+
+  subgraph FW["Deska ESP32"]
+    ESP[firmware]:::esp
+  end
+
+  UI --> RV
+  RV --> SV
+  BLE <--> ESP
+  HTTP <--> ESP
+
+  classDef f1 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
+  classDef rv fill:#ede7f6,stroke:#5e35b1,stroke-width:2px,color:#311b92
+  classDef sv fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef esp fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#e65100

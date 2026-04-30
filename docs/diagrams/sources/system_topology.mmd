@@ -1,32 +1,34 @@
-%% Runtime: vstupy → game_task → LED / UART odpovědi · BLE příkazy jdou přes web_server_ble_command_dispatch (viz ble_nimble_impl.c)
+%% Vstupy / výstupy · telefon vs deska
+%%{init: {'theme':'base', 'themeVariables': {'clusterBkg':'#fafafa','lineColor':'#546e7a'}}}%%
 flowchart TB
-  subgraph IN["Vstupy"]
-    MAT[matrix_task<br/>reed 8×8]
-    BTN[button_task<br/>multiplex tlačítka]
-    SER[uart_task<br/>USB Serial JTAG]
-    HTTP[web_server_task<br/>HTTP handler]
-    BLECH[NimBLE GATT<br/>ble_task host]
+  subgraph PH["Telefon — Flutter"]
+    APP[Flutter UI]:::fl
   end
 
-  GQ[("game_command_queue")]
-  BQ[("button_event_queue")]
-  GT[game_task<br/>šachy · NVS · LED API]
+  subgraph ESP["ESP32 firmware"]
+    BLE[NimBLE + dispatch]:::ble
+    WEB[web_server_task]:::net
+    GT[game_task]:::game
+    LT[led_task · WS2812]:::hw
+    SER[uart_task]:::uart
+  end
 
-  MAT --> GQ
-  SER --> GQ
-  HTTP --> GQ
-  BLECH -->|"web_server_ble_command_dispatch()"| GQ
-  BTN --> BQ
+  GQ[("game_command_queue")]:::q
+  URQ[("uart_response_queue")]:::q
 
+  APP <-->|GATT| BLE
+  APP <-->|HTTP / WS| WEB
+  BLE --> GQ
+  WEB --> GQ
   GQ --> GT
-  BQ --> GT
-
-  LT[led_task<br/>WS2812B]
-  URQ[("uart_response_queue")]
-
   GT --> LT
   GT --> URQ
   URQ --> SER
 
-  HA[ha_light_task<br/>MQTT]
-  HTTP -.->|"WiFi AP/STA"| HA
+  classDef fl fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
+  classDef ble fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#1a237e
+  classDef net fill:#e0f7fa,stroke:#00838f,stroke-width:2px,color:#006064
+  classDef game fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
+  classDef hw fill:#eceff1,stroke:#546e7a,stroke-width:2px,color:#263238
+  classDef uart fill:#fff8e1,stroke:#f9a825,stroke-width:2px,color:#f57f17
+  classDef q fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#bf360c

@@ -12,6 +12,9 @@
 /docs/archive/
 /docs/planning/
 
+# Lokální backlog / nápady na diagramy (necommitovat — dlouhý osobní seznam)
+/docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md
+
 
 # =============================================================================
 # ESP-IDF / toolchain
