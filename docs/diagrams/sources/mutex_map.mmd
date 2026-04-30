@@ -1,5 +1,5 @@
 %% Mutexy — viz main.c / freertos_chess / led_task
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#78909c'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,Segoe UI,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryColor':'#1e293b','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TB
   UM[uart_mutex]:::mx
   MM[matrix_mutex]:::mx
@@ -18,5 +18,5 @@ flowchart TB
   GT -.->|LED API| LM
   GT -.->|matrix API| MM
 
-  classDef mx fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f
-  classDef task fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef mx fill:#831843,stroke:#f472b6,stroke-width:2px,color:#fce7f3
+  classDef task fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0

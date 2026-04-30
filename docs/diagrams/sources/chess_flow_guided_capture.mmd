@@ -1,0 +1,13 @@
+%% Braní figurky na fyzické desce — rozšířený tok game_process_drop_command / game_task.c
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  A[DROP po PICKUP soupeřovy figurky] --> B{capture_in_progress?}
+
+  B -->|ne| NORM[běžná validace tahu → game_execute_move]
+  B -->|ano| C[Před validací dočasně vrátit branou figurku na cílové pole]
+
+  C --> D[game_is_valid_move / game_execute_move jako klasický capture]
+  D -->|OK| E[capture_in_progress = false · vyčistit stav · highlight tahů]
+  D -->|fail / zrušení| F[Vrátit figurku na pole · capture_in_progress = false]
+
+  NORM -.-> GNOTE[Paralelně guided_capture_state — game_show_guided_capture_leds podle úrovně nápovědy]

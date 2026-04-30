@@ -1,0 +1,27 @@
+%% game_is_valid_move — řetěz kontrol před provedením tahu game_task.c
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  V([game_is_valid_move]) --> N{move NULL?}
+  N -->|ano| E1[MOVE_ERROR_INVALID_MOVE_STRUCTURE]
+  N -->|ne| BOUNDS{from/to v mezi 0–7?}
+  BOUNDS -->|ne| E2[MOVE_ERROR_OUT_OF_BOUNDS]
+  BOUNDS -->|ano| ACT{game_active?}
+  ACT -->|ne| E3[MOVE_ERROR_GAME_NOT_ACTIVE]
+  ACT -->|ano| SRC[source_piece z board · výjimka resignation král]
+
+  SRC --> COLOR{patří current_player?}
+  COLOR -->|ne| E4[MOVE_ERROR_WRONG_COLOR]
+  COLOR -->|ano| OWN{dest vlastní figurka?}
+  OWN -->|ano| E5[MOVE_ERROR_DESTINATION_OCCUPIED]
+  OWN -->|ne| CAST{rošáda — očekávaný tah věže?}
+
+  CAST -->|ano správně| SKIP[přeskočit standardní geometrii věže]
+  CAST -->|ne / není rošáda| PIECE[game_validate_piece_move_enhanced]
+  CAST -->|špatný tah při rošádě| E_CAST[MOVE_ERROR_CASTLING_BLOCKED]
+  SKIP --> CHECK
+  PIECE --> PE{MOVE_ERROR_NONE?}
+  PE -->|ne| EP[vlastní piece_error]
+  PE -->|ano| CHECK{game_would_move_leave_king_in_check?}
+
+  CHECK -->|ano| E6[MOVE_ERROR_KING_IN_CHECK]
+  CHECK -->|ne| OK[MOVE_ERROR_NONE]

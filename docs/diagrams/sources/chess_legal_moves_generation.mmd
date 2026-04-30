@@ -1,0 +1,30 @@
+%% Generování legálních tahů — buffer legal_moves_buffer game_task.c
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  G([game_generate_legal_moves player]) --> CLR[legal_moves_count = 0]
+  CLR --> LOOP[for každé pole 8×8]
+  LOOP --> OWN{game_is_own_piece?}
+  OWN -->|ne| LOOP
+  OWN -->|ano| TYP{typ figurky}
+
+  TYP -->|pawn| GP[game_generate_pawn_moves]
+  TYP -->|knight| GK[game_generate_knight_moves]
+  TYP -->|bishop/rook/queen| GS[game_generate_sliding_moves směry]
+  TYP -->|king| GKng[game_generate_king_moves — tahy + rošáda podmínky]
+
+  GP --> SIM[každý kandidát → game_simulate_move_check]
+  GK --> SIM
+  GS --> SIM
+  GKng --> SIM
+
+  SIM -->|true| BUF[zapsat do legal_moves_buffer · inkrement]
+  SIM -->|false| DROP[zahodit — král by byl v šachu]
+  BUF --> LOOP
+  DROP --> LOOP
+
+  LOOP --> RET([return legal_moves_count])
+
+  NOTE["Tip: game_validate_move_enhanced volá game_generate_legal_moves a hledá shodu from/to v bufferu"]:::note
+  RET -.-> NOTE
+
+  classDef note fill:#713f12,stroke:#facc15,color:#fef08a

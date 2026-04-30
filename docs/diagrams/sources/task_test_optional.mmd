@@ -1,0 +1,10 @@
+%% test_task — jen při CONFIG_CHESS_ENABLE_TEST_TASK
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  START([test_task_start]) --> WDT[WDT · test_initialize_system]
+  WDT --> LOOP{{for ;;}}
+
+  LOOP --> W[test_task_wdt_reset_safe]
+  W --> P[test_process_commands — test_command_queue]
+  P --> DLY[vTaskDelayUntil TEST_TASK_INTERVAL ~1 s]
+  DLY --> LOOP

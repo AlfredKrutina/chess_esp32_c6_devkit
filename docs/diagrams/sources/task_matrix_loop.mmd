@@ -1,0 +1,11 @@
+%% matrix_task_start — reed matice + příkazy z fronty
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  START([matrix_task_start]) --> REG[WDT · matrix_reset · pattern]
+  REG --> LOOP{{for ;;}}
+
+  LOOP --> WDT[WDT reset]
+  WDT --> CMD[matrix_process_commands — drain matrix_command_queue]
+  CMD --> NOTE[Sken GPIO řídí timer callback — ne přímo zde]
+  NOTE --> DLY[vTaskDelayUntil 10 ms]
+  DLY --> LOOP

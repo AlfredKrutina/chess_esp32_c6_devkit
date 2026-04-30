@@ -1,0 +1,12 @@
+%% uart_task_start — konzole → game_command_queue / výstup
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  START([uart_task_start]) --> CFG[config_manager · NVS · input_buffer · history]
+  CFG --> LOOP{{uart_task_legacy_loop}}
+
+  LOOP --> WDT[WDT reset]
+  WDT --> OUT[uart_process_output_queue — uart_response_queue]
+  OUT --> IN[čtení znaku / řádku — parse příkazů]
+  IN --> DISPATCH[interpretace → xQueueSend game_command_queue apod.]
+  DISPATCH --> DLY[krátký delay / tick]
+  DLY --> LOOP

@@ -1,0 +1,24 @@
+%% Promoce pěšce — čekání na výběr figurky game_task.c
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  A[Pěšec na 8. / 1. řadu] --> B[game_execute_move detekuje MOVE_TYPE_PROMOTION]
+
+  B --> C{Okamžitá volba z API UART před exekucí?}
+  C -->|ano| D[Inline promotion_piece v extended_move · dokončí se v jednom průchodu]
+  C -->|ne| E[promotion_mutex: promotion_state.pending = true · řádek/sloupec · hráč]
+
+  E --> F[LED animace PROMOTE · game_check_promotion_needed — zelená promo tlačítka]
+  E --> G[Hráč zůstává na tahu do výběru]
+
+  G --> H{Vstup}
+  H --> I[UART/web: game_process_promotion_command]
+  H --> J[Tlačítka: game_process_promotion_button přes frontu]
+
+  I --> K[game_execute_promotion — game_piece_for_promotion_choice]
+  J --> K
+
+  K --> L[Zápis dámy/věže/střelce/jezdce · pending = false · GAME_STATE_ACTIVE]
+  L --> M[Přepnutí hráče · timery · vyčištění piece_lifted · kontrola konce hry]
+
+  D --> FIN([konec tahu])
+  M --> FIN

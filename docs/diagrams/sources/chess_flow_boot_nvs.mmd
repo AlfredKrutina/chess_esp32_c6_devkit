@@ -1,0 +1,21 @@
+%% Start hry v game_task — NVS snapshot vs nová hra game_task_start game_task.c
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  S[game_task_start — mutexy · timer · NVS config] --> B[game_initialize_board]
+
+  B --> NV{game_nvs_has_valid_snapshot?}
+  NV -->|ano| SN[boot_new_game_triggered = false]
+  NV -->|ne| BT[boot_new_game_triggered = game_boot_tracker_should_force_new_game]
+
+  BT -->|true| NG[game_start_new_game · snapshot_loaded_on_boot false]
+  BT -->|false| LD
+  SN --> LD[game_load_snapshot_from_nvs]
+
+  LD -->|OK| RS[game_check_resync_needed_after_restore]
+  LD -->|chyba| FB[čerstvá deska / fallback]
+
+  RS --> LOOP[Hlavní smyčka — game_process_commands …]
+  FB --> LOOP
+  NG --> LOOP
+
+  LOOP -.-> LEDNOTE[Viz task_game_loop: led_is_booting → smyčka jen čeká]

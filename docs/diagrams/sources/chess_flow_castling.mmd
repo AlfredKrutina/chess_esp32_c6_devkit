@@ -1,0 +1,19 @@
+%% Rošáda — dvoufázový tah na fyzické desce game_task.c
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  A[Tah krále o 2 pole e→g / e→c] --> B[game_validate_castling — král/věž · prázdná cesta · král ne v šachu · pole po cestě neútočena]
+  B -->|chyba| E[MOVE_ERROR_CASTLING_BLOCKED …]
+  B -->|OK| C[game_execute_move → MOVE_TYPE_CASTLE_*]
+
+  C --> D[game_execute_move_enhanced: přesune jen KRÁLE · věž NECHÁ na a/h]
+  D --> F[castling_state.in_progress = true · rook_from/to · LED návod]
+  F --> G[Hráč se NEPŘEPÍNÁ — čeká se druhý tah věže]
+
+  G --> H[Další tah: game_is_valid_move]
+  H --> I{Je to přesně tah věže rook_from → rook_to?}
+  I -->|ano| J[Výjimka v validaci — přeskočí geometrii věže · šach test]
+  I -->|král jinam| K[Možné zrušení rošády — castling_state = false viz kód]
+  I -->|jinak| L[Čekání / chyba]
+
+  J --> M[game_execute_move dokončení: zapíše věž do board · in_progress = false · příznaky king/rook moved]
+  M --> N[Přepnutí hráče · timery · highlight / šach animace]

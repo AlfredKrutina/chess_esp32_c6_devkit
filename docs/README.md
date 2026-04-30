@@ -1,15 +1,49 @@
-# Co je v tomhle repu
+# Dokumentace — hlavní rozcestník
 
-Jeden projekt = **firmware na ESP32-C6** (šachovnice s LED a senzory) + **Flutter aplikace** (`flutter_czechmate/`), která k desce mluví přes **BLE** nebo **HTTP/WebSocket**. Nativní Xcode appka **CZECHMATE/** je v `.gitignore` — v gitu je jako klient jen Flutter.
+Tento soubor je **startovní bod**, pokud chceš projekt pochopit jen z repozitáře (bez lokálních poznámek). Kořenové **[`README.md`](../README.md)** má příběh projektu, hardware, GPIO a dlouhé pasáže; **`docs/`** doplňuje **architekturu**, **komunikaci tasků**, **klienta Flutter** a **nástroje**.
 
-Verze firmware: `CMakeLists.txt` → `PROJECT_VERSION`. Kořenové **`README.md`** je hlavní popis hardware a buildu; tady máš **mapu složek** a odkazy, aby šlo rychle najít soubor i pro nástroje / lidi.
+---
+
+## Doporučené pořadí čtení
+
+1. **[`README.md`](../README.md)** — účel systému, hardware, tabulka FreeRTOS tasků, odkaz na diagramy.
+2. **`docs/README.md` (tento soubor)** — inventář a kam jít dál.
+3. **[`docs/diagrams/README.md`](diagrams/README.md)** — obrázky: boot, fronty, mutexy, **smyčka každého tasku**, **šachová logika** (`game_is_valid_move`, generování tahů, …).
+4. **[`docs/reference/KOMUNIKACE_MEZI_TASKY.md`](reference/KOMUNIKACE_MEZI_TASKY.md)** — stejné téma jako diagramy, ale **textově do hloubky** (fronty, mutexy, hardware).
+5. **[`docs/flutter/README.md`](flutter/README.md)** — struktura `flutter_czechmate/lib/`, BLE vs HTTP, stavy session.
+6. **[`docs/reference/`](reference/)** — souřadnice, web UI deploy, integrační checklist (viz tabulka níže).
+7. **Doxygen** (`./generate_docs.sh` → `docs/doxygen/html/index.html`) — API z **C** (`grep` v `game_task.c` má limity; Doxygen je hlavní přehled funkcí).
+
+Po změně diagramů ve zdrojích spusť z kořene: `./scripts/render_docs.sh` (SVG + `diagrams_mermaid.html`).
+
+---
+
+## Inventář dokumentace v repu
+
+| Dokument | Obsah |
+|----------|--------|
+| [`README.md`](../README.md) | Produktový přehled, HW, GPIO, architektura, troubleshooting, odkazy dolů |
+| [`docs/README.md`](README.md) | Tento rozcestník |
+| [`docs/diagrams/README.md`](diagrams/README.md) | Všechny Mermaid/SVG diagramy firmware + Flutter vrstvy + šachové pipeline |
+| [`docs/diagrams/diagrams_mermaid.html`](diagrams/diagrams_mermaid.html) | Sekvenční diagramy (vygeneruje `render_docs.sh`) |
+| [`docs/diagrams/mermaid_diagrams.txt`](diagrams/mermaid_diagrams.txt) | Zdroj pro HTML výše |
+| Diagramy rošády / promoce / en passant / capture / boot NVS | [`docs/diagrams/sources/chess_flow_*.mmd`](diagrams/sources/) → SVG po `./scripts/render_docs.sh` |
+| [`docs/flutter/README.md`](flutter/README.md) | Flutter klient |
+| [`docs/reference/KOMUNIKACE_MEZI_TASKY.md`](reference/KOMUNIKACE_MEZI_TASKY.md) | Komunikace tasků a HW (dlouhý text) |
+| [`docs/reference/coordinates_system.md`](reference/coordinates_system.md) | Notace a1–h8 ↔ `row`/`col`, LED indexy |
+| [`docs/reference/WEB_UI_DEPLOY.md`](reference/WEB_UI_DEPLOY.md) | Embed JS do firmware, build, Stockfish nápověda na webu |
+| [`docs/reference/CZECHMATE_INTEGRATION_CHECKLIST.md`](reference/CZECHMATE_INTEGRATION_CHECKLIST.md) | REST, WS, BLE, snapshot — checklist pro klienty |
+| [`flutter_czechmate/README.md`](../flutter_czechmate/README.md) | Rychlý start Dart aplikace + odkaz sem |
+| [`docs/diagrams/DIAGRAM_BACKLOG.local.example.md`](diagrams/DIAGRAM_BACKLOG.local.example.md) | Šablona pro lokální backlog diagramů |
+
+Lokální poznámky mimo git často v `context/` nebo `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` — nejsou nutné k pochopení základu.
 
 ---
 
 ## Struktura (zjednodušeně)
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#546e7a','clusterBkg':'#fafafa'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'lineColor':'#94a3b8','clusterBkg':'#0f172a','clusterBorder':'#334155','primaryTextColor':'#f1f5f9','titleColor':'#f8fafc'}}}%%
 flowchart TB
   subgraph FW["Firmware ESP-IDF"]
     M[main/]:::fw
@@ -28,9 +62,9 @@ flowchart TB
   DOC -.-> FW
   DOC -.-> FL
 
-  classDef fw fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
-  classDef app fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
-  classDef doc fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef fw fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
+  classDef app fill:#581c87,stroke:#c084fc,stroke-width:2px,color:#f3e8ff
+  classDef doc fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0
 ```
 
 | Cesta | Obsah |
@@ -38,21 +72,18 @@ flowchart TB
 | `main/` | `main.c` — boot, fronty, start tasků |
 | `components/` | FreeRTOS tasky: `game_task`, `led_task`, `matrix_task`, `uart_task`, `web_server_task`, `ble_task`, … |
 | `flutter_czechmate/lib/` | Dart UI, Riverpod, služby BLE/API |
-| `docs/diagrams/` | Grafy firmware (`sources/*.mmd`, SVG, sekvenční HTML) |
-| `docs/reference/` | Delší texty (komunikace tasků, web UI, souřadnice, checklist) |
-| `docs/flutter/` | Popis Flutter appky + diagramy |
+| `docs/diagrams/` | Grafy (`sources/*.mmd`), SVG, sekvenční HTML |
+| `docs/reference/` | Delší texty (komunikace, web UI, souřadnice, checklist) |
+| `docs/flutter/` | Shrnutí Flutter appky + odkazy na diagramy |
 | `scripts/` | `render_docs.sh` apod. |
 | `Doxyfile` + `generate_docs.sh` | API dokumentace z C zdrojáků |
 
 ---
 
-## Kde číst co
+## Co z dokumentace „nejde“ nahradit čtením řádek po řádku
 
-- **Firmware — obrázky a tabulky:** [`docs/diagrams/README.md`](diagrams/README.md)  
-- **Firmware — dlouhý text o frontách:** [`docs/reference/KOMUNIKACE_MEZI_TASKY.md`](reference/KOMUNIKACE_MEZI_TASKY.md)  
-- **Flutter — vrstvy, BLE, složky:** [`docs/flutter/README.md`](flutter/README.md)  
-- **Sekvenční diagramy v HTML:** po `./scripts/render_docs.sh` soubor [`docs/diagrams/diagrams_mermaid.html`](diagrams/diagrams_mermaid.html) (zdroj řádků v `docs/diagrams/mermaid_diagrams.txt`)
-- **Nápady na nové diagramy (jen lokálně, ne v gitu):** `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` — začni zkopírováním [`docs/diagrams/DIAGRAM_BACKLOG.local.example.md`](diagrams/DIAGRAM_BACKLOG.local.example.md)
+- **`components/game_task/game_task.c`** je velký modul — diagramy v [`docs/diagrams/README.md`](diagrams/README.md) popisují **hlavní toky**; úplný výčet funkcí a komentářů je v **Doxygen**.
+- **Chování v čase** (série tahů, edge cases) je kombinace **diagramů**, **KOMUNIKACE_MEZI_TASKY**, **logů** a **testů** na zařízení.
 
 ---
 

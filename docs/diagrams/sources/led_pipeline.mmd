@@ -1,5 +1,5 @@
 %% LED batch — zjednodušený tok (led_task)
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#546e7a'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,Segoe UI,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryColor':'#1e293b','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart LR
   GT[game_task · volání API]:::g
   LT[led_task smyčka]:::l
@@ -12,8 +12,8 @@ flowchart LR
   LT --> BUF
   BUF -->|batch commit| HW
 
-  classDef g fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
-  classDef l fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
-  classDef m fill:#fce4ec,stroke:#ad1457,stroke-width:2px,color:#880e4f
-  classDef b fill:#fff8e1,stroke:#ff8f00,stroke-width:2px,color:#e65100
-  classDef h fill:#eceff1,stroke:#455a64,stroke-width:2px,color:#263238
+  classDef g fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
+  classDef l fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0
+  classDef m fill:#831843,stroke:#f472b6,stroke-width:2px,color:#fce7f3
+  classDef b fill:#713f12,stroke:#facc15,stroke-width:2px,color:#fef08a
+  classDef h fill:#334155,stroke:#94a3b8,stroke-width:2px,color:#f1f5f9

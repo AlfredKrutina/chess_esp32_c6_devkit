@@ -1,0 +1,17 @@
+%% NimBLE stack — bez samostatného ble_task z main xTaskCreate
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart LR
+  subgraph ESP["ESP32"]
+    INIT[ble_task_init → nimble_port_freertos_init]:::b
+    GATT[GATT CzechMate svc — snap · cmd · net · cmd_ack]:::b
+    CB[callback zápis CMD / subscribe]:::b
+    INIT --> GATT --> CB
+  end
+
+  PH[Telefon Flutter / iOS] <-->|BLE| GATT
+  CB --> DISPATCH[web_server_ble_command_dispatch / sdílená logika s HTTP]:::w
+  DISPATCH --> GQ[(game_command_queue)]:::q
+
+  classDef b fill:#312e81,stroke:#818cf8,color:#e0e7ff
+  classDef w fill:#164e63,stroke:#22d3ee,color:#cffafe
+  classDef q fill:#7c2d12,stroke:#fb923c,color:#fed7aa

@@ -1,5 +1,5 @@
 %% Pořadí xTaskCreate z main.c · runtime šipky na fronty · barvy: init / task / queue / disabled
-%%{init: {'theme':'base', 'themeVariables': {'fontFamily':'system-ui,Segoe UI,sans-serif','lineColor':'#455a64','clusterBkg':'#fafafa'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,Segoe UI,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryColor':'#1e293b','primaryTextColor':'#f1f5f9','primaryBorderColor':'#64748b','secondaryColor':'#334155','tertiaryColor':'#1e293b','edgeLabelBackground':'#1e293b','mainBkg':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TB
   subgraph SYS["main_system_init()"]
     direction TB
@@ -43,10 +43,10 @@ flowchart TB
   BQ --> G
   GQ --> G
 
-  classDef mainN fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px,color:#311b92
-  classDef taskN fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
-  classDef queueN fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#e65100
-  classDef optN fill:#fffde7,stroke:#f9a825,stroke-width:2px,color:#f57f17
+  classDef mainN fill:#581c87,stroke:#c084fc,stroke-width:2px,color:#f3e8ff
+  classDef taskN fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0
+  classDef queueN fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa
+  classDef optN fill:#713f12,stroke:#facc15,stroke-width:2px,color:#fef08a
 
-  style SYS fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
-  style OFF fill:#ffebee,stroke:#c62828,stroke-dasharray: 5 5
+  style SYS fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
+  style OFF fill:#450a0a,stroke:#f87171,stroke-dasharray: 5 5,color:#fecaca

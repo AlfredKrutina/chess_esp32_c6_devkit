@@ -2,6 +2,8 @@
 
 Klient pro projekt **CZECHMATE** (ESP32 šachovnice). V gitu je hlavní mobilní klient tady; nativní Xcode projekt `CZECHMATE/` je záměrně mimo git.
 
+**Celková mapa dokumentace (včetně firmware diagramů):** [`docs/README.md`](../docs/README.md).
+
 ## Spuštění
 
 ```bash

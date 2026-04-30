@@ -1,0 +1,27 @@
+%% game_process_commands — hlavní větve switch GAME_CMD_* zjednodušeně
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  P([game_process_commands]) --> BLINK[game_update_error_blink]
+  BLINK --> RES[resignation_tick]
+  RES --> Q{fronta chess_move_command_t}
+
+  Q --> DRAIN[while receive non-blocking max ~15 / tick]
+  DRAIN --> HA{read-only GET_* ?}
+  HA -->|ne| HA_REP[ha_light_report_activity]
+  HA -->|ano| SW
+  HA_REP --> SW{switch type}
+
+  SW --> NG[NEW_GAME / FROM_FEN / RESET]
+  SW --> MV[MAKE_MOVE / MOVE / chess notation]
+  SW --> PD[PICKUP / DROP / matrix tah]
+  SW --> PR[PROMOTION]
+  SW --> UNDO[UNDO_MOVE]
+  SW --> RD[GET_BOARD · GET_STATUS · SHOW_BOARD]
+  SW --> OT[další desítky typů — viz game_task.c]
+
+  NG --> FN[game_start_new_game* · UART echo]
+  MV --> PCM[game_process_chess_move]
+  PD --> PPP[game_process_pickup/drop_command]
+  PR --> PPR[game_process_promotion_command]
+  UNDO --> U[game_undo_last_move_impl]
+  RD --> SEND[game_send_board_to_uart / game_print_status]

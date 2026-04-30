@@ -1,6 +1,10 @@
 # Diagramy (firmware)
 
-Čísla ber z [`freertos_chess.h`](../../components/freertos_chess/include/freertos_chess.h) a [`main/main.c`](../../main/main.c). Delší popis komunikace: [`reference/KOMUNIKACE_MEZI_TASKY.md`](../reference/KOMUNIKACE_MEZI_TASKY.md).
+**Rozcestník celé dokumentace:** [`docs/README.md`](../README.md).
+
+Diagramy jsou **vizuální vrstva**: boot, fronty, mutexy, smyčky tasků, šachové pipeline, Flutter. Stejná témata popsaná **textově** (včetně výjimek a poznámek k HW): [`reference/KOMUNIKACE_MEZI_TASKY.md`](../reference/KOMUNIKACE_MEZI_TASKY.md) a [`reference/README.md`](../reference/README.md). Konkrétní **C funkce** prohledáš nejlíp přes **Doxygen** (`./generate_docs.sh` → `docs/doxygen/html/`).
+
+Čísla front a stacků ber z [`freertos_chess.h`](../../components/freertos_chess/include/freertos_chess.h) a [`main/main.c`](../../main/main.c).
 
 **Nápady na další grafy** si piš lokálně do souboru **`LOCAL_DIAGRAM_BACKLOG.md`** — je v `.gitignore`, do remote neleze. Start šablony: [`DIAGRAM_BACKLOG.local.example.md`](DIAGRAM_BACKLOG.local.example.md).
 
@@ -50,20 +54,20 @@ SVG z této složky: `./scripts/render_docs.sh` nad [`sources/*.mmd`](sources/).
 ## Init → BLE → tasky
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'actorBkg':'#e3f2fd','actorBorder':'#1565c0','signalColor':'#37474f'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'actorBkg':'#1e293b','actorBorder':'#38bdf8','actorTextColor':'#f1f5f9','signalColor':'#cbd5e1','noteBkgColor':'#334155','noteTextColor':'#f1f5f9','noteBorderColor':'#475569','loopTextColor':'#e2e8f0','labelBoxBkgColor':'#334155','labelTextColor':'#f8fafc'}}}%%
 sequenceDiagram
   participant AM as app_main
   participant SYS as main_system_init
   participant FC as chess_system_init
   participant CR as create_system_tasks
-  rect rgb(227, 242, 253)
+  rect rgb(30, 58, 138)
     AM->>SYS: uart_mutex · timery · kontrola front
   end
-  rect rgb(255, 243, 224)
+  rect rgb(120, 53, 15)
     SYS->>FC: fronty · mutexy
     FC-->>SYS: OK
   end
-  rect rgb(232, 245, 233)
+  rect rgb(22, 101, 52)
     SYS->>SYS: endgame · UART registry · BLE
     SYS-->>AM: ESP_OK
     AM->>CR: xTaskCreate
@@ -84,7 +88,7 @@ sequenceDiagram
 ## Produkce → `game_command_queue` → `game_task`
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#455a64'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TB
   subgraph PROD["Posílá příkazy"]
     MT[matrix_task]:::taskN
@@ -105,10 +109,10 @@ flowchart TB
   GQ --> GT
   BQ --> GT
 
-  classDef taskN fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
-  classDef queueN fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#bf360c
-  classDef gameN fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
-  classDef bleN fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#1a237e
+  classDef taskN fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0
+  classDef queueN fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa
+  classDef gameN fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
+  classDef bleN fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#e0e7ff
 ```
 
 ![queues_flow.svg](queues_flow.svg)
@@ -118,7 +122,7 @@ flowchart TB
 ## UART tam a zpět
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#455a64'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'clusterBkg':'#0f172a','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart LR
   SER[USB serial]:::hw
   UT[uart_task]:::t
@@ -132,10 +136,10 @@ flowchart LR
   GT --> URQ
   URQ --> UT
 
-  classDef hw fill:#eceff1,stroke:#546e7a,stroke-width:2px,color:#263238
-  classDef t fill:#fff8e1,stroke:#f9a825,stroke-width:2px,color:#f57f17
-  classDef q fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#bf360c
-  classDef g fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
+  classDef hw fill:#334155,stroke:#94a3b8,stroke-width:2px,color:#f1f5f9
+  classDef t fill:#713f12,stroke:#facc15,stroke-width:2px,color:#fef08a
+  classDef q fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa
+  classDef g fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
 ```
 
 ---
@@ -143,9 +147,9 @@ flowchart LR
 ## Tlačítko → fronta → `game_task`
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'signalColor':'#37474f'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'actorBkg':'#1e293b','actorBorder':'#38bdf8','actorTextColor':'#f1f5f9','signalColor':'#cbd5e1','loopTextColor':'#e2e8f0'}}}%%
 sequenceDiagram
-  rect rgb(232, 245, 233)
+  rect rgb(22, 101, 52)
     participant BT as button_task
     participant BQ as button_event_queue
     participant GT as game_task
@@ -162,9 +166,9 @@ sequenceDiagram
 ## Matrix → tah
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'signalColor':'#37474f'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'actorBkg':'#1e293b','actorBorder':'#38bdf8','actorTextColor':'#f1f5f9','signalColor':'#cbd5e1','loopTextColor':'#e2e8f0'}}}%%
 sequenceDiagram
-  rect rgb(227, 242, 253)
+  rect rgb(30, 58, 138)
     participant MT as matrix_task
     participant GQ as game_command_queue
     participant GT as game_task
@@ -196,7 +200,7 @@ Zdroj: [`sources/led_pipeline.mmd`](sources/led_pipeline.mmd)
 ![mutex_map.svg](mutex_map.svg)
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#78909c'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'clusterBkg':'#0f172a','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TB
   UM[uart_mutex]:::mx
   MM[matrix_mutex]:::mx
@@ -212,8 +216,8 @@ flowchart TB
   LM -.-> LT
   GT -.-> LM
   GT -.-> MM
-  classDef mx fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f
-  classDef t fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef mx fill:#831843,stroke:#f472b6,stroke-width:2px,color:#fce7f3
+  classDef t fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0
 ```
 
 ---
@@ -229,6 +233,93 @@ flowchart TB
 Obrázek je vygenerovaný z [`sources/client_app_layers.mmd`](sources/client_app_layers.mmd) — používá ho i [`docs/flutter/README.md`](../flutter/README.md).
 
 ![client_app_layers.svg](client_app_layers.svg)
+
+---
+
+## Aplikace a klienti
+
+| Diagram | Obsah |
+|---------|--------|
+| [`applications_landscape.mmd`](sources/applications_landscape.mmd) | Firmware vs `flutter_czechmate` vs volitelný nativní Xcode klient |
+
+![applications_landscape.svg](applications_landscape.svg)
+
+---
+
+## Flutter — mapa `lib/` (features + core)
+
+| Diagram | Obsah |
+|---------|--------|
+| [`flutter_app_structure.mmd`](sources/flutter_app_structure.mmd) | Obrazovky vs služby vs modely (zjednodušení adresáře `flutter_czechmate/lib/`) |
+
+![flutter_app_structure.svg](flutter_app_structure.svg)  
+Detail vrstev UI→Riverpod→služby: [`docs/flutter/README.md`](../flutter/README.md).
+
+---
+
+## Taskové smyčky — jeden diagram na task z `main.c`
+
+Implementace v komponentách (`*_task_start`). BLE nemá vlastní `xTaskCreate` — host task z `ble_task_init`.
+
+| Task | Soubor zdroje | Hlavní soubor kódu |
+|------|---------------|-------------------|
+| **game_task** | [`task_game_loop.mmd`](sources/task_game_loop.mmd) | `components/game_task/game_task.c` |
+| **led_task** | [`task_led_loop.mmd`](sources/task_led_loop.mmd) | `components/led_task/led_task.c` |
+| **matrix_task** | [`task_matrix_loop.mmd`](sources/task_matrix_loop.mmd) | `components/matrix_task/matrix_task.c` |
+| **button_task** | [`task_button_loop.mmd`](sources/task_button_loop.mmd) | `components/button_task/button_task.c` |
+| **uart_task** | [`task_uart_loop.mmd`](sources/task_uart_loop.mmd) | `components/uart_task/uart_task.c` |
+| **web_server_task** | [`task_web_loop.mmd`](sources/task_web_loop.mmd) | `components/web_server_task/web_server_task.c` |
+| **ha_light_task** | [`task_ha_light_loop.mmd`](sources/task_ha_light_loop.mmd) | `components/ha_light_task/ha_light_task.c` |
+| **test_task** (menuconfig) | [`task_test_optional.mmd`](sources/task_test_optional.mmd) | `components/test_task/test_task.c` |
+| **NimBLE / BLE** | [`task_ble_stack.mmd`](sources/task_ble_stack.mmd) | `components/ble_task/ble_nimble_impl.c` + dispatch ve web vrstvě |
+
+![task_game_loop.svg](task_game_loop.svg)
+![task_led_loop.svg](task_led_loop.svg)
+![task_matrix_loop.svg](task_matrix_loop.svg)
+![task_button_loop.svg](task_button_loop.svg)
+![task_uart_loop.svg](task_uart_loop.svg)
+![task_web_loop.svg](task_web_loop.svg)
+![task_ha_light_loop.svg](task_ha_light_loop.svg)
+![task_test_optional.svg](task_test_optional.svg)
+![task_ble_stack.svg](task_ble_stack.svg)
+
+---
+
+## Šachová logika — validace, generování tahů, příkazy
+
+Vše v `components/game_task/game_task.c` (jeden velký modul). Diagramy jsou zjednodušené; přesné větve `switch` a edge cases jsou v kódu.
+
+| Téma | Diagram |
+|------|---------|
+| Kontrola tahu před exekucí | [`chess_validation_pipeline.mmd`](sources/chess_validation_pipeline.mmd) → `game_is_valid_move` |
+| Pravidla podle figurky | [`chess_piece_validators.mmd`](sources/chess_piece_validators.mmd) → `game_validate_*_enhanced` |
+| Legální tahy do bufferu | [`chess_legal_moves_generation.mmd`](sources/chess_legal_moves_generation.mmd) → `game_generate_*` + `game_simulate_move_check` |
+| Provedení tahu | [`chess_execute_move_pipeline.mmd`](sources/chess_execute_move_pipeline.mmd) → `game_execute_move` / `game_execute_move_enhanced` |
+| Fronta příkazů ke hře | [`game_command_dispatch_overview.mmd`](sources/game_command_dispatch_overview.mmd) → `game_process_commands` |
+
+![chess_validation_pipeline.svg](chess_validation_pipeline.svg)
+![chess_piece_validators.svg](chess_piece_validators.svg)
+![chess_legal_moves_generation.svg](chess_legal_moves_generation.svg)
+![chess_execute_move_pipeline.svg](chess_execute_move_pipeline.svg)
+![game_command_dispatch_overview.svg](game_command_dispatch_overview.svg)
+
+---
+
+## Speciální tahy a fyzická deska (`game_task.c`)
+
+| Téma | Diagram |
+|------|---------|
+| **Rošáda** — král první, věž dodělá ručně | [`chess_flow_castling.mmd`](sources/chess_flow_castling.mmd) · `castling_state`, `game_validate_castling` |
+| **Promoce** — čekání na Q/R/B/N | [`chess_flow_promotion.mmd`](sources/chess_flow_promotion.mmd) · `promotion_state`, `game_process_promotion_command` |
+| **En passant** — dvojtah pěšce + útok | [`chess_flow_en_passant.mmd`](sources/chess_flow_en_passant.mmd) · `game_is_en_passant_possible`, `MOVE_TYPE_EN_PASSANT` |
+| **Braní** — `capture_in_progress` | [`chess_flow_guided_capture.mmd`](sources/chess_flow_guided_capture.mmd) · `game_process_drop_command` |
+| **Boot / NVS** — snapshot vs nová hra | [`chess_flow_boot_nvs.mmd`](sources/chess_flow_boot_nvs.mmd) · `game_task_start`, `game_load_snapshot_from_nvs` |
+
+![chess_flow_castling.svg](chess_flow_castling.svg)
+![chess_flow_promotion.svg](chess_flow_promotion.svg)
+![chess_flow_en_passant.svg](chess_flow_en_passant.svg)
+![chess_flow_guided_capture.svg](chess_flow_guided_capture.svg)
+![chess_flow_boot_nvs.svg](chess_flow_boot_nvs.svg)
 
 ---
 

@@ -1,0 +1,17 @@
+%% led_task_start — WS2812 + fronta příkazů
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  START([led_task_start]) --> HW[led_hardware_init nebo simulation_mode]
+  HW --> MUX[led_unified_mutex · NVS jas · animation_manager_init]
+  MUX --> PAT[led_clear_all_internal · led_show_chess_board]
+  PAT --> LOOP{{for ;;}}
+
+  LOOP --> WDT[WDT reset]
+  WDT --> Q[led_process_commands — LED_CMD_*]
+  Q --> A1[led_update_animation]
+  A1 --> A2[led_update_endgame_wave]
+  A2 --> A3[led_process_duration_expirations]
+  A3 --> A4[led_process_button_blink_timers]
+  A4 --> COMM[led_privileged_batch_commit — RMT refresh]
+  COMM --> DLY[vTaskDelayUntil ~33 ms]
+  DLY --> LOOP

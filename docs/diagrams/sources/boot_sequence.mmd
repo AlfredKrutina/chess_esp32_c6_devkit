@@ -1,19 +1,19 @@
-%% Init před tasky — barevné fáze
-%%{init: {'theme':'base', 'themeVariables': {'actorBkg':'#e3f2fd','actorBorder':'#1565c0','actorTextColor':'#0d47a1','signalColor':'#37474f'}}}%%
+%% Init před tasky — barevné fáze (tmavé pozadí)
+%%{init: {'theme':'dark','themeVariables':{'actorBkg':'#1e293b','actorBorder':'#38bdf8','actorTextColor':'#f1f5f9','signalColor':'#cbd5e1','noteBkgColor':'#334155','noteTextColor':'#f1f5f9','noteBorderColor':'#475569','loopTextColor':'#e2e8f0','labelBoxBkgColor':'#334155','labelTextColor':'#f8fafc'}}}%%
 sequenceDiagram
   participant AM as app_main
   participant SYS as main_system_init
   participant FC as chess_system_init
   participant CR as create_system_tasks
 
-  rect rgb(227, 242, 253)
+  rect rgb(30, 58, 138)
     AM->>SYS: uart_mutex · timery · kontrola front
   end
-  rect rgb(255, 243, 224)
+  rect rgb(120, 53, 15)
     SYS->>FC: fronty · matrix_mutex · game_mutex
     FC-->>SYS: OK
   end
-  rect rgb(232, 245, 233)
+  rect rgb(22, 101, 52)
     SYS->>SYS: endgame · UART registry · ble_task_init
     SYS-->>AM: ESP_OK
     AM->>CR: xTaskCreate řada

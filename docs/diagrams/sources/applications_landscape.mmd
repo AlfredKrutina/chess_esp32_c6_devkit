@@ -1,0 +1,26 @@
+%% Klienti vs firmware — co je v gitu a jak mluví s deskou
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TB
+  subgraph FW["Firmware ESP-IDF — jedna aplikace na ESP32-C6"]
+    GT[game_task + šachová logika]:::core
+    IO[LED · matrix · button · UART · WiFi · BLE · MQTT]:::io
+    GT --- IO
+  end
+
+  subgraph FL["flutter_czechmate — Dart / Flutter v tomto repu"]
+    UI[features + Riverpod]:::app
+    SVC[BLE + HTTP + WS klienti]:::app
+    UI --> SVC
+  end
+
+  subgraph NAT["CZECHMATE — nativní Swift Xcode"]
+    NOTE[typicky lokálně / mimo sdílený git]:::note
+  end
+
+  SVC <-->|GATT · HTTP · WS| IO
+  NAT -.->|volitelně stejné rozhraní jako Flutter| IO
+
+  classDef core fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
+  classDef io fill:#334155,stroke:#94a3b8,stroke-width:2px,color:#f1f5f9
+  classDef app fill:#581c87,stroke:#c084fc,stroke-width:2px,color:#f3e8ff
+  classDef note fill:#713f12,stroke:#facc15,stroke-width:2px,color:#fef08a

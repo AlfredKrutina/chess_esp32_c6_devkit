@@ -1,0 +1,26 @@
+%% En passant — podmínky a provedení game_task.c
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  subgraph SET["Po dvojitém tahu pěšce"]
+    D2[pěšec o 2 pole] --> EX[game_execute_move_enhanced na konci tahu]
+    EX --> EP[en_passant_available = true]
+    EP --> FLD[en_passant_target_* · victim_row/col = odkud soupeř skončil]
+  end
+
+  FLD -.->|"útočníkův tah"| PENTRY[pěšec šikmo na „prázdné“ pole vedle dvojtahu]
+
+  subgraph VAL["Validace"]
+    PENTRY --> GP[game_validate_pawn_move_enhanced]
+    GP --> CH[game_is_en_passant_possible]
+    CH --> R1{has_last_move · poslední tah byl pěšec o 2?}
+    R1 -->|ne| X[false]
+    R1 --> R2{útočník na řádku last_move_to_row · sousední sloupec?}
+    R2 --> R3{cíl = střední řádek mezi start/cíl soupeře · sloupec = sloupec soupeře}
+    R3 -->|ano| OK[platný en passant tah]
+  end
+
+  subgraph EXEC["Provedení"]
+    OK --> MT[MOVE_TYPE_EN_PASSANT v extended_move]
+    MT --> RM[game_execute_move_enhanced: smaže oběť na en_passant_victim_* před základním přesunem]
+    RM --> BD[pěšec na to_square · další tah vynuluje en_passant při update]
+  end

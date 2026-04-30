@@ -22,4 +22,4 @@ Po prvním naklonování repa si soubor **vytvoř** (git ho neobsahuje):
 
 …a doplň obsah — dlouhou šablonu s řadou nápadů máš ideálně právě v tom gitignored souboru u sebe na disku (není sdílená přes remote).
 
-Veřejně v repu jsou barevné diagramy v **`README.md`** tady a v **`sources/*.mmd`** (+ SVG po `./scripts/render_docs.sh`).
+Veřejně v repu jsou barevné diagramy v **`README.md`** tady a v **`sources/*.mmd`** (+ SVG po `./scripts/render_docs.sh`). Hlavní rozcestník všech textů a diagramů: **[`docs/README.md`](../README.md)**.

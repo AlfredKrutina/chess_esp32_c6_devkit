@@ -1,0 +1,29 @@
+%% flutter_czechmate/lib — hlavní obrazovky a služby (zjednodušený přehled)
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#a78bfa','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TB
+  subgraph FEAT["features/"]
+    G[game]:::f
+    C[connection]:::f
+    CH[coach]:::f
+    AN[analysis]:::f
+    ST[settings]:::f
+  end
+
+  subgraph CORE["core/"]
+    SV[services — BLE · board API · WS · Stockfish · Live Activity · watch]:::s
+    MD[models · utils]:::m
+  end
+
+  subgraph NAV["Kořen"]
+    AP[app_providers.dart]:::n
+    RT[app_navigation.dart]:::n
+  end
+
+  FEAT --> NAV
+  NAV --> CORE
+  FEAT --> CORE
+
+  classDef f fill:#581c87,stroke:#c084fc,stroke-width:2px,color:#f3e8ff
+  classDef s fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0
+  classDef m fill:#164e63,stroke:#22d3ee,stroke-width:2px,color:#cffafe
+  classDef n fill:#4c1d95,stroke:#a78bfa,stroke-width:2px,color:#ede9fe

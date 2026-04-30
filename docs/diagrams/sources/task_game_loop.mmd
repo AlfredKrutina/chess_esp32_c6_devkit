@@ -1,0 +1,23 @@
+%% game_task_start — hlavní smyčka game_task.c
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  START([game_task_start]) --> INIT[recursive promotion mutex · timer · NVS config · game_initialize_board · snapshot / new game]
+  INIT --> LOOP{{for ;;}}
+
+  LOOP --> BOOT{led_is_booting?}
+  BOOT -->|ano| W10[WDT · delay 10 ms] --> LOOP
+  BOOT -->|ne| WDT[WDT reset]
+
+  WDT --> PC[game_process_commands — drain game_command_queue max ~15]
+  PC --> SETUP{stav WAITING_FOR_BOARD_SETUP?}
+  SETUP -->|ano| POS{starting check OFF nebo deska OK?}
+  POS -->|ano| ACTIVE[přechod ACTIVE · LED · timer · nápovědy · revision notify]
+  POS -->|ne| MISS[chybějící figury LED ~500 ms]
+  ACTIVE --> MORE[další logika smyčky — timery · promoce · LED hints · …]
+  MISS --> MORE
+  SETUP -->|ne| MORE
+
+  MORE --> DELAY[delay ~100 ms typicky]
+  DELAY --> LOOP
+
+  classDef path fill:#1e3a8a,stroke:#38bdf8,color:#e0f2fe

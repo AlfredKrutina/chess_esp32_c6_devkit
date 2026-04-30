@@ -4,6 +4,8 @@
 
 *Šachmat, udělaný v Česku*
 
+**Dokumentace v repu:** Jednotný rozcestník — **[`docs/README.md`](docs/README.md)** (doporučené pořadí čtení, inventář všech textů a diagramů, limity vs zdroják).
+
 ---
 
 ## 🎓 O projektu
@@ -134,12 +136,14 @@ Kompletní přehled (tabulky **priorit, stacků, front**, obrázky SVG, mutexy, 
 | [![led](docs/diagrams/led_pipeline.svg)](docs/diagrams/README.md) | LED batch / mutex (zjednodušení) |
 | [![flutter](docs/diagrams/client_app_layers.svg)](docs/flutter/README.md) | Flutter: features → Riverpod → služby |
 
+Další SVG ve **[`docs/diagrams/README.md`](docs/diagrams/README.md)**: smyčka každého tasku, přehled aplikací (firmware / Flutter / volitelný nativní klient), rozšířená mapa `flutter_czechmate/lib/`, pipeline šachové logiky (`game_is_valid_move`, generování legálních tahů, `game_execute_move`, `game_process_commands`), plus **toky rošády, promoce, en passantu, braní na desce a bootu z NVS**.
+
 Zdroje: [`docs/diagrams/sources/*.mmd`](docs/diagrams/sources/) → `./scripts/render_docs.sh` vygeneruje SVG/PNG.
 
 Nápady na další grafy (lokální poznámky, **není v gitu**): soubor `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` — vzor začátku [`docs/diagrams/DIAGRAM_BACKLOG.local.example.md`](docs/diagrams/DIAGRAM_BACKLOG.local.example.md).
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#455a64'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'clusterBkg':'#0f172a','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','titleColor':'#f8fafc'}}}%%
 flowchart LR
   subgraph IN["Vstupy"]
     MT[matrix]:::t
@@ -160,10 +164,10 @@ flowchart LR
   BQ --> GT
   GT --> URQ[(uart_response_queue)]:::q --> SER
 
-  classDef t fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
-  classDef b fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#1a237e
-  classDef q fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#bf360c
-  classDef g fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
+  classDef t fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0
+  classDef b fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#e0e7ff
+  classDef q fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa
+  classDef g fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
 ```
 
 *(BLE příkazy nejdou přímo z jedné řádkové funkce na frontu — používají sdílený dispatch ve web vrstvě; viz `docs/diagrams/README.md`.)*
@@ -489,9 +493,14 @@ Matěj řešil především hardware problémy:
 
 ## Dokumentace
 
-- **[docs/README.md](docs/README.md)** — co je v repu, kam sáhnout (vhodné i pro AI nástroje)
-- **[docs/flutter/README.md](docs/flutter/README.md)** — Flutter klient, diagramy, složky v `lib/`
-- **[docs/diagrams/README.md](docs/diagrams/README.md)** — firmware: tasky, fronty, SVG
+- **[docs/README.md](docs/README.md)** — **start zde**: pořadí čtení, tabulka všech dokumentů, build diagramů a Doxygen
+- **[docs/diagrams/README.md](docs/diagrams/README.md)** — SVG/Mermaid: boot, fronty, mutexy, **smyčky tasků**, šachová logika, Flutter vrstvy
+- **[docs/flutter/README.md](docs/flutter/README.md)** — Flutter klient, BLE/HTTP, struktura `lib/`
+- **[docs/reference/README.md](docs/reference/README.md)** — index referenčních textů:
+  - [KOMUNIKACE_MEZI_TASKY.md](docs/reference/KOMUNIKACE_MEZI_TASKY.md) — detail komunikace tasků (doplněk k diagramům)
+  - [coordinates_system.md](docs/reference/coordinates_system.md) — souřadnice a notace
+  - [WEB_UI_DEPLOY.md](docs/reference/WEB_UI_DEPLOY.md) — embed web UI do firmware
+  - [CZECHMATE_INTEGRATION_CHECKLIST.md](docs/reference/CZECHMATE_INTEGRATION_CHECKLIST.md) — REST/WS/BLE checklist
 
 Dále Doxygen z C zdrojáků:
 

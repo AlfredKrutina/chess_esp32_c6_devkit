@@ -1,0 +1,11 @@
+%% button_task_start — multiplex tlačítek + události
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  START([button_task_start]) --> REG[WDT · button_reset_all]
+  REG --> LOOP{{for ;;}}
+
+  LOOP --> WDT[WDT reset]
+  WDT --> CMD[button_process_commands — button_command_queue]
+  CMD --> EVT[button_process_events — debounce · long/double press]
+  EVT --> DLY[vTaskDelayUntil 5 ms]
+  DLY --> LOOP

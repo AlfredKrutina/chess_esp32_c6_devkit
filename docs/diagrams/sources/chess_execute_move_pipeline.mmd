@@ -1,0 +1,22 @@
+%% game_execute_move — od validace po změnu stavu desky
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  E([game_execute_move]) --> V[game_is_valid_move]
+  V -->|≠ NONE| FAIL([return false])
+  V -->|NONE| EXT[sestavit chess_move_extended_t · detekce typu]
+
+  EXT --> KIND{move_type?}
+  KIND -->|castling| C[MOVE_TYPE_CASTLE_*]
+  KIND -->|en passant| EP[MOVE_TYPE_EN_PASSANT — game_is_en_passant_possible]
+  KIND -->|promotion| PR[promotion_state / immediate API choice]
+  KIND -->|capture| CAP[add_captured_piece]
+  KIND -->|normal| NORM[…]
+
+  C --> EXEC[game_execute_move_enhanced]
+  EP --> EXEC
+  PR --> EXEC
+  CAP --> EXEC
+  NORM --> EXEC
+
+  EXEC --> POST[swap hráče · en passant flags · castling flags · historie · NVS …]
+  POST --> OK([return true])

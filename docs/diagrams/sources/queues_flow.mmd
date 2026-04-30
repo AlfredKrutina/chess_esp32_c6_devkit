@@ -1,5 +1,5 @@
 %% Herní fronty — barvy: producenti zelená · fronty oranžová · spotřebitel modrá
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#455a64'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,Segoe UI,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryColor':'#1e293b','primaryTextColor':'#f1f5f9','primaryBorderColor':'#64748b','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TB
   subgraph PROD["Do front"]
     MT[matrix_task]:::taskN
@@ -22,6 +22,6 @@ flowchart TB
   GT -->|game_response_t| URQ
   URQ --> UART
 
-  classDef taskN fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
-  classDef queueN fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#bf360c
-  classDef gameN fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1
+  classDef taskN fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0
+  classDef queueN fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa
+  classDef gameN fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe

@@ -1,6 +1,8 @@
 # Flutter aplikace (`flutter_czechmate/`)
 
-Dart klient k desce CZECHMATE: **BLE** nebo **HTTP / WebSocket**. Stav drží hlavně **Riverpod**.
+**Mapa celé dokumentace (firmware + reference + diagramy):** [`docs/README.md`](../README.md).
+
+Dart klient k desce CZECHMATE: **BLE** nebo **HTTP / WebSocket**. Stav drží hlavně **Riverpod**. **Šachová pravidla a stav partie na desce** běží ve firmware [`game_task`](../../components/game_task/); Flutter používá API snapshotů / streamů a lokálně např. balíček `chess` tam, kde je v kódu potřeba — není náhrada za `game_task.c`.
 
 Spuštění: `cd flutter_czechmate && flutter pub get && flutter run`.
 
@@ -13,8 +15,10 @@ Dlouhý lokální seznam nápadů na nové diagramy: **`docs/diagrams/LOCAL_DIAG
 ![Vrstvy klienta](../diagrams/client_app_layers.svg)  
 Zdroj Mermaid: [`../diagrams/sources/client_app_layers.mmd`](../diagrams/sources/client_app_layers.mmd)
 
+Širší mapa složek `lib/` (features + core + navigace): [`../diagrams/flutter_app_structure.svg`](../diagrams/flutter_app_structure.svg) · [`sources/flutter_app_structure.mmd`](../diagrams/sources/flutter_app_structure.mmd).
+
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#7b1fa2','clusterBkg':'#fafafa'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'lineColor':'#a78bfa','clusterBkg':'#0f172a','clusterBorder':'#334155','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TB
   subgraph UI["features/"]
     direction LR
@@ -38,10 +42,10 @@ flowchart TB
   BLE <-->|GATT| FW
   HTTP <-->|TCP| FW
 
-  classDef u fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
-  classDef r fill:#ede7f6,stroke:#5e35b1,stroke-width:2px,color:#311b92
-  classDef s fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
-  classDef e fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#e65100
+  classDef u fill:#581c87,stroke:#c084fc,stroke-width:2px,color:#f3e8ff
+  classDef r fill:#4c1d95,stroke:#a78bfa,stroke-width:2px,color:#ede9fe
+  classDef s fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0
+  classDef e fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa
 ```
 
 ---
@@ -65,9 +69,9 @@ flowchart TB
 ## Tah z UI na hardware
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'actorBkg':'#f3e5f5','actorBorder':'#7b1fa2','signalColor':'#37474f'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'actorBkg':'#1e293b','actorBorder':'#c084fc','actorTextColor':'#f1f5f9','signalColor':'#cbd5e1'}}}%%
 sequenceDiagram
-  rect rgb(243, 229, 245)
+  rect rgb(88, 28, 135)
     participant W as Widget
     participant N as Notifier
     participant X as BLE / HTTP klient
@@ -86,7 +90,7 @@ sequenceDiagram
 ## BLE vs WiFi na desce
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#546e7a'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'clusterBkg':'#0f172a','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','titleColor':'#f8fafc'}}}%%
 flowchart LR
   subgraph Phone["Telefon"]
     APP[Flutter]:::p
@@ -100,9 +104,9 @@ flowchart LR
   APP <-->|HTTP| WEB
   NIM --> GT
   WEB --> GT
-  classDef p fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
-  classDef b fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#1a237e
-  classDef g fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#e65100
+  classDef p fill:#581c87,stroke:#c084fc,stroke-width:2px,color:#f3e8ff
+  classDef b fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#e0e7ff
+  classDef g fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa
 ```
 
 Příkazy z BLE často jdou přes **`web_server_ble_command_dispatch`** na firmware — nemusí existovat úplně oddělený „BLE protokol“ od web API.
@@ -112,7 +116,7 @@ Příkazy z BLE často jdou přes **`web_server_ble_command_dispatch`** na firmw
 ## Session stavy
 
 ```mermaid
-%%{init: {'theme':'base'}}%%
+%%{init: {'theme':'dark'}}%%
 stateDiagram-v2
   [*] --> Hledání
   Hledání --> Připojuji: výběr zařízení
@@ -128,15 +132,15 @@ Implementace: `board_session_notifier.dart`, `features/connection/`.
 ## Coach
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#6a1b9a'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'lineColor':'#a78bfa','primaryTextColor':'#f1f5f9'}}}%%
 flowchart LR
   UI[Coach UI]:::u --> CM[coach_manager]:::r
   CM --> LLM[HTTP LLM]:::s
   CM --> SN[snapshot partie]:::x
-  classDef u fill:#f3e5f5,stroke:#7b1fa2,color:#4a148c
-  classDef r fill:#ede7f6,stroke:#5e35b1,color:#311b92
-  classDef s fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20
-  classDef x fill:#fff3e0,stroke:#ef6c00,color:#e65100
+  classDef u fill:#581c87,stroke:#c084fc,color:#f3e8ff
+  classDef r fill:#4c1d95,stroke:#a78bfa,color:#ede9fe
+  classDef s fill:#14532d,stroke:#4ade80,color:#bbf7d0
+  classDef x fill:#7c2d12,stroke:#fb923c,color:#fed7aa
 ```
 
 ---

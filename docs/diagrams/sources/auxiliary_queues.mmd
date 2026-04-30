@@ -1,5 +1,5 @@
 %% Vedlejší příkazové cesty
-%%{init: {'theme':'base', 'themeVariables': {'lineColor':'#455a64'}}}%%
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,Segoe UI,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryColor':'#1e293b','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart LR
   UT[uart_task]:::t --> MCQ[("matrix_command_queue · 8")]:::q
   TT[test_task optional]:::opt --> MCQ
@@ -8,6 +8,6 @@ flowchart LR
   TT --> BCQ[("button_command_queue · 5")]:::q
   BCQ --> BT[button_task]:::t
 
-  classDef t fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
-  classDef q fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#bf360c
-  classDef opt fill:#fffde7,stroke:#fbc02d,stroke-width:2px,color:#f57f17
+  classDef t fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0
+  classDef q fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa
+  classDef opt fill:#713f12,stroke:#facc15,stroke-width:2px,color:#fef08a
