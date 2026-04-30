@@ -1,6 +1,6 @@
 # CZECHMATE — GitHub Pages (zdrojová složka)
 
-Obsah této složky se při pushi na **`main`** / **`master`** automaticky nasadí na větev **`gh-pages`** ([workflow `gh-pages.yml`](../.github/workflows/gh-pages.yml)).
+Do větve **`gh-pages`** se při pushi na **`main`** / **`master`** automaticky nahrává **vygenerovaný** obsah: v CI se spustí Doxygen (`./generate_docs.sh`) a Mermaid (`./scripts/render_docs.sh`), výsledné HTML se složí do dočasné složky a nasadí ([`gh-pages.yml`](../.github/workflows/gh-pages.yml)). V repozitáři zde zůstávají jen tento `README` a soubor **`.nojekyll`**.
 
 ## Jednorázové nastavení na GitHubu
 
@@ -11,21 +11,25 @@ Veřejná URL: `https://<uživatel>.github.io/<repo>/`
 ## Ruční nasazení (bez Actions)
 
 ```bash
+./generate_docs.sh
+./scripts/render_docs.sh
+rm -rf /tmp/czm-pages && mkdir -p /tmp/czm-pages
+cp -a docs/doxygen/html/. /tmp/czm-pages/
+cp -f docs/diagrams/diagrams_mermaid.html /tmp/czm-pages/diagrams_mermaid.html
+cp -f gh-pages-ready/.nojekyll /tmp/czm-pages/.nojekyll
 git checkout --orphan gh-pages
 git rm -rf . 2>/dev/null || true
-cp -r gh-pages-ready/. .
+cp -r /tmp/czm-pages/. .
 git add .
 git commit -m "Pages"
 git push -u origin gh-pages --force
 git checkout main
 ```
 
-## 📁 Struktura
+## 📁 Co je v `main` v této složce
 
-- `index.html` - Hlavní stránka dokumentace
-- `diagrams_mermaid.html` - Mermaid diagramy
-- `.nojekyll` - Zakáže Jekyll processing (důležité!)
-- Všechny další HTML, CSS, JS soubory potřebné pro dokumentaci
+- `.nojekyll` – zkopíruje se do kořene nasazeného webu (vypne Jekyll na GitHubu)
+- tento `README.md` – návod pro lidi; **žádné hromadné Doxygen HTML** (neplýtvá místem v gitu)
 
 ## 🔗 Odkazy
 

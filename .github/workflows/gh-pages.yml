@@ -7,11 +7,19 @@ on:
   push:
     branches: [main, master]
     paths:
-      - 'gh-pages-ready/**'
-      - 'docs/diagrams/**'
-      - 'generate_mermaid_html.py'
-      - 'scripts/render_docs.sh'
-      - '.github/workflows/gh-pages.yml'
+    - 'main/**'
+    - 'components/**'
+    - 'CMakeLists.txt'
+    - 'README.md'
+    - 'Doxyfile'
+    - 'generate_docs.sh'
+    - 'generate_mermaid_html.py'
+    - 'docs/diagrams/**'
+    - 'docs/reference/**'
+    - 'scripts/render_docs.sh'
+    - 'gh-pages-ready/README.md'
+    - 'gh-pages-ready/.nojekyll'
+    - '.github/workflows/gh-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -31,16 +39,30 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Mermaid CLI + přegenerovat diagram HTML do gh-pages-ready
+      - name: Install Doxygen, Graphviz, Mermaid CLI
         run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
           npm install -g @mermaid-js/mermaid-cli
+
+      - name: Build Doxygen HTML + Mermaid výstupy
+        run: |
+          ./generate_docs.sh
           ./scripts/render_docs.sh
+
+      - name: Složit adresář pro GitHub Pages
+        run: |
+          rm -rf _site
+          mkdir -p _site
+          cp -a docs/doxygen/html/. _site/
+          cp -f docs/diagrams/diagrams_mermaid.html _site/diagrams_mermaid.html
+          cp -f gh-pages-ready/.nojekyll _site/.nojekyll
 
       - name: Deploy na větev gh-pages
         uses: peaceiris/actions-gh-pages@v4
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: gh-pages-ready
+          publish_dir: _site
           publish_branch: gh-pages
           force_orphan: false

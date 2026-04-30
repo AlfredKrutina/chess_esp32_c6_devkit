@@ -25,6 +25,20 @@
 /docs/doxygen/html/
 /docs/doxygen/rtf/
 /docs/doxygen/latex/
+/docs/doxygen/*.tag
+/docs/doxygen/generation.log
+/docs/doxygen/doxygen_warnings.log
+
+# ESP-IDF — závislosti z Component Manageru (obnovíš: idf.py build / reconfigure)
+/managed_components/
+
+# GitHub Pages: v main jen poznámky; HTML nasazuje CI z Doxygen + Mermaid
+/gh-pages-ready/*
+!/gh-pages-ready/README.md
+!/gh-pages-ready/.nojekyll
+
+# Lokální šum
+*.log
 # =============================================================================
 # Ostatní
 # =============================================================================

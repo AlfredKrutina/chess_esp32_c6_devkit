@@ -52,8 +52,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/diagrams/diagrams_mermaid.html \
                   docs/diagrams/tasks_architecture.svg \
-                  docs/diagrams/tasks_architecture.png \
-                  gh-pages-ready/diagrams_mermaid.html || true
+                  docs/diagrams/tasks_architecture.png || true
           if git diff --staged --quiet; then
             echo "Žádné změny výstupů."
           else

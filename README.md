@@ -524,10 +524,10 @@ Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování 
 
 ### GitHub Pages (veřejná dokumentace)
 
-Po pushi na `main` workflow [.github/workflows/gh-pages.yml](.github/workflows/gh-pages.yml) nasadí složku [`gh-pages-ready/`](gh-pages-ready/) na větev **`gh-pages`**.
+Po pushi na `main` workflow [.github/workflows/gh-pages.yml](.github/workflows/gh-pages.yml) v CI vygeneruje Doxygen HTML, doplní Mermaid stránku a nasadí výsledek na větev **`gh-pages`** (složka `gh-pages-ready/` v repu slouží jen jako **`.nojekyll` + README**, ne kompletní site).
 
 1. V repozitáři na GitHubu: **Settings → Pages → Build and deployment → Source:** **Deploy from a branch** → Branch **gh-pages**, folder **/ (root)** → Save.  
-2. Po minutě běží web na `https://<uživatel>.github.io/<název-repa>/` (úvodní stránka z Doxygen v `gh-pages-ready/index.html`, Mermaid: [`diagrams_mermaid.html`](gh-pages-ready/diagrams_mermaid.html)).
+2. Po minutě běží web na `https://<uživatel>.github.io/<název-repa>/` (úvodní stránka Doxygen: `index.html` na větvi `gh-pages`, Mermaid: `diagrams_mermaid.html` tamtéž).
 
 ---
 
@@ -563,6 +563,8 @@ chess_esp32_c6_devkit/
 │   └── doxygen/                 # Doxygen výstup — generuj lokálně (viz docs/.gitignore)
 │
 ├── build/                         # Build výstup ESP-IDF (generovaný, v .gitignore)
+├── managed_components/            # IDF Component Manager (generovaný, v .gitignore)
+├── gh-pages-ready/                # Jen .nojekyll + README; HTML Pages staví CI
 ├── flutter_czechmate/             # Flutter klient (BLE / HTTP / WS)
 ├── CZECHMATE/                     # Xcode projekt — .gitignore (jen lokálně)
 ├── context/                       # AI podklady — .gitignore (není v remote)
