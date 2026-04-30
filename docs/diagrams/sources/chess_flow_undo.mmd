@@ -1,0 +1,36 @@
+%% Undo posledního tahu — game_undo_last_move_impl
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  U[GAME_CMD_UNDO_MOVE] --> CH{history_index > 0?}
+  CH -->|ne| FAIL([false])
+  CH -->|ano| BR[switch move_history_kind: EN_PASSANT obnoví oběť · PROMOTION vrátí pěšce/captured · CAPTURE/NORMAL přepíše pole]
+
+  BR --> RK{kind CASTLE_* ?}
+  RK -->|ano| RU[pokud věž stojí na mezikoloně → zpět na a/h · castling_state.in_progress = false]
+  RK -->|ne| SK1[—]
+
+  RU --> CAP{MOVE_TYPE_CAPTURE?}
+  SK1 --> CAP
+  CAP -->|ano| POP[undo_pop_last_capture_list — EP řeší switch výše]
+  CAP -->|ne| SK2[—]
+
+  POP --> META[history_index--; move_count--; mover counters · výpočet toggle_player_after]
+  SK2 --> META
+
+  META --> SW[případně přepnout current_player]
+  SW --> LM[last_move z předchozího záznamu]
+  LM --> RST{před undo byl FINISHED?}
+  RST -->|ano| ACTIVE[GAME_STATE_ACTIVE · game_active]
+  RST -->|ne| SK3[—]
+
+  ACTIVE --> POST[piece_lifted=0 · timery podle current_player]
+  SK3 --> POST
+
+  POST --> RSYNC[game_check_resync_needed_after_restore]
+  RSYNC --> MG{matrix_guard.active?}
+  MG -->|ne| HL[LED + highlight movable]
+  MG -->|ano| LOG[jen staging log]
+
+  HL --> PERSIST[game_persist_after_valid_move · bump revision]
+  LOG --> PERSIST
+  PERSIST --> OK([true])

@@ -27,7 +27,7 @@ Po změně diagramů ve zdrojích spusť z kořene: `./scripts/render_docs.sh` (
 | [`docs/diagrams/README.md`](diagrams/README.md) | Všechny Mermaid/SVG diagramy firmware + Flutter vrstvy + šachové pipeline |
 | [`docs/diagrams/diagrams_mermaid.html`](diagrams/diagrams_mermaid.html) | Sekvenční diagramy (vygeneruje `render_docs.sh`) |
 | [`docs/diagrams/mermaid_diagrams.txt`](diagrams/mermaid_diagrams.txt) | Zdroj pro HTML výše |
-| Diagramy rošády / promoce / en passant / capture / boot NVS | [`docs/diagrams/sources/chess_flow_*.mmd`](diagrams/sources/) → SVG po `./scripts/render_docs.sh` |
+| Diagramy speciálních tahů, recovery, guard, undo | [`docs/diagrams/sources/chess_flow_*.mmd`](diagrams/sources/) → SVG po `./scripts/render_docs.sh` |
 | [`docs/flutter/README.md`](flutter/README.md) | Flutter klient |
 | [`docs/reference/KOMUNIKACE_MEZI_TASKY.md`](reference/KOMUNIKACE_MEZI_TASKY.md) | Komunikace tasků a HW (dlouhý text) |
 | [`docs/reference/coordinates_system.md`](reference/coordinates_system.md) | Notace a1–h8 ↔ `row`/`col`, LED indexy |

@@ -1,0 +1,21 @@
+%% Zvednutí krále — 10s k rezignaci nebo zrušení game_task.c
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  L[PICKUP vlastního krále na tahu] --> RS[resignation_start]
+  RS --> RM[board na king_sq prázdný · resignation_state aktivní]
+  RM --> LED[oranžový zdroj · LED legálních tahů krále vč. modré rošády]
+
+  LED --> LOOP[game_process_commands — každý průchod]
+  LOOP --> RT[resignation_tick]
+  RT --> T{elapsed ≥ 10 s?}
+  T -->|ano| FIN[resignation_finalize_timeout — RESIGNATION · animace · resignation_stop true]
+  T -->|ne| BTN[resignation_update_button_leds]
+  BTN --> LOOP
+
+  LED -.-> DR[uživatel: DROP krále na původní pole]
+  DR --> ST[resignation_stop false — král zpět v board]
+
+  LED -.-> CAP[uživatel: král bere figurku — capture]
+  CAP --> ST2[resignation_stop false před game_execute_move]
+
+  RS -.-> IMPL[Finalize jen z game_task přes resignation_tick — ne z Tmr Svc callbacku]

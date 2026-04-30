@@ -136,7 +136,7 @@ Kompletní přehled (tabulky **priorit, stacků, front**, obrázky SVG, mutexy, 
 | [![led](docs/diagrams/led_pipeline.svg)](docs/diagrams/README.md) | LED batch / mutex (zjednodušení) |
 | [![flutter](docs/diagrams/client_app_layers.svg)](docs/flutter/README.md) | Flutter: features → Riverpod → služby |
 
-Další SVG ve **[`docs/diagrams/README.md`](docs/diagrams/README.md)**: smyčka každého tasku, přehled aplikací (firmware / Flutter / volitelný nativní klient), rozšířená mapa `flutter_czechmate/lib/`, pipeline šachové logiky (`game_is_valid_move`, generování legálních tahů, `game_execute_move`, `game_process_commands`), plus **toky rošády, promoce, en passantu, braní na desce a bootu z NVS**.
+Další SVG ve **[`docs/diagrams/README.md`](docs/diagrams/README.md)**: smyčka každého tasku, přehled aplikací (firmware / Flutter / volitelný nativní klient), rozšířená mapa `flutter_czechmate/lib/`, pipeline šachové logiky (`game_is_valid_move`, generování legálních tahů, `game_execute_move`, `game_process_commands`), plus **toky rošády, promoce, en passantu, braní, bootu z NVS, **matrix guard**, **error recovery**, **rezignace králem**, **undo**.
 
 Zdroje: [`docs/diagrams/sources/*.mmd`](docs/diagrams/sources/) → `./scripts/render_docs.sh` vygeneruje SVG/PNG.
 

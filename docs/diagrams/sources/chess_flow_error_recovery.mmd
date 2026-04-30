@@ -1,0 +1,16 @@
+%% Chybné zvednutí soupeřovy figury — WAITING_FOR_RETURN game_process_pickup_command
+%%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
+flowchart TD
+  P[PICKUP soupeře bez vlastní figury v ruce] --> E[error_recovery_state: waiting_for_move_correction = true]
+  E --> S[opponent_piece_* uloženo · pole invalid vyprázdněno v board]
+  S --> G[current_game_state = GAME_STATE_WAITING_FOR_RETURN]
+  G --> B[červené blikání na původním poli · UART návod]
+
+  B --> D[DROP fyzicky]
+  D --> OK{to == opponent_original?}
+  OK -->|ano| R[figurka zpět v board · reset recovery · GAME_STATE_ACTIVE · highlight]
+  OK -->|ne| W[aktualizovat opponent_current · stále čekej na správné pole]
+
+  R --> PLAY[pokračování hry]
+
+  G -.-> NTE[Pozor: během WAITING_FOR_RETURN + opponent_piece — DROP krále nesmí zrušit resignation timer — viz in_opponent_return v DROP]

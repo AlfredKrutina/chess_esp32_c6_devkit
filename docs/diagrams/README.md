@@ -323,6 +323,22 @@ Vše v `components/game_task/game_task.c` (jeden velký modul). Diagramy jsou zj
 
 ---
 
+## Matrix guard, recovery, rezignace, undo
+
+| Téma | Diagram |
+|------|---------|
+| **Matrix guard** — rozpor senzor vs `board[]` | [`chess_flow_matrix_guard.mmd`](sources/chess_flow_matrix_guard.mmd) · `GAME_CMD_MATRIX_GUARD`, `matrix_send_guard_command` |
+| **Chybný pickup** — vrácení soupeřovy figury | [`chess_flow_error_recovery.mmd`](sources/chess_flow_error_recovery.mmd) · `GAME_STATE_WAITING_FOR_RETURN`, `error_recovery_state` |
+| **Rezignace** — zvednutí krále 10 s | [`chess_flow_resignation.mmd`](sources/chess_flow_resignation.mmd) · `resignation_start` / `resignation_tick` / `resignation_finalize_timeout` |
+| **Undo** | [`chess_flow_undo.mmd`](sources/chess_flow_undo.mmd) · `game_undo_last_move_impl` |
+
+![chess_flow_matrix_guard.svg](chess_flow_matrix_guard.svg)
+![chess_flow_error_recovery.svg](chess_flow_error_recovery.svg)
+![chess_flow_resignation.svg](chess_flow_resignation.svg)
+![chess_flow_undo.svg](chess_flow_undo.svg)
+
+---
+
 ## CMake komponenty bez tasku z `main.c`
 
 | Složka | Poznámka |
