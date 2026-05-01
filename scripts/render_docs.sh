@@ -7,6 +7,15 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+# Puppeteer (mmdc) na GitHub Actions: bez user namespace → „No usable sandbox“.
+MERMAID_PUPPETEER_CFG=""
+if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+  MERMAID_PUPPETEER_CFG="$ROOT/scripts/mermaid-puppeteer-ci.json"
+  if [[ -f "$MERMAID_PUPPETEER_CFG" ]]; then
+    echo "==> CI: mermaid-cli použije $MERMAID_PUPPETEER_CFG (--no-sandbox)"
+  fi
+fi
+
 echo "==> generate_mermaid_html.py → docs/diagrams/diagrams_mermaid.html"
 python3 generate_mermaid_html.py
 
@@ -29,14 +38,18 @@ render_mmd() {
   local out_dir="docs/diagrams"
   local svg="${out_dir}/${base}.svg"
   local png="${out_dir}/${base}.png"
+  local -a pp=()
+  if [[ -n "$MERMAID_PUPPETEER_CFG" ]]; then
+    pp=(-p "$MERMAID_PUPPETEER_CFG")
+  fi
   if command -v mmdc >/dev/null 2>&1; then
     echo "==> mmdc → $svg (+ PNG)"
-    mmdc -i "$src" -o "$svg" -b transparent
-    mmdc -i "$src" -o "$png" -b transparent -w 1800 2>/dev/null || true
+    mmdc "${pp[@]}" -i "$src" -o "$svg" -b transparent
+    mmdc "${pp[@]}" -i "$src" -o "$png" -b transparent -w 1800 2>/dev/null || true
   elif command -v npx >/dev/null 2>&1; then
     echo "==> npx mermaid-cli → $svg (+ PNG)"
-    npx --yes @mermaid-js/mermaid-cli -i "$src" -o "$svg" -b transparent
-    npx --yes @mermaid-js/mermaid-cli -i "$src" -o "$png" -b transparent -w 1800 2>/dev/null || true
+    npx --yes @mermaid-js/mermaid-cli "${pp[@]}" -i "$src" -o "$svg" -b transparent
+    npx --yes @mermaid-js/mermaid-cli "${pp[@]}" -i "$src" -o "$png" -b transparent -w 1800 2>/dev/null || true
   else
     echo "==> Přeskočeno SVG/PNG pro $base (nainstaluj mermaid-cli nebo npx)"
     return 0
