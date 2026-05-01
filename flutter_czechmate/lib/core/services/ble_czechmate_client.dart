@@ -221,6 +221,11 @@ class BleCzechmateClient {
     await _writeCmd({'cmd': 'light_game_mode'});
   }
 
+  /// BLE ekvivalent `POST /api/system/ota` — pouze HTTPS URL na `.bin`.
+  Future<void> postOtaStart(String httpsFirmwareUrl) async {
+    await _writeCmd({'cmd': 'ota_start', 'url': httpsFirmwareUrl.trim()});
+  }
+
   /// Parita `POST /api/settings/lamp` (`auto_lamp_timeout_sec`).
   Future<void> postAutoLampTimeout(int seconds) async {
     final v = seconds.clamp(5, 7200);

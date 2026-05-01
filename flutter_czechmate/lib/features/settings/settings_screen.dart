@@ -21,6 +21,7 @@ import 'home_assistant_mqtt_screen.dart';
 import 'manual_connection_screen.dart';
 import 'widgets/board_lamp_studio.dart';
 import 'widgets/board_lamp_widgets.dart';
+import 'widgets/firmware_update_section.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -1104,6 +1105,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               setState(() {});
             },
           ),
+
+          const FirmwareUpdateSection(),
 
           Card(
             child: ExpansionTile(

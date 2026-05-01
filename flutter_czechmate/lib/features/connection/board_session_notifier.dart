@@ -731,6 +731,28 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       );
   }
 
+  /// OTA: aplikace jen předá HTTPS URL na `.bin`; firmware stahuje ESP (nutné STA na desce).
+  Future<void> requestFirmwareOta(String httpsFirmwareUrl) async {
+    final u = httpsFirmwareUrl.trim();
+    if (!u.startsWith('https://')) {
+      throw StateError('OTA vyžaduje HTTPS URL na soubor .bin.');
+    }
+    if (state.transport == BoardTransport.mock) {
+      throw StateError('OTA není dostupná s ukázkovou deskou.');
+    }
+    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
+      await _api.postBoardOtaStart(state.wifiBaseUrl!, url: u);
+      return;
+    }
+    if (state.transport == BoardTransport.ble) {
+      await _ble.postOtaStart(u);
+      return;
+    }
+    throw StateError(
+      'Připoj desku přes Wi‑Fi nebo Bluetooth, pak zkus aktualizaci znovu.',
+    );
+  }
+
   /// LED jen na cílovém poli (`hint_highlight` s `to`).
   Future<void> postHintDestination(String square) async {
     final sq = square.trim().toLowerCase();

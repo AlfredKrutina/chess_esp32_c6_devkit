@@ -1,6 +1,8 @@
 # Name,   Type, SubType, Offset,  Size, Flags
-# Note: if you have increased the bootloader size, make sure to update the offsets to avoid overlap
+# OTA: deska stahuje firmware sama přes HTTPS (esp_https_ota).
+# PO ZMĚNĚ TABULKY JE NUTNÝ JEDNORÁZOVÝ PLNÝ FLASH (bootloader + partition + app), nejde „dohledat“ ze staré factory-only tabulky.
 nvs,      data, nvs,     ,        0x6000,
+otadata,  data, ota,     ,        0x2000,
 phy_init, data, phy,     ,        0x1000,
-# S BLE (NimBLE) přesahuje ~1,9 MB — 3 MB factory (flash 16 MB v sdkconfig).
-factory,  app,  factory, ,        3072K,
+ota_0,    app,  ota_0,  ,        3072K,
+ota_1,    app,  ota_1,  ,        3072K,

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../models/board_firmware_models.dart';
 import '../models/board_timer_state.dart';
 import '../models/game_snapshot.dart';
 import '../models/status_models.dart';
@@ -368,6 +369,64 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/wifi/clear');
     final res = await _client.post(uri).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  }
+
+  /// Veřejný manifest (`version.json`) — libovolné HTTPS; nejde přes IP desky.
+  Future<FirmwareManifest> fetchFirmwareManifest(String manifestUrl) async {
+    final uri = Uri.parse(manifestUrl.trim());
+    final res = await _client.get(uri).timeout(_timeout);
+    if (res.statusCode != 200) {
+      throw BoardApiException(
+        'Manifest HTTP ${res.statusCode}',
+        statusCode: res.statusCode,
+        detail: _previewBody(res.bodyBytes),
+      );
+    }
+    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final m = FirmwareManifest.fromJson(map);
+    if (m.version.isEmpty || m.url.isEmpty || !m.url.startsWith('https://')) {
+      throw BoardApiException(
+        'Neplatný manifest (očekávám version + https url)',
+        statusCode: 0,
+      );
+    }
+    return m;
+  }
+
+  Future<BoardFirmwareInfo> fetchBoardFirmwareInfo(String baseUrl) async {
+    final uri = _api(baseUrl, 'api/system/firmware');
+    final res = await _client.get(uri).timeout(_timeout);
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
+    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    return BoardFirmwareInfo.fromJson(map);
+  }
+
+  Future<BoardOtaStatus> fetchBoardOtaStatus(String baseUrl) async {
+    final uri = _api(baseUrl, 'api/system/ota/status');
+    final res = await _client.get(uri).timeout(_timeout);
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
+    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    return BoardOtaStatus.fromJson(map);
+  }
+
+  /// Deska si firmware stáhne sama přes HTTPS — vyžaduje připojené Wi‑Fi STA.
+  Future<void> postBoardOtaStart(String baseUrl, {required String url}) async {
+    final uri = _api(baseUrl, 'api/system/ota');
+    final res = await _client
+        .post(
+          uri,
+          headers: _jsonHeaders,
+          body: jsonEncode({'url': url}),
+        )
+        .timeout(_timeout);
+    if (res.statusCode == 409) {
+      throw BoardApiException(
+        'OTA nelze spustit (už běží nebo deska nemá Wi‑Fi k internetu).',
+        statusCode: 409,
+        detail: _extractMessage(res.bodyBytes),
+      );
+    }
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
 
   static const _jsonHeaders = {'Content-Type': 'application/json'};

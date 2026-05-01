@@ -21,6 +21,9 @@ on:
     - 'scripts/render_docs.sh'
     - 'gh-pages-ready/README.md'
     - 'gh-pages-ready/.nojekyll'
+    - 'firmware/**'
+    - 'partitions.csv'
+    - 'sdkconfig'
     - '.github/workflows/gh-pages.yml'
   workflow_dispatch:
 
@@ -52,6 +55,12 @@ jobs:
           ./generate_docs.sh
           ./scripts/render_docs.sh
 
+      - name: Build ESP-IDF firmware (OTA .bin na gh-pages)
+        continue-on-error: true
+        run: |
+          docker run --rm -v "$PWD:/project" -w /project espressif/idf:v5.3.2 \
+            bash -c "idf.py set-target esp32c6 && idf.py build"
+
       - name: Složit adresář pro GitHub Pages
         run: |
           rm -rf _site
@@ -59,6 +68,19 @@ jobs:
           cp -a docs/doxygen/html/. _site/
           cp -f docs/diagrams/diagrams_mermaid.html _site/diagrams_mermaid.html
           cp -f gh-pages-ready/.nojekyll _site/.nojekyll
+          mkdir -p _site/firmware
+          cp -f firmware/version.json _site/firmware/version.json
+          if [ -f build/esp32_chess_v24.bin ]; then
+            cp -f build/esp32_chess_v24.bin _site/firmware/esp32_chess_v24.bin
+          else
+            echo "::warning::Firmware bin chybí – zkontroluj ESP-IDF build výše; OTA URL v manifestu dočasně vrátí 404."
+          fi
+
+      - name: Ověření manifestu (raw na main)
+        run: |
+          code=$(curl -fsSL -o /dev/null -w "%{http_code}" \
+            "https://raw.githubusercontent.com/${{ github.repository }}/main/firmware/version.json")
+          test "$code" = "200"
 
       - name: Deploy na větev gh-pages
         uses: peaceiris/actions-gh-pages@v4

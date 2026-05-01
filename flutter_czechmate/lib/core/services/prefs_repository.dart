@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constants/firmware_defaults.dart';
 import '../models/coach_ai_provider.dart';
 import '../models/coach_llm_backend.dart';
 
@@ -63,6 +64,11 @@ class PrefsRepository {
   static const keyStatsPeakMoveCount = 'czechmate.statsPeakMoveCount';
   /// `p:<presetEnumName>` nebo `c:<minutes>:<incrementSec>` — parita iOS `lastNewGameTimeSelection`.
   static const keyLastNewGameTimeControl = 'czechmate.lastNewGameTimeControlV1';
+  /// Raw URL na hostovaný `version.json` (GitHub Pages / raw.githubusercontent.com).
+  static const keyFirmwareManifestUrl = 'czechmate.firmwareManifestUrl';
+  static const keyFirmwareUpdateReminders = 'czechmate.firmwareUpdateRemindersEnabled';
+  /// ISO den `YYYY-MM-DD` — naposledy uživatel ťukl „Teď ne“ u nabídky aktualizace.
+  static const keyFirmwareReminderDismissDay = 'czechmate.firmwareReminderDismissDay';
 
   String? get lastBoardBaseUrl => _p.getString(keyBaseUrl);
   Future<void> setLastBoardBaseUrl(String? v) async {
@@ -398,4 +404,39 @@ class PrefsRepository {
   String? get lastNewGameTimeControl => _p.getString(keyLastNewGameTimeControl);
   Future<void> setLastNewGameTimeControl(String v) =>
       _p.setString(keyLastNewGameTimeControl, v);
+
+  String? get firmwareManifestUrl => _p.getString(keyFirmwareManifestUrl);
+  Future<void> setFirmwareManifestUrl(String? v) async {
+    if (v == null || v.trim().isEmpty) {
+      await _p.remove(keyFirmwareManifestUrl);
+    } else {
+      await _p.setString(keyFirmwareManifestUrl, v.trim());
+    }
+  }
+
+  /// Prázdná prefs → výchozí manifest z [kDefaultFirmwareManifestUrl].
+  String get firmwareManifestUrlEffective {
+    final u = firmwareManifestUrl;
+    if (u != null && u.trim().isNotEmpty) {
+      return u.trim();
+    }
+    return kDefaultFirmwareManifestUrl;
+  }
+
+  bool get firmwareUpdateRemindersEnabled =>
+      _p.getBool(keyFirmwareUpdateReminders) ?? true;
+
+  Future<void> setFirmwareUpdateRemindersEnabled(bool v) =>
+      _p.setBool(keyFirmwareUpdateReminders, v);
+
+  String? get firmwareReminderDismissDay =>
+      _p.getString(keyFirmwareReminderDismissDay);
+
+  Future<void> setFirmwareReminderDismissDay(String? isoDay) async {
+    if (isoDay == null || isoDay.isEmpty) {
+      await _p.remove(keyFirmwareReminderDismissDay);
+    } else {
+      await _p.setString(keyFirmwareReminderDismissDay, isoDay);
+    }
+  }
 }

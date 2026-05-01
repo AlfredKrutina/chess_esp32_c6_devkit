@@ -130,6 +130,7 @@
 // #include "../timer_system/include/timer_system.h" // UNUSED
 #include "esp_event.h"
 #include "chess_piece_http.h"
+#include "ota_update.h"
 #include "esp_http_server.h"
 #include "esp_log.h"
 #include "esp_netif.h"
@@ -2182,6 +2183,13 @@ static esp_err_t start_http_server(void) {
                                    .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &factory_reset_uri);
 
+  ret = ota_update_register_http_handlers(httpd_handle);
+  if (ret != ESP_OK) {
+    ESP_LOGE(TAG, "ota_update_register_http_handlers failed: %s",
+             esp_err_to_name(ret));
+    return ret;
+  }
+
   httpd_uri_t wifi_status_uri = {.uri = "/api/wifi/status",
                                  .method = HTTP_GET,
                                  .handler = http_get_wifi_status_handler,
@@ -2728,6 +2736,23 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   if (strcmp(cmd, "ping") == 0) {
     ESP_LOGI(TAG, "BLE cmd: ping");
     return ESP_OK;
+  }
+  if (strcmp(cmd, "ota_start") == 0) {
+    esp_err_t ota_err = ota_update_ble_try_dispatch(buf);
+    if (ota_err == ESP_OK) {
+      ESP_LOGI(TAG, "BLE ota_start accepted");
+      return ESP_OK;
+    }
+    if (ota_err == ESP_ERR_INVALID_STATE) {
+      ESP_LOGW(TAG, "BLE ota_start: busy or STA not connected");
+      return ota_err;
+    }
+    if (ota_err == ESP_ERR_INVALID_ARG) {
+      ESP_LOGW(TAG, "BLE ota_start: bad url (need https://)");
+      return ota_err;
+    }
+    ESP_LOGE(TAG, "BLE ota_start failed: %s", esp_err_to_name(ota_err));
+    return ota_err;
   }
   if (strcmp(cmd, "factory_reset") == 0) {
     if (!json_body_has_factory_confirm(buf)) {

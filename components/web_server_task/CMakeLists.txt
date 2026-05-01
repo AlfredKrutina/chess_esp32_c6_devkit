@@ -1,6 +1,6 @@
 # components/web_server_task/CMakeLists.txt
 idf_component_register(
-    SRCS "web_server_task.c"
+    SRCS "ota_update.c" "web_server_task.c"
           "chess_piece_http.c"
     INCLUDE_DIRS "include"
     EMBED_FILES
@@ -33,4 +33,7 @@ idf_component_register(
         game_hooks
         ble_task
         mdns
+        esp_https_ota
+        app_update
+        esp_http_client
 )

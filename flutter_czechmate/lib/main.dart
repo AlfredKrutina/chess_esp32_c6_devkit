@@ -15,6 +15,8 @@ import 'features/game/game_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/progress/progress_screen.dart';
 import 'features/puzzle/puzzle_screen.dart';
+import 'features/settings/firmware_update_availability.dart';
+import 'features/settings/firmware_update_daily_prompt.dart';
 import 'features/settings/settings_screen.dart';
 
 Future<void> main() async {
@@ -255,7 +257,16 @@ class _MainShellState extends ConsumerState<_MainShell>
       ref.read(boardSessionNotifierProvider.notifier).tryResumeFromPrefs();
       ensureWatchInboundBinding(ref);
       unawaited(_consumeAndroidNotificationClockActions());
+      unawaited(_refreshFirmwareOfferAndMaybePrompt());
     });
+  }
+
+  Future<void> _refreshFirmwareOfferAndMaybePrompt() async {
+    await ref.read(firmwareUpdateAvailabilityProvider.notifier).refresh();
+    if (!mounted) {
+      return;
+    }
+    await FirmwareUpdateDailyPrompt.tryShow(context, ref);
   }
 
   @override
@@ -270,6 +281,7 @@ class _MainShellState extends ConsumerState<_MainShell>
     if (state == AppLifecycleState.resumed) {
       ref.read(boardSessionNotifierProvider.notifier).tryResumeFromPrefs();
       unawaited(_consumeAndroidNotificationClockActions());
+      unawaited(_refreshFirmwareOfferAndMaybePrompt());
     }
   }
 
@@ -290,7 +302,32 @@ class _MainShellState extends ConsumerState<_MainShell>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<FirmwareAvailState>(firmwareUpdateAvailabilityProvider, (prev, next) {
+      if (next.loading || !next.updateAvailable) {
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) {
+          return;
+        }
+        unawaited(FirmwareUpdateDailyPrompt.tryShow(context, ref));
+      });
+    });
+
     final tab = ref.watch(mainNavTabIndexProvider);
+    final fwSnap = ref.watch(firmwareUpdateAvailabilityProvider);
+    final fwBadge = fwSnap.updateAvailable && !fwSnap.loading;
+
+    Widget settingsIcon(IconData icon) {
+      if (!fwBadge) {
+        return Icon(icon);
+      }
+      return Badge(
+        backgroundColor: Theme.of(context).colorScheme.error,
+        smallSize: 8,
+        child: Icon(icon),
+      );
+    }
     const tabPages = [
       GameScreen(),
       AnalysisScreen(),
@@ -328,10 +365,10 @@ class _MainShellState extends ConsumerState<_MainShell>
         selectedIcon: Icon(Icons.horizontal_split),
         label: Text('Progress'),
       ),
-      const NavigationRailDestination(
-        icon: Icon(Icons.settings_outlined),
-        selectedIcon: Icon(Icons.settings),
-        label: Text('Settings'),
+      NavigationRailDestination(
+        icon: settingsIcon(Icons.settings_outlined),
+        selectedIcon: settingsIcon(Icons.settings),
+        label: const Text('Settings'),
       ),
     ];
 
@@ -356,9 +393,9 @@ class _MainShellState extends ConsumerState<_MainShell>
         selectedIcon: Icon(Icons.horizontal_split),
         label: 'Progress',
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.settings_outlined),
-        selectedIcon: Icon(Icons.settings),
+      NavigationDestination(
+        icon: settingsIcon(Icons.settings_outlined),
+        selectedIcon: settingsIcon(Icons.settings),
         label: 'Settings',
       ),
     ];
