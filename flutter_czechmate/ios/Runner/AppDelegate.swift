@@ -5,14 +5,13 @@ import WatchConnectivity
 import ActivityKit
 #endif
 
-/// Method channels pro Live Activity (ActivityKit) a budoucí Watch bridge.
+/// Method channels pro Live Activity (ActivityKit) a Watch bridge.
+///
+/// S implicitním Flutter engine (`FlutterImplicitEngineDelegate`) neexistuje žádný plugin
+/// `com.czechmate.platform_channels` — `registrar(forPlugin:)` by vracel nil a kanály by se
+/// nikdy neregistrovaly. Messenger bereme z `FlutterApplicationRegistrar`.
 private enum CzechMatePlatformChannels {
-  static func register(registry: FlutterPluginRegistry) {
-    guard let registrar = registry.registrar(forPlugin: "com.czechmate.platform_channels") else {
-      return
-    }
-    let messenger = registrar.messenger()
-
+  static func register(messenger: FlutterBinaryMessenger) {
     let live = FlutterMethodChannel(name: "czechmate/live_activity", binaryMessenger: messenger)
     live.setMethodCallHandler { call, result in
       switch call.method {
@@ -76,9 +75,8 @@ private enum CzechMatePlatformChannels {
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "com.czechmate.platform_channels") {
-      WatchBridge.shared.attachMessenger(registrar.messenger())
-    }
-    CzechMatePlatformChannels.register(registry: engineBridge.pluginRegistry)
+    let messenger = engineBridge.applicationRegistrar.messenger()
+    WatchBridge.shared.attachMessenger(messenger)
+    CzechMatePlatformChannels.register(messenger: messenger)
   }
 }

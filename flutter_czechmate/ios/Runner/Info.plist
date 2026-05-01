@@ -28,6 +28,10 @@
 	<true/>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>CZECHMATE uses Bluetooth to find and connect to your chess board.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>CZECHMATE uses Bluetooth to communicate with your chess board.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

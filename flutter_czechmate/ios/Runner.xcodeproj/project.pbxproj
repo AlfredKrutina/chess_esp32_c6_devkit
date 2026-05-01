@@ -114,6 +114,7 @@
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
+		A8D4E20C0123456789000001 /* ChessLiveActivityExtension.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = ChessLiveActivityExtension.xcconfig; path = Flutter/ChessLiveActivityExtension.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8D4E2000123456789000001 /* ChessLiveAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessLiveAttributes.swift; sourceTree = "<group>"; };
 		A8D4E2000123456789000002 /* LiveActivityNativeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityNativeController.swift; sourceTree = "<group>"; };
@@ -211,6 +212,7 @@
 				9740EEB21CF90195004384FC /* Debug.xcconfig */,
 				7AFA3C8E1D35360C0083082E /* Release.xcconfig */,
 				9740EEB31CF90195004384FC /* Generated.xcconfig */,
+				A8D4E20C0123456789000001 /* ChessLiveActivityExtension.xcconfig */,
 			);
 			name = Flutter;
 			sourceTree = "<group>";
@@ -620,7 +622,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\nif [ \"${PLATFORM_NAME:-}\" != \"iphoneos\" ]; then exit 0; fi\necho \"note: CzechMate watchOS companion — nested xcodebuild for Embed Watch Content (Xcode 26 / Flutter).\"\n/usr/bin/xcodebuild -project \"${PROJECT_FILE_PATH}\" -target CzechMateWatchContainer -configuration \"${CONFIGURATION}\" -sdk watchos BUILD_DIR=\"${BUILD_DIR}\" CODE_SIGNING_ALLOWED=\"${CODE_SIGNING_ALLOWED:-YES}\"\n";
+			shellScript = "set -e\nif [ \"${PLATFORM_NAME:-}\" != \"iphoneos\" ]; then exit 0; fi\necho \"note: CzechMate watchOS companion — nested xcodebuild for Embed Watch Content (Xcode 26 / Flutter).\"\n/usr/bin/xcodebuild -project \"${PROJECT_FILE_PATH}\" -target CzechMateWatchContainer -configuration \"${CONFIGURATION}\" -sdk watchos BUILD_DIR=\"${BUILD_DIR}\" CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=\"${DEVELOPMENT_TEAM:-7GZUCQLRN9}\" -allowProvisioningUpdates\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -987,6 +989,7 @@
 		};
 		A8D4E20B0123456789000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A8D4E20C0123456789000001 /* ChessLiveActivityExtension.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1022,6 +1025,7 @@
 		};
 		A8D4E20B0123456789000002 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A8D4E20C0123456789000001 /* ChessLiveActivityExtension.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1056,6 +1060,7 @@
 		};
 		A8D4E20B0123456789000003 /* Profile */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A8D4E20C0123456789000001 /* ChessLiveActivityExtension.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

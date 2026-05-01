@@ -1,0 +1,2 @@
+// Načte FLUTTER_BUILD_NAME / FLUTTER_BUILD_NUMBER pro Info.plist extension (musí sedět s hlavní aplikací).
+#include "Generated.xcconfig"

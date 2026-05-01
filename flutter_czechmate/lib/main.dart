@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui' show PlatformDispatcher;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +23,18 @@ import 'features/settings/settings_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (AppEnvironment.staging) {
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      debugPrint('[staging][FlutterError] ${details.exceptionAsString()}');
+      debugPrint('[staging][stack] ${details.stack}');
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      debugPrint('[staging][async] $error');
+      debugPrint(stack.toString());
+      return false;
+    };
+  }
   final prefs = await SharedPreferences.getInstance();
   runApp(
     ProviderScope(
