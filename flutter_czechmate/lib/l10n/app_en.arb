@@ -1,0 +1,389 @@
+{
+  "@@locale": "en",
+  "appTitle": "CzechMate",
+  "navPlay": "Play",
+  "navAnalysis": "Analysis",
+  "navPuzzle": "Puzzle",
+  "navProgress": "Progress",
+  "navSettings": "Settings",
+  "settingsLanguage": "Language",
+  "languageSystem": "System",
+  "languageEnglish": "English",
+  "languageCzech": "Czech",
+  "languageDescription": "Choose app language. System follows the device; unsupported languages default to English.",
+  "onboardingWelcomeTitle": "Welcome to CZECHMATE",
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingStart": "Start playing",
+  "onboard1Title": "Smart chessboard",
+  "onboard1Body": "Connect your CZECHMATE board over Wi‑Fi or Bluetooth and play with live sync.",
+  "onboard2Title": "Set up the pieces",
+  "onboard2Body": "Before powering on, place pieces in the starting position. The app will align with the board automatically.",
+  "onboard3Title": "LED hints",
+  "onboard3Body": "The board can highlight moves with LEDs. Hint depth is configured under Settings → Board NVS.",
+  "onboard4Title": "Start a game",
+  "onboard4Body": "On Play, tap New game and pick a time control. Flip the board (White or Black on bottom) from Game controls or Settings.",
+  "onboard5Title": "Coach & analysis",
+  "onboard5Body": "Turn on learning mode and Stockfish evaluation on Analysis for deeper insight.",
+  "netNoInternetTitle": "No internet",
+  "netNoInternetBody": "Stockfish (chess-api), Lichess, and other cloud features need internet. You can still use the board over Bluetooth offline.",
+  "netNotOnWifiTitle": "Not on Wi‑Fi",
+  "netNotOnWifiBody": "chess-api usually works over mobile data. To open the board’s HTTP API on a LAN IP, the phone typically needs Wi‑Fi on the same network. If you are only on the board’s hotspot without internet, DNS for chess-api / Lichess may fail — temporarily disable that Wi‑Fi, enable mobile data, or use dual‑stack (Wi‑Fi + cellular data) if your OS allows. The app cannot force traffic to cellular while Wi‑Fi is the default route.",
+  "errInvalidBoardUrl": "Invalid board URL — hostname missing. Use http://192.168.4.1 or your board STA IP.",
+  "errNoSavedBle": "No saved Bluetooth board. Open Board discovery and pair your CZECHMATE board.",
+  "errDemoNoSnapshot": "Demo board has no snapshot.",
+  "errConnectBeforeMoves": "Connect to the board over Wi‑Fi or Bluetooth before sending moves from the app.",
+  "errSetupNeedsConnection": "Setup wizard requires an active board connection (Wi‑Fi or Bluetooth).",
+  "errOtaHttps": "OTA requires an HTTPS URL to the .bin file.",
+  "errOtaMock": "OTA is not available with the mock board.",
+  "errOtaConnectFirst": "Connect the board over Wi‑Fi or Bluetooth, then try the update again.",
+  "errHintsNeedConnection": "Hint LEDs require a board connection. Pair via Bluetooth or connect Wi‑Fi first.",
+  "errNoActiveSession": "No active board session. Connect via Wi‑Fi or Bluetooth from Board discovery.",
+  "errBrightnessNeedsBoard": "Brightness control needs a connected board (Wi‑Fi or Bluetooth).",
+  "errLampNeedsBoard": "Lamp control needs a connected board (Wi‑Fi or Bluetooth).",
+  "errGameLampNeedsBoard": "Game lamp mode requires a connected board (Wi‑Fi or Bluetooth).",
+  "errAutoLampNeedsBoard": "Auto lamp timeout requires a connected board (Wi‑Fi or Bluetooth).",
+  "moveEvalExcellentBest": "Excellent move — that was the best move.",
+  "moveEvalExcellentEngine": "Excellent — matches the engine best move.",
+  "moveEvalWeakerNoScore": "Weaker move (no exact score). Stronger was {best}.",
+  "@moveEvalWeakerNoScore": {
+    "placeholders": {
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "moveEvalGoodLoss": "Good move — small loss (~{cp} cp).",
+  "@moveEvalGoodLoss": {
+    "placeholders": {
+      "cp": {
+        "type": "int"
+      }
+    }
+  },
+  "moveEvalInaccuracy": "Inaccuracy — about {cp} cp worse. Stronger was {best}.",
+  "@moveEvalInaccuracy": {
+    "placeholders": {
+      "cp": {
+        "type": "int"
+      },
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "moveEvalMistake": "Mistake — about {cp} cp worse. Better was {best}.",
+  "@moveEvalMistake": {
+    "placeholders": {
+      "cp": {
+        "type": "int"
+      },
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "moveEvalBlunder": "Blunder — about {cp} cp worse. Much better was {best}.",
+  "@moveEvalBlunder": {
+    "placeholders": {
+      "cp": {
+        "type": "int"
+      },
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "moveEvalFailed": "Evaluation failed: {error}",
+  "@moveEvalFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pgnEventHeader": "CZECHMATE",
+  "pgnOpeningPrefix": "Start",
+  "sharePgnSubject": "Chess game (PGN)",
+  "shareSummaryNotReady": "Summary isn’t ready yet — try again in a moment.",
+  "shareExportFailed": "Export failed: {error}",
+  "@shareExportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "sharePngEncodeError": "Could not encode image as PNG.",
+  "shareGameSummaryMeta": "{result} · {duration} · {moves} moves",
+  "@shareGameSummaryMeta": {
+    "placeholders": {
+      "result": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      },
+      "moves": {
+        "type": "int"
+      }
+    }
+  },
+  "shareGameSummaryLine": "Game summary — CzechMate · {meta}",
+  "@shareGameSummaryLine": {
+    "placeholders": {
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "reportNoGameData": "No game data.",
+  "reportMoveEvaluation": "Move evaluation",
+  "reportNoStockfishData": "No Stockfish data — enable move evaluation and play a game.",
+  "reportEvalPerspective": "From White’s perspective (+ favors White)",
+  "reportMoveTiming": "Move timing",
+  "reportTimingUnavailable": "Move timestamps weren’t included — timing charts are unavailable.",
+  "reportElapsedTime": "Elapsed time",
+  "reportElapsedCaption": "Running total from game start by half-move",
+  "reportHalfMoveAxis": "half-move → minutes",
+  "reportTimePerMove": "Time per move",
+  "reportSecondsSincePrev": "Seconds since previous move",
+  "colorWhite": "White",
+  "colorBlack": "Black",
+  "reportMaterialCaptured": "Material captured · White {w} pts · Black {b} pts",
+  "@reportMaterialCaptured": {
+    "placeholders": {
+      "w": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "reportAppBarTitle": "Game summary",
+  "reportDone": "Done",
+  "reportResultHeading": "Result",
+  "reportShareHeading": "Share",
+  "reportShareExportHint": "Export the summary card above as a PNG, then use the system share sheet.",
+  "reportSharePreparing": "Preparing…",
+  "reportShareSummaryImage": "Share summary image",
+  "reportSharePgn": "Share PGN file",
+  "reportClock": "Clock",
+  "reportMinutesShort": "{n} min",
+  "@reportMinutesShort": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "reportFinalFen": "Final FEN",
+  "resultWhiteWins": "White wins",
+  "resultBlackWins": "Black wins",
+  "resultDraw": "Draw",
+  "resultGameEnded": "Game ended",
+  "endReasonUnknown": "Unknown result",
+  "endReasonGameOver": "Game over",
+  "endReasonCheckmate": "Checkmate",
+  "endReasonStalemate": "Stalemate",
+  "endReasonFinished": "Finished",
+  "statTime": "TIME",
+  "statMoves": "MOVES",
+  "statWhiteAvg": "WHITE Ø",
+  "statBlackAvg": "BLACK Ø",
+  "durationDash": "—",
+  "secondsShort": "{n}s",
+  "@secondsShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesSeconds": "{m}:{s}",
+  "@minutesSeconds": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      },
+      "s": {
+        "type": "String"
+      }
+    }
+  },
+  "hoursMinutesSeconds": "{h}h {mm}m {s}s",
+  "@hoursMinutesSeconds": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      },
+      "mm": {
+        "type": "int"
+      },
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "commonClose": "Close",
+  "commonCancel": "Cancel",
+  "commonOk": "OK",
+  "commonSave": "Save",
+  "commonContinue": "Continue",
+  "commonRetry": "Retry",
+  "commonLoading": "Loading…",
+  "commonError": "Error",
+  "commonYes": "Yes",
+  "commonNo": "No",
+  "lastErrorTitle": "Last error",
+  "telemetryPrivacyTitle": "Privacy",
+  "telemetryPrivacyBody": "This build does not send analytics. Traffic goes only to your board on the local network or over Bluetooth.",
+  "telemetryIcloudTitle": "iCloud",
+  "telemetryIcloudBody": "Game data stays on device unless you export or enable sync elsewhere.",
+  "discoveryTitle": "Find board",
+  "discoveryBlePermissionAndroid": "Allow Bluetooth permissions in system settings to scan for BLE boards.",
+  "discoveryBleScanFailed": "Bluetooth scan failed: {error}",
+  "@discoveryBleScanFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "discoveryIntro": "Tap a board in the list. The app connects over Bluetooth and may switch to Wi‑Fi (STA) when the board is online on the network and your phone has Wi‑Fi.",
+  "transportDisconnected": "Disconnected",
+  "transportDemo": "Demo mode",
+  "transportWifi": "Wi‑Fi",
+  "transportBluetooth": "Bluetooth",
+  "transportConnecting": "{transport} · connecting…",
+  "@transportConnecting": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "defaultBoardName": "CZECHMATE board",
+  "discoveryWifiUrlHint": "Board URL (http://…)",
+  "discoveryConnectWifi": "Connect via Wi‑Fi",
+  "discoveryFindBle": "Find board (Bluetooth)",
+  "discoveryScanning": "Scanning…",
+  "discoveryStopScan": "Stop scan",
+  "discoveryManualUrl": "Manual URL entry",
+  "connectionModeAuto": "Auto (Bluetooth then Wi‑Fi)",
+  "connectionModeWifiOnly": "Wi‑Fi only",
+  "connectionModeBleOnly": "Bluetooth only",
+  "preferBleOnlyTitle": "Bluetooth only (don’t switch to Wi‑Fi)",
+  "preferBleOnlySubtitle": "After BLE connect, stay on Bluetooth even if the board knows a Wi‑Fi URL.",
+  "mockBoardTileTitle": "Demo board (no hardware)",
+  "mockBoardTileSubtitle": "Uses bundled snapshot for UI testing.",
+  "sessionConnectedWifi": "Connected via Wi‑Fi",
+  "sessionConnectedBle": "Connected via Bluetooth",
+  "sessionConnectedMock": "Demo board active",
+  "allowBluetoothSettings": "Allow Bluetooth permissions in settings to scan for BLE boards.",
+  "gameAppBarTitle": "czechmate",
+  "gameConnectionTooltip": "Board connection",
+  "gameNewGame": "New game",
+  "gameHintThinking": "Thinking…",
+  "gameHint": "Hint",
+  "gamePauseClock": "Pause clock",
+  "gameResumeClock": "Resume clock",
+  "gameClearHintLeds": "Clear hint LEDs",
+  "gameNoSnapshotYet": "No board snapshot yet.",
+  "gameFindBoard": "Find board",
+  "gameFindBoardSubtitle": "Connect Wi‑Fi or Bluetooth to load the live position.",
+  "gameControlsTitle": "Game controls",
+  "gameHistory": "History",
+  "gameReturnLive": "Return to live game",
+  "gameExitPuzzleCheck": "Exit puzzle check (keep position)",
+  "gameFindBoardTooltip": "Find board",
+  "gameLayoutTooltip": "Layout mode",
+  "gameLayoutStandard": "Standard",
+  "gameLayoutBoardOnly": "Board only",
+  "gameCoachRailShow": "Show AI coach column",
+  "gameCoachRailHide": "Hide AI coach column",
+  "gameControlsTooltip": "Game controls",
+  "gameAnalysisTooltip": "Analysis",
+  "gameSummaryTooltip": "Game summary",
+  "gameDisconnectTooltip": "Disconnect session",
+  "gameHidePanelTooltip": "Hide panel",
+  "gamePuzzleMovesProgress": "Moves {played} / {total}",
+  "@gamePuzzleMovesProgress": {
+    "placeholders": {
+      "played": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "gameHintTransient": "Hint: {from}→{to}{evalSuffix}",
+  "@gameHintTransient": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "evalSuffix": {
+        "type": "String"
+      }
+    }
+  },
+  "gameBestMoveSnack": "Best move: {from}→{to}",
+  "@gameBestMoveSnack": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "gameHintFailed": "Hint failed: {error}",
+  "@gameHintFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "gameDemoBoardSnack": "Demo board: {feature} only works over Bluetooth or Wi‑Fi to real hardware.",
+  "@gameDemoBoardSnack": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "gameDesktopPlayTitle": "Play — desktop",
+  "gameDesktopPlaySubtitle": "Tap the indicator top-left to manage connection (Wi‑Fi, Bluetooth, mock) — same as iOS.",
+  "stockfishEvalFailedSnack": "Evaluation failed: {msg}",
+  "@stockfishEvalFailedSnack": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDialogTitle": "Board firmware update",
+  "firmwareDialogVersions": "Server has {serverVer}, your board reports {boardVer}.",
+  "@firmwareDialogVersions": {
+    "placeholders": {
+      "serverVer": {
+        "type": "String"
+      },
+      "boardVer": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDialogHttpsNote": "The board downloads over HTTPS (Wi‑Fi STA). The phone only sends the link.",
+  "firmwareTurnOffReminders": "Turn off reminders",
+  "firmwareNotNow": "Not now",
+  "firmwareUpdateAction": "Update"
+}

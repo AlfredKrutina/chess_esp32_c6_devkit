@@ -1,0 +1,389 @@
+{
+  "@@locale": "cs",
+  "appTitle": "CzechMate",
+  "navPlay": "Hra",
+  "navAnalysis": "Analýza",
+  "navPuzzle": "Puzzle",
+  "navProgress": "Pokrok",
+  "navSettings": "Nastavení",
+  "settingsLanguage": "Jazyk",
+  "languageSystem": "Systém",
+  "languageEnglish": "Angličtina",
+  "languageCzech": "Čeština",
+  "languageDescription": "Zvol jazyk aplikace. Systém následuje telefon; ostatní jazyky se zobrazí v angličtině.",
+  "onboardingWelcomeTitle": "Vítej v CZECHMATE",
+  "onboardingSkip": "Přeskočit",
+  "onboardingNext": "Další",
+  "onboardingStart": "Začít hrát",
+  "onboard1Title": "Chytrá šachovnice",
+  "onboard1Body": "Připoj šachovnici CZECHMATE přes Wi‑Fi nebo Bluetooth a hraj s živou synchronizací.",
+  "onboard2Title": "Rozestav figury",
+  "onboard2Body": "Před zapnutím postav figury do výchozí pozice. Aplikace se s deskou sama srovná.",
+  "onboard3Title": "LED nápovědy",
+  "onboard3Body": "Deska umí zvýraznit tahy LEDkami. Hloubku nápovědy nastavíš v Nastavení → NVS desky.",
+  "onboard4Title": "Začni partii",
+  "onboard4Body": "Na kartě Hra klepni Nová hra a zvol časovou kontrolu. Otočení strany (bílá nebo černá dole) najdeš v ovládání hry nebo v nastavení.",
+  "onboard5Title": "Trenér a analýza",
+  "onboard5Body": "Zapni výukový režim a Stockfish eval na Analýze pro hlubší poznatky.",
+  "netNoInternetTitle": "Bez internetu",
+  "netNoInternetBody": "Stockfish (chess-api), Lichess a další cloudové funkce vyžadují internet. Po Bluetooth ale desku používáš i offline.",
+  "netNotOnWifiTitle": "Nejsi na Wi‑Fi",
+  "netNotOnWifiBody": "chess-api většinou funguje přes mobilní data. K HTTP API desky na LAN IP telefon typicky potřebuje Wi‑Fi ve stejné síti. Pokud jsi jen na hotspotu desky bez internetu, DNS pro chess-api / Lichess může selhat — zkus Wi‑Fi na chvíli vypnout, zapnout mobilní data nebo dual‑stack, pokud systém dovolí. Aplikace nemůže donutit provoz na LTE, když výchozí trasa je Wi‑Fi.",
+  "errInvalidBoardUrl": "Neplatná adresa desky — chybí hostitel. Použij http://192.168.4.1 nebo STA IP desky.",
+  "errNoSavedBle": "Žádná uložená Bluetooth deska. Otevři Objevování desky a spáruj CZECHMATE.",
+  "errDemoNoSnapshot": "Demo deska nemá snapshot.",
+  "errConnectBeforeMoves": "Než odešleš tah z aplikace, připoj desku přes Wi‑Fi nebo Bluetooth.",
+  "errSetupNeedsConnection": "Průvodce nastavením vyžaduje aktivní připojení k desce (Wi‑Fi nebo Bluetooth).",
+  "errOtaHttps": "OTA vyžaduje HTTPS URL souboru .bin.",
+  "errOtaMock": "OTA není dostupná u demo desky.",
+  "errOtaConnectFirst": "Připoj desku přes Wi‑Fi nebo Bluetooth a pak zkus aktualizaci znovu.",
+  "errHintsNeedConnection": "Nápovědní LED vyžadují připojení desky. Nejprve Bluetooth nebo Wi‑Fi.",
+  "errNoActiveSession": "Žádná aktivní session desky. Připoj ji přes Wi‑Fi nebo Bluetooth z Objevování desky.",
+  "errBrightnessNeedsBoard": "Jas vyžaduje připojenou desku (Wi‑Fi nebo Bluetooth).",
+  "errLampNeedsBoard": "Ovládání lampy vyžaduje připojenou desku (Wi‑Fi nebo Bluetooth).",
+  "errGameLampNeedsBoard": "Režim herní lampy vyžaduje připojenou desku (Wi‑Fi nebo Bluetooth).",
+  "errAutoLampNeedsBoard": "Automatický čas lampy vyžaduje připojenou desku (Wi‑Fi nebo Bluetooth).",
+  "moveEvalExcellentBest": "Skvělý tah — byl to nejlepší možný tah.",
+  "moveEvalExcellentEngine": "Výborně — přesně jako engine.",
+  "moveEvalWeakerNoScore": "Slabší tah (bez přesného skóre). Lepší byl {best}.",
+  "@moveEvalWeakerNoScore": {
+    "placeholders": {
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "moveEvalGoodLoss": "Dobrý tah — malá ztráta (~{cp} cp).",
+  "@moveEvalGoodLoss": {
+    "placeholders": {
+      "cp": {
+        "type": "int"
+      }
+    }
+  },
+  "moveEvalInaccuracy": "Nepřesnost — cca o {cp} cp horší. Silnější byl {best}.",
+  "@moveEvalInaccuracy": {
+    "placeholders": {
+      "cp": {
+        "type": "int"
+      },
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "moveEvalMistake": "Chyba — cca o {cp} cp horší. Lepší byl {best}.",
+  "@moveEvalMistake": {
+    "placeholders": {
+      "cp": {
+        "type": "int"
+      },
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "moveEvalBlunder": "Hrubka — cca o {cp} cp horší. Mnohem lepší byl {best}.",
+  "@moveEvalBlunder": {
+    "placeholders": {
+      "cp": {
+        "type": "int"
+      },
+      "best": {
+        "type": "String"
+      }
+    }
+  },
+  "moveEvalFailed": "Evaluace selhala: {error}",
+  "@moveEvalFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pgnEventHeader": "CZECHMATE",
+  "pgnOpeningPrefix": "Začátek",
+  "sharePgnSubject": "Šachová partie (PGN)",
+  "shareSummaryNotReady": "Shrnutí ještě není připravené — zkus to za chvíli.",
+  "shareExportFailed": "Export selhal: {error}",
+  "@shareExportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "sharePngEncodeError": "Obrázek se nepodařilo zakódovat jako PNG.",
+  "shareGameSummaryMeta": "{result} · {duration} · {moves} tahů",
+  "@shareGameSummaryMeta": {
+    "placeholders": {
+      "result": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      },
+      "moves": {
+        "type": "int"
+      }
+    }
+  },
+  "shareGameSummaryLine": "Shrnutí partie — CzechMate · {meta}",
+  "@shareGameSummaryLine": {
+    "placeholders": {
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "reportNoGameData": "Žádná data partie.",
+  "reportMoveEvaluation": "Hodnocení tahů",
+  "reportNoStockfishData": "Žádná Stockfish data — zapni hodnocení tahů a odehraj partii.",
+  "reportEvalPerspective": "Z pohledu bílého (+ pro bílého)",
+  "reportMoveTiming": "Časování tahů",
+  "reportTimingUnavailable": "Chybí časové značky tahů — grafy času nejsou k dispozici.",
+  "reportElapsedTime": "Uplynulý čas",
+  "reportElapsedCaption": "Součet od začátku partie po půltazích",
+  "reportHalfMoveAxis": "půltah → minuty",
+  "reportTimePerMove": "Čas na tah",
+  "reportSecondsSincePrev": "Sekundy od předchozího tahu",
+  "colorWhite": "Bílý",
+  "colorBlack": "Černý",
+  "reportMaterialCaptured": "Braný materiál · Bílý {w} b. · Černý {b} b.",
+  "@reportMaterialCaptured": {
+    "placeholders": {
+      "w": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "reportAppBarTitle": "Shrnutí partie",
+  "reportDone": "Hotovo",
+  "reportResultHeading": "Výsledek",
+  "reportShareHeading": "Sdílení",
+  "reportShareExportHint": "Exportuj kartu výše jako PNG a pak použij systémové sdílení.",
+  "reportSharePreparing": "Připravuji…",
+  "reportShareSummaryImage": "Sdílet obrázek shrnutí",
+  "reportSharePgn": "Sdílet soubor PGN",
+  "reportClock": "Hodiny",
+  "reportMinutesShort": "{n} min",
+  "@reportMinutesShort": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "reportFinalFen": "Výsledné FEN",
+  "resultWhiteWins": "Výhra bílého",
+  "resultBlackWins": "Výhra černého",
+  "resultDraw": "Remíza",
+  "resultGameEnded": "Partie skončila",
+  "endReasonUnknown": "Neznámý výsledek",
+  "endReasonGameOver": "Konec partie",
+  "endReasonCheckmate": "Mat",
+  "endReasonStalemate": "Pat",
+  "endReasonFinished": "Dohráno",
+  "statTime": "ČAS",
+  "statMoves": "TAHY",
+  "statWhiteAvg": "BÍLÝ Ø",
+  "statBlackAvg": "ČERNÝ Ø",
+  "durationDash": "—",
+  "secondsShort": "{n}s",
+  "@secondsShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesSeconds": "{m}:{s}",
+  "@minutesSeconds": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      },
+      "s": {
+        "type": "String"
+      }
+    }
+  },
+  "hoursMinutesSeconds": "{h}h {mm}m {s}s",
+  "@hoursMinutesSeconds": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      },
+      "mm": {
+        "type": "int"
+      },
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "commonClose": "Zavřít",
+  "commonCancel": "Zrušit",
+  "commonOk": "OK",
+  "commonSave": "Uložit",
+  "commonContinue": "Pokračovat",
+  "commonRetry": "Opakovat",
+  "commonLoading": "Načítání…",
+  "commonError": "Chyba",
+  "commonYes": "Ano",
+  "commonNo": "Ne",
+  "lastErrorTitle": "Poslední chyba",
+  "telemetryPrivacyTitle": "Soukromí",
+  "telemetryPrivacyBody": "Tento build neodesílá analytiku. Provoz jde jen na tvou desku v lokální síti nebo přes Bluetooth.",
+  "telemetryIcloudTitle": "iCloud",
+  "telemetryIcloudBody": "Data partie zůstávají na zařízení, dokud je neexportuješ nebo nezapneš synchronizaci jinde.",
+  "discoveryTitle": "Najít desku",
+  "discoveryBlePermissionAndroid": "Povol Bluetooth oprávnění v nastavení systému, aby šlo desku vyhledat.",
+  "discoveryBleScanFailed": "Sken Bluetooth selhal: {error}",
+  "@discoveryBleScanFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "discoveryIntro": "Klepni na desku v seznamu. Aplikace se přes Bluetooth spojí a podle nastavení může přejít na Wi‑Fi (STA), pokud je deska online v síti a telefon má Wi‑Fi.",
+  "transportDisconnected": "Odpojeno",
+  "transportDemo": "Demo režim",
+  "transportWifi": "Wi‑Fi",
+  "transportBluetooth": "Bluetooth",
+  "transportConnecting": "{transport} · připojuji…",
+  "@transportConnecting": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "defaultBoardName": "CZECHMATE deska",
+  "discoveryWifiUrlHint": "Adresa desky (http://…)",
+  "discoveryConnectWifi": "Připojit přes Wi‑Fi",
+  "discoveryFindBle": "Najít desku (Bluetooth)",
+  "discoveryScanning": "Skenuji…",
+  "discoveryStopScan": "Zastavit sken",
+  "discoveryManualUrl": "Ruční zadání URL",
+  "connectionModeAuto": "Auto (Bluetooth pak Wi‑Fi)",
+  "connectionModeWifiOnly": "Jen Wi‑Fi",
+  "connectionModeBleOnly": "Jen Bluetooth",
+  "preferBleOnlyTitle": "Jen Bluetooth (nepřepínat na Wi‑Fi)",
+  "preferBleOnlySubtitle": "Po připojení přes BLE zůstat na Bluetooth, i když deska zná Wi‑Fi adresu.",
+  "mockBoardTileTitle": "Demo deska (bez hardwaru)",
+  "mockBoardTileSubtitle": "Používá zabalený snapshot pro test UI.",
+  "sessionConnectedWifi": "Připojeno přes Wi‑Fi",
+  "sessionConnectedBle": "Připojeno přes Bluetooth",
+  "sessionConnectedMock": "Aktivní demo deska",
+  "allowBluetoothSettings": "Pro sken BLE desek povol Bluetooth v nastavení systému.",
+  "gameAppBarTitle": "czechmate",
+  "gameConnectionTooltip": "Připojení k šachovnici",
+  "gameNewGame": "Nová hra",
+  "gameHintThinking": "Přemýšlím…",
+  "gameHint": "Nápověda",
+  "gamePauseClock": "Pozastavit hodiny",
+  "gameResumeClock": "Pokračovat v hodinách",
+  "gameClearHintLeds": "Zrušit nápovědní LED",
+  "gameNoSnapshotYet": "Zatím žádný snapshot desky.",
+  "gameFindBoard": "Najít desku",
+  "gameFindBoardSubtitle": "Připoj Wi‑Fi nebo Bluetooth pro živou pozici.",
+  "gameControlsTitle": "Ovládání hry",
+  "gameHistory": "Historie",
+  "gameReturnLive": "Zpět na živou hru",
+  "gameExitPuzzleCheck": "Ukončit kontrolu puzzlu (pozice zůstane)",
+  "gameFindBoardTooltip": "Najít desku",
+  "gameLayoutTooltip": "Režim rozvržení",
+  "gameLayoutStandard": "Standardní",
+  "gameLayoutBoardOnly": "Jen deska",
+  "gameCoachRailShow": "Zobrazit sloupec AI trenéra",
+  "gameCoachRailHide": "Skrýt sloupec AI trenéra",
+  "gameControlsTooltip": "Ovládání hry",
+  "gameAnalysisTooltip": "Analýza",
+  "gameSummaryTooltip": "Shrnutí partie",
+  "gameDisconnectTooltip": "Odpojit session",
+  "gameHidePanelTooltip": "Skrýt panel",
+  "gamePuzzleMovesProgress": "Tahy {played} / {total}",
+  "@gamePuzzleMovesProgress": {
+    "placeholders": {
+      "played": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "gameHintTransient": "Nápověda: {from}→{to}{evalSuffix}",
+  "@gameHintTransient": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "evalSuffix": {
+        "type": "String"
+      }
+    }
+  },
+  "gameBestMoveSnack": "Nejlepší tah: {from}→{to}",
+  "@gameBestMoveSnack": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "gameHintFailed": "Nápověda selhala: {error}",
+  "@gameHintFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "gameDemoBoardSnack": "Demo deska: {feature} funguje jen přes Bluetooth nebo Wi‑Fi na reálný hardware.",
+  "@gameDemoBoardSnack": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "gameDesktopPlayTitle": "Hra — desktop",
+  "gameDesktopPlaySubtitle": "Klepnutím na indikátor vlevo nahoře otevřeš správu připojení (Wi‑Fi, Bluetooth, mock) — stejně jako na iOS.",
+  "stockfishEvalFailedSnack": "Evaluace selhala: {msg}",
+  "@stockfishEvalFailedSnack": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDialogTitle": "Aktualizace firmware desky",
+  "firmwareDialogVersions": "Na serveru je {serverVer}, deska hlásí {boardVer}.",
+  "@firmwareDialogVersions": {
+    "placeholders": {
+      "serverVer": {
+        "type": "String"
+      },
+      "boardVer": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDialogHttpsNote": "Deska stahuje přes HTTPS (Wi‑Fi STA). Telefon posílá jen odkaz.",
+  "firmwareTurnOffReminders": "Vypnout připomínky",
+  "firmwareNotNow": "Teď ne",
+  "firmwareUpdateAction": "Aktualizovat"
+}

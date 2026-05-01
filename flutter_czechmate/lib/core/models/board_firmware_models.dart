@@ -4,17 +4,23 @@ class BoardFirmwareInfo {
     required this.version,
     this.projectName,
     this.idfVersion,
+    this.otaSupported,
   });
 
   final String version;
   final String? projectName;
   final String? idfVersion;
 
+  /// From `GET /api/system/firmware` (`ota_supported`). Null if absent (older firmware).
+  final bool? otaSupported;
+
   factory BoardFirmwareInfo.fromJson(Map<String, dynamic> json) {
+    final rawOta = json['ota_supported'];
     return BoardFirmwareInfo(
       version: (json['version'] as String?)?.trim() ?? '',
       projectName: json['project_name'] as String?,
       idfVersion: json['idf'] as String?,
+      otaSupported: rawOta is bool ? rawOta : null,
     );
   }
 }

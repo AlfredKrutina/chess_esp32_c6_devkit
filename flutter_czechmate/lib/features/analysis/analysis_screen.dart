@@ -10,6 +10,7 @@ import '../../core/utils/fen_from_board.dart';
 import '../../core/utils/opening_eco.dart';
 import '../../core/widgets/network_status_banners.dart';
 import '../connection/board_session_notifier.dart';
+import '../game/board/chess_board_widget.dart';
 import '../game/state/game_ui_notifier.dart';
 import 'eval_line_chart.dart';
 import 'move_eval_notifier.dart';
@@ -136,6 +137,9 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
   String _secondaryLine = '';
   bool _busyFree = false;
   bool _busySecondary = false;
+  String _freePreviewFen = '';
+  String? _freeHighlightFrom;
+  String? _freeHighlightTo;
 
   @override
   void dispose() {
@@ -543,9 +547,19 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                           setState(() {
                             _freeResult =
                                 'Nejlepší tah: ${mv.from}–${mv.to}$ev${mv.text != null ? '\n${mv.text}' : ''}';
+                            _freePreviewFen = fen;
+                            final f = mv.from.trim();
+                            final t = mv.to.trim();
+                            _freeHighlightFrom = f.isNotEmpty ? f : null;
+                            _freeHighlightTo = t.isNotEmpty ? t : null;
                           });
                         } catch (e) {
-                          setState(() => _freeResult = 'Chyba: $e');
+                          setState(() {
+                            _freeResult = 'Chyba: $e';
+                            _freePreviewFen = '';
+                            _freeHighlightFrom = null;
+                            _freeHighlightTo = null;
+                          });
                         } finally {
                           if (mounted) setState(() => _busyFree = false);
                         }
@@ -572,6 +586,29 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
           ),
           const SizedBox(height: 8),
           SelectableText(_freeResult, style: const TextStyle(fontSize: 14)),
+          if (_freePreviewFen.isNotEmpty &&
+              _freeHighlightFrom != null &&
+              _freeHighlightTo != null) ...[
+            const SizedBox(height: 12),
+            Text('Náhled pozice a tahu',
+                style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 8),
+            LayoutBuilder(
+              builder: (ctx, bc) {
+                final side = bc.maxWidth.clamp(200.0, 360.0);
+                return Center(
+                  child: SizedBox(
+                    width: side,
+                    child: FenBoardPreview(
+                      fen: _freePreviewFen,
+                      highlightFrom: _freeHighlightFrom,
+                      highlightTo: _freeHighlightTo,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ],
       ),
     );

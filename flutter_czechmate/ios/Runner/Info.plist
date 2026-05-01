@@ -32,6 +32,8 @@
 	<string>CZECHMATE uses Bluetooth to find and connect to your chess board.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>CZECHMATE uses Bluetooth to communicate with your chess board.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>CZECHMATE uses your photo library to set a profile picture.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

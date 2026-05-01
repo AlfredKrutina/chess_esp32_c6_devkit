@@ -6,6 +6,7 @@ class BundledPuzzleItem {
     required this.subtitle,
     required this.fen,
     this.themes = const [],
+    this.solution = const [],
   });
 
   final String id;
@@ -13,6 +14,8 @@ class BundledPuzzleItem {
   final String subtitle;
   final String fen;
   final List<String> themes;
+  /// UCI tahy referenční lině (prázdné = jen sandbox bez auto-kontroly).
+  final List<String> solution;
 }
 
 const bundledPuzzleCatalog = <BundledPuzzleItem>[
@@ -22,6 +25,7 @@ const bundledPuzzleCatalog = <BundledPuzzleItem>[
     subtitle: 'Bílý · mat v 1 tahu',
     fen: '7k/5K2/6Q1/8/8/8/8/8 w - - 0 1',
     themes: ['mateIn1'],
+    solution: ['g6g8'],
   ),
   BundledPuzzleItem(
     id: 'mate_back_rank',
@@ -29,6 +33,7 @@ const bundledPuzzleCatalog = <BundledPuzzleItem>[
     subtitle: 'Bílý · mat věží',
     fen: '6k1/5ppp/8/8/8/8/5PPP/R3K3 w Q - 0 1',
     themes: ['mateIn1', 'endgame'],
+    solution: ['a1a8'],
   ),
   BundledPuzzleItem(
     id: 'mate_rook_corner',
@@ -36,13 +41,15 @@ const bundledPuzzleCatalog = <BundledPuzzleItem>[
     subtitle: 'Bílý · koncovka',
     fen: '7k/R7/6K1/8/8/8/8/8 w - - 0 1',
     themes: ['mateIn1', 'endgame'],
+    solution: ['a7a8'],
   ),
   BundledPuzzleItem(
     id: 'black_mate_1',
     title: 'Černý na tahu',
     subtitle: 'Černý · mat v 1 tahu',
-    fen: '8/8/8/8/8/3q4/4k3/4K3 b - - 0 1',
+    fen: '8/8/8/8/8/3q2k1/8/6K1 b - - 0 1',
     themes: ['mateIn1'],
+    solution: ['d3d1'],
   ),
   BundledPuzzleItem(
     id: 'promotion_hint',

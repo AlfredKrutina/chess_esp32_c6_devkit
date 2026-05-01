@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/constants/firmware_defaults.dart';
 import '../../core/models/board_firmware_models.dart';
 import '../../core/utils/board_http_base_url.dart';
 import '../connection/board_session_notifier.dart';
@@ -12,12 +13,16 @@ class FirmwareAvailState {
     this.loading = false,
     this.manifest,
     this.boardVersion,
+    this.boardOtaSupported,
     this.error,
   });
 
   final bool loading;
   final FirmwareManifest? manifest;
   final String? boardVersion;
+
+  /// Null = unknown (no HTTP info yet or older firmware without `ota_supported`).
+  final bool? boardOtaSupported;
   final String? error;
 
   bool get hasBoardVersion =>
@@ -36,15 +41,20 @@ class FirmwareAvailState {
     bool? loading,
     FirmwareManifest? manifest,
     String? boardVersion,
+    bool? boardOtaSupported,
     String? error,
     bool clearManifest = false,
     bool clearBoard = false,
+    bool clearBoardOtaSupported = false,
     bool clearError = false,
   }) {
     return FirmwareAvailState(
       loading: loading ?? this.loading,
       manifest: clearManifest ? null : (manifest ?? this.manifest),
       boardVersion: clearBoard ? null : (boardVersion ?? this.boardVersion),
+      boardOtaSupported: clearBoardOtaSupported
+          ? null
+          : (boardOtaSupported ?? this.boardOtaSupported),
       error: clearError ? null : (error ?? this.error),
     );
   }
@@ -69,7 +79,7 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
 
     final manifestUrl = (manifestUrlOverride != null &&
             manifestUrlOverride.trim().isNotEmpty)
-        ? manifestUrlOverride.trim()
+        ? normalizeFirmwareManifestUrl(manifestUrlOverride.trim())
         : prefs.firmwareManifestUrlEffective;
     final session = ref.read(boardSessionNotifierProvider);
     final boardHttp = resolveBoardHttpBaseUrl(
@@ -84,24 +94,29 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
       final api = ref.read(boardApiClientProvider);
       final manifest = await api.fetchFirmwareManifest(manifestUrl);
       String? bv;
+      bool? otaSup;
       if (boardHttp != null && boardHttp.isNotEmpty) {
         try {
           final info = await api.fetchBoardFirmwareInfo(boardHttp);
           bv = info.version;
+          otaSup = info.otaSupported;
         } catch (_) {
           bv = null;
+          otaSup = null;
         }
       }
       state = FirmwareAvailState(
         loading: false,
         manifest: manifest,
         boardVersion: bv,
+        boardOtaSupported: otaSup,
       );
     } catch (e) {
       state = FirmwareAvailState(
         loading: false,
         manifest: state.manifest,
         boardVersion: state.boardVersion,
+        boardOtaSupported: state.boardOtaSupported,
         error: '$e',
       );
     }

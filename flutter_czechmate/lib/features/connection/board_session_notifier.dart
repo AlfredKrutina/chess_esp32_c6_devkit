@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
 import '../../core/constants/app_environment.dart';
+import '../../core/localization/locale_bridge.dart';
 import '../../core/models/board_timer_state.dart';
 import '../../core/models/game_snapshot.dart';
 import '../../core/models/game_status_models.dart';
@@ -19,6 +20,7 @@ import '../../core/services/prefs_repository.dart';
 import '../../core/services/web_socket_manager.dart';
 import '../../core/utils/board_http_base_url.dart';
 import '../../core/utils/game_snapshot_codec.dart';
+import '../../l10n/app_localizations.dart';
 import 'board_session_state.dart';
 
 final boardSessionNotifierProvider =
@@ -35,6 +37,8 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   final BoardApiClient _api;
   final PrefsRepository _prefs;
+
+  AppLocalizations get _strings => appStringsForPrefs(_prefs);
 
   Timer? _pollTimer;
   Timer? _mockClockTimer;
@@ -117,10 +121,31 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     return true;
   }
 
-  Future<void> _maybeAutoSwitchBleToWifi() async {
+  /// Saves `http://<sta_ip>` or `http://<ap_ip>` from BLE so HTTP features work while staying on BLE transport.
+  Future<void> _persistBoardHttpUrlFromBle(BleNetworkInfo? info) async {
+    if (info == null) return;
+    final sta = info.staIp;
+    final ap = info.apIp;
+    String? ip;
+    if (sta != null && _looksLikeIPv4(sta)) {
+      ip = sta;
+    } else if (ap != null && _looksLikeIPv4(ap)) {
+      ip = ap;
+    }
+    if (ip == null) return;
+    final url = normalizeBoardHttpBaseUrl('http://$ip');
+    if (url == null) return;
+    final prev = _prefs.lastBoardBaseUrl?.trim();
+    if (prev == url) return;
+    await _prefs.setLastBoardBaseUrl(url);
+    if (AppEnvironment.staging) {
+      debugPrint('[staging] Cached board HTTP URL from BLE network char: $url');
+    }
+  }
+
+  Future<void> _maybeAutoSwitchBleToWifi(BleNetworkInfo? info) async {
     final mode = _prefs.connectionMode;
     if (_prefs.preferBluetoothOnly || mode == 'ble_only') return;
-    final info = await _ble.fetchNetworkInfo();
     final staIp = info?.staIp;
     if (info == null ||
         info.online != true ||
@@ -134,6 +159,12 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       debugPrint('[staging] BLE→Wi‑Fi handoff: $url');
     }
     await connectWifi(url, webSocket: _prefs.useWebSocket);
+  }
+
+  Future<void> _syncBleNetworkMetadata() async {
+    final info = await _ble.fetchNetworkInfo();
+    await _persistBoardHttpUrlFromBle(info);
+    await _maybeAutoSwitchBleToWifi(info);
   }
 
   Future<void> connectMock() async {
@@ -171,9 +202,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     if (normalized == null) {
       state = state.copyWith(
         busy: false,
-        lastError: StateError(
-          'Invalid board URL — hostname missing. Use http://192.168.4.1 or your board STA IP.',
-        ),
+        lastError: StateError(_strings.errInvalidBoardUrl),
       );
       return;
     }
@@ -249,7 +278,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _prefs.setUseMockBoard(false);
       await _prefs.setLastBoardLinkKind('bluetooth');
       state = state.copyWith(busy: false, bleGattConnected: true);
-      await _maybeAutoSwitchBleToWifi();
+      await _syncBleNetworkMetadata();
     } catch (e) {
       state = state.copyWith(
         busy: false,
@@ -268,10 +297,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Future<void> reconnectSavedBle() async {
     final id = _prefs.lastBleRemoteId;
     if (id == null || id.isEmpty) {
-      state =
-          state.copyWith(lastError: StateError(
-              'No saved Bluetooth board. Open Board discovery and pair your CZECHMATE board.',
-            ));
+      state = state.copyWith(lastError: StateError(_strings.errNoSavedBle));
       return;
     }
     final dev = BluetoothDevice(remoteId: DeviceIdentifier(id));
@@ -563,10 +589,18 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   Future<void> postRemoteMove(String from, String to,
       {String? promotion}) async {
+    final f = from.trim().toLowerCase();
+    final t = to.trim().toLowerCase();
+    if (f.isEmpty || t.isEmpty || f == t) {
+      if (AppEnvironment.staging) {
+        debugPrint('[staging] postRemoteMove ignored (empty or same square)');
+      }
+      return;
+    }
     if (state.transport == BoardTransport.mock) {
       final snap = state.snapshot;
       if (snap == null) {
-        throw StateError('Demo board has no snapshot.');
+        throw StateError(_strings.errDemoNoSnapshot);
       }
       try {
         if (AppEnvironment.staging) {
@@ -606,9 +640,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _ble.postMove(from, to, promotion: promotion);
       return;
     }
-    throw StateError(
-        'Connect to the board over Wi‑Fi or Bluetooth before sending moves from the app.',
-      );
+    throw StateError(_strings.errConnectBeforeMoves);
   }
 
   Future<void> postNewGame({String? fen}) async {
@@ -726,19 +758,17 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _ble.postSetupTutorial(a);
       return;
     }
-    throw StateError(
-        'Setup wizard requires an active board connection (Wi‑Fi or Bluetooth).',
-      );
+    throw StateError(_strings.errSetupNeedsConnection);
   }
 
-  /// OTA: aplikace jen předá HTTPS URL na `.bin`; firmware stahuje ESP (nutné STA na desce).
+  /// OTA: app forwards an HTTPS `.bin` URL only; the ESP downloads it (STA required).
   Future<void> requestFirmwareOta(String httpsFirmwareUrl) async {
     final u = httpsFirmwareUrl.trim();
     if (!u.startsWith('https://')) {
-      throw StateError('OTA vyžaduje HTTPS URL na soubor .bin.');
+      throw StateError(_strings.errOtaHttps);
     }
     if (state.transport == BoardTransport.mock) {
-      throw StateError('OTA není dostupná s ukázkovou deskou.');
+      throw StateError(_strings.errOtaMock);
     }
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       await _api.postBoardOtaStart(state.wifiBaseUrl!, url: u);
@@ -748,9 +778,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _ble.postOtaStart(u);
       return;
     }
-    throw StateError(
-      'Připoj desku přes Wi‑Fi nebo Bluetooth, pak zkus aktualizaci znovu.',
-    );
+    throw StateError(_strings.errOtaConnectFirst);
   }
 
   /// LED jen na cílovém poli (`hint_highlight` s `to`).
@@ -764,9 +792,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _ble.postHintHighlightDestinationOnly(sq);
       return;
     }
-    throw StateError(
-      'Hint LEDs require a board connection. Pair via Bluetooth or connect Wi‑Fi first.',
-    );
+    throw StateError(_strings.errHintsNeedConnection);
   }
 
   Future<void> postHintClearBoard() async {
@@ -832,9 +858,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _mockResetGame(cfg);
       return;
     }
-    throw StateError(
-      'No active board session. Connect via Wi‑Fi or Bluetooth from Board discovery.',
-    );
+    throw StateError(_strings.errNoActiveSession);
   }
 
   Future<void> _mockResetGame(TimerConfigPart cfg) async {
@@ -889,9 +913,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _ble.postBrightness(percent);
       return;
     }
-    throw StateError(
-      'Brightness control needs a connected board (Wi‑Fi or Bluetooth).',
-    );
+    throw StateError(_strings.errBrightnessNeedsBoard);
   }
 
   Future<void> postBoardLightCommand({
@@ -916,9 +938,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _ble.postLightCommand(state: lampState, r: r, g: g, b: b);
       return;
     }
-    throw StateError(
-      'Lamp control needs a connected board (Wi‑Fi or Bluetooth).',
-    );
+    throw StateError(_strings.errLampNeedsBoard);
   }
 
   Future<void> postBoardLightGameMode() async {
@@ -932,9 +952,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _ble.postLightGameMode();
       return;
     }
-    throw StateError(
-      'Game lamp mode requires a connected board (Wi‑Fi or Bluetooth).',
-    );
+    throw StateError(_strings.errGameLampNeedsBoard);
   }
 
   Future<void> postBoardAutoLampTimeout(int seconds) async {
@@ -947,8 +965,6 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _ble.postAutoLampTimeout(seconds);
       return;
     }
-    throw StateError(
-      'Auto lamp timeout requires a connected board (Wi‑Fi or Bluetooth).',
-    );
+    throw StateError(_strings.errAutoLampNeedsBoard);
   }
 }

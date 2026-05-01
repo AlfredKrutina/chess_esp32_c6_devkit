@@ -146,12 +146,13 @@ static esp_err_t schedule_ota(const char *url) {
 
 static esp_err_t http_get_firmware(httpd_req_t *req) {
   const esp_app_desc_t *app = esp_app_get_description();
-  char buf[192];
+  const char *ota_sup = ota_partition_layout_ok() ? "true" : "false";
+  char buf[384];
   int n = snprintf(buf, sizeof(buf),
                    "{\"version\":\"%s\",\"project_name\":\"%s\","
-                   "\"idf\":\"%s\"}",
+                   "\"idf\":\"%s\",\"ota_supported\":%s}",
                    app->version, app->project_name,
-                   esp_get_idf_version());
+                   esp_get_idf_version(), ota_sup);
   if (n <= 0 || n >= (int)sizeof(buf)) {
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "{}", -1);

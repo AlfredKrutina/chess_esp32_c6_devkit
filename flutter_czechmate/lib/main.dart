@@ -4,11 +4,15 @@ import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_providers.dart';
 import 'core/constants/app_environment.dart';
+import 'core/localization/context_l10n.dart';
+import 'core/localization/locale_bridge.dart';
+import 'l10n/app_localizations.dart';
 import 'core/services/watch_command_binding.dart';
 import 'core/layout/form_factor.dart';
 import 'features/analysis/analysis_screen.dart';
@@ -51,7 +55,8 @@ class CzechMateApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appearance = ref.watch(prefsRepositoryProvider).appearance;
+    final prefs = ref.watch(prefsRepositoryProvider);
+    final appearance = prefs.appearance;
 
     ThemeMode themeMode;
     switch (appearance) {
@@ -196,7 +201,27 @@ class CzechMateApp extends ConsumerWidget {
           );
 
     return MaterialApp(
-      title: 'czechmate',
+      onGenerateTitle: (ctx) => AppLocalizations.of(ctx)?.appTitle ?? 'CzechMate',
+      locale: switch (prefs.uiLanguage) {
+        'cs' => const Locale('cs'),
+        'en' => const Locale('en'),
+        _ => null,
+      },
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localeListResolutionCallback: (locales, supported) {
+        final device = locales?.first ?? const Locale('en');
+        final resolved = resolvedLocaleForPrefs(prefs, device);
+        for (final s in supported) {
+          if (s.languageCode == resolved.languageCode) return s;
+        }
+        return supported.first;
+      },
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,
@@ -316,8 +341,9 @@ class _MainShellState extends ConsumerState<_MainShell>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     ref.listen<FirmwareAvailState>(firmwareUpdateAvailabilityProvider, (prev, next) {
-      if (next.loading || !next.updateAvailable) {
+      if (next.loading || !next.updateAvailable || next.boardOtaSupported == false) {
         return;
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -359,58 +385,58 @@ class _MainShellState extends ConsumerState<_MainShell>
     );
 
     final destinations = <NavigationRailDestination>[
-      const NavigationRailDestination(
-        icon: Icon(Icons.grid_view_rounded),
-        selectedIcon: Icon(Icons.grid_view_rounded),
-        label: Text('Play'),
+      NavigationRailDestination(
+        icon: const Icon(Icons.grid_view_rounded),
+        selectedIcon: const Icon(Icons.grid_view_rounded),
+        label: Text(l10n.navPlay),
       ),
-      const NavigationRailDestination(
-        icon: Icon(Icons.show_chart_outlined),
-        selectedIcon: Icon(Icons.show_chart),
-        label: Text('Analysis'),
+      NavigationRailDestination(
+        icon: const Icon(Icons.show_chart_outlined),
+        selectedIcon: const Icon(Icons.show_chart),
+        label: Text(l10n.navAnalysis),
       ),
-      const NavigationRailDestination(
-        icon: Icon(Icons.extension_outlined),
-        selectedIcon: Icon(Icons.extension),
-        label: Text('Puzzle'),
+      NavigationRailDestination(
+        icon: const Icon(Icons.extension_outlined),
+        selectedIcon: const Icon(Icons.extension),
+        label: Text(l10n.navPuzzle),
       ),
-      const NavigationRailDestination(
-        icon: Icon(Icons.horizontal_split_outlined),
-        selectedIcon: Icon(Icons.horizontal_split),
-        label: Text('Progress'),
+      NavigationRailDestination(
+        icon: const Icon(Icons.horizontal_split_outlined),
+        selectedIcon: const Icon(Icons.horizontal_split),
+        label: Text(l10n.navProgress),
       ),
       NavigationRailDestination(
         icon: settingsIcon(Icons.settings_outlined),
         selectedIcon: settingsIcon(Icons.settings),
-        label: const Text('Settings'),
+        label: Text(l10n.navSettings),
       ),
     ];
 
     final bottomDestinations = [
-      const NavigationDestination(
-        icon: Icon(Icons.grid_view_rounded),
-        selectedIcon: Icon(Icons.grid_view_rounded),
-        label: 'Play',
+      NavigationDestination(
+        icon: const Icon(Icons.grid_view_rounded),
+        selectedIcon: const Icon(Icons.grid_view_rounded),
+        label: l10n.navPlay,
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.show_chart_outlined),
-        selectedIcon: Icon(Icons.show_chart),
-        label: 'Analysis',
+      NavigationDestination(
+        icon: const Icon(Icons.show_chart_outlined),
+        selectedIcon: const Icon(Icons.show_chart),
+        label: l10n.navAnalysis,
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.extension_outlined),
-        selectedIcon: Icon(Icons.extension),
-        label: 'Puzzle',
+      NavigationDestination(
+        icon: const Icon(Icons.extension_outlined),
+        selectedIcon: const Icon(Icons.extension),
+        label: l10n.navPuzzle,
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.horizontal_split_outlined),
-        selectedIcon: Icon(Icons.horizontal_split),
-        label: 'Progress',
+      NavigationDestination(
+        icon: const Icon(Icons.horizontal_split_outlined),
+        selectedIcon: const Icon(Icons.horizontal_split),
+        label: l10n.navProgress,
       ),
       NavigationDestination(
         icon: settingsIcon(Icons.settings_outlined),
         selectedIcon: settingsIcon(Icons.settings),
-        label: 'Settings',
+        label: l10n.navSettings,
       ),
     ];
 

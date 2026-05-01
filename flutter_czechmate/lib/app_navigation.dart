@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'app_providers.dart';
 import 'features/connection/board_discovery_screen.dart';
 
 /// Stejné pořadí jako iOS `AppMainTab` (`MainTabView.swift`).
@@ -20,4 +22,12 @@ Future<void> pushBoardDiscoveryRoute(BuildContext context) {
       builder: (_) => const BoardDiscoveryScreen(),
     ),
   );
+}
+
+/// After a successful connection from [BoardDiscoveryScreen], switch to Play and close the dialog.
+void closeBoardDiscoveryAndFocusPlay(WidgetRef ref, BuildContext context) {
+  ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
+  if (!context.mounted) return;
+  final nav = Navigator.of(context);
+  if (nav.canPop()) nav.pop();
 }

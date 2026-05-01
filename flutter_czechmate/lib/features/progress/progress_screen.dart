@@ -8,6 +8,7 @@ import '../coach/coach_screen.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 import '../game/state/game_ui_notifier.dart';
+import '../profile/user_profile_screen.dart';
 import '../setup/board_setup_wizard_screen.dart';
 
 bool _supportsRemoteBoardCommands(BoardSessionState s) {
@@ -144,6 +145,7 @@ class ProgressScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final segment = ref.watch(progressSegmentProvider);
+    final prefs = ref.watch(prefsRepositoryProvider);
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -151,6 +153,18 @@ class ProgressScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Progress'),
         centerTitle: false,
+        actions: [
+          IconButton(
+            tooltip: 'Profile & Elo',
+            icon: const Icon(Icons.person_outline),
+            onPressed: () => Navigator.push<void>(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const UserProfileScreen(),
+              ),
+            ),
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -192,6 +206,34 @@ class ProgressScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+            child: Material(
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(14),
+              clipBehavior: Clip.antiAlias,
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: cs.primaryContainer,
+                  child: Icon(Icons.person_rounded,
+                      color: cs.onPrimaryContainer),
+                ),
+                title: const Text('Profile & puzzle Elo'),
+                subtitle: Text(
+                  '${prefs.profileDisplayName} · Elo ${prefs.puzzleElo}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.push<void>(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const UserProfileScreen(),
+                  ),
+                ),
+              ),
             ),
           ),
           Expanded(

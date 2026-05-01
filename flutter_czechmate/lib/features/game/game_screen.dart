@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app_navigation.dart';
 import '../../app_providers.dart';
 import '../../core/layout/form_factor.dart';
+import '../../core/models/puzzle_challenge_state.dart';
 import '../../core/utils/board_action_feedback.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../core/utils/fen_from_board.dart';
 import '../../core/widgets/network_status_banners.dart';
 import '../analysis/move_eval_notifier.dart';
@@ -21,8 +24,11 @@ import 'history/move_history_view.dart';
 import 'live_activity_session_listener.dart';
 import 'report/game_end_report_screen.dart';
 import 'state/game_ui_notifier.dart';
+import 'state/game_ui_state.dart';
 
 enum _ConnectionTier { live, connecting, offline }
+
+enum _GameOverflowAction { gameControls, analysis, toggleCoachPanel, disconnect }
 
 /// Minimum width for board + game panel + AI side chat (desktop).
 const double _kTriplePaneMinWidth = 1060;
@@ -81,25 +87,6 @@ Color _connectionDotColor(BoardSessionState s, ColorScheme cs) {
   };
 }
 
-void _openGameControlsSheet(BuildContext context) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    builder: (ctx) => DraggableScrollableSheet(
-      initialChildSize: 0.58,
-      minChildSize: 0.32,
-      maxChildSize: 0.94,
-      expand: false,
-      builder: (_, scroll) => SingleChildScrollView(
-        controller: scroll,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
-        child: const GameControlPanel(),
-      ),
-    ),
-  );
-}
-
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({super.key});
 
@@ -109,6 +96,26 @@ class GameScreen extends ConsumerStatefulWidget {
 
 class _GameScreenState extends ConsumerState<GameScreen> {
   bool _hintBusy = false;
+
+  void _openGameControlsSheet() {
+    ref.read(gameUiNotifierProvider.notifier).setPinnedNewGameBarVisible(true);
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.58,
+        minChildSize: 0.32,
+        maxChildSize: 0.94,
+        expand: false,
+        builder: (_, scroll) => SingleChildScrollView(
+          controller: scroll,
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+          child: const GameControlPanel(),
+        ),
+      ),
+    );
+  }
 
   Future<void> _requestHint(
       BoardSessionState session, GameUiNotifier uiN) async {
@@ -124,7 +131,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           .fetchBestMove(fen, depth: depth);
       uiN.showHintOverlay(best.from, best.to);
       uiN.showTransientBoardMessage(
-        'Nápověda: ${best.from}→${best.to}${best.evalPawns != null ? ' · eval ${best.evalPawns!.toStringAsFixed(2)}' : ''}',
+        'Hint: ${best.from}→${best.to}${best.evalPawns != null ? ' · eval ${best.evalPawns!.toStringAsFixed(2)}' : ''}',
       );
       if (session.transport == BoardTransport.wifi ||
           session.transport == BoardTransport.ble) {
@@ -133,14 +140,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             .postHintDestination(best.to);
       }
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Nejlepší tah: ${best.from}→${best.to}')),
+      showGlassSnackBar(
+        context,
+        'Best move: ${best.from}→${best.to}',
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Nápověda selhala: $e')),
-      );
+      showGlassSnackBar(context, 'Hint failed: $e');
     } finally {
       if (mounted) setState(() => _hintBusy = false);
     }
@@ -148,10 +154,35 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   void _demoBoardFeatureSnack(String label) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Demo deska: $label funguje jen přes Bluetooth nebo Wi‑Fi na reálný hardware.',
+    showGlassSnackBar(
+      context,
+      'Demo board: $label only works over Bluetooth or Wi‑Fi to real hardware.',
+    );
+  }
+
+  /// Wide „New game“ button — only after opening Game controls once this session.
+  Widget _newGamePinnedBar(BoardSessionState session, GameUiState ui) {
+    if (!ui.pinnedNewGameBarVisible) return const SizedBox.shrink();
+    final can = session.transport == BoardTransport.wifi ||
+        session.transport == BoardTransport.ble ||
+        session.transport == BoardTransport.mock;
+    if (!can) return const SizedBox.shrink();
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      elevation: 8,
+      color: cs.surfaceContainerLow,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => showNewGameWithTimeSheet(context),
+              icon: const Icon(Icons.fiber_new),
+              label: const Text('New game'),
+            ),
+          ),
         ),
       ),
     );
@@ -174,17 +205,98 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
+  /// Kompaktní panel pod šachovnicí — nesnižuje viditelnou plochu figurek (žádný overlay nahoře).
+  Widget _puzzleGlassHud(PuzzleChallengeState pc) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color: cs.surface.withValues(alpha: 0.52),
+            border: Border.all(color: cs.onSurface.withValues(alpha: 0.11)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Row(
+              children: [
+                Icon(Icons.extension, size: 22, color: cs.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        pc.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: tt.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'Moves ${pc.playedUci.length} / ${pc.solutionUci.length}',
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.sports_esports_outlined),
+                  tooltip: 'Return to live game',
+                  onPressed: () => ref
+                      .read(gameUiNotifierProvider.notifier)
+                      .returnToLiveGame(),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Exit puzzle check (keep position)',
+                  onPressed: () => ref
+                      .read(gameUiNotifierProvider.notifier)
+                      .exitPuzzleChallenge(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// [edgeToEdge] — „Jen deska“. [expandInParent] — vyplní výšku řádku (Row); v Column scroll nesmí být true.
   Widget _boardPane(
     BoxConstraints c,
     double zoom, {
     bool edgeToEdge = false,
     bool expandInParent = false,
+    /// V „Jen deska“ je HUD vytažený do spodního sloupce Stacku, aby ho nepřekryla „Nová hra“.
+    bool embedPuzzleHudInBoardPane = true,
   }) {
+    final ui = ref.watch(gameUiNotifierProvider);
+    final pc = ui.puzzleChallenge;
+    final puzzleHud = (pc != null && pc.hasVerifier)
+        ? _puzzleGlassHud(pc)
+        : null;
+
     final outerPad = edgeToEdge ? 4.0 : 12.0;
     final maxW = math.max(0.0, c.maxWidth - outerPad * 2);
-    final maxH = math.max(0.0, c.maxHeight - outerPad * 2);
-    final raw = maxW < maxH ? maxW : maxH;
+    final maxH = c.maxHeight.isFinite
+        ? math.max(0.0, c.maxHeight - outerPad * 2)
+        : double.infinity;
+    final raw = maxH.isFinite ? math.min(maxW, maxH) : maxW;
     final side = math.max(raw, 200.0);
 
     final scaledBoard = Transform.scale(
@@ -195,6 +307,45 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     if (expandInParent) {
       final bg = Theme.of(context).scaffoldBackgroundColor;
+      if (puzzleHud != null && embedPuzzleHudInBoardPane) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned.fill(child: ColoredBox(color: bg)),
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(outerPad),
+                      child: LayoutBuilder(
+                        builder: (ctx, bc) {
+                          final d = math.min(bc.maxWidth, bc.maxHeight);
+                          final s = math.max(d, 200.0);
+                          return Transform.scale(
+                            scale: zoom,
+                            alignment: Alignment.center,
+                            child: _framedBoard(s),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SafeArea(
+              top: false,
+              minimum: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
+                child: puzzleHud,
+              ),
+            ),
+          ],
+        );
+      }
       return SizedBox.expand(
         child: Stack(
           fit: StackFit.expand,
@@ -211,9 +362,34 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       );
     }
 
+    if (puzzleHud != null) {
+      final innerW = math.max(0.0, c.maxWidth - outerPad * 2);
+      return Padding(
+        padding: EdgeInsets.all(outerPad),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: innerW,
+              height: side,
+              child: Center(child: scaledBoard),
+            ),
+            const SizedBox(height: 10),
+            puzzleHud,
+          ],
+        ),
+      );
+    }
+
     return Padding(
       padding: EdgeInsets.all(outerPad),
-      child: Center(child: scaledBoard),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Center(child: scaledBoard),
+        ],
+      ),
     );
   }
 
@@ -245,15 +421,26 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       if (!completedRun && !newText) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(msg),
-            duration: const Duration(seconds: 6),
-          ),
+        showGlassSnackBar(
+          context,
+          msg,
+          duration: const Duration(seconds: 6),
         );
         ref.read(gameUiNotifierProvider.notifier).showTransientBoardMessage(msg);
       });
     });
+
+    ref.listen(
+      gameUiNotifierProvider.select((s) => s.puzzleSnackText),
+      (prev, next) {
+        if (next == null || next.isEmpty) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          showGlassSnackBar(context, next);
+          ref.read(gameUiNotifierProvider.notifier).clearPuzzleSnack();
+        });
+      },
+    );
     final session = ref.watch(boardSessionNotifierProvider);
     final ui = ref.watch(gameUiNotifierProvider);
     final uiN = ref.read(gameUiNotifierProvider.notifier);
@@ -270,7 +457,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       appBar: AppBar(
         leadingWidth: 52,
         leading: IconButton(
-          tooltip: 'Připojení k šachovnici',
+          tooltip: 'Find board',
           padding: const EdgeInsets.all(10),
           onPressed: () => pushBoardDiscoveryRoute(context),
           icon: Container(
@@ -303,11 +490,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         ),
         actions: [
           PopupMenuButton<String>(
-            tooltip: 'Režim zobrazení',
+            tooltip: 'Layout mode',
             onSelected: uiN.setLayoutMode,
             itemBuilder: (ctx) => const [
               PopupMenuItem(value: 'standard', child: Text('Standard')),
-              PopupMenuItem(value: 'boardOnly', child: Text('Jen deska')),
+              PopupMenuItem(value: 'boardOnly', child: Text('Board only')),
             ],
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -329,7 +516,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      ui.layoutMode == 'boardOnly' ? 'Deska' : 'Standard',
+                      ui.layoutMode == 'boardOnly' ? 'Board' : 'Standard',
                       style: Theme.of(context).textTheme.labelMedium,
                     ),
                     const Icon(Icons.arrow_drop_down, size: 18),
@@ -338,47 +525,101 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               ),
             ),
           ),
-          if (isDesktopEmbedder() &&
-              ui.layoutMode != 'boardOnly' &&
-              MediaQuery.sizeOf(context).width >= 680)
-            IconButton(
-              tooltip: prefs.desktopCoachRailVisible
-                  ? 'Skrýt AI trenéra'
-                  : 'Zobrazit AI trenéra',
-              icon: Icon(
-                prefs.desktopCoachRailVisible
-                    ? Icons.chat_rounded
-                    : Icons.chat_outlined,
-              ),
-              onPressed: () async {
-                final p = ref.read(prefsRepositoryProvider);
-                await p.setDesktopCoachRailVisible(!p.desktopCoachRailVisible);
-                ref.invalidate(prefsRepositoryProvider);
-              },
-            ),
-          IconButton(
-            tooltip: 'Ovládání hry',
-            icon: const Icon(Icons.tune),
-            onPressed: () => _openGameControlsSheet(context),
-          ),
-          IconButton(
-            tooltip: 'Analýza',
-            icon: const Icon(Icons.show_chart),
-            onPressed: () => ref.read(mainNavTabIndexProvider.notifier).state =
-                AppMainTab.analysis,
-          ),
           if (isFinished)
             IconButton(
               icon: const Icon(Icons.summarize_outlined, color: Colors.amber),
-              tooltip: 'Souhrn partie',
+              tooltip: 'Game summary',
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (ctx) => const GameEndReportScreen())),
             ),
-          IconButton(
-            tooltip: 'Odpojit session',
-            onPressed: () =>
-                ref.read(boardSessionNotifierProvider.notifier).disconnect(),
-            icon: const Icon(Icons.link_off),
+          PopupMenuButton<_GameOverflowAction>(
+            tooltip: 'More options',
+            icon: const Icon(Icons.more_vert),
+            onSelected: (action) async {
+              switch (action) {
+                case _GameOverflowAction.gameControls:
+                  _openGameControlsSheet();
+                  break;
+                case _GameOverflowAction.analysis:
+                  ref.read(mainNavTabIndexProvider.notifier).state =
+                      AppMainTab.analysis;
+                  break;
+                case _GameOverflowAction.toggleCoachPanel:
+                  final p = ref.read(prefsRepositoryProvider);
+                  await p.setDesktopCoachRailVisible(
+                      !p.desktopCoachRailVisible);
+                  ref.invalidate(prefsRepositoryProvider);
+                  break;
+                case _GameOverflowAction.disconnect:
+                  ref.read(boardSessionNotifierProvider.notifier).disconnect();
+                  break;
+              }
+            },
+            itemBuilder: (ctx) {
+              final wideDesktopCoach = isDesktopEmbedder() &&
+                  ui.layoutMode != 'boardOnly' &&
+                  MediaQuery.sizeOf(context).width >= 680;
+              return [
+                PopupMenuItem(
+                  value: _GameOverflowAction.gameControls,
+                  child: Row(
+                    children: [
+                      Icon(Icons.tune, size: 22, color: cs.onSurface),
+                      const SizedBox(width: 12),
+                      const Expanded(child: Text('Game controls')),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _GameOverflowAction.analysis,
+                  child: Row(
+                    children: [
+                      Icon(Icons.show_chart, size: 22, color: cs.onSurface),
+                      const SizedBox(width: 12),
+                      const Expanded(child: Text('Analysis')),
+                    ],
+                  ),
+                ),
+                if (wideDesktopCoach)
+                  PopupMenuItem(
+                    value: _GameOverflowAction.toggleCoachPanel,
+                    child: Row(
+                      children: [
+                        Icon(
+                          prefs.desktopCoachRailVisible
+                              ? Icons.chat_rounded
+                              : Icons.chat_outlined,
+                          size: 22,
+                          color: cs.onSurface,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            prefs.desktopCoachRailVisible
+                                ? 'Hide AI coach panel'
+                                : 'Show AI coach panel',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                PopupMenuItem(
+                  value: _GameOverflowAction.disconnect,
+                  child: Row(
+                    children: [
+                      Icon(Icons.link_off, size: 22, color: cs.error),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Disconnect session',
+                          style: TextStyle(color: cs.error),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ];
+            },
           ),
         ],
       ),
@@ -409,12 +650,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.tips_and_updates_outlined),
-                      label: Text(_hintBusy ? 'Počítám…' : 'Nápověda'),
-                    ),
-                    FilledButton.tonalIcon(
-                      onPressed: () => showNewGameWithTimeSheet(context),
-                      icon: const Icon(Icons.fiber_new),
-                      label: const Text('Nová hra'),
+                      label: Text(_hintBusy ? 'Thinking…' : 'Hint'),
                     ),
                     if (session.transport == BoardTransport.wifi ||
                         session.transport == BoardTransport.ble) ...[
@@ -422,47 +658,47 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         onPressed: () => runBoardCommandWithSnackBar(
                           context,
                           sessionN.postTimerPause,
-                          successMessage: 'Pauza časomíry odeslána',
+                          successMessage: 'Clock pause sent',
                         ),
                         icon: const Icon(Icons.pause_circle_outline),
-                        label: const Text('Pauza'),
+                        label: const Text('Pause clock'),
                       ),
                       OutlinedButton.icon(
                         onPressed: () => runBoardCommandWithSnackBar(
                           context,
                           sessionN.postTimerResume,
-                          successMessage: 'Časomíra obnovena',
+                          successMessage: 'Clock resumed',
                         ),
                         icon: const Icon(Icons.play_circle_outline),
-                        label: const Text('Resume'),
+                        label: const Text('Resume clock'),
                       ),
                       OutlinedButton.icon(
                         onPressed: () => runBoardCommandWithSnackBar(
                           context,
                           sessionN.postHintClearBoard,
-                          successMessage: 'Vymazání LED nápovědy odesláno',
+                          successMessage: 'Hint LEDs cleared',
                         ),
                         icon: const Icon(Icons.visibility_off_outlined),
-                        label: const Text('Skrýt LED'),
+                        label: const Text('Clear hint LEDs'),
                       ),
                     ] else if (session.transport == BoardTransport.mock) ...[
                       OutlinedButton.icon(
                         onPressed: () =>
-                            _demoBoardFeatureSnack('Pauza časomíry'),
+                            _demoBoardFeatureSnack('Clock pause'),
                         icon: const Icon(Icons.pause_circle_outline),
-                        label: const Text('Pauza'),
+                        label: const Text('Pause clock'),
                       ),
                       OutlinedButton.icon(
                         onPressed: () =>
-                            _demoBoardFeatureSnack('Časomíra'),
+                            _demoBoardFeatureSnack('Clock'),
                         icon: const Icon(Icons.play_circle_outline),
-                        label: const Text('Resume'),
+                        label: const Text('Resume clock'),
                       ),
                       OutlinedButton.icon(
                         onPressed: () =>
-                            _demoBoardFeatureSnack('LED nápověda'),
+                            _demoBoardFeatureSnack('LED hint'),
                         icon: const Icon(Icons.visibility_off_outlined),
-                        label: const Text('Skrýt LED'),
+                        label: const Text('Clear hint LEDs'),
                       ),
                     ],
                   ],
@@ -477,18 +713,18 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Zatím žádný snapshot.'),
+                          const Text('No board snapshot yet.'),
                           const SizedBox(height: 12),
                           Text(
-                            'Klepnutím na indikátor vlevo nahoře otevřeš správu připojení (Wi‑Fi, Bluetooth, mock) — stejně jako na iOS.',
+                            'Tap top-left or below to find a board (Bluetooth). Wi‑Fi and more options are under advanced settings.',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           const SizedBox(height: 20),
                           FilledButton.icon(
                             onPressed: () => pushBoardDiscoveryRoute(context),
-                            icon: const Icon(Icons.link),
-                            label: const Text('Spravovat šachovnici'),
+                            icon: const Icon(Icons.bluetooth_searching),
+                            label: const Text('Find board'),
                           ),
                           if (session.lastError != null) ...[
                             const SizedBox(height: 16),
@@ -548,12 +784,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                                 const SizedBox(height: 8),
                                 OutlinedButton.icon(
                                   onPressed: () =>
-                                      _openGameControlsSheet(context),
+                                      _openGameControlsSheet(),
                                   icon: const Icon(Icons.tune),
-                                  label: const Text('Ovládání hry'),
+                                  label: const Text('Game controls'),
                                 ),
                                 const SizedBox(height: 8),
-                                const Text('Historie',
+                                const Text('History',
                                     style:
                                         TextStyle(fontWeight: FontWeight.w600)),
                                 const MoveHistoryView(),
@@ -573,45 +809,70 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         ),
                       );
                       if (layout == 'boardOnly') {
-                        return Stack(
-                          clipBehavior: Clip.none,
+                        final pc = ui.puzzleChallenge;
+                        final showPuzzleHud =
+                            pc != null && pc.hasVerifier;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Positioned.fill(
-                              child: _boardPane(
-                                BoxConstraints(
-                                  maxWidth: c.maxWidth,
-                                  maxHeight: c.maxHeight,
-                                ),
-                                zoom,
-                                edgeToEdge: true,
-                                expandInParent: true,
-                              ),
-                            ),
-                            SafeArea(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Material(
-                                    elevation: 2,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(24),
-                                    ),
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerHigh,
-                                    child: IconButton(
-                                      tooltip: 'Zpět na zobrazení s panelem',
-                                      icon: const Icon(
-                                          Icons.view_sidebar_outlined),
-                                      onPressed: () => ref
-                                          .read(gameUiNotifierProvider.notifier)
-                                          .setLayoutMode('standard'),
+                            Expanded(
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Positioned.fill(
+                                    child: LayoutBuilder(
+                                      builder: (context, inner) {
+                                        return _boardPane(
+                                          inner,
+                                          zoom,
+                                          edgeToEdge: true,
+                                          expandInParent: true,
+                                          embedPuzzleHudInBoardPane: false,
+                                        );
+                                      },
                                     ),
                                   ),
-                                ),
+                                  SafeArea(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Align(
+                                        alignment: Alignment.topLeft,
+                                        child: Material(
+                                          elevation: 2,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(24),
+                                          ),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surfaceContainerHigh,
+                                          child: IconButton(
+                                            tooltip:
+                                                'Back to layout with panel',
+                                            icon: const Icon(
+                                                Icons.view_sidebar_outlined),
+                                            onPressed: () => ref
+                                                .read(gameUiNotifierProvider
+                                                    .notifier)
+                                                .setLayoutMode('standard'),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+                            if (showPuzzleHud)
+                              SafeArea(
+                                top: false,
+                                minimum: EdgeInsets.zero,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      12, 0, 12, 6),
+                                  child: _puzzleGlassHud(pc),
+                                ),
+                              ),
                           ],
                         );
                       }
@@ -660,7 +921,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                                             const SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
-                                                'AI trenér',
+                                                'AI coach',
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .titleSmall
@@ -670,7 +931,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                                               ),
                                             ),
                                             IconButton(
-                                              tooltip: 'Skrýt panel',
+                                              tooltip: 'Hide panel',
                                               icon: const Icon(
                                                   Icons.close, size: 22),
                                               onPressed: () async {
@@ -735,6 +996,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     },
                   ),
           ),
+          _newGamePinnedBar(session, ui),
         ],
       ),
     );

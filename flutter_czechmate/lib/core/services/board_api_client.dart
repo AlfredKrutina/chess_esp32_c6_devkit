@@ -376,17 +376,18 @@ class BoardApiClient {
     final uri = Uri.parse(manifestUrl.trim());
     final res = await _client.get(uri).timeout(_timeout);
     if (res.statusCode != 200) {
+      final detail = _manifestFetchErrorDetail(res.statusCode, res.bodyBytes);
       throw BoardApiException(
         'Manifest HTTP ${res.statusCode}',
         statusCode: res.statusCode,
-        detail: _previewBody(res.bodyBytes),
+        detail: detail,
       );
     }
     final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
     final m = FirmwareManifest.fromJson(map);
     if (m.version.isEmpty || m.url.isEmpty || !m.url.startsWith('https://')) {
       throw BoardApiException(
-        'Neplatný manifest (očekávám version + https url)',
+        'Invalid manifest (expected version and HTTPS url)',
         statusCode: 0,
       );
     }
@@ -421,8 +422,17 @@ class BoardApiClient {
         .timeout(_timeout);
     if (res.statusCode == 409) {
       throw BoardApiException(
-        'OTA nelze spustit (už běží nebo deska nemá Wi‑Fi k internetu).',
+        'Cannot start OTA (already running, or board has no Wi‑Fi STA to the internet).',
         statusCode: 409,
+        detail: _extractMessage(res.bodyBytes),
+      );
+    }
+    if (res.statusCode == 503) {
+      throw BoardApiException(
+        'Over-the-air update is disabled: flash partition table must include '
+        'both ota_0 and ota_1 (factory-only layouts cannot use HTTPS OTA). '
+        'Update the board via USB UART using esptool / idf.py flash.',
+        statusCode: 503,
         detail: _extractMessage(res.bodyBytes),
       );
     }
@@ -451,6 +461,20 @@ class BoardApiClient {
   String _previewBody(List<int> body) {
     final s = utf8.decode(body);
     return s.length > 200 ? s.substring(0, 200) : s;
+  }
+
+  String _manifestFetchErrorDetail(int code, List<int> body) {
+    if (code == 404) {
+      return 'URL not found (404). Use the full path ending in '
+          '/firmware/version.json (see project docs). Clear the field to use '
+          'the default manifest.';
+    }
+    final preview = _previewBody(body);
+    final head = preview.trimLeft().toLowerCase();
+    if (head.startsWith('<!doctype') || head.startsWith('<html')) {
+      return 'Server returned an HTML page instead of JSON (wrong URL?).';
+    }
+    return preview;
   }
 
   String? _extractMessage(List<int> body) {

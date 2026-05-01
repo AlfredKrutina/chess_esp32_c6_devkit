@@ -10,6 +10,7 @@ import '../../app_navigation.dart';
 import '../../app_providers.dart';
 import '../../core/constants/app_environment.dart';
 import '../../core/services/ble_czechmate_client.dart';
+import '../settings/manual_connection_screen.dart';
 import 'board_session_notifier.dart';
 import 'board_session_state.dart';
 
@@ -21,12 +22,26 @@ class BoardDiscoveryScreen extends ConsumerStatefulWidget {
       _BoardDiscoveryScreenState();
 }
 
+bool _sessionConnectedForDiscovery(BoardSessionState s) {
+  if (s.busy) return false;
+  switch (s.transport) {
+    case BoardTransport.wifi:
+    case BoardTransport.mock:
+      return true;
+    case BoardTransport.ble:
+      return s.bleGattConnected;
+    case BoardTransport.none:
+      return false;
+  }
+}
+
 class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
   final _url = TextEditingController();
   StreamSubscription<List<ScanResult>>? _scanSub;
   final _found = <String, ScanResult>{};
   String _connectionMode = 'auto';
   bool _preferBluetoothOnly = false;
+  bool _scanning = false;
 
   @override
   void initState() {
@@ -40,6 +55,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
   @override
   void dispose() {
     _scanSub?.cancel();
+    unawaited(_stopBleScan());
     _url.dispose();
     super.dispose();
   }
@@ -52,43 +68,47 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content:
-                Text(
-                    'Allow Bluetooth permissions in system settings to scan for BLE boards.')),
+          content: Text(
+            'Povol Bluetooth oprávnění v nastavení systému, aby šlo desku vyhledat.',
+          ),
+        ),
       );
     }
     return ok;
   }
 
-  Future<void> _startBleScan() async {
+  Future<void> _findBoardScan() async {
     if (!await _ensureAndroidBleScanPermissions()) return;
     await _scanSub?.cancel();
+    _scanSub = null;
     _found.clear();
-    setState(() {});
+    setState(() => _scanning = true);
     if (AppEnvironment.staging) {
-      debugPrint('[staging] BLE scan start');
+      debugPrint('[staging] BLE scan start (Najít desku)');
     }
     try {
-      await FlutterBluePlus.startScan(
-        withServices: [czechmateServiceGuid],
-        timeout: const Duration(seconds: 12),
-      );
       _scanSub = FlutterBluePlus.scanResults.listen((list) {
         for (final r in list) {
           final id = r.device.remoteId.str;
           _found[id] = r;
         }
-        setState(() {});
+        if (mounted) setState(() {});
       });
+      await FlutterBluePlus.startScan(
+        withServices: [czechmateServiceGuid],
+        timeout: const Duration(seconds: 12),
+      );
     } catch (e) {
       if (AppEnvironment.staging) {
         debugPrint('[staging] BLE scan error: $e');
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Bluetooth scan failed: $e')),
+          SnackBar(content: Text('Sken Bluetooth selhal: $e')),
         );
       }
+    } finally {
+      if (mounted) setState(() => _scanning = false);
     }
   }
 
@@ -100,12 +120,12 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
 
   String _sessionStateLabel(BoardSessionState session) {
     final transport = switch (session.transport) {
-      BoardTransport.none => 'Disconnected',
-      BoardTransport.mock => 'Demo mode',
-      BoardTransport.wifi => 'Connected via Wi‑Fi',
-      BoardTransport.ble => 'Connected via Bluetooth',
+      BoardTransport.none => 'Odpojeno',
+      BoardTransport.mock => 'Demo režim',
+      BoardTransport.wifi => 'Wi‑Fi',
+      BoardTransport.ble => 'Bluetooth',
     };
-    if (session.busy) return '$transport · connecting…';
+    if (session.busy) return '$transport · připojuji…';
     return transport;
   }
 
@@ -113,6 +133,19 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     final prefs = ref.read(prefsRepositoryProvider);
     await prefs.setConnectionMode(_connectionMode);
     await prefs.setPreferBluetoothOnly(_preferBluetoothOnly);
+  }
+
+  Future<void> _connectToScanResult(ScanResult r) async {
+    final session = ref.read(boardSessionNotifierProvider);
+    if (session.busy) return;
+    final d = r.device;
+    final name = d.platformName.isEmpty ? 'CZECHMATE deska' : d.platformName;
+    await _stopBleScan();
+    await ref.read(boardSessionNotifierProvider.notifier).connectBle(d, label: name);
+    if (!mounted) return;
+    if (_sessionConnectedForDiscovery(ref.read(boardSessionNotifierProvider))) {
+      closeBoardDiscoveryAndFocusPlay(ref, context);
+    }
   }
 
   @override
@@ -123,11 +156,14 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
             .watch(sharedPreferencesProvider)
             .getBool('czechmate.developerModeUnlocked') ??
         false;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Board'),
+        title: const Text('Najít desku'),
         leading: IconButton(
-          tooltip: 'Close',
+          tooltip: 'Zavřít',
           icon: const Icon(Icons.close),
           onPressed: () {
             if (Navigator.of(context).canPop()) {
@@ -148,162 +184,278 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Connection mode',
-                    style: Theme.of(context).textTheme.titleMedium,
+                  Row(
+                    children: [
+                      Icon(Icons.info_outline, color: cs.primary),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Klepni na desku v seznamu. Aplikace se přes Bluetooth spojí a podle nastavení může přejít na Wi‑Fi (STA), pokud je deska online v síti a telefon má Wi‑Fi.',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SegmentedButton<String>(
-                      segments: const [
-                        ButtonSegment(value: 'auto', label: Text('Auto')),
-                        ButtonSegment(
-                            value: 'wifi_only', label: Text('Wi‑Fi only')),
-                        ButtonSegment(
-                            value: 'ble_only', label: Text('BLE only')),
-                      ],
-                      selected: {_connectionMode},
-                      onSelectionChanged: (s) async {
-                        if (s.isEmpty) return;
-                        setState(() => _connectionMode = s.first);
-                        await _persistConnectionPrefs();
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SwitchListTile(
+                  const SizedBox(height: 14),
+                  ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Bluetooth only (don’t switch to Wi‑Fi)'),
-                    subtitle: const Text(
-                      'After BLE connect, stay on Bluetooth even if the board knows a Wi‑Fi URL.',
-                    ),
-                    value: _preferBluetoothOnly,
-                    onChanged: (v) async {
-                      setState(() => _preferBluetoothOnly = v);
-                      await _persistConnectionPrefs();
-                    },
+                    leading: Icon(Icons.link, color: cs.primary),
+                    title: const Text('Stav připojení'),
+                    subtitle: Text(_sessionStateLabel(session)),
                   ),
-                  if (prefs.lastBleRemoteId != null &&
-                      prefs.lastBleRemoteId!.isNotEmpty)
-                    OutlinedButton.icon(
-                      onPressed: session.busy
-                          ? null
-                          : () => ref
-                              .read(boardSessionNotifierProvider.notifier)
-                              .reconnectSavedBle(),
-                      icon: const Icon(Icons.bluetooth_connected),
-                      label: const Text('Reconnect last BLE board'),
-                    ),
                 ],
               ),
             ),
           ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.link),
-            title: const Text('Connection status'),
-            subtitle: Text(_sessionStateLabel(session)),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: session.busy || _scanning ? null : _findBoardScan,
+            icon: _scanning
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: cs.onPrimary,
+                    ),
+                  )
+                : const Icon(Icons.bluetooth_searching),
+            label: Text(_scanning ? 'Hledám desky…' : 'Najít desku'),
           ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _url,
-            decoration: const InputDecoration(
-              labelText: 'Board URL (Wi‑Fi)',
-              hintText: 'Board address on your LAN',
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: TextInputType.url,
-          ),
-          const SizedBox(height: 8),
-          FilledButton(
-            onPressed: session.busy
-                ? null
-                : () async {
-                    final u = _url.text.trim().replaceAll(RegExp(r'/$'), '');
-                    if (u.isEmpty) {
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text(
-                                'Enter the board URL or IP (e.g. http://192.168.4.1).')),
-                      );
-                      return;
-                    }
-                    await ref
-                        .read(boardSessionNotifierProvider.notifier)
-                        .connectWifi(u);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Wi‑Fi session started')),
-                      );
-                    }
-                  },
-            child: const Text('Connect via Wi‑Fi'),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: session.busy
-                ? null
-                : () => ref
-                    .read(boardSessionNotifierProvider.notifier)
-                    .connectMock(),
-            child: const Text('Mock board (demo)'),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: session.busy
-                ? null
-                : () => ref
-                    .read(boardSessionNotifierProvider.notifier)
-                    .connectWifi('http://192.168.4.1'),
-            icon: const Icon(Icons.wifi_tethering),
-            label: const Text('Connect board hotspot (192.168.4.1)'),
-          ),
-          const Divider(height: 32),
+          if (_scanning) ...[
+            const SizedBox(height: 8),
+            const LinearProgressIndicator(),
+          ],
+          const SizedBox(height: 20),
           Text(
-            devMode ? 'Bluetooth $czechmateServiceGuid' : 'Bluetooth devices',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          Row(
-            children: [
-              FilledButton.tonal(
-                onPressed: _startBleScan,
-                child: const Text('Scan'),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: _stopBleScan,
-                child: const Text('Stop'),
-              ),
-            ],
+            devMode ? 'Bluetooth ($czechmateServiceGuid)' : 'Nalezené desky',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 8),
+          if (!_scanning && _found.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                'Seznam je prázdný. Klepni na „Najít desku“ a počkej pár sekund v dosahu zapnuté desky.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                ),
+              ),
+            ),
           ..._found.values.map((r) {
             final d = r.device;
             final name =
-                d.platformName.isEmpty ? 'CZECHMATE Board' : d.platformName;
-            return ListTile(
-              title: Text(name),
-              subtitle: devMode ? Text(d.remoteId.str) : null,
-              trailing: session.busy
-                  ? null
-                  : FilledButton(
-                      onPressed: () async {
-                        await _stopBleScan();
-                        await ref
-                            .read(boardSessionNotifierProvider.notifier)
-                            .connectBle(d, label: name);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('BLE: $name')),
-                          );
-                        }
-                      },
-                      child: const Text('Connect'),
-                    ),
+                d.platformName.isEmpty ? 'CZECHMATE deska' : d.platformName;
+            final busy = session.busy;
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                leading: const Icon(Icons.grid_on),
+                title: Text(name),
+                subtitle: devMode ? Text(d.remoteId.str) : null,
+                trailing: busy
+                    ? const SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.chevron_right),
+                onTap: busy ? null : () => _connectToScanResult(r),
+              ),
             );
           }),
+          const SizedBox(height: 8),
+          Theme(
+            data: theme.copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+              collapsedShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: cs.outlineVariant),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: cs.outlineVariant),
+              ),
+              title: const Text('Pokročilé'),
+              subtitle: Text(
+                'Wi‑Fi URL, režim připojení, demo',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                ),
+              ),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Režim připojení',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SegmentedButton<String>(
+                          segments: const [
+                            ButtonSegment(
+                              value: 'auto',
+                              label: Text('Auto'),
+                            ),
+                            ButtonSegment(
+                              value: 'wifi_only',
+                              label: Text('Jen Wi‑Fi'),
+                            ),
+                            ButtonSegment(
+                              value: 'ble_only',
+                              label: Text('Jen BLE'),
+                            ),
+                          ],
+                          selected: {_connectionMode},
+                          onSelectionChanged: (s) async {
+                            if (s.isEmpty) return;
+                            setState(() => _connectionMode = s.first);
+                            await _persistConnectionPrefs();
+                          },
+                        ),
+                      ),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Jen Bluetooth'),
+                        subtitle: const Text(
+                          'Po spojení přes BLE zůstat na Bluetooth (nepřecházet na Wi‑Fi).',
+                        ),
+                        value: _preferBluetoothOnly,
+                        onChanged: (v) async {
+                          setState(() => _preferBluetoothOnly = v);
+                          await _persistConnectionPrefs();
+                        },
+                      ),
+                      if (prefs.lastBleRemoteId != null &&
+                          prefs.lastBleRemoteId!.isNotEmpty)
+                        OutlinedButton.icon(
+                          onPressed: session.busy
+                              ? null
+                              : () async {
+                                  await ref
+                                      .read(boardSessionNotifierProvider
+                                          .notifier)
+                                      .reconnectSavedBle();
+                                  if (!context.mounted) return;
+                                  if (_sessionConnectedForDiscovery(ref.read(
+                                      boardSessionNotifierProvider))) {
+                                    closeBoardDiscoveryAndFocusPlay(
+                                        ref, context);
+                                  }
+                                },
+                          icon: const Icon(Icons.bluetooth_connected),
+                          label: const Text('Znovu připojit uloženou desku'),
+                        ),
+                      if (prefs.lastBleRemoteId != null &&
+                          prefs.lastBleRemoteId!.isNotEmpty)
+                        const SizedBox(height: 10),
+                      OutlinedButton.icon(
+                        onPressed: () => Navigator.push<void>(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => const ManualConnectionScreen(),
+                          ),
+                        ),
+                        icon: const Icon(Icons.edit),
+                        label: const Text('Ruční zadání / pokročilé'),
+                      ),
+                      const Divider(height: 28),
+                      TextField(
+                        controller: _url,
+                        decoration: const InputDecoration(
+                          labelText: 'Adresa desky (Wi‑Fi)',
+                          hintText: 'např. http://192.168.4.1',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.url,
+                      ),
+                      const SizedBox(height: 8),
+                      FilledButton(
+                        onPressed: session.busy
+                            ? null
+                            : () async {
+                                final u =
+                                    _url.text.trim().replaceAll(RegExp(r'/$'), '');
+                                if (u.isEmpty) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Zadej URL nebo IP desky (např. http://192.168.4.1).',
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                await ref
+                                    .read(boardSessionNotifierProvider.notifier)
+                                    .connectWifi(u);
+                                if (!context.mounted) return;
+                                if (_sessionConnectedForDiscovery(ref.read(
+                                    boardSessionNotifierProvider))) {
+                                  closeBoardDiscoveryAndFocusPlay(ref, context);
+                                }
+                              },
+                        child: const Text('Připojit přes Wi‑Fi'),
+                      ),
+                      const SizedBox(height: 8),
+                      OutlinedButton(
+                        onPressed: session.busy
+                            ? null
+                            : () async {
+                                await ref
+                                    .read(boardSessionNotifierProvider.notifier)
+                                    .connectMock();
+                                if (!context.mounted) return;
+                                if (_sessionConnectedForDiscovery(ref.read(
+                                    boardSessionNotifierProvider))) {
+                                  closeBoardDiscoveryAndFocusPlay(ref, context);
+                                }
+                              },
+                        child: const Text('Demo deska (mock)'),
+                      ),
+                      const SizedBox(height: 8),
+                      OutlinedButton.icon(
+                        onPressed: session.busy
+                            ? null
+                            : () async {
+                                await ref
+                                    .read(boardSessionNotifierProvider.notifier)
+                                    .connectWifi('http://192.168.4.1');
+                                if (!context.mounted) return;
+                                if (_sessionConnectedForDiscovery(ref.read(
+                                    boardSessionNotifierProvider))) {
+                                  closeBoardDiscoveryAndFocusPlay(ref, context);
+                                }
+                              },
+                        icon: const Icon(Icons.wifi_tethering),
+                        label: const Text('Hotspot desky (192.168.4.1)'),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          OutlinedButton(
+                            onPressed: _stopBleScan,
+                            child: const Text('Zastavit sken'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

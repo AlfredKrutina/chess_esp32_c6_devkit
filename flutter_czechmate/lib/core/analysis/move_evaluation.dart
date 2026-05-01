@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+
 /// Parita `MoveEvaluation.swift` / `MoveGrade` — klasifikace tahu podle Stockfish.
 enum MoveGrade {
   best,
@@ -49,19 +51,20 @@ class MoveEvaluation {
     required double? evalAfterWhite,
     required int moveIndex1Based,
     required String bestMoveFormatted,
+    required AppLocalizations l10n,
   }) {
     final played = normalizeUci(playedFrom, playedTo);
     final best = normalizeUci(bestFrom, bestTo);
     if (played == best) {
-      return const MoveEvaluationResult(
+      return MoveEvaluationResult(
         grade: MoveGrade.best,
-        message: 'Excellent — matches the engine best move.',
+        message: l10n.moveEvalExcellentEngine,
       );
     }
     if (evalBeforeWhite == null || evalAfterWhite == null) {
       return MoveEvaluationResult(
         grade: MoveGrade.inaccuracy,
-        message: 'Weaker move (no exact score). Stronger was $bestMoveFormatted.',
+        message: l10n.moveEvalWeakerNoScore(bestMoveFormatted),
       );
     }
     final whiteJustMoved = (moveIndex1Based - 1) % 2 == 0;
@@ -71,24 +74,24 @@ class MoveEvaluation {
     if (scoreDrop <= 0.20) {
       return MoveEvaluationResult(
         grade: MoveGrade.good,
-        message: 'Good move — small loss (~$cpLost cp).',
+        message: l10n.moveEvalGoodLoss(cpLost),
       );
     }
     if (scoreDrop <= 0.50) {
       return MoveEvaluationResult(
         grade: MoveGrade.inaccuracy,
-        message: 'Inaccuracy — about $cpLost cp worse. Stronger was $bestMoveFormatted.',
+        message: l10n.moveEvalInaccuracy(cpLost, bestMoveFormatted),
       );
     }
     if (scoreDrop <= 1.00) {
       return MoveEvaluationResult(
         grade: MoveGrade.mistake,
-        message: 'Mistake — about $cpLost cp worse. Better was $bestMoveFormatted.',
+        message: l10n.moveEvalMistake(cpLost, bestMoveFormatted),
       );
     }
     return MoveEvaluationResult(
       grade: MoveGrade.blunder,
-      message: 'Blunder — about $cpLost cp worse. Much better was $bestMoveFormatted.',
+      message: l10n.moveEvalBlunder(cpLost, bestMoveFormatted),
     );
   }
 }

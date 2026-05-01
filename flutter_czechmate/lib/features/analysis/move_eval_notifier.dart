@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
 import '../../core/analysis/move_evaluation.dart';
+import '../../core/localization/locale_bridge.dart';
 import '../../core/models/game_snapshot.dart';
 import '../../core/utils/fen_from_board.dart';
 import '../connection/board_session_notifier.dart';
@@ -104,9 +105,11 @@ class MoveEvalNotifier extends StateNotifier<MoveEvalState> {
   }) async {
     state = state.copyWith(lastBusy: true);
     try {
+      final prefs = _ref.read(prefsRepositoryProvider);
+      final l10n = appStringsForPrefs(prefs);
       final fenBefore = fenFromSnapshot(previous);
       final fenAfter = fenFromSnapshot(current);
-      final hint = _ref.read(prefsRepositoryProvider).hintDepth;
+      final hint = prefs.hintDepth;
       final depth = hint.clamp(12, 18);
       final client = _ref.read(stockfishApiClientProvider);
 
@@ -130,7 +133,7 @@ class MoveEvalNotifier extends StateNotifier<MoveEvalState> {
       final idx = current.history.moves.length;
 
       if (played == bestUci) {
-        const msg = 'Výborný tah! Byl to nejlepší tah.';
+        final msg = l10n.moveEvalExcellentBest;
         _record(idx, ea, MoveGrade.best, 0);
         state = state.copyWith(lastMessage: msg, lastGrade: MoveGrade.best, lastBusy: false);
         return;
@@ -146,6 +149,7 @@ class MoveEvalNotifier extends StateNotifier<MoveEvalState> {
         evalAfterWhite: ea,
         moveIndex1Based: idx,
         bestMoveFormatted: bestFmt,
+        l10n: l10n,
       );
 
       double? lossPawns;
@@ -160,8 +164,9 @@ class MoveEvalNotifier extends StateNotifier<MoveEvalState> {
       state = state.copyWith(lastMessage: ev.message, lastGrade: ev.grade, lastBusy: false);
     } catch (e) {
       if (gen != _taskGen) return;
+      final l10n = appStringsForPrefs(_ref.read(prefsRepositoryProvider));
       state = state.copyWith(
-        lastMessage: 'Eval selhala: $e',
+        lastMessage: l10n.moveEvalFailed('$e'),
         lastGrade: MoveGrade.error,
         lastBusy: false,
       );

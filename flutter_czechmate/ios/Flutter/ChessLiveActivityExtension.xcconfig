@@ -1,2 +1,5 @@
-// Načte FLUTTER_BUILD_NAME / FLUTTER_BUILD_NUMBER pro Info.plist extension (musí sedět s hlavní aplikací).
-#include "Generated.xcconfig"
+// Hodnoty musí sedět s hlavní aplikací (pubspec version).
+// Fallback pod `flutter clean`, dokud znovu nevznikne Generated.xcconfig (`flutter pub get` / build).
+FLUTTER_BUILD_NAME = 0.2.0
+FLUTTER_BUILD_NUMBER = 1
+#include? "Generated.xcconfig"

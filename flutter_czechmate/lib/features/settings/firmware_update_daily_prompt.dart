@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../l10n/app_localizations.dart';
 import 'firmware_ota_runner.dart';
 import 'firmware_update_availability.dart';
 
 String _isoCalendarDay(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-/// Jednou za kalendářní den nabídne aktualizaci, dokud uživatel neaktualizuje nebo nevypne připomínky.
+/// Once per calendar day, offer an update until the user updates or disables reminders.
 class FirmwareUpdateDailyPrompt {
   FirmwareUpdateDailyPrompt._();
 
@@ -33,6 +34,9 @@ class FirmwareUpdateDailyPrompt {
     if (snap.loading || !snap.updateAvailable || snap.manifest == null) {
       return;
     }
+    if (snap.boardOtaSupported == false) {
+      return;
+    }
 
     final today = _isoCalendarDay(DateTime.now());
     if (prefs.firmwareReminderDismissDay == today) {
@@ -47,46 +51,47 @@ class FirmwareUpdateDailyPrompt {
     final choice = await showDialog<_OfferChoice>(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Aktualizace firmwaru desky'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Na serveru je verze ${manifest.version}, na desce máte $boardV.',
-              ),
-              if (manifest.changelog != null &&
-                  manifest.changelog!.trim().isNotEmpty) ...[
-                const SizedBox(height: 12),
+      builder: (ctx) {
+        final l10n = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(l10n.firmwareDialogTitle),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Text(
-                  manifest.changelog!.trim(),
-                  style: Theme.of(ctx).textTheme.bodySmall,
+                  l10n.firmwareDialogVersions(manifest.version, boardV),
                 ),
+                if (manifest.changelog != null &&
+                    manifest.changelog!.trim().isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    manifest.changelog!.trim(),
+                    style: Theme.of(ctx).textTheme.bodySmall,
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Text(l10n.firmwareDialogHttpsNote),
               ],
-              const SizedBox(height: 12),
-              const Text(
-                'Soubor stáhne přímo deska přes HTTPS (Wi‑Fi). Telefon přenáší jen odkaz.',
-              ),
-            ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, _OfferChoice.disableReminders),
-            child: const Text('Nepřipomínat'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, _OfferChoice.later),
-            child: const Text('Teď ne'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, _OfferChoice.update),
-            child: const Text('Aktualizovat'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, _OfferChoice.disableReminders),
+              child: Text(l10n.firmwareTurnOffReminders),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, _OfferChoice.later),
+              child: Text(l10n.firmwareNotNow),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, _OfferChoice.update),
+              child: Text(l10n.firmwareUpdateAction),
+            ),
+          ],
+        );
+      },
     );
 
     if (!context.mounted) {
@@ -113,19 +118,19 @@ class FirmwareUpdateDailyPrompt {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Potvrdit aktualizaci'),
+        title: const Text('Confirm update'),
         content: const Text(
-          'Opravdu spustit aktualizaci? Deska si stáhne firmware z internetu, '
-          'projde zápis do flash a restartuje se. Nepřerušuj napájení.',
+          'Start the update? The board will download firmware, write flash, and reboot. '
+          'Do not interrupt power.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Zrušit'),
+            child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Ano, aktualizovat'),
+            child: const Text('Yes, update'),
           ),
         ],
       ),
@@ -140,7 +145,7 @@ class FirmwareUpdateDailyPrompt {
 
     var messenger = ScaffoldMessenger.maybeOf(context);
     messenger?.showSnackBar(
-      const SnackBar(content: Text('Spouštím OTA na desce…')),
+      const SnackBar(content: Text('Starting OTA on the board…')),
     );
 
     final err = await FirmwareOtaRunner.execute(
@@ -158,7 +163,9 @@ class FirmwareUpdateDailyPrompt {
     } else {
       messenger?.showSnackBar(
         const SnackBar(
-          content: Text('OTA dokončena nebo spojení přerušeno — deska se může restartovat.'),
+          content: Text(
+            'OTA finished or connection dropped — the board may reboot.',
+          ),
         ),
       );
     }

@@ -1,3 +1,5 @@
+import '../../../core/models/puzzle_challenge_state.dart';
+
 /// Phase 3.3 / 3.6+ — Full GameUiState with transient messages, invalid-move flash,
 /// layout mode, sandbox undo stack.
 class GameUiState {
@@ -35,6 +37,12 @@ class GameUiState {
     this.isControlPanelExpanded = true,
     // Phase 5 — learning mode
     this.learningMode = false,
+    this.puzzleChallenge,
+    this.puzzleBoardTint = 0,
+    this.puzzleBoardTintGreen = false,
+    this.puzzleSnackText,
+    /// Shown after opening Game controls — pinned „New game“ under the board area.
+    this.pinnedNewGameBarVisible = false,
   });
 
   final bool boardFlipped;
@@ -62,6 +70,13 @@ class GameUiState {
   final int hintDepth;
   final bool isControlPanelExpanded;
   final bool learningMode;
+  final PuzzleChallengeState? puzzleChallenge;
+  /// 0 = žádný překryv; 0–1 síla barevného pulzu (puzzle feedback).
+  final double puzzleBoardTint;
+  final bool puzzleBoardTintGreen;
+  /// Jednorázová zpráva pro SnackBar (puzzle úspěch/neúspěch), po zobrazení se vyčistí.
+  final String? puzzleSnackText;
+  final bool pinnedNewGameBarVisible;
 
   GameUiState copyWith({
     bool? boardFlipped,
@@ -89,6 +104,14 @@ class GameUiState {
     int? hintDepth,
     bool? isControlPanelExpanded,
     bool? learningMode,
+    PuzzleChallengeState? puzzleChallenge,
+    bool clearPuzzleChallenge = false,
+    double? puzzleBoardTint,
+    bool? puzzleBoardTintGreen,
+    bool clearPuzzleTint = false,
+    String? puzzleSnackText,
+    bool clearPuzzleSnack = false,
+    bool? pinnedNewGameBarVisible,
     bool clearSelection = false,
     bool clearSandboxFen = false,
     bool clearPromotion = false,
@@ -142,6 +165,17 @@ class GameUiState {
       isControlPanelExpanded:
           isControlPanelExpanded ?? this.isControlPanelExpanded,
       learningMode: learningMode ?? this.learningMode,
+      puzzleChallenge: clearPuzzleChallenge
+          ? null
+          : (puzzleChallenge ?? this.puzzleChallenge),
+      puzzleBoardTint: clearPuzzleTint ? 0 : (puzzleBoardTint ?? this.puzzleBoardTint),
+      puzzleBoardTintGreen:
+          puzzleBoardTintGreen ?? this.puzzleBoardTintGreen,
+      puzzleSnackText: clearPuzzleSnack
+          ? null
+          : (puzzleSnackText ?? this.puzzleSnackText),
+      pinnedNewGameBarVisible:
+          pinnedNewGameBarVisible ?? this.pinnedNewGameBarVisible,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/board_styles.dart';
+import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/utils/board_algebraic.dart';
 import '../../../core/utils/fen_board_parser.dart';
 import '../../connection/board_session_notifier.dart';
@@ -93,7 +94,7 @@ class ChessBoardWidget extends ConsumerWidget {
         : null;
     final err = snap?.status.errorState;
     void snack(String m) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
+      showGlassSnackBar(context, m);
     }
 
     return Semantics(
@@ -173,6 +174,28 @@ class ChessBoardWidget extends ConsumerWidget {
                       squareW: side / 8,
                     ),
                   ),
+                  if (ui.puzzleBoardTint > 0.001)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: RadialGradient(
+                              center: Alignment.center,
+                              radius: 1.05,
+                              colors: [
+                                (ui.puzzleBoardTintGreen
+                                        ? Colors.green
+                                        : Colors.red)
+                                    .withValues(
+                                  alpha: 0.12 + 0.62 * ui.puzzleBoardTint,
+                                ),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               );
             },
@@ -419,10 +442,14 @@ class FenBoardPreview extends ConsumerWidget {
     super.key,
     required this.fen,
     this.showCoordinates = true,
+    this.highlightFrom,
+    this.highlightTo,
   });
 
   final String fen;
   final bool showCoordinates;
+  final String? highlightFrom;
+  final String? highlightTo;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -446,8 +473,8 @@ class FenBoardPreview extends ConsumerWidget {
                   painter: _BoardPainter(
                     board: cells,
                     flipped: flipped,
-                    lastFrom: null,
-                    lastTo: null,
+                    lastFrom: highlightFrom,
+                    lastTo: highlightTo,
                     invalidSquare: null,
                     originalSquare: null,
                     invalidFlashFrom: null,

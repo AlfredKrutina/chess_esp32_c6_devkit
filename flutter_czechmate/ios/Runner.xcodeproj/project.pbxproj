@@ -51,6 +51,13 @@
 			remoteGlobalIDString = C7F0AA0123456789000E020;
 			remoteInfo = CzechMateWatchExtension;
 		};
+		C7F0AA0123456789000E042 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C7F0AA0123456789000E021;
+			remoteInfo = CzechMateWatchContainer;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -330,7 +337,6 @@
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
 				A8D4E2030123456789000001 /* Embed ChessLiveActivity Extension */,
-				C7F0AA0123456789000E036 /* Build CzechMate Watch Companion */,
 				C7F0AA0123456789000E035 /* Embed Watch Content */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
@@ -341,6 +347,7 @@
 			);
 			dependencies = (
 				A8D4E2070123456789000001 /* PBXTargetDependency */,
+				C7F0AA0123456789000E055 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
@@ -605,26 +612,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C7F0AA0123456789000E036 /* Build CzechMate Watch Companion */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Build CzechMate Watch Companion";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif [ \"${PLATFORM_NAME:-}\" != \"iphoneos\" ]; then exit 0; fi\necho \"note: CzechMate watchOS companion — nested xcodebuild for Embed Watch Content (Xcode 26 / Flutter).\"\n/usr/bin/xcodebuild -project \"${PROJECT_FILE_PATH}\" -target CzechMateWatchContainer -configuration \"${CONFIGURATION}\" -sdk watchos BUILD_DIR=\"${BUILD_DIR}\" CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=\"${DEVELOPMENT_TEAM:-7GZUCQLRN9}\" -allowProvisioningUpdates\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -684,6 +671,11 @@
 			isa = PBXTargetDependency;
 			target = C7F0AA0123456789000E020 /* CzechMateWatchExtension */;
 			targetProxy = C7F0AA0123456789000E041 /* PBXContainerItemProxy */;
+		};
+		C7F0AA0123456789000E055 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C7F0AA0123456789000E021 /* CzechMateWatchContainer */;
+			targetProxy = C7F0AA0123456789000E042 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

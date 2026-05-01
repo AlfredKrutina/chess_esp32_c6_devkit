@@ -2,7 +2,11 @@ import '../models/game_snapshot.dart';
 import 'fen_from_board.dart';
 
 /// Jednoduchý PGN z historie desky (SAN pokud je ve snapshotu, jinak UCI).
-String buildPgnFromSnapshot(GameSnapshot snap) {
+String buildPgnFromSnapshot(
+  GameSnapshot snap, {
+  required String eventHeader,
+  required String openingPrefix,
+}) {
   final moves = snap.history.moves;
   final ge = snap.status.gameEnd;
   var result = '*';
@@ -24,7 +28,7 @@ String buildPgnFromSnapshot(GameSnapshot snap) {
   }
 
   final sb = StringBuffer();
-    sb.writeln('[Event "CZECHMATE"]');
+    sb.writeln('[Event "$eventHeader"]');
   sb.writeln('[Site "?"]');
   final ts = snap.timestamp;
   if (ts > 0) {
@@ -39,7 +43,7 @@ String buildPgnFromSnapshot(GameSnapshot snap) {
         ? first.san!.trim()
         : '${first.from ?? ''}${first.to ?? ''}';
     if (head.isNotEmpty) {
-      sb.writeln('[Opening "Start: $head"]');
+      sb.writeln('[Opening "$openingPrefix: $head"]');
     }
   }
   sb.writeln();

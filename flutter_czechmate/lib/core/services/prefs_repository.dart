@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,6 +33,8 @@ class PrefsRepository {
   static const keyMoveHintTier = 'czechmate.moveHintTier';
   static const keyMoveEval = 'czechmate.moveEvaluationEnabled';
   static const keyAppearance = 'czechmate.appearance';
+  /// `system` | `en` | `cs`
+  static const keyUiLanguage = 'czechmate.uiLanguage';
   static const keyHaptics = 'czechmate.hapticsEnabled';
   static const keySound = 'czechmate.soundEffectsEnabled';
   static const keyEndgameAutoOpen = 'czechmate.endgameReportAutoOpen';
@@ -69,6 +72,10 @@ class PrefsRepository {
   static const keyFirmwareUpdateReminders = 'czechmate.firmwareUpdateRemindersEnabled';
   /// ISO den `YYYY-MM-DD` — naposledy uživatel ťukl „Teď ne“ u nabídky aktualizace.
   static const keyFirmwareReminderDismissDay = 'czechmate.firmwareReminderDismissDay';
+  static const keyPuzzleElo = 'czechmate.profile.puzzleElo';
+  static const keyProfileDisplayName = 'czechmate.profile.displayName';
+  static const keyProfileAvatarSpec = 'czechmate.profile.avatarSpec';
+  static const keyActivityJson = 'czechmate.profile.activityJson';
 
   String? get lastBoardBaseUrl => _p.getString(keyBaseUrl);
   Future<void> setLastBoardBaseUrl(String? v) async {
@@ -306,6 +313,10 @@ class PrefsRepository {
   String get appearance => _p.getString(keyAppearance) ?? 'system';
   Future<void> setAppearance(String v) => _p.setString(keyAppearance, v);
 
+  /// `system` | `en` | `cs`
+  String get uiLanguage => _p.getString(keyUiLanguage) ?? 'system';
+  Future<void> setUiLanguage(String v) => _p.setString(keyUiLanguage, v);
+
   bool get hapticsEnabled => _p.getBool(keyHaptics) ?? true;
   Future<void> setHapticsEnabled(bool v) => _p.setBool(keyHaptics, v);
 
@@ -409,18 +420,22 @@ class PrefsRepository {
   Future<void> setFirmwareManifestUrl(String? v) async {
     if (v == null || v.trim().isEmpty) {
       await _p.remove(keyFirmwareManifestUrl);
+      return;
+    }
+    final n = normalizeFirmwareManifestUrl(v.trim());
+    if (n == kDefaultFirmwareManifestUrl) {
+      await _p.remove(keyFirmwareManifestUrl);
     } else {
-      await _p.setString(keyFirmwareManifestUrl, v.trim());
+      await _p.setString(keyFirmwareManifestUrl, n);
     }
   }
 
   /// Prázdná prefs → výchozí manifest z [kDefaultFirmwareManifestUrl].
+  /// Uložená hodnota se normalizuje (oprava zkrácených GitHub Pages URL).
   String get firmwareManifestUrlEffective {
-    final u = firmwareManifestUrl;
-    if (u != null && u.trim().isNotEmpty) {
-      return u.trim();
-    }
-    return kDefaultFirmwareManifestUrl;
+    final u = firmwareManifestUrl?.trim();
+    if (u == null || u.isEmpty) return kDefaultFirmwareManifestUrl;
+    return normalizeFirmwareManifestUrl(u);
   }
 
   bool get firmwareUpdateRemindersEnabled =>
@@ -438,5 +453,113 @@ class PrefsRepository {
     } else {
       await _p.setString(keyFirmwareReminderDismissDay, isoDay);
     }
+  }
+
+  /// Puzzle-only Elo (oddělené od případného online ratingu).
+  int get puzzleElo => _p.getInt(keyPuzzleElo) ?? 1200;
+
+  Future<void> setPuzzleElo(int v) =>
+      _p.setInt(keyPuzzleElo, v.clamp(100, 4000));
+
+  /// Očekávané body za výhru nad „soupeřem“ = obtížnost puzzlu.
+  Future<int> applyPuzzleSolveElo({int? puzzleRating}) async {
+    final user = puzzleElo.toDouble();
+    final opp = (puzzleRating ?? 1500).clamp(400, 3500).toDouble();
+    final expected = 1.0 / (1.0 + math.pow(10, (opp - user) / 400.0));
+    const k = 24.0;
+    var delta = (k * (1.0 - expected)).round();
+    delta = delta.clamp(5, 48);
+    await setPuzzleElo(puzzleElo + delta);
+    return delta;
+  }
+
+  String get profileDisplayName =>
+      _p.getString(keyProfileDisplayName)?.trim().isNotEmpty == true
+          ? _p.getString(keyProfileDisplayName)!.trim()
+          : 'Player';
+
+  Future<void> setProfileDisplayName(String value) async {
+    final t = value.trim();
+    if (t.isEmpty) {
+      await _p.remove(keyProfileDisplayName);
+    } else {
+      await _p.setString(keyProfileDisplayName, t);
+    }
+  }
+
+  /// `default:0` … `default:4` nebo `file:<absolutní cesta>`.
+  String get profileAvatarSpec =>
+      _p.getString(keyProfileAvatarSpec) ?? 'default:0';
+
+  Future<void> setProfileAvatarSpec(String spec) =>
+      _p.setString(keyProfileAvatarSpec, spec);
+
+  /// Mapa `YYYY-MM-DD` → `{s: vyřešeno, f: špatně}`.
+  Future<void> recordPuzzleActivity({required bool solved}) async {
+    final day = DateTime.now().toIso8601String().split('T').first;
+    final map = <String, dynamic>{};
+    final raw = _p.getString(keyActivityJson);
+    if (raw != null && raw.trim().isNotEmpty) {
+      try {
+        final dec = jsonDecode(raw);
+        if (dec is Map<String, dynamic>) {
+          map.addAll(dec);
+        }
+      } catch (_) {}
+    }
+    final prev = map[day];
+    var sCount = 0;
+    var fCount = 0;
+    if (prev is Map) {
+      sCount = (prev['s'] as num?)?.toInt() ?? 0;
+      fCount = (prev['f'] as num?)?.toInt() ?? 0;
+    }
+    if (solved) {
+      sCount++;
+    } else {
+      fCount++;
+    }
+    map[day] = {'s': sCount, 'f': fCount};
+    await _p.setString(keyActivityJson, jsonEncode(map));
+  }
+
+  Map<String, Map<String, int>> puzzleActivityByDay() {
+    final raw = _p.getString(keyActivityJson);
+    if (raw == null || raw.trim().isEmpty) return {};
+    try {
+      final dec = jsonDecode(raw);
+      if (dec is! Map<String, dynamic>) return {};
+      final out = <String, Map<String, int>>{};
+      dec.forEach((k, v) {
+        if (v is Map) {
+          out[k] = {
+            's': (v['s'] as num?)?.toInt() ?? 0,
+            'f': (v['f'] as num?)?.toInt() ?? 0,
+          };
+        }
+      });
+      return out;
+    } catch (_) {
+      return {};
+    }
+  }
+
+  ({int solved7d, int failed7d}) puzzleStatsLastDays(int days) {
+    final map = puzzleActivityByDay();
+    var s = 0;
+    var f = 0;
+    final now = DateTime.now();
+    for (var i = 0; i < days; i++) {
+      final d = DateTime(now.year, now.month, now.day)
+          .subtract(Duration(days: i));
+      final key =
+          '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+      final e = map[key];
+      if (e != null) {
+        s += e['s'] ?? 0;
+        f += e['f'] ?? 0;
+      }
+    }
+    return (solved7d: s, failed7d: f);
   }
 }

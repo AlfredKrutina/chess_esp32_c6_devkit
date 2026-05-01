@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/game_snapshot.dart';
+import '../../../core/models/puzzle_challenge_state.dart';
+import '../../../core/utils/puzzle_uci.dart';
 import '../../../core/services/board_api_exception.dart';
 import '../../../core/utils/fen_board_parser.dart';
 import '../../../core/utils/fen_from_board.dart';
@@ -62,14 +64,18 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
   Timer? _transientTimer;
   Timer? _flashTimer;
   Timer? _hintTimer;
+  Timer? _puzzleTintTimer;
   ch.Chess? _sandboxChess;
   String? _remoteFrom;
+  /// Blocks sandbox moves while puzzle success/failure animation and reset run (allows clean retries).
+  bool _puzzleFeedbackBusy = false;
 
   @override
   void dispose() {
     _transientTimer?.cancel();
     _flashTimer?.cancel();
     _hintTimer?.cancel();
+    _puzzleTintTimer?.cancel();
     super.dispose();
   }
 
@@ -106,6 +112,11 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
   void setControlPanelExpanded(bool expanded) {
     if (state.isControlPanelExpanded == expanded) return;
     state = state.copyWith(isControlPanelExpanded: expanded);
+  }
+
+  void setPinnedNewGameBarVisible(bool visible) {
+    if (state.pinnedNewGameBarVisible == visible) return;
+    state = state.copyWith(pinnedNewGameBarVisible: visible);
   }
 
   Future<void> setLearningMode(bool v) async {
@@ -153,17 +164,28 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
   }
 
   void sandboxUndo() {
+    if (_puzzleFeedbackBusy) return;
     final chess = _sandboxChess;
     if (chess == null || state.sandboxUndoStack.isEmpty) return;
     final stack = List<String>.from(state.sandboxUndoStack);
     final prev = stack.removeLast();
     if (!chess.load(prev)) return;
+    final puzzle = state.puzzleChallenge;
+    final PuzzleChallengeState? nextChallenge = puzzle == null
+        ? null
+        : (puzzle.playedUci.isEmpty
+            ? puzzle
+            : puzzle.copyWith(
+                playedUci: puzzle.playedUci
+                    .sublist(0, puzzle.playedUci.length - 1),
+              ));
     state = state.copyWith(
       sandboxFenOverride: chess.generate_fen(),
       sandboxUndoStack: stack,
       sandboxUndoCount: stack.length,
       clearSelection: true,
       clearMessage: true,
+      puzzleChallenge: nextChallenge,
     );
   }
 
@@ -240,6 +262,9 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     _remoteFrom = null;
     state = state.copyWith(
       sandboxMode: true,
+      clearPuzzleChallenge: true,
+      clearPuzzleTint: true,
+      clearPuzzleSnack: true,
       clearMessage: true,
       clearHistoryIndex: true,
       clearPromotion: true,
@@ -266,6 +291,9 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     _remoteFrom = null;
     state = state.copyWith(
       sandboxMode: true,
+      clearPuzzleChallenge: true,
+      clearPuzzleTint: true,
+      clearPuzzleSnack: true,
       clearMessage: true,
       clearHistoryIndex: true,
       clearPromotion: true,
@@ -287,10 +315,14 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
   }
 
   void exitSandbox() {
+    _puzzleTintTimer?.cancel();
     _sandboxChess = null;
     _remoteFrom = null;
     state = state.copyWith(
       sandboxMode: false,
+      clearPuzzleChallenge: true,
+      clearPuzzleTint: true,
+      clearPuzzleSnack: true,
       clearSelection: true,
       clearSandboxFen: true,
       clearPromotion: true,
@@ -299,6 +331,73 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       clearHistoryIndex: true,
       sandboxUndoStack: const [],
       sandboxUndoCount: 0,
+    );
+  }
+
+  /// Z puzzlu / sandboxu zpět na živou partii podle snapshotu (např. po „Zkusit na obrazovce“).
+  Future<void> returnToLiveGame() async {
+    exitSandbox();
+    await _ref.read(boardSessionNotifierProvider.notifier).refreshNow();
+  }
+
+  /// Puzzle bez vyhodnocování — jen zavře kontrolu, pozice zůstane.
+  void exitPuzzleChallenge() {
+    _puzzleTintTimer?.cancel();
+    state = state.copyWith(
+      clearPuzzleChallenge: true,
+      clearPuzzleTint: true,
+      clearPuzzleSnack: true,
+    );
+  }
+
+  void clearPuzzleSnack() {
+    if (state.puzzleSnackText == null) return;
+    state = state.copyWith(clearPuzzleSnack: true);
+  }
+
+  /// Načte pozici a zapne kontrolu řešení podle UCI linky (prázdná = jen sandbox).
+  void enterPuzzleChallenge({
+    required String fen,
+    required String title,
+    required List<String> solutionUci,
+    int? rating,
+  }) {
+    final fenTrim = fen.trim();
+    if (fenTrim.isEmpty) return;
+    _remoteFrom = null;
+    _puzzleTintTimer?.cancel();
+    state = state.copyWith(
+      sandboxMode: true,
+      clearMessage: true,
+      clearHistoryIndex: true,
+      clearPromotion: true,
+      clearSelection: true,
+      clearPuzzleTint: true,
+      clearPuzzleSnack: true,
+    );
+    final chess = ch.Chess();
+    if (!chess.load(fenTrim)) {
+      state = state.copyWith(sandboxMessage: 'Could not load FEN');
+      return;
+    }
+    _sandboxChess = chess;
+    final normalized = solutionUci
+        .map((e) => e.trim().toLowerCase())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    final challenge = PuzzleChallengeState(
+      title: title,
+      startFen: chess.generate_fen(),
+      solutionUci: normalized,
+      rating: rating,
+    );
+    state = state.copyWith(
+      puzzleChallenge: challenge,
+      sandboxFenOverride: chess.generate_fen(),
+      sandboxUndoStack: const [],
+      sandboxUndoCount: 0,
+      clearSelection: true,
+      puzzleBoardTint: 0,
     );
   }
 
@@ -331,12 +430,131 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     }
     _sandboxChess = chess;
     state = state.copyWith(
+      clearPuzzleChallenge: true,
+      clearPuzzleTint: true,
+      clearPuzzleSnack: true,
       sandboxFenOverride: chess.generate_fen(),
       clearMessage: true,
       clearSelection: true,
       sandboxUndoStack: const [],
       sandboxUndoCount: 0,
     );
+  }
+
+  void _notePuzzleMove(String from, String to, String? promotionLower) {
+    final puzzle = state.puzzleChallenge;
+    if (puzzle == null || !puzzle.hasVerifier) return;
+    if (_puzzleFeedbackBusy) return;
+
+    final uci = sandboxMoveToUci(from, to, promotionLower);
+    final played = [...puzzle.playedUci, uci];
+    final sol = puzzle.solutionUci;
+    final n = played.length;
+
+    for (var i = 0; i < n && i < sol.length; i++) {
+      if (played[i].toLowerCase().trim() != sol[i].toLowerCase().trim()) {
+        state =
+            state.copyWith(puzzleChallenge: puzzle.copyWith(playedUci: played));
+        unawaited(_handlePuzzleFailure());
+        return;
+      }
+    }
+
+    if (n < sol.length) {
+      state =
+          state.copyWith(puzzleChallenge: puzzle.copyWith(playedUci: played));
+      return;
+    }
+
+    if (n == sol.length) {
+      state =
+          state.copyWith(puzzleChallenge: puzzle.copyWith(playedUci: played));
+      unawaited(_handlePuzzleSuccess());
+      return;
+    }
+
+    state = state.copyWith(puzzleChallenge: puzzle.copyWith(playedUci: played));
+    unawaited(_handlePuzzleFailure());
+  }
+
+  void _resetPuzzlePositionOnly() {
+    final puzzle = state.puzzleChallenge;
+    if (puzzle == null) return;
+    final chess = ch.Chess();
+    if (!chess.load(puzzle.startFen)) return;
+    _sandboxChess = chess;
+    state = state.copyWith(
+      sandboxFenOverride: chess.generate_fen(),
+      puzzleChallenge: puzzle.copyWith(playedUci: const []),
+      sandboxUndoStack: const [],
+      sandboxUndoCount: 0,
+      clearSelection: true,
+    );
+  }
+
+  void _runTintPulse(bool green) {
+    _puzzleTintTimer?.cancel();
+    var step = 0;
+    const total = 18;
+    const halfSteps = 9;
+    _puzzleTintTimer = Timer.periodic(const Duration(milliseconds: 42), (t) {
+      step++;
+      final intensity = step <= halfSteps
+          ? step / 9.0
+          : (total - step) / 9.0;
+      state = state.copyWith(
+        puzzleBoardTint: intensity.clamp(0.0, 1.0),
+        puzzleBoardTintGreen: green,
+      );
+      if (step >= total) {
+        t.cancel();
+        state = state.copyWith(clearPuzzleTint: true);
+      }
+    });
+  }
+
+  Future<void> _handlePuzzleSuccess() async {
+    if (_puzzleFeedbackBusy) return;
+    _puzzleFeedbackBusy = true;
+    try {
+      _runTintPulse(true);
+      final prefs = _ref.read(prefsRepositoryProvider);
+      final rating = state.puzzleChallenge?.rating;
+      final delta = await prefs.applyPuzzleSolveElo(puzzleRating: rating);
+      await prefs.recordPuzzleActivity(solved: true);
+      _ref.invalidate(prefsRepositoryProvider);
+      final snack = delta > 0
+          ? 'Nice! Correct line · +$delta Elo'
+          : 'Nice! Correct line.';
+      showTransientBoardMessage(
+        delta > 0
+            ? 'Nice! Correct line. +$delta Elo.'
+            : 'Nice! Correct line.',
+      );
+      state = state.copyWith(puzzleSnackText: snack);
+      await Future<void>.delayed(const Duration(milliseconds: 920));
+      state = state.copyWith(clearPuzzleChallenge: true);
+    } finally {
+      _puzzleFeedbackBusy = false;
+    }
+  }
+
+  Future<void> _handlePuzzleFailure() async {
+    if (_puzzleFeedbackBusy) return;
+    _puzzleFeedbackBusy = true;
+    try {
+      state = state.copyWith(
+        puzzleSnackText: 'Not the solution — resetting the position.',
+      );
+      _runTintPulse(false);
+      await _ref.read(prefsRepositoryProvider).recordPuzzleActivity(solved: false);
+      _ref.invalidate(prefsRepositoryProvider);
+      await Future<void>.delayed(const Duration(milliseconds: 720));
+      _resetPuzzlePositionOnly();
+      showTransientBoardMessage('Position restored — try again.');
+    } finally {
+      _puzzleFeedbackBusy = false;
+    }
   }
 
   List<List<String>> effectiveBoard(List<List<String>> serverBoard) {
@@ -401,7 +619,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
 
     if (state.sandboxMode) {
       final chess = _sandboxChess;
-      if (chess == null) return;
+      if (chess == null || _puzzleFeedbackBusy) return;
       final before = chess.generate_fen();
       final ok = chess.move({
         'from': from,
@@ -423,6 +641,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
           clearSelection: true,
           clearMessage: true,
         );
+        _notePuzzleMove(from, to, pieceLower);
       }
       return;
     }
@@ -462,6 +681,9 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
 
   void _sandboxTap(String algebraic, void Function(String) snack) {
     final chess = _sandboxChess;
+    if (_puzzleFeedbackBusy) {
+      return;
+    }
     if (chess == null) {
       snack('Load a position first (connect the board or use demo).');
       return;
@@ -511,6 +733,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
         clearSelection: true,
         clearMessage: true,
       );
+      _notePuzzleMove(sel, algebraic, null);
     }
   }
 
@@ -565,6 +788,13 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     }
     final from = _remoteFrom!;
     final to = algebraic;
+    // Stejné pole znovu = zrušení výběru (neodesílat d1→d1 — firmware hlásí MOVE_ERROR_DESTINATION_OCCUPIED / zmizí figurka v UI).
+    if (from == to) {
+      _remoteFrom = null;
+      state = state.copyWith(clearSelection: true);
+      _moveFeedback(selectionTap: true);
+      return;
+    }
     if (snap != null && _needsPromotionRemote(snap, from, to)) {
       _remoteFrom = null;
       state = state.copyWith(

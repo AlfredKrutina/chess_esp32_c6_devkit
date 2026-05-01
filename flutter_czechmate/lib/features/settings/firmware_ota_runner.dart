@@ -7,9 +7,10 @@ import '../../core/utils/board_http_base_url.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
-/// Společná logika OTA + polling `/api/system/ota/status`.
+/// OTA over HTTPS: phone sends only the `.bin` URL; ESP downloads (needs STA).
+/// Start command can be sent over Wi‑Fi HTTP or BLE; progress is read over HTTP.
 class FirmwareOtaRunner {
-  /// `null` = OK (nebo spojení přerušeno po rebootu). Jinak chybová zpráva.
+  /// `null` = success (or connection lost after reboot). Otherwise an error message.
   static Future<String?> execute({
     required WidgetRef ref,
     required String binUrl,
@@ -23,17 +24,27 @@ class FirmwareOtaRunner {
       prefsLastBoardBaseUrl: prefs.lastBoardBaseUrl,
     );
     if (baseUrl == null || baseUrl.isEmpty) {
-      return 'Chybí HTTP adresa desky (AP nebo STA IP).';
+      return 'Board HTTP URL is missing (AP or STA IP). '
+          'Save it under Default board URL — BLE alone is not enough for status.';
     }
 
     final api = ref.read(boardApiClientProvider);
     try {
+      final fw = await api.fetchBoardFirmwareInfo(baseUrl);
+      if (fw.otaSupported == false) {
+        return 'This board build has no OTA slots (ota_0 + ota_1). '
+            'Reflash with a dual-OTA partition CSV or update via USB.';
+      }
+    } catch (_) {}
+
+    try {
       final w = await api.fetchWiFiStatus(baseUrl);
       if (!w.staConnected) {
-        return 'Deska potřebuje Wi‑Fi k routeru (STA), aby si stáhla firmware z internetu.';
+        return 'Connect the board to Wi‑Fi as a station (STA) so it can download '
+            'the firmware from the internet over HTTPS.';
       }
     } catch (e) {
-      return 'Nelze ověřit Wi‑Fi: $e';
+      return 'Could not verify Wi‑Fi: $e';
     }
 
     try {
@@ -68,6 +79,6 @@ class FirmwareOtaRunner {
         }
       }
     }
-    return 'Vypršel čas sledování OTA.';
+    return 'Timed out waiting for OTA to finish.';
   }
 }

@@ -2942,8 +2942,17 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     if (cJSON_IsString(from_obj) && cJSON_IsString(to_obj)) {
       strncpy(from, from_obj->valuestring, sizeof(from) - 1);
       strncpy(to, to_obj->valuestring, sizeof(to) - 1);
+      from[sizeof(from) - 1] = '\0';
+      to[sizeof(to) - 1] = '\0';
       if (cJSON_IsString(promo_obj)) {
         strncpy(promotion, promo_obj->valuestring, sizeof(promotion) - 1);
+      }
+
+      /* Stejné pole (dvojité klepnutí v aplikaci) — neposílat do game_task (MOVE_ERROR_DESTINATION_OCCUPIED). */
+      if (strcmp(from, to) == 0) {
+        ESP_LOGW(TAG, "[BLE] move: ignored (from==to)");
+        cJSON_Delete(root);
+        return ESP_OK;
       }
 
       if (game_command_queue != NULL) {

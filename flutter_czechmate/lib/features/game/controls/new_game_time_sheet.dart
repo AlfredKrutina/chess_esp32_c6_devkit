@@ -2,19 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app_providers.dart';
+import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/constants/app_environment.dart';
 import '../../../core/constants/chess_time_control_presets.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
 import '../state/game_ui_notifier.dart';
 
-/// Bottom sheet jako iOS `NewGameSetupSheet` — výběr času + `timer_config` + `new_game`.
+/// Bottom sheet (iOS `NewGameSetupSheet` parity) — time control + `timer_config` + `new_game`.
 Future<void> showNewGameWithTimeSheet(BuildContext context) async {
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (ctx) => const NewGameTimeSheet(),
+    useSafeArea: true,
+    builder: (ctx) {
+      final h = MediaQuery.sizeOf(ctx).height * 0.9;
+      return SizedBox(
+        height: h,
+        child: const NewGameTimeSheet(),
+      );
+    },
   );
 }
 
@@ -60,10 +68,9 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
         session.transport != BoardTransport.ble &&
         session.transport != BoardTransport.mock) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Nejdřív připoj desku (Wi‑Fi nebo Bluetooth).'),
-          ),
+        showGlassSnackBar(
+          context,
+          'Connect a board first (Wi‑Fi or Bluetooth).',
         );
       }
       return;
@@ -86,19 +93,15 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
         await prefs.setLastNewGameTimeControl('p:${_preset.name}');
       }
       if (AppEnvironment.staging) {
-        debugPrint('[staging] Nová hra uložena do prefs: ${prefs.lastNewGameTimeControl}');
+        debugPrint('[staging] New game prefs saved: ${prefs.lastNewGameTimeControl}');
       }
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nová hra na desce spuštěna.')),
-        );
+        showGlassSnackBar(context, 'New game started on the board.');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Chyba: $e')),
-        );
+        showGlassSnackBar(context, 'Error: $e');
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -109,111 +112,127 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
   Widget build(BuildContext context) {
     final boardUi = ref.watch(gameUiNotifierProvider);
     final boardUiN = ref.read(gameUiNotifierProvider.notifier);
-    final bottom = MediaQuery.viewInsetsOf(context).bottom;
+    final kb = MediaQuery.viewInsetsOf(context).bottom;
     return Padding(
-      padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 16 + bottom),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Nová hra', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 4),
-            Text(
-              'Stejně jako na iOS: nejdřív se na desku pošle časomíra, pak nová partie.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'Pohled na desku (která barva je dole)',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 6),
-            SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: Text('Bílá dole')),
-                ButtonSegment(value: true, label: Text('Černá dole')),
-              ],
-              selected: {boardUi.boardFlipped},
-              onSelectionChanged: _busy
-                  ? null
-                  : (s) {
-                      if (s.isEmpty) return;
-                      final want = s.first;
-                      if (want != boardUi.boardFlipped) boardUiN.toggleFlip();
-                    },
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Kdo začíná partii nastavuje deska / pravidla hry; tady jen otáčíš zobrazení v aplikaci (uloží se v Nastavení).',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 12),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Vlastní čas (typ 14)'),
-              subtitle: Text(
-                _useCustom
-                    ? '${_customMin.round()} min + ${_customInc.round()} s / tah'
-                    : 'Předvolby z firmware',
+      padding: EdgeInsets.only(bottom: kb),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('New game', style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Like on iOS: time control is sent to the board, then a new game starts.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Board view (which color is at the bottom)',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 6),
+                  SegmentedButton<bool>(
+                    segments: const [
+                      ButtonSegment(value: false, label: Text('White bottom')),
+                      ButtonSegment(value: true, label: Text('Black bottom')),
+                    ],
+                    selected: {boardUi.boardFlipped},
+                    onSelectionChanged: _busy
+                        ? null
+                        : (s) {
+                            if (s.isEmpty) return;
+                            final want = s.first;
+                            if (want != boardUi.boardFlipped) boardUiN.toggleFlip();
+                          },
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Who starts is decided on the board / game rules; here you only flip the view (saved in Settings).',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Custom time (type 14)'),
+                    subtitle: Text(
+                      _useCustom
+                          ? '${_customMin.round()} min + ${_customInc.round()} s / move'
+                          : 'Firmware presets',
+                    ),
+                    value: _useCustom,
+                    onChanged: _busy
+                        ? null
+                        : (v) => setState(() {
+                              _useCustom = v;
+                            }),
+                  ),
+                  if (_useCustom) ...[
+                    Text('Minutes per side: ${_customMin.round()}'),
+                    Slider(
+                      min: 1,
+                      max: 180,
+                      divisions: 179,
+                      value: _customMin.clamp(1, 180),
+                      onChanged: _busy
+                          ? null
+                          : (x) => setState(() => _customMin = x),
+                    ),
+                    Text('Increment (s): ${_customInc.round()}'),
+                    Slider(
+                      min: 0,
+                      max: 60,
+                      divisions: 60,
+                      value: _customInc.clamp(0, 60),
+                      onChanged: _busy
+                          ? null
+                          : (x) => setState(() => _customInc = x),
+                    ),
+                  ] else
+                    ...ChessTimeControlPreset.values.map((p) {
+                      return RadioListTile<ChessTimeControlPreset>(
+                        dense: true,
+                        value: p,
+                        groupValue: _preset,
+                        title: Text(p.title),
+                        subtitle: Text(p.subtitle),
+                        onChanged: _busy
+                            ? null
+                            : (v) {
+                                if (v == null) return;
+                                setState(() => _preset = v);
+                              },
+                      );
+                    }),
+                ],
               ),
-              value: _useCustom,
-              onChanged: _busy
-                  ? null
-                  : (v) => setState(() {
-                        _useCustom = v;
-                      }),
             ),
-            if (_useCustom) ...[
-              Text('Minuty na stranu: ${_customMin.round()}'),
-              Slider(
-                min: 1,
-                max: 180,
-                divisions: 179,
-                value: _customMin.clamp(1, 180),
-                onChanged: _busy
-                    ? null
-                    : (x) => setState(() => _customMin = x),
+          ),
+          const Divider(height: 1),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _busy ? null : _submit,
+                  child: _busy
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Start on board'),
+                ),
               ),
-              Text('Inkrement (s): ${_customInc.round()}'),
-              Slider(
-                min: 0,
-                max: 60,
-                divisions: 60,
-                value: _customInc.clamp(0, 60),
-                onChanged: _busy
-                    ? null
-                    : (x) => setState(() => _customInc = x),
-              ),
-            ] else
-              ...ChessTimeControlPreset.values.map((p) {
-                return RadioListTile<ChessTimeControlPreset>(
-                  dense: true,
-                  value: p,
-                  groupValue: _preset,
-                  title: Text(p.title),
-                  subtitle: Text(p.subtitle),
-                  onChanged: _busy
-                      ? null
-                      : (v) {
-                          if (v == null) return;
-                          setState(() => _preset = v);
-                        },
-                );
-              }),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: _busy ? null : _submit,
-              child: _busy
-                  ? const SizedBox(
-                      height: 22,
-                      width: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Spustit na desce'),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

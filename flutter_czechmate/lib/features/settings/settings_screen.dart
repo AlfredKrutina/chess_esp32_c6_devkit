@@ -15,12 +15,12 @@ import '../connection/board_session_state.dart';
 import '../game/state/game_ui_notifier.dart';
 import '../help/help_screen.dart';
 import '../onboarding/onboarding_screen.dart';
+import '../profile/user_profile_screen.dart';
 import 'board_device_features_view.dart';
 import 'developer_settings_view.dart';
 import 'home_assistant_mqtt_screen.dart';
 import 'manual_connection_screen.dart';
 import 'widgets/board_lamp_studio.dart';
-import 'widgets/board_lamp_widgets.dart';
 import 'widgets/firmware_update_section.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -156,6 +156,68 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  String _coachChainSubtitle() {
+    if (_coachPriority.isEmpty) {
+      return 'Jen krátké tipy v zařízení (bez cloudu)';
+    }
+    return _coachPriority.map((e) => e.shortLabel).join(' → ');
+  }
+
+  /// Jednotná rozbalovací dlaždice jako „Světlo desky“.
+  Widget _settingsTile({
+    required String title,
+    String? subtitle,
+    Widget? leading,
+    bool initiallyExpanded = false,
+    bool maintainState = false,
+    List<Widget> children = const [],
+  }) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        margin: EdgeInsets.zero,
+        child: Theme(
+          data: theme.copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            maintainState: maintainState,
+            tilePadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            childrenPadding: EdgeInsets.zero,
+            initiallyExpanded: initiallyExpanded,
+            leading: leading,
+            title: Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: subtitle == null
+                ? null
+                : Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: children,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   String _linkTierLabel(BoardSessionState s) {
     if (s.transport == BoardTransport.none) return 'Disconnected';
     if (s.busy) return 'Connecting…';
@@ -229,15 +291,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             32,
           ),
           children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('Overview',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
+          _settingsTile(
+            title: 'Overview',
+            subtitle: session.lastError != null
+                ? 'Poslední chyba — rozbal pro detail'
+                : 'Zkratky a stav připojení',
+            leading: const Icon(Icons.dashboard_outlined),
+            children: [
                   Text(
                     'Game and board options apply to the Play tab and the Game controls panel — one set of toggles.',
                     style: Theme.of(context).textTheme.bodyMedium,
@@ -268,134 +328,301 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                   ],
                 ],
-              ),
-            ),
           ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('Board connection',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  ListTile(
-                    title: Text(_linkTierLabel(session)),
-                    subtitle: Text(
-                      'Type: ${switch (session.transport) {
-                        BoardTransport.wifi => 'Wi‑Fi',
-                        BoardTransport.ble => 'Bluetooth',
-                        BoardTransport.mock => 'Demo (mock)',
-                        BoardTransport.none => '—',
-                      }}',
-                    ),
-                    leading:
-                        Icon(Icons.link, color: _linkTierColor(session, cs)),
+          _settingsTile(
+            title: 'Připojení desky',
+            subtitle:
+                '${_linkTierLabel(session)} · ${switch (session.transport) {
+              BoardTransport.wifi => 'Wi‑Fi',
+              BoardTransport.ble => 'Bluetooth',
+              BoardTransport.mock => 'Demo',
+              BoardTransport.none => '—',
+            }}',
+            leading: Icon(Icons.link, color: _linkTierColor(session, cs)),
+            children: [
+                  Text(
+                    'Obvykle stačí najít desku přes Bluetooth; aplikace ji pak případně sama přepne na Wi‑Fi, pokud to dává smysl.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                   ),
-                  const SizedBox(height: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: () => pushBoardDiscoveryRoute(context),
-                        icon: const Icon(Icons.settings_ethernet),
-                        label: const Text('Manage board'),
+                  const SizedBox(height: 14),
+                  FilledButton.icon(
+                    onPressed: () => pushBoardDiscoveryRoute(context),
+                    icon: const Icon(Icons.bluetooth_searching),
+                    label: const Text('Najít desku'),
+                  ),
+                  if (session.transport != BoardTransport.none) ...[
+                    const SizedBox(height: 10),
+                    OutlinedButton.icon(
+                      onPressed: session.busy
+                          ? null
+                          : () => ref
+                              .read(boardSessionNotifierProvider.notifier)
+                              .disconnect(),
+                      icon: const Icon(Icons.link_off),
+                      label: const Text('Odpojit'),
+                    ),
+                  ],
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                    ),
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      title: const Text('Pokročilé'),
+                      subtitle: Text(
+                        'Výchozí URL, režim připojení, uložené BLE',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
                       ),
-                      const SizedBox(height: 10),
-                      if (prefs.lastBleRemoteId != null &&
-                          prefs.lastBleRemoteId!.isNotEmpty) ...[
-                        OutlinedButton.icon(
-                          onPressed: session.busy
-                              ? null
-                              : () async {
-                                  try {
-                                    await ref
-                                        .read(boardSessionNotifierProvider
-                                            .notifier)
-                                        .reconnectSavedBle();
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (prefs.lastBleRemoteId != null &&
+                                  prefs.lastBleRemoteId!.isNotEmpty)
+                                OutlinedButton.icon(
+                                  onPressed: session.busy
+                                      ? null
+                                      : () async {
+                                          try {
+                                            await ref
+                                                .read(
+                                                    boardSessionNotifierProvider
+                                                        .notifier)
+                                                .reconnectSavedBle();
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Obnovuji Bluetooth k uložené desce…',
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          } catch (e) {
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(content: Text('$e')),
+                                              );
+                                            }
+                                          }
+                                        },
+                                  icon: const Icon(Icons.bluetooth),
+                                  label: const Text(
+                                      'Znovu připojit uloženou desku (BLE)'),
+                                ),
+                              if (prefs.lastBleRemoteId != null &&
+                                  prefs.lastBleRemoteId!.isNotEmpty)
+                                const SizedBox(height: 10),
+                              OutlinedButton.icon(
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute<void>(
+                                    builder: (_) =>
+                                        const ManualConnectionScreen(),
+                                  ),
+                                ),
+                                icon: const Icon(Icons.edit),
+                                label: const Text('Ruční zadání'),
+                              ),
+                              const Divider(height: 28),
+                              Text(
+                                'Uložené výchozí hodnoty',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Použijí se při příštím připojení z obrazovky „Najít desku“ nebo po znovupřipojení.',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                              ),
+                              const SizedBox(height: 12),
+                              DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                value: _connectionMode,
+                                decoration: const InputDecoration(
+                                  labelText: 'Režim připojení',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'auto',
+                                    child: Text('Auto (BLE → Wi‑Fi)'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'wifi_only',
+                                    child: Text('Jen Wi‑Fi'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'ble_only',
+                                    child: Text('Jen Bluetooth'),
+                                  ),
+                                ],
+                                onChanged: (v) {
+                                  if (v == null) {
+                                    return;
+                                  }
+                                  setState(() => _connectionMode = v);
+                                  prefs.setConnectionMode(v);
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: _url,
+                                decoration: const InputDecoration(
+                                  labelText: 'Výchozí URL desky',
+                                  border: OutlineInputBorder(),
+                                ),
+                                keyboardType: TextInputType.url,
+                              ),
+                              const SizedBox(height: 10),
+                              FilledButton(
+                                onPressed: () async {
+                                  final n =
+                                      normalizeBoardHttpBaseUrl(_url.text);
+                                  if (n == null) {
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         const SnackBar(
                                           content: Text(
-                                            'Reconnecting to the last paired Bluetooth board…',
+                                            'Neplatná URL — zadej hostitele (např. 192.168.4.1 nebo http://…)',
                                           ),
                                         ),
                                       );
                                     }
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(content: Text('$e')),
-                                      );
-                                    }
+                                    return;
+                                  }
+                                  await prefs.setLastBoardBaseUrl(n);
+                                  _url.text = n;
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                      const SnackBar(content: Text('Uloženo')),
+                                    );
                                   }
                                 },
-                          icon: const Icon(Icons.bluetooth),
-                          label: const Text('Reconnect last BLE board'),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                      OutlinedButton.icon(
-                        onPressed: session.busy
-                            ? null
-                            : () => ref
-                                .read(boardSessionNotifierProvider.notifier)
-                                .disconnect(),
-                        icon: const Icon(Icons.link_off),
-                        label: const Text('Disconnect session'),
-                      ),
-                      const SizedBox(height: 10),
-                      OutlinedButton.icon(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => const ManualConnectionScreen(),
+                                child: const Text('Uložit URL'),
+                              ),
+                              SwitchListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text('Jen Bluetooth'),
+                                subtitle: const Text(
+                                  'Nepřepínat na Wi‑Fi po BLE',
+                                ),
+                                value: prefs.preferBluetoothOnly,
+                                onChanged: (v) async {
+                                  await prefs.setPreferBluetoothOnly(v);
+                                  setState(() {});
+                                },
+                              ),
+                              SwitchListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text('WebSocket snapshot'),
+                                subtitle: const Text(
+                                  'Po změně znovu připojit Wi‑Fi session',
+                                ),
+                                value: prefs.useWebSocket,
+                                onChanged: (v) async {
+                                  await prefs.setUseWebSocket(v);
+                                  setState(() {});
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                        icon: const Icon(Icons.edit),
-                        label: const Text('Manual connection'),
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+                ],
+          ),
+          _settingsTile(
+            title: 'Board appearance',
+            subtitle:
+                '${ui.layoutMode == 'boardOnly' ? 'Jen deska' : 'Plné UI'} · '
+                '${(ui.boardZoomStorage * 100).round()}% · ${ui.boardStyleRaw}',
+            leading: const Icon(Icons.grid_on_outlined),
+            children: [
+                  Text(
+                    'Play tab & game panel',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Layout',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const SizedBox(height: 8),
-                  const BoardLampQuickStrip(),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('Board appearance',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
+                  SizedBox(
+                    width: double.infinity,
                     child: SegmentedButton<String>(
+                      showSelectedIcon: false,
                       segments: const [
-                        ButtonSegment(
-                            value: 'boardOnly', label: Text('Board only')),
-                        ButtonSegment(
-                            value: 'standard', label: Text('Standard')),
+                        ButtonSegment<String>(
+                          value: 'boardOnly',
+                          label: Text('Board'),
+                          tooltip: 'Board only — minimal chrome',
+                        ),
+                        ButtonSegment<String>(
+                          value: 'standard',
+                          label: Text('Full'),
+                          tooltip: 'Standard — clocks & controls',
+                        ),
                       ],
                       selected: {ui.layoutMode},
                       onSelectionChanged: (s) {
-                        if (s.isEmpty) return;
+                        if (s.isEmpty) {
+                          return;
+                        }
                         ref
                             .read(gameUiNotifierProvider.notifier)
                             .setLayoutMode(s.first);
                       },
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                      'Board scale ${(ui.boardZoomStorage * 100).round()}%'),
+                  const SizedBox(height: 14),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        'Board zoom',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${(ui.boardZoomStorage * 100).round()}%',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
+                      ),
+                    ],
+                  ),
                   Slider(
                     min: 0.7,
                     max: 1.5,
@@ -404,11 +631,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     onChanged:
                         ref.read(gameUiNotifierProvider.notifier).setBoardZoom,
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Square colors',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
+                    isExpanded: true,
                     value: ui.boardStyleRaw,
                     decoration: const InputDecoration(
-                        labelText: 'Board colors',
-                        border: OutlineInputBorder()),
+                      labelText: 'Theme',
+                      border: OutlineInputBorder(),
+                    ),
                     items: const [
                       DropdownMenuItem(
                           value: 'wooden', child: Text('Wooden (default)')),
@@ -426,45 +663,63 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       DropdownMenuItem(value: 'coral', child: Text('Coral')),
                     ],
                     onChanged: (v) {
-                      if (v != null)
+                      if (v != null) {
                         ref
                             .read(gameUiNotifierProvider.notifier)
                             .setBoardStyle(v);
+                      }
                     },
                   ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Board options',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
                   SwitchListTile(
-                    title: const Text('Show coordinates (a–h, 1–8)'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Coordinates'),
+                    subtitle: const Text('a–h and 1–8 labels'),
                     value: ui.showCoordinates,
                     onChanged: (_) => ref
                         .read(gameUiNotifierProvider.notifier)
                         .toggleCoordinates(),
                   ),
                   SwitchListTile(
-                    title: const Text('Move animations'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Piece motion'),
+                    subtitle: const Text('Animated moves on the board'),
                     value: ui.moveAnimationsEnabled,
                     onChanged: (_) => ref
                         .read(gameUiNotifierProvider.notifier)
                         .toggleMoveAnimations(),
                   ),
                   SwitchListTile(
-                    title: const Text('Flip perspective (Black at bottom)'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Flip board'),
+                    subtitle: const Text('Black toward you'),
                     value: ui.boardFlipped,
                     onChanged: (_) => ref
                         .read(gameUiNotifierProvider.notifier)
                         .toggleFlipped(),
                   ),
                   SwitchListTile(
-                    title: const Text('Allow moves from app (remote)'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Remote moves'),
+                    subtitle: const Text('Play from the app, not only the board'),
                     value: ui.remoteMovesEnabled,
                     onChanged: (_) => ref
                         .read(gameUiNotifierProvider.notifier)
                         .toggleRemoteMoves(),
                   ),
                   SwitchListTile(
-                    title:
-                        const Text('Enable move evaluation & chart (Stockfish)'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Live evaluation'),
                     subtitle: const Text(
-                        'When on, the Analysis tab fills the eval chart during play.'),
+                      'Stockfish — fills the Analysis chart while you play',
+                    ),
                     value: ui.moveEvaluationEnabled,
                     onChanged: (v) => ref
                         .read(gameUiNotifierProvider.notifier)
@@ -480,19 +735,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: const Text('Reset board display defaults'),
                   ),
                 ],
-              ),
-            ),
           ),
-          const SizedBox(height: 6),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('App appearance',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 10),
+          _settingsTile(
+            title: 'App appearance',
+            subtitle: switch (prefs.appearance) {
+              'light' => 'Světlý vzhled',
+              'dark' => 'Tmavý vzhled',
+              'oled' => 'OLED',
+              _ => 'Podle systému',
+            },
+            leading: const Icon(Icons.palette_outlined),
+            children: [
                   DropdownButtonFormField<String>(
                     value: prefs.appearance,
                     decoration: const InputDecoration(
@@ -542,19 +795,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     },
                   ),
                 ],
-              ),
-            ),
           ),
 
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('Coach & AI',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
+          _settingsTile(
+            title: 'Coach & AI',
+            subtitle: _coachChainSubtitle(),
+            leading: const Icon(Icons.psychology_outlined),
+            maintainState: true,
+            children: [
                   Text(
                     'Drag to set fallback order: the app tries the first provider, then the next if it fails. '
                     'Leave the list empty for offline tips only. Keys stay on this device.',
@@ -1031,175 +1279,108 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: const Text('Save coach settings'),
                   ),
                 ],
-              ),
-            ),
-          ),
-
-          // ── BOARD CONNECTION ───────────────────────────────────────
-          _SectionHeader('Board connection'),
-          DropdownButtonFormField<String>(
-            value: _connectionMode,
-            decoration: const InputDecoration(
-                labelText: 'Connection mode', border: OutlineInputBorder()),
-            items: const [
-              DropdownMenuItem(
-                  value: 'auto', child: Text('Auto (BLE → Wi‑Fi)')),
-              DropdownMenuItem(value: 'wifi_only', child: Text('Wi‑Fi only')),
-              DropdownMenuItem(value: 'ble_only', child: Text('Bluetooth only')),
-            ],
-            onChanged: (v) {
-              if (v == null) return;
-              setState(() => _connectionMode = v);
-              prefs.setConnectionMode(v);
-            },
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _url,
-            decoration: const InputDecoration(
-              labelText: 'Default board URL',
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: TextInputType.url,
-          ),
-          const SizedBox(height: 8),
-          FilledButton(
-            onPressed: () async {
-              final n = normalizeBoardHttpBaseUrl(_url.text);
-              if (n == null) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Invalid URL — include a hostname (e.g. 192.168.4.1 or http://…)',
-                      ),
-                    ),
-                  );
-                }
-                return;
-              }
-              await prefs.setLastBoardBaseUrl(n);
-              _url.text = n;
-              if (context.mounted) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Saved')));
-              }
-            },
-            child: const Text('Save URL'),
-          ),
-          SwitchListTile(
-            title: const Text('Bluetooth only (do not switch to Wi‑Fi)'),
-            value: prefs.preferBluetoothOnly,
-            onChanged: (v) async {
-              await prefs.setPreferBluetoothOnly(v);
-              setState(() {});
-            },
-          ),
-          SwitchListTile(
-            title: const Text('WebSocket snapshot + REST watchdog'),
-            subtitle: const Text(
-                'After changing this, start a Wi‑Fi session again from Board discovery or Manual connection.'),
-            value: prefs.useWebSocket,
-            onChanged: (v) async {
-              await prefs.setUseWebSocket(v);
-              setState(() {});
-            },
           ),
 
           const FirmwareUpdateSection(),
 
-          Card(
-            child: ExpansionTile(
-              tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              title: const Text('Smart home (MQTT)'),
-              subtitle: const Text('Advanced Home Assistant integration'),
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                        builder: (_) => const HomeAssistantMqttScreen()),
-                  ),
-                  icon: const Icon(Icons.home_work_outlined),
-                  label: const Text('Home Assistant & MQTT (guide + form)'),
-                ),
-              ],
-            ),
-          ),
-
-          Card(
-            child: ExpansionTile(
-              tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              title: const Text('Board lamp'),
-              subtitle: const Text('Advanced LED lamp behavior'),
-              children: const [
-                BoardLampStudioPanel(),
-              ],
-            ),
-          ),
-
-          // ── APP MODULES ───────────────────────────────────────────
-          _SectionHeader('Modules & learning'),
-          _NavButton(
-              label: 'App tour (onboarding)',
-              onTap: () => Navigator.push(
+          _settingsTile(
+            title: 'Smart home (MQTT)',
+            subtitle: 'Home Assistant a MQTT',
+            leading: const Icon(Icons.home_work_outlined),
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => OnboardingScreen(
-                          onDone: () => Navigator.pop(context))))),
-          _NavButton(
-            label: 'Chess puzzles',
-            onTap: () => ref.read(mainNavTabIndexProvider.notifier).state =
-                AppMainTab.puzzle,
+                  MaterialPageRoute<void>(
+                      builder: (_) => const HomeAssistantMqttScreen()),
+                ),
+                icon: const Icon(Icons.home_work_outlined),
+                label: const Text('Home Assistant & MQTT (guide + form)'),
+              ),
+            ],
           ),
-          _NavButton(
-            label: 'Progress (learning & stats)',
-            onTap: () {
-              ref.read(progressSegmentProvider.notifier).state = 0;
-              ref.read(mainNavTabIndexProvider.notifier).state =
-                  AppMainTab.progress;
-            },
-          ),
-          _NavButton(
-              label: 'Help',
-              onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const HelpScreen()))),
 
-          Card(
-            child: ExpansionTile(
-              tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              title: const Text('Board memory & diagnostics'),
-              subtitle: const Text('Advanced tools and service actions'),
-              children: [
-                _NavButton(
-                  label: 'Board NVS rules (LED, bot)',
+          _settingsTile(
+            title: 'Světlo desky',
+            subtitle: 'Barva, jas, scény, auto‑vypnutí',
+            leading: const Icon(Icons.lightbulb_outline),
+            children: const [
+              BoardLampStudioPanel(),
+            ],
+          ),
+
+          _settingsTile(
+            title: 'Moduly a učení',
+            subtitle: 'Úvod, puzzle, profil, pokrok, nápověda',
+            leading: const Icon(Icons.school_outlined),
+            children: [
+              _NavButton(
+                  label: 'App tour (onboarding)',
                   onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const BoardDeviceFeaturesView())),
-                ),
-                if (devMode)
-                  _NavButton(
-                    label: 'Developer diagnostics',
-                    color: Colors.brown,
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const DeveloperSettingsView())),
+                          builder: (_) => OnboardingScreen(
+                              onDone: () => Navigator.pop(context))))),
+              _NavButton(
+                label: 'Chess puzzles',
+                onTap: () => ref.read(mainNavTabIndexProvider.notifier).state =
+                    AppMainTab.puzzle,
+              ),
+              _NavButton(
+                label: 'Profile & puzzle Elo',
+                onTap: () => Navigator.push<void>(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const UserProfileScreen(),
                   ),
-              ],
+                ),
+              ),
+              _NavButton(
+                label: 'Progress (learning & stats)',
+                onTap: () {
+                  ref.read(progressSegmentProvider.notifier).state = 0;
+                  ref.read(mainNavTabIndexProvider.notifier).state =
+                      AppMainTab.progress;
+                },
+              ),
+          _NavButton(
+            label: 'Help',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const HelpScreen()),
             ),
           ),
-          Card(
-            child: ExpansionTile(
-              tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              title: const Text('About'),
-              subtitle: const Text('Version, privacy, system info'),
-              children: [
+            ],
+          ),
+
+          _settingsTile(
+            title: 'Paměť desky a diagnostika',
+            subtitle: 'NVS pravidla, vývojářské nástroje',
+            leading: const Icon(Icons.memory_outlined),
+            children: [
+              _NavButton(
+                label: 'Board NVS rules (LED, bot)',
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const BoardDeviceFeaturesView())),
+              ),
+              if (devMode)
+                _NavButton(
+                  label: 'Developer diagnostics',
+                  color: Colors.brown,
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const DeveloperSettingsView())),
+                ),
+            ],
+          ),
+          _settingsTile(
+            title: 'O aplikaci',
+            subtitle: 'Verze, soukromí, systém',
+            leading: const Icon(Icons.info_outline),
+            children: [
                 FutureBuilder<PackageInfo>(
                   future: PackageInfo.fromPlatform(),
                   builder: (context, snap) {
@@ -1297,51 +1478,57 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     },
                   ),
                 ],
-              ],
-            ),
+            ],
           ),
 
-          // ── FACTORY RESET ─────────────────────────────────────────
-          const Divider(height: 40),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-            onPressed: () async {
-              final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                        title: const Text('Factory reset'),
-                        content: const Text(
-                            'Erase all board NVS (Wi‑Fi, passwords, MQTT, preferences)? The device will restart as a Wi‑Fi access point.'),
-                        actions: [
-                          TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text('Cancel')),
-                          TextButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text('Erase',
-                                  style: TextStyle(color: Colors.red))),
-                        ],
-                      ));
-              if (confirm == true && context.mounted) {
-                final baseUrl =
-                    normalizeBoardHttpBaseUrl(prefs.lastBoardBaseUrl);
-                if (baseUrl != null) {
-                  try {
-                    await ref
-                        .read(boardApiClientProvider)
-                        .postFactoryReset(baseUrl);
-                    if (context.mounted)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Command sent')));
-                  } catch (e) {
-                    if (context.mounted)
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text('Error: $e')));
+          _settingsTile(
+            title: 'Tovární reset desky',
+            subtitle: 'Smaže NVS na ESP — zařízení jako přístupový bod',
+            leading: Icon(Icons.warning_amber_rounded, color: cs.error),
+            children: [
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                            title: const Text('Factory reset'),
+                            content: const Text(
+                                'Erase all board NVS (Wi‑Fi, passwords, MQTT, preferences)? The device will restart as a Wi‑Fi access point.'),
+                            actions: [
+                              TextButton(
+                                  onPressed: () => Navigator.pop(ctx, false),
+                                  child: const Text('Cancel')),
+                              TextButton(
+                                  onPressed: () => Navigator.pop(ctx, true),
+                                  child: const Text('Erase',
+                                      style: TextStyle(color: Colors.red))),
+                            ],
+                          ));
+                  if (confirm == true && context.mounted) {
+                    final baseUrl =
+                        normalizeBoardHttpBaseUrl(prefs.lastBoardBaseUrl);
+                    if (baseUrl != null) {
+                      try {
+                        await ref
+                            .read(boardApiClientProvider)
+                            .postFactoryReset(baseUrl);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Command sent')));
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')));
+                        }
+                      }
+                    }
                   }
-                }
-              }
-            },
-            child: const Text('Run board factory reset'),
+                },
+                child: const Text('Run board factory reset'),
+              ),
+            ],
           ),
           const SizedBox(height: 40),
         ],
@@ -1349,19 +1536,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
     );
   }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(this.title);
-  final String title;
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(top: 24, bottom: 8),
-        child: Text(title,
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary)),
-      );
 }
 
 class _NavButton extends StatelessWidget {

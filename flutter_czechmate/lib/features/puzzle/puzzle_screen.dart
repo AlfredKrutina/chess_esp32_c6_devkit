@@ -309,12 +309,35 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     });
   }
 
-  void _tryOnScreen(WidgetRef ref, String fen) {
+  void _tryPuzzleOnScreen(
+    WidgetRef ref, {
+    required String fen,
+    required String title,
+    List<String> solution = const [],
+    int? rating,
+  }) {
     _stopTrainingIfActive();
-    ref.read(gameUiNotifierProvider.notifier).enterSandboxFromCustomFen(fen);
+    final uiN = ref.read(gameUiNotifierProvider.notifier);
+    if (solution.isEmpty) {
+      uiN.enterSandboxFromCustomFen(fen);
+    } else {
+      uiN.enterPuzzleChallenge(
+        fen: fen,
+        title: title,
+        solutionUci: solution,
+        rating: rating,
+      );
+    }
     ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Sandbox — záložka Hra')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          solution.isEmpty
+              ? 'Sandbox — záložka Hra'
+              : 'Puzzle ($title) — záložka Hra',
+        ),
+      ),
+    );
   }
 
   void _openBoardSetupWizard(BuildContext context, String fen) {
@@ -366,10 +389,17 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
       appBar: AppBar(
         title: const Text('Puzzle'),
         leading: IconButton(
-          tooltip: 'Zpět do hry',
+          tooltip: 'Zpět na živou partii',
           icon: const Icon(Icons.sports_esports_outlined),
-          onPressed: () => ref.read(mainNavTabIndexProvider.notifier).state =
-              AppMainTab.game,
+          onPressed: () async {
+            final ui = ref.read(gameUiNotifierProvider);
+            if (ui.sandboxMode) {
+              await ref.read(gameUiNotifierProvider.notifier).returnToLiveGame();
+            }
+            if (!context.mounted) return;
+            ref.read(mainNavTabIndexProvider.notifier).state =
+                AppMainTab.game;
+          },
         ),
         bottom: TabBar(
           controller: _tabs,
@@ -451,7 +481,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
               style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
           const SizedBox(height: 16),
           FilledButton(
-            onPressed: () => _tryOnScreen(ref, _daily!.fen),
+            onPressed: () => _tryPuzzleOnScreen(
+              ref,
+              fen: _daily!.fen,
+              title: 'Denní puzzle',
+              solution: _daily!.solutionMoves,
+              rating: _daily!.rating,
+            ),
             child: const Text('Zkusit vyřešit na obrazovce'),
           ),
           const SizedBox(height: 8),
@@ -553,7 +589,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                         ? '${it.fen.substring(0, 48)}…'
                         : it.fen),
                     isThreeLine: true,
-                    onTap: () => _tryOnScreen(ref, it.fen),
+                    onTap: () => _tryPuzzleOnScreen(
+                      ref,
+                      fen: it.fen,
+                      title: it.title,
+                      solution: it.solution,
+                      rating: it.rating,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -694,7 +736,11 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                   _puzzleBoardPreview(context, _trainingPick!.fen, maxSide: 360),
                   const SizedBox(height: 10),
                   FilledButton.tonal(
-                    onPressed: () => _tryOnScreen(ref, _trainingPick!.fen),
+                    onPressed: () => _tryPuzzleOnScreen(
+                      ref,
+                      fen: _trainingPick!.fen,
+                      title: _trainingPick!.title,
+                    ),
                     child: const Text('Řešit na obrazovce'),
                   ),
                   const SizedBox(height: 6),
@@ -730,7 +776,12 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                   subtitle: Text(b.subtitle),
                   isThreeLine: true,
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _tryOnScreen(ref, b.fen),
+                  onTap: () => _tryPuzzleOnScreen(
+                    ref,
+                    fen: b.fen,
+                    title: b.title,
+                    solution: b.solution,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),

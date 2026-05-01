@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/glass_snackbar.dart';
+
 /// SnackBar after BLE/Wi‑Fi actions from UI (timer, LEDs, refresh).
 Future<void> runBoardCommandWithSnackBar(
   BuildContext context,
@@ -9,18 +11,13 @@ Future<void> runBoardCommandWithSnackBar(
   try {
     await action();
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(successMessage)),
-    );
+    showGlassSnackBar(context, successMessage);
   } catch (e) {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Command failed. Check Bluetooth/Wi‑Fi connection and board URL in Settings. '
-          'Details: $e',
-        ),
-      ),
+    showGlassSnackBar(
+      context,
+      'Could not send command. Check Bluetooth/Wi‑Fi and the board URL in Settings. '
+      'Details: $e',
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../localization/context_l10n.dart';
 
 bool networkResultsSatisfied(List<ConnectivityResult> results) {
   if (results.isEmpty) return false;
@@ -26,6 +27,7 @@ class NetworkStatusBanners extends ConsumerWidget {
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
       data: (results) {
+        final l10n = context.l10n;
         final online = networkResultsSatisfied(results);
         final wifi = networkResultsWifi(results);
         final cs = Theme.of(context).colorScheme;
@@ -39,15 +41,14 @@ class NetworkStatusBanners extends ConsumerWidget {
               child: ListTile(
                 leading: Icon(Icons.cloud_off, color: cs.onErrorContainer),
                 title: Text(
-                  'No internet',
+                  l10n.netNoInternetTitle,
                   style: TextStyle(
                     color: cs.onErrorContainer,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 subtitle: Text(
-                  'Stockfish (chess-api), Lichess, and other cloud features need internet. '
-                  'You can still use the board over Bluetooth offline.',
+                  l10n.netNoInternetBody,
                   style: TextStyle(color: cs.onErrorContainer),
                 ),
               ),
@@ -60,14 +61,8 @@ class NetworkStatusBanners extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
               child: ListTile(
                 leading: Icon(Icons.network_cell, color: cs.primary),
-                title: const Text('Not on Wi‑Fi'),
-                subtitle: const Text(
-                  'chess-api usually works over mobile data. '
-                  'To open the board’s HTTP API on a LAN IP, the phone typically needs Wi‑Fi on the same network. '
-                  'If you are only on the board’s hotspot without internet, DNS for chess-api / Lichess may fail — '
-                  'temporarily disable that Wi‑Fi, enable mobile data, or use dual‑stack (Wi‑Fi + cellular data) if your OS allows. '
-                  'The app cannot force traffic to cellular while Wi‑Fi is the default route.',
-                ),
+                title: Text(l10n.netNotOnWifiTitle),
+                subtitle: Text(l10n.netNotOnWifiBody),
               ),
             ),
           );

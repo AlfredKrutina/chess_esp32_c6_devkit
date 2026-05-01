@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app_providers.dart';
 import '../../../core/constants/app_environment.dart';
+import '../../../core/constants/firmware_defaults.dart';
 import '../../../core/models/board_firmware_models.dart';
 import '../../../core/models/board_timer_state.dart';
 import '../../../core/utils/board_http_base_url.dart';
@@ -13,7 +14,7 @@ import '../../connection/board_session_state.dart';
 import '../firmware_ota_runner.dart';
 import '../firmware_update_availability.dart';
 
-/// OTA přes URL: telefon stáhne jen `version.json`, `.bin` táhne sama deska (HTTPS).
+/// HTTPS OTA: phone loads `version.json` only; the `.bin` is fetched by the ESP.
 class FirmwareUpdateSection extends ConsumerStatefulWidget {
   const FirmwareUpdateSection({super.key});
 
@@ -31,16 +32,28 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
   bool _otaBusy = false;
   int _otaPercent = 0;
 
+  static const String _otaDisabledHint =
+      'This flash layout has no OTA slots (ota_0 + ota_1). '
+      'Use USB/UART (esptool or idf.py flash) or rebuild firmware with a dual-OTA '
+      'partition table (see project partitions CSV).';
+
   @override
   void initState() {
     super.initState();
     _manifestCtrl = TextEditingController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final prefs = ref.read(prefsRepositoryProvider);
-      final saved = prefs.firmwareManifestUrl;
-      _manifestCtrl.text = (saved != null && saved.isNotEmpty)
-          ? saved
-          : prefs.firmwareManifestUrlEffective;
+      final saved = prefs.firmwareManifestUrl?.trim();
+      if (saved != null && saved.isNotEmpty) {
+        final fixed = normalizeFirmwareManifestUrl(saved);
+        if (fixed != saved) {
+          await prefs.setFirmwareManifestUrl(fixed);
+        }
+      }
+      final stored = ref.read(prefsRepositoryProvider).firmwareManifestUrl;
+      _manifestCtrl.text = (stored != null && stored.trim().isNotEmpty)
+          ? stored.trim()
+          : '';
       setState(() => _ctrlReady = true);
       unawaited(_reloadWifi());
       unawaited(
@@ -84,7 +97,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
         .setFirmwareManifestUrl(_manifestCtrl.text.trim());
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('URL manifestu uložena')),
+        const SnackBar(content: Text('Manifest URL saved')),
       );
     }
     unawaited(ref.read(firmwareUpdateAvailabilityProvider.notifier).refresh());
@@ -97,7 +110,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
 
     if (baseUrl == null || baseUrl.isEmpty) {
       setState(() => _detail =
-          'Chybí HTTP adresa desky (např. http://192.168.4.1). Ulož ji v „Default board URL“. BLE bez IP nestačí.',
+          'Board HTTP address is missing (e.g. http://192.168.4.1). '
+          'Set Default board URL in settings. Bluetooth alone does not provide an IP.',
         );
       return;
     }
@@ -130,21 +144,23 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
     final first = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Spustit aktualizaci desky?'),
+        title: const Text('Update board firmware?'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Nová verze: $remoteVersion → na desce: $boardVersion.'),
+              Text('New version: $remoteVersion — on board: $boardVersion.'),
               if (changelog != null && changelog.trim().isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(changelog.trim(), style: Theme.of(ctx).textTheme.bodySmall),
               ],
               const SizedBox(height: 12),
               const Text(
-                'Potvrzením odešleš jen HTTPS odkaz — celý .bin si stáhne ESP. '
-                'Potřebuješ Wi‑Fi STA na desce.',
+                'You only send an HTTPS link — the ESP downloads the full .bin. '
+                'The board must be connected to Wi‑Fi as a station (STA). '
+                'You can send the start command over Wi‑Fi HTTP or Bluetooth; '
+                'progress is read over HTTP to the board IP.',
               ),
             ],
           ),
@@ -152,11 +168,11 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Zrušit'),
+            child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Pokračovat'),
+            child: const Text('Continue'),
           ),
         ],
       ),
@@ -167,19 +183,19 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
     final second = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Naposledy potvrdit'),
+        title: const Text('Final confirmation'),
         content: const Text(
-          'Deska zapíše firmware do flash a restartuje se. Nepřerušuj napájení '
-          'ani Wi‑Fi během stahování. Opravdu pokračovat?',
+          'The board will write firmware and reboot. Do not cut power or lose '
+          'Wi‑Fi while downloading. Continue?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Ne'),
+            child: const Text('No'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Ano, aktualizovat'),
+            child: const Text('Yes, update'),
           ),
         ],
       ),
@@ -223,7 +239,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'OTA dokončena nebo spojení přerušeno — deska se může restartovat.',
+              'OTA finished or connection dropped — the board may reboot.',
             ),
           ),
         );
@@ -247,31 +263,57 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
     final remoteV = snap.manifest?.version ?? '—';
     final updateAvailable = snap.updateAvailable;
     final remindersOn = prefs.firmwareUpdateRemindersEnabled;
+    final otaCapable = snap.boardOtaSupported != false;
 
-    return Card(
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        title: Text(
-          updateAvailable ? 'Firmware — dostupná aktualizace ($remoteV)' : 'Firmware (OTA z internetu)',
-          style: updateAvailable
-              ? TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.primary,
-                )
-              : null,
-        ),
-        subtitle: Text(
-          updateAvailable
-              ? 'Ťukni níže na Aktualizovat nebo počkej na denní připomínku (${remindersOn ? "zapnuto" : "vypnuto"}).'
-              : 'Aplikace jen předá odkaz — soubor .bin stahuje přímo ESP přes HTTPS.',
-        ),
-        children: [
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        margin: EdgeInsets.zero,
+        child: Theme(
+          data: theme.copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            tilePadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            childrenPadding: EdgeInsets.zero,
+            leading: Icon(
+              Icons.system_update_alt_outlined,
+              color: theme.colorScheme.primary,
+            ),
+            title: Text(
+              updateAvailable
+                  ? 'Firmware — update available ($remoteV)'
+                  : 'Firmware (over-the-air)',
+              style: updateAvailable
+                  ? theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    )
+                  : theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              updateAvailable
+                  ? 'Tap Update below or wait for the daily reminder (${remindersOn ? "on" : "off"}).'
+                  : 'The app only forwards a link — the ESP downloads the .bin over HTTPS.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Denní připomínky aktualizace'),
+            title: const Text('Daily update reminders'),
             subtitle: const Text(
-              'Pokud je na serveru novější verze, aplikace se zeptá znovu každý den, dokud neaktualizuješ nebo nepřipomínky nevypneš.',
+              'If a newer version is on the server, ask again each day until you update or turn reminders off.',
             ),
             value: remindersOn,
             onChanged: (v) async {
@@ -282,9 +324,9 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
           TextField(
             controller: _manifestCtrl,
             decoration: const InputDecoration(
-              labelText: 'URL manifestu (version.json)',
+              labelText: 'Manifest URL (version.json)',
               hintText: 'https://…/version.json',
-              helperText: 'Prázdné = výchozí manifest projektu na GitHub Pages',
+              helperText: 'Empty = project default on GitHub Pages',
               border: OutlineInputBorder(),
             ),
             keyboardType: TextInputType.url,
@@ -294,7 +336,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
             children: [
               FilledButton.tonal(
                 onPressed: snap.loading || _otaBusy ? null : _saveManifestUrl,
-                child: const Text('Uložit manifest URL'),
+                child: const Text('Save manifest URL'),
               ),
               const SizedBox(width: 8),
               FilledButton(
@@ -305,32 +347,46 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Zkontrolovat'),
+                    : const Text('Check for update'),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
-            'Deska (HTTP): $boardV',
+            'Board (HTTP): $boardV',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           Text(
-            'V manifestu: $remoteV',
+            'Manifest: $remoteV',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           if (_wifiStatus != null)
             Text(
-              'Wi‑Fi STA: ${_wifiStatus!.staConnected ? "připojeno (${_wifiStatus!.staIp})" : "nepřipojeno"}',
+              'Wi‑Fi STA: ${_wifiStatus!.staConnected ? "connected (${_wifiStatus!.staIp})" : "not connected"}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           if (!baseOk)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'Nastav a ulož „Default board URL“ (AP nebo STA IP), jinak nelze číst verzi z desky.',
+                'Set and save Default board URL (AP or STA IP) to read the board version.',
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
+          if (snap.boardOtaSupported == false) ...[
+            const SizedBox(height: 12),
+            Material(
+              color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text(
+                  _otaDisabledHint,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ),
+          ],
           if (updateAvailable && snap.manifest != null) ...[
             const SizedBox(height: 12),
             Material(
@@ -339,17 +395,17 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
               child: ListTile(
                 leading: Icon(Icons.system_update_alt,
                     color: Theme.of(context).colorScheme.primary),
-                title: Text('Nová verze ${snap.manifest!.version}'),
+                title: Text('New version ${snap.manifest!.version}'),
                 subtitle:
                     (snap.manifest!.changelog != null &&
                         snap.manifest!.changelog!.trim().isNotEmpty)
                     ? Text(snap.manifest!.changelog!)
-                    : const Text('Stažení .bin proběhne na ESP přes HTTPS.'),
+                    : const Text('Download runs on the ESP over HTTPS.'),
                 trailing: FilledButton(
-                  onPressed: snap.loading || _otaBusy
+                  onPressed: !otaCapable || snap.loading || _otaBusy
                       ? null
                       : () => _startOta(snap.manifest!.url, snap.manifest!),
-                  child: const Text('Aktualizovat'),
+                  child: const Text('Update'),
                 ),
               ),
             ),
@@ -373,11 +429,16 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
           ],
           const SizedBox(height: 8),
           Text(
-            'Transport: ${session.transport.name}. '
-            'OTA příkaz jde i přes BLE; průběh se čte přes HTTP.',
+            'Connection: ${session.transport.name}. '
+            'Start command: Wi‑Fi HTTP or BLE. Download & flash: board via STA + HTTPS.',
             style: Theme.of(context).textTheme.labelSmall,
           ),
-        ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
