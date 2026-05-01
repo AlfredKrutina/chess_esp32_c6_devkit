@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_navigation.dart';
 import '../../app_providers.dart';
+import '../../core/localization/context_l10n.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/analysis/move_evaluation.dart';
 import '../../core/analysis/move_quality_aggregator.dart';
 import '../../core/models/game_snapshot.dart';
@@ -80,6 +82,7 @@ MoveGrade? _gradeFor(List<MoveEvalHistoryEntry> entries, int globalIndex) {
 
 Widget _buildQualityBlock(
   BuildContext context,
+  AppLocalizations l10n,
   String title,
   MoveQualityWindowStats w,
   MoveQualityWindowStats b,
@@ -88,9 +91,10 @@ Widget _buildQualityBlock(
     if (s.count == 0) return '—';
     final q = s.averageQualityPercent;
     final cp = s.averageCpLoss;
-    final qStr = q != null ? '${q.round()} %' : '—';
-    final cpStr = cp != null ? ' · Ø ztráta ${cp.round()} cp' : '';
-    return '$qStr$cpStr · ${s.count} tahů';
+    final quality = q != null ? '${q.round()} %' : '—';
+    final avgCp =
+        cp != null ? l10n.analysisAvgLossCp('${cp.round()}') : '';
+    return l10n.analysisQualitySummaryLine(quality, avgCp, s.count);
   }
 
   Widget col(String label, MoveQualityWindowStats s) => Expanded(
@@ -113,8 +117,8 @@ Widget _buildQualityBlock(
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            col('Bílý', w),
-            col('Černý', b),
+            col(l10n.timerWhiteShort, w),
+            col(l10n.timerBlackShort, b),
           ],
         ),
       ],
@@ -162,6 +166,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
       showDragHandle: true,
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
+        final l10n = ctx.l10n;
         return DraggableScrollableSheet(
           expand: false,
           initialChildSize: 0.55,
@@ -171,10 +176,11 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
             controller: scroll,
             padding: const EdgeInsets.all(16),
             children: [
-              Text('Průběh partie', style: Theme.of(ctx).textTheme.titleLarge),
+              Text(l10n.analysisGameProgress,
+                  style: Theme.of(ctx).textTheme.titleLarge),
               const SizedBox(height: 8),
               Text(
-                'Každý řádek je jeden tah v pořadí — nejdřív bílý, pak černý.',
+                l10n.analysisHalfMoveOrderHint,
                 style: Theme.of(ctx).textTheme.bodySmall,
               ),
               const Divider(height: 24),
@@ -190,7 +196,8 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                         color: _gradeColor(_gradeFor(evals, i), cs),
                         fontWeight: FontWeight.w500),
                   ),
-                  subtitle: Text(i % 2 == 0 ? 'Bílý' : 'Černý'),
+                  subtitle: Text(
+                      i % 2 == 0 ? l10n.timerWhiteShort : l10n.timerBlackShort),
                 ),
             ],
           ),
@@ -207,6 +214,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     final ui = ref.watch(gameUiNotifierProvider);
     final moveEval = ref.watch(moveEvalNotifierProvider);
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     _syncFenFromSession(snap);
 
@@ -225,10 +233,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Analýza'),
+        title: Text(l10n.analysisAppBarTitle),
         actions: [
           IconButton(
-            tooltip: 'Záložka Hra',
+            tooltip: l10n.navPlay,
             icon: const Icon(Icons.grid_on_outlined),
             onPressed: () => ref.read(mainNavTabIndexProvider.notifier).state =
                 AppMainTab.game,
@@ -243,9 +251,8 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
           Card(
             child: ListTile(
               leading: Icon(Icons.psychology, color: cs.primary),
-              title: const Text('Stockfish'),
-              subtitle: const Text(
-                  'Eval tahů a graf — chess-api nebo vlastní URL v Nastavení (vývojář).'),
+              title: Text(l10n.analysisStockfishSection),
+              subtitle: Text(l10n.analysisIntroEvalHint),
             ),
           ),
           const SizedBox(height: 12),
@@ -256,17 +263,16 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text('Žádná pozice z desky',
+                    Text(l10n.analysisNoBoardPosition,
                         style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
-                    const Text(
-                        'Na záložce Hra připoj šachovnici. Níže můžeš analyzovat vlastní FEN.'),
+                    Text(l10n.analysisNoBoardPositionHint),
                     const SizedBox(height: 12),
                     FilledButton.tonal(
                       onPressed: () => ref
                           .read(mainNavTabIndexProvider.notifier)
                           .state = AppMainTab.game,
-                      child: const Text('Otevřít Hru'),
+                      child: Text(l10n.analysisOpenPlay),
                     ),
                   ],
                 ),
@@ -285,16 +291,16 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                         contentPadding: EdgeInsets.zero,
                         leading: Icon(Icons.info_outline,
                             color: cs.onSecondaryContainer),
-                        title: Text('Graf a hodnocení tahů jsou vypnuté',
+                        title: Text(l10n.analysisChartDisabledTitle,
                             style: TextStyle(color: cs.onSecondaryContainer)),
                         subtitle: Text(
-                          'Zapni přepínač níže nebo v Nastavení → Vzhled šachovnice.',
+                          l10n.analysisChartDisabledBoardSubtitle,
                           style: TextStyle(color: cs.onSecondaryContainer),
                         ),
                       ),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Povolit hodnocení tahů (Stockfish)'),
+                        title: Text(l10n.analysisEnableMoveEval),
                         value: ui.moveEvaluationEnabled,
                         onChanged: (v) => ref
                             .read(gameUiNotifierProvider.notifier)
@@ -311,17 +317,17 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text('Přehled partie',
+                    Text(l10n.analysisGameOverview,
                         style: Theme.of(context).textTheme.titleMedium),
-                    const Text(
-                        'Eval pozice po tahu (perspektiva bílého: + výhoda bílého)',
-                        style: TextStyle(fontSize: 13)),
+                    Text(
+                        l10n.analysisOverviewSubtitleEval,
+                        style: const TextStyle(fontSize: 13)),
                     const SizedBox(height: 8),
                     if (chartPoints.isEmpty)
                       Text(
                         ui.moveEvaluationEnabled
-                            ? 'Graf se naplní po tazích, až Stockfish vyhodnotí pozici (hraj na kartě Hra s internetem).'
-                            : 'Po zapnutí automatického vyhodnocení uvidíš křivku zde.',
+                            ? l10n.analysisChartFillHintLiveEvalOn
+                            : l10n.analysisChartFillHintLiveEvalOff,
                         style: Theme.of(context).textTheme.bodySmall,
                       )
                     else ...[
@@ -330,9 +336,9 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                         onPressed: () => ref
                             .read(moveEvalNotifierProvider.notifier)
                             .clearHistory(),
-                        child: const Text(
-                            'Vymazat graf a uložené evaluace tahů',
-                            style: TextStyle(color: Colors.red)),
+                        child: Text(
+                            l10n.analysisClearEvalData,
+                            style: const TextStyle(color: Colors.red)),
                       ),
                     ],
                     const SizedBox(height: 8),
@@ -381,22 +387,22 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
             ),
             if (summary != null) ...[
               const Divider(height: 32),
-              Text('Kvalita tahů',
+              Text(l10n.analysisMoveQuality,
                   style: Theme.of(context).textTheme.titleMedium),
-              const Text('Průměr 0–100 podle stupně Stockfish a Ø ztráta v cp',
-                  style: TextStyle(fontSize: 12)),
+              Text(l10n.analysisMoveQualityBody,
+                  style: const TextStyle(fontSize: 12)),
               const SizedBox(height: 8),
-              _buildQualityBlock(context, 'Poslední 3 tahy strany',
+              _buildQualityBlock(context, l10n, l10n.analysisMoveQualitySideLast3,
                   summary.white.last3, summary.black.last3),
-              _buildQualityBlock(context, 'Posledních 10 tahů strany',
+              _buildQualityBlock(context, l10n, l10n.analysisMoveQualitySideLast10,
                   summary.white.last10, summary.black.last10),
-              _buildQualityBlock(context, 'Celá partie', summary.white.fullGame,
-                  summary.black.fullGame),
+              _buildQualityBlock(context, l10n, l10n.analysisMoveQualityFullGame,
+                  summary.white.fullGame, summary.black.fullGame),
             ],
             if (moveEval.lastMessage != null) ...[
               const Divider(height: 24),
               ListTile(
-                title: const Text('Poslední zhodnocení tahu'),
+                title: Text(l10n.analysisLastMoveEvalTitle),
                 subtitle: Text(
                   moveEval.lastMessage!,
                   style: TextStyle(color: _gradeColor(moveEval.lastGrade, cs)),
@@ -405,10 +411,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
             ],
             if (moveEval.lastBusy) const LinearProgressIndicator(),
             const Divider(height: 32),
-            Text('Historie tahů',
+            Text(l10n.analysisMoveHistoryTitle,
                 style: Theme.of(context).textTheme.titleMedium),
-            const Text('Klepnutím otevřeš chronologický průběh.',
-                style: TextStyle(fontSize: 12)),
+            Text(l10n.analysisMoveHistoryTapHint,
+                style: const TextStyle(fontSize: 12)),
             const SizedBox(height: 8),
             InkWell(
               onTap: () => _openSequential(
@@ -454,11 +460,11 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
             ),
           ],
           const Divider(height: 32),
-          Text('Druhá varianta',
+          Text(l10n.analysisSecondLineTitle,
               style: Theme.of(context).textTheme.titleMedium),
-          const Text(
-              'Porovnání hlavní hloubky s nižší (heuristika jako na iOS).',
-              style: TextStyle(fontSize: 12)),
+          Text(
+              l10n.analysisSecondLineBody,
+              style: const TextStyle(fontSize: 12)),
           const SizedBox(height: 8),
           if (_secondaryLine.isNotEmpty) Text(_secondaryLine),
           FilledButton.tonal(
@@ -478,15 +484,24 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                       final p = pair.primary;
                       final s = pair.secondary;
                       setState(() {
+                        final loc = AppLocalizations.of(context)!;
                         if (s != null) {
-                          final ev = p.evalPawns != null
-                              ? ' · eval ≈ ${p.evalPawns!.toStringAsFixed(2)} pěš.'
+                          final suffix = p.evalPawns != null
+                              ? loc.analysisSecondLineEvalApprox(
+                                  p.evalPawns!.toStringAsFixed(2))
                               : '';
-                          _secondaryLine =
-                              '1) ${p.from}→${p.to} · 2) ${s.from}→${s.to}$ev';
+                          _secondaryLine = loc.analysisSecondLineDualMoves(
+                            p.from,
+                            p.to,
+                            s.from,
+                            s.to,
+                            suffix,
+                          );
                         } else {
-                          _secondaryLine =
-                              'Obě hloubiny dávají stejný tah ${p.from}→${p.to}.';
+                          _secondaryLine = loc.analysisSecondLineSameMove(
+                            p.from,
+                            p.to,
+                          );
                         }
                       });
                     } catch (e) {
@@ -496,31 +511,31 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                     }
                   },
             child: Text(_busySecondary
-                ? 'Počítám…'
-                : 'Načíst druhou variantu (ze session FEN)'),
+                ? l10n.analysisSecondLineComputing
+                : l10n.analysisSecondLineLoadButton),
           ),
           const Divider(height: 32),
-          Text('Vlastní pozice',
+          Text(l10n.analysisCustomPositionTitle,
               style: Theme.of(context).textTheme.titleMedium),
-          const Text('Analýza bez fyzické desky',
-              style: TextStyle(fontSize: 12)),
+          Text(l10n.analysisCustomPositionBody,
+              style: const TextStyle(fontSize: 12)),
           const SizedBox(height: 8),
           TextField(
             controller: _fenCtrl,
             maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'FEN',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.analysisFenFieldLabel,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),
-          Text('Hloubka: $_depth'),
+          Text(l10n.analysisDepthLabel('$_depth')),
           Slider(
             min: 1,
             max: 18,
             divisions: 17,
             value: _depth.toDouble(),
-            label: '$_depth',
+            label: l10n.analysisDepthLabel('$_depth'),
             onChanged: (v) => setState(() => _depth = v.round()),
           ),
           Wrap(
@@ -535,18 +550,23 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                         if (fen.isEmpty) return;
                         setState(() {
                           _busyFree = true;
-                          _freeResult = 'Počítám…';
+                          _freeResult = l10n.analysisFreeAnalyzing;
                         });
                         try {
                           final mv = await ref
                               .read(stockfishApiClientProvider)
                               .fetchBestMove(fen, depth: _depth);
                           final ev = mv.evalPawns != null
-                              ? ' eval ≈ ${mv.evalPawns!.toStringAsFixed(2)} pěš.'
+                              ? l10n.analysisSecondLineEvalApprox(
+                                  mv.evalPawns!.toStringAsFixed(2))
                               : '';
                           setState(() {
-                            _freeResult =
-                                'Nejlepší tah: ${mv.from}–${mv.to}$ev${mv.text != null ? '\n${mv.text}' : ''}';
+                            _freeResult = l10n.analysisBestMoveLine(
+                              mv.from,
+                              mv.to,
+                              ev,
+                              mv.text != null ? '\n${mv.text}' : '',
+                            );
                             _freePreviewFen = fen;
                             final f = mv.from.trim();
                             final t = mv.to.trim();
@@ -555,7 +575,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                           });
                         } catch (e) {
                           setState(() {
-                            _freeResult = 'Chyba: $e';
+                            _freeResult = l10n.newGameErrorSnack('$e');
                             _freePreviewFen = '';
                             _freeHighlightFrom = null;
                             _freeHighlightTo = null;
@@ -564,7 +584,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                           if (mounted) setState(() => _busyFree = false);
                         }
                       },
-                child: const Text('Analyzovat pozici'),
+                child: Text(l10n.analysisAnalyzePosition),
               ),
               OutlinedButton(
                 onPressed: () {
@@ -576,11 +596,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                   ref.read(mainNavTabIndexProvider.notifier).state =
                       AppMainTab.game;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Sandbox z FEN — záložka Hra')),
+                    SnackBar(content: Text(l10n.analysisSandboxFenSnack)),
                   );
                 },
-                child: const Text('Náhled v Hře'),
+                child: Text(l10n.analysisPreviewInPlay),
               ),
             ],
           ),
@@ -590,7 +609,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
               _freeHighlightFrom != null &&
               _freeHighlightTo != null) ...[
             const SizedBox(height: 12),
-            Text('Náhled pozice a tahu',
+            Text(l10n.analysisPreviewMoveTitle,
                 style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             LayoutBuilder(

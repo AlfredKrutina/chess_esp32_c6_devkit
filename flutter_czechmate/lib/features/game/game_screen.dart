@@ -20,13 +20,11 @@ import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 import 'board/chess_board_widget.dart';
 import 'controls/game_control_panel.dart';
-import 'controls/new_game_time_sheet.dart';
 import 'controls/timer_display.dart';
 import 'history/move_history_view.dart';
 import 'live_activity_session_listener.dart';
 import 'report/game_end_report_screen.dart';
 import 'state/game_ui_notifier.dart';
-import 'state/game_ui_state.dart';
 
 enum _ConnectionTier { live, connecting, offline }
 
@@ -100,7 +98,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   bool _hintBusy = false;
 
   void _openGameControlsSheet() {
-    ref.read(gameUiNotifierProvider.notifier).setPinnedNewGameBarVisible(true);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -163,34 +160,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     showGlassSnackBar(
       context,
       l10n.gameDemoBoardSnack(label),
-    );
-  }
-
-  /// Wide „New game“ button — only after opening Game controls once this session.
-  Widget _newGamePinnedBar(BoardSessionState session, GameUiState ui) {
-    if (!ui.pinnedNewGameBarVisible) return const SizedBox.shrink();
-    final can = session.transport == BoardTransport.wifi ||
-        session.transport == BoardTransport.ble ||
-        session.transport == BoardTransport.mock;
-    if (!can) return const SizedBox.shrink();
-    final cs = Theme.of(context).colorScheme;
-    return Material(
-      elevation: 8,
-      color: cs.surfaceContainerLow,
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => showNewGameWithTimeSheet(context),
-              icon: const Icon(Icons.fiber_new),
-              label: Text(AppLocalizations.of(context)!.gameNewGame),
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -1012,7 +981,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     },
                   ),
           ),
-          _newGamePinnedBar(session, ui),
         ],
       ),
     );

@@ -616,6 +616,15 @@
   "settingsCoachCustomModel": "Custom…",
   "settingsCoachCustomModelId": "Custom model id",
   "settingsCoachCustomModelHint": "e.g. gemini-2.5-flash",
+  "settingsCoachOpenAiKeyHint": "sk-…",
+  "settingsCoachOpenAiModelHint": "gpt-4o-mini",
+  "settingsCoachGroqKeyHint": "Paste Groq API key",
+  "settingsCoachGroqModelHint": "llama-3.3-70b-versatile",
+  "settingsCoachGroqModelHelper": "Must match an enabled Groq model.",
+  "settingsCoachXaiKeyHint": "Paste xAI API key",
+  "settingsCoachXaiModelHint": "grok-2-latest",
+  "settingsCoachOllamaBaseHint": "http://127.0.0.1:11434/v1",
+  "settingsCoachOllamaModelHint": "llama3.2",
   "settingsCoachGetGoogleKey": "Get Google AI key",
   "settingsCoachGroqTitle": "Groq (OpenAI-compatible)",
   "settingsCoachXaiTitle": "xAI (Grok)",
@@ -678,6 +687,15 @@
   "manualConnRefreshWifi": "Refresh Wi‑Fi status",
   "manualConnDisconnectSta": "Disconnect ESP from STA",
   "manualConnClearWifiNvs": "Clear Wi‑Fi from NVS",
+  "manualConnClearConfirmAction": "Clear",
+  "manualConnUrlLabelDev": "Board base URL (http://…)",
+  "manualConnUrlLabelUser": "Board address",
+  "manualConnUrlHintDev": "http://192.168.x.x",
+  "manualConnUrlHintUser": "Address on your LAN",
+  "manualConnBleInfoTile": "You’re connected via Bluetooth. Enter the board address for network actions.",
+  "manualConnStaSectionDev": "Needs HTTP reachability to the board (same LAN or board AP). BLE-only without IP won’t call these endpoints.",
+  "manualConnStaSectionUser": "Use this section to manage the board’s network connection manually.",
+  "manualConnTestFailedUser": "Could not reach the board.",
   "haMqttTitle": "Home Assistant & MQTT",
   "haMqttSavedSnack": "MQTT saved to board.",
   "haMqttHowToHa": "Home Assistant guide",
@@ -789,6 +807,20 @@
   "analysisGameOverviewBody": "Material, clocks, and opening info when available.",
   "analysisMoveQuality": "Move quality",
   "analysisMoveQualityBody": "Average 0–100 by Stockfish grade and avg loss in cp.",
+  "analysisQualitySummaryLine": "{quality}{avgCp} · {count} moves",
+  "@analysisQualitySummaryLine": {
+    "placeholders": {
+      "quality": {
+        "type": "String"
+      },
+      "avgCp": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "analysisLastMoveEvalTitle": "Last move evaluation",
   "analysisMoveHistoryTitle": "Move history",
   "analysisMoveHistoryTapHint": "Tap to open chronological playback.",
@@ -876,7 +908,7 @@
   "progressLearnCardTitle": "Learn",
   "progressLearnCardSubtitle": "LED setup wizards and AI coach",
   "progressAiCoachTitle": "AI coach",
-  "progressAiCoachBody": "Ask questions and get hints tied to the position.",
+  "progressAiCoachBody": "Turn on learning mode on Play. Chat uses the cloud API or a local fallback; Stockfish stays on Analysis.",
   "progressLearningModeTile": "Learning mode",
   "progressCoachLevelLabel": "Coach level",
   "progressCoachChatButton": "Coach chat",
@@ -884,12 +916,53 @@
   "progressBoardErrorTitle": "Board error",
   "progressStartingPositionTitle": "Starting position",
   "progressStartingPositionBody": "Wizard aligns pieces using LEDs.",
+  "progressStartingPositionTeachingBody": "Teaching mode: LEDs show each square in order; the app shows which piece to place (same flow as iOS).",
   "progressRunWizardStarting": "Run wizard — starting position",
   "progressAccountCardTitle": "Account",
   "progressAccountCardSubtitle": "Local profile and activity",
   "progressActiveTransportTitle": "Active transport",
   "progressNoSessionTitle": "No active session yet",
   "progressNoSessionSubtitle": "Open Find board to connect.",
+  "progressStatsSegmentSubtitle": "Sessions and in-app stats",
+  "progressProfileIconTooltip": "Profile & Elo",
+  "progressLearningModePlayHint": "Enable learning mode on Play → Game controls to use chat and position plan.",
+  "progressWizardConnectHint": "Connect the board for LED wizards (connection chip on the Play tab).",
+  "progressStatsCurrentMoves": "Current move count",
+  "progressStatsPeakMoves": "Peak move count seen",
+  "progressStatsPollSuccess": "Successful HTTP polls",
+  "progressStatsPollFail": "Failed polls",
+  "progressStatsWsMessages": "WebSocket messages",
+  "progressShortOn": "on",
+  "progressShortOff": "off",
+  "progressWaitingForData": "waiting for data",
+  "progressTransportWifi": "Wi‑Fi",
+  "progressTransportBluetooth": "Bluetooth",
+  "progressTransportDevDetail": "{transport} · polling {pollState} · WS {wsState}",
+  "@progressTransportDevDetail": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      },
+      "pollState": {
+        "type": "String"
+      },
+      "wsState": {
+        "type": "String"
+      }
+    }
+  },
+  "progressTransportUserDetail": "{transport} · live sync {syncState}",
+  "@progressTransportUserDetail": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      },
+      "syncState": {
+        "type": "String"
+      }
+    }
+  },
+  "progressStatsEmptySubtitle": "Connect the board on Play — stats fill in once polling runs.",
   "helpAppBarTitle": "czechmate — help",
   "helpConnectTitle": "Connecting the board",
   "helpConnectBody": "Use Bluetooth to discover the board, then Wi‑Fi when available. Check Settings for manual URL and modes.",
@@ -1138,6 +1211,28 @@
   "lampColorStateSentSnack": "Color and lamp state sent.",
   "lampGenericCommandSnack": "Lamp command sent.",
   "lampBlockStatusSummary": "Mode: {mode} · RGB({r},{g},{b}) · hint limit: {h} · auto-off: {t}s",
+  "@lampBlockStatusSummary": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      },
+      "r": {
+        "type": "String"
+      },
+      "g": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      },
+      "h": {
+        "type": "String"
+      },
+      "t": {
+        "type": "String"
+      }
+    }
+  },
   "lampRgbHint": "Color (R G B) — POST /api/light/command",
   "lampSendColor": "Send color / lamp state",
   "lampGameModeButton": "Game lamp mode",
@@ -1421,14 +1516,6 @@
       }
     }
   },
-  "progressSegmentBeg": "Beg.",
-  "progressSegmentInt": "Int.",
-  "progressSegmentAdv": "Adv.",
-  "progressSegmentExp": "Exp.",
-  "progressLearningModeTitle": "Learning mode",
-  "progressCoachLevelTitle": "Coach level",
-  "progressTransportActiveTitle": "Active transport",
-  "progressNoSessionYet": "No active session yet",
   "progressLevelBeginner": "Beginner",
   "progressLevelIntermediate": "Intermediate",
   "progressLevelAdvanced": "Advanced",
@@ -1441,6 +1528,7 @@
       }
     }
   },
+  "progressNoSessionYet": "No active session yet",
   "analysisIntroEvalHint": "Move evaluation and chart — chess-api or custom URL in Settings (developer).",
   "analysisHalfMoveOrderHint": "Each row is one half-move in order — white first, then black.",
   "analysisNoBoardPositionHint": "On the Play tab, connect the chessboard. Below you can analyze a custom FEN.",
@@ -1461,6 +1549,26 @@
         "type": "String"
       },
       "to": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisSecondLineDualMoves": "1) {f1}→{t1} · 2) {f2}→{t2}{suffix}",
+  "@analysisSecondLineDualMoves": {
+    "placeholders": {
+      "f1": {
+        "type": "String"
+      },
+      "t1": {
+        "type": "String"
+      },
+      "f2": {
+        "type": "String"
+      },
+      "t2": {
+        "type": "String"
+      },
+      "suffix": {
         "type": "String"
       }
     }
@@ -1491,20 +1599,6 @@
       }
     }
   },
-  "analysisQualitySummaryLine": "{quality}{avgCp} · {count} moves",
-  "@analysisQualitySummaryLine": {
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      },
-      "avgCp": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "analysisAvgLossCp": " · avg loss {cp} cp",
   "@analysisAvgLossCp": {
     "placeholders": {
@@ -1513,6 +1607,7 @@
       }
     }
   },
+  "analysisFenFieldLabel": "FEN",
   "gameSandboxLoadPositionFirst": "Load a position first (connect the board or use demo).",
   "gameSandboxSelectPiece": "Select a piece",
   "gameSandboxWrongSide": "Not this side to move",

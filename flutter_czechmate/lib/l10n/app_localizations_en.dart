@@ -1147,6 +1147,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCoachCustomModelHint => 'e.g. gemini-2.5-flash';
 
   @override
+  String get settingsCoachOpenAiKeyHint => 'sk-…';
+
+  @override
+  String get settingsCoachOpenAiModelHint => 'gpt-4o-mini';
+
+  @override
+  String get settingsCoachGroqKeyHint => 'Paste Groq API key';
+
+  @override
+  String get settingsCoachGroqModelHint => 'llama-3.3-70b-versatile';
+
+  @override
+  String get settingsCoachGroqModelHelper =>
+      'Must match an enabled Groq model.';
+
+  @override
+  String get settingsCoachXaiKeyHint => 'Paste xAI API key';
+
+  @override
+  String get settingsCoachXaiModelHint => 'grok-2-latest';
+
+  @override
+  String get settingsCoachOllamaBaseHint => 'http://127.0.0.1:11434/v1';
+
+  @override
+  String get settingsCoachOllamaModelHint => 'llama3.2';
+
+  @override
   String get settingsCoachGetGoogleKey => 'Get Google AI key';
 
   @override
@@ -1277,6 +1305,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manualConnClearWifiNvs => 'Clear Wi‑Fi from NVS';
+
+  @override
+  String get manualConnClearConfirmAction => 'Clear';
+
+  @override
+  String get manualConnUrlLabelDev => 'Board base URL (http://…)';
+
+  @override
+  String get manualConnUrlLabelUser => 'Board address';
+
+  @override
+  String get manualConnUrlHintDev => 'http://192.168.x.x';
+
+  @override
+  String get manualConnUrlHintUser => 'Address on your LAN';
+
+  @override
+  String get manualConnBleInfoTile =>
+      'You’re connected via Bluetooth. Enter the board address for network actions.';
+
+  @override
+  String get manualConnStaSectionDev =>
+      'Needs HTTP reachability to the board (same LAN or board AP). BLE-only without IP won’t call these endpoints.';
+
+  @override
+  String get manualConnStaSectionUser =>
+      'Use this section to manage the board’s network connection manually.';
+
+  @override
+  String get manualConnTestFailedUser => 'Could not reach the board.';
 
   @override
   String get haMqttTitle => 'Home Assistant & MQTT';
@@ -1515,6 +1573,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Average 0–100 by Stockfish grade and avg loss in cp.';
 
   @override
+  String analysisQualitySummaryLine(String quality, String avgCp, int count) {
+    return '$quality$avgCp · $count moves';
+  }
+
+  @override
   String get analysisLastMoveEvalTitle => 'Last move evaluation';
 
   @override
@@ -1706,7 +1769,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get progressAiCoachBody =>
-      'Ask questions and get hints tied to the position.';
+      'Turn on learning mode on Play. Chat uses the cloud API or a local fallback; Stockfish stays on Analysis.';
 
   @override
   String get progressLearningModeTile => 'Learning mode';
@@ -1730,6 +1793,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progressStartingPositionBody => 'Wizard aligns pieces using LEDs.';
 
   @override
+  String get progressStartingPositionTeachingBody =>
+      'Teaching mode: LEDs show each square in order; the app shows which piece to place (same flow as iOS).';
+
+  @override
   String get progressRunWizardStarting => 'Run wizard — starting position';
 
   @override
@@ -1746,6 +1813,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get progressNoSessionSubtitle => 'Open Find board to connect.';
+
+  @override
+  String get progressStatsSegmentSubtitle => 'Sessions and in-app stats';
+
+  @override
+  String get progressProfileIconTooltip => 'Profile & Elo';
+
+  @override
+  String get progressLearningModePlayHint =>
+      'Enable learning mode on Play → Game controls to use chat and position plan.';
+
+  @override
+  String get progressWizardConnectHint =>
+      'Connect the board for LED wizards (connection chip on the Play tab).';
+
+  @override
+  String get progressStatsCurrentMoves => 'Current move count';
+
+  @override
+  String get progressStatsPeakMoves => 'Peak move count seen';
+
+  @override
+  String get progressStatsPollSuccess => 'Successful HTTP polls';
+
+  @override
+  String get progressStatsPollFail => 'Failed polls';
+
+  @override
+  String get progressStatsWsMessages => 'WebSocket messages';
+
+  @override
+  String get progressShortOn => 'on';
+
+  @override
+  String get progressShortOff => 'off';
+
+  @override
+  String get progressWaitingForData => 'waiting for data';
+
+  @override
+  String get progressTransportWifi => 'Wi‑Fi';
+
+  @override
+  String get progressTransportBluetooth => 'Bluetooth';
+
+  @override
+  String progressTransportDevDetail(
+      String transport, String pollState, String wsState) {
+    return '$transport · polling $pollState · WS $wsState';
+  }
+
+  @override
+  String progressTransportUserDetail(String transport, String syncState) {
+    return '$transport · live sync $syncState';
+  }
+
+  @override
+  String get progressStatsEmptySubtitle =>
+      'Connect the board on Play — stats fill in once polling runs.';
 
   @override
   String get helpAppBarTitle => 'czechmate — help';
@@ -2255,7 +2381,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String lampBlockStatusSummary(
-      Object b, Object g, Object h, Object mode, Object r, Object t) {
+      String mode, String r, String g, String b, String h, String t) {
     return 'Mode: $mode · RGB($r,$g,$b) · hint limit: $h · auto-off: ${t}s';
   }
 
@@ -2844,30 +2970,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get progressSegmentBeg => 'Beg.';
-
-  @override
-  String get progressSegmentInt => 'Int.';
-
-  @override
-  String get progressSegmentAdv => 'Adv.';
-
-  @override
-  String get progressSegmentExp => 'Exp.';
-
-  @override
-  String get progressLearningModeTitle => 'Learning mode';
-
-  @override
-  String get progressCoachLevelTitle => 'Coach level';
-
-  @override
-  String get progressTransportActiveTitle => 'Active transport';
-
-  @override
-  String get progressNoSessionYet => 'No active session yet';
-
-  @override
   String get progressLevelBeginner => 'Beginner';
 
   @override
@@ -2883,6 +2985,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String progressLevelNumber(int n) {
     return 'Level $n';
   }
+
+  @override
+  String get progressNoSessionYet => 'No active session yet';
 
   @override
   String get analysisIntroEvalHint =>
@@ -2937,6 +3042,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String analysisSecondLineDualMoves(
+      String f1, String t1, String f2, String t2, String suffix) {
+    return '1) $f1→$t1 · 2) $f2→$t2$suffix';
+  }
+
+  @override
   String analysisSecondLineEvalApprox(String pawns) {
     return ' · eval ≈ $pawns pawns.';
   }
@@ -2951,14 +3062,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String analysisQualitySummaryLine(String quality, String avgCp, int count) {
-    return '$quality$avgCp · $count moves';
-  }
-
-  @override
   String analysisAvgLossCp(String cp) {
     return ' · avg loss $cp cp';
   }
+
+  @override
+  String get analysisFenFieldLabel => 'FEN';
 
   @override
   String get gameSandboxLoadPositionFirst =>

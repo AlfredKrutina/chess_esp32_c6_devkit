@@ -2127,6 +2127,60 @@ abstract class AppLocalizations {
   /// **'e.g. gemini-2.5-flash'**
   String get settingsCoachCustomModelHint;
 
+  /// No description provided for @settingsCoachOpenAiKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'sk-…'**
+  String get settingsCoachOpenAiKeyHint;
+
+  /// No description provided for @settingsCoachOpenAiModelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'gpt-4o-mini'**
+  String get settingsCoachOpenAiModelHint;
+
+  /// No description provided for @settingsCoachGroqKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste Groq API key'**
+  String get settingsCoachGroqKeyHint;
+
+  /// No description provided for @settingsCoachGroqModelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'llama-3.3-70b-versatile'**
+  String get settingsCoachGroqModelHint;
+
+  /// No description provided for @settingsCoachGroqModelHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Must match an enabled Groq model.'**
+  String get settingsCoachGroqModelHelper;
+
+  /// No description provided for @settingsCoachXaiKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste xAI API key'**
+  String get settingsCoachXaiKeyHint;
+
+  /// No description provided for @settingsCoachXaiModelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'grok-2-latest'**
+  String get settingsCoachXaiModelHint;
+
+  /// No description provided for @settingsCoachOllamaBaseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'http://127.0.0.1:11434/v1'**
+  String get settingsCoachOllamaBaseHint;
+
+  /// No description provided for @settingsCoachOllamaModelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'llama3.2'**
+  String get settingsCoachOllamaModelHint;
+
   /// No description provided for @settingsCoachGetGoogleKey.
   ///
   /// In en, this message translates to:
@@ -2372,6 +2426,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear Wi‑Fi from NVS'**
   String get manualConnClearWifiNvs;
+
+  /// No description provided for @manualConnClearConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get manualConnClearConfirmAction;
+
+  /// No description provided for @manualConnUrlLabelDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Board base URL (http://…)'**
+  String get manualConnUrlLabelDev;
+
+  /// No description provided for @manualConnUrlLabelUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Board address'**
+  String get manualConnUrlLabelUser;
+
+  /// No description provided for @manualConnUrlHintDev.
+  ///
+  /// In en, this message translates to:
+  /// **'http://192.168.x.x'**
+  String get manualConnUrlHintDev;
+
+  /// No description provided for @manualConnUrlHintUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Address on your LAN'**
+  String get manualConnUrlHintUser;
+
+  /// No description provided for @manualConnBleInfoTile.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re connected via Bluetooth. Enter the board address for network actions.'**
+  String get manualConnBleInfoTile;
+
+  /// No description provided for @manualConnStaSectionDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs HTTP reachability to the board (same LAN or board AP). BLE-only without IP won’t call these endpoints.'**
+  String get manualConnStaSectionDev;
+
+  /// No description provided for @manualConnStaSectionUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this section to manage the board’s network connection manually.'**
+  String get manualConnStaSectionUser;
+
+  /// No description provided for @manualConnTestFailedUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the board.'**
+  String get manualConnTestFailedUser;
 
   /// No description provided for @haMqttTitle.
   ///
@@ -2793,6 +2901,12 @@ abstract class AppLocalizations {
   /// **'Average 0–100 by Stockfish grade and avg loss in cp.'**
   String get analysisMoveQualityBody;
 
+  /// No description provided for @analysisQualitySummaryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{quality}{avgCp} · {count} moves'**
+  String analysisQualitySummaryLine(String quality, String avgCp, int count);
+
   /// No description provided for @analysisLastMoveEvalTitle.
   ///
   /// In en, this message translates to:
@@ -3150,7 +3264,7 @@ abstract class AppLocalizations {
   /// No description provided for @progressAiCoachBody.
   ///
   /// In en, this message translates to:
-  /// **'Ask questions and get hints tied to the position.'**
+  /// **'Turn on learning mode on Play. Chat uses the cloud API or a local fallback; Stockfish stays on Analysis.'**
   String get progressAiCoachBody;
 
   /// No description provided for @progressLearningModeTile.
@@ -3195,6 +3309,12 @@ abstract class AppLocalizations {
   /// **'Wizard aligns pieces using LEDs.'**
   String get progressStartingPositionBody;
 
+  /// No description provided for @progressStartingPositionTeachingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Teaching mode: LEDs show each square in order; the app shows which piece to place (same flow as iOS).'**
+  String get progressStartingPositionTeachingBody;
+
   /// No description provided for @progressRunWizardStarting.
   ///
   /// In en, this message translates to:
@@ -3230,6 +3350,109 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Find board to connect.'**
   String get progressNoSessionSubtitle;
+
+  /// No description provided for @progressStatsSegmentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions and in-app stats'**
+  String get progressStatsSegmentSubtitle;
+
+  /// No description provided for @progressProfileIconTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile & Elo'**
+  String get progressProfileIconTooltip;
+
+  /// No description provided for @progressLearningModePlayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable learning mode on Play → Game controls to use chat and position plan.'**
+  String get progressLearningModePlayHint;
+
+  /// No description provided for @progressWizardConnectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect the board for LED wizards (connection chip on the Play tab).'**
+  String get progressWizardConnectHint;
+
+  /// No description provided for @progressStatsCurrentMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Current move count'**
+  String get progressStatsCurrentMoves;
+
+  /// No description provided for @progressStatsPeakMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak move count seen'**
+  String get progressStatsPeakMoves;
+
+  /// No description provided for @progressStatsPollSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Successful HTTP polls'**
+  String get progressStatsPollSuccess;
+
+  /// No description provided for @progressStatsPollFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed polls'**
+  String get progressStatsPollFail;
+
+  /// No description provided for @progressStatsWsMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'WebSocket messages'**
+  String get progressStatsWsMessages;
+
+  /// No description provided for @progressShortOn.
+  ///
+  /// In en, this message translates to:
+  /// **'on'**
+  String get progressShortOn;
+
+  /// No description provided for @progressShortOff.
+  ///
+  /// In en, this message translates to:
+  /// **'off'**
+  String get progressShortOff;
+
+  /// No description provided for @progressWaitingForData.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for data'**
+  String get progressWaitingForData;
+
+  /// No description provided for @progressTransportWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi'**
+  String get progressTransportWifi;
+
+  /// No description provided for @progressTransportBluetooth.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth'**
+  String get progressTransportBluetooth;
+
+  /// No description provided for @progressTransportDevDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{transport} · polling {pollState} · WS {wsState}'**
+  String progressTransportDevDetail(
+      String transport, String pollState, String wsState);
+
+  /// No description provided for @progressTransportUserDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{transport} · live sync {syncState}'**
+  String progressTransportUserDetail(String transport, String syncState);
+
+  /// No description provided for @progressStatsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect the board on Play — stats fill in once polling runs.'**
+  String get progressStatsEmptySubtitle;
 
   /// No description provided for @helpAppBarTitle.
   ///
@@ -4154,7 +4377,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mode: {mode} · RGB({r},{g},{b}) · hint limit: {h} · auto-off: {t}s'**
   String lampBlockStatusSummary(
-      Object b, Object g, Object h, Object mode, Object r, Object t);
+      String mode, String r, String g, String b, String h, String t);
 
   /// No description provided for @lampRgbHint.
   ///
@@ -5206,54 +5429,6 @@ abstract class AppLocalizations {
   /// **'Board communication error: {error}'**
   String boardHttpErrGeneric(String error);
 
-  /// No description provided for @progressSegmentBeg.
-  ///
-  /// In en, this message translates to:
-  /// **'Beg.'**
-  String get progressSegmentBeg;
-
-  /// No description provided for @progressSegmentInt.
-  ///
-  /// In en, this message translates to:
-  /// **'Int.'**
-  String get progressSegmentInt;
-
-  /// No description provided for @progressSegmentAdv.
-  ///
-  /// In en, this message translates to:
-  /// **'Adv.'**
-  String get progressSegmentAdv;
-
-  /// No description provided for @progressSegmentExp.
-  ///
-  /// In en, this message translates to:
-  /// **'Exp.'**
-  String get progressSegmentExp;
-
-  /// No description provided for @progressLearningModeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Learning mode'**
-  String get progressLearningModeTitle;
-
-  /// No description provided for @progressCoachLevelTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Coach level'**
-  String get progressCoachLevelTitle;
-
-  /// No description provided for @progressTransportActiveTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Active transport'**
-  String get progressTransportActiveTitle;
-
-  /// No description provided for @progressNoSessionYet.
-  ///
-  /// In en, this message translates to:
-  /// **'No active session yet'**
-  String get progressNoSessionYet;
-
   /// No description provided for @progressLevelBeginner.
   ///
   /// In en, this message translates to:
@@ -5283,6 +5458,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Level {n}'**
   String progressLevelNumber(int n);
+
+  /// No description provided for @progressNoSessionYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No active session yet'**
+  String get progressNoSessionYet;
 
   /// No description provided for @analysisIntroEvalHint.
   ///
@@ -5368,6 +5549,13 @@ abstract class AppLocalizations {
   /// **'Both depths agree on {from}→{to}.'**
   String analysisSecondLineSameMove(String from, String to);
 
+  /// No description provided for @analysisSecondLineDualMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'1) {f1}→{t1} · 2) {f2}→{t2}{suffix}'**
+  String analysisSecondLineDualMoves(
+      String f1, String t1, String f2, String t2, String suffix);
+
   /// No description provided for @analysisSecondLineEvalApprox.
   ///
   /// In en, this message translates to:
@@ -5387,17 +5575,17 @@ abstract class AppLocalizations {
   String analysisBestMoveLine(
       String from, String to, String evalSuffix, String extra);
 
-  /// No description provided for @analysisQualitySummaryLine.
-  ///
-  /// In en, this message translates to:
-  /// **'{quality}{avgCp} · {count} moves'**
-  String analysisQualitySummaryLine(String quality, String avgCp, int count);
-
   /// No description provided for @analysisAvgLossCp.
   ///
   /// In en, this message translates to:
   /// **' · avg loss {cp} cp'**
   String analysisAvgLossCp(String cp);
+
+  /// No description provided for @analysisFenFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'FEN'**
+  String get analysisFenFieldLabel;
 
   /// No description provided for @gameSandboxLoadPositionFirst.
   ///

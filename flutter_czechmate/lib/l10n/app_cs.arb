@@ -616,6 +616,15 @@
   "settingsCoachCustomModel": "Vlastní…",
   "settingsCoachCustomModelId": "Vlastní ID modelu",
   "settingsCoachCustomModelHint": "např. gemini-2.5-flash",
+  "settingsCoachOpenAiKeyHint": "sk-…",
+  "settingsCoachOpenAiModelHint": "gpt-4o-mini",
+  "settingsCoachGroqKeyHint": "Vlož Groq API klíč",
+  "settingsCoachGroqModelHint": "llama-3.3-70b-versatile",
+  "settingsCoachGroqModelHelper": "Musí odpovídat povolenému modelu Groq.",
+  "settingsCoachXaiKeyHint": "Vlož xAI API klíč",
+  "settingsCoachXaiModelHint": "grok-2-latest",
+  "settingsCoachOllamaBaseHint": "http://127.0.0.1:11434/v1",
+  "settingsCoachOllamaModelHint": "llama3.2",
   "settingsCoachGetGoogleKey": "Získat Google AI klíč",
   "settingsCoachGroqTitle": "Groq (kompatibilní s OpenAI)",
   "settingsCoachXaiTitle": "xAI (Grok)",
@@ -678,6 +687,15 @@
   "manualConnRefreshWifi": "Obnovit stav Wi‑Fi",
   "manualConnDisconnectSta": "Odpojit ESP od STA",
   "manualConnClearWifiNvs": "Smazat Wi‑Fi z NVS",
+  "manualConnClearConfirmAction": "Smazat",
+  "manualConnUrlLabelDev": "Základní URL desky (http://…)",
+  "manualConnUrlLabelUser": "Adresa šachovnice",
+  "manualConnUrlHintDev": "http://192.168.x.x",
+  "manualConnUrlHintUser": "Adresa v lokální síti",
+  "manualConnBleInfoTile": "Jsi připojen přes Bluetooth. Pro síťové funkce zadej adresu desky.",
+  "manualConnStaSectionDev": "Vyžaduje HTTP dosah na desku (stejná LAN nebo AP desky). Jen BLE bez IP tyto endpointy nevolá.",
+  "manualConnStaSectionUser": "Tato sekce slouží pro ruční správu síťového připojení desky.",
+  "manualConnTestFailedUser": "Spojení se nepodařilo navázat.",
   "haMqttTitle": "Home Assistant a MQTT",
   "haMqttSavedSnack": "MQTT uloženo na desku.",
   "haMqttHowToHa": "Jak na Home Assistant",
@@ -789,6 +807,20 @@
   "analysisGameOverviewBody": "Materiál, hodiny a zahájení, pokud jsou k dispozici.",
   "analysisMoveQuality": "Kvalita tahů",
   "analysisMoveQualityBody": "Průměr 0–100 podle stupně Stockfish a Ø ztráta v cp.",
+  "analysisQualitySummaryLine": "{quality}{avgCp} · {count} tahů",
+  "@analysisQualitySummaryLine": {
+    "placeholders": {
+      "quality": {
+        "type": "String"
+      },
+      "avgCp": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "analysisLastMoveEvalTitle": "Poslední zhodnocení tahu",
   "analysisMoveHistoryTitle": "Historie tahů",
   "analysisMoveHistoryTapHint": "Klepnutím otevřeš chronologický průběh.",
@@ -867,7 +899,7 @@
   "progressSegIntermediate": "Str.",
   "progressSegAdvanced": "Pokr.",
   "progressSegExpert": "Exp.",
-  "progressTabLearn": "Učení",
+  "progressTabLearn": "Výuka",
   "progressTabStats": "Statistiky",
   "progressWelcomeTitle": "Vítej v CzechMate",
   "progressWelcomeBody": "Sleduj puzzle, trenéra a nastavení desky na jednom místě.",
@@ -876,20 +908,61 @@
   "progressLearnCardTitle": "Výuka",
   "progressLearnCardSubtitle": "LED průvodci a AI trenér",
   "progressAiCoachTitle": "AI trenér",
-  "progressAiCoachBody": "Ptej se a dostávej nápovědy k pozici.",
+  "progressAiCoachBody": "Zapni výukový režim na kartě Hra. Chat používá cloudové API nebo lokální zálohu; Stockfish zůstává na Analýze.",
   "progressLearningModeTile": "Výukový režim",
   "progressCoachLevelLabel": "Úroveň trenéra",
-  "progressCoachChatButton": "Chat s trenérem",
+  "progressCoachChatButton": "Chat trenéra",
   "progressPositionPlanButton": "Plán pozice",
   "progressBoardErrorTitle": "Chyba desky",
   "progressStartingPositionTitle": "Výchozí postavení",
   "progressStartingPositionBody": "Průvodce srovná figury pomocí LED.",
+  "progressStartingPositionTeachingBody": "Výukový režim: LED ukazují pole postupně; aplikace říká, kterou figurku položit (stejný postup jako na iOS).",
   "progressRunWizardStarting": "Spustit průvodce — výchozí postavení",
   "progressAccountCardTitle": "Účet",
   "progressAccountCardSubtitle": "Místní profil a aktivita",
   "progressActiveTransportTitle": "Aktivní transport",
   "progressNoSessionTitle": "Zatím žádná aktivní session",
   "progressNoSessionSubtitle": "Otevři Najít desku pro připojení.",
+  "progressStatsSegmentSubtitle": "Session a statistiky v aplikaci",
+  "progressProfileIconTooltip": "Profil a Elo",
+  "progressLearningModePlayHint": "Zapni výukový režim na kartě Hra → Ovládání hry pro chat a plán pozice.",
+  "progressWizardConnectHint": "Pro LED průvodce připoj desku (čip připojení na kartě Hra).",
+  "progressStatsCurrentMoves": "Aktuální počet tahů",
+  "progressStatsPeakMoves": "Max. pozorovaný počet tahů",
+  "progressStatsPollSuccess": "Úspěšné HTTP dotazy",
+  "progressStatsPollFail": "Neúspěšné dotazy",
+  "progressStatsWsMessages": "WebSocket zprávy",
+  "progressShortOn": "zap.",
+  "progressShortOff": "vyp.",
+  "progressWaitingForData": "čekání na data",
+  "progressTransportWifi": "Wi‑Fi",
+  "progressTransportBluetooth": "Bluetooth",
+  "progressTransportDevDetail": "{transport} · polling {pollState} · WS {wsState}",
+  "@progressTransportDevDetail": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      },
+      "pollState": {
+        "type": "String"
+      },
+      "wsState": {
+        "type": "String"
+      }
+    }
+  },
+  "progressTransportUserDetail": "{transport} · živá synchronizace {syncState}",
+  "@progressTransportUserDetail": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      },
+      "syncState": {
+        "type": "String"
+      }
+    }
+  },
+  "progressStatsEmptySubtitle": "Na kartě Hra připoj desku — statistiky se doplní po startu dotazů.",
   "helpAppBarTitle": "czechmate — nápověda",
   "helpConnectTitle": "Připojení desky",
   "helpConnectBody": "Pro vyhledání použij Bluetooth, pak Wi‑Fi pokud je dostupné. V Nastavení najdeš ruční URL a režimy.",
@@ -1138,6 +1211,28 @@
   "lampColorStateSentSnack": "Barva a stav lampy odeslány.",
   "lampGenericCommandSnack": "Příkaz lampy odeslán.",
   "lampBlockStatusSummary": "Režim: {mode} · RGB({r},{g},{b}) · limit nápověd: {h} · auto zhasnutí: {t} s",
+  "@lampBlockStatusSummary": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      },
+      "r": {
+        "type": "String"
+      },
+      "g": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      },
+      "h": {
+        "type": "String"
+      },
+      "t": {
+        "type": "String"
+      }
+    }
+  },
   "lampRgbHint": "Barva (R G B) — POST /api/light/command",
   "lampSendColor": "Odeslat barvu / stav lampy",
   "lampGameModeButton": "Režim hry (LED podle partie)",
@@ -1421,14 +1516,6 @@
       }
     }
   },
-  "progressSegmentBeg": "Zač.",
-  "progressSegmentInt": "Stř.",
-  "progressSegmentAdv": "Pokr.",
-  "progressSegmentExp": "Exp.",
-  "progressLearningModeTitle": "Výukový režim",
-  "progressCoachLevelTitle": "Úroveň trenéra",
-  "progressTransportActiveTitle": "Aktivní přenos",
-  "progressNoSessionYet": "Zatím žádná aktivní session",
   "progressLevelBeginner": "Začátečník",
   "progressLevelIntermediate": "Středně pokročilý",
   "progressLevelAdvanced": "Pokročilý",
@@ -1441,6 +1528,7 @@
       }
     }
   },
+  "progressNoSessionYet": "Zatím žádná aktivní session",
   "analysisIntroEvalHint": "Eval tahů a graf — chess-api nebo vlastní URL v Nastavení (vývojář).",
   "analysisHalfMoveOrderHint": "Každý řádek je jeden tah v pořadí — nejdřív bílý, pak černý.",
   "analysisNoBoardPositionHint": "Na záložce Hra připoj šachovnici. Níže můžeš analyzovat vlastní FEN.",
@@ -1461,6 +1549,26 @@
         "type": "String"
       },
       "to": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisSecondLineDualMoves": "1) {f1}→{t1} · 2) {f2}→{t2}{suffix}",
+  "@analysisSecondLineDualMoves": {
+    "placeholders": {
+      "f1": {
+        "type": "String"
+      },
+      "t1": {
+        "type": "String"
+      },
+      "f2": {
+        "type": "String"
+      },
+      "t2": {
+        "type": "String"
+      },
+      "suffix": {
         "type": "String"
       }
     }
@@ -1491,20 +1599,6 @@
       }
     }
   },
-  "analysisQualitySummaryLine": "{quality}{avgCp} · {count} tahů",
-  "@analysisQualitySummaryLine": {
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      },
-      "avgCp": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "analysisAvgLossCp": " · Ø ztráta {cp} cp",
   "@analysisAvgLossCp": {
     "placeholders": {
@@ -1513,6 +1607,7 @@
       }
     }
   },
+  "analysisFenFieldLabel": "FEN",
   "gameSandboxLoadPositionFirst": "Nejdřív načti pozici (připoj desku nebo použij demo).",
   "gameSandboxSelectPiece": "Vyber figurku",
   "gameSandboxWrongSide": "Není tah této barvy",

@@ -375,7 +375,18 @@ class BoardApiClient {
   /// Veřejný manifest (`version.json`) — libovolné HTTPS; nejde přes IP desky.
   Future<FirmwareManifest> fetchFirmwareManifest(String manifestUrl) async {
     final uri = Uri.parse(manifestUrl.trim());
-    final res = await _client.get(uri).timeout(_timeout);
+    // Identity encoding avoids gzip/binary mismatch with some HTTP stacks; GitHub likes a User-Agent.
+    final res = await _client
+        .get(
+          uri,
+          headers: const {
+            'Accept': 'application/json',
+            'Accept-Encoding': 'identity',
+            'User-Agent':
+                'CzechMate/1.0 (Flutter; +https://github.com/alfredkrutina/chess_esp32_c6_devkit)',
+          },
+        )
+        .timeout(_timeout);
     if (res.statusCode != 200) {
       final detail = _manifestFetchErrorDetail(res.statusCode, res.bodyBytes);
       throw BoardApiException(

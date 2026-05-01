@@ -41,8 +41,6 @@ class GameUiState {
     this.puzzleBoardTint = 0,
     this.puzzleBoardTintGreen = false,
     this.puzzleSnackText,
-    /// Shown after opening Game controls — pinned „New game“ under the board area.
-    this.pinnedNewGameBarVisible = false,
   });
 
   final bool boardFlipped;
@@ -76,7 +74,6 @@ class GameUiState {
   final bool puzzleBoardTintGreen;
   /// Jednorázová zpráva pro SnackBar (puzzle úspěch/neúspěch), po zobrazení se vyčistí.
   final String? puzzleSnackText;
-  final bool pinnedNewGameBarVisible;
 
   GameUiState copyWith({
     bool? boardFlipped,
@@ -111,7 +108,6 @@ class GameUiState {
     bool clearPuzzleTint = false,
     String? puzzleSnackText,
     bool clearPuzzleSnack = false,
-    bool? pinnedNewGameBarVisible,
     bool clearSelection = false,
     bool clearSandboxFen = false,
     bool clearPromotion = false,
@@ -174,8 +170,6 @@ class GameUiState {
       puzzleSnackText: clearPuzzleSnack
           ? null
           : (puzzleSnackText ?? this.puzzleSnackText),
-      pinnedNewGameBarVisible:
-          pinnedNewGameBarVisible ?? this.pinnedNewGameBarVisible,
     );
   }
 }

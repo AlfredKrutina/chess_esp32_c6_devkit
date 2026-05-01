@@ -120,11 +120,6 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     state = state.copyWith(isControlPanelExpanded: expanded);
   }
 
-  void setPinnedNewGameBarVisible(bool visible) {
-    if (state.pinnedNewGameBarVisible == visible) return;
-    state = state.copyWith(pinnedNewGameBarVisible: visible);
-  }
-
   Future<void> setLearningMode(bool v) async {
     await _ref.read(prefsRepositoryProvider).setLearningModeEnabled(v);
     state = state.copyWith(learningMode: v);

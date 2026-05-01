@@ -234,19 +234,62 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
 
   Future<void> _exportAndShare() async {
     final l10n = AppLocalizations.of(context)!;
+    final snap = ref.read(boardSessionNotifierProvider).snapshot;
+    if (snap == null) return;
+
     setState(() => _isExporting = true);
     try {
-      final boundary = _shareBoundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) {
-        if (mounted) {
-          showGlassSnackBar(context, l10n.shareSummaryNotReady);
-        }
-        return;
-      }
+      final model = GameEndReportModel.fromSnapshot(snap);
+      final moveEval = ref.read(moveEvalNotifierProvider);
+      final nMoves = snap.history.moves.length;
+      final evalPoints = moveEval.entries
+          .where((e) => e.evalWhitePawns != null && e.moveIndex1Based <= nMoves)
+          .map((e) => (moveIndex: e.moveIndex1Based, eval: e.evalWhitePawns!, grade: e.grade))
+          .toList();
+      final think = GameEndReportTiming.thinkPlyPoints(snap.history.moves);
+      final cumulative = GameEndReportTiming.cumulativePoints(think);
+      final barPoints = think.where((p) => p.secondsFromPrevious != null).toList();
+      final hasTiming = barPoints.isNotEmpty || cumulative.isNotEmpty;
 
       await WidgetsBinding.instance.endOfFrame;
 
-      final image = await boundary.toImage(pixelRatio: 3.0);
+      final logical = _exportOpts.logicalSize();
+      final wrapped = Theme(
+        data: Theme.of(context),
+        child: _shareRasterCanvas(
+          l10n: l10n,
+          opts: _exportOpts,
+          model: model,
+          snapshot: snap,
+          evalPoints: evalPoints,
+          think: think,
+          cumulative: cumulative,
+          hasTiming: hasTiming,
+        ),
+      );
+
+      // Primary: off-screen raster (GlobalKey on in-list preview is unreliable).
+      ui.Image? image = await captureWidgetOffscreen(
+        context: context,
+        child: wrapped,
+        logicalSize: logical,
+        pixelRatio: 3,
+      );
+
+      if (image == null) {
+        await WidgetsBinding.instance.endOfFrame;
+        final boundary =
+            _shareBoundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+        if (boundary != null) {
+          image = await boundary.toImage(pixelRatio: 3.0);
+        }
+      }
+
+      if (image == null) {
+        if (mounted) showGlassSnackBar(context, l10n.shareSummaryNotReady);
+        return;
+      }
+
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       image.dispose();
       if (byteData == null) {
@@ -254,19 +297,15 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
       }
       final pngBytes = byteData.buffer.asUint8List();
 
-      final snap = ref.read(boardSessionNotifierProvider).snapshot;
-      final reportModel = snap != null ? GameEndReportModel.fromSnapshot(snap) : null;
       if (!mounted) return;
       final box = context.findRenderObject() as RenderBox?;
       final rect = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
 
-      final meta = reportModel == null
-          ? l10n.appTitle
-          : l10n.shareGameSummaryMeta(
-              _resultText(l10n, reportModel.result),
-              _formatDuration(l10n, reportModel.durationSec),
-              reportModel.totalMoves,
-            );
+      final meta = l10n.shareGameSummaryMeta(
+        _resultText(l10n, model.result),
+        _formatDuration(l10n, model.durationSec),
+        model.totalMoves,
+      );
       final tmp = await getTemporaryDirectory();
       final dir = Directory('${tmp.path}/czechmate_share');
       await dir.create(recursive: true);

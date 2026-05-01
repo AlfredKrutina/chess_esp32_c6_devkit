@@ -1144,6 +1144,34 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsCoachCustomModelHint => 'např. gemini-2.5-flash';
 
   @override
+  String get settingsCoachOpenAiKeyHint => 'sk-…';
+
+  @override
+  String get settingsCoachOpenAiModelHint => 'gpt-4o-mini';
+
+  @override
+  String get settingsCoachGroqKeyHint => 'Vlož Groq API klíč';
+
+  @override
+  String get settingsCoachGroqModelHint => 'llama-3.3-70b-versatile';
+
+  @override
+  String get settingsCoachGroqModelHelper =>
+      'Musí odpovídat povolenému modelu Groq.';
+
+  @override
+  String get settingsCoachXaiKeyHint => 'Vlož xAI API klíč';
+
+  @override
+  String get settingsCoachXaiModelHint => 'grok-2-latest';
+
+  @override
+  String get settingsCoachOllamaBaseHint => 'http://127.0.0.1:11434/v1';
+
+  @override
+  String get settingsCoachOllamaModelHint => 'llama3.2';
+
+  @override
   String get settingsCoachGetGoogleKey => 'Získat Google AI klíč';
 
   @override
@@ -1272,6 +1300,36 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get manualConnClearWifiNvs => 'Smazat Wi‑Fi z NVS';
+
+  @override
+  String get manualConnClearConfirmAction => 'Smazat';
+
+  @override
+  String get manualConnUrlLabelDev => 'Základní URL desky (http://…)';
+
+  @override
+  String get manualConnUrlLabelUser => 'Adresa šachovnice';
+
+  @override
+  String get manualConnUrlHintDev => 'http://192.168.x.x';
+
+  @override
+  String get manualConnUrlHintUser => 'Adresa v lokální síti';
+
+  @override
+  String get manualConnBleInfoTile =>
+      'Jsi připojen přes Bluetooth. Pro síťové funkce zadej adresu desky.';
+
+  @override
+  String get manualConnStaSectionDev =>
+      'Vyžaduje HTTP dosah na desku (stejná LAN nebo AP desky). Jen BLE bez IP tyto endpointy nevolá.';
+
+  @override
+  String get manualConnStaSectionUser =>
+      'Tato sekce slouží pro ruční správu síťového připojení desky.';
+
+  @override
+  String get manualConnTestFailedUser => 'Spojení se nepodařilo navázat.';
 
   @override
   String get haMqttTitle => 'Home Assistant a MQTT';
@@ -1510,6 +1568,11 @@ class AppLocalizationsCs extends AppLocalizations {
       'Průměr 0–100 podle stupně Stockfish a Ø ztráta v cp.';
 
   @override
+  String analysisQualitySummaryLine(String quality, String avgCp, int count) {
+    return '$quality$avgCp · $count tahů';
+  }
+
+  @override
   String get analysisLastMoveEvalTitle => 'Poslední zhodnocení tahu';
 
   @override
@@ -1670,7 +1733,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get progressSegExpert => 'Exp.';
 
   @override
-  String get progressTabLearn => 'Učení';
+  String get progressTabLearn => 'Výuka';
 
   @override
   String get progressTabStats => 'Statistiky';
@@ -1699,7 +1762,8 @@ class AppLocalizationsCs extends AppLocalizations {
   String get progressAiCoachTitle => 'AI trenér';
 
   @override
-  String get progressAiCoachBody => 'Ptej se a dostávej nápovědy k pozici.';
+  String get progressAiCoachBody =>
+      'Zapni výukový režim na kartě Hra. Chat používá cloudové API nebo lokální zálohu; Stockfish zůstává na Analýze.';
 
   @override
   String get progressLearningModeTile => 'Výukový režim';
@@ -1708,7 +1772,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get progressCoachLevelLabel => 'Úroveň trenéra';
 
   @override
-  String get progressCoachChatButton => 'Chat s trenérem';
+  String get progressCoachChatButton => 'Chat trenéra';
 
   @override
   String get progressPositionPlanButton => 'Plán pozice';
@@ -1722,6 +1786,10 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get progressStartingPositionBody =>
       'Průvodce srovná figury pomocí LED.';
+
+  @override
+  String get progressStartingPositionTeachingBody =>
+      'Výukový režim: LED ukazují pole postupně; aplikace říká, kterou figurku položit (stejný postup jako na iOS).';
 
   @override
   String get progressRunWizardStarting =>
@@ -1741,6 +1809,65 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get progressNoSessionSubtitle => 'Otevři Najít desku pro připojení.';
+
+  @override
+  String get progressStatsSegmentSubtitle => 'Session a statistiky v aplikaci';
+
+  @override
+  String get progressProfileIconTooltip => 'Profil a Elo';
+
+  @override
+  String get progressLearningModePlayHint =>
+      'Zapni výukový režim na kartě Hra → Ovládání hry pro chat a plán pozice.';
+
+  @override
+  String get progressWizardConnectHint =>
+      'Pro LED průvodce připoj desku (čip připojení na kartě Hra).';
+
+  @override
+  String get progressStatsCurrentMoves => 'Aktuální počet tahů';
+
+  @override
+  String get progressStatsPeakMoves => 'Max. pozorovaný počet tahů';
+
+  @override
+  String get progressStatsPollSuccess => 'Úspěšné HTTP dotazy';
+
+  @override
+  String get progressStatsPollFail => 'Neúspěšné dotazy';
+
+  @override
+  String get progressStatsWsMessages => 'WebSocket zprávy';
+
+  @override
+  String get progressShortOn => 'zap.';
+
+  @override
+  String get progressShortOff => 'vyp.';
+
+  @override
+  String get progressWaitingForData => 'čekání na data';
+
+  @override
+  String get progressTransportWifi => 'Wi‑Fi';
+
+  @override
+  String get progressTransportBluetooth => 'Bluetooth';
+
+  @override
+  String progressTransportDevDetail(
+      String transport, String pollState, String wsState) {
+    return '$transport · polling $pollState · WS $wsState';
+  }
+
+  @override
+  String progressTransportUserDetail(String transport, String syncState) {
+    return '$transport · živá synchronizace $syncState';
+  }
+
+  @override
+  String get progressStatsEmptySubtitle =>
+      'Na kartě Hra připoj desku — statistiky se doplní po startu dotazů.';
 
   @override
   String get helpAppBarTitle => 'czechmate — nápověda';
@@ -2248,7 +2375,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String lampBlockStatusSummary(
-      Object b, Object g, Object h, Object mode, Object r, Object t) {
+      String mode, String r, String g, String b, String h, String t) {
     return 'Režim: $mode · RGB($r,$g,$b) · limit nápověd: $h · auto zhasnutí: $t s';
   }
 
@@ -2835,30 +2962,6 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String get progressSegmentBeg => 'Zač.';
-
-  @override
-  String get progressSegmentInt => 'Stř.';
-
-  @override
-  String get progressSegmentAdv => 'Pokr.';
-
-  @override
-  String get progressSegmentExp => 'Exp.';
-
-  @override
-  String get progressLearningModeTitle => 'Výukový režim';
-
-  @override
-  String get progressCoachLevelTitle => 'Úroveň trenéra';
-
-  @override
-  String get progressTransportActiveTitle => 'Aktivní přenos';
-
-  @override
-  String get progressNoSessionYet => 'Zatím žádná aktivní session';
-
-  @override
   String get progressLevelBeginner => 'Začátečník';
 
   @override
@@ -2874,6 +2977,9 @@ class AppLocalizationsCs extends AppLocalizations {
   String progressLevelNumber(int n) {
     return 'Úroveň $n';
   }
+
+  @override
+  String get progressNoSessionYet => 'Zatím žádná aktivní session';
 
   @override
   String get analysisIntroEvalHint =>
@@ -2928,6 +3034,12 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String analysisSecondLineDualMoves(
+      String f1, String t1, String f2, String t2, String suffix) {
+    return '1) $f1→$t1 · 2) $f2→$t2$suffix';
+  }
+
+  @override
   String analysisSecondLineEvalApprox(String pawns) {
     return ' · eval ≈ $pawns pěš.';
   }
@@ -2942,14 +3054,12 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String analysisQualitySummaryLine(String quality, String avgCp, int count) {
-    return '$quality$avgCp · $count tahů';
-  }
-
-  @override
   String analysisAvgLossCp(String cp) {
     return ' · Ø ztráta $cp cp';
   }
+
+  @override
+  String get analysisFenFieldLabel => 'FEN';
 
   @override
   String get gameSandboxLoadPositionFirst =>

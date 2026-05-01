@@ -1,7 +1,10 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
+import '../../../core/constants/app_environment.dart';
 
 /// Captures a [RepaintBoundary] after layout (same frame pipeline as share export).
 Future<ui.Image?> captureRepaintBoundaryImage({
@@ -15,6 +18,11 @@ Future<ui.Image?> captureRepaintBoundaryImage({
   return boundary.toImage(pixelRatio: pixelRatio);
 }
 
+OverlayState? _overlayForCapture(BuildContext context) {
+  return Overlay.maybeOf(context, rootOverlay: true) ??
+      Overlay.maybeOf(context);
+}
+
 /// Inserts an off-screen overlay, paints one frame, captures, removes overlay.
 Future<ui.Image?> captureWidgetOffscreen({
   required BuildContext context,
@@ -23,8 +31,13 @@ Future<ui.Image?> captureWidgetOffscreen({
   double pixelRatio = 3,
 }) async {
   final key = GlobalKey();
-  final overlay = Overlay.maybeOf(context);
-  if (overlay == null) return null;
+  final overlay = _overlayForCapture(context);
+  if (overlay == null) {
+    if (AppEnvironment.staging) {
+      debugPrint('[staging] captureWidgetOffscreen: Overlay not found');
+    }
+    return null;
+  }
 
   late OverlayEntry entry;
   entry = OverlayEntry(
@@ -46,8 +59,10 @@ Future<ui.Image?> captureWidgetOffscreen({
   );
 
   overlay.insert(entry);
+  // Two frames: overlay entry layout + child intrinsic layout (charts/board).
   await WidgetsBinding.instance.endOfFrame;
-  await Future<void>.delayed(Duration.zero);
+  await WidgetsBinding.instance.endOfFrame;
+
   ui.Image? image;
   try {
     final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;

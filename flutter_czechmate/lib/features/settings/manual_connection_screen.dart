@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/localization/context_l10n.dart';
 import '../../core/utils/board_http_base_url.dart';
 import '../../core/models/board_timer_state.dart';
 import '../connection/board_session_notifier.dart';
@@ -63,8 +64,8 @@ class _ManualConnectionScreenState
       if (mounted) setState(() => _wifiStatus = s);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Wi‑Fi status: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.manualConnWifiStatusError('$e'))));
       }
     } finally {
       if (mounted) setState(() => _wifiBusy = false);
@@ -74,8 +75,8 @@ class _ManualConnectionScreenState
   Future<void> _postStaDisconnect() async {
     final base = _normalizedBase();
     if (base == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Zadej URL desky')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.manualConnEnterUrlSnack)));
       return;
     }
     setState(() => _wifiBusy = true);
@@ -83,7 +84,7 @@ class _ManualConnectionScreenState
       await ref.read(boardApiClientProvider).postWiFiDisconnect(base);
       if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('STA odpojeno (příkaz odeslán)')));
+            SnackBar(content: Text(context.l10n.manualConnStaDisconnectedSnack)));
     } catch (e) {
       if (mounted)
         ScaffoldMessenger.of(context)
@@ -97,25 +98,27 @@ class _ManualConnectionScreenState
   Future<void> _postWifiClearNvs() async {
     final base = _normalizedBase();
     if (base == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Zadej URL desky')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.manualConnEnterUrlSnack)));
       return;
     }
     final ok = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Smazat uloženou Wi‑Fi z NVS?'),
-        content: const Text(
-            'ESP smaže SSID/heslo z NVS. Obnovení STA provedeš novým zápisem sítě.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Zrušit')),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Smazat')),
-        ],
-      ),
+      builder: (ctx) {
+        final l = ctx.l10n;
+        return AlertDialog(
+          title: Text(l.manualConnClearWifiTitle),
+          content: Text(l.manualConnClearWifiBody),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(l.commonCancel)),
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(l.manualConnClearConfirmAction)),
+          ],
+        );
+      },
     );
     if (ok != true) return;
     setState(() => _wifiBusy = true);
@@ -123,7 +126,7 @@ class _ManualConnectionScreenState
       await ref.read(boardApiClientProvider).postWiFiClear(base);
       if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Wi‑Fi credentials v NVS vymazány')));
+            SnackBar(content: Text(context.l10n.manualConnNvsClearedSnack)));
     } catch (e) {
       if (mounted)
         ScaffoldMessenger.of(context)
@@ -136,6 +139,7 @@ class _ManualConnectionScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final session = ref.watch(boardSessionNotifierProvider);
     final devMode = ref
             .watch(sharedPreferencesProvider)
@@ -144,7 +148,7 @@ class _ManualConnectionScreenState
     final canSta = _normalizedBase() != null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ruční připojení')),
+      appBar: AppBar(title: Text(l10n.manualConnTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -152,11 +156,11 @@ class _ManualConnectionScreenState
             controller: _url,
             decoration: InputDecoration(
               labelText: devMode
-                  ? 'Základní URL desky (http://…)'
-                  : 'Adresa šachovnice',
+                  ? l10n.manualConnUrlLabelDev
+                  : l10n.manualConnUrlLabelUser,
               hintText:
-                  devMode ? 'http://192.168.x.x' : 'Adresa v lokální síti',
-              border: OutlineInputBorder(),
+                  devMode ? l10n.manualConnUrlHintDev : l10n.manualConnUrlHintUser,
+              border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.url,
             onChanged: (_) => setState(() {}),
@@ -168,11 +172,7 @@ class _ManualConnectionScreenState
               if (n == null) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Neplatná URL — chybí hostitel (např. http://192.168.4.1)',
-                      ),
-                    ),
+                    SnackBar(content: Text(context.l10n.settingsInvalidUrlSnack)),
                   );
                 }
                 return;
@@ -181,10 +181,10 @@ class _ManualConnectionScreenState
               _url.text = n;
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('URL uložena do prefs')));
+                    SnackBar(content: Text(context.l10n.manualConnSaveUrlSnack)));
               }
             },
-            child: const Text('Uložit URL'),
+            child: Text(l10n.manualConnSaveUrl),
           ),
           const SizedBox(height: 8),
           OutlinedButton(
@@ -199,11 +199,12 @@ class _ManualConnectionScreenState
                 sw.stop();
                 setState(() => _ping = '${sw.elapsedMilliseconds} ms');
               } catch (e) {
-                setState(() => _ping =
-                    devMode ? 'Chyba: $e' : 'Spojení se nepodařilo navázat');
+                setState(() => _ping = devMode
+                    ? context.l10n.newGameErrorSnack('$e')
+                    : context.l10n.manualConnTestFailedUser);
               }
             },
-            child: const Text('Test spojení (GET snapshot)'),
+            child: Text(l10n.manualConnTestConnection),
           ),
           if (_ping.isNotEmpty)
             Padding(
@@ -221,16 +222,16 @@ class _ManualConnectionScreenState
                         .connectWifi(u);
                     if (context.mounted) Navigator.pop(context);
                   },
-            child: const Text('Připojit session (Wi‑Fi + poll)'),
+            child: Text(l10n.manualConnConnectSession),
           ),
           const Divider(height: 40),
-          Text('Wi‑Fi STA a NVS',
+          Text(l10n.manualConnWifiStaNvs,
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Text(
             devMode
-                ? 'Vyžaduje HTTP dosah na desku (stejná LAN nebo připojení k AP desky). Jen BLE bez IP tyto endpointy nevolá.'
-                : 'Tato sekce slouží pro ruční správu síťového připojení desky.',
+                ? l10n.manualConnStaSectionDev
+                : l10n.manualConnStaSectionUser,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 12),
@@ -238,11 +239,10 @@ class _ManualConnectionScreenState
             Material(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8),
-              child: const ListTile(
+              child: ListTile(
                 dense: true,
-                leading: Icon(Icons.info_outline),
-                title: Text(
-                    'Aktuálně jsi připojen přes Bluetooth. Pro síťové funkce je potřeba zadat adresu desky.'),
+                leading: const Icon(Icons.info_outline),
+                title: Text(l10n.manualConnBleInfoTile),
               ),
             ),
             const SizedBox(height: 12),
@@ -266,15 +266,15 @@ class _ManualConnectionScreenState
             children: [
               OutlinedButton(
                 onPressed: !_wifiBusy && canSta ? _refreshWiFiStatus : null,
-                child: const Text('Obnovit stav Wi‑Fi'),
+                child: Text(l10n.manualConnRefreshWifi),
               ),
               OutlinedButton(
                 onPressed: !_wifiBusy && canSta ? _postStaDisconnect : null,
-                child: const Text('Odpojit ESP od STA'),
+                child: Text(l10n.manualConnDisconnectSta),
               ),
               OutlinedButton(
                 onPressed: !_wifiBusy && canSta ? _postWifiClearNvs : null,
-                child: const Text('Smazat Wi‑Fi z NVS'),
+                child: Text(l10n.manualConnClearWifiNvs),
               ),
             ],
           ),

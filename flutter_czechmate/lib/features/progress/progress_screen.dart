@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/localization/context_l10n.dart';
+import '../../l10n/app_localizations.dart';
 import '../coach/coach_screen.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
@@ -17,32 +19,32 @@ bool _supportsRemoteBoardCommands(BoardSessionState s) {
   return false;
 }
 
-String _transportLabel(BoardSessionState session) {
+String _transportLabel(AppLocalizations l, BoardSessionState session) {
   return switch (session.transport) {
-    BoardTransport.none => 'Disconnected',
-    BoardTransport.mock => 'Demo mode',
-    BoardTransport.wifi => 'Wi‑Fi',
-    BoardTransport.ble => 'Bluetooth',
+    BoardTransport.none => l.settingsLinkDisconnected,
+    BoardTransport.mock => l.transportShortDemo,
+    BoardTransport.wifi => l.progressTransportWifi,
+    BoardTransport.ble => l.progressTransportBluetooth,
   };
 }
 
-String _coachLevelTooltip(int level) {
+String _coachLevelTooltip(AppLocalizations l, int level) {
   return switch (level) {
-    1 => 'Beginner — začátečník',
-    2 => 'Intermediate — středně pokročilý',
-    3 => 'Advanced — pokročilý',
-    4 => 'Expert — expert',
-    _ => 'Úroveň $level',
+    1 => l.progressLevelBeginner,
+    2 => l.progressLevelIntermediate,
+    3 => l.progressLevelAdvanced,
+    4 => l.progressLevelExpert,
+    _ => l.progressLevelNumber(level),
   };
 }
 
 /// True when four labeled segments would fit without wrapping (níže jen ✓).
-bool _coachLevelSegmentedLabelsFit(BuildContext context, double rowWidth) {
+bool _coachLevelSegmentedLabelsFit(
+    BuildContext context, double rowWidth, List<String> labels) {
   if (rowWidth <= 0) return false;
   final style = Theme.of(context).textTheme.labelLarge ??
       const TextStyle(fontSize: 14, fontWeight: FontWeight.w500);
   final scaler = MediaQuery.textScalerOf(context);
-  const labels = ['Beg.', 'Int.', 'Adv.', 'Exp.'];
   var maxLabel = 0.0;
   for (final l in labels) {
     final tp = TextPainter(
@@ -65,6 +67,13 @@ class _CoachLevelRow extends ConsumerWidget {
     final prefs = ref.watch(prefsRepositoryProvider);
     final cs = Theme.of(context).colorScheme;
     final level = prefs.coachUserLevel.clamp(1, 4);
+    final l10n = context.l10n;
+    final segLabels = [
+      l10n.progressSegBeginner,
+      l10n.progressSegIntermediate,
+      l10n.progressSegAdvanced,
+      l10n.progressSegExpert,
+    ];
 
     Future<void> apply(int v) async {
       await ref.read(prefsRepositoryProvider).setCoachUserLevel(v);
@@ -74,14 +83,14 @@ class _CoachLevelRow extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, bc) {
         final compact =
-            !_coachLevelSegmentedLabelsFit(context, bc.maxWidth);
+            !_coachLevelSegmentedLabelsFit(context, bc.maxWidth, segLabels);
         if (!compact) {
           return SegmentedButton<int>(
-            segments: const [
-              ButtonSegment(value: 1, label: Text('Beg.')),
-              ButtonSegment(value: 2, label: Text('Int.')),
-              ButtonSegment(value: 3, label: Text('Adv.')),
-              ButtonSegment(value: 4, label: Text('Exp.')),
+            segments: [
+              ButtonSegment(value: 1, label: Text(l10n.progressSegBeginner)),
+              ButtonSegment(value: 2, label: Text(l10n.progressSegIntermediate)),
+              ButtonSegment(value: 3, label: Text(l10n.progressSegAdvanced)),
+              ButtonSegment(value: 4, label: Text(l10n.progressSegExpert)),
             ],
             selected: {level},
             onSelectionChanged: (Set<int> s) async {
@@ -100,10 +109,10 @@ class _CoachLevelRow extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 3),
                   child: Tooltip(
-                    message: _coachLevelTooltip(i),
+                    message: _coachLevelTooltip(l10n, i),
                     child: Semantics(
                       button: true,
-                      label: _coachLevelTooltip(i),
+                      label: _coachLevelTooltip(l10n, i),
                       selected: level == i,
                       child: Material(
                         color: level == i
@@ -147,15 +156,16 @@ class ProgressScreen extends ConsumerWidget {
     final segment = ref.watch(progressSegmentProvider);
     final prefs = ref.watch(prefsRepositoryProvider);
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
       appBar: AppBar(
-        title: const Text('Progress'),
+        title: Text(l10n.progressAppBarTitle),
         centerTitle: false,
         actions: [
           IconButton(
-            tooltip: 'Profile & Elo',
+            tooltip: l10n.progressProfileIconTooltip,
             icon: const Icon(Icons.person_outline),
             onPressed: () => Navigator.push<void>(
               context,
@@ -176,15 +186,15 @@ class ProgressScreen extends ConsumerWidget {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SegmentedButton<int>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                           value: 0,
-                          label: Text('Learn'),
-                          icon: Icon(Icons.school, size: 18)),
+                          label: Text(l10n.progressTabLearn),
+                          icon: const Icon(Icons.school, size: 18)),
                       ButtonSegment(
                           value: 1,
-                          label: Text('Stats'),
-                          icon: Icon(Icons.bar_chart, size: 18)),
+                          label: Text(l10n.progressTabStats),
+                          icon: const Icon(Icons.bar_chart, size: 18)),
                     ],
                     selected: {segment},
                     onSelectionChanged: (Set<int> s) {
@@ -197,8 +207,8 @@ class ProgressScreen extends ConsumerWidget {
                 const SizedBox(height: 6),
                 Text(
                   segment == 0
-                      ? 'Board wizards and AI coach'
-                      : 'Sessions and in-app stats',
+                      ? l10n.progressLearnCardSubtitle
+                      : l10n.progressStatsSegmentSubtitle,
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall
@@ -220,7 +230,7 @@ class ProgressScreen extends ConsumerWidget {
                   child: Icon(Icons.person_rounded,
                       color: cs.onPrimaryContainer),
                 ),
-                title: const Text('Profile & puzzle Elo'),
+                title: Text(l10n.progressProfilePuzzleEloTitle),
                 subtitle: Text(
                   '${prefs.profileDisplayName} · Elo ${prefs.puzzleElo}',
                   maxLines: 1,
@@ -252,13 +262,14 @@ class _LearnBody extends ConsumerWidget {
     final ui = ref.watch(gameUiNotifierProvider);
     final uiN = ref.read(gameUiNotifierProvider.notifier);
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const _SectionHeader(
-            title: 'Learn',
-            subtitle: 'LED setup wizards and AI coach',
+        _SectionHeader(
+            title: l10n.progressLearnCardTitle,
+            subtitle: l10n.progressLearnCardSubtitle,
             icon: Icons.school),
         Card(
           elevation: 0,
@@ -279,10 +290,10 @@ class _LearnBody extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('AI coach',
+                          Text(l10n.progressAiCoachTitle,
                               style: Theme.of(context).textTheme.titleMedium),
                           Text(
-                            'Turn on learning mode on Play. Chat uses the cloud API or a local fallback; Stockfish stays on Analysis.',
+                            l10n.progressAiCoachBody,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
@@ -296,11 +307,11 @@ class _LearnBody extends ConsumerWidget {
                 const SizedBox(height: 12),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Learning mode'),
+                  title: Text(l10n.progressLearningModeTile),
                   value: ui.learningMode,
                   onChanged: (v) => uiN.setLearningMode(v),
                 ),
-                Text('Coach level',
+                Text(l10n.progressCoachLevelLabel,
                     style: Theme.of(context).textTheme.labelLarge),
                 const SizedBox(height: 6),
                 const _CoachLevelRow(),
@@ -316,7 +327,7 @@ class _LearnBody extends ConsumerWidget {
                                 )
                             : null,
                         icon: const Icon(Icons.chat_bubble_outline),
-                        label: const Text('Coach chat'),
+                        label: Text(l10n.progressCoachChatButton),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -329,7 +340,7 @@ class _LearnBody extends ConsumerWidget {
                                 )
                             : null,
                         icon: const Icon(Icons.center_focus_strong_outlined),
-                        label: const Text('Position plan'),
+                        label: Text(l10n.progressPositionPlanButton),
                       ),
                     ),
                   ],
@@ -338,7 +349,7 @@ class _LearnBody extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      'Enable learning mode on Play → Game controls to use chat and position plan.',
+                      l10n.progressLearningModePlayHint,
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -355,7 +366,7 @@ class _LearnBody extends ConsumerWidget {
             color: cs.errorContainer,
             child: ListTile(
               leading: Icon(Icons.error_outline, color: cs.onErrorContainer),
-              title: Text('Board error',
+              title: Text(l10n.progressBoardErrorTitle,
                   style: TextStyle(
                       color: cs.onErrorContainer, fontWeight: FontWeight.w600)),
               subtitle: Text('${session.lastError}',
@@ -370,11 +381,11 @@ class _LearnBody extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Starting position',
+                Text(l10n.progressStartingPositionTitle,
                     style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 6),
                 Text(
-                  'Teaching mode: LEDs show each square in order; the app shows which piece to place (same flow as iOS).',
+                  l10n.progressStartingPositionTeachingBody,
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall
@@ -394,13 +405,13 @@ class _LearnBody extends ConsumerWidget {
                         }
                       : null,
                   icon: const Icon(Icons.grid_3x3),
-                  label: const Text('Run wizard — starting position'),
+                  label: Text(l10n.progressRunWizardStarting),
                 ),
                 if (!_supportsRemoteBoardCommands(session))
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      'Connect the board for LED wizards (connection chip on the Play tab).',
+                      l10n.progressWizardConnectHint,
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -422,6 +433,7 @@ class _StatsBody extends ConsumerWidget {
     final session = ref.watch(boardSessionNotifierProvider);
     final prefs = ref.watch(prefsRepositoryProvider);
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final peak = prefs.statsPeakMoveCount;
     final devMode = ref
             .watch(sharedPreferencesProvider)
@@ -431,9 +443,9 @@ class _StatsBody extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const _SectionHeader(
-            title: 'Account',
-            subtitle: 'Local profile and activity',
+        _SectionHeader(
+            title: l10n.progressAccountCardTitle,
+            subtitle: l10n.progressAccountCardSubtitle,
             icon: Icons.analytics_outlined),
         Card(
           elevation: 0,
@@ -442,17 +454,17 @@ class _StatsBody extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                _LabeledRow('Current move count',
+                _LabeledRow(l10n.progressStatsCurrentMoves,
                     '${session.snapshot?.status.moveCount ?? 0}'),
                 const Divider(),
-                _LabeledRow('Peak move count seen', '$peak'),
+                _LabeledRow(l10n.progressStatsPeakMoves, '$peak'),
                 const Divider(),
                 _LabeledRow(
-                    'Successful HTTP polls', '${session.pollSuccessCount}'),
+                    l10n.progressStatsPollSuccess, '${session.pollSuccessCount}'),
                 const Divider(),
-                _LabeledRow('Failed polls', '${session.pollFailureCount}'),
+                _LabeledRow(l10n.progressStatsPollFail, '${session.pollFailureCount}'),
                 const Divider(),
-                _LabeledRow('WebSocket messages', '${session.wsMessageCount}'),
+                _LabeledRow(l10n.progressStatsWsMessages, '${session.wsMessageCount}'),
               ],
             ),
           ),
@@ -464,11 +476,24 @@ class _StatsBody extends ConsumerWidget {
             color: cs.surfaceContainerHigh,
             child: ListTile(
               leading: const Icon(Icons.link),
-              title: const Text('Active transport'),
+              title: Text(l10n.progressActiveTransportTitle),
               subtitle: Text(
                 devMode
-                    ? '${_transportLabel(session)} · polling ${session.pollingActive ? "on" : "off"} · WS ${session.webSocketActive ? "on" : "off"}'
-                    : '${_transportLabel(session)} · live sync ${session.snapshot != null ? "active" : "waiting for data"}',
+                    ? l10n.progressTransportDevDetail(
+                        _transportLabel(l10n, session),
+                        session.pollingActive
+                            ? l10n.progressShortOn
+                            : l10n.progressShortOff,
+                        session.webSocketActive
+                            ? l10n.progressShortOn
+                            : l10n.progressShortOff,
+                      )
+                    : l10n.progressTransportUserDetail(
+                        _transportLabel(l10n, session),
+                        session.snapshot != null
+                            ? l10n.connDiagActive
+                            : l10n.progressWaitingForData,
+                      ),
               ),
             ),
           )
@@ -476,11 +501,10 @@ class _StatsBody extends ConsumerWidget {
           Card(
             elevation: 0,
             color: cs.surfaceContainerHighest,
-            child: const ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text('No active session yet'),
-              subtitle: Text(
-                  'Connect the board on Play — stats fill in once polling runs.'),
+            child: ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: Text(l10n.progressNoSessionTitle),
+              subtitle: Text(l10n.progressStatsEmptySubtitle),
             ),
           ),
       ],

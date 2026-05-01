@@ -1078,23 +1078,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         _coachPriority.contains(CoachAiProviderId.openai),
                     children: [
                       _coachExpansionFields([
-                        _coachFieldLabel(context, 'API key'),
+                        _coachFieldLabel(context, l10n.settingsCoachApiKeyLabel),
                         TextField(
                           controller: _coachKey,
                           decoration: _coachOutlineDecoration(
-                            hintText: 'sk-…',
-                            helperText:
-                                'platform.openai.com — used only for Coach.',
+                            hintText: l10n.settingsCoachOpenAiKeyHint,
+                            helperText: l10n.settingsCoachOpenAiKeyHelper,
                           ),
                           obscureText: true,
                           autocorrect: false,
                           enableSuggestions: false,
                         ),
-                        _coachFieldLabel(context, 'Model id'),
+                        _coachFieldLabel(context, l10n.settingsCoachModelIdLabel),
                         TextField(
                           controller: _coachOpenAiModel,
                           decoration: _coachOutlineDecoration(
-                            hintText: 'gpt-4o-mini',
+                            hintText: l10n.settingsCoachOpenAiModelHint,
                           ),
                         ),
                         Align(
@@ -1121,19 +1120,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         .contains(CoachAiProviderId.googleGemini),
                     children: [
                       _coachExpansionFields([
-                        _coachFieldLabel(context, 'API key'),
+                        _coachFieldLabel(context, l10n.settingsCoachApiKeyLabel),
                         TextField(
                           controller: _coachGeminiKey,
                           decoration: _coachOutlineDecoration(
-                            hintText: 'Paste Google AI Studio key',
-                            helperText:
-                                'Get a key at aistudio.google.com — Gemini / Gemma.',
+                            hintText: l10n.settingsCoachPasteGoogleKeyHint,
+                            helperText: l10n.settingsCoachGoogleKeyHelper,
                           ),
                           obscureText: true,
                           autocorrect: false,
                           enableSuggestions: false,
                         ),
-                        _coachFieldLabel(context, 'Model id'),
+                        _coachFieldLabel(context, l10n.settingsCoachModelIdLabel),
                         DropdownButtonFormField<String>(
                           isExpanded: true,
                           value: _gemmaPresetChoice == '__custom__'
@@ -1147,7 +1145,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               (id) =>
                                   DropdownMenuItem(value: id, child: Text(id)),
                             ),
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: '__custom__',
                               child: Text(l10n.settingsCoachCustomModel),
                             ),
@@ -1163,11 +1161,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           },
                         ),
                         if (_gemmaPresetChoice == '__custom__') ...[
-                          _coachFieldLabel(context, 'Custom model id'),
+                          _coachFieldLabel(context, l10n.settingsCoachCustomModelId),
                           TextField(
                             controller: _coachGemmaModelCustom,
                             decoration: _coachOutlineDecoration(
-                              hintText: 'e.g. gemini-2.5-flash',
+                              hintText: l10n.settingsCoachCustomModelHint,
                             ),
                           ),
                         ],
@@ -1196,22 +1194,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         _coachPriority.contains(CoachAiProviderId.groq),
                     children: [
                       _coachExpansionFields([
-                        _coachFieldLabel(context, 'API key'),
+                        _coachFieldLabel(context, l10n.settingsCoachApiKeyLabel),
                         TextField(
                           controller: _coachGroqKey,
                           decoration: _coachOutlineDecoration(
-                            hintText: 'Paste Groq API key',
+                            hintText: l10n.settingsCoachGroqKeyHint,
                           ),
                           obscureText: true,
                           autocorrect: false,
                           enableSuggestions: false,
                         ),
-                        _coachFieldLabel(context, 'Model id'),
+                        _coachFieldLabel(context, l10n.settingsCoachModelIdLabel),
                         TextField(
                           controller: _coachGroqModel,
                           decoration: _coachOutlineDecoration(
-                            hintText: 'llama-3.3-70b-versatile',
-                            helperText: 'Must match an enabled Groq model.',
+                            hintText: l10n.settingsCoachGroqModelHint,
+                            helperText: l10n.settingsCoachGroqModelHelper,
                           ),
                         ),
                         Align(
@@ -1238,21 +1236,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         _coachPriority.contains(CoachAiProviderId.xaiGrok),
                     children: [
                       _coachExpansionFields([
-                        _coachFieldLabel(context, 'API key'),
+                        _coachFieldLabel(context, l10n.settingsCoachApiKeyLabel),
                         TextField(
                           controller: _coachXaiKey,
                           decoration: _coachOutlineDecoration(
-                            hintText: 'Paste xAI API key',
+                            hintText: l10n.settingsCoachXaiKeyHint,
                           ),
                           obscureText: true,
                           autocorrect: false,
                           enableSuggestions: false,
                         ),
-                        _coachFieldLabel(context, 'Model id'),
+                        _coachFieldLabel(context, l10n.settingsCoachModelIdLabel),
                         TextField(
                           controller: _coachXaiModel,
                           decoration: _coachOutlineDecoration(
-                            hintText: 'grok-2-latest',
+                            hintText: l10n.settingsCoachXaiModelHint,
                           ),
                         ),
                         Align(
@@ -1283,7 +1281,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         TextField(
                           controller: _coachOllamaBase,
                           decoration: _coachOutlineDecoration(
-                            hintText: 'http://127.0.0.1:11434/v1',
+                            hintText: l10n.settingsCoachOllamaBaseHint,
                             helperText: l10n.settingsCoachOllamaUrlHelper,
                           ),
                           keyboardType: TextInputType.url,
@@ -1293,7 +1291,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         TextField(
                           controller: _coachOllamaModel,
                           decoration: _coachOutlineDecoration(
-                            hintText: 'llama3.2',
+                            hintText: l10n.settingsCoachOllamaModelHint,
                           ),
                           autocorrect: false,
                         ),
@@ -1445,7 +1443,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   builder: (context, snap) {
                     final v = snap.data;
                     return ListTile(
-                      title: const Text('czechmate'),
+                      title: Text(l10n.gameAppBarTitle),
                       subtitle: Text(
                         v == null
                             ? l10n.settingsAboutVersionLoading
