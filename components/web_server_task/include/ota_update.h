@@ -20,6 +20,9 @@ esp_err_t ota_update_register_http_handlers(httpd_handle_t hd);
  */
 esp_err_t ota_update_ble_try_dispatch(const char *json_buf);
 
+/** Stejné jako HTTP POST /api/system/ota — z UART po STA a https URL. */
+esp_err_t ota_update_try_start_url(const char *url);
+
 #ifdef __cplusplus
 }
 #endif

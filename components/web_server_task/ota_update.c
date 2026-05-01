@@ -272,6 +272,8 @@ esp_err_t ota_update_register_http_handlers(httpd_handle_t hd) {
   return httpd_register_uri_handler(hd, &post_ota);
 }
 
+esp_err_t ota_update_try_start_url(const char *url) { return schedule_ota(url); }
+
 esp_err_t ota_update_ble_try_dispatch(const char *json_buf) {
   if (json_buf == NULL) {
     return ESP_ERR_INVALID_ARG;

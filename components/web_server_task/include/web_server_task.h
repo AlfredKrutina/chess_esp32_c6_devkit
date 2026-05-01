@@ -100,6 +100,11 @@ void web_server_process_snapshot_notify_queue(void);
  */
 void web_server_execute_command(uint8_t command);
 
+/**
+ * @brief Zařadí příkaz do fronty web_server tasku (bezpečné z UART/jiného tasku).
+ */
+esp_err_t web_server_enqueue_command(web_command_type_t cmd);
+
 // Funkce pro ovladani web serveru
 
 /**

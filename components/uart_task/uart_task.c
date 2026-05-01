@@ -172,6 +172,7 @@
 #include "led_mapping.h"
 #include "led_task.h"
 #include "uart_task.h"
+#include "uart_cli_panel.h"
 #include <inttypes.h>
 #include <math.h>
 
@@ -1485,10 +1486,12 @@ command_result_t uart_cmd_help(const char *args) {
     } else if (strcmp(args_upper, "APP") == 0 ||
                strcmp(args_upper, "APLIKACE") == 0) {
       uart_cmd_help_app();
+    } else if (strcmp(args_upper, "CLI") == 0) {
+      uart_cli_print_help();
     } else {
       uart_send_error("Unknown help category");
       uart_send_formatted(
-          "Available categories: GAME, SYSTEM, BEGINNER, DEBUG, WEB, APP");
+          "Available categories: GAME, SYSTEM, BEGINNER, DEBUG, WEB, APP, CLI");
       return CMD_ERROR_INVALID_PARAMETER;
     }
   } else {
@@ -1548,6 +1551,7 @@ void uart_display_main_help(void) {
   uart_send_formatted("  HELP GAME      - Learn chess commands");
   uart_send_formatted("  HELP SYSTEM    - System management");
   uart_send_formatted("  HELP APP       - App + BLE (same as HELP APLIKACE)");
+  uart_send_formatted("  HELP CLI       - Flash/partitions, WEB queue, OTA, BLE JSON, snapshot");
   uart_send_formatted("  BLE            - Live BLE / GATT status (developers)");
 
   uart_send_formatted("");
@@ -3020,6 +3024,13 @@ static const uart_command_t commands[] = {
      "STOP_ENDGAME",
      false,
      {"STOP", "END_STOP", "", "", ""}},
+
+    {"CLI",
+     uart_cmd_cli,
+     "Unified console panel (flash/partitions/web/OTA/BLE/snapshot)",
+     "CLI HELP",
+     false,
+     {"CONTROL", "PANEL", "", "", ""}},
 
     // System Commands
 
@@ -5234,7 +5245,7 @@ void uart_parse_command(const char *input) {
 
   // Find command and arguments
   char command[64] = {0};
-  char args[192] = {0};
+  char args[640] = {0};
 
   const char *space = strchr(input, ' ');
   if (space != NULL) {

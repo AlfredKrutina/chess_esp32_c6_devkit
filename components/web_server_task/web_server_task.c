@@ -12599,6 +12599,18 @@ void web_server_process_commands(void) {
   }
 }
 
+esp_err_t web_server_enqueue_command(web_command_type_t cmd) {
+  if (web_server_command_queue == NULL) {
+    return ESP_ERR_INVALID_STATE;
+  }
+  uint8_t c = (uint8_t)cmd;
+  if (xQueueSend(web_server_command_queue, &c, pdMS_TO_TICKS(2000)) !=
+      pdTRUE) {
+    return ESP_ERR_TIMEOUT;
+  }
+  return ESP_OK;
+}
+
 void web_server_execute_command(uint8_t command) {
   switch (command) {
   case WEB_CMD_START_SERVER:
