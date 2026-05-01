@@ -9,12 +9,18 @@ class EvalLineChart extends StatelessWidget {
     required this.points,
     this.height = 180,
     this.accentColor,
+    this.plotBackgroundColor,
+    this.axisColor,
   });
 
   final List<({int moveIndex, double eval, MoveGrade? grade})> points;
   final double height;
-  /// When set (e.g. export on transparent background), overrides theme primary.
+  /// When set (e.g. export), overrides theme primary for the main line.
   final Color? accentColor;
+  /// Opaque panel behind the plot (transparent PNG export).
+  final Color? plotBackgroundColor;
+  /// Horizontal axis at y=0 and label tint.
+  final Color? axisColor;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +31,10 @@ class EvalLineChart extends StatelessWidget {
     lo = (lo < -0.25 ? lo : -0.25) - 0.4;
     hi = (hi > 0.25 ? hi : 0.25) + 0.4;
     final xMax = points.map((p) => p.moveIndex).reduce((a, b) => a > b ? a : b).clamp(8, 9999).toDouble();
+    final accent = accentColor ?? Theme.of(context).colorScheme.primary;
+    final axis = axisColor ?? Colors.grey.withValues(alpha: 0.35);
+    final dotRing =
+        plotBackgroundColor != null ? Colors.white.withValues(alpha: 0.85) : Colors.white;
 
     return SizedBox(
       height: height,
@@ -34,7 +44,10 @@ class EvalLineChart extends StatelessWidget {
           yMin: lo,
           yMax: hi,
           xMax: xMax,
-          accent: accentColor ?? Theme.of(context).colorScheme.primary,
+          accent: accent,
+          plotBackgroundColor: plotBackgroundColor,
+          axisColor: axis,
+          dotRingColor: dotRing,
         ),
         child: Container(),
       ),
@@ -49,6 +62,9 @@ class _EvalChartPainter extends CustomPainter {
     required this.yMax,
     required this.xMax,
     required this.accent,
+    required this.plotBackgroundColor,
+    required this.axisColor,
+    required this.dotRingColor,
   });
 
   final List<({int moveIndex, double eval, MoveGrade? grade})> points;
@@ -56,6 +72,9 @@ class _EvalChartPainter extends CustomPainter {
   final double yMax;
   final double xMax;
   final Color accent;
+  final Color? plotBackgroundColor;
+  final Color axisColor;
+  final Color dotRingColor;
 
   Color _gradeColor(MoveGrade? g) {
     switch (g) {
@@ -86,11 +105,20 @@ class _EvalChartPainter extends CustomPainter {
     final span = (yMax - yMin).abs() < 1e-6 ? 1.0 : (yMax - yMin);
     double yAtEval(double ev) => padT + h * (1 - (ev - yMin) / span);
     final y0 = yAtEval(0).clamp(padT, padT + h);
+
+    if (plotBackgroundColor != null) {
+      final bg = RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        const Radius.circular(10),
+      );
+      canvas.drawRRect(bg, Paint()..color = plotBackgroundColor!);
+    }
+
     canvas.drawLine(
       Offset(padL, y0),
       Offset(padL + w, y0),
       Paint()
-        ..color = Colors.grey.withValues(alpha: 0.35)
+        ..color = axisColor
         ..strokeWidth = 1
         ..strokeCap = StrokeCap.round,
     );
@@ -123,11 +151,21 @@ class _EvalChartPainter extends CustomPainter {
     for (final p in points) {
       final o = proj(p.moveIndex, p.eval);
       canvas.drawCircle(o, 5, Paint()..color = _gradeColor(p.grade));
-      canvas.drawCircle(o, 5, Paint()..color = Colors.white..style = PaintingStyle.stroke..strokeWidth = 1.2);
+      canvas.drawCircle(
+        o,
+        5,
+        Paint()
+          ..color = dotRingColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.2,
+      );
     }
 
     final tp = TextPainter(
-      text: const TextSpan(text: '0', style: TextStyle(fontSize: 10, color: Colors.grey)),
+      text: TextSpan(
+        text: '0',
+        style: TextStyle(fontSize: 10, color: axisColor),
+      ),
       textDirection: TextDirection.ltr,
     )..layout();
     tp.paint(canvas, Offset(4, y0 - 6));
@@ -135,5 +173,11 @@ class _EvalChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _EvalChartPainter oldDelegate) =>
-      oldDelegate.points != points || oldDelegate.yMin != yMin || oldDelegate.yMax != yMax;
+      oldDelegate.points != points ||
+      oldDelegate.yMin != yMin ||
+      oldDelegate.yMax != yMax ||
+      oldDelegate.accent != accent ||
+      oldDelegate.plotBackgroundColor != plotBackgroundColor ||
+      oldDelegate.axisColor != axisColor ||
+      oldDelegate.dotRingColor != dotRingColor;
 }
