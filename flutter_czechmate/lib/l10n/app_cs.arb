@@ -360,6 +360,45 @@
       }
     }
   },
+  "gameClockPauseSent": "Příkaz pozastavit hodiny odeslán",
+  "gameClockResumedSnackbar": "Hodiny pokračují",
+  "gameHintLedsClearedSnackbar": "Nápovědní LED zrušeny",
+  "gameNoSnapshotBody": "Klepni vlevo nahoře nebo níže pro nalezení desky (Bluetooth). Wi‑Fi a další možnosti jsou v rozšířeném nastavení.",
+  "gameBackToPanelTooltip": "Zpět na rozvržení s panelem",
+  "gameAiCoachTitle": "AI trenér",
+  "gameMoreOptionsTooltip": "Další možnosti",
+  "statusConnectedTransport": "Připojeno ({transport})",
+  "@statusConnectedTransport": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "statusConnectingTransport": "Připojuji ({transport})…",
+  "@statusConnectingTransport": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "statusBoardNotRespondingTransport": "Deska neodpovídá ({transport})",
+  "@statusBoardNotRespondingTransport": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "statusBleDevLine": "BLE: {name}",
+  "@statusBleDevLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "gameDesktopPlayTitle": "Hra — desktop",
   "gameDesktopPlaySubtitle": "Klepnutím na indikátor vlevo nahoře otevřeš správu připojení (Wi‑Fi, Bluetooth, mock) — stejně jako na iOS.",
   "stockfishEvalFailedSnack": "Evaluace selhala: {msg}",

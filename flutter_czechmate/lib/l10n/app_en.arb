@@ -360,6 +360,45 @@
       }
     }
   },
+  "gameClockPauseSent": "Clock pause sent",
+  "gameClockResumedSnackbar": "Clock resumed",
+  "gameHintLedsClearedSnackbar": "Hint LEDs cleared",
+  "gameNoSnapshotBody": "Tap top-left or below to find a board (Bluetooth). Wi‑Fi and more options are under advanced settings.",
+  "gameBackToPanelTooltip": "Back to layout with panel",
+  "gameAiCoachTitle": "AI coach",
+  "gameMoreOptionsTooltip": "More options",
+  "statusConnectedTransport": "Connected ({transport})",
+  "@statusConnectedTransport": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "statusConnectingTransport": "Connecting ({transport})…",
+  "@statusConnectingTransport": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "statusBoardNotRespondingTransport": "Board not responding ({transport})",
+  "@statusBoardNotRespondingTransport": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "statusBleDevLine": "BLE: {name}",
+  "@statusBleDevLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "gameDesktopPlayTitle": "Play — desktop",
   "gameDesktopPlaySubtitle": "Tap the indicator top-left to manage connection (Wi‑Fi, Bluetooth, mock) — same as iOS.",
   "stockfishEvalFailedSnack": "Evaluation failed: {msg}",

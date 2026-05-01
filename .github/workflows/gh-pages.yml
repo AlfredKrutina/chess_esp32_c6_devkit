@@ -1,5 +1,7 @@
-# Nasadí obsah gh-pages-ready/ na větev gh-pages → GitHub Pages (zdroj: Branch).
-# Po prvním běhu: Repo → Settings → Pages → Build: Deploy from branch → gh-pages / / (root).
+# Složí _site (Doxygen + firmware/) a nasadí na větev gh-pages → GitHub Pages (volitelné pro docs).
+# Manifest pro aplikaci / OTA: používej raw z main (vždy 200): …/main/firmware/version.json
+# Binárka po deployi: raw z gh-pages …/gh-pages/firmware/esp32_chess_v24.bin
+# Pokud Pages vrací 404, zkontroluj Settings → Pages (branch gh-pages, / root) a že workflow doběhl.
 
 name: Deploy GitHub Pages
 

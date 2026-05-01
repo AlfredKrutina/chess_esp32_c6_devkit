@@ -1,5 +1,5 @@
 {
   "version": "2.5.1",
-  "url": "https://alfredkrutina.github.io/chess_esp32_c6_devkit/firmware/esp32_chess_v24.bin",
-  "changelog": "OTA kanál — binárka z CI na gh-pages (esp32_chess_v24.bin)."
+  "url": "https://raw.githubusercontent.com/alfredkrutina/chess_esp32_c6_devkit/gh-pages/firmware/esp32_chess_v24.bin",
+  "changelog": "OTA: manifest z raw/main; .bin z raw větve gh-pages po CI deployi."
 }

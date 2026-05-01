@@ -1142,6 +1142,72 @@ abstract class AppLocalizations {
   /// **'Demo board: {feature} only works over Bluetooth or Wi‑Fi to real hardware.'**
   String gameDemoBoardSnack(String feature);
 
+  /// No description provided for @gameClockPauseSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock pause sent'**
+  String get gameClockPauseSent;
+
+  /// No description provided for @gameClockResumedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock resumed'**
+  String get gameClockResumedSnackbar;
+
+  /// No description provided for @gameHintLedsClearedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint LEDs cleared'**
+  String get gameHintLedsClearedSnackbar;
+
+  /// No description provided for @gameNoSnapshotBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap top-left or below to find a board (Bluetooth). Wi‑Fi and more options are under advanced settings.'**
+  String get gameNoSnapshotBody;
+
+  /// No description provided for @gameBackToPanelTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to layout with panel'**
+  String get gameBackToPanelTooltip;
+
+  /// No description provided for @gameAiCoachTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI coach'**
+  String get gameAiCoachTitle;
+
+  /// No description provided for @gameMoreOptionsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get gameMoreOptionsTooltip;
+
+  /// No description provided for @statusConnectedTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected ({transport})'**
+  String statusConnectedTransport(String transport);
+
+  /// No description provided for @statusConnectingTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting ({transport})…'**
+  String statusConnectingTransport(String transport);
+
+  /// No description provided for @statusBoardNotRespondingTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Board not responding ({transport})'**
+  String statusBoardNotRespondingTransport(String transport);
+
+  /// No description provided for @statusBleDevLine.
+  ///
+  /// In en, this message translates to:
+  /// **'BLE: {name}'**
+  String statusBleDevLine(String name);
+
   /// No description provided for @gameDesktopPlayTitle.
   ///
   /// In en, this message translates to:

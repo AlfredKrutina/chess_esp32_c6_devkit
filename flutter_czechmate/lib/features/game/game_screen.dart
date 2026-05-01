@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app_navigation.dart';
 import '../../app_providers.dart';
 import '../../core/layout/form_factor.dart';
+import '../../core/localization/context_l10n.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/models/puzzle_challenge_state.dart';
 import '../../core/utils/board_action_feedback.dart';
 import '../../core/widgets/glass_snackbar.dart';
@@ -121,6 +123,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       BoardSessionState session, GameUiNotifier uiN) async {
     final snap = session.snapshot;
     if (snap == null || _hintBusy) return;
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _hintBusy = true);
     try {
       final prefs = ref.read(prefsRepositoryProvider);
@@ -130,8 +133,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           .read(stockfishApiClientProvider)
           .fetchBestMove(fen, depth: depth);
       uiN.showHintOverlay(best.from, best.to);
+      final evalSuffix = best.evalPawns != null
+          ? ' · eval ${best.evalPawns!.toStringAsFixed(2)}'
+          : '';
       uiN.showTransientBoardMessage(
-        'Hint: ${best.from}→${best.to}${best.evalPawns != null ? ' · eval ${best.evalPawns!.toStringAsFixed(2)}' : ''}',
+        l10n.gameHintTransient(best.from, best.to, evalSuffix),
       );
       if (session.transport == BoardTransport.wifi ||
           session.transport == BoardTransport.ble) {
@@ -142,21 +148,21 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       if (!mounted) return;
       showGlassSnackBar(
         context,
-        'Best move: ${best.from}→${best.to}',
+        l10n.gameBestMoveSnack(best.from, best.to),
       );
     } catch (e) {
       if (!mounted) return;
-      showGlassSnackBar(context, 'Hint failed: $e');
+      showGlassSnackBar(context, l10n.gameHintFailed('$e'));
     } finally {
       if (mounted) setState(() => _hintBusy = false);
     }
   }
 
-  void _demoBoardFeatureSnack(String label) {
+  void _demoBoardFeatureSnack(AppLocalizations l10n, String label) {
     if (!mounted) return;
     showGlassSnackBar(
       context,
-      'Demo board: $label only works over Bluetooth or Wi‑Fi to real hardware.',
+      l10n.gameDemoBoardSnack(label),
     );
   }
 
@@ -180,7 +186,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             child: FilledButton.icon(
               onPressed: () => showNewGameWithTimeSheet(context),
               icon: const Icon(Icons.fiber_new),
-              label: const Text('New game'),
+              label: Text(AppLocalizations.of(context)!.gameNewGame),
             ),
           ),
         ),
@@ -207,6 +213,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// Kompaktní panel pod šachovnicí — nesnižuje viditelnou plochu figurek (žádný overlay nahoře).
   Widget _puzzleGlassHud(PuzzleChallengeState pc) {
+    final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     return ClipRRect(
@@ -246,7 +253,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         ),
                       ),
                       Text(
-                        'Moves ${pc.playedUci.length} / ${pc.solutionUci.length}',
+                        l10n.gamePuzzleMovesProgress(
+                          pc.playedUci.length,
+                          pc.solutionUci.length,
+                        ),
                         style: tt.bodySmall?.copyWith(
                           color: cs.onSurfaceVariant,
                         ),
@@ -256,14 +266,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.sports_esports_outlined),
-                  tooltip: 'Return to live game',
+                  tooltip: l10n.gameReturnLive,
                   onPressed: () => ref
                       .read(gameUiNotifierProvider.notifier)
                       .returnToLiveGame(),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  tooltip: 'Exit puzzle check (keep position)',
+                  tooltip: l10n.gameExitPuzzleCheck,
                   onPressed: () => ref
                       .read(gameUiNotifierProvider.notifier)
                       .exitPuzzleChallenge(),
@@ -409,6 +419,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     });
 
     final prefs = ref.watch(prefsRepositoryProvider);
+    final l10n = context.l10n;
 
     ref.listen(moveEvalNotifierProvider, (prev, next) {
       if (!ref.read(prefsRepositoryProvider).moveEvaluationEnabled) return;
@@ -457,7 +468,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       appBar: AppBar(
         leadingWidth: 52,
         leading: IconButton(
-          tooltip: 'Find board',
+          tooltip: l10n.gameFindBoardTooltip,
           padding: const EdgeInsets.all(10),
           onPressed: () => pushBoardDiscoveryRoute(context),
           icon: Container(
@@ -480,7 +491,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'czechmate',
+                l10n.gameAppBarTitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleLarge,
@@ -490,11 +501,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         ),
         actions: [
           PopupMenuButton<String>(
-            tooltip: 'Layout mode',
+            tooltip: l10n.gameLayoutTooltip,
             onSelected: uiN.setLayoutMode,
-            itemBuilder: (ctx) => const [
-              PopupMenuItem(value: 'standard', child: Text('Standard')),
-              PopupMenuItem(value: 'boardOnly', child: Text('Board only')),
+            itemBuilder: (ctx) => [
+              PopupMenuItem(
+                  value: 'standard', child: Text(l10n.gameLayoutStandard)),
+              PopupMenuItem(
+                  value: 'boardOnly', child: Text(l10n.gameLayoutBoardOnly)),
             ],
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -516,7 +529,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      ui.layoutMode == 'boardOnly' ? 'Board' : 'Standard',
+                      ui.layoutMode == 'boardOnly'
+                          ? l10n.gameLayoutBoardOnly
+                          : l10n.gameLayoutStandard,
                       style: Theme.of(context).textTheme.labelMedium,
                     ),
                     const Icon(Icons.arrow_drop_down, size: 18),
@@ -528,12 +543,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           if (isFinished)
             IconButton(
               icon: const Icon(Icons.summarize_outlined, color: Colors.amber),
-              tooltip: 'Game summary',
+              tooltip: l10n.gameSummaryTooltip,
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (ctx) => const GameEndReportScreen())),
             ),
           PopupMenuButton<_GameOverflowAction>(
-            tooltip: 'More options',
+            tooltip: l10n.gameMoreOptionsTooltip,
             icon: const Icon(Icons.more_vert),
             onSelected: (action) async {
               switch (action) {
@@ -566,7 +581,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     children: [
                       Icon(Icons.tune, size: 22, color: cs.onSurface),
                       const SizedBox(width: 12),
-                      const Expanded(child: Text('Game controls')),
+                      Expanded(child: Text(l10n.gameControlsTitle)),
                     ],
                   ),
                 ),
@@ -576,7 +591,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     children: [
                       Icon(Icons.show_chart, size: 22, color: cs.onSurface),
                       const SizedBox(width: 12),
-                      const Expanded(child: Text('Analysis')),
+                      Expanded(child: Text(l10n.gameAnalysisTooltip)),
                     ],
                   ),
                 ),
@@ -596,8 +611,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         Expanded(
                           child: Text(
                             prefs.desktopCoachRailVisible
-                                ? 'Hide AI coach panel'
-                                : 'Show AI coach panel',
+                                ? l10n.gameCoachRailHide
+                                : l10n.gameCoachRailShow,
                           ),
                         ),
                       ],
@@ -611,7 +626,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Disconnect session',
+                          l10n.gameDisconnectTooltip,
                           style: TextStyle(color: cs.error),
                         ),
                       ),
@@ -650,7 +665,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.tips_and_updates_outlined),
-                      label: Text(_hintBusy ? 'Thinking…' : 'Hint'),
+                      label: Text(
+                          _hintBusy ? l10n.gameHintThinking : l10n.gameHint),
                     ),
                     if (session.transport == BoardTransport.wifi ||
                         session.transport == BoardTransport.ble) ...[
@@ -658,47 +674,47 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         onPressed: () => runBoardCommandWithSnackBar(
                           context,
                           sessionN.postTimerPause,
-                          successMessage: 'Clock pause sent',
+                          successMessage: l10n.gameClockPauseSent,
                         ),
                         icon: const Icon(Icons.pause_circle_outline),
-                        label: const Text('Pause clock'),
+                        label: Text(l10n.gamePauseClock),
                       ),
                       OutlinedButton.icon(
                         onPressed: () => runBoardCommandWithSnackBar(
                           context,
                           sessionN.postTimerResume,
-                          successMessage: 'Clock resumed',
+                          successMessage: l10n.gameClockResumedSnackbar,
                         ),
                         icon: const Icon(Icons.play_circle_outline),
-                        label: const Text('Resume clock'),
+                        label: Text(l10n.gameResumeClock),
                       ),
                       OutlinedButton.icon(
                         onPressed: () => runBoardCommandWithSnackBar(
                           context,
                           sessionN.postHintClearBoard,
-                          successMessage: 'Hint LEDs cleared',
+                          successMessage: l10n.gameHintLedsClearedSnackbar,
                         ),
                         icon: const Icon(Icons.visibility_off_outlined),
-                        label: const Text('Clear hint LEDs'),
+                        label: Text(l10n.gameClearHintLeds),
                       ),
                     ] else if (session.transport == BoardTransport.mock) ...[
                       OutlinedButton.icon(
                         onPressed: () =>
-                            _demoBoardFeatureSnack('Clock pause'),
+                            _demoBoardFeatureSnack(l10n, l10n.gamePauseClock),
                         icon: const Icon(Icons.pause_circle_outline),
-                        label: const Text('Pause clock'),
+                        label: Text(l10n.gamePauseClock),
                       ),
                       OutlinedButton.icon(
                         onPressed: () =>
-                            _demoBoardFeatureSnack('Clock'),
+                            _demoBoardFeatureSnack(l10n, l10n.gameResumeClock),
                         icon: const Icon(Icons.play_circle_outline),
-                        label: const Text('Resume clock'),
+                        label: Text(l10n.gameResumeClock),
                       ),
                       OutlinedButton.icon(
                         onPressed: () =>
-                            _demoBoardFeatureSnack('LED hint'),
+                            _demoBoardFeatureSnack(l10n, l10n.gameClearHintLeds),
                         icon: const Icon(Icons.visibility_off_outlined),
-                        label: const Text('Clear hint LEDs'),
+                        label: Text(l10n.gameClearHintLeds),
                       ),
                     ],
                   ],
@@ -713,10 +729,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('No board snapshot yet.'),
+                          Text(l10n.gameNoSnapshotYet),
                           const SizedBox(height: 12),
                           Text(
-                            'Tap top-left or below to find a board (Bluetooth). Wi‑Fi and more options are under advanced settings.',
+                            l10n.gameNoSnapshotBody,
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
@@ -724,7 +740,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                           FilledButton.icon(
                             onPressed: () => pushBoardDiscoveryRoute(context),
                             icon: const Icon(Icons.bluetooth_searching),
-                            label: const Text('Find board'),
+                            label: Text(l10n.gameFindBoard),
                           ),
                           if (session.lastError != null) ...[
                             const SizedBox(height: 16),
@@ -752,7 +768,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                _statusLine(session, devMode),
+                                _statusLine(session, devMode, l10n),
                                 if (ui.transientBoardMessage != null)
                                   Material(
                                     color: Theme.of(context)
@@ -786,12 +802,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                                   onPressed: () =>
                                       _openGameControlsSheet(),
                                   icon: const Icon(Icons.tune),
-                                  label: const Text('Game controls'),
+                                  label: Text(l10n.gameControlsTitle),
                                 ),
                                 const SizedBox(height: 8),
-                                const Text('History',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w600)),
+                                Text(l10n.gameHistory,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w600)),
                                 const MoveHistoryView(),
                                 if (session.lastError != null) ...[
                                   const SizedBox(height: 8),
@@ -848,7 +864,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                                               .surfaceContainerHigh,
                                           child: IconButton(
                                             tooltip:
-                                                'Back to layout with panel',
+                                                l10n.gameBackToPanelTooltip,
                                             icon: const Icon(
                                                 Icons.view_sidebar_outlined),
                                             onPressed: () => ref
@@ -921,7 +937,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                                             const SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
-                                                'AI coach',
+                                                l10n.gameAiCoachTitle,
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .titleSmall
@@ -931,7 +947,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                                               ),
                                             ),
                                             IconButton(
-                                              tooltip: 'Hide panel',
+                                              tooltip: l10n.gameHidePanelTooltip,
                                               icon: const Icon(
                                                   Icons.close, size: 22),
                                               onPressed: () async {
@@ -1002,24 +1018,30 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  Widget _statusLine(BoardSessionState s, bool devMode) {
-    final tier = _connectionTier(s);
-    final transportLabel = switch (s.transport) {
-      BoardTransport.none => 'Disconnected',
-      BoardTransport.mock => 'Mock deska',
+  String _transportLabel(BoardSessionState s, bool devMode, AppLocalizations l10n) {
+    return switch (s.transport) {
+      BoardTransport.none => l10n.transportDisconnected,
+      BoardTransport.mock => l10n.transportDemo,
       BoardTransport.wifi =>
-        devMode ? 'Wi‑Fi: ${s.wifiBaseUrl ?? ''}' : 'Wi‑Fi',
-      BoardTransport.ble =>
-        devMode ? 'BLE: ${s.bleLabel ?? "deska"}' : 'Bluetooth',
+        devMode ? '${l10n.transportWifi}: ${s.wifiBaseUrl ?? ''}' : l10n.transportWifi,
+      BoardTransport.ble => devMode
+          ? l10n.statusBleDevLine(s.bleLabel ?? l10n.defaultBoardName)
+          : l10n.transportBluetooth,
     };
+  }
+
+  Widget _statusLine(BoardSessionState s, bool devMode, AppLocalizations l10n) {
+    final tier = _connectionTier(s);
+    final transportLabel = _transportLabel(s, devMode, l10n);
     final t = switch (tier) {
       _ConnectionTier.live => s.transport == BoardTransport.none
-          ? 'Disconnected'
-          : 'Connected ($transportLabel)',
-      _ConnectionTier.connecting => 'Connecting ($transportLabel)…',
+          ? l10n.transportDisconnected
+          : l10n.statusConnectedTransport(transportLabel),
+      _ConnectionTier.connecting =>
+        l10n.statusConnectingTransport(transportLabel),
       _ConnectionTier.offline => s.transport == BoardTransport.none
-          ? 'Disconnected'
-          : 'Board not responding ($transportLabel)',
+          ? l10n.transportDisconnected
+          : l10n.statusBoardNotRespondingTransport(transportLabel),
     };
     final poll = devMode && s.pollingActive ? ' • poll' : '';
     final ws = devMode && s.webSocketActive ? ' • WS' : '';

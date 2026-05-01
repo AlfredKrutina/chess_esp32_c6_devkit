@@ -603,6 +603,48 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String get gameClockPauseSent => 'Příkaz pozastavit hodiny odeslán';
+
+  @override
+  String get gameClockResumedSnackbar => 'Hodiny pokračují';
+
+  @override
+  String get gameHintLedsClearedSnackbar => 'Nápovědní LED zrušeny';
+
+  @override
+  String get gameNoSnapshotBody =>
+      'Klepni vlevo nahoře nebo níže pro nalezení desky (Bluetooth). Wi‑Fi a další možnosti jsou v rozšířeném nastavení.';
+
+  @override
+  String get gameBackToPanelTooltip => 'Zpět na rozvržení s panelem';
+
+  @override
+  String get gameAiCoachTitle => 'AI trenér';
+
+  @override
+  String get gameMoreOptionsTooltip => 'Další možnosti';
+
+  @override
+  String statusConnectedTransport(String transport) {
+    return 'Připojeno ($transport)';
+  }
+
+  @override
+  String statusConnectingTransport(String transport) {
+    return 'Připojuji ($transport)…';
+  }
+
+  @override
+  String statusBoardNotRespondingTransport(String transport) {
+    return 'Deska neodpovídá ($transport)';
+  }
+
+  @override
+  String statusBleDevLine(String name) {
+    return 'BLE: $name';
+  }
+
+  @override
   String get gameDesktopPlayTitle => 'Hra — desktop';
 
   @override

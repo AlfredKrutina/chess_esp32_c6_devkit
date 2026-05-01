@@ -607,6 +607,48 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get gameClockPauseSent => 'Clock pause sent';
+
+  @override
+  String get gameClockResumedSnackbar => 'Clock resumed';
+
+  @override
+  String get gameHintLedsClearedSnackbar => 'Hint LEDs cleared';
+
+  @override
+  String get gameNoSnapshotBody =>
+      'Tap top-left or below to find a board (Bluetooth). Wi‑Fi and more options are under advanced settings.';
+
+  @override
+  String get gameBackToPanelTooltip => 'Back to layout with panel';
+
+  @override
+  String get gameAiCoachTitle => 'AI coach';
+
+  @override
+  String get gameMoreOptionsTooltip => 'More options';
+
+  @override
+  String statusConnectedTransport(String transport) {
+    return 'Connected ($transport)';
+  }
+
+  @override
+  String statusConnectingTransport(String transport) {
+    return 'Connecting ($transport)…';
+  }
+
+  @override
+  String statusBoardNotRespondingTransport(String transport) {
+    return 'Board not responding ($transport)';
+  }
+
+  @override
+  String statusBleDevLine(String name) {
+    return 'BLE: $name';
+  }
+
+  @override
   String get gameDesktopPlayTitle => 'Play — desktop';
 
   @override
