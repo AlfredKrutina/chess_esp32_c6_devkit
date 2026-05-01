@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_image_clipboard/flutter_image_clipboard.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -40,7 +43,9 @@ class GameEndReportScreen extends ConsumerStatefulWidget {
 
 class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
   final GlobalKey _shareBoundaryKey = GlobalKey();
-  bool _isExporting = false;
+  bool _pngBusy = false;
+  /// Which action shows the spinner: true = copy, false = share sheet.
+  bool _pngClipboardOp = false;
   bool _gifBusy = false;
   GameExportOptions _exportOpts = const GameExportOptions();
 
@@ -232,94 +237,171 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     );
   }
 
+  Future<Uint8List?> _renderSummaryPngBytes(AppLocalizations l10n) async {
+    final snap = ref.read(boardSessionNotifierProvider).snapshot;
+    if (snap == null) return null;
+
+    final model = GameEndReportModel.fromSnapshot(snap);
+    final moveEval = ref.read(moveEvalNotifierProvider);
+    final nMoves = snap.history.moves.length;
+    final evalPoints = moveEval.entries
+        .where((e) => e.evalWhitePawns != null && e.moveIndex1Based <= nMoves)
+        .map((e) => (moveIndex: e.moveIndex1Based, eval: e.evalWhitePawns!, grade: e.grade))
+        .toList();
+    final think = GameEndReportTiming.thinkPlyPoints(snap.history.moves);
+    final cumulative = GameEndReportTiming.cumulativePoints(think);
+    final barPoints = think.where((p) => p.secondsFromPrevious != null).toList();
+    final hasTiming = barPoints.isNotEmpty || cumulative.isNotEmpty;
+    final theme = Theme.of(context);
+
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return null;
+
+    final logical = _exportOpts.logicalSize();
+    final wrapped = Theme(
+      data: theme,
+      child: _shareRasterCanvas(
+        l10n: l10n,
+        opts: _exportOpts,
+        model: model,
+        snapshot: snap,
+        evalPoints: evalPoints,
+        think: think,
+        cumulative: cumulative,
+        hasTiming: hasTiming,
+      ),
+    );
+
+    ui.Image? image = await captureWidgetOffscreen(
+      context: context,
+      child: wrapped,
+      logicalSize: logical,
+      pixelRatio: 3,
+    );
+
+    if (image == null) {
+      await WidgetsBinding.instance.endOfFrame;
+      final boundary =
+          _shareBoundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary != null) {
+        image = await boundary.toImage(pixelRatio: 3.0);
+      }
+    }
+
+    if (image == null) return null;
+
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    image.dispose();
+    if (byteData == null) {
+      throw StateError(l10n.sharePngEncodeError);
+    }
+    return byteData.buffer.asUint8List();
+  }
+
+  Future<void> _sharePngBytes(Uint8List pngBytes, AppLocalizations l10n) async {
+    final snap = ref.read(boardSessionNotifierProvider).snapshot;
+    if (!mounted) return;
+    final box = context.findRenderObject() as RenderBox?;
+    final rect = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+
+    final String meta;
+    if (snap == null) {
+      meta = l10n.appTitle;
+    } else {
+      final m = GameEndReportModel.fromSnapshot(snap);
+      meta = l10n.shareGameSummaryMeta(
+        _resultText(l10n, m.result),
+        _formatDuration(l10n, m.durationSec),
+        m.totalMoves,
+      );
+    }
+
+    final tmp = await getTemporaryDirectory();
+    final dir = Directory('${tmp.path}/czechmate_share');
+    await dir.create(recursive: true);
+    final pngFile = File('${dir.path}/czechmate_game_report.png');
+    await pngFile.writeAsBytes(pngBytes);
+    await Share.shareXFiles(
+      [XFile(pngFile.path, mimeType: 'image/png')],
+      text: l10n.shareGameSummaryLine(meta),
+      sharePositionOrigin: rect,
+    );
+  }
+
   Future<void> _exportAndShare() async {
     final l10n = AppLocalizations.of(context)!;
-    final snap = ref.read(boardSessionNotifierProvider).snapshot;
-    if (snap == null) return;
+    if (ref.read(boardSessionNotifierProvider).snapshot == null) return;
 
-    setState(() => _isExporting = true);
+    setState(() {
+      _pngBusy = true;
+      _pngClipboardOp = false;
+    });
     try {
-      final model = GameEndReportModel.fromSnapshot(snap);
-      final moveEval = ref.read(moveEvalNotifierProvider);
-      final nMoves = snap.history.moves.length;
-      final evalPoints = moveEval.entries
-          .where((e) => e.evalWhitePawns != null && e.moveIndex1Based <= nMoves)
-          .map((e) => (moveIndex: e.moveIndex1Based, eval: e.evalWhitePawns!, grade: e.grade))
-          .toList();
-      final think = GameEndReportTiming.thinkPlyPoints(snap.history.moves);
-      final cumulative = GameEndReportTiming.cumulativePoints(think);
-      final barPoints = think.where((p) => p.secondsFromPrevious != null).toList();
-      final hasTiming = barPoints.isNotEmpty || cumulative.isNotEmpty;
-
-      await WidgetsBinding.instance.endOfFrame;
-
-      final logical = _exportOpts.logicalSize();
-      final wrapped = Theme(
-        data: Theme.of(context),
-        child: _shareRasterCanvas(
-          l10n: l10n,
-          opts: _exportOpts,
-          model: model,
-          snapshot: snap,
-          evalPoints: evalPoints,
-          think: think,
-          cumulative: cumulative,
-          hasTiming: hasTiming,
-        ),
-      );
-
-      // Primary: off-screen raster (GlobalKey on in-list preview is unreliable).
-      ui.Image? image = await captureWidgetOffscreen(
-        context: context,
-        child: wrapped,
-        logicalSize: logical,
-        pixelRatio: 3,
-      );
-
-      if (image == null) {
-        await WidgetsBinding.instance.endOfFrame;
-        final boundary =
-            _shareBoundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-        if (boundary != null) {
-          image = await boundary.toImage(pixelRatio: 3.0);
-        }
-      }
-
-      if (image == null) {
-        if (mounted) showGlassSnackBar(context, l10n.shareSummaryNotReady);
+      final pngBytes = await _renderSummaryPngBytes(l10n);
+      if (!mounted) return;
+      if (pngBytes == null) {
+        showGlassSnackBar(context, l10n.shareSummaryNotReady);
         return;
       }
-
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      image.dispose();
-      if (byteData == null) {
-        throw StateError(l10n.sharePngEncodeError);
-      }
-      final pngBytes = byteData.buffer.asUint8List();
-
-      if (!mounted) return;
-      final box = context.findRenderObject() as RenderBox?;
-      final rect = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
-
-      final meta = l10n.shareGameSummaryMeta(
-        _resultText(l10n, model.result),
-        _formatDuration(l10n, model.durationSec),
-        model.totalMoves,
-      );
-      final tmp = await getTemporaryDirectory();
-      final dir = Directory('${tmp.path}/czechmate_share');
-      await dir.create(recursive: true);
-      final pngFile = File('${dir.path}/czechmate_game_report.png');
-      await pngFile.writeAsBytes(pngBytes);
-      await Share.shareXFiles(
-        [XFile(pngFile.path, mimeType: 'image/png')],
-        text: l10n.shareGameSummaryLine(meta),
-        sharePositionOrigin: rect,
-      );
+      await _sharePngBytes(pngBytes, l10n);
     } catch (e) {
       if (mounted) showGlassSnackBar(context, l10n.shareExportFailed('$e'));
     } finally {
-      if (mounted) setState(() => _isExporting = false);
+      if (mounted) {
+        setState(() {
+          _pngBusy = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _copySummaryImageToClipboard() async {
+    final l10n = AppLocalizations.of(context)!;
+    if (ref.read(boardSessionNotifierProvider).snapshot == null) return;
+
+    if (kIsWeb) {
+      showGlassSnackBar(context, l10n.reportCopyImageWebHint);
+      return;
+    }
+
+    final mobile = defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android;
+
+    setState(() {
+      _pngBusy = true;
+      _pngClipboardOp = true;
+    });
+    try {
+      final pngBytes = await _renderSummaryPngBytes(l10n);
+      if (!mounted) return;
+      if (pngBytes == null) {
+        showGlassSnackBar(context, l10n.shareSummaryNotReady);
+        return;
+      }
+
+      if (!mobile) {
+        showGlassSnackBar(context, l10n.reportCopyImageDesktopFallback);
+        await _sharePngBytes(pngBytes, l10n);
+        return;
+      }
+
+      final tmp = await getTemporaryDirectory();
+      final dir = Directory('${tmp.path}/czechmate_share');
+      await dir.create(recursive: true);
+      final clipFile = File('${dir.path}/czechmate_clipboard.png');
+      await clipFile.writeAsBytes(pngBytes);
+
+      await FlutterImageClipboard().copyImageToClipboard(clipFile);
+      HapticFeedback.mediumImpact();
+      if (mounted) showGlassSnackBar(context, l10n.reportSummaryCopiedSnack);
+    } catch (e) {
+      if (mounted) showGlassSnackBar(context, l10n.reportCopyImageFailed);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _pngBusy = false;
+        });
+      }
     }
   }
 
@@ -661,6 +743,131 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                     style: tt.titleSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          cs.primary.withValues(alpha: 0.9),
+                          cs.tertiary.withValues(alpha: 0.72),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: cs.primary.withValues(alpha: 0.22),
+                          blurRadius: 18,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2),
+                      child: Material(
+                        color: cs.surface,
+                        elevation: 0,
+                        borderRadius: BorderRadius.circular(18),
+                        clipBehavior: Clip.antiAlias,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.auto_awesome_rounded, color: cs.primary, size: 24),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      l10n.reportShareExportHint,
+                                      style: tt.bodyMedium?.copyWith(
+                                        height: 1.35,
+                                        color: cs.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              LayoutBuilder(
+                                builder: (ctx, bc) {
+                                  final narrow = bc.maxWidth < 360;
+                                  final copyBtn = FilledButton.icon(
+                                    style: FilledButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 13),
+                                      backgroundColor: cs.primary,
+                                      foregroundColor: cs.onPrimary,
+                                    ),
+                                    onPressed: _pngBusy ? null : _copySummaryImageToClipboard,
+                                    icon: _pngBusy && _pngClipboardOp
+                                        ? SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: cs.onPrimary,
+                                            ),
+                                          )
+                                        : const Icon(Icons.content_paste_go_rounded),
+                                    label: Text(
+                                      _pngBusy && _pngClipboardOp
+                                          ? l10n.reportCopySummaryBusy
+                                          : l10n.reportCopySummaryImage,
+                                    ),
+                                  );
+                                  final shareBtn = OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 13),
+                                      foregroundColor: cs.primary,
+                                      side: BorderSide(color: cs.primary.withValues(alpha: 0.45)),
+                                    ),
+                                    onPressed: _pngBusy ? null : _exportAndShare,
+                                    icon: _pngBusy && !_pngClipboardOp
+                                        ? SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: cs.primary,
+                                            ),
+                                          )
+                                        : const Icon(Icons.ios_share_rounded),
+                                    label: Text(
+                                      _pngBusy && !_pngClipboardOp
+                                          ? l10n.reportSharePreparing
+                                          : l10n.reportShareSummaryImage,
+                                    ),
+                                  );
+                                  if (narrow) {
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        copyBtn,
+                                        const SizedBox(height: 10),
+                                        shareBtn,
+                                      ],
+                                    );
+                                  }
+                                  return Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(child: copyBtn),
+                                      const SizedBox(width: 10),
+                                      Expanded(child: shareBtn),
+                                    ],
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   Card.outlined(
                     margin: EdgeInsets.zero,
                     child: Padding(
@@ -668,26 +875,6 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
-                            l10n.reportShareExportHint,
-                            style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                          ),
-                          const SizedBox(height: 14),
-                          FilledButton.icon(
-                            onPressed: _isExporting ? null : _exportAndShare,
-                            icon: _isExporting
-                                ? SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: cs.onPrimary,
-                                    ),
-                                  )
-                                : const Icon(Icons.ios_share_rounded),
-                            label: Text(_isExporting ? l10n.reportSharePreparing : l10n.reportShareSummaryImage),
-                          ),
-                          const SizedBox(height: 10),
                           Text(
                             l10n.reportExportGifSubtitle,
                             style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),

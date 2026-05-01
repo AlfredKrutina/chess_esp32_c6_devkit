@@ -563,7 +563,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportShareExportHint.
   ///
   /// In en, this message translates to:
-  /// **'Export the summary card above as a PNG, then use the system share sheet.'**
+  /// **'Like Strava: copy the summary image and paste it into Instagram, Messages, or WhatsApp — or open the share sheet for anything else.'**
   String get reportShareExportHint;
 
   /// No description provided for @reportSharePreparing.
@@ -575,8 +575,44 @@ abstract class AppLocalizations {
   /// No description provided for @reportShareSummaryImage.
   ///
   /// In en, this message translates to:
-  /// **'Share summary image'**
+  /// **'Share…'**
   String get reportShareSummaryImage;
+
+  /// No description provided for @reportCopySummaryImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy image'**
+  String get reportCopySummaryImage;
+
+  /// No description provided for @reportCopySummaryBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copying…'**
+  String get reportCopySummaryBusy;
+
+  /// No description provided for @reportSummaryCopiedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied — open Instagram or Messages and paste.'**
+  String get reportSummaryCopiedSnack;
+
+  /// No description provided for @reportCopyImageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t copy the image.'**
+  String get reportCopyImageFailed;
+
+  /// No description provided for @reportCopyImageWebHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Image clipboard isn’t available in the browser — use Share below.'**
+  String get reportCopyImageWebHint;
+
+  /// No description provided for @reportCopyImageDesktopFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing instead — full image clipboard works best on iPhone & Android.'**
+  String get reportCopyImageDesktopFallback;
 
   /// No description provided for @reportSharePgn.
   ///

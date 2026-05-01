@@ -287,13 +287,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportShareExportHint =>
-      'Export the summary card above as a PNG, then use the system share sheet.';
+      'Like Strava: copy the summary image and paste it into Instagram, Messages, or WhatsApp — or open the share sheet for anything else.';
 
   @override
   String get reportSharePreparing => 'Preparing…';
 
   @override
-  String get reportShareSummaryImage => 'Share summary image';
+  String get reportShareSummaryImage => 'Share…';
+
+  @override
+  String get reportCopySummaryImage => 'Copy image';
+
+  @override
+  String get reportCopySummaryBusy => 'Copying…';
+
+  @override
+  String get reportSummaryCopiedSnack =>
+      'Copied — open Instagram or Messages and paste.';
+
+  @override
+  String get reportCopyImageFailed => 'Couldn’t copy the image.';
+
+  @override
+  String get reportCopyImageWebHint =>
+      'Image clipboard isn’t available in the browser — use Share below.';
+
+  @override
+  String get reportCopyImageDesktopFallback =>
+      'Sharing instead — full image clipboard works best on iPhone & Android.';
 
   @override
   String get reportSharePgn => 'Share PGN file';

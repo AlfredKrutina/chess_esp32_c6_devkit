@@ -283,13 +283,34 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get reportShareExportHint =>
-      'Exportuj kartu výše jako PNG a pak použij systémové sdílení.';
+      'Jako ve Stravě: zkopíruj obrázek shrnutí a vlož ho do Instagramu, Zpráv nebo WhatsAppu — nebo použij sdílení pro cokoli dalšího.';
 
   @override
   String get reportSharePreparing => 'Připravuji…';
 
   @override
-  String get reportShareSummaryImage => 'Sdílet obrázek shrnutí';
+  String get reportShareSummaryImage => 'Sdílet…';
+
+  @override
+  String get reportCopySummaryImage => 'Zkopírovat obrázek';
+
+  @override
+  String get reportCopySummaryBusy => 'Kopíruji…';
+
+  @override
+  String get reportSummaryCopiedSnack =>
+      'Zkopírováno — otevři Instagram nebo Zprávy a vlož.';
+
+  @override
+  String get reportCopyImageFailed => 'Obrázek se nepodařilo zkopírovat.';
+
+  @override
+  String get reportCopyImageWebHint =>
+      'Ve prohlížeči nejde kopírovat obrázek do schránky — použij Sdílet níže.';
+
+  @override
+  String get reportCopyImageDesktopFallback =>
+      'Otevírám sdílení — obrázek ve schránce funguje nejlépe na iPhonu a Androidu.';
 
   @override
   String get reportSharePgn => 'Sdílet soubor PGN';

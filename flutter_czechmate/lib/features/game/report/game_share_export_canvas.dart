@@ -365,73 +365,113 @@ class GameShareExportCanvas extends StatelessWidget {
       GameExportAspect.landscape => 72.0,
     };
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _recapBanner(),
-        _header(),
-        if (options.showBranding) const SizedBox(height: 10),
-        _resultBlock(),
-        const SizedBox(height: 10),
-        Divider(height: 16, color: theme.divider),
-        const SizedBox(height: 6),
-        _stats(),
-        if (options.showMaterial &&
-            (model.capturedValueWhite > 0 || model.capturedValueBlack > 0)) ...[
-          const SizedBox(height: 8),
-          Text(materialCaption, style: TextStyle(fontSize: 11, color: theme.muted)),
-        ],
-        const SizedBox(height: 8),
-        Expanded(child: Center(child: _board())),
-        const SizedBox(height: 6),
-        if (options.aspect != GameExportAspect.square) ...[
-          SizedBox(height: chartH + 36, child: _eval(chartH)),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final w = constraints.maxWidth;
+        final children = <Widget>[
+          _recapBanner(),
+          _header(),
+          if (options.showBranding) const SizedBox(height: 10),
+          _resultBlock(),
+          const SizedBox(height: 10),
+          Divider(height: 16, color: theme.divider),
           const SizedBox(height: 6),
-          _timing(chartH),
-        ],
-      ],
+          _stats(),
+          if (options.showMaterial &&
+              (model.capturedValueWhite > 0 || model.capturedValueBlack > 0)) ...[
+            const SizedBox(height: 8),
+            Text(materialCaption, style: TextStyle(fontSize: 11, color: theme.muted)),
+          ],
+          if (options.showFinalBoard) ...[
+            const SizedBox(height: 8),
+            SizedBox(width: w, height: w, child: Center(child: _board())),
+          ],
+          const SizedBox(height: 6),
+          if (options.aspect != GameExportAspect.square) ...[
+            SizedBox(height: chartH + 36, child: _eval(chartH)),
+            const SizedBox(height: 6),
+            _timing(chartH),
+          ],
+        ];
+
+        final column = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        );
+
+        // Timing charts use fixed ~200px heights; card/story canvas is shorter → scale whole column down.
+        return FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.topCenter,
+          child: SizedBox(width: w, child: column),
+        );
+      },
     );
   }
 
   Widget _landscapeBody(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _recapBanner(),
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 11,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _header(),
-                    const SizedBox(height: 8),
-                    _resultBlock(),
-                    const SizedBox(height: 8),
-                    Divider(height: 12, color: theme.divider),
-                    const SizedBox(height: 6),
-                    _stats(),
-                    if (options.showMaterial &&
-                        (model.capturedValueWhite > 0 || model.capturedValueBlack > 0)) ...[
-                      const SizedBox(height: 6),
-                      Text(materialCaption, style: TextStyle(fontSize: 10, color: theme.muted)),
-                    ],
-                  ],
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final w = constraints.maxWidth;
+        final rowH = (constraints.maxHeight * 0.42).clamp(120.0, 260.0);
+
+        final column = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _recapBanner(),
+            SizedBox(
+              height: rowH,
+              width: w,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 11,
+                    child: ClipRect(
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _header(),
+                            const SizedBox(height: 8),
+                            _resultBlock(),
+                            const SizedBox(height: 8),
+                            Divider(height: 12, color: theme.divider),
+                            const SizedBox(height: 6),
+                            _stats(),
+                            if (options.showMaterial &&
+                                (model.capturedValueWhite > 0 || model.capturedValueBlack > 0)) ...[
+                              const SizedBox(height: 6),
+                              Text(materialCaption,
+                                  style: TextStyle(fontSize: 10, color: theme.muted)),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(flex: 13, child: Center(child: _board())),
+                ],
               ),
-              const SizedBox(width: 10),
-              Expanded(flex: 13, child: Center(child: _board())),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(height: 76, child: _eval(72)),
-        const SizedBox(height: 6),
-        SizedBox(height: 120, child: _timing(72)),
-      ],
+            ),
+            const SizedBox(height: 8),
+            SizedBox(height: 76, child: _eval(72)),
+            const SizedBox(height: 6),
+            _timing(72),
+          ],
+        );
+
+        return FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.topCenter,
+          child: SizedBox(width: w, child: column),
+        );
+      },
     );
   }
 }

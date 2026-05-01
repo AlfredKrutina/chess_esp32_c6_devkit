@@ -90,35 +90,41 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
 
     state = state.copyWith(loading: true, clearError: true);
 
+    final api = ref.read(boardApiClientProvider);
+
+    FirmwareManifest manifest;
     try {
-      final api = ref.read(boardApiClientProvider);
-      final manifest = await api.fetchFirmwareManifest(manifestUrl);
-      String? bv;
-      bool? otaSup;
-      if (boardHttp != null && boardHttp.isNotEmpty) {
-        try {
-          final info = await api.fetchBoardFirmwareInfo(boardHttp);
-          bv = info.version;
-          otaSup = info.otaSupported;
-        } catch (_) {
-          bv = null;
-          otaSup = null;
-        }
-      }
-      state = FirmwareAvailState(
-        loading: false,
-        manifest: manifest,
-        boardVersion: bv,
-        boardOtaSupported: otaSup,
-      );
+      manifest = await api.fetchFirmwareManifest(manifestUrl);
     } catch (e) {
       state = FirmwareAvailState(
         loading: false,
         manifest: state.manifest,
         boardVersion: state.boardVersion,
         boardOtaSupported: state.boardOtaSupported,
-        error: '$e',
+        error: 'Manifest ($manifestUrl): $e',
       );
+      return;
     }
+
+    String? bv;
+    bool? otaSup;
+    String? err;
+    if (boardHttp != null && boardHttp.isNotEmpty) {
+      try {
+        final info = await api.fetchBoardFirmwareInfo(boardHttp);
+        bv = info.version;
+        otaSup = info.otaSupported;
+      } catch (e) {
+        err = 'Board HTTP ($boardHttp): $e';
+      }
+    }
+
+    state = FirmwareAvailState(
+      loading: false,
+      manifest: manifest,
+      boardVersion: bv,
+      boardOtaSupported: otaSup,
+      error: err,
+    );
   }
 }
