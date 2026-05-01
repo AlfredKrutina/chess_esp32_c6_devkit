@@ -50,10 +50,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
           await prefs.setFirmwareManifestUrl(fixed);
         }
       }
-      final stored = ref.read(prefsRepositoryProvider).firmwareManifestUrl;
-      _manifestCtrl.text = (stored != null && stored.trim().isNotEmpty)
-          ? stored.trim()
-          : '';
+      final prefsAfter = ref.read(prefsRepositoryProvider);
+      _manifestCtrl.text = prefsAfter.firmwareManifestUrlEffective;
       setState(() => _ctrlReady = true);
       unawaited(_reloadWifi());
       unawaited(
@@ -95,7 +93,9 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
     await ref
         .read(prefsRepositoryProvider)
         .setFirmwareManifestUrl(_manifestCtrl.text.trim());
+    final effective = ref.read(prefsRepositoryProvider).firmwareManifestUrlEffective;
     if (mounted) {
+      setState(() => _manifestCtrl.text = effective);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Manifest URL saved')),
       );
@@ -326,7 +326,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
             decoration: const InputDecoration(
               labelText: 'Manifest URL (version.json)',
               hintText: 'https://…/version.json',
-              helperText: 'Empty = project default on GitHub Pages',
+              helperText:
+                  'Default URL is filled automatically. Clear the field and Save to use the built-in manifest only.',
               border: OutlineInputBorder(),
             ),
             keyboardType: TextInputType.url,

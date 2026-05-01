@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app_providers.dart';
+import '../../../core/localization/context_l10n.dart';
+import '../../../core/localization/locale_bridge.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/board_http_base_url.dart';
 import 'board_settings_error_message.dart';
 import '../../../core/models/status_models.dart';
@@ -27,39 +30,37 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
     _fetch();
   }
 
-  String _botFooterText() {
+  String _botFooterText(AppLocalizations l) {
     final session = ref.watch(boardSessionNotifierProvider);
     final mock = ref.watch(prefsRepositoryProvider).useMockBoard;
     final wifiCmd = session.transport == BoardTransport.wifi && session.wifiBaseUrl != null;
     if (mock) {
-      return 'Ukázková deska: NVS zápis se neprovede na reálný hardware.';
+      return l.boardNvsFooterMock;
     }
     if (wifiCmd) {
-      return 'Wi‑Fi session je aktivní — tlačítkem „Uložit“ odešleš bot režim do NVS na ESP.';
+      return l.boardNvsFooterWifiActive;
     }
     if (session.transport == BoardTransport.ble) {
-      return 'BLE: podle firmware lze posílat NVS/UI blob; pro jistotu ověř stav na webu desky.';
+      return l.boardNvsFooterBle;
     }
-    return 'Pro spolehlivý zápis bota do NVS připoj desku (Wi‑Fi doporučeno).';
+    return l.boardNvsFooterGeneric;
   }
 
-  String _httpUnavailableExplanation(BoardSessionState session) {
+  String _httpUnavailableExplanation(AppLocalizations l, BoardSessionState session) {
     if (session.transport == BoardTransport.ble && session.bleGattConnected) {
-      return 'Bluetooth je připojený, ale načtení NVS z této obrazovky probíhá přes HTTP. '
-          'V Nastavení ulož platnou adresu desky (STA IP, např. http://192.168.x.x), '
-          'nebo aktivuj Wi‑Fi session na tuto IP.';
+      return l.boardNvsHttpBleExplain;
     }
     if (session.transport == BoardTransport.wifi &&
         (session.wifiBaseUrl == null || session.wifiBaseUrl!.trim().isEmpty)) {
-      return 'Wi‑Fi session bez platné základní URL. Obnov připojení na záložce Hra → správa šachovnice.';
+      return l.boardNvsHttpWifiNoUrl;
     }
-    return 'Chybí platná HTTP adresa desky. V Nastavení vyplň „Default board URL“ (kompletní http://…) '
-        'a zkus znovu (ikonka ↻).';
+    return l.boardNvsHttpMissingUrl;
   }
 
   Future<void> _fetch() async {
     final session = ref.read(boardSessionNotifierProvider);
     final prefs = ref.read(prefsRepositoryProvider);
+    final strings = appStringsForPrefs(prefs);
     final baseUrl = resolveBoardHttpBaseUrl(
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
@@ -68,7 +69,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
     if (baseUrl == null || baseUrl.isEmpty) {
       if (mounted) {
         setState(() {
-          _emptyStateDetail = _httpUnavailableExplanation(session);
+          _emptyStateDetail = _httpUnavailableExplanation(strings, session);
           _isLoading = false;
         });
       }
@@ -81,7 +82,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
       if (mounted) setState(() => _settings = env);
     } catch (e) {
       if (mounted) {
-        final msg = boardHttpSettingsUserMessage(e, session);
+        final msg = boardHttpSettingsUserMessage(strings, e, session);
         setState(() => _emptyStateDetail = msg);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       }
@@ -94,6 +95,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
     if (_settings == null) return;
     final session = ref.read(boardSessionNotifierProvider);
     final prefs = ref.read(prefsRepositoryProvider);
+    final strings = appStringsForPrefs(prefs);
     final baseUrl = resolveBoardHttpBaseUrl(
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
@@ -112,10 +114,14 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
         }),
       );
       await ref.read(boardApiClientProvider).postBoardUISettings(baseUrl, merged);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Uloženo do NVS desky')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.boardNvsSavedSnack)),
+        );
+      }
     } catch (e) {
       if (mounted) {
-        final msg = boardHttpSettingsUserMessage(e, session);
+        final msg = boardHttpSettingsUserMessage(strings, e, session);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg), backgroundColor: Colors.red),
         );
@@ -128,14 +134,16 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final prefsWatch = ref.watch(prefsRepositoryProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Paměť šachovnice (NVS)'),
+        title: Text(l10n.boardNvsTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _isLoading ? null : _fetch,
-            tooltip: 'Obnovit z desky',
+            tooltip: l10n.boardNvsRefreshTooltip,
           )
         ],
       ),
@@ -146,8 +154,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
-                      _emptyStateDetail ??
-                          'Data z desky se nepodařilo načíst. Klepnutím na ↻ to zkus znovu.',
+                      _emptyStateDetail ?? l10n.boardNvsFetchFailedFallback,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
@@ -157,15 +164,20 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                   padding: const EdgeInsets.all(16),
                   children: [
                     Text(
-                      'Při uložení na desku se z aplikace sloučí Stockfish hloubka (${ref.read(prefsRepositoryProvider).hintDepth}) '
-                      'a přepínač eval (${ref.read(prefsRepositoryProvider).moveEvaluationEnabled}) do NVS payloadu (stejně jako iOS).',
+                      l10n.boardNvsMergeHint(
+                        '${prefsWatch.hintDepth}',
+                        prefsWatch.moveEvaluationEnabled
+                            ? l10n.boardNvsEvalOn
+                            : l10n.boardNvsEvalOff,
+                      ),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 12),
-                    const Text('Šachová Nápověda na desce (LED)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(l10n.boardNvsLedHeader,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 8),
                     SwitchListTile(
-                      title: const Text('Eval mód (Počítat nejlepší tahy)'),
+                      title: Text(l10n.boardNvsEvalMode),
                       value: _settings!.prefs.chessEvaluateMove,
                       onChanged: (v) {
                         setState(() {
@@ -177,7 +189,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       },
                     ),
                     ListTile(
-                      title: const Text('Stockfish Hloubka D1-D18'),
+                      title: Text(l10n.boardNvsStockfishDepth),
                       trailing: Text('${_settings!.prefs.chessHintDepth}'),
                       subtitle: Slider(
                         min: 1, max: 18, divisions: 17,
@@ -193,7 +205,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       ),
                     ),
                     SwitchListTile(
-                      title: const Text('Zobrazit LED Odměny (Best Move)'),
+                      title: Text(l10n.boardNvsLedBest),
                       value: _settings!.prefs.chessHintAwardBest,
                       onChanged: (v) {
                         setState(() {
@@ -205,7 +217,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       },
                     ),
                     SwitchListTile(
-                      title: const Text('Zobrazit LED Odměny (Good Move)'),
+                      title: Text(l10n.boardNvsLedGood),
                       value: _settings!.prefs.chessHintAwardGood,
                       onChanged: (v) {
                         setState(() {
@@ -217,7 +229,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       },
                     ),
                     SwitchListTile(
-                      title: const Text('Zobrazit LED Odměny (Capture)'),
+                      title: Text(l10n.boardNvsLedCapture),
                       value: _settings!.prefs.chessHintAwardCapture,
                       onChanged: (v) {
                         setState(() {
@@ -229,7 +241,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       },
                     ),
                     SwitchListTile(
-                      title: const Text('Zobrazit Hint Statistiku v UART'),
+                      title: Text(l10n.boardNvsUartStats),
                       value: _settings!.prefs.chessShowHintStats,
                       onChanged: (v) {
                         setState(() {
@@ -241,7 +253,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       },
                     ),
                     SwitchListTile(
-                      title: const Text('LED Cíl u Bota až po zvednutí (Lift)'),
+                      title: Text(l10n.boardNvsLiftBeforeBotTarget),
                       value: _settings!.prefs.chessBotLedTargetOnlyAfterLift,
                       onChanged: (v) {
                         setState(() {
@@ -253,7 +265,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       },
                     ),
                     SwitchListTile(
-                      title: const Text('Výukový mód (Tutorials Enabled)'),
+                      title: Text(l10n.boardNvsTutorialMode),
                       value: _settings!.prefs.chessTutorialsEnabled,
                       onChanged: (v) {
                         setState(() {
@@ -265,7 +277,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       },
                     ),
                     SwitchListTile(
-                      title: const Text('Potvrzovat novou hru LED tlačítkem'),
+                      title: Text(l10n.boardNvsConfirmNewGameLed),
                       value: _settings!.prefs.chessConfirmNewGame,
                       onChanged: (v) {
                         setState(() {
@@ -277,7 +289,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       },
                     ),
                     ListTile(
-                      title: const Text('Limit nápověd (0 = neomezeno)'),
+                      title: Text(l10n.boardNvsHintLimit),
                       trailing: Text('${_settings!.prefs.chessHintLimit}'),
                       subtitle: Slider(
                         min: 0, max: 99, divisions: 99,
@@ -293,14 +305,14 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       ),
                     ),
                     ListTile(
-                      title: const Text('Typ nápovědy (MoveHintTier)'),
-                      subtitle: const Text('H1 = jen nejlepší tah, H2 = top-3, H3 = vše dle Stockfish'),
+                      title: Text(l10n.boardNvsHintTierTitle),
+                      subtitle: Text(l10n.boardNvsHintTierSubtitle),
                       trailing: DropdownButton<String>(
                         value: _settings!.prefs.moveHintTier,
-                        items: const [
-                          DropdownMenuItem(value: 'H1', child: Text('H1 – Nejlepší')),
-                          DropdownMenuItem(value: 'H2', child: Text('H2 – Top 3')),
-                          DropdownMenuItem(value: 'H3', child: Text('H3 – Vše')),
+                        items: [
+                          DropdownMenuItem(value: 'H1', child: Text(l10n.boardNvsH1)),
+                          DropdownMenuItem(value: 'H2', child: Text(l10n.boardNvsH2)),
+                          DropdownMenuItem(value: 'H3', child: Text(l10n.boardNvsH3)),
                         ],
                         onChanged: (v) {
                           if (v == null) return;
@@ -316,7 +328,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        'H1–H3 v telefonu (`czechmate.moveHintTier`) je samostatné od LED úrovně na desce; při POST výše se do NVS propíše i hloubka/eval z diagnostiky aplikace.',
+                        l10n.boardNvsHintTierFootnote,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
@@ -326,14 +338,15 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                     // Guided capture — direct POST to /api/settings/guided_hints
                     _GuidedCaptureSection(baseUrlGetter: () => ref.read(prefsRepositoryProvider).lastBoardBaseUrl),
                     const Divider(height: 32),
-                    const Text('Nastavení Oponenta (Bota)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(l10n.boardNvsOpponentHeader,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     ListTile(
-                      title: const Text('Režim Bota'),
+                      title: Text(l10n.boardNvsBotMode),
                       trailing: DropdownButton<String>(
                         value: _settings!.prefs.botSettings.mode,
-                        items: const [
-                          DropdownMenuItem(value: 'pvp', child: Text('Hráč vs Hráč (Vypnut)')),
-                          DropdownMenuItem(value: 'bot', child: Text('Hráč vs Bot')),
+                        items: [
+                          DropdownMenuItem(value: 'pvp', child: Text(l10n.boardNvsPvp)),
+                          DropdownMenuItem(value: 'bot', child: Text(l10n.boardNvsPvb)),
                         ],
                         onChanged: (v) {
                           if (v == null) return;
@@ -349,7 +362,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       ),
                     ),
                     ListTile(
-                      title: const Text('Síla Bota (Lvl)'),
+                      title: Text(l10n.boardNvsBotStrength),
                       trailing: DropdownButton<String>(
                         value: _settings!.prefs.botSettings.strength,
                         items: ['6','8','10','12','14','16'].map((lvl) => 
@@ -369,12 +382,12 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       ),
                     ),
                     ListTile(
-                      title: const Text('Za koho hraje Bot'),
+                      title: Text(l10n.boardNvsBotPlaysAs),
                       trailing: DropdownButton<String>(
                         value: _settings!.prefs.botSettings.side,
-                        items: const [
-                          DropdownMenuItem(value: 'white', child: Text('Bílý')),
-                          DropdownMenuItem(value: 'black', child: Text('Černý')),
+                        items: [
+                          DropdownMenuItem(value: 'white', child: Text(l10n.colorWhite)),
+                          DropdownMenuItem(value: 'black', child: Text(l10n.colorBlack)),
                         ],
                         onChanged: (v) {
                           if (v == null) return;
@@ -392,18 +405,19 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                     Padding(
                       padding: const EdgeInsets.only(top: 4, bottom: 8),
                       child: Text(
-                        _botFooterText(),
+                        _botFooterText(l10n),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
                     const Divider(height: 32),
-                    const Text('Demo režim', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(l10n.boardNvsDemoHeader,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     const _DemoNvsSection(),
                     const SizedBox(height: 24),
                     FilledButton.icon(
                       onPressed: _isLoading ? null : _save,
                       icon: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.upload),
-                      label: const Text('Uložit do NVS Desky'),
+                      label: Text(l10n.boardNvsSaveToBoard),
                     )
                   ],
                 ),
@@ -474,18 +488,23 @@ class _DemoNvsSectionState extends ConsumerState<_DemoNvsSection> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (_boardStat != null)
-          Text('Stav na desce: demo ${_boardStat!.enabled ? "zapnuto" : "vypnuto"}',
-              style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            l10n.boardDemoStateLine(
+              _boardStat!.enabled ? l10n.boardDemoOn : l10n.boardDemoOff,
+            ),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         SwitchListTile(
-          title: const Text('Demo zapnuto (konfigurace)'),
+          title: Text(l10n.boardDemoEnabledConfig),
           value: _enabled,
           onChanged: _busy ? null : (v) => setState(() => _enabled = v),
         ),
-        Text('Rychlost animace: ${_speedMs.round()} ms'),
+        Text(l10n.boardDemoSpeedLabel('${_speedMs.round()}')),
         Slider(
           min: 200,
           max: 5000,
@@ -501,12 +520,12 @@ class _DemoNvsSectionState extends ConsumerState<_DemoNvsSection> {
                     enabled: _enabled,
                     speedMs: _speedMs.round(),
                   )),
-          child: const Text('Odeslat konfiguraci demo'),
+          child: Text(l10n.boardDemoSendConfig),
         ),
         const SizedBox(height: 8),
         OutlinedButton(
           onPressed: _busy ? null : () => _run((u) => ref.read(boardApiClientProvider).postDemoStart(u)),
-          child: const Text('Spustit demo'),
+          child: Text(l10n.boardDemoStart),
         ),
       ],
     );
@@ -548,10 +567,12 @@ class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
     );
     if (baseUrl == null || baseUrl.isEmpty) {
       if (mounted) {
+        final l10n = appStringsForPrefs(ref.read(prefsRepositoryProvider));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               boardHttpSettingsUserMessage(
+                l10n,
                 ArgumentError('Invalid argument(s): No host specified in URI'),
                 session,
               ),
@@ -564,11 +585,17 @@ class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
     setState(() => _busy = true);
     try {
       await ref.read(boardApiClientProvider).postLedGuidanceLevel(baseUrl, _level);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('LED guidance odeslána')));
+      if (mounted) {
+        final l10n = context.l10n;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.boardLedSentSnack)),
+        );
+      }
     } catch (e) {
       if (mounted) {
+        final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(boardHttpSettingsUserMessage(e, session))),
+          SnackBar(content: Text(boardHttpSettingsUserMessage(l10n, e, session))),
         );
       }
     } finally {
@@ -578,11 +605,15 @@ class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Divider(height: 24),
-        Text('LED nápověda (úroveň $_level / 5)', style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          l10n.boardLedGuidanceTitle('$_level'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         Slider(
           min: 1, max: 5, divisions: 4,
           value: _level.toDouble(),
@@ -591,7 +622,7 @@ class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
         ),
         FilledButton.tonal(
           onPressed: _busy ? null : _post,
-          child: const Text('Odeslat LED úroveň'),
+          child: Text(l10n.boardLedSendLevel),
         ),
       ],
     );
@@ -632,10 +663,12 @@ class _GuidedCaptureSectionState extends ConsumerState<_GuidedCaptureSection> {
     );
     if (baseUrl == null || baseUrl.isEmpty) {
       if (mounted) {
+        final l10n = appStringsForPrefs(ref.read(prefsRepositoryProvider));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               boardHttpSettingsUserMessage(
+                l10n,
                 ArgumentError('Invalid argument(s): No host specified in URI'),
                 session,
               ),
@@ -650,8 +683,9 @@ class _GuidedCaptureSectionState extends ConsumerState<_GuidedCaptureSection> {
       await ref.read(boardApiClientProvider).postGuidedCaptureHints(baseUrl, v);
     } catch (e) {
       if (mounted) {
+        final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(boardHttpSettingsUserMessage(e, session))),
+          SnackBar(content: Text(boardHttpSettingsUserMessage(l10n, e, session))),
         );
       }
       setState(() => _enabled = !v);
@@ -662,9 +696,10 @@ class _GuidedCaptureSectionState extends ConsumerState<_GuidedCaptureSection> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SwitchListTile(
-      title: const Text('Navigovaná braní (Guided Capture Hints)'),
-      subtitle: const Text('LED zvýrazňují možné braní oponentovy figurky'),
+      title: Text(l10n.boardGuidedCaptureTitle),
+      subtitle: Text(l10n.boardGuidedCaptureSubtitle),
       value: _enabled,
       onChanged: _busy ? null : _post,
     );

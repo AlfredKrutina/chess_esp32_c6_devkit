@@ -3,8 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/localization/locale_bridge.dart';
 import '../../core/services/board_api_exception.dart';
 import '../../core/utils/board_setup_fen_steps.dart';
+import '../../l10n/app_localizations.dart';
+import '../../app_providers.dart';
+import '../../core/localization/context_l10n.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
@@ -81,11 +85,12 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
   }
 
   Future<void> _bootstrap() async {
+    final strings = appStringsForPrefs(ref.read(prefsRepositoryProvider));
     final fen = _targetFen;
     if (fen.isEmpty) {
       setState(() {
         _phase = _WizardPhase.failed;
-        _error = 'Chybí FEN.';
+        _error = strings.setupWizardErrMissingFen;
       });
       return;
     }
@@ -93,7 +98,7 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
     if (!_linked(session)) {
       setState(() {
         _phase = _WizardPhase.failed;
-        _error = 'Připoj desku přes Wi‑Fi nebo Bluetooth (mock režim tutoriál nepodporuje).';
+        _error = strings.setupWizardErrConnectBoard;
       });
       return;
     }
@@ -101,7 +106,7 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
     if (_steps.isEmpty) {
       setState(() {
         _phase = _WizardPhase.failed;
-        _error = 'Z FEN nešlo sestavit žádné kroky.';
+        _error = strings.setupWizardErrNoSteps;
       });
       return;
     }
@@ -131,6 +136,26 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
 
   bool _linked(BoardSessionState s) =>
       (s.transport == BoardTransport.wifi && s.wifiBaseUrl != null) || s.transport == BoardTransport.ble;
+
+  String _setupPieceWord(AppLocalizations l, String pieceCh) {
+    final up = pieceCh.toUpperCase() == pieceCh;
+    switch (pieceCh.toLowerCase()) {
+      case 'k':
+        return up ? l.boardSetupWhiteKing : l.boardSetupBlackKing;
+      case 'q':
+        return up ? l.boardSetupWhiteQueen : l.boardSetupBlackQueen;
+      case 'r':
+        return up ? l.boardSetupWhiteRook : l.boardSetupBlackRook;
+      case 'b':
+        return up ? l.boardSetupWhiteBishop : l.boardSetupBlackBishop;
+      case 'n':
+        return up ? l.boardSetupWhiteKnight : l.boardSetupBlackKnight;
+      case 'p':
+        return up ? l.boardSetupWhitePawn : l.boardSetupBlackPawn;
+      default:
+        return l.boardSetupPieceGeneric;
+    }
+  }
 
   void _startTimers() {
     _ledTimer?.cancel();
@@ -342,9 +367,10 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
 
     final step = _current;
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final title = widget.kind == BoardSetupWizardKind.standardStart
-        ? 'Základní postavení'
-        : 'Postavení z FEN';
+        ? l10n.setupWizardTitleStandard
+        : l10n.setupWizardTitleFromFen;
 
     return Scaffold(
       appBar: AppBar(
@@ -360,27 +386,39 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
           if (_phase == _WizardPhase.failed) ...[
             Icon(Icons.error_outline, size: 48, color: cs.error),
             const SizedBox(height: 12),
-            Text(_error ?? 'Chyba', style: TextStyle(color: cs.error)),
+            Text(_error ?? l10n.setupWizardErrGeneric,
+                style: TextStyle(color: cs.error)),
             const SizedBox(height: 24),
-            FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Zavřít')),
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.commonClose),
+            ),
           ] else if (_phase == _WizardPhase.completed) ...[
             Icon(Icons.check_circle, size: 56, color: cs.primary),
             const SizedBox(height: 12),
             Text(
               widget.kind == BoardSetupWizardKind.standardStart
-                  ? 'Deska potvrdila základní postavení.'
-                  : (widget.loadFenWhenDone ? 'Pozice byla nahrána na desku.' : 'Průvodce dokončen.'),
+                  ? l10n.setupWizardDoneStandard
+                  : (widget.loadFenWhenDone
+                      ? l10n.setupWizardDoneFenLoaded
+                      : l10n.setupWizardDoneNoLoad),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 24),
-            FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Hotovo')),
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.setupWizardBtnDone),
+            ),
           ] else ...[
             LinearProgressIndicator(
               value: _steps.isEmpty ? 0 : _currentIndex / _steps.length,
             ),
             const SizedBox(height: 8),
             Text(
-              'Krok ${_steps.isEmpty ? 0 : _currentIndex + 1} / ${_steps.length}',
+              l10n.setupWizardStepProgress(
+                _steps.isEmpty ? 0 : _currentIndex + 1,
+                _steps.length,
+              ),
               style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 20),
@@ -392,12 +430,15 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
               ),
               const SizedBox(height: 8),
               Text(
-                'Polož figurku na ${step.square.toUpperCase()}',
+                l10n.setupWizardPlacePieceOn(step.square.toUpperCase()),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               Text(
-                step.label,
+                l10n.setupWizardPieceDetail(
+                  _setupPieceWord(l10n, step.pieceChar),
+                  step.square.toUpperCase(),
+                ),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
               ),
@@ -405,7 +446,7 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
               const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
             const SizedBox(height: 28),
             Text(
-              'LED na desce ukazuje cílové pole. Postup se potvrdí senzorem matice nebo správnou figurkou ve snapshotu.',
+              l10n.setupWizardLedHint,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.outline),
             ),
             const SizedBox(height: 20),
@@ -414,14 +455,14 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
                 Expanded(
                   child: OutlinedButton(
                     onPressed: (_phase == _WizardPhase.running && !_advanceInFlight) ? _skipStep : null,
-                    child: const Text('Přeskočit krok'),
+                    child: Text(l10n.setupWizardSkipStep),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _cancelWizard,
-                    child: const Text('Zrušit'),
+                    child: Text(l10n.commonCancel),
                   ),
                 ),
               ],

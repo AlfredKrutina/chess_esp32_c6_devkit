@@ -25,7 +25,7 @@ class BoardSetupFenSteps {
       final file = String.fromCharCode(97 + col);
       final rank = row + 1;
       final sq = '$file$rank';
-      out.add(BoardSetupPieceStep(square: sq, pieceChar: ch, label: _czechLabel(ch, sq)));
+      out.add(BoardSetupPieceStep(square: sq, pieceChar: ch, label: ''));
       col += 1;
     }
     return out;
@@ -58,22 +58,6 @@ class BoardSetupFenSteps {
     return (row: row, col: col);
   }
 
-  static String _czechLabel(String pieceCh, String square) {
-    final piece = pieceCh;
-    final up = piece.toUpperCase() == piece;
-    final low = piece.toLowerCase();
-    final pieceWord = switch (low) {
-      'k' => up ? 'White king' : 'Black king',
-      'q' => up ? 'White queen' : 'Black queen',
-      'r' => up ? 'White rook' : 'Black rook',
-      'b' => up ? 'White bishop' : 'Black bishop',
-      'n' => up ? 'White knight' : 'Black knight',
-      'p' => up ? 'White pawn' : 'Black pawn',
-      _ => 'Figurka',
-    };
-    final sqU = square.length >= 2 ? '${square.substring(0, 1).toUpperCase()}${square.substring(1)}' : square;
-    return '$pieceWord → $sqU';
-  }
 }
 
 class BoardSetupPieceStep {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/board_styles.dart';
+import '../../../core/localization/context_l10n.dart';
 import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/utils/board_algebraic.dart';
 import '../../../core/utils/fen_board_parser.dart';
@@ -25,15 +26,16 @@ void _openPromotionSheet(
   WidgetRef ref,
   void Function(String) snack,
 ) {
+  final l10n = context.l10n;
   showModalBottomSheet<void>(
     context: context,
     builder: (ctx) => SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const ListTile(title: Text('Promoce — vyber figuru')),
+          ListTile(title: Text(l10n.gamePromotionPickTitle)),
           ListTile(
-            title: const Text('Dáma'),
+            title: Text(l10n.gamePromotionQueen),
             onTap: () {
               ref
                   .read(gameUiNotifierProvider.notifier)
@@ -42,7 +44,7 @@ void _openPromotionSheet(
             },
           ),
           ListTile(
-            title: const Text('Věž'),
+            title: Text(l10n.gamePromotionRook),
             onTap: () {
               ref
                   .read(gameUiNotifierProvider.notifier)
@@ -51,7 +53,7 @@ void _openPromotionSheet(
             },
           ),
           ListTile(
-            title: const Text('Střelec'),
+            title: Text(l10n.gamePromotionBishop),
             onTap: () {
               ref
                   .read(gameUiNotifierProvider.notifier)
@@ -60,7 +62,7 @@ void _openPromotionSheet(
             },
           ),
           ListTile(
-            title: const Text('Jezdec'),
+            title: Text(l10n.gamePromotionKnight),
             onTap: () {
               ref
                   .read(gameUiNotifierProvider.notifier)
@@ -98,7 +100,7 @@ class ChessBoardWidget extends ConsumerWidget {
     }
 
     return Semantics(
-      label: 'Šachovnice, osm krát osm polí. Klepnutím vybírej pole.',
+      label: context.l10n.semanticsChessBoard,
       child: AspectRatio(
         aspectRatio: 1,
         child: InteractiveViewer(

@@ -169,6 +169,48 @@
   "reportSharePreparing": "Preparing…",
   "reportShareSummaryImage": "Share summary image",
   "reportSharePgn": "Share PGN file",
+  "reportExportAppearanceTitle": "Export image",
+  "reportExportAppearanceSubtitle": "Choose layout, background, and which sections appear on the shared PNG. The preview matches the export.",
+  "reportExportAspectRatio": "Canvas size",
+  "reportExportAspectCard": "Card (tall)",
+  "reportExportAspectSquare": "Square 1:1",
+  "reportExportAspectStory": "Story 9:16",
+  "reportExportAspectLandscape": "Landscape 16:9",
+  "reportExportTransparentBg": "Transparent background",
+  "reportExportTransparentHint": "PNG alpha — works best on colored or photo backgrounds in Stories.",
+  "reportExportShowBranding": "Show CzechMate header",
+  "reportExportShowStats": "Show time & move stats",
+  "reportExportShowFinalBoard": "Show final position",
+  "reportExportFlipBoard": "Flip board (Black at bottom)",
+  "reportExportShowEvalChart": "Include evaluation chart",
+  "reportExportShowCumulativeChart": "Include elapsed-time chart",
+  "reportExportShowPerMoveChart": "Include time-per-move bars",
+  "reportExportPresetFull": "Full",
+  "reportExportPresetMinimal": "Minimal",
+  "reportExportPresetStory": "Story hero",
+  "reportExportShareGifRecap": "Share move recap (GIF)",
+  "reportExportGifSubtitle": "Animated recap for Stories or chats (9:16). Long games are sampled.",
+  "reportExportGifBuilding": "Building animation…",
+  "reportExportGifShareSubject": "Game recap (GIF)",
+  "reportExportGifFailed": "GIF export failed: {error}",
+  "@reportExportGifFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "reportExportRecapMove": "Move {current} / {total}",
+  "@reportExportRecapMove": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "reportClock": "Clock",
   "reportMinutesShort": "{n} min",
   "@reportMinutesShort": {
@@ -265,7 +307,7 @@
     }
   },
   "defaultBoardName": "CZECHMATE board",
-  "discoveryWifiUrlHint": "Board URL (http://…)",
+  "discoveryWifiUrlHint": "e.g. http://192.168.4.1",
   "discoveryConnectWifi": "Connect via Wi‑Fi",
   "discoveryFindBle": "Find board (Bluetooth)",
   "discoveryScanning": "Scanning…",
@@ -424,5 +466,1107 @@
   "firmwareDialogHttpsNote": "The board downloads over HTTPS (Wi‑Fi STA). The phone only sends the link.",
   "firmwareTurnOffReminders": "Turn off reminders",
   "firmwareNotNow": "Not now",
-  "firmwareUpdateAction": "Update"
+  "firmwareUpdateAction": "Update",
+  "discoveryCloseTooltip": "Close",
+  "discoveryConnectionStatusTitle": "Connection status",
+  "discoveryScanningBoards": "Scanning for boards…",
+  "discoveryBleDevicesDev": "Bluetooth ({guid})",
+  "@discoveryBleDevicesDev": {
+    "placeholders": {
+      "guid": {
+        "type": "String"
+      }
+    }
+  },
+  "discoveryFoundBoards": "Found boards",
+  "discoveryEmptyBleList": "The list is empty. Tap “Find board” and wait a few seconds within range of a powered-on board.",
+  "discoveryAdvancedSubtitle": "Wi‑Fi URL, connection mode, demo",
+  "discoveryConnectionModeHeading": "Connection mode",
+  "discoveryBleSegmentShort": "BLE only",
+  "discoveryReconnectSavedBoard": "Reconnect saved board",
+  "discoveryManualAdvanced": "Manual entry / advanced",
+  "discoveryWifiUrlLabel": "Board address (Wi‑Fi)",
+  "discoveryEnterBoardUrlSnack": "Enter the board URL or IP (e.g. http://192.168.4.1).",
+  "discoveryBoardHotspotButton": "Board hotspot (192.168.4.1)",
+  "connectionModeAutoShort": "Auto",
+  "settingsOverviewTitle": "Overview",
+  "settingsOverviewSubtitleError": "Last error — expand for details",
+  "settingsOverviewSubtitleOk": "Shortcuts and connection status",
+  "settingsOverviewBody": "Game and board options apply to the Play tab and the Game controls panel — one set of toggles.",
+  "settingsGoToPlayTab": "Go to Play tab",
+  "settingsConnectionTitle": "Board connection",
+  "settingsConnectionSubtitle": "{tier} · {transport}",
+  "@settingsConnectionSubtitle": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      },
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsConnectionIntro": "Usually it’s enough to find the board via Bluetooth; the app may switch to Wi‑Fi when that makes sense.",
+  "settingsDisconnect": "Disconnect",
+  "settingsAdvanced": "Advanced",
+  "settingsAdvancedConnectionSubtitle": "Default URL, connection mode, saved BLE",
+  "settingsReconnectingBle": "Reconnecting Bluetooth to saved board…",
+  "settingsReconnectSavedBleShort": "Reconnect saved board (BLE)",
+  "settingsManualEntry": "Manual entry",
+  "settingsSavedDefaultsTitle": "Saved defaults",
+  "settingsSavedDefaultsBody": "Used on next connection from “Find board” or after reconnecting.",
+  "settingsConnectionModeLabel": "Connection mode",
+  "settingsConnectionModeAutoBleWifi": "Auto (BLE → Wi‑Fi)",
+  "settingsDefaultBoardUrl": "Default board URL",
+  "settingsInvalidUrlSnack": "Invalid URL — enter a host (e.g. 192.168.4.1 or http://…)",
+  "settingsSavedSnack": "Saved",
+  "settingsSaveUrl": "Save URL",
+  "settingsBleOnlyTitle": "Bluetooth only",
+  "settingsBleOnlySubtitle": "Don’t switch to Wi‑Fi after BLE",
+  "settingsWebSocketTitle": "WebSocket snapshot",
+  "settingsWebSocketSubtitle": "Reconnect Wi‑Fi session after change",
+  "transportShortDemo": "Demo",
+  "transportShortDash": "—",
+  "settingsBoardAppearanceTitle": "Board appearance",
+  "settingsBoardAppearanceSubtitle": "{layout} · {zoom} · {style}",
+  "@settingsBoardAppearanceSubtitle": {
+    "placeholders": {
+      "layout": {
+        "type": "String"
+      },
+      "zoom": {
+        "type": "String"
+      },
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLayoutBoardOnlyShort": "Board only",
+  "settingsLayoutFullUiShort": "Full UI",
+  "settingsPlayTabGamePanel": "Play tab & game panel",
+  "settingsLayoutLabel": "Layout",
+  "settingsLayoutBoardSegment": "Board",
+  "settingsLayoutBoardTooltip": "Board only — minimal chrome",
+  "settingsLayoutFullSegment": "Full",
+  "settingsLayoutFullTooltip": "Standard — clocks & controls",
+  "settingsBoardZoom": "Board zoom",
+  "settingsSquareColors": "Square colors",
+  "settingsBoardThemeLabel": "Theme",
+  "settingsBoardOptions": "Board options",
+  "settingsCoordinatesTitle": "Coordinates",
+  "settingsCoordinatesSubtitle": "a–h and 1–8 labels",
+  "settingsPieceMotionTitle": "Piece motion",
+  "settingsPieceMotionSubtitle": "Animated moves on the board",
+  "settingsFlipBoardTitle": "Flip board",
+  "settingsFlipBoardSubtitle": "Black toward you",
+  "settingsRemoteMovesTitle": "Remote moves",
+  "settingsRemoteMovesSubtitle": "Play from the app, not only the board",
+  "settingsLiveEvalTitle": "Live evaluation",
+  "settingsLiveEvalSubtitle": "Stockfish — fills the Analysis chart while you play",
+  "settingsResetBoardDisplay": "Reset board display defaults",
+  "boardStyleWooden": "Wooden (default)",
+  "boardStyleModernDark": "Modern Dark",
+  "boardStyleIceBlue": "Ice Blue",
+  "boardStyleForestGreen": "Forest Green",
+  "boardStyleMarbleGray": "Marble Gray",
+  "boardStyleMidnight": "Midnight",
+  "boardStyleSlate": "Slate",
+  "boardStyleCoral": "Coral",
+  "settingsAppAppearanceTitle": "App appearance",
+  "settingsAppearanceLight": "Light look",
+  "settingsAppearanceDark": "Dark look",
+  "settingsAppearanceOled": "OLED",
+  "settingsAppearanceSystem": "Follow system",
+  "settingsColorSchemeLabel": "Color scheme",
+  "settingsColorSchemeHelper": "Light / Dark apply immediately. System follows macOS appearance.",
+  "settingsThemeSystem": "System",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsThemeOledBlack": "OLED (true black)",
+  "settingsHapticsTitle": "Haptic feedback",
+  "settingsSoundTitle": "Sound effects",
+  "settingsAutoGameSummaryTitle": "Auto-open game summary after game",
+  "settingsCoachAiTitle": "Coach & AI",
+  "settingsCoachPriorityIntro": "Drag to set fallback order: the app tries the first provider, then the next if it fails. Leave the list empty for offline tips only. Keys stay on this device.",
+  "settingsCoachOfflineOnly": "Offline only",
+  "settingsCoachOpenAiOnly": "OpenAI only",
+  "settingsCoachGoogleOnly": "Google only",
+  "settingsCoachGroqGoogleOpenAi": "Groq→Google→OpenAI",
+  "settingsCoachOllamaGoogle": "Ollama→Google",
+  "settingsCoachPriorityTopLabel": "Priority (top = first try)",
+  "settingsCoachNoCloudProviders": "No cloud providers — Coach uses short on-device tips.",
+  "settingsCoachRemoveFromChain": "Remove from chain",
+  "settingsCoachAddProvider": "Add provider",
+  "settingsCoachExplanationLevel": "Coach explanation level",
+  "settingsCoachExplanationLevelSubtitle": "1 = Beginner, 4 = Expert",
+  "settingsCoachLevelBeginner": "1 – Beginner",
+  "settingsCoachLevelIntermediate": "2 – Intermediate",
+  "settingsCoachLevelAdvanced": "3 – Advanced",
+  "settingsCoachLevelExpert": "4 – Expert",
+  "settingsCoachCredentialsHeader": "Credentials (fill what you use)",
+  "settingsCoachOpenAiProvider": "OpenAI",
+  "settingsCoachApiKeyLabel": "API key",
+  "settingsCoachOpenAiKeyHelper": "platform.openai.com — used only for Coach.",
+  "settingsCoachModelIdLabel": "Model id",
+  "settingsCoachOpenAiKeysButton": "OpenAI keys",
+  "settingsCoachGoogleAiStudio": "Google AI Studio",
+  "settingsCoachPasteGoogleKeyHint": "Paste Google AI Studio key",
+  "settingsCoachGoogleKeyHelper": "Get a key at aistudio.google.com — Gemini / Gemma.",
+  "settingsCoachCustomModel": "Custom…",
+  "settingsCoachCustomModelId": "Custom model id",
+  "settingsCoachCustomModelHint": "e.g. gemini-2.5-flash",
+  "settingsCoachGetGoogleKey": "Get Google AI key",
+  "settingsCoachGroqTitle": "Groq (OpenAI-compatible)",
+  "settingsCoachXaiTitle": "xAI (Grok)",
+  "settingsCoachOllamaTitle": "Ollama (local)",
+  "settingsCoachBaseUrlLabel": "Base URL",
+  "settingsCoachChainSubtitle": "{chain}",
+  "@settingsCoachChainSubtitle": {
+    "placeholders": {
+      "chain": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDeveloperModeUnlockedSnack": "Developer mode unlocked.",
+  "gameControlDisplaySection": "Display",
+  "gameControlPlayModeSection": "Play mode",
+  "gameControlSandboxLabel": "Sandbox",
+  "gameControlMovesFromApp": "Moves from app",
+  "gameControlUndoMove": "Undo move ({n})",
+  "@gameControlUndoMove": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "gameControlExitSandbox": "Exit sandbox & refresh board",
+  "gameControlLearningModeTitle": "Learning mode",
+  "gameControlLearningModeSubtitle": "Coach explanations in the app",
+  "gameControlExplanationLevelSettings": "Explanation level (1–4) in Settings",
+  "gameControlActionsSection": "Actions",
+  "gameControlNewGameEllipsis": "New game…",
+  "gameControlRefreshState": "Refresh state",
+  "gameControlPanelTitle": "Game controls",
+  "timerUnavailable": "Clock: off or unavailable",
+  "timerWhiteShort": "White",
+  "timerBlackShort": "Black",
+  "coachChatTypeFirst": "Write a question first, then Send.",
+  "coachChatHide": "Hide",
+  "coachChatDismiss": "DISMISS",
+  "manualConnTitle": "Manual connection",
+  "manualConnWifiStatusError": "Wi‑Fi status: {error}",
+  "@manualConnWifiStatusError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "manualConnEnterUrlSnack": "Enter the board URL.",
+  "manualConnStaDisconnectedSnack": "STA disconnected (command sent).",
+  "manualConnClearWifiTitle": "Clear saved Wi‑Fi from NVS?",
+  "manualConnClearWifiBody": "The ESP will forget the stored network.",
+  "manualConnNvsClearedSnack": "Wi‑Fi credentials cleared from NVS.",
+  "manualConnSaveUrlSnack": "URL saved to preferences.",
+  "manualConnSaveUrl": "Save URL",
+  "manualConnTestConnection": "Test connection (GET snapshot)",
+  "manualConnConnectSession": "Connect session (Wi‑Fi + poll)",
+  "manualConnWifiStaNvs": "Wi‑Fi STA & NVS",
+  "manualConnRefreshWifi": "Refresh Wi‑Fi status",
+  "manualConnDisconnectSta": "Disconnect ESP from STA",
+  "manualConnClearWifiNvs": "Clear Wi‑Fi from NVS",
+  "haMqttTitle": "Home Assistant & MQTT",
+  "haMqttSavedSnack": "MQTT saved to board.",
+  "haMqttHowToHa": "Home Assistant guide",
+  "haMqttBrokerHeader": "MQTT broker",
+  "haMqttSaveToBoard": "Save to board",
+  "haMqttRefreshFromBoard": "Refresh status from board",
+  "haMqttBoardStatusHeader": "Status on board",
+  "haMqttModeTile": "Mode",
+  "haMqttMqttTile": "MQTT",
+  "haMqttWifiStaTile": "Wi‑Fi STA",
+  "haMqttGuideBody": "1. Home Assistant must run on the same Wi‑Fi LAN as the board (ESP connected as STA to your router).\n\n2. In Home Assistant enable an MQTT broker — commonly the “Mosquitto broker” add-on (Settings → Add-ons). Note the port (usually 1883) and any username/password from the add-on config.\n\n3. Find the IP or hostname of the machine running HA (e.g. 192.168.1.42 or homeassistant.local). The board must reach it on the LAN.\n\n4. Enter that address as “Broker host” below — it’s the MQTT server address (usually the same machine as Home Assistant). Keep port 1883 unless you changed Mosquitto.\n\n5. Saving sends settings to the board over the current link (Wi‑Fi or Bluetooth). The CzechMate app does not connect to the broker — only the ESP does.",
+  "haMqttHostFieldLabel": "Broker host (e.g. Home Assistant IP)",
+  "haMqttPortFieldLabel": "Port",
+  "haMqttUserFieldLabel": "Username (optional)",
+  "haMqttPasswordFieldLabel": "Password (optional)",
+  "haMqttFooterMock": "The demo board does not support MQTT — connect a real board.",
+  "haMqttFooterConnectFirst": "Connect the board (Bluetooth or Wi‑Fi) before saving the broker.",
+  "haMqttFooterBleSave": "You can save over Bluetooth; refreshing status from the board uses HTTP over Wi‑Fi.",
+  "haMqttFooterTroubleshoot": "If MQTT stays offline, check the HA firewall, Mosquitto credentials, and that the ESP is on the same network as the broker.",
+  "haMqttStateConnected": "connected",
+  "haMqttStateDisconnected": "disconnected",
+  "haMqttWifiOk": "OK",
+  "haMqttWifiNoLink": "no link",
+  "firmwareDailySecondConfirmBody": "Start the update? The board will download firmware, write flash, and reboot. Do not interrupt power.",
+  "firmwareDailySecondConfirmTitle": "Confirm update",
+  "profileTitle": "Profile & Elo",
+  "profileDisplayName": "Display name",
+  "profileNameSavedSnack": "Name saved",
+  "profileSaveName": "Save name",
+  "profileAvatar": "Avatar",
+  "profileFromGallery": "From gallery",
+  "profileGalleryError": "Gallery: {error}",
+  "@profileGalleryError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileNameHint": "Name shown on your profile",
+  "profilePuzzleEloLine": "Puzzle Elo: {elo}",
+  "@profilePuzzleEloLine": {
+    "placeholders": {
+      "elo": {
+        "type": "String"
+      }
+    }
+  },
+  "profileWeekStatsLine": "Last 7 days: {solved} solved · {failed} wrong lines",
+  "@profileWeekStatsLine": {
+    "placeholders": {
+      "solved": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "profileHeatmapTitle": "Last 28 days",
+  "profileHeatmapCaption": "Darker = more attempts; greener = higher success rate.",
+  "profileAvatarHint": "Preset icons or a photo from your gallery.",
+  "profileEloHelpBody": "Elo updates when you complete a graded puzzle with a known solution line (e.g. daily Lichess puzzles).",
+  "firmwareManifestSavedSnack": "Manifest URL saved.",
+  "firmwareUpdateBoardTitle": "Update board firmware?",
+  "firmwareNewVersionLine": "New version: {ver} — on board: {boardVer}.",
+  "@firmwareNewVersionLine": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      },
+      "boardVer": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareUpdateIntroBody": "The board downloads the file over HTTPS. Keep power and Wi‑Fi stable.",
+  "firmwareFinalConfirmTitle": "Final confirmation",
+  "firmwareFinalConfirmBody": "Start OTA on the board now?",
+  "firmwareYesUpdate": "Yes, update",
+  "firmwareDailyRemindersTitle": "Daily update reminders",
+  "firmwareDailyRemindersSubtitle": "Notify when a newer firmware is available.",
+  "firmwareSaveManifestUrl": "Save manifest URL",
+  "firmwareCheckForUpdate": "Check for update",
+  "firmwareNewVersionChip": "New version {ver}",
+  "@firmwareNewVersionChip": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDownloadOnEspNote": "Download runs on the ESP over HTTPS.",
+  "firmwareConfirmUpdateTitle": "Confirm update",
+  "firmwareConfirmUpdateBody": "Start firmware update on the board?",
+  "firmwareStartingOtaSnack": "Starting OTA on the board…",
+  "analysisAppBarTitle": "Analysis",
+  "analysisGameProgress": "Game in progress",
+  "analysisGameProgressBody": "Half-moves from the connected board.",
+  "analysisStockfishSection": "Stockfish",
+  "analysisStockfishSubtitle": "Evaluation line from the current board position.",
+  "analysisNoBoardPosition": "No position from board",
+  "analysisNoBoardPositionBody": "Connect Wi‑Fi or Bluetooth and open Play.",
+  "analysisOpenPlay": "Open Play",
+  "analysisChartDisabledTitle": "Chart and move evaluation are off",
+  "analysisChartDisabledSubtitle": "Enable move evaluation to see quality scores.",
+  "analysisEnableMoveEval": "Enable move evaluation (Stockfish)",
+  "analysisGameOverview": "Game overview",
+  "analysisGameOverviewBody": "Material, clocks, and opening info when available.",
+  "analysisMoveQuality": "Move quality",
+  "analysisMoveQualityBody": "Average 0–100 by Stockfish grade and avg loss in cp.",
+  "analysisLastMoveEvalTitle": "Last move evaluation",
+  "analysisMoveHistoryTitle": "Move history",
+  "analysisMoveHistoryTapHint": "Tap to open chronological playback.",
+  "analysisSecondLineTitle": "Second line",
+  "analysisSecondLineBody": "Alternative continuation from the engine.",
+  "analysisCustomPositionTitle": "Custom position",
+  "analysisCustomPositionBody": "Analysis without a physical board.",
+  "analysisDepthLabel": "Depth: {n}",
+  "@analysisDepthLabel": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisAnalyzePosition": "Analyze position",
+  "analysisSandboxFenSnack": "Sandbox from FEN — Play tab.",
+  "analysisPreviewInPlay": "Preview in Play",
+  "analysisPreviewMoveTitle": "Preview position & move",
+  "puzzleRoundExpiredSnack": "Round time expired.",
+  "puzzleConnectBoardSnack": "Connect the board (Wi‑Fi or BLE).",
+  "puzzleNewGameSentSnack": "new_game command sent.",
+  "puzzleBoardRiddleTitle": "Board puzzle",
+  "puzzleTryOnScreen": "Try on screen",
+  "puzzleLoadToBoard": "Load to board (new_game + FEN)",
+  "puzzleSetupWizardLabel": "Board setup wizard",
+  "puzzleOpenLichess": "Open on Lichess",
+  "puzzleSavePositionTitle": "Save position",
+  "puzzleSavedSnack": "Saved.",
+  "puzzleAddToLibrary": "Add to library",
+  "puzzleCustomTitle": "Custom",
+  "puzzleSetupOnBoard": "Setup on board",
+  "puzzleDailyTitle": "Daily {id}",
+  "@puzzleDailyTitle": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "puzzleDailySolveTitle": "Daily puzzle",
+  "puzzleSolutionMoves": "Solution: {n} moves",
+  "@puzzleSolutionMoves": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "puzzlePoolModeTitle": "Pool mode",
+  "puzzlePoolMixed": "Mixed",
+  "puzzlePoolBundled": "Bundled",
+  "puzzlePoolLibrary": "Library",
+  "puzzleTimedRoundTitle": "Timed round",
+  "puzzleTimedRoundBody": "Random position from the selected pool, countdown in seconds.",
+  "puzzleNewRound": "New round",
+  "puzzleStop": "Stop",
+  "puzzleRemainingSeconds": "Remaining: {n}s",
+  "@puzzleRemainingSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "puzzleSolveOnScreen": "Solve on screen",
+  "puzzleLoadToBoardShort": "Load to board",
+  "puzzleSetupWizardShort": "Setup wizard",
+  "puzzleBundledOfflineTitle": "Bundled positions (offline)",
+  "puzzleThemeMate": "Mate",
+  "puzzleThemeFork": "Fork",
+  "puzzleThemeEndgame": "Endgame",
+  "puzzleThemeMixed": "Mixed",
+  "progressAppBarTitle": "Progress",
+  "progressSegBeginner": "Beg.",
+  "progressSegIntermediate": "Int.",
+  "progressSegAdvanced": "Adv.",
+  "progressSegExpert": "Exp.",
+  "progressTabLearn": "Learn",
+  "progressTabStats": "Stats",
+  "progressWelcomeTitle": "Welcome to CzechMate",
+  "progressWelcomeBody": "Track puzzles, coach, and board setup from one place.",
+  "progressProfilePuzzleEloTitle": "Profile & puzzle Elo",
+  "progressProfilePuzzleEloSubtitle": "Local nickname and puzzle rating.",
+  "progressLearnCardTitle": "Learn",
+  "progressLearnCardSubtitle": "LED setup wizards and AI coach",
+  "progressAiCoachTitle": "AI coach",
+  "progressAiCoachBody": "Ask questions and get hints tied to the position.",
+  "progressLearningModeTile": "Learning mode",
+  "progressCoachLevelLabel": "Coach level",
+  "progressCoachChatButton": "Coach chat",
+  "progressPositionPlanButton": "Position plan",
+  "progressBoardErrorTitle": "Board error",
+  "progressStartingPositionTitle": "Starting position",
+  "progressStartingPositionBody": "Wizard aligns pieces using LEDs.",
+  "progressRunWizardStarting": "Run wizard — starting position",
+  "progressAccountCardTitle": "Account",
+  "progressAccountCardSubtitle": "Local profile and activity",
+  "progressActiveTransportTitle": "Active transport",
+  "progressNoSessionTitle": "No active session yet",
+  "progressNoSessionSubtitle": "Open Find board to connect.",
+  "helpAppBarTitle": "czechmate — help",
+  "helpConnectTitle": "Connecting the board",
+  "helpConnectBody": "Use Bluetooth to discover the board, then Wi‑Fi when available. Check Settings for manual URL and modes.",
+  "helpPlayingTitle": "Playing a game",
+  "helpPlayingBody": "Use Play for live sync, Game controls for time and flip, and Analysis for Stockfish.",
+  "helpCoachTitle": "Coach & analysis",
+  "helpCoachBody": "Enable learning mode and connect API keys in Settings for cloud coaches.",
+  "helpSettingsTitle": "Settings & configuration",
+  "helpSettingsBody": "Appearance, NVS, lamp, firmware, and MQTT live here.",
+  "coachScreenTitle": "AI Coach",
+  "coachScreenHintTitle": "Opening & plans",
+  "coachScreenHintBody": "Ask about ideas for this position.",
+  "coachScreenLevelLabel": "Level {level}",
+  "@coachScreenLevelLabel": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "setupModeAppBar": "Setup mode",
+  "setupModePiecePlacementTitle": "Piece placement",
+  "setupModePiecePlacementBody": "Use the wizard to align pieces with LED hints.",
+  "setupModeGoBack": "Go back",
+  "wizardSkipStep": "Skip step",
+  "wizardCancel": "Cancel",
+  "connDiagTitle": "Connection diagnostics",
+  "connDiagTransport": "Transport",
+  "connDiagWifiBaseUrl": "Wi‑Fi base URL",
+  "connDiagPolling": "Polling",
+  "connDiagWebSocket": "WebSocket",
+  "connDiagPollSuccessTitle": "Successful snapshot GETs (incl. 304)",
+  "connDiagPollFailureTitle": "Failed GET / poll errors",
+  "connDiagWsFramesTitle": "WS messages (frames)",
+  "connDiagLastPollOk": "Last successful poll",
+  "connDiagLastErrorTitle": "Last error",
+  "connDiagActive": "active",
+  "connDiagOff": "off",
+  "newGameSheetTitle": "New game",
+  "newGameSheetSubtitle": "Pick time control and side.",
+  "newGameWhiteBottom": "White bottom",
+  "newGameBlackBottom": "Black bottom",
+  "newGameCustomTimeTitle": "Custom time (type 14)",
+  "newGameCustomTimeSubtitle": "Minutes + increment sent to the board.",
+  "newGameMinutesPerSide": "Minutes per side: {n}",
+  "@newGameMinutesPerSide": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "newGameIncrementSeconds": "Increment (s): {n}",
+  "@newGameIncrementSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "newGameStartOnBoard": "Start on board",
+  "newGameConnectFirstSnack": "Connect a board first (Wi‑Fi or Bluetooth).",
+  "newGameStartedSnack": "New game started on the board.",
+  "newGameErrorSnack": "Error: {error}",
+  "@newGameErrorSnack": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "newGameSheetBody": "Like on iOS: time control is sent to the board, then a new game starts.",
+  "newGameBoardViewSection": "Board view (which color is at the bottom)",
+  "newGameWhoStartsNote": "Who starts is decided on the board / game rules; here you only flip the view (saved in Settings).",
+  "newGameFirmwarePresets": "Firmware presets",
+  "newGameCustomSummary": "{min} min + {inc} s / move",
+  "@newGameCustomSummary": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "inc": {
+        "type": "int"
+      }
+    }
+  },
+  "learnAppBarTitle": "Chess lessons",
+  "learnBoardLedHint": "Connect the board and use LED hints while practicing these lessons.",
+  "learnSnackLesson": "Lesson: {title} — interactive content coming soon.",
+  "@learnSnackLesson": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "learnSecBasics": "Basics",
+  "learnSecSpecial": "Special moves",
+  "learnSecTactics": "Tactics",
+  "learnSecStrategy": "Strategy",
+  "learnL1Title": "How pieces move",
+  "learnL1Desc": "King, queen, rook, bishop, knight, pawn — learn each piece’s moves.",
+  "learnL2Title": "Goals of chess",
+  "learnL2Desc": "Checkmate, stalemate, draw — what end states mean.",
+  "learnL3Title": "Piece values",
+  "learnL3Desc": "Pawn=1, Knight/Bishop=3, Rook=5, Queen=9 — why it matters.",
+  "learnL4Title": "Castling",
+  "learnL4Desc": "Kingside and queenside — how, when, and why.",
+  "learnL5Title": "En passant",
+  "learnL5Desc": "The special pawn capture beginners often miss.",
+  "learnL6Title": "Promotion",
+  "learnL6Desc": "Pawn on the eighth rank — choosing the right piece.",
+  "learnL7Title": "Fork",
+  "learnL7Desc": "Attack two pieces at once — a core tactical theme.",
+  "learnL8Title": "Pin",
+  "learnL8Desc": "A piece can’t move because it would expose the king.",
+  "learnL9Title": "Scholar’s Mate",
+  "learnL9Desc": "Mate in four — and how to stop it.",
+  "learnL10Title": "Control the center",
+  "learnL10Desc": "Why e4, d4, e5, d5 matter in the opening.",
+  "learnL11Title": "King safety",
+  "learnL11Desc": "Castle early as insurance — when and how to hide the king.",
+  "learnL12Title": "Endgame: king & pawn",
+  "learnL12Desc": "Turn a pawn advantage into a win.",
+  "devSettingsTitle": "Diagnostics & Developer",
+  "devStockfishFenHeader": "Stockfish & FEN",
+  "devMoveEvalTile": "Move evaluation (moveEvaluationEnabled)",
+  "devHintDepthTile": "Hint depth (hintDepth): {n}",
+  "@devHintDepthTile": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "devCurrentFenLabel": "Current FEN from board:",
+  "devNetworkTransportHeader": "Network & transport",
+  "devBoardBaseUrlTile": "Board base URL (ESP)",
+  "devActiveLinkTile": "Active link status",
+  "devCoachTraceTile": "Verbose coach logs (coach trace)",
+  "devStartConnection": "Start connection",
+  "devStopTransport": "Stop",
+  "devTransportStoppedSnack": "Transport stopped.",
+  "devRefreshedFromPrefsSnack": "Reloaded from preferences.",
+  "devPingSnapshot": "Ping snapshot (RTT): {result}",
+  "@devPingSnapshot": {
+    "placeholders": {
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "devConnectionDiagTile": "Connection diagnostics (REST / WS)",
+  "devDisconnectStaSnack": "STA disconnected.",
+  "devClearWifiNvsTitle": "Clear Wi‑Fi from NVS?",
+  "devClearWifiNvsBody": "The ESP will forget the stored network.",
+  "devWifiNvsClearedSnack": "Wi‑Fi NVS cleared.",
+  "devClearWifiNvsButton": "Clear saved Wi‑Fi from NVS",
+  "devWifiConfigHeader": "Wi‑Fi configuration on board",
+  "devWifiUnavailable": "Wi‑Fi status unavailable. Tap refresh below.",
+  "devNvsToolsButton": "Detailed tools (NVS classes)",
+  "devErrorPrefix": "Error: {error}",
+  "@devErrorPrefix": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devSentToEspSnack": "Sent to ESP.",
+  "boardNvsTitle": "Board memory (NVS)",
+  "boardNvsSavedSnack": "Saved to board NVS.",
+  "boardNvsLedHeader": "On-board chess hints (LED)",
+  "boardNvsEvalMode": "Eval mode (compute best moves)",
+  "boardNvsStockfishDepth": "Stockfish depth D1–D18",
+  "boardNvsLedBest": "Show LED rewards (best move)",
+  "boardNvsLedGood": "Show LED rewards (good move)",
+  "boardNvsLedCapture": "Show LED rewards (capture)",
+  "boardNvsUartStats": "Print hint stats to UART",
+  "boardNvsLiftBeforeBotTarget": "Bot target LED only after lift",
+  "boardNvsTutorialMode": "Tutorial mode enabled",
+  "boardNvsConfirmNewGameLed": "Confirm new game with LED button",
+  "boardNvsHintLimit": "Hint limit (0 = unlimited)",
+  "boardNvsHintTierTitle": "Hint type (MoveHintTier)",
+  "boardNvsHintTierSubtitle": "H1 = best only, H2 = top 3, H3 = full Stockfish set",
+  "boardNvsH1": "H1 – Best",
+  "boardNvsH2": "H2 – Top 3",
+  "boardNvsH3": "H3 – All",
+  "boardNvsOpponentHeader": "Opponent (bot) settings",
+  "boardNvsBotMode": "Bot mode",
+  "boardNvsPvp": "Player vs player (off)",
+  "boardNvsPvb": "Player vs bot",
+  "boardNvsBotStrength": "Bot strength (level)",
+  "boardNvsBotPlaysAs": "Bot plays as",
+  "boardNvsDemoHeader": "Demo mode",
+  "boardNvsSaveToBoard": "Save to board NVS",
+  "boardDemoStateLine": "On-board demo: {on}",
+  "@boardDemoStateLine": {
+    "placeholders": {
+      "on": {
+        "type": "String"
+      }
+    }
+  },
+  "boardDemoOn": "on",
+  "boardDemoOff": "off",
+  "boardDemoEnabledConfig": "Demo enabled (configuration)",
+  "boardDemoSpeedLabel": "Animation speed: {ms} ms",
+  "@boardDemoSpeedLabel": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "boardDemoSendConfig": "Send demo config",
+  "boardDemoStart": "Start demo",
+  "boardLedSentSnack": "LED guidance sent.",
+  "boardLedGuidanceTitle": "LED guidance (level {level} / 5)",
+  "@boardLedGuidanceTitle": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "boardLedSendLevel": "Send LED level",
+  "boardGuidedCaptureTitle": "Guided captures",
+  "boardGuidedCaptureSubtitle": "LED highlight possible captures.",
+  "lampBoardLightTitle": "Board light",
+  "lampDetailTitle": "Lamp — detail",
+  "lampDetailsButton": "Lamp details",
+  "lampHeader": "Lamp",
+  "lampNeedsConnection": "Requires board connection (Wi‑Fi or Bluetooth).",
+  "lampOnTitle": "Lamp on",
+  "lampBrightnessLabel": "Brightness {n}%",
+  "@lampBrightnessLabel": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "lampSendBrightness": "Send brightness",
+  "lampBrightnessSentSnack": "Brightness sent to the board.",
+  "lampColorStateSentSnack": "Color and lamp state sent.",
+  "lampGenericCommandSnack": "Lamp command sent.",
+  "lampBlockStatusSummary": "Mode: {mode} · RGB({r},{g},{b}) · hint limit: {h} · auto-off: {t}s",
+  "lampRgbHint": "Color (R G B) — POST /api/light/command",
+  "lampSendColor": "Send color / lamp state",
+  "lampGameModeButton": "Game lamp mode",
+  "lampColorLabel": "Color",
+  "lampColorfulnessLabel": "Colorfulness",
+  "lampLedBrightnessPct": "LED brightness (%)",
+  "lampStudioColorTitle": "Color",
+  "lampStudioColorHint": "Tap or drag — hue and saturation (center = white).",
+  "lampStudioValueTitle": "Color lightness",
+  "lampStudioBoardPreview": "Board preview",
+  "lampStudioPreviewGlowHint": "Light spill preview",
+  "lampStudioPreviewLampOff": "Lamp off",
+  "lampStudioScenes": "Scenes",
+  "lampStudioApplyToBoard": "Apply to board",
+  "lampStudioGameMode": "Game mode",
+  "lampStudioAppliedOk": "Color and brightness sent to the board.",
+  "lampStudioGameModeOk": "Game lamp mode applied.",
+  "lampStudioNeedConnection": "Connect the board via Wi‑Fi or Bluetooth to control the lamp.",
+  "lampStudioAutoOff": "Auto shut-off",
+  "lampStudioSaveTimer": "Save timer",
+  "lampStudioTimerSavedOk": "Auto shut-off timer saved.",
+  "lampStudioRgbLine": "RGB ({r}, {g}, {b})",
+  "@lampStudioRgbLine": {
+    "placeholders": {
+      "r": {
+        "type": "int"
+      },
+      "g": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "lampPresetWarmWhite": "Warm white",
+  "lampPresetCoolWhite": "Cool white",
+  "lampPresetCalmBlue": "Calm blue",
+  "lampPresetForestGreen": "Forest green",
+  "lampPresetWarmth": "Warmth",
+  "lampPresetPurpleScene": "Purple scene",
+  "lampPresetRed": "Red",
+  "lampPresetAmber": "Amber",
+  "puzzleTabDaily": "Daily",
+  "puzzleTabLibrary": "Library",
+  "puzzleTabTraining": "Training",
+  "puzzleBackLiveTooltip": "Back to live game",
+  "puzzlePoolEmptySnack": "No positions in this pool mode — switch to Mixed or add library items.",
+  "puzzleLibraryEmptyHint": "No items yet — use the form above or Add from the daily puzzle.",
+  "puzzleLoadDaily": "Load daily puzzle",
+  "puzzleRefreshDaily": "Refresh daily puzzle",
+  "puzzleAlreadyInLibrary": "Already in library",
+  "puzzleSavedToLibraryBanner": "Saved to library.",
+  "puzzleLibNameLabel": "Title",
+  "puzzleLibFenLabel": "FEN",
+  "puzzleGoPlaySandbox": "Sandbox — Play tab.",
+  "puzzleGoPlayPuzzle": "Puzzle ({title}) — Play tab.",
+  "@puzzleGoPlayPuzzle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "puzzleSideBlackMove": "Black to move",
+  "puzzleSideWhiteMove": "White to move",
+  "puzzleSideUnknown": "Side to move: ?",
+  "puzzleTrainingPoolStats": "{poolN} positions · {sessions} rounds started",
+  "@puzzleTrainingPoolStats": {
+    "placeholders": {
+      "poolN": {
+        "type": "int"
+      },
+      "sessions": {
+        "type": "int"
+      }
+    }
+  },
+  "puzzleThemeMateIn1": "Mate in 1",
+  "puzzleThemeAdvancedPawn": "Advanced pawn",
+  "puzzleThemeOpening": "Opening",
+  "puzzleThemeKingsideAttack": "Kingside attack",
+  "puzzleThemeMiddlegame": "Middlegame",
+  "puzzleThemeTactic": "Tactics",
+  "setupWizardErrMissingFen": "FEN is missing.",
+  "setupWizardErrConnectBoard": "Connect the board via Wi‑Fi or Bluetooth (demo mode does not support this tutorial).",
+  "setupWizardErrNoSteps": "Could not build steps from this FEN.",
+  "setupWizardErrGeneric": "Error",
+  "setupWizardTitleStandard": "Starting position",
+  "setupWizardTitleFromFen": "Setup from FEN",
+  "setupWizardDoneStandard": "The board confirmed the starting position.",
+  "setupWizardDoneFenLoaded": "The position was loaded on the board.",
+  "setupWizardDoneNoLoad": "Wizard finished.",
+  "setupWizardBtnDone": "Done",
+  "setupWizardStepProgress": "Step {current} / {total}",
+  "@setupWizardStepProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "setupWizardPlacePieceOn": "Place the piece on {square}",
+  "@setupWizardPlacePieceOn": {
+    "placeholders": {
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "setupWizardPieceDetail": "{pieceName} → {square}",
+  "@setupWizardPieceDetail": {
+    "placeholders": {
+      "pieceName": {
+        "type": "String"
+      },
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "setupWizardLedHint": "The board LED shows the target square. Progress is confirmed by the matrix sensor or the correct piece in the snapshot.",
+  "setupWizardSkipStep": "Skip step",
+  "boardSetupWhiteKing": "white king",
+  "boardSetupBlackKing": "black king",
+  "boardSetupWhiteQueen": "white queen",
+  "boardSetupBlackQueen": "black queen",
+  "boardSetupWhiteRook": "white rook",
+  "boardSetupBlackRook": "black rook",
+  "boardSetupWhiteBishop": "white bishop",
+  "boardSetupBlackBishop": "black bishop",
+  "boardSetupWhiteKnight": "white knight",
+  "boardSetupBlackKnight": "black knight",
+  "boardSetupWhitePawn": "white pawn",
+  "boardSetupBlackPawn": "black pawn",
+  "boardSetupPieceGeneric": "piece",
+  "gameRemoteEmptySquareSnack": "There is no piece on this square.",
+  "gameRemoteEmptySquareHud": "Empty square",
+  "gameRemoteWrongTurnSnack": "Pick a piece of the side that is on move.",
+  "gameRemoteWrongTurnHud": "Not your turn",
+  "gamePromotionPickTitle": "Promotion — choose a piece",
+  "gamePromotionQueen": "Queen",
+  "gamePromotionRook": "Rook",
+  "gamePromotionBishop": "Bishop",
+  "gamePromotionKnight": "Knight",
+  "gamePromotionFailedSnack": "Promotion failed",
+  "semanticsChessBoard": "Chessboard, eight by eight squares. Tap to select squares.",
+  "moveHistoryEmpty": "Move history is empty yet.",
+  "moveHistoryPieceSubtitle": "Piece: {piece}",
+  "@moveHistoryPieceSubtitle": {
+    "placeholders": {
+      "piece": {
+        "type": "String"
+      }
+    }
+  },
+  "bundledPuzzleMateQg8Title": "Queen mate",
+  "bundledPuzzleMateQg8Subtitle": "White · mate in 1",
+  "bundledPuzzleBackRankTitle": "Back rank",
+  "bundledPuzzleBackRankSubtitle": "White · rook mate",
+  "bundledPuzzleRookCornerTitle": "Rook vs king",
+  "bundledPuzzleRookCornerSubtitle": "White · endgame",
+  "bundledPuzzleBlackMateTitle": "Black to move",
+  "bundledPuzzleBlackMateSubtitle": "Black · mate in 1",
+  "bundledPuzzlePromotionTitle": "Pawn advance",
+  "bundledPuzzlePromotionSubtitle": "White · promotion",
+  "bundledPuzzleTwoRooksTitle": "Two rooks",
+  "bundledPuzzleTwoRooksSubtitle": "White · two rooks",
+  "settingsTileSmartHomeTitle": "Smart home (MQTT)",
+  "settingsTileSmartHomeSubtitle": "Home Assistant & MQTT",
+  "settingsHaMqttOpenButton": "Home Assistant & MQTT (guide + form)",
+  "settingsTileBoardLightTitle": "Board light",
+  "settingsTileBoardLightSubtitle": "Color, brightness, scenes, auto-off",
+  "settingsTileModulesTitle": "Modules & learning",
+  "settingsTileModulesSubtitle": "Tour, puzzles, profile, progress, help",
+  "settingsNavAppTour": "App tour (onboarding)",
+  "settingsNavChessPuzzles": "Chess puzzles",
+  "settingsNavProfileElo": "Profile & puzzle Elo",
+  "settingsNavProgress": "Progress (learning & stats)",
+  "settingsNavHelp": "Help",
+  "settingsTileNvsDiagTitle": "Board memory & diagnostics",
+  "settingsTileNvsDiagSubtitle": "NVS rules, developer tools",
+  "settingsNavBoardNvs": "Board NVS rules (LED, bot)",
+  "settingsNavDeveloperDiag": "Developer diagnostics",
+  "settingsTileAboutTitle": "About",
+  "settingsTileAboutSubtitle": "Version, privacy, system",
+  "settingsAboutVersionLoading": "Loading version…",
+  "settingsAboutVersionLine": "Version {version} ({build}) • Tap “Settings” in the title bar 7× to unlock developer mode.",
+  "@settingsAboutVersionLine": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsPrivacyTitle": "Privacy",
+  "settingsPrivacyBody": "This build does not send analytics. Traffic goes only to your board on the local network or over Bluetooth.",
+  "settingsIcloudTitle": "iCloud",
+  "settingsIcloudBody": "Optional puzzle sync via iCloud (CloudKit) is planned for a future release; this build does not sync.",
+  "settingsLiveActivityTitle": "Clock status outside the app",
+  "settingsLiveActivitySubtitle": "iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: ongoing notification (Android 13+ may require enabling notifications). Enable from the game screen.",
+  "settingsLiveActivityIosDisabledSnack": "Live Activities are disabled system-wide. Enable them in Settings → czechmate → Live Activities.",
+  "settingsWearMirrorTitle": "Mirror clock on Wear OS",
+  "settingsWearMirrorSubtitle": "Google Data Layer — same state as the ongoing notification; requires a paired Wear OS watch.",
+  "settingsWatchMirrorTitle": "Mirror clock on Apple Watch",
+  "settingsWatchMirrorSubtitle": "WatchConnectivity — same state as Live Activity; basic UI on the watch with Pause/Resume.",
+  "settingsFactoryTileTitle": "Board factory reset",
+  "settingsFactoryTileSubtitle": "Clears ESP NVS — device becomes access point",
+  "settingsFactoryDialogTitle": "Factory reset",
+  "settingsFactoryDialogBody": "Erase all board NVS (Wi‑Fi, passwords, MQTT, preferences)? The device will restart as a Wi‑Fi access point.",
+  "settingsFactoryErase": "Erase",
+  "settingsFactoryCommandSent": "Command sent.",
+  "settingsFactoryError": "Error: {error}",
+  "@settingsFactoryError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFactoryRunButton": "Run board factory reset",
+  "settingsCoachOllamaUrlHelper": "Enter a URL ending with /v1 (e.g. :11434/v1). Port 11434 without /v1 used to fail — the app now appends /v1 for 11434.",
+  "settingsCoachOpenAiBaseLabel": "OpenAI API base",
+  "settingsCoachModelNameLabel": "Model name",
+  "settingsCoachEnterGeminiModelSnack": "Enter a Google AI model id (or pick a preset).",
+  "settingsCoachSavedSnack": "Coach settings saved.",
+  "settingsCoachSaveButton": "Save coach settings",
+  "settingsCoachGoogleKeyButton": "Get Google AI key",
+  "settingsCoachGroqConsoleButton": "Groq console",
+  "settingsCoachXaiConsoleButton": "xAI console",
+  "boardNvsRefreshTooltip": "Refresh from board",
+  "boardNvsFetchFailedFallback": "Could not load data from the board. Tap ↻ to retry.",
+  "boardNvsMergeHint": "When saving, the app merges Stockfish depth ({depth}) and move-eval toggle ({eval}) into the NVS payload (same as iOS).",
+  "@boardNvsMergeHint": {
+    "placeholders": {
+      "depth": {
+        "type": "String"
+      },
+      "eval": {
+        "type": "String"
+      }
+    }
+  },
+  "boardNvsEvalOn": "on",
+  "boardNvsEvalOff": "off",
+  "boardNvsHintTierFootnote": "H1–H3 in the phone app is separate from on-board LED level; POST above also forwards depth/eval from app diagnostics.",
+  "boardNvsFooterMock": "Demo board: NVS write does not reach real hardware.",
+  "boardNvsFooterWifiActive": "Wi‑Fi session active — Save sends bot settings to ESP NVS.",
+  "boardNvsFooterBle": "BLE: firmware may accept NVS/UI blob; verify status on the board web UI.",
+  "boardNvsFooterGeneric": "For reliable bot NVS writes, connect the board (Wi‑Fi recommended).",
+  "boardNvsHttpBleExplain": "Bluetooth is connected, but loading NVS from this screen uses HTTP. Save a valid board URL in Settings (STA IP, e.g. http://192.168.x.x), or activate a Wi‑Fi session to that IP.",
+  "boardNvsHttpWifiNoUrl": "Wi‑Fi session without a valid base URL. Reconnect from Play → board manager.",
+  "boardNvsHttpMissingUrl": "Missing valid board HTTP URL. In Settings fill “Default board URL” (full http://…) and try again (↻).",
+  "boardHttpMissingUrlBody": "The board HTTP address is missing or invalid. In Settings, save a full URL (e.g. http://192.168.4.1 or your board STA IP). Bluetooth can still work without this URL for live play.",
+  "boardHttpFailBle": "Bluetooth is connected, but the HTTP request failed (wrong URL, timeout, or web lock).",
+  "boardHttpFailWifi": "Wi‑Fi session active — verify the board URL and that the board responds.",
+  "boardHttpFailMock": "Demo board — HTTP to hardware does not apply.",
+  "boardHttpFailNone": "No active connection to the board.",
+  "boardHttpFailDetail": "{link} Detail: {detail}",
+  "@boardHttpFailDetail": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "boardHttpErrGeneric": "Board communication error: {error}",
+  "@boardHttpErrGeneric": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "progressSegmentBeg": "Beg.",
+  "progressSegmentInt": "Int.",
+  "progressSegmentAdv": "Adv.",
+  "progressSegmentExp": "Exp.",
+  "progressLearningModeTitle": "Learning mode",
+  "progressCoachLevelTitle": "Coach level",
+  "progressTransportActiveTitle": "Active transport",
+  "progressNoSessionYet": "No active session yet",
+  "progressLevelBeginner": "Beginner",
+  "progressLevelIntermediate": "Intermediate",
+  "progressLevelAdvanced": "Advanced",
+  "progressLevelExpert": "Expert",
+  "progressLevelNumber": "Level {n}",
+  "@progressLevelNumber": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisIntroEvalHint": "Move evaluation and chart — chess-api or custom URL in Settings (developer).",
+  "analysisHalfMoveOrderHint": "Each row is one half-move in order — white first, then black.",
+  "analysisNoBoardPositionHint": "On the Play tab, connect the chessboard. Below you can analyze a custom FEN.",
+  "analysisChartDisabledBoardSubtitle": "Turn on the switch below or in Settings → Board appearance.",
+  "analysisOverviewSubtitleEval": "Position eval after each move (White perspective: + favors White)",
+  "analysisChartFillHintLiveEvalOn": "The chart fills after moves once Stockfish evaluates (play on Play with internet).",
+  "analysisChartFillHintLiveEvalOff": "Turn on automatic evaluation to see the curve here.",
+  "analysisClearEvalData": "Clear chart and saved move evaluations",
+  "analysisMoveQualitySideLast3": "Last 3 moves by side",
+  "analysisMoveQualitySideLast10": "Last 10 moves by side",
+  "analysisMoveQualityFullGame": "Full game",
+  "analysisSecondLineComputing": "Computing…",
+  "analysisSecondLineLoadButton": "Load second line (from session FEN)",
+  "analysisSecondLineSameMove": "Both depths agree on {from}→{to}.",
+  "@analysisSecondLineSameMove": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisSecondLineEvalApprox": " · eval ≈ {pawns} pawns.",
+  "@analysisSecondLineEvalApprox": {
+    "placeholders": {
+      "pawns": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisFreeAnalyzing": "Computing…",
+  "analysisBestMoveLine": "Best move: {from}–{to}{evalSuffix}{extra}",
+  "@analysisBestMoveLine": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "evalSuffix": {
+        "type": "String"
+      },
+      "extra": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisQualitySummaryLine": "{quality}{avgCp} · {count} moves",
+  "@analysisQualitySummaryLine": {
+    "placeholders": {
+      "quality": {
+        "type": "String"
+      },
+      "avgCp": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisAvgLossCp": " · avg loss {cp} cp",
+  "@analysisAvgLossCp": {
+    "placeholders": {
+      "cp": {
+        "type": "String"
+      }
+    }
+  },
+  "gameSandboxLoadPositionFirst": "Load a position first (connect the board or use demo).",
+  "gameSandboxSelectPiece": "Select a piece",
+  "gameSandboxWrongSide": "Not this side to move",
+  "gameSandboxIllegalMove": "Illegal move",
+  "gameSandboxIllegalMoveSandbox": "Illegal move (sandbox)",
+  "gameSandboxCouldNotLoadFen": "Could not load FEN.",
+  "gameSandboxPositionRestored": "Position restored — try again.",
+  "puzzleSuccessLineWithElo": "Nice! Correct line · +{delta} Elo",
+  "@puzzleSuccessLineWithElo": {
+    "placeholders": {
+      "delta": {
+        "type": "int"
+      }
+    }
+  },
+  "puzzleSuccessLine": "Nice! Correct line.",
+  "puzzleWrongResetting": "Not the solution — resetting the position.",
+  "gameControlWhiteBottom": "White bottom",
+  "gameControlBlackBottom": "Black bottom",
+  "gameControlCoordsOn": "Coords on",
+  "gameControlCoordsOff": "Coords off",
+  "gameControlBoardSizeHint": "Board size: Settings → Board appearance.",
+  "gameControlMoveHint": "Move hint",
+  "gameControlPanelSubtitle": "Display · Mode · Actions",
+  "gameControlLearningCloudHint": "Cloud coach in the app; on-board Stockfish drives hint LEDs per NVS.",
+  "gameRemoteMovesWifi": "Double-tap squares to send the move to the board over Wi‑Fi.",
+  "gameRemoteMovesBle": "Double-tap squares to send the move over Bluetooth.",
+  "gameRemoteMovesMock": "Demo: double-tap sends the move locally (board + clock simulation).",
+  "gameRemoteMovesNoBoard": "Enabled, but no board connected. Connect via Bluetooth.",
+  "gameRemoteMovesConnect": "Enabled — connect a board over Wi‑Fi or Bluetooth to send moves.",
+  "gameBoardRefreshedSnack": "Board state refreshed",
+  "gameDemoSnapshotReloadedSnack": "Demo snapshot reloaded",
+  "timerCenterGameOver": "Game over",
+  "timerCenterRunning": "Running",
+  "timerCenterStopped": "Stopped",
+  "coachSetupBannerBody": "Your coach priority list is non-empty, but no provider has credentials yet. Open Settings → Coach & AI and fill API keys (or Ollama URL) for at least one listed provider.",
+  "coachErrorSomethingWrong": "Something went wrong: {error}",
+  "@coachErrorSomethingWrong": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "coachOfflineLabel": "Offline",
+  "coachDisconnectedBanner": "Board not connected — the coach isn’t receiving the live game position.",
+  "coachEmptyPromptEmbedded": "Ask about plans, tactics, or specific squares.",
+  "coachEmptyPromptFullscreen": "Ask about the current position or chess in general.",
+  "coachInputHintEmbedded": "Ask the coach…",
+  "coachInputHintFullscreen": "Ask about position or plan…",
+  "coachChainFailedBanner": "Could not reach any configured AI provider (see Settings → Coach & AI).",
+  "settingsLinkDisconnected": "Disconnected",
+  "settingsLinkConnecting": "Connecting…",
+  "settingsLinkNoResponseYet": "No board response yet",
+  "settingsLinkConnectedLive": "Connected (live)",
+  "settingsCoachSubtitleOfflineTips": "Short on-device tips only (no cloud)"
 }

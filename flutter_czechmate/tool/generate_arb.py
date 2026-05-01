@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 """One-off helper to build app_en.arb / app_cs.arb from parallel string tables."""
 import json
+import sys
 from pathlib import Path
+
+_TOOL_DIR = Path(__file__).resolve().parent
+if str(_TOOL_DIR) not in sys.path:
+    sys.path.insert(0, str(_TOOL_DIR))
+from extra_l10n_rows import EXTRA_PLACEHOLDER_META as _EXTRA_L10N_PH
+from extra_l10n_rows import EXTRA_ROWS as _EXTRA_L10N_ROWS
 
 # (key, en, cs) — add rows as UI grows
 ROWS: list[tuple[str, str, str]] = [
@@ -93,6 +100,31 @@ ROWS: list[tuple[str, str, str]] = [
   ("reportSharePreparing", "Preparing…", "Připravuji…"),
   ("reportShareSummaryImage", "Share summary image", "Sdílet obrázek shrnutí"),
   ("reportSharePgn", "Share PGN file", "Sdílet soubor PGN"),
+  ("reportExportAppearanceTitle", "Export image", "Export obrázku"),
+  ("reportExportAppearanceSubtitle", "Choose layout, background, and which sections appear on the shared PNG. The preview matches the export.", "Zvol rozvržení, pozadí a sekce na sdíleném PNG. Náhled odpovídá exportu."),
+  ("reportExportAspectRatio", "Canvas size", "Velikost plátna"),
+  ("reportExportAspectCard", "Card (tall)", "Karta (vysoká)"),
+  ("reportExportAspectSquare", "Square 1:1", "Čtverec 1:1"),
+  ("reportExportAspectStory", "Story 9:16", "Story 9:16"),
+  ("reportExportAspectLandscape", "Landscape 16:9", "Na šířku 16:9"),
+  ("reportExportTransparentBg", "Transparent background", "Průhledné pozadí"),
+  ("reportExportTransparentHint", "PNG alpha — works best on colored or photo backgrounds in Stories.", "PNG alfa — nejlépe na barevném nebo fotografickém pozadí ve Stories."),
+  ("reportExportShowBranding", "Show CzechMate header", "Zobrazit záhlaví CzechMate"),
+  ("reportExportShowStats", "Show time & move stats", "Zobrazit čas a statistiky tahů"),
+  ("reportExportShowFinalBoard", "Show final position", "Zobrazit výsledné rozložení figurek"),
+  ("reportExportFlipBoard", "Flip board (Black at bottom)", "Otočit šachovnici (černý dole)"),
+  ("reportExportShowEvalChart", "Include evaluation chart", "Zahrnout graf evaluace"),
+  ("reportExportShowCumulativeChart", "Include elapsed-time chart", "Zahrnout graf uběhlého času"),
+  ("reportExportShowPerMoveChart", "Include time-per-move bars", "Zahrnout sloupce času na tah"),
+  ("reportExportPresetFull", "Full", "Plný"),
+  ("reportExportPresetMinimal", "Minimal", "Minimální"),
+  ("reportExportPresetStory", "Story hero", "Story výřez"),
+  ("reportExportShareGifRecap", "Share move recap (GIF)", "Sdílet průběh tahů (GIF)"),
+  ("reportExportGifSubtitle", "Animated recap for Stories or chats (9:16). Long games are sampled.", "Animovaný průběh pro Stories nebo chaty (9:16). U dlouhých partií se vzorkuje."),
+  ("reportExportGifBuilding", "Building animation…", "Skládám animaci…"),
+  ("reportExportGifShareSubject", "Game recap (GIF)", "Průběh partie (GIF)"),
+  ("reportExportGifFailed", "GIF export failed: {error}", "Export GIF selhal: {error}"),
+  ("reportExportRecapMove", "Move {current} / {total}", "Tah {current} / {total}"),
   ("reportClock", "Clock", "Hodiny"),
   ("reportMinutesShort", "{n} min", "{n} min"),
   ("reportFinalFen", "Final FEN", "Výsledné FEN"),
@@ -212,6 +244,8 @@ ROWS: list[tuple[str, str, str]] = [
   ("firmwareUpdateAction", "Update", "Aktualizovat"),
 ]
 
+ROWS.extend(_EXTRA_L10N_ROWS)
+
 PLACEHOLDER_META = {
   "moveEvalWeakerNoScore": {"placeholders": {"best": {"type": "String"}}},
   "moveEvalGoodLoss": {"placeholders": {"cp": {"type": "int"}}},
@@ -240,7 +274,11 @@ PLACEHOLDER_META = {
   "statusBleDevLine": {"placeholders": {"name": {"type": "String"}}},
   "stockfishEvalFailedSnack": {"placeholders": {"msg": {"type": "String"}}},
   "firmwareDialogVersions": {"placeholders": {"serverVer": {"type": "String"}, "boardVer": {"type": "String"}}},
+  "reportExportGifFailed": {"placeholders": {"error": {"type": "String"}}},
+  "reportExportRecapMove": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
 }
+
+PLACEHOLDER_META.update(_EXTRA_L10N_PH)
 
 
 def build_arb(locale: str, lang_row_index: int) -> dict:

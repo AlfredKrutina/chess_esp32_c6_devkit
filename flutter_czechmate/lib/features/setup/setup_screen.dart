@@ -1,34 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app_providers.dart';
-import '../connection/board_session_notifier.dart';
+import '../../core/localization/context_l10n.dart';
 
 class SetupScreen extends ConsumerWidget {
   const SetupScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Setup Režim')),
+      appBar: AppBar(title: Text(l10n.setupModeAppBar)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.dashboard_customize, size: 80, color: Colors.blueAccent),
+              const Icon(Icons.dashboard_customize,
+                  size: 80, color: Colors.blueAccent),
               const SizedBox(height: 24),
-              const Text('Rozestavení figurek', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(l10n.setupModePiecePlacementTitle,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
-              const Text(
-                'Přesuňte figurky na šachovnici libovolným způsobem. Deska i aplikace budou sledovat jejich polohu mimo standardní šachová pravidla. Pro ukončení Setup módu vyvolejte novou hru.',
+              Text(
+                l10n.setupModePiecePlacementBody,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
               FilledButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Vrátit se zpět'),
+                child: Text(l10n.setupModeGoBack),
               )
             ],
           ),

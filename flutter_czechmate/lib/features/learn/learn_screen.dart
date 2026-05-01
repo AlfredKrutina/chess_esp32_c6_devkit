@@ -1,64 +1,106 @@
 import 'package:flutter/material.dart';
 
+import '../../core/localization/context_l10n.dart';
+
 class LearnScreen extends StatelessWidget {
   const LearnScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Výuka šachu')),
+      appBar: AppBar(title: Text(l10n.learnAppBarTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _LearnCategory(
-            title: 'Základy',
+            title: l10n.learnSecBasics,
             color: Colors.green,
-            lessons: const [
-              _Lesson(title: 'Jak se pohybují figurky', description: 'Král, dáma, věž, střelec, jezdec, pěšák — naučte se pohyby každé figurky.', done: true),
-              _Lesson(title: 'Cíl šachové hry', description: 'Šachmat, pat, remíza — co znamenají stavy konce partie?', done: true),
-              _Lesson(title: 'Hodnota figurek', description: 'Pěšák=1, Jezdec/Střelec=3, Věž=5, Dáma=9 — proč na tom záleží?', done: false),
+            lessons: [
+              _Lesson(
+                  title: l10n.learnL1Title,
+                  description: l10n.learnL1Desc,
+                  done: true),
+              _Lesson(
+                  title: l10n.learnL2Title,
+                  description: l10n.learnL2Desc,
+                  done: true),
+              _Lesson(
+                  title: l10n.learnL3Title,
+                  description: l10n.learnL3Desc,
+                  done: false),
             ],
           ),
           _LearnCategory(
-            title: 'Zvláštní tahy',
+            title: l10n.learnSecSpecial,
             color: Colors.blue,
-            lessons: const [
-              _Lesson(title: 'Rošáda', description: 'Velká a malá rošáda — jak, kdy a proč ji provádět.', done: false),
-              _Lesson(title: 'En Passant', description: 'Zvláštní braní pěšákem — pravidlo, na které začátečníci zapomínají.', done: false),
-              _Lesson(title: 'Promoce', description: 'Pěšák na osmé řadě — jak zvolit správnou figuru.', done: false),
+            lessons: [
+              _Lesson(
+                  title: l10n.learnL4Title,
+                  description: l10n.learnL4Desc,
+                  done: false),
+              _Lesson(
+                  title: l10n.learnL5Title,
+                  description: l10n.learnL5Desc,
+                  done: false),
+              _Lesson(
+                  title: l10n.learnL6Title,
+                  description: l10n.learnL6Desc,
+                  done: false),
             ],
           ),
           _LearnCategory(
-            title: 'Taktiky',
+            title: l10n.learnSecTactics,
             color: Colors.orange,
-            lessons: const [
-              _Lesson(title: 'Vidlička', description: 'Napadnout dvě figurky najednou — nejčastější taktický motiv.', done: false),
-              _Lesson(title: 'Svázání', description: 'Figurka nemůže táhnout, protože by odkryla krále.', done: false),
-              _Lesson(title: 'Šachová studie: Scholar\'s Mate', description: 'Šachmat ve 4 tazích — a jak mu čelit.', done: false),
+            lessons: [
+              _Lesson(
+                  title: l10n.learnL7Title,
+                  description: l10n.learnL7Desc,
+                  done: false),
+              _Lesson(
+                  title: l10n.learnL8Title,
+                  description: l10n.learnL8Desc,
+                  done: false),
+              _Lesson(
+                  title: l10n.learnL9Title,
+                  description: l10n.learnL9Desc,
+                  done: false),
             ],
           ),
           _LearnCategory(
-            title: 'Strategie',
+            title: l10n.learnSecStrategy,
             color: Colors.purple,
-            lessons: const [
-              _Lesson(title: 'Ovládnutí středu', description: 'Proč jsou pole e4, d4, e5, d5 klíčová v zahájení?', done: false, locked: true),
-              _Lesson(title: 'Bezpečnost krále', description: 'Rošáda čas jako pojistka — kdy a jak krále schovat.', done: false, locked: true),
-              _Lesson(title: 'Endgame: Král a pěšák', description: 'Jak přeměnit výhodu pěšáka na výhru v koncovce.', done: false, locked: true),
+            lessons: [
+              _Lesson(
+                  title: l10n.learnL10Title,
+                  description: l10n.learnL10Desc,
+                  done: false,
+                  locked: true),
+              _Lesson(
+                  title: l10n.learnL11Title,
+                  description: l10n.learnL11Desc,
+                  done: false,
+                  locked: true),
+              _Lesson(
+                  title: l10n.learnL12Title,
+                  description: l10n.learnL12Desc,
+                  done: false,
+                  locked: true),
             ],
           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.amber.withOpacity(0.15),
+              color: Colors.amber.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.amber.withOpacity(0.4)),
+              border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.lightbulb_outline, color: Colors.amber),
-                SizedBox(width: 12),
-                Expanded(child: Text('Propojte šachovnici a využijte LED nápovědy přímo na desce při procvičování těchto lekcí.')),
+                const Icon(Icons.lightbulb_outline, color: Colors.amber),
+                const SizedBox(width: 12),
+                Expanded(child: Text(l10n.learnBoardLedHint)),
               ],
             ),
           ),
@@ -69,7 +111,8 @@ class LearnScreen extends StatelessWidget {
 }
 
 class _LearnCategory extends StatelessWidget {
-  const _LearnCategory({required this.title, required this.lessons, required this.color});
+  const _LearnCategory(
+      {required this.title, required this.lessons, required this.color});
   final String title;
   final List<_Lesson> lessons;
   final Color color;
@@ -85,7 +128,9 @@ class _LearnCategory extends StatelessWidget {
             children: [
               Container(width: 4, height: 20, color: color),
               const SizedBox(width: 8),
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16)),
             ],
           ),
         ),
@@ -96,7 +141,11 @@ class _LearnCategory extends StatelessWidget {
 }
 
 class _Lesson extends StatelessWidget {
-  const _Lesson({required this.title, required this.description, this.done = false, this.locked = false});
+  const _Lesson(
+      {required this.title,
+      required this.description,
+      this.done = false,
+      this.locked = false});
   final String title;
   final String description;
   final bool done;
@@ -104,21 +153,35 @@ class _Lesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: Icon(
-          locked ? Icons.lock : done ? Icons.check_circle : Icons.radio_button_unchecked,
-          color: locked ? Colors.grey : done ? Colors.green : Theme.of(context).colorScheme.primary,
+          locked
+              ? Icons.lock
+              : done
+                  ? Icons.check_circle
+                  : Icons.radio_button_unchecked,
+          color: locked
+              ? Colors.grey
+              : done
+                  ? Colors.green
+                  : Theme.of(context).colorScheme.primary,
         ),
         title: Text(title, style: TextStyle(color: locked ? Colors.grey : null)),
-        subtitle: Text(description, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: locked ? Colors.grey : null)),
-        trailing: locked ? null : Icon(Icons.chevron_right, color: locked ? Colors.grey : null),
-        onTap: locked ? null : () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lekce: $title — připravujeme interaktivní obsah')),
-          );
-        },
+        subtitle: Text(description,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: locked ? Colors.grey : null)),
+        trailing: locked ? null : const Icon(Icons.chevron_right),
+        onTap: locked
+            ? null
+            : () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.learnSnackLesson(title))),
+                );
+              },
       ),
     );
   }

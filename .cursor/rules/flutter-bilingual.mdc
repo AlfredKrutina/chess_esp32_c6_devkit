@@ -7,6 +7,6 @@ alwaysApply: false
 # Flutter lokalizace (CzechMate)
 
 - Veškerý **nový uživatelský text** v `flutter_czechmate/` přidávej přes **lokalizaci**, ne jako natvrdo jeden jazyk v Dartu.
-- Řetězce definuj v **`tool/generate_arb.py`** (tabulka `ROWS`) v **angličtině i češtině**, pak spusť `python3 tool/generate_arb.py` a `flutter pub get`.
+- Řetězce definuj v **`tool/generate_arb.py`** (`ROWS`) a případně v **`tool/extra_l10n_rows.py`** (`EXTRA_ROWS`) v **angličtině i češtině**, pak spusť `python3 tool/generate_arb.py` a `flutter pub get`.
 - Ve widgetech používej **`context.l10n`** (`core/localization/context_l10n.dart`). Tam, kde `BuildContext` není (notifiers, čistá logika), použij **`appStringsForPrefs`** / `lookupAppLocalizations` z `locale_bridge.dart` podle existujících vzorů v projektu.
 - Jazyk aplikace: **Nastavení → Jazyk** (`prefs.uiLanguage`: `system` | `en` | `cs`). Při práci na UI počítej s tím, že uživatel přepíná mezi CS a EN.

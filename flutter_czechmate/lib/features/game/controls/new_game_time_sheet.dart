@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app_providers.dart';
+import '../../../core/localization/context_l10n.dart';
 import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/constants/app_environment.dart';
 import '../../../core/constants/chess_time_control_presets.dart';
@@ -70,7 +71,7 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
       if (mounted) {
         showGlassSnackBar(
           context,
-          'Connect a board first (Wi‑Fi or Bluetooth).',
+          context.l10n.newGameConnectFirstSnack,
         );
       }
       return;
@@ -97,11 +98,11 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
       }
       if (mounted) {
         Navigator.of(context).pop();
-        showGlassSnackBar(context, 'New game started on the board.');
+        showGlassSnackBar(context, context.l10n.newGameStartedSnack);
       }
     } catch (e) {
       if (mounted) {
-        showGlassSnackBar(context, 'Error: $e');
+        showGlassSnackBar(context, context.l10n.newGameErrorSnack('$e'));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -110,6 +111,7 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final boardUi = ref.watch(gameUiNotifierProvider);
     final boardUiN = ref.read(gameUiNotifierProvider.notifier);
     final kb = MediaQuery.viewInsetsOf(context).bottom;
@@ -124,22 +126,25 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('New game', style: Theme.of(context).textTheme.titleLarge),
+                  Text(l10n.newGameSheetTitle,
+                      style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 4),
                   Text(
-                    'Like on iOS: time control is sent to the board, then a new game starts.',
+                    l10n.newGameSheetBody,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    'Board view (which color is at the bottom)',
+                    l10n.newGameBoardViewSection,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 6),
                   SegmentedButton<bool>(
-                    segments: const [
-                      ButtonSegment(value: false, label: Text('White bottom')),
-                      ButtonSegment(value: true, label: Text('Black bottom')),
+                    segments: [
+                      ButtonSegment(
+                          value: false, label: Text(l10n.newGameWhiteBottom)),
+                      ButtonSegment(
+                          value: true, label: Text(l10n.newGameBlackBottom)),
                     ],
                     selected: {boardUi.boardFlipped},
                     onSelectionChanged: _busy
@@ -152,17 +157,18 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Who starts is decided on the board / game rules; here you only flip the view (saved in Settings).',
+                    l10n.newGameWhoStartsNote,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 12),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Custom time (type 14)'),
+                    title: Text(l10n.newGameCustomTimeTitle),
                     subtitle: Text(
                       _useCustom
-                          ? '${_customMin.round()} min + ${_customInc.round()} s / move'
-                          : 'Firmware presets',
+                          ? l10n.newGameCustomSummary(
+                              _customMin.round(), _customInc.round())
+                          : l10n.newGameFirmwarePresets,
                     ),
                     value: _useCustom,
                     onChanged: _busy
@@ -172,7 +178,8 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
                             }),
                   ),
                   if (_useCustom) ...[
-                    Text('Minutes per side: ${_customMin.round()}'),
+                    Text(l10n.newGameMinutesPerSide(
+                        '${_customMin.round()}')),
                     Slider(
                       min: 1,
                       max: 180,
@@ -182,7 +189,8 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
                           ? null
                           : (x) => setState(() => _customMin = x),
                     ),
-                    Text('Increment (s): ${_customInc.round()}'),
+                    Text(l10n.newGameIncrementSeconds(
+                        '${_customInc.round()}')),
                     Slider(
                       min: 0,
                       max: 60,
@@ -227,7 +235,7 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
                           width: 22,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Start on board'),
+                      : Text(l10n.newGameStartOnBoard),
                 ),
               ),
             ),

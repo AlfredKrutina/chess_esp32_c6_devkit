@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/localization/context_l10n.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
 
@@ -21,7 +22,10 @@ class BoardLampQuickStrip extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(boardSessionNotifierProvider);
     if (!_visible(session)) return const SizedBox.shrink();
+    final l10n = context.l10n;
     final st = session.snapshot!.status;
+    final onOff =
+        st.lightState == true ? l10n.boardDemoOn : l10n.boardDemoOff;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: Padding(
@@ -29,9 +33,10 @@ class BoardLampQuickStrip extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Světlo desky', style: Theme.of(context).textTheme.titleSmall),
+            Text(l10n.lampBoardLightTitle,
+                style: Theme.of(context).textTheme.titleSmall),
             Text(
-              '${st.lightMode ?? "?"} • ${st.lightState == true ? "zapnuto" : "vypnuto"} • jas ${st.brightness ?? "?"} %',
+              '${st.lightMode ?? "?"} • $onOff • ${l10n.lampBrightnessLabel("${st.brightness ?? "?"}")}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 8),
@@ -39,8 +44,8 @@ class BoardLampQuickStrip extends ConsumerWidget {
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (_) => Scaffold(
-                    appBar: AppBar(title: const Text('Lampa — detail')),
+                  builder: (ctx) => Scaffold(
+                    appBar: AppBar(title: Text(ctx.l10n.lampDetailTitle)),
                     body: const SingleChildScrollView(
                       padding: EdgeInsets.all(16),
                       child: BoardLampBlock(showTitle: true),
@@ -49,7 +54,7 @@ class BoardLampQuickStrip extends ConsumerWidget {
                 ),
               ),
               icon: const Icon(Icons.tune),
-              label: const Text('Podrobnosti lampy'),
+              label: Text(l10n.lampDetailsButton),
             ),
           ],
         ),
@@ -96,7 +101,7 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
 
   Future<void> _run(
     Future<void> Function() fn, {
-    String successMessage = 'Příkaz lampy odeslán',
+    required String successMessage,
   }) async {
     final s = ref.read(boardSessionNotifierProvider);
     final w = s.wifiBaseUrl?.trim();
@@ -126,6 +131,7 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final session = ref.watch(boardSessionNotifierProvider);
     final st = session.snapshot?.status;
     final w = session.wifiBaseUrl?.trim();
@@ -138,23 +144,29 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (widget.showTitle) ...[
-          const Text('Lampa', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(l10n.lampHeader, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
         ],
         if (st != null)
           Text(
-            'Stav: ${st.lightMode ?? "?"}, RGB(${st.lightR ?? 0},${st.lightG ?? 0},${st.lightB ?? 0}), '
-            'limit nápověd: ${st.chessHintLimit ?? "?"}, auto zhasnutí: ${st.autoLampTimeoutSec ?? "?"} s',
+            l10n.lampBlockStatusSummary(
+              st.lightMode ?? "?",
+              '${st.lightR ?? 0}',
+              '${st.lightG ?? 0}',
+              '${st.lightB ?? 0}',
+              '${st.chessHintLimit ?? "?"}',
+              '${st.autoLampTimeoutSec ?? "?"}',
+            ),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         if (!can)
-          const Padding(
-            padding: EdgeInsets.only(top: 8),
-            child: Text('Vyžaduje připojení k desce (Wi‑Fi nebo Bluetooth).'),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(l10n.lampNeedsConnection),
           )
         else ...[
           SwitchListTile(
-            title: const Text('Lampa zapnutá'),
+            title: Text(l10n.lampOnTitle),
             value: _lampOn,
             onChanged: _busy
                 ? null
@@ -162,7 +174,7 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
                       _lampOn = v;
                     }),
           ),
-          Text('Jas ${_bright.round()} %'),
+          Text(l10n.lampBrightnessLabel('${_bright.round()}')),
           Slider(
             min: 0,
             max: 100,
@@ -177,12 +189,12 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
                       () => ref
                           .read(boardSessionNotifierProvider.notifier)
                           .postBoardBrightness(_bright.round()),
-                      successMessage: 'Jas lampy odeslán',
+                      successMessage: l10n.lampBrightnessSentSnack,
                     ),
-            child: const Text('Odeslat jas'),
+            child: Text(l10n.lampSendBrightness),
           ),
           const Divider(height: 24),
-          Text('Barva (R G B) — POST /api/light/command'),
+          Text(l10n.lampRgbHint),
           Row(
             children: [
               Expanded(child: Text('R ${_r.round()}')),
@@ -221,9 +233,9 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
                             g: _g.round(),
                             b: _b.round(),
                           ),
-                      successMessage: 'Barva a stav lampy odeslány',
+                      successMessage: l10n.lampColorStateSentSnack,
                     ),
-            child: const Text('Odeslat barvu / stav lampy'),
+            child: Text(l10n.lampSendColor),
           ),
           const SizedBox(height: 8),
           OutlinedButton(
@@ -233,9 +245,9 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
                       () => ref
                           .read(boardSessionNotifierProvider.notifier)
                           .postBoardLightGameMode(),
-                      successMessage: 'Režim lampy podle partie nastaven',
+                      successMessage: l10n.lampStudioGameModeOk,
                     ),
-            child: const Text('Režim hry (LED podle partie)'),
+            child: Text(l10n.lampGameModeButton),
           ),
         ],
       ],

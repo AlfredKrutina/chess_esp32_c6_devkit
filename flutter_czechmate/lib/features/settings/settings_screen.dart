@@ -9,6 +9,7 @@ import '../../app_navigation.dart';
 import '../../app_providers.dart';
 import '../../core/layout/form_factor.dart';
 import '../../core/localization/context_l10n.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/models/coach_ai_provider.dart';
 import '../../core/utils/board_http_base_url.dart';
 import '../connection/board_session_notifier.dart';
@@ -157,9 +158,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  String _coachChainSubtitle() {
+  String _coachChainSubtitle(AppLocalizations l10n) {
     if (_coachPriority.isEmpty) {
-      return 'Jen krátké tipy v zařízení (bez cloudu)';
+      return l10n.settingsCoachSubtitleOfflineTips;
     }
     return _coachPriority.map((e) => e.shortLabel).join(' → ');
   }
@@ -219,11 +220,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  String _linkTierLabel(BoardSessionState s) {
-    if (s.transport == BoardTransport.none) return 'Disconnected';
-    if (s.busy) return 'Connecting…';
-    if (s.snapshot == null) return 'No board response yet';
-    return 'Connected (live)';
+  String _linkTierLabel(BoardSessionState s, AppLocalizations l10n) {
+    if (s.transport == BoardTransport.none) return l10n.settingsLinkDisconnected;
+    if (s.busy) return l10n.settingsLinkConnecting;
+    if (s.snapshot == null) return l10n.settingsLinkNoResponseYet;
+    return l10n.settingsLinkConnectedLive;
   }
 
   Color? _linkTierColor(BoardSessionState s, ColorScheme cs) {
@@ -249,9 +250,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           .setBool('czechmate.developerModeUnlocked', true);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('🛠️ Developer mode unlocked.'),
-            duration: Duration(seconds: 2)),
+        SnackBar(
+            content: Text(context.l10n.settingsDeveloperModeUnlockedSnack),
+            duration: const Duration(seconds: 2)),
       );
     }
   }
@@ -294,14 +295,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           children: [
           _settingsTile(
-            title: 'Overview',
+            title: l10n.settingsOverviewTitle,
             subtitle: session.lastError != null
-                ? 'Poslední chyba — rozbal pro detail'
-                : 'Zkratky a stav připojení',
+                ? l10n.settingsOverviewSubtitleError
+                : l10n.settingsOverviewSubtitleOk,
             leading: const Icon(Icons.dashboard_outlined),
             children: [
                   Text(
-                    'Game and board options apply to the Play tab and the Game controls panel — one set of toggles.',
+                    l10n.settingsOverviewBody,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 12),
@@ -310,7 +311,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         .read(mainNavTabIndexProvider.notifier)
                         .state = AppMainTab.game,
                     icon: const Icon(Icons.grid_on),
-                    label: const Text('Go to Play tab'),
+                    label: Text(l10n.settingsGoToPlayTab),
                   ),
                   if (session.lastError != null) ...[
                     const SizedBox(height: 12),
@@ -320,7 +321,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       child: ListTile(
                         leading: Icon(Icons.warning_amber_rounded,
                             color: cs.onErrorContainer),
-                        title: Text('Last error',
+                        title: Text(l10n.lastErrorTitle,
                             style: TextStyle(
                                 color: cs.onErrorContainer,
                                 fontWeight: FontWeight.w600)),
@@ -332,18 +333,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ],
           ),
           _settingsTile(
-            title: 'Připojení desky',
+            title: l10n.settingsConnectionTitle,
             subtitle:
-                '${_linkTierLabel(session)} · ${switch (session.transport) {
-              BoardTransport.wifi => 'Wi‑Fi',
-              BoardTransport.ble => 'Bluetooth',
-              BoardTransport.mock => 'Demo',
-              BoardTransport.none => '—',
-            }}',
+                l10n.settingsConnectionSubtitle(
+              _linkTierLabel(session, l10n),
+              switch (session.transport) {
+                BoardTransport.wifi => l10n.transportWifi,
+                BoardTransport.ble => l10n.transportBluetooth,
+                BoardTransport.mock => l10n.transportShortDemo,
+                BoardTransport.none => l10n.transportShortDash,
+              },
+            ),
             leading: Icon(Icons.link, color: _linkTierColor(session, cs)),
             children: [
                   Text(
-                    'Obvykle stačí najít desku přes Bluetooth; aplikace ji pak případně sama přepne na Wi‑Fi, pokud to dává smysl.',
+                    l10n.settingsConnectionIntro,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -352,7 +356,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   FilledButton.icon(
                     onPressed: () => pushBoardDiscoveryRoute(context),
                     icon: const Icon(Icons.bluetooth_searching),
-                    label: const Text('Najít desku'),
+                    label: Text(l10n.discoveryFindBle),
                   ),
                   if (session.transport != BoardTransport.none) ...[
                     const SizedBox(height: 10),
@@ -363,7 +367,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               .read(boardSessionNotifierProvider.notifier)
                               .disconnect(),
                       icon: const Icon(Icons.link_off),
-                      label: const Text('Odpojit'),
+                      label: Text(l10n.settingsDisconnect),
                     ),
                   ],
                   Theme(
@@ -372,9 +376,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     child: ExpansionTile(
                       tilePadding: EdgeInsets.zero,
-                      title: const Text('Pokročilé'),
+                      title: Text(l10n.settingsAdvanced),
                       subtitle: Text(
-                        'Výchozí URL, režim připojení, uložené BLE',
+                        l10n.settingsAdvancedConnectionSubtitle,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context)
                                   .colorScheme
@@ -402,9 +406,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                             if (context.mounted) {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
-                                                const SnackBar(
+                                                SnackBar(
                                                   content: Text(
-                                                    'Obnovuji Bluetooth k uložené desce…',
+                                                    l10n.settingsReconnectingBle,
                                                   ),
                                                 ),
                                               );
@@ -419,8 +423,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                           }
                                         },
                                   icon: const Icon(Icons.bluetooth),
-                                  label: const Text(
-                                      'Znovu připojit uloženou desku (BLE)'),
+                                  label: Text(
+                                      l10n.settingsReconnectSavedBleShort),
                                 ),
                               if (prefs.lastBleRemoteId != null &&
                                   prefs.lastBleRemoteId!.isNotEmpty)
@@ -434,11 +438,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   ),
                                 ),
                                 icon: const Icon(Icons.edit),
-                                label: const Text('Ruční zadání'),
+                                label: Text(l10n.settingsManualEntry),
                               ),
                               const Divider(height: 28),
                               Text(
-                                'Uložené výchozí hodnoty',
+                                l10n.settingsSavedDefaultsTitle,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
@@ -446,7 +450,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Použijí se při příštím připojení z obrazovky „Najít desku“ nebo po znovupřipojení.',
+                                l10n.settingsSavedDefaultsBody,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
@@ -460,22 +464,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               DropdownButtonFormField<String>(
                                 isExpanded: true,
                                 value: _connectionMode,
-                                decoration: const InputDecoration(
-                                  labelText: 'Režim připojení',
-                                  border: OutlineInputBorder(),
+                                decoration: InputDecoration(
+                                  labelText: l10n.settingsConnectionModeLabel,
+                                  border: const OutlineInputBorder(),
                                 ),
-                                items: const [
+                                items: [
                                   DropdownMenuItem(
                                     value: 'auto',
-                                    child: Text('Auto (BLE → Wi‑Fi)'),
+                                    child: Text(l10n.settingsConnectionModeAutoBleWifi),
                                   ),
                                   DropdownMenuItem(
                                     value: 'wifi_only',
-                                    child: Text('Jen Wi‑Fi'),
+                                    child: Text(l10n.connectionModeWifiOnly),
                                   ),
                                   DropdownMenuItem(
                                     value: 'ble_only',
-                                    child: Text('Jen Bluetooth'),
+                                    child: Text(l10n.connectionModeBleOnly),
                                   ),
                                 ],
                                 onChanged: (v) {
@@ -489,9 +493,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               const SizedBox(height: 12),
                               TextField(
                                 controller: _url,
-                                decoration: const InputDecoration(
-                                  labelText: 'Výchozí URL desky',
-                                  border: OutlineInputBorder(),
+                                decoration: InputDecoration(
+                                  labelText: l10n.settingsDefaultBoardUrl,
+                                  border: const OutlineInputBorder(),
                                 ),
                                 keyboardType: TextInputType.url,
                               ),
@@ -504,9 +508,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
-                                        const SnackBar(
+                                        SnackBar(
                                           content: Text(
-                                            'Neplatná URL — zadej hostitele (např. 192.168.4.1 nebo http://…)',
+                                            l10n.settingsInvalidUrlSnack,
                                           ),
                                         ),
                                       );
@@ -518,17 +522,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(
-                                      const SnackBar(content: Text('Uloženo')),
+                                      SnackBar(content: Text(l10n.settingsSavedSnack)),
                                     );
                                   }
                                 },
-                                child: const Text('Uložit URL'),
+                                child: Text(l10n.settingsSaveUrl),
                               ),
                               SwitchListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: const Text('Jen Bluetooth'),
-                                subtitle: const Text(
-                                  'Nepřepínat na Wi‑Fi po BLE',
+                                title: Text(l10n.settingsBleOnlyTitle),
+                                subtitle: Text(
+                                  l10n.settingsBleOnlySubtitle,
                                 ),
                                 value: prefs.preferBluetoothOnly,
                                 onChanged: (v) async {
@@ -538,9 +542,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ),
                               SwitchListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: const Text('WebSocket snapshot'),
-                                subtitle: const Text(
-                                  'Po změně znovu připojit Wi‑Fi session',
+                                title: Text(l10n.settingsWebSocketTitle),
+                                subtitle: Text(
+                                  l10n.settingsWebSocketSubtitle,
                                 ),
                                 value: prefs.useWebSocket,
                                 onChanged: (v) async {
@@ -557,21 +561,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ],
           ),
           _settingsTile(
-            title: 'Board appearance',
-            subtitle:
-                '${ui.layoutMode == 'boardOnly' ? 'Jen deska' : 'Plné UI'} · '
-                '${(ui.boardZoomStorage * 100).round()}% · ${ui.boardStyleRaw}',
+            title: l10n.settingsBoardAppearanceTitle,
+            subtitle: l10n.settingsBoardAppearanceSubtitle(
+              ui.layoutMode == 'boardOnly'
+                  ? l10n.settingsLayoutBoardOnlyShort
+                  : l10n.settingsLayoutFullUiShort,
+              '${(ui.boardZoomStorage * 100).round()}%',
+              ui.boardStyleRaw,
+            ),
             leading: const Icon(Icons.grid_on_outlined),
             children: [
                   Text(
-                    'Play tab & game panel',
+                    l10n.settingsPlayTabGamePanel,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    'Layout',
+                    l10n.settingsLayoutLabel,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -581,16 +589,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     width: double.infinity,
                     child: SegmentedButton<String>(
                       showSelectedIcon: false,
-                      segments: const [
+                      segments: [
                         ButtonSegment<String>(
                           value: 'boardOnly',
-                          label: Text('Board'),
-                          tooltip: 'Board only — minimal chrome',
+                          label: Text(l10n.settingsLayoutBoardSegment),
+                          tooltip: l10n.settingsLayoutBoardTooltip,
                         ),
                         ButtonSegment<String>(
                           value: 'standard',
-                          label: Text('Full'),
-                          tooltip: 'Standard — clocks & controls',
+                          label: Text(l10n.settingsLayoutFullSegment),
+                          tooltip: l10n.settingsLayoutFullTooltip,
                         ),
                       ],
                       selected: {ui.layoutMode},
@@ -610,7 +618,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        'Board zoom',
+                        l10n.settingsBoardZoom,
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const Spacer(),
@@ -635,7 +643,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Square colors',
+                    l10n.settingsSquareColors,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -644,25 +652,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   DropdownButtonFormField<String>(
                     isExpanded: true,
                     value: ui.boardStyleRaw,
-                    decoration: const InputDecoration(
-                      labelText: 'Theme',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.settingsBoardThemeLabel,
+                      border: const OutlineInputBorder(),
                     ),
-                    items: const [
+                    items: [
                       DropdownMenuItem(
-                          value: 'wooden', child: Text('Wooden (default)')),
+                          value: 'wooden', child: Text(l10n.boardStyleWooden)),
                       DropdownMenuItem(
-                          value: 'modernDark', child: Text('Modern Dark')),
+                          value: 'modernDark',
+                          child: Text(l10n.boardStyleModernDark)),
                       DropdownMenuItem(
-                          value: 'iceBlue', child: Text('Ice Blue')),
+                          value: 'iceBlue', child: Text(l10n.boardStyleIceBlue)),
                       DropdownMenuItem(
-                          value: 'forestGreen', child: Text('Forest Green')),
+                          value: 'forestGreen',
+                          child: Text(l10n.boardStyleForestGreen)),
                       DropdownMenuItem(
-                          value: 'marbleGray', child: Text('Marble Gray')),
+                          value: 'marbleGray',
+                          child: Text(l10n.boardStyleMarbleGray)),
                       DropdownMenuItem(
-                          value: 'midnight', child: Text('Midnight')),
-                      DropdownMenuItem(value: 'slate', child: Text('Slate')),
-                      DropdownMenuItem(value: 'coral', child: Text('Coral')),
+                          value: 'midnight', child: Text(l10n.boardStyleMidnight)),
+                      DropdownMenuItem(
+                          value: 'slate', child: Text(l10n.boardStyleSlate)),
+                      DropdownMenuItem(
+                          value: 'coral', child: Text(l10n.boardStyleCoral)),
                     ],
                     onChanged: (v) {
                       if (v != null) {
@@ -674,7 +687,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Board options',
+                    l10n.settingsBoardOptions,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -682,8 +695,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 4),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Coordinates'),
-                    subtitle: const Text('a–h and 1–8 labels'),
+                    title: Text(l10n.settingsCoordinatesTitle),
+                    subtitle: Text(l10n.settingsCoordinatesSubtitle),
                     value: ui.showCoordinates,
                     onChanged: (_) => ref
                         .read(gameUiNotifierProvider.notifier)
@@ -691,8 +704,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Piece motion'),
-                    subtitle: const Text('Animated moves on the board'),
+                    title: Text(l10n.settingsPieceMotionTitle),
+                    subtitle: Text(l10n.settingsPieceMotionSubtitle),
                     value: ui.moveAnimationsEnabled,
                     onChanged: (_) => ref
                         .read(gameUiNotifierProvider.notifier)
@@ -700,8 +713,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Flip board'),
-                    subtitle: const Text('Black toward you'),
+                    title: Text(l10n.settingsFlipBoardTitle),
+                    subtitle: Text(l10n.settingsFlipBoardSubtitle),
                     value: ui.boardFlipped,
                     onChanged: (_) => ref
                         .read(gameUiNotifierProvider.notifier)
@@ -709,8 +722,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Remote moves'),
-                    subtitle: const Text('Play from the app, not only the board'),
+                    title: Text(l10n.settingsRemoteMovesTitle),
+                    subtitle: Text(l10n.settingsRemoteMovesSubtitle),
                     value: ui.remoteMovesEnabled,
                     onChanged: (_) => ref
                         .read(gameUiNotifierProvider.notifier)
@@ -718,9 +731,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Live evaluation'),
-                    subtitle: const Text(
-                      'Stockfish — fills the Analysis chart while you play',
+                    title: Text(l10n.settingsLiveEvalTitle),
+                    subtitle: Text(
+                      l10n.settingsLiveEvalSubtitle,
                     ),
                     value: ui.moveEvaluationEnabled,
                     onChanged: (v) => ref
@@ -734,34 +747,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           .resetBoardDisplayDefaults();
                       if (context.mounted) setState(() {});
                     },
-                    child: const Text('Reset board display defaults'),
+                    child: Text(l10n.settingsResetBoardDisplay),
                   ),
                 ],
           ),
           _settingsTile(
-            title: 'App appearance',
+            title: l10n.settingsAppAppearanceTitle,
             subtitle: switch (prefs.appearance) {
-              'light' => 'Světlý vzhled',
-              'dark' => 'Tmavý vzhled',
-              'oled' => 'OLED',
-              _ => 'Podle systému',
+              'light' => l10n.settingsAppearanceLight,
+              'dark' => l10n.settingsAppearanceDark,
+              'oled' => l10n.settingsAppearanceOled,
+              _ => l10n.settingsAppearanceSystem,
             },
             leading: const Icon(Icons.palette_outlined),
             children: [
                   DropdownButtonFormField<String>(
                     value: prefs.appearance,
-                    decoration: const InputDecoration(
-                        labelText: 'Color scheme',
-                        border: OutlineInputBorder(),
-                        helperText:
-                            'Light / Dark apply immediately. System follows macOS appearance.'),
-                    items: const [
+                    decoration: InputDecoration(
+                        labelText: l10n.settingsColorSchemeLabel,
+                        border: const OutlineInputBorder(),
+                        helperText: l10n.settingsColorSchemeHelper),
+                    items: [
                       DropdownMenuItem(
-                          value: 'system', child: Text('System')),
-                      DropdownMenuItem(value: 'light', child: Text('Light')),
-                      DropdownMenuItem(value: 'dark', child: Text('Dark')),
+                          value: 'system', child: Text(l10n.settingsThemeSystem)),
                       DropdownMenuItem(
-                          value: 'oled', child: Text('OLED (true black)')),
+                          value: 'light', child: Text(l10n.settingsThemeLight)),
+                      DropdownMenuItem(
+                          value: 'dark', child: Text(l10n.settingsThemeDark)),
+                      DropdownMenuItem(
+                          value: 'oled',
+                          child: Text(l10n.settingsThemeOledBlack)),
                     ],
                     onChanged: (v) async {
                       if (v != null) {
@@ -773,7 +788,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const SizedBox(height: 8),
                   SwitchListTile(
-                    title: const Text('Haptic feedback'),
+                    title: Text(l10n.settingsHapticsTitle),
                     value: prefs.hapticsEnabled,
                     onChanged: (v) async {
                       await prefs.setHapticsEnabled(v);
@@ -781,7 +796,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     },
                   ),
                   SwitchListTile(
-                    title: const Text('Sound effects'),
+                    title: Text(l10n.settingsSoundTitle),
                     value: prefs.soundEffectsEnabled,
                     onChanged: (v) async {
                       await prefs.setSoundEffectsEnabled(v);
@@ -789,7 +804,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     },
                   ),
                   SwitchListTile(
-                    title: const Text('Auto-open game summary after game'),
+                    title: Text(l10n.settingsAutoGameSummaryTitle),
                     value: prefs.endgameReportAutoOpen,
                     onChanged: (v) async {
                       await prefs.setEndgameReportAutoOpen(v);
@@ -846,14 +861,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
 
           _settingsTile(
-            title: 'Coach & AI',
-            subtitle: _coachChainSubtitle(),
+            title: l10n.settingsCoachAiTitle,
+            subtitle: _coachChainSubtitle(l10n),
             leading: const Icon(Icons.psychology_outlined),
             maintainState: true,
             children: [
                   Text(
-                    'Drag to set fallback order: the app tries the first provider, then the next if it fails. '
-                    'Leave the list empty for offline tips only. Keys stay on this device.',
+                    l10n.settingsCoachPriorityIntro,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -865,19 +879,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       TextButton(
                         onPressed: () => setState(() => _coachPriority = []),
-                        child: const Text('Offline only'),
+                        child: Text(l10n.settingsCoachOfflineOnly),
                       ),
                       TextButton(
                         onPressed: () => setState(
                           () => _coachPriority = [CoachAiProviderId.openai],
                         ),
-                        child: const Text('OpenAI only'),
+                        child: Text(l10n.settingsCoachOpenAiOnly),
                       ),
                       TextButton(
                         onPressed: () => setState(
                           () => _coachPriority = [CoachAiProviderId.googleGemini],
                         ),
-                        child: const Text('Google only'),
+                        child: Text(l10n.settingsCoachGoogleOnly),
                       ),
                       TextButton(
                         onPressed: () => setState(
@@ -887,7 +901,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             CoachAiProviderId.openai,
                           ],
                         ),
-                        child: const Text('Groq→Google→OpenAI'),
+                        child: Text(l10n.settingsCoachGroqGoogleOpenAi),
                       ),
                       TextButton(
                         onPressed: () => setState(
@@ -896,13 +910,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             CoachAiProviderId.googleGemini,
                           ],
                         ),
-                        child: const Text('Ollama→Google'),
+                        child: Text(l10n.settingsCoachOllamaGoogle),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Priority (top = first try)',
+                    l10n.settingsCoachPriorityTopLabel,
                     style: Theme.of(context).textTheme.labelLarge,
                   ),
                   const SizedBox(height: 4),
@@ -910,7 +924,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text(
-                        'No cloud providers — Coach uses short on-device tips.',
+                        l10n.settingsCoachNoCloudProviders,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
@@ -944,7 +958,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               onPressed: () => setState(
                                 () => _coachPriority.removeAt(index),
                               ),
-                              tooltip: 'Remove from chain',
+                              tooltip: l10n.settingsCoachRemoveFromChain,
                             ),
                           );
                         }),
@@ -954,7 +968,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Add provider',
+                      l10n.settingsCoachAddProvider,
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ),
@@ -979,22 +993,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 12),
                   LayoutBuilder(
                     builder: (context, c) {
-                      const items = [
+                      final coachLevelItems = [
                         DropdownMenuItem(
                           value: 1,
-                          child: Text('1 – Beginner'),
+                          child: Text(l10n.settingsCoachLevelBeginner),
                         ),
                         DropdownMenuItem(
                           value: 2,
-                          child: Text('2 – Intermediate'),
+                          child: Text(l10n.settingsCoachLevelIntermediate),
                         ),
                         DropdownMenuItem(
                           value: 3,
-                          child: Text('3 – Advanced'),
+                          child: Text(l10n.settingsCoachLevelAdvanced),
                         ),
                         DropdownMenuItem(
                           value: 4,
-                          child: Text('4 – Expert'),
+                          child: Text(l10n.settingsCoachLevelExpert),
                         ),
                       ];
                       Future<void> onLevel(int? v) async {
@@ -1007,7 +1021,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
-                              'Coach explanation level',
+                              l10n.settingsCoachExplanationLevel,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall
@@ -1015,7 +1029,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '1 = Beginner, 4 = Expert',
+                              l10n.settingsCoachExplanationLevelSubtitle,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -1030,7 +1044,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               value: prefs.coachUserLevel,
                               decoration: _coachOutlineDecoration(),
                               isExpanded: true,
-                              items: items,
+                              items: coachLevelItems,
                               onChanged: (v) => onLevel(v),
                             ),
                           ],
@@ -1038,18 +1052,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       }
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Coach explanation level'),
-                        subtitle: const Text('1 = Beginner, 4 = Expert'),
+                        title: Text(l10n.settingsCoachExplanationLevel),
+                        subtitle: Text(l10n.settingsCoachExplanationLevelSubtitle),
                         trailing: DropdownButton<int>(
                           value: prefs.coachUserLevel,
-                          items: items,
+                          items: coachLevelItems,
                           onChanged: (v) => onLevel(v),
                         ),
                       );
                     },
                   ),
                   Text(
-                    'Credentials (fill what you use)',
+                    l10n.settingsCoachCredentialsHeader,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 8),
@@ -1059,7 +1073,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       vertical: 10,
                     ),
                     childrenPadding: EdgeInsets.zero,
-                    title: const Text('OpenAI'),
+                    title: Text(l10n.settingsCoachOpenAiProvider),
                     initiallyExpanded:
                         _coachPriority.contains(CoachAiProviderId.openai),
                     children: [
@@ -1087,7 +1101,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           alignment: Alignment.centerLeft,
                           child: TextButton.icon(
                             icon: const Icon(Icons.open_in_new, size: 18),
-                            label: const Text('OpenAI keys'),
+                            label: Text(l10n.settingsCoachOpenAiKeysButton),
                             onPressed: () => _openCoachDocUrl(
                               Uri.parse('https://platform.openai.com/api-keys'),
                             ),
@@ -1102,7 +1116,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       vertical: 10,
                     ),
                     childrenPadding: EdgeInsets.zero,
-                    title: const Text('Google AI Studio'),
+                    title: Text(l10n.settingsCoachGoogleAiStudio),
                     initiallyExpanded: _coachPriority
                         .contains(CoachAiProviderId.googleGemini),
                     children: [
@@ -1135,7 +1149,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             ),
                             const DropdownMenuItem(
                               value: '__custom__',
-                              child: Text('Custom…'),
+                              child: Text(l10n.settingsCoachCustomModel),
                             ),
                           ],
                           onChanged: (v) {
@@ -1161,7 +1175,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           alignment: Alignment.centerLeft,
                           child: TextButton.icon(
                             icon: const Icon(Icons.open_in_new, size: 18),
-                            label: const Text('Get Google AI key'),
+                            label: Text(l10n.settingsCoachGoogleKeyButton),
                             onPressed: () => _openCoachDocUrl(
                               Uri.parse(
                                   'https://aistudio.google.com/app/apikey'),
@@ -1177,7 +1191,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       vertical: 10,
                     ),
                     childrenPadding: EdgeInsets.zero,
-                    title: const Text('Groq (OpenAI-compatible)'),
+                    title: Text(l10n.settingsCoachGroqTitle),
                     initiallyExpanded:
                         _coachPriority.contains(CoachAiProviderId.groq),
                     children: [
@@ -1204,7 +1218,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           alignment: Alignment.centerLeft,
                           child: TextButton.icon(
                             icon: const Icon(Icons.open_in_new, size: 18),
-                            label: const Text('Groq console'),
+                            label: Text(l10n.settingsCoachGroqConsoleButton),
                             onPressed: () => _openCoachDocUrl(
                               Uri.parse('https://console.groq.com/keys'),
                             ),
@@ -1219,7 +1233,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       vertical: 10,
                     ),
                     childrenPadding: EdgeInsets.zero,
-                    title: const Text('xAI Grok'),
+                    title: Text(l10n.settingsCoachXaiTitle),
                     initiallyExpanded:
                         _coachPriority.contains(CoachAiProviderId.xaiGrok),
                     children: [
@@ -1245,7 +1259,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           alignment: Alignment.centerLeft,
                           child: TextButton.icon(
                             icon: const Icon(Icons.open_in_new, size: 18),
-                            label: const Text('xAI console'),
+                            label: Text(l10n.settingsCoachXaiConsoleButton),
                             onPressed: () => _openCoachDocUrl(
                               Uri.parse('https://console.x.ai/'),
                             ),
@@ -1260,23 +1274,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       vertical: 10,
                     ),
                     childrenPadding: EdgeInsets.zero,
-                    title: const Text('Ollama (local)'),
+                    title: Text(l10n.settingsCoachOllamaTitle),
                     initiallyExpanded:
                         _coachPriority.contains(CoachAiProviderId.ollama),
                     children: [
                       _coachExpansionFields([
-                        _coachFieldLabel(context, 'OpenAI API base'),
+                        _coachFieldLabel(context, l10n.settingsCoachOpenAiBaseLabel),
                         TextField(
                           controller: _coachOllamaBase,
                           decoration: _coachOutlineDecoration(
                             hintText: 'http://127.0.0.1:11434/v1',
-                            helperText:
-                                'Zadej URL končící na /v1 (např. :11434/v1). Jen :11434 bez /v1 dřív nefungovalo — u portu 11434 to teď appka doplní.',
+                            helperText: l10n.settingsCoachOllamaUrlHelper,
                           ),
                           keyboardType: TextInputType.url,
                           autocorrect: false,
                         ),
-                        _coachFieldLabel(context, 'Model name'),
+                        _coachFieldLabel(context, l10n.settingsCoachModelNameLabel),
                         TextField(
                           controller: _coachOllamaModel,
                           decoration: _coachOutlineDecoration(
@@ -1306,10 +1319,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           mid.isEmpty) {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Enter a Google AI model id (or pick a preset).',
-                              ),
+                            SnackBar(
+                              content: Text(l10n.settingsCoachEnterGeminiModelSnack),
                             ),
                           );
                         }
@@ -1320,11 +1331,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       }
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Coach settings saved')),
+                          SnackBar(content: Text(l10n.settingsCoachSavedSnack)),
                         );
                       }
                     },
-                    child: const Text('Save coach settings'),
+                    child: Text(l10n.settingsCoachSaveButton),
                   ),
                 ],
           ),
@@ -1332,8 +1343,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const FirmwareUpdateSection(),
 
           _settingsTile(
-            title: 'Smart home (MQTT)',
-            subtitle: 'Home Assistant a MQTT',
+            title: l10n.settingsTileSmartHomeTitle,
+            subtitle: l10n.settingsTileSmartHomeSubtitle,
             leading: const Icon(Icons.home_work_outlined),
             children: [
               OutlinedButton.icon(
@@ -1343,14 +1354,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       builder: (_) => const HomeAssistantMqttScreen()),
                 ),
                 icon: const Icon(Icons.home_work_outlined),
-                label: const Text('Home Assistant & MQTT (guide + form)'),
+                label: Text(l10n.settingsHaMqttOpenButton),
               ),
             ],
           ),
 
           _settingsTile(
-            title: 'Světlo desky',
-            subtitle: 'Barva, jas, scény, auto‑vypnutí',
+            title: l10n.settingsTileBoardLightTitle,
+            subtitle: l10n.settingsTileBoardLightSubtitle,
             leading: const Icon(Icons.lightbulb_outline),
             children: const [
               BoardLampStudioPanel(),
@@ -1358,24 +1369,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
 
           _settingsTile(
-            title: 'Moduly a učení',
-            subtitle: 'Úvod, puzzle, profil, pokrok, nápověda',
+            title: l10n.settingsTileModulesTitle,
+            subtitle: l10n.settingsTileModulesSubtitle,
             leading: const Icon(Icons.school_outlined),
             children: [
               _NavButton(
-                  label: 'App tour (onboarding)',
+                  label: l10n.settingsNavAppTour,
                   onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (_) => OnboardingScreen(
                               onDone: () => Navigator.pop(context))))),
               _NavButton(
-                label: 'Chess puzzles',
+                label: l10n.settingsNavChessPuzzles,
                 onTap: () => ref.read(mainNavTabIndexProvider.notifier).state =
                     AppMainTab.puzzle,
               ),
               _NavButton(
-                label: 'Profile & puzzle Elo',
+                label: l10n.settingsNavProfileElo,
                 onTap: () => Navigator.push<void>(
                   context,
                   MaterialPageRoute<void>(
@@ -1384,7 +1395,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
               _NavButton(
-                label: 'Progress (learning & stats)',
+                label: l10n.settingsNavProgress,
                 onTap: () {
                   ref.read(progressSegmentProvider.notifier).state = 0;
                   ref.read(mainNavTabIndexProvider.notifier).state =
@@ -1392,7 +1403,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 },
               ),
           _NavButton(
-            label: 'Help',
+            label: l10n.settingsNavHelp,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const HelpScreen()),
@@ -1402,12 +1413,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
 
           _settingsTile(
-            title: 'Paměť desky a diagnostika',
-            subtitle: 'NVS pravidla, vývojářské nástroje',
+            title: l10n.settingsTileNvsDiagTitle,
+            subtitle: l10n.settingsTileNvsDiagSubtitle,
             leading: const Icon(Icons.memory_outlined),
             children: [
               _NavButton(
-                label: 'Board NVS rules (LED, bot)',
+                label: l10n.settingsNavBoardNvs,
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -1415,7 +1426,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               if (devMode)
                 _NavButton(
-                  label: 'Developer diagnostics',
+                  label: l10n.settingsNavDeveloperDiag,
                   color: Colors.brown,
                   onTap: () => Navigator.push(
                       context,
@@ -1425,8 +1436,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ],
           ),
           _settingsTile(
-            title: 'O aplikaci',
-            subtitle: 'Verze, soukromí, systém',
+            title: l10n.settingsTileAboutTitle,
+            subtitle: l10n.settingsTileAboutSubtitle,
             leading: const Icon(Icons.info_outline),
             children: [
                 FutureBuilder<PackageInfo>(
@@ -1437,33 +1448,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       title: const Text('czechmate'),
                       subtitle: Text(
                         v == null
-                            ? 'Loading version…'
-                            : 'Version ${v.version} (${v.buildNumber}) • Tap “Settings” in the title bar 7× to unlock developer mode.',
+                            ? l10n.settingsAboutVersionLoading
+                            : l10n.settingsAboutVersionLine(v.version, v.buildNumber),
                       ),
                       leading: const Icon(Icons.info_outline),
                     );
                   },
                 ),
-                const ListTile(
-                  leading: Icon(Icons.lock_outline),
-                  title: Text('Privacy'),
-                  subtitle: Text(
-                    'This build does not send analytics. Traffic goes only to your board on the local network or over Bluetooth.',
-                  ),
+                ListTile(
+                  leading: const Icon(Icons.lock_outline),
+                  title: Text(l10n.settingsPrivacyTitle),
+                  subtitle: Text(l10n.settingsPrivacyBody),
                 ),
-                const ListTile(
-                  leading: Icon(Icons.cloud_outlined),
-                  title: Text('iCloud'),
-                  subtitle: Text(
-                    'Optional puzzle sync via iCloud (CloudKit) is planned for a future release; this build does not sync.',
-                  ),
+                ListTile(
+                  leading: const Icon(Icons.cloud_outlined),
+                  title: Text(l10n.settingsIcloudTitle),
+                  subtitle: Text(l10n.settingsIcloudBody),
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.live_tv_outlined),
-                  title: const Text('Stav časomíry mimo aplikaci'),
-                  subtitle: const Text(
-                    'iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: probíhající notifikace (Android 13+ je potřeba povolit oznámení). Zapíná se z herní obrazovky.',
-                  ),
+                  title: Text(l10n.settingsLiveActivityTitle),
+                  subtitle: Text(l10n.settingsLiveActivitySubtitle),
                   value: prefs.liveActivityEnabled,
                   onChanged: (v) async {
                     if (v &&
@@ -1480,10 +1485,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           .iosLiveActivitiesAllowedByUser();
                       if (!allowed && context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Live Activities jsou v systému vypnuté. Zapněte je v Nastavení → czechmate → Live Activities.',
-                            ),
+                          SnackBar(
+                            content: Text(l10n.settingsLiveActivityIosDisabledSnack),
                           ),
                         );
                       }
@@ -1498,10 +1501,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     defaultTargetPlatform == TargetPlatform.android)
                   SwitchListTile(
                     secondary: const Icon(Icons.watch_outlined),
-                    title: const Text('Zrcadlit časomíru na Wear OS'),
-                    subtitle: const Text(
-                      'Google Data Layer — stejný stav jako probíhající notifikace; vyžaduje párování hodinek Wear OS.',
-                    ),
+                    title: Text(l10n.settingsWearMirrorTitle),
+                    subtitle: Text(l10n.settingsWearMirrorSubtitle),
                     value: prefs.wearDataLayerMirrorEnabled,
                     onChanged: (v) async {
                       if (v) {
@@ -1515,10 +1516,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     defaultTargetPlatform == TargetPlatform.iOS) ...[
                   SwitchListTile(
                     secondary: const Icon(Icons.watch_outlined),
-                    title: const Text('Zrcadlit časomíru na Apple Watch'),
-                    subtitle: const Text(
-                      'WatchConnectivity — stejný stav jako Live Activity; na hodinkách je základní UI + Pauza/Pokračovat.',
-                    ),
+                    title: Text(l10n.settingsWatchMirrorTitle),
+                    subtitle: Text(l10n.settingsWatchMirrorSubtitle),
                     value: prefs.watchCompanionMirrorEnabled,
                     onChanged: (v) async {
                       await prefs.setWatchCompanionMirrorEnabled(v);
@@ -1530,8 +1529,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
 
           _settingsTile(
-            title: 'Tovární reset desky',
-            subtitle: 'Smaže NVS na ESP — zařízení jako přístupový bod',
+            title: l10n.settingsFactoryTileTitle,
+            subtitle: l10n.settingsFactoryTileSubtitle,
             leading: Icon(Icons.warning_amber_rounded, color: cs.error),
             children: [
               OutlinedButton(
@@ -1540,17 +1539,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   final confirm = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                            title: const Text('Factory reset'),
-                            content: const Text(
-                                'Erase all board NVS (Wi‑Fi, passwords, MQTT, preferences)? The device will restart as a Wi‑Fi access point.'),
+                            title: Text(l10n.settingsFactoryDialogTitle),
+                            content: Text(l10n.settingsFactoryDialogBody),
                             actions: [
                               TextButton(
                                   onPressed: () => Navigator.pop(ctx, false),
-                                  child: const Text('Cancel')),
+                                  child: Text(l10n.commonCancel)),
                               TextButton(
                                   onPressed: () => Navigator.pop(ctx, true),
-                                  child: const Text('Erase',
-                                      style: TextStyle(color: Colors.red))),
+                                  child: Text(l10n.settingsFactoryErase,
+                                      style: const TextStyle(color: Colors.red))),
                             ],
                           ));
                   if (confirm == true && context.mounted) {
@@ -1563,18 +1561,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             .postFactoryReset(baseUrl);
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Command sent')));
+                              SnackBar(content: Text(l10n.settingsFactoryCommandSent)));
                         }
                       } catch (e) {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: $e')));
+                              SnackBar(content: Text(l10n.settingsFactoryError('$e'))));
                         }
                       }
                     }
                   }
                 },
-                child: const Text('Run board factory reset'),
+                child: Text(l10n.settingsFactoryRunButton),
               ),
             ],
           ),

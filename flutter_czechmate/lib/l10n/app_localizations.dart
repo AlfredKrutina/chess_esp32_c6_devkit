@@ -584,6 +584,156 @@ abstract class AppLocalizations {
   /// **'Share PGN file'**
   String get reportSharePgn;
 
+  /// No description provided for @reportExportAppearanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export image'**
+  String get reportExportAppearanceTitle;
+
+  /// No description provided for @reportExportAppearanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose layout, background, and which sections appear on the shared PNG. The preview matches the export.'**
+  String get reportExportAppearanceSubtitle;
+
+  /// No description provided for @reportExportAspectRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Canvas size'**
+  String get reportExportAspectRatio;
+
+  /// No description provided for @reportExportAspectCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card (tall)'**
+  String get reportExportAspectCard;
+
+  /// No description provided for @reportExportAspectSquare.
+  ///
+  /// In en, this message translates to:
+  /// **'Square 1:1'**
+  String get reportExportAspectSquare;
+
+  /// No description provided for @reportExportAspectStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Story 9:16'**
+  String get reportExportAspectStory;
+
+  /// No description provided for @reportExportAspectLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape 16:9'**
+  String get reportExportAspectLandscape;
+
+  /// No description provided for @reportExportTransparentBg.
+  ///
+  /// In en, this message translates to:
+  /// **'Transparent background'**
+  String get reportExportTransparentBg;
+
+  /// No description provided for @reportExportTransparentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'PNG alpha — works best on colored or photo backgrounds in Stories.'**
+  String get reportExportTransparentHint;
+
+  /// No description provided for @reportExportShowBranding.
+  ///
+  /// In en, this message translates to:
+  /// **'Show CzechMate header'**
+  String get reportExportShowBranding;
+
+  /// No description provided for @reportExportShowStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Show time & move stats'**
+  String get reportExportShowStats;
+
+  /// No description provided for @reportExportShowFinalBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Show final position'**
+  String get reportExportShowFinalBoard;
+
+  /// No description provided for @reportExportFlipBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Flip board (Black at bottom)'**
+  String get reportExportFlipBoard;
+
+  /// No description provided for @reportExportShowEvalChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Include evaluation chart'**
+  String get reportExportShowEvalChart;
+
+  /// No description provided for @reportExportShowCumulativeChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Include elapsed-time chart'**
+  String get reportExportShowCumulativeChart;
+
+  /// No description provided for @reportExportShowPerMoveChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Include time-per-move bars'**
+  String get reportExportShowPerMoveChart;
+
+  /// No description provided for @reportExportPresetFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full'**
+  String get reportExportPresetFull;
+
+  /// No description provided for @reportExportPresetMinimal.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimal'**
+  String get reportExportPresetMinimal;
+
+  /// No description provided for @reportExportPresetStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Story hero'**
+  String get reportExportPresetStory;
+
+  /// No description provided for @reportExportShareGifRecap.
+  ///
+  /// In en, this message translates to:
+  /// **'Share move recap (GIF)'**
+  String get reportExportShareGifRecap;
+
+  /// No description provided for @reportExportGifSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Animated recap for Stories or chats (9:16). Long games are sampled.'**
+  String get reportExportGifSubtitle;
+
+  /// No description provided for @reportExportGifBuilding.
+  ///
+  /// In en, this message translates to:
+  /// **'Building animation…'**
+  String get reportExportGifBuilding;
+
+  /// No description provided for @reportExportGifShareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Game recap (GIF)'**
+  String get reportExportGifShareSubject;
+
+  /// No description provided for @reportExportGifFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'GIF export failed: {error}'**
+  String reportExportGifFailed(String error);
+
+  /// No description provided for @reportExportRecapMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {current} / {total}'**
+  String reportExportRecapMove(int current, int total);
+
   /// No description provided for @reportClock.
   ///
   /// In en, this message translates to:
@@ -857,7 +1007,7 @@ abstract class AppLocalizations {
   /// No description provided for @discoveryWifiUrlHint.
   ///
   /// In en, this message translates to:
-  /// **'Board URL (http://…)'**
+  /// **'e.g. http://192.168.4.1'**
   String get discoveryWifiUrlHint;
 
   /// No description provided for @discoveryConnectWifi.
@@ -1261,6 +1411,4245 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update'**
   String get firmwareUpdateAction;
+
+  /// No description provided for @discoveryCloseTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get discoveryCloseTooltip;
+
+  /// No description provided for @discoveryConnectionStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection status'**
+  String get discoveryConnectionStatusTitle;
+
+  /// No description provided for @discoveryScanningBoards.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning for boards…'**
+  String get discoveryScanningBoards;
+
+  /// No description provided for @discoveryBleDevicesDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth ({guid})'**
+  String discoveryBleDevicesDev(String guid);
+
+  /// No description provided for @discoveryFoundBoards.
+  ///
+  /// In en, this message translates to:
+  /// **'Found boards'**
+  String get discoveryFoundBoards;
+
+  /// No description provided for @discoveryEmptyBleList.
+  ///
+  /// In en, this message translates to:
+  /// **'The list is empty. Tap “Find board” and wait a few seconds within range of a powered-on board.'**
+  String get discoveryEmptyBleList;
+
+  /// No description provided for @discoveryAdvancedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi URL, connection mode, demo'**
+  String get discoveryAdvancedSubtitle;
+
+  /// No description provided for @discoveryConnectionModeHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection mode'**
+  String get discoveryConnectionModeHeading;
+
+  /// No description provided for @discoveryBleSegmentShort.
+  ///
+  /// In en, this message translates to:
+  /// **'BLE only'**
+  String get discoveryBleSegmentShort;
+
+  /// No description provided for @discoveryReconnectSavedBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnect saved board'**
+  String get discoveryReconnectSavedBoard;
+
+  /// No description provided for @discoveryManualAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual entry / advanced'**
+  String get discoveryManualAdvanced;
+
+  /// No description provided for @discoveryWifiUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Board address (Wi‑Fi)'**
+  String get discoveryWifiUrlLabel;
+
+  /// No description provided for @discoveryEnterBoardUrlSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the board URL or IP (e.g. http://192.168.4.1).'**
+  String get discoveryEnterBoardUrlSnack;
+
+  /// No description provided for @discoveryBoardHotspotButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Board hotspot (192.168.4.1)'**
+  String get discoveryBoardHotspotButton;
+
+  /// No description provided for @connectionModeAutoShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get connectionModeAutoShort;
+
+  /// No description provided for @settingsOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get settingsOverviewTitle;
+
+  /// No description provided for @settingsOverviewSubtitleError.
+  ///
+  /// In en, this message translates to:
+  /// **'Last error — expand for details'**
+  String get settingsOverviewSubtitleError;
+
+  /// No description provided for @settingsOverviewSubtitleOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortcuts and connection status'**
+  String get settingsOverviewSubtitleOk;
+
+  /// No description provided for @settingsOverviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Game and board options apply to the Play tab and the Game controls panel — one set of toggles.'**
+  String get settingsOverviewBody;
+
+  /// No description provided for @settingsGoToPlayTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Play tab'**
+  String get settingsGoToPlayTab;
+
+  /// No description provided for @settingsConnectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board connection'**
+  String get settingsConnectionTitle;
+
+  /// No description provided for @settingsConnectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{tier} · {transport}'**
+  String settingsConnectionSubtitle(String tier, String transport);
+
+  /// No description provided for @settingsConnectionIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually it’s enough to find the board via Bluetooth; the app may switch to Wi‑Fi when that makes sense.'**
+  String get settingsConnectionIntro;
+
+  /// No description provided for @settingsDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get settingsDisconnect;
+
+  /// No description provided for @settingsAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get settingsAdvanced;
+
+  /// No description provided for @settingsAdvancedConnectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Default URL, connection mode, saved BLE'**
+  String get settingsAdvancedConnectionSubtitle;
+
+  /// No description provided for @settingsReconnectingBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting Bluetooth to saved board…'**
+  String get settingsReconnectingBle;
+
+  /// No description provided for @settingsReconnectSavedBleShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnect saved board (BLE)'**
+  String get settingsReconnectSavedBleShort;
+
+  /// No description provided for @settingsManualEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual entry'**
+  String get settingsManualEntry;
+
+  /// No description provided for @settingsSavedDefaultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved defaults'**
+  String get settingsSavedDefaultsTitle;
+
+  /// No description provided for @settingsSavedDefaultsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Used on next connection from “Find board” or after reconnecting.'**
+  String get settingsSavedDefaultsBody;
+
+  /// No description provided for @settingsConnectionModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection mode'**
+  String get settingsConnectionModeLabel;
+
+  /// No description provided for @settingsConnectionModeAutoBleWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto (BLE → Wi‑Fi)'**
+  String get settingsConnectionModeAutoBleWifi;
+
+  /// No description provided for @settingsDefaultBoardUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Default board URL'**
+  String get settingsDefaultBoardUrl;
+
+  /// No description provided for @settingsInvalidUrlSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid URL — enter a host (e.g. 192.168.4.1 or http://…)'**
+  String get settingsInvalidUrlSnack;
+
+  /// No description provided for @settingsSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get settingsSavedSnack;
+
+  /// No description provided for @settingsSaveUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Save URL'**
+  String get settingsSaveUrl;
+
+  /// No description provided for @settingsBleOnlyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth only'**
+  String get settingsBleOnlyTitle;
+
+  /// No description provided for @settingsBleOnlySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t switch to Wi‑Fi after BLE'**
+  String get settingsBleOnlySubtitle;
+
+  /// No description provided for @settingsWebSocketTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WebSocket snapshot'**
+  String get settingsWebSocketTitle;
+
+  /// No description provided for @settingsWebSocketSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnect Wi‑Fi session after change'**
+  String get settingsWebSocketSubtitle;
+
+  /// No description provided for @transportShortDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo'**
+  String get transportShortDemo;
+
+  /// No description provided for @transportShortDash.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get transportShortDash;
+
+  /// No description provided for @settingsBoardAppearanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board appearance'**
+  String get settingsBoardAppearanceTitle;
+
+  /// No description provided for @settingsBoardAppearanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{layout} · {zoom} · {style}'**
+  String settingsBoardAppearanceSubtitle(
+      String layout, String zoom, String style);
+
+  /// No description provided for @settingsLayoutBoardOnlyShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Board only'**
+  String get settingsLayoutBoardOnlyShort;
+
+  /// No description provided for @settingsLayoutFullUiShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Full UI'**
+  String get settingsLayoutFullUiShort;
+
+  /// No description provided for @settingsPlayTabGamePanel.
+  ///
+  /// In en, this message translates to:
+  /// **'Play tab & game panel'**
+  String get settingsPlayTabGamePanel;
+
+  /// No description provided for @settingsLayoutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get settingsLayoutLabel;
+
+  /// No description provided for @settingsLayoutBoardSegment.
+  ///
+  /// In en, this message translates to:
+  /// **'Board'**
+  String get settingsLayoutBoardSegment;
+
+  /// No description provided for @settingsLayoutBoardTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Board only — minimal chrome'**
+  String get settingsLayoutBoardTooltip;
+
+  /// No description provided for @settingsLayoutFullSegment.
+  ///
+  /// In en, this message translates to:
+  /// **'Full'**
+  String get settingsLayoutFullSegment;
+
+  /// No description provided for @settingsLayoutFullTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard — clocks & controls'**
+  String get settingsLayoutFullTooltip;
+
+  /// No description provided for @settingsBoardZoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Board zoom'**
+  String get settingsBoardZoom;
+
+  /// No description provided for @settingsSquareColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Square colors'**
+  String get settingsSquareColors;
+
+  /// No description provided for @settingsBoardThemeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingsBoardThemeLabel;
+
+  /// No description provided for @settingsBoardOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Board options'**
+  String get settingsBoardOptions;
+
+  /// No description provided for @settingsCoordinatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates'**
+  String get settingsCoordinatesTitle;
+
+  /// No description provided for @settingsCoordinatesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'a–h and 1–8 labels'**
+  String get settingsCoordinatesSubtitle;
+
+  /// No description provided for @settingsPieceMotionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Piece motion'**
+  String get settingsPieceMotionTitle;
+
+  /// No description provided for @settingsPieceMotionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Animated moves on the board'**
+  String get settingsPieceMotionSubtitle;
+
+  /// No description provided for @settingsFlipBoardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Flip board'**
+  String get settingsFlipBoardTitle;
+
+  /// No description provided for @settingsFlipBoardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Black toward you'**
+  String get settingsFlipBoardSubtitle;
+
+  /// No description provided for @settingsRemoteMovesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote moves'**
+  String get settingsRemoteMovesTitle;
+
+  /// No description provided for @settingsRemoteMovesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Play from the app, not only the board'**
+  String get settingsRemoteMovesSubtitle;
+
+  /// No description provided for @settingsLiveEvalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live evaluation'**
+  String get settingsLiveEvalTitle;
+
+  /// No description provided for @settingsLiveEvalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stockfish — fills the Analysis chart while you play'**
+  String get settingsLiveEvalSubtitle;
+
+  /// No description provided for @settingsResetBoardDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset board display defaults'**
+  String get settingsResetBoardDisplay;
+
+  /// No description provided for @boardStyleWooden.
+  ///
+  /// In en, this message translates to:
+  /// **'Wooden (default)'**
+  String get boardStyleWooden;
+
+  /// No description provided for @boardStyleModernDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Modern Dark'**
+  String get boardStyleModernDark;
+
+  /// No description provided for @boardStyleIceBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Ice Blue'**
+  String get boardStyleIceBlue;
+
+  /// No description provided for @boardStyleForestGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Forest Green'**
+  String get boardStyleForestGreen;
+
+  /// No description provided for @boardStyleMarbleGray.
+  ///
+  /// In en, this message translates to:
+  /// **'Marble Gray'**
+  String get boardStyleMarbleGray;
+
+  /// No description provided for @boardStyleMidnight.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight'**
+  String get boardStyleMidnight;
+
+  /// No description provided for @boardStyleSlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Slate'**
+  String get boardStyleSlate;
+
+  /// No description provided for @boardStyleCoral.
+  ///
+  /// In en, this message translates to:
+  /// **'Coral'**
+  String get boardStyleCoral;
+
+  /// No description provided for @settingsAppAppearanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App appearance'**
+  String get settingsAppAppearanceTitle;
+
+  /// No description provided for @settingsAppearanceLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light look'**
+  String get settingsAppearanceLight;
+
+  /// No description provided for @settingsAppearanceDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark look'**
+  String get settingsAppearanceDark;
+
+  /// No description provided for @settingsAppearanceOled.
+  ///
+  /// In en, this message translates to:
+  /// **'OLED'**
+  String get settingsAppearanceOled;
+
+  /// No description provided for @settingsAppearanceSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow system'**
+  String get settingsAppearanceSystem;
+
+  /// No description provided for @settingsColorSchemeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color scheme'**
+  String get settingsColorSchemeLabel;
+
+  /// No description provided for @settingsColorSchemeHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Light / Dark apply immediately. System follows macOS appearance.'**
+  String get settingsColorSchemeHelper;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsThemeOledBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'OLED (true black)'**
+  String get settingsThemeOledBlack;
+
+  /// No description provided for @settingsHapticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptic feedback'**
+  String get settingsHapticsTitle;
+
+  /// No description provided for @settingsSoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound effects'**
+  String get settingsSoundTitle;
+
+  /// No description provided for @settingsAutoGameSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-open game summary after game'**
+  String get settingsAutoGameSummaryTitle;
+
+  /// No description provided for @settingsCoachAiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach & AI'**
+  String get settingsCoachAiTitle;
+
+  /// No description provided for @settingsCoachPriorityIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to set fallback order: the app tries the first provider, then the next if it fails. Leave the list empty for offline tips only. Keys stay on this device.'**
+  String get settingsCoachPriorityIntro;
+
+  /// No description provided for @settingsCoachOfflineOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline only'**
+  String get settingsCoachOfflineOnly;
+
+  /// No description provided for @settingsCoachOpenAiOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenAI only'**
+  String get settingsCoachOpenAiOnly;
+
+  /// No description provided for @settingsCoachGoogleOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Google only'**
+  String get settingsCoachGoogleOnly;
+
+  /// No description provided for @settingsCoachGroqGoogleOpenAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Groq→Google→OpenAI'**
+  String get settingsCoachGroqGoogleOpenAi;
+
+  /// No description provided for @settingsCoachOllamaGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ollama→Google'**
+  String get settingsCoachOllamaGoogle;
+
+  /// No description provided for @settingsCoachPriorityTopLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority (top = first try)'**
+  String get settingsCoachPriorityTopLabel;
+
+  /// No description provided for @settingsCoachNoCloudProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'No cloud providers — Coach uses short on-device tips.'**
+  String get settingsCoachNoCloudProviders;
+
+  /// No description provided for @settingsCoachRemoveFromChain.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from chain'**
+  String get settingsCoachRemoveFromChain;
+
+  /// No description provided for @settingsCoachAddProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Add provider'**
+  String get settingsCoachAddProvider;
+
+  /// No description provided for @settingsCoachExplanationLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach explanation level'**
+  String get settingsCoachExplanationLevel;
+
+  /// No description provided for @settingsCoachExplanationLevelSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'1 = Beginner, 4 = Expert'**
+  String get settingsCoachExplanationLevelSubtitle;
+
+  /// No description provided for @settingsCoachLevelBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'1 – Beginner'**
+  String get settingsCoachLevelBeginner;
+
+  /// No description provided for @settingsCoachLevelIntermediate.
+  ///
+  /// In en, this message translates to:
+  /// **'2 – Intermediate'**
+  String get settingsCoachLevelIntermediate;
+
+  /// No description provided for @settingsCoachLevelAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'3 – Advanced'**
+  String get settingsCoachLevelAdvanced;
+
+  /// No description provided for @settingsCoachLevelExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'4 – Expert'**
+  String get settingsCoachLevelExpert;
+
+  /// No description provided for @settingsCoachCredentialsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Credentials (fill what you use)'**
+  String get settingsCoachCredentialsHeader;
+
+  /// No description provided for @settingsCoachOpenAiProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenAI'**
+  String get settingsCoachOpenAiProvider;
+
+  /// No description provided for @settingsCoachApiKeyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API key'**
+  String get settingsCoachApiKeyLabel;
+
+  /// No description provided for @settingsCoachOpenAiKeyHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'platform.openai.com — used only for Coach.'**
+  String get settingsCoachOpenAiKeyHelper;
+
+  /// No description provided for @settingsCoachModelIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model id'**
+  String get settingsCoachModelIdLabel;
+
+  /// No description provided for @settingsCoachOpenAiKeysButton.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenAI keys'**
+  String get settingsCoachOpenAiKeysButton;
+
+  /// No description provided for @settingsCoachGoogleAiStudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Google AI Studio'**
+  String get settingsCoachGoogleAiStudio;
+
+  /// No description provided for @settingsCoachPasteGoogleKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste Google AI Studio key'**
+  String get settingsCoachPasteGoogleKeyHint;
+
+  /// No description provided for @settingsCoachGoogleKeyHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a key at aistudio.google.com — Gemini / Gemma.'**
+  String get settingsCoachGoogleKeyHelper;
+
+  /// No description provided for @settingsCoachCustomModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get settingsCoachCustomModel;
+
+  /// No description provided for @settingsCoachCustomModelId.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom model id'**
+  String get settingsCoachCustomModelId;
+
+  /// No description provided for @settingsCoachCustomModelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. gemini-2.5-flash'**
+  String get settingsCoachCustomModelHint;
+
+  /// No description provided for @settingsCoachGetGoogleKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Google AI key'**
+  String get settingsCoachGetGoogleKey;
+
+  /// No description provided for @settingsCoachGroqTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Groq (OpenAI-compatible)'**
+  String get settingsCoachGroqTitle;
+
+  /// No description provided for @settingsCoachXaiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'xAI (Grok)'**
+  String get settingsCoachXaiTitle;
+
+  /// No description provided for @settingsCoachOllamaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ollama (local)'**
+  String get settingsCoachOllamaTitle;
+
+  /// No description provided for @settingsCoachBaseUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Base URL'**
+  String get settingsCoachBaseUrlLabel;
+
+  /// No description provided for @settingsCoachChainSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{chain}'**
+  String settingsCoachChainSubtitle(String chain);
+
+  /// No description provided for @settingsDeveloperModeUnlockedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode unlocked.'**
+  String get settingsDeveloperModeUnlockedSnack;
+
+  /// No description provided for @gameControlDisplaySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get gameControlDisplaySection;
+
+  /// No description provided for @gameControlPlayModeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Play mode'**
+  String get gameControlPlayModeSection;
+
+  /// No description provided for @gameControlSandboxLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sandbox'**
+  String get gameControlSandboxLabel;
+
+  /// No description provided for @gameControlMovesFromApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Moves from app'**
+  String get gameControlMovesFromApp;
+
+  /// No description provided for @gameControlUndoMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo move ({n})'**
+  String gameControlUndoMove(int n);
+
+  /// No description provided for @gameControlExitSandbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit sandbox & refresh board'**
+  String get gameControlExitSandbox;
+
+  /// No description provided for @gameControlLearningModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning mode'**
+  String get gameControlLearningModeTitle;
+
+  /// No description provided for @gameControlLearningModeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach explanations in the app'**
+  String get gameControlLearningModeSubtitle;
+
+  /// No description provided for @gameControlExplanationLevelSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation level (1–4) in Settings'**
+  String get gameControlExplanationLevelSettings;
+
+  /// No description provided for @gameControlActionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get gameControlActionsSection;
+
+  /// No description provided for @gameControlNewGameEllipsis.
+  ///
+  /// In en, this message translates to:
+  /// **'New game…'**
+  String get gameControlNewGameEllipsis;
+
+  /// No description provided for @gameControlRefreshState.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh state'**
+  String get gameControlRefreshState;
+
+  /// No description provided for @gameControlPanelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Game controls'**
+  String get gameControlPanelTitle;
+
+  /// No description provided for @timerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock: off or unavailable'**
+  String get timerUnavailable;
+
+  /// No description provided for @timerWhiteShort.
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get timerWhiteShort;
+
+  /// No description provided for @timerBlackShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get timerBlackShort;
+
+  /// No description provided for @coachChatTypeFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a question first, then Send.'**
+  String get coachChatTypeFirst;
+
+  /// No description provided for @coachChatHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get coachChatHide;
+
+  /// No description provided for @coachChatDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'DISMISS'**
+  String get coachChatDismiss;
+
+  /// No description provided for @manualConnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual connection'**
+  String get manualConnTitle;
+
+  /// No description provided for @manualConnWifiStatusError.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi status: {error}'**
+  String manualConnWifiStatusError(String error);
+
+  /// No description provided for @manualConnEnterUrlSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the board URL.'**
+  String get manualConnEnterUrlSnack;
+
+  /// No description provided for @manualConnStaDisconnectedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'STA disconnected (command sent).'**
+  String get manualConnStaDisconnectedSnack;
+
+  /// No description provided for @manualConnClearWifiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear saved Wi‑Fi from NVS?'**
+  String get manualConnClearWifiTitle;
+
+  /// No description provided for @manualConnClearWifiBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The ESP will forget the stored network.'**
+  String get manualConnClearWifiBody;
+
+  /// No description provided for @manualConnNvsClearedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi credentials cleared from NVS.'**
+  String get manualConnNvsClearedSnack;
+
+  /// No description provided for @manualConnSaveUrlSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'URL saved to preferences.'**
+  String get manualConnSaveUrlSnack;
+
+  /// No description provided for @manualConnSaveUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Save URL'**
+  String get manualConnSaveUrl;
+
+  /// No description provided for @manualConnTestConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection (GET snapshot)'**
+  String get manualConnTestConnection;
+
+  /// No description provided for @manualConnConnectSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect session (Wi‑Fi + poll)'**
+  String get manualConnConnectSession;
+
+  /// No description provided for @manualConnWifiStaNvs.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi STA & NVS'**
+  String get manualConnWifiStaNvs;
+
+  /// No description provided for @manualConnRefreshWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh Wi‑Fi status'**
+  String get manualConnRefreshWifi;
+
+  /// No description provided for @manualConnDisconnectSta.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect ESP from STA'**
+  String get manualConnDisconnectSta;
+
+  /// No description provided for @manualConnClearWifiNvs.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Wi‑Fi from NVS'**
+  String get manualConnClearWifiNvs;
+
+  /// No description provided for @haMqttTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home Assistant & MQTT'**
+  String get haMqttTitle;
+
+  /// No description provided for @haMqttSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'MQTT saved to board.'**
+  String get haMqttSavedSnack;
+
+  /// No description provided for @haMqttHowToHa.
+  ///
+  /// In en, this message translates to:
+  /// **'Home Assistant guide'**
+  String get haMqttHowToHa;
+
+  /// No description provided for @haMqttBrokerHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'MQTT broker'**
+  String get haMqttBrokerHeader;
+
+  /// No description provided for @haMqttSaveToBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to board'**
+  String get haMqttSaveToBoard;
+
+  /// No description provided for @haMqttRefreshFromBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh status from board'**
+  String get haMqttRefreshFromBoard;
+
+  /// No description provided for @haMqttBoardStatusHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Status on board'**
+  String get haMqttBoardStatusHeader;
+
+  /// No description provided for @haMqttModeTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get haMqttModeTile;
+
+  /// No description provided for @haMqttMqttTile.
+  ///
+  /// In en, this message translates to:
+  /// **'MQTT'**
+  String get haMqttMqttTile;
+
+  /// No description provided for @haMqttWifiStaTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi STA'**
+  String get haMqttWifiStaTile;
+
+  /// No description provided for @haMqttGuideBody.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Home Assistant must run on the same Wi‑Fi LAN as the board (ESP connected as STA to your router).\n\n2. In Home Assistant enable an MQTT broker — commonly the “Mosquitto broker” add-on (Settings → Add-ons). Note the port (usually 1883) and any username/password from the add-on config.\n\n3. Find the IP or hostname of the machine running HA (e.g. 192.168.1.42 or homeassistant.local). The board must reach it on the LAN.\n\n4. Enter that address as “Broker host” below — it’s the MQTT server address (usually the same machine as Home Assistant). Keep port 1883 unless you changed Mosquitto.\n\n5. Saving sends settings to the board over the current link (Wi‑Fi or Bluetooth). The CzechMate app does not connect to the broker — only the ESP does.'**
+  String get haMqttGuideBody;
+
+  /// No description provided for @haMqttHostFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Broker host (e.g. Home Assistant IP)'**
+  String get haMqttHostFieldLabel;
+
+  /// No description provided for @haMqttPortFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Port'**
+  String get haMqttPortFieldLabel;
+
+  /// No description provided for @haMqttUserFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username (optional)'**
+  String get haMqttUserFieldLabel;
+
+  /// No description provided for @haMqttPasswordFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password (optional)'**
+  String get haMqttPasswordFieldLabel;
+
+  /// No description provided for @haMqttFooterMock.
+  ///
+  /// In en, this message translates to:
+  /// **'The demo board does not support MQTT — connect a real board.'**
+  String get haMqttFooterMock;
+
+  /// No description provided for @haMqttFooterConnectFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect the board (Bluetooth or Wi‑Fi) before saving the broker.'**
+  String get haMqttFooterConnectFirst;
+
+  /// No description provided for @haMqttFooterBleSave.
+  ///
+  /// In en, this message translates to:
+  /// **'You can save over Bluetooth; refreshing status from the board uses HTTP over Wi‑Fi.'**
+  String get haMqttFooterBleSave;
+
+  /// No description provided for @haMqttFooterTroubleshoot.
+  ///
+  /// In en, this message translates to:
+  /// **'If MQTT stays offline, check the HA firewall, Mosquitto credentials, and that the ESP is on the same network as the broker.'**
+  String get haMqttFooterTroubleshoot;
+
+  /// No description provided for @haMqttStateConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'connected'**
+  String get haMqttStateConnected;
+
+  /// No description provided for @haMqttStateDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'disconnected'**
+  String get haMqttStateDisconnected;
+
+  /// No description provided for @haMqttWifiOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get haMqttWifiOk;
+
+  /// No description provided for @haMqttWifiNoLink.
+  ///
+  /// In en, this message translates to:
+  /// **'no link'**
+  String get haMqttWifiNoLink;
+
+  /// No description provided for @firmwareDailySecondConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the update? The board will download firmware, write flash, and reboot. Do not interrupt power.'**
+  String get firmwareDailySecondConfirmBody;
+
+  /// No description provided for @firmwareDailySecondConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm update'**
+  String get firmwareDailySecondConfirmTitle;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile & Elo'**
+  String get profileTitle;
+
+  /// No description provided for @profileDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get profileDisplayName;
+
+  /// No description provided for @profileNameSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Name saved'**
+  String get profileNameSavedSnack;
+
+  /// No description provided for @profileSaveName.
+  ///
+  /// In en, this message translates to:
+  /// **'Save name'**
+  String get profileSaveName;
+
+  /// No description provided for @profileAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar'**
+  String get profileAvatar;
+
+  /// No description provided for @profileFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'From gallery'**
+  String get profileFromGallery;
+
+  /// No description provided for @profileGalleryError.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery: {error}'**
+  String profileGalleryError(String error);
+
+  /// No description provided for @profileNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name shown on your profile'**
+  String get profileNameHint;
+
+  /// No description provided for @profilePuzzleEloLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle Elo: {elo}'**
+  String profilePuzzleEloLine(String elo);
+
+  /// No description provided for @profileWeekStatsLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days: {solved} solved · {failed} wrong lines'**
+  String profileWeekStatsLine(int solved, int failed);
+
+  /// No description provided for @profileHeatmapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 28 days'**
+  String get profileHeatmapTitle;
+
+  /// No description provided for @profileHeatmapCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Darker = more attempts; greener = higher success rate.'**
+  String get profileHeatmapCaption;
+
+  /// No description provided for @profileAvatarHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset icons or a photo from your gallery.'**
+  String get profileAvatarHint;
+
+  /// No description provided for @profileEloHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Elo updates when you complete a graded puzzle with a known solution line (e.g. daily Lichess puzzles).'**
+  String get profileEloHelpBody;
+
+  /// No description provided for @firmwareManifestSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Manifest URL saved.'**
+  String get firmwareManifestSavedSnack;
+
+  /// No description provided for @firmwareUpdateBoardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update board firmware?'**
+  String get firmwareUpdateBoardTitle;
+
+  /// No description provided for @firmwareNewVersionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'New version: {ver} — on board: {boardVer}.'**
+  String firmwareNewVersionLine(String ver, String boardVer);
+
+  /// No description provided for @firmwareUpdateIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The board downloads the file over HTTPS. Keep power and Wi‑Fi stable.'**
+  String get firmwareUpdateIntroBody;
+
+  /// No description provided for @firmwareFinalConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Final confirmation'**
+  String get firmwareFinalConfirmTitle;
+
+  /// No description provided for @firmwareFinalConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start OTA on the board now?'**
+  String get firmwareFinalConfirmBody;
+
+  /// No description provided for @firmwareYesUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, update'**
+  String get firmwareYesUpdate;
+
+  /// No description provided for @firmwareDailyRemindersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily update reminders'**
+  String get firmwareDailyRemindersTitle;
+
+  /// No description provided for @firmwareDailyRemindersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify when a newer firmware is available.'**
+  String get firmwareDailyRemindersSubtitle;
+
+  /// No description provided for @firmwareSaveManifestUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Save manifest URL'**
+  String get firmwareSaveManifestUrl;
+
+  /// No description provided for @firmwareCheckForUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for update'**
+  String get firmwareCheckForUpdate;
+
+  /// No description provided for @firmwareNewVersionChip.
+  ///
+  /// In en, this message translates to:
+  /// **'New version {ver}'**
+  String firmwareNewVersionChip(String ver);
+
+  /// No description provided for @firmwareDownloadOnEspNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Download runs on the ESP over HTTPS.'**
+  String get firmwareDownloadOnEspNote;
+
+  /// No description provided for @firmwareConfirmUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm update'**
+  String get firmwareConfirmUpdateTitle;
+
+  /// No description provided for @firmwareConfirmUpdateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start firmware update on the board?'**
+  String get firmwareConfirmUpdateBody;
+
+  /// No description provided for @firmwareStartingOtaSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting OTA on the board…'**
+  String get firmwareStartingOtaSnack;
+
+  /// No description provided for @analysisAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis'**
+  String get analysisAppBarTitle;
+
+  /// No description provided for @analysisGameProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Game in progress'**
+  String get analysisGameProgress;
+
+  /// No description provided for @analysisGameProgressBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Half-moves from the connected board.'**
+  String get analysisGameProgressBody;
+
+  /// No description provided for @analysisStockfishSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Stockfish'**
+  String get analysisStockfishSection;
+
+  /// No description provided for @analysisStockfishSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluation line from the current board position.'**
+  String get analysisStockfishSubtitle;
+
+  /// No description provided for @analysisNoBoardPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'No position from board'**
+  String get analysisNoBoardPosition;
+
+  /// No description provided for @analysisNoBoardPositionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Wi‑Fi or Bluetooth and open Play.'**
+  String get analysisNoBoardPositionBody;
+
+  /// No description provided for @analysisOpenPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Play'**
+  String get analysisOpenPlay;
+
+  /// No description provided for @analysisChartDisabledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart and move evaluation are off'**
+  String get analysisChartDisabledTitle;
+
+  /// No description provided for @analysisChartDisabledSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable move evaluation to see quality scores.'**
+  String get analysisChartDisabledSubtitle;
+
+  /// No description provided for @analysisEnableMoveEval.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable move evaluation (Stockfish)'**
+  String get analysisEnableMoveEval;
+
+  /// No description provided for @analysisGameOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Game overview'**
+  String get analysisGameOverview;
+
+  /// No description provided for @analysisGameOverviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Material, clocks, and opening info when available.'**
+  String get analysisGameOverviewBody;
+
+  /// No description provided for @analysisMoveQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Move quality'**
+  String get analysisMoveQuality;
+
+  /// No description provided for @analysisMoveQualityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Average 0–100 by Stockfish grade and avg loss in cp.'**
+  String get analysisMoveQualityBody;
+
+  /// No description provided for @analysisLastMoveEvalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last move evaluation'**
+  String get analysisLastMoveEvalTitle;
+
+  /// No description provided for @analysisMoveHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move history'**
+  String get analysisMoveHistoryTitle;
+
+  /// No description provided for @analysisMoveHistoryTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open chronological playback.'**
+  String get analysisMoveHistoryTapHint;
+
+  /// No description provided for @analysisSecondLineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Second line'**
+  String get analysisSecondLineTitle;
+
+  /// No description provided for @analysisSecondLineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Alternative continuation from the engine.'**
+  String get analysisSecondLineBody;
+
+  /// No description provided for @analysisCustomPositionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom position'**
+  String get analysisCustomPositionTitle;
+
+  /// No description provided for @analysisCustomPositionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis without a physical board.'**
+  String get analysisCustomPositionBody;
+
+  /// No description provided for @analysisDepthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth: {n}'**
+  String analysisDepthLabel(String n);
+
+  /// No description provided for @analysisAnalyzePosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze position'**
+  String get analysisAnalyzePosition;
+
+  /// No description provided for @analysisSandboxFenSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Sandbox from FEN — Play tab.'**
+  String get analysisSandboxFenSnack;
+
+  /// No description provided for @analysisPreviewInPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview in Play'**
+  String get analysisPreviewInPlay;
+
+  /// No description provided for @analysisPreviewMoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview position & move'**
+  String get analysisPreviewMoveTitle;
+
+  /// No description provided for @puzzleRoundExpiredSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Round time expired.'**
+  String get puzzleRoundExpiredSnack;
+
+  /// No description provided for @puzzleConnectBoardSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect the board (Wi‑Fi or BLE).'**
+  String get puzzleConnectBoardSnack;
+
+  /// No description provided for @puzzleNewGameSentSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'new_game command sent.'**
+  String get puzzleNewGameSentSnack;
+
+  /// No description provided for @puzzleBoardRiddleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board puzzle'**
+  String get puzzleBoardRiddleTitle;
+
+  /// No description provided for @puzzleTryOnScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Try on screen'**
+  String get puzzleTryOnScreen;
+
+  /// No description provided for @puzzleLoadToBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Load to board (new_game + FEN)'**
+  String get puzzleLoadToBoard;
+
+  /// No description provided for @puzzleSetupWizardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Board setup wizard'**
+  String get puzzleSetupWizardLabel;
+
+  /// No description provided for @puzzleOpenLichess.
+  ///
+  /// In en, this message translates to:
+  /// **'Open on Lichess'**
+  String get puzzleOpenLichess;
+
+  /// No description provided for @puzzleSavePositionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save position'**
+  String get puzzleSavePositionTitle;
+
+  /// No description provided for @puzzleSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get puzzleSavedSnack;
+
+  /// No description provided for @puzzleAddToLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to library'**
+  String get puzzleAddToLibrary;
+
+  /// No description provided for @puzzleCustomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get puzzleCustomTitle;
+
+  /// No description provided for @puzzleSetupOnBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup on board'**
+  String get puzzleSetupOnBoard;
+
+  /// No description provided for @puzzleDailyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily {id}'**
+  String puzzleDailyTitle(String id);
+
+  /// No description provided for @puzzleDailySolveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily puzzle'**
+  String get puzzleDailySolveTitle;
+
+  /// No description provided for @puzzleSolutionMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Solution: {n} moves'**
+  String puzzleSolutionMoves(int n);
+
+  /// No description provided for @puzzlePoolModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pool mode'**
+  String get puzzlePoolModeTitle;
+
+  /// No description provided for @puzzlePoolMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed'**
+  String get puzzlePoolMixed;
+
+  /// No description provided for @puzzlePoolBundled.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundled'**
+  String get puzzlePoolBundled;
+
+  /// No description provided for @puzzlePoolLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get puzzlePoolLibrary;
+
+  /// No description provided for @puzzleTimedRoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Timed round'**
+  String get puzzleTimedRoundTitle;
+
+  /// No description provided for @puzzleTimedRoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Random position from the selected pool, countdown in seconds.'**
+  String get puzzleTimedRoundBody;
+
+  /// No description provided for @puzzleNewRound.
+  ///
+  /// In en, this message translates to:
+  /// **'New round'**
+  String get puzzleNewRound;
+
+  /// No description provided for @puzzleStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get puzzleStop;
+
+  /// No description provided for @puzzleRemainingSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining: {n}s'**
+  String puzzleRemainingSeconds(int n);
+
+  /// No description provided for @puzzleSolveOnScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Solve on screen'**
+  String get puzzleSolveOnScreen;
+
+  /// No description provided for @puzzleLoadToBoardShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Load to board'**
+  String get puzzleLoadToBoardShort;
+
+  /// No description provided for @puzzleSetupWizardShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup wizard'**
+  String get puzzleSetupWizardShort;
+
+  /// No description provided for @puzzleBundledOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundled positions (offline)'**
+  String get puzzleBundledOfflineTitle;
+
+  /// No description provided for @puzzleThemeMate.
+  ///
+  /// In en, this message translates to:
+  /// **'Mate'**
+  String get puzzleThemeMate;
+
+  /// No description provided for @puzzleThemeFork.
+  ///
+  /// In en, this message translates to:
+  /// **'Fork'**
+  String get puzzleThemeFork;
+
+  /// No description provided for @puzzleThemeEndgame.
+  ///
+  /// In en, this message translates to:
+  /// **'Endgame'**
+  String get puzzleThemeEndgame;
+
+  /// No description provided for @puzzleThemeMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed'**
+  String get puzzleThemeMixed;
+
+  /// No description provided for @progressAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get progressAppBarTitle;
+
+  /// No description provided for @progressSegBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Beg.'**
+  String get progressSegBeginner;
+
+  /// No description provided for @progressSegIntermediate.
+  ///
+  /// In en, this message translates to:
+  /// **'Int.'**
+  String get progressSegIntermediate;
+
+  /// No description provided for @progressSegAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Adv.'**
+  String get progressSegAdvanced;
+
+  /// No description provided for @progressSegExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Exp.'**
+  String get progressSegExpert;
+
+  /// No description provided for @progressTabLearn.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn'**
+  String get progressTabLearn;
+
+  /// No description provided for @progressTabStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Stats'**
+  String get progressTabStats;
+
+  /// No description provided for @progressWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to CzechMate'**
+  String get progressWelcomeTitle;
+
+  /// No description provided for @progressWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Track puzzles, coach, and board setup from one place.'**
+  String get progressWelcomeBody;
+
+  /// No description provided for @progressProfilePuzzleEloTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile & puzzle Elo'**
+  String get progressProfilePuzzleEloTitle;
+
+  /// No description provided for @progressProfilePuzzleEloSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local nickname and puzzle rating.'**
+  String get progressProfilePuzzleEloSubtitle;
+
+  /// No description provided for @progressLearnCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn'**
+  String get progressLearnCardTitle;
+
+  /// No description provided for @progressLearnCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LED setup wizards and AI coach'**
+  String get progressLearnCardSubtitle;
+
+  /// No description provided for @progressAiCoachTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI coach'**
+  String get progressAiCoachTitle;
+
+  /// No description provided for @progressAiCoachBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask questions and get hints tied to the position.'**
+  String get progressAiCoachBody;
+
+  /// No description provided for @progressLearningModeTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning mode'**
+  String get progressLearningModeTile;
+
+  /// No description provided for @progressCoachLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach level'**
+  String get progressCoachLevelLabel;
+
+  /// No description provided for @progressCoachChatButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach chat'**
+  String get progressCoachChatButton;
+
+  /// No description provided for @progressPositionPlanButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Position plan'**
+  String get progressPositionPlanButton;
+
+  /// No description provided for @progressBoardErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board error'**
+  String get progressBoardErrorTitle;
+
+  /// No description provided for @progressStartingPositionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting position'**
+  String get progressStartingPositionTitle;
+
+  /// No description provided for @progressStartingPositionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Wizard aligns pieces using LEDs.'**
+  String get progressStartingPositionBody;
+
+  /// No description provided for @progressRunWizardStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Run wizard — starting position'**
+  String get progressRunWizardStarting;
+
+  /// No description provided for @progressAccountCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get progressAccountCardTitle;
+
+  /// No description provided for @progressAccountCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local profile and activity'**
+  String get progressAccountCardSubtitle;
+
+  /// No description provided for @progressActiveTransportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active transport'**
+  String get progressActiveTransportTitle;
+
+  /// No description provided for @progressNoSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No active session yet'**
+  String get progressNoSessionTitle;
+
+  /// No description provided for @progressNoSessionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Find board to connect.'**
+  String get progressNoSessionSubtitle;
+
+  /// No description provided for @helpAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'czechmate — help'**
+  String get helpAppBarTitle;
+
+  /// No description provided for @helpConnectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting the board'**
+  String get helpConnectTitle;
+
+  /// No description provided for @helpConnectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Bluetooth to discover the board, then Wi‑Fi when available. Check Settings for manual URL and modes.'**
+  String get helpConnectBody;
+
+  /// No description provided for @helpPlayingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing a game'**
+  String get helpPlayingTitle;
+
+  /// No description provided for @helpPlayingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Play for live sync, Game controls for time and flip, and Analysis for Stockfish.'**
+  String get helpPlayingBody;
+
+  /// No description provided for @helpCoachTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach & analysis'**
+  String get helpCoachTitle;
+
+  /// No description provided for @helpCoachBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable learning mode and connect API keys in Settings for cloud coaches.'**
+  String get helpCoachBody;
+
+  /// No description provided for @helpSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings & configuration'**
+  String get helpSettingsTitle;
+
+  /// No description provided for @helpSettingsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance, NVS, lamp, firmware, and MQTT live here.'**
+  String get helpSettingsBody;
+
+  /// No description provided for @coachScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Coach'**
+  String get coachScreenTitle;
+
+  /// No description provided for @coachScreenHintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening & plans'**
+  String get coachScreenHintTitle;
+
+  /// No description provided for @coachScreenHintBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about ideas for this position.'**
+  String get coachScreenHintBody;
+
+  /// No description provided for @coachScreenLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String coachScreenLevelLabel(String level);
+
+  /// No description provided for @setupModeAppBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup mode'**
+  String get setupModeAppBar;
+
+  /// No description provided for @setupModePiecePlacementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Piece placement'**
+  String get setupModePiecePlacementTitle;
+
+  /// No description provided for @setupModePiecePlacementBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the wizard to align pieces with LED hints.'**
+  String get setupModePiecePlacementBody;
+
+  /// No description provided for @setupModeGoBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back'**
+  String get setupModeGoBack;
+
+  /// No description provided for @wizardSkipStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip step'**
+  String get wizardSkipStep;
+
+  /// No description provided for @wizardCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get wizardCancel;
+
+  /// No description provided for @connDiagTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection diagnostics'**
+  String get connDiagTitle;
+
+  /// No description provided for @connDiagTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get connDiagTransport;
+
+  /// No description provided for @connDiagWifiBaseUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi base URL'**
+  String get connDiagWifiBaseUrl;
+
+  /// No description provided for @connDiagPolling.
+  ///
+  /// In en, this message translates to:
+  /// **'Polling'**
+  String get connDiagPolling;
+
+  /// No description provided for @connDiagWebSocket.
+  ///
+  /// In en, this message translates to:
+  /// **'WebSocket'**
+  String get connDiagWebSocket;
+
+  /// No description provided for @connDiagPollSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Successful snapshot GETs (incl. 304)'**
+  String get connDiagPollSuccessTitle;
+
+  /// No description provided for @connDiagPollFailureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed GET / poll errors'**
+  String get connDiagPollFailureTitle;
+
+  /// No description provided for @connDiagWsFramesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WS messages (frames)'**
+  String get connDiagWsFramesTitle;
+
+  /// No description provided for @connDiagLastPollOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Last successful poll'**
+  String get connDiagLastPollOk;
+
+  /// No description provided for @connDiagLastErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last error'**
+  String get connDiagLastErrorTitle;
+
+  /// No description provided for @connDiagActive.
+  ///
+  /// In en, this message translates to:
+  /// **'active'**
+  String get connDiagActive;
+
+  /// No description provided for @connDiagOff.
+  ///
+  /// In en, this message translates to:
+  /// **'off'**
+  String get connDiagOff;
+
+  /// No description provided for @newGameSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New game'**
+  String get newGameSheetTitle;
+
+  /// No description provided for @newGameSheetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick time control and side.'**
+  String get newGameSheetSubtitle;
+
+  /// No description provided for @newGameWhiteBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'White bottom'**
+  String get newGameWhiteBottom;
+
+  /// No description provided for @newGameBlackBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Black bottom'**
+  String get newGameBlackBottom;
+
+  /// No description provided for @newGameCustomTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom time (type 14)'**
+  String get newGameCustomTimeTitle;
+
+  /// No description provided for @newGameCustomTimeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes + increment sent to the board.'**
+  String get newGameCustomTimeSubtitle;
+
+  /// No description provided for @newGameMinutesPerSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes per side: {n}'**
+  String newGameMinutesPerSide(String n);
+
+  /// No description provided for @newGameIncrementSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Increment (s): {n}'**
+  String newGameIncrementSeconds(String n);
+
+  /// No description provided for @newGameStartOnBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Start on board'**
+  String get newGameStartOnBoard;
+
+  /// No description provided for @newGameConnectFirstSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect a board first (Wi‑Fi or Bluetooth).'**
+  String get newGameConnectFirstSnack;
+
+  /// No description provided for @newGameStartedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'New game started on the board.'**
+  String get newGameStartedSnack;
+
+  /// No description provided for @newGameErrorSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String newGameErrorSnack(String error);
+
+  /// No description provided for @newGameSheetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Like on iOS: time control is sent to the board, then a new game starts.'**
+  String get newGameSheetBody;
+
+  /// No description provided for @newGameBoardViewSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Board view (which color is at the bottom)'**
+  String get newGameBoardViewSection;
+
+  /// No description provided for @newGameWhoStartsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Who starts is decided on the board / game rules; here you only flip the view (saved in Settings).'**
+  String get newGameWhoStartsNote;
+
+  /// No description provided for @newGameFirmwarePresets.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware presets'**
+  String get newGameFirmwarePresets;
+
+  /// No description provided for @newGameCustomSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{min} min + {inc} s / move'**
+  String newGameCustomSummary(int min, int inc);
+
+  /// No description provided for @learnAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chess lessons'**
+  String get learnAppBarTitle;
+
+  /// No description provided for @learnBoardLedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect the board and use LED hints while practicing these lessons.'**
+  String get learnBoardLedHint;
+
+  /// No description provided for @learnSnackLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson: {title} — interactive content coming soon.'**
+  String learnSnackLesson(String title);
+
+  /// No description provided for @learnSecBasics.
+  ///
+  /// In en, this message translates to:
+  /// **'Basics'**
+  String get learnSecBasics;
+
+  /// No description provided for @learnSecSpecial.
+  ///
+  /// In en, this message translates to:
+  /// **'Special moves'**
+  String get learnSecSpecial;
+
+  /// No description provided for @learnSecTactics.
+  ///
+  /// In en, this message translates to:
+  /// **'Tactics'**
+  String get learnSecTactics;
+
+  /// No description provided for @learnSecStrategy.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy'**
+  String get learnSecStrategy;
+
+  /// No description provided for @learnL1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'How pieces move'**
+  String get learnL1Title;
+
+  /// No description provided for @learnL1Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'King, queen, rook, bishop, knight, pawn — learn each piece’s moves.'**
+  String get learnL1Desc;
+
+  /// No description provided for @learnL2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals of chess'**
+  String get learnL2Title;
+
+  /// No description provided for @learnL2Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkmate, stalemate, draw — what end states mean.'**
+  String get learnL2Desc;
+
+  /// No description provided for @learnL3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Piece values'**
+  String get learnL3Title;
+
+  /// No description provided for @learnL3Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pawn=1, Knight/Bishop=3, Rook=5, Queen=9 — why it matters.'**
+  String get learnL3Desc;
+
+  /// No description provided for @learnL4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Castling'**
+  String get learnL4Title;
+
+  /// No description provided for @learnL4Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Kingside and queenside — how, when, and why.'**
+  String get learnL4Desc;
+
+  /// No description provided for @learnL5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'En passant'**
+  String get learnL5Title;
+
+  /// No description provided for @learnL5Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'The special pawn capture beginners often miss.'**
+  String get learnL5Desc;
+
+  /// No description provided for @learnL6Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotion'**
+  String get learnL6Title;
+
+  /// No description provided for @learnL6Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pawn on the eighth rank — choosing the right piece.'**
+  String get learnL6Desc;
+
+  /// No description provided for @learnL7Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Fork'**
+  String get learnL7Title;
+
+  /// No description provided for @learnL7Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Attack two pieces at once — a core tactical theme.'**
+  String get learnL7Desc;
+
+  /// No description provided for @learnL8Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get learnL8Title;
+
+  /// No description provided for @learnL8Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'A piece can’t move because it would expose the king.'**
+  String get learnL8Desc;
+
+  /// No description provided for @learnL9Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Scholar’s Mate'**
+  String get learnL9Title;
+
+  /// No description provided for @learnL9Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Mate in four — and how to stop it.'**
+  String get learnL9Desc;
+
+  /// No description provided for @learnL10Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Control the center'**
+  String get learnL10Title;
+
+  /// No description provided for @learnL10Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Why e4, d4, e5, d5 matter in the opening.'**
+  String get learnL10Desc;
+
+  /// No description provided for @learnL11Title.
+  ///
+  /// In en, this message translates to:
+  /// **'King safety'**
+  String get learnL11Title;
+
+  /// No description provided for @learnL11Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Castle early as insurance — when and how to hide the king.'**
+  String get learnL11Desc;
+
+  /// No description provided for @learnL12Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Endgame: king & pawn'**
+  String get learnL12Title;
+
+  /// No description provided for @learnL12Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn a pawn advantage into a win.'**
+  String get learnL12Desc;
+
+  /// No description provided for @devSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics & Developer'**
+  String get devSettingsTitle;
+
+  /// No description provided for @devStockfishFenHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Stockfish & FEN'**
+  String get devStockfishFenHeader;
+
+  /// No description provided for @devMoveEvalTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Move evaluation (moveEvaluationEnabled)'**
+  String get devMoveEvalTile;
+
+  /// No description provided for @devHintDepthTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint depth (hintDepth): {n}'**
+  String devHintDepthTile(String n);
+
+  /// No description provided for @devCurrentFenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current FEN from board:'**
+  String get devCurrentFenLabel;
+
+  /// No description provided for @devNetworkTransportHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Network & transport'**
+  String get devNetworkTransportHeader;
+
+  /// No description provided for @devBoardBaseUrlTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Board base URL (ESP)'**
+  String get devBoardBaseUrlTile;
+
+  /// No description provided for @devActiveLinkTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Active link status'**
+  String get devActiveLinkTile;
+
+  /// No description provided for @devCoachTraceTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Verbose coach logs (coach trace)'**
+  String get devCoachTraceTile;
+
+  /// No description provided for @devStartConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Start connection'**
+  String get devStartConnection;
+
+  /// No description provided for @devStopTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get devStopTransport;
+
+  /// No description provided for @devTransportStoppedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport stopped.'**
+  String get devTransportStoppedSnack;
+
+  /// No description provided for @devRefreshedFromPrefsSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Reloaded from preferences.'**
+  String get devRefreshedFromPrefsSnack;
+
+  /// No description provided for @devPingSnapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'Ping snapshot (RTT): {result}'**
+  String devPingSnapshot(String result);
+
+  /// No description provided for @devConnectionDiagTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection diagnostics (REST / WS)'**
+  String get devConnectionDiagTile;
+
+  /// No description provided for @devDisconnectStaSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'STA disconnected.'**
+  String get devDisconnectStaSnack;
+
+  /// No description provided for @devClearWifiNvsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Wi‑Fi from NVS?'**
+  String get devClearWifiNvsTitle;
+
+  /// No description provided for @devClearWifiNvsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The ESP will forget the stored network.'**
+  String get devClearWifiNvsBody;
+
+  /// No description provided for @devWifiNvsClearedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi NVS cleared.'**
+  String get devWifiNvsClearedSnack;
+
+  /// No description provided for @devClearWifiNvsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear saved Wi‑Fi from NVS'**
+  String get devClearWifiNvsButton;
+
+  /// No description provided for @devWifiConfigHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi configuration on board'**
+  String get devWifiConfigHeader;
+
+  /// No description provided for @devWifiUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi status unavailable. Tap refresh below.'**
+  String get devWifiUnavailable;
+
+  /// No description provided for @devNvsToolsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed tools (NVS classes)'**
+  String get devNvsToolsButton;
+
+  /// No description provided for @devErrorPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String devErrorPrefix(String error);
+
+  /// No description provided for @devSentToEspSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to ESP.'**
+  String get devSentToEspSnack;
+
+  /// No description provided for @boardNvsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board memory (NVS)'**
+  String get boardNvsTitle;
+
+  /// No description provided for @boardNvsSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to board NVS.'**
+  String get boardNvsSavedSnack;
+
+  /// No description provided for @boardNvsLedHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'On-board chess hints (LED)'**
+  String get boardNvsLedHeader;
+
+  /// No description provided for @boardNvsEvalMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Eval mode (compute best moves)'**
+  String get boardNvsEvalMode;
+
+  /// No description provided for @boardNvsStockfishDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Stockfish depth D1–D18'**
+  String get boardNvsStockfishDepth;
+
+  /// No description provided for @boardNvsLedBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Show LED rewards (best move)'**
+  String get boardNvsLedBest;
+
+  /// No description provided for @boardNvsLedGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Show LED rewards (good move)'**
+  String get boardNvsLedGood;
+
+  /// No description provided for @boardNvsLedCapture.
+  ///
+  /// In en, this message translates to:
+  /// **'Show LED rewards (capture)'**
+  String get boardNvsLedCapture;
+
+  /// No description provided for @boardNvsUartStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Print hint stats to UART'**
+  String get boardNvsUartStats;
+
+  /// No description provided for @boardNvsLiftBeforeBotTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot target LED only after lift'**
+  String get boardNvsLiftBeforeBotTarget;
+
+  /// No description provided for @boardNvsTutorialMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Tutorial mode enabled'**
+  String get boardNvsTutorialMode;
+
+  /// No description provided for @boardNvsConfirmNewGameLed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new game with LED button'**
+  String get boardNvsConfirmNewGameLed;
+
+  /// No description provided for @boardNvsHintLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint limit (0 = unlimited)'**
+  String get boardNvsHintLimit;
+
+  /// No description provided for @boardNvsHintTierTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint type (MoveHintTier)'**
+  String get boardNvsHintTierTitle;
+
+  /// No description provided for @boardNvsHintTierSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'H1 = best only, H2 = top 3, H3 = full Stockfish set'**
+  String get boardNvsHintTierSubtitle;
+
+  /// No description provided for @boardNvsH1.
+  ///
+  /// In en, this message translates to:
+  /// **'H1 – Best'**
+  String get boardNvsH1;
+
+  /// No description provided for @boardNvsH2.
+  ///
+  /// In en, this message translates to:
+  /// **'H2 – Top 3'**
+  String get boardNvsH2;
+
+  /// No description provided for @boardNvsH3.
+  ///
+  /// In en, this message translates to:
+  /// **'H3 – All'**
+  String get boardNvsH3;
+
+  /// No description provided for @boardNvsOpponentHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Opponent (bot) settings'**
+  String get boardNvsOpponentHeader;
+
+  /// No description provided for @boardNvsBotMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot mode'**
+  String get boardNvsBotMode;
+
+  /// No description provided for @boardNvsPvp.
+  ///
+  /// In en, this message translates to:
+  /// **'Player vs player (off)'**
+  String get boardNvsPvp;
+
+  /// No description provided for @boardNvsPvb.
+  ///
+  /// In en, this message translates to:
+  /// **'Player vs bot'**
+  String get boardNvsPvb;
+
+  /// No description provided for @boardNvsBotStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot strength (level)'**
+  String get boardNvsBotStrength;
+
+  /// No description provided for @boardNvsBotPlaysAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot plays as'**
+  String get boardNvsBotPlaysAs;
+
+  /// No description provided for @boardNvsDemoHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode'**
+  String get boardNvsDemoHeader;
+
+  /// No description provided for @boardNvsSaveToBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to board NVS'**
+  String get boardNvsSaveToBoard;
+
+  /// No description provided for @boardDemoStateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'On-board demo: {on}'**
+  String boardDemoStateLine(String on);
+
+  /// No description provided for @boardDemoOn.
+  ///
+  /// In en, this message translates to:
+  /// **'on'**
+  String get boardDemoOn;
+
+  /// No description provided for @boardDemoOff.
+  ///
+  /// In en, this message translates to:
+  /// **'off'**
+  String get boardDemoOff;
+
+  /// No description provided for @boardDemoEnabledConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo enabled (configuration)'**
+  String get boardDemoEnabledConfig;
+
+  /// No description provided for @boardDemoSpeedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Animation speed: {ms} ms'**
+  String boardDemoSpeedLabel(String ms);
+
+  /// No description provided for @boardDemoSendConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Send demo config'**
+  String get boardDemoSendConfig;
+
+  /// No description provided for @boardDemoStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start demo'**
+  String get boardDemoStart;
+
+  /// No description provided for @boardLedSentSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'LED guidance sent.'**
+  String get boardLedSentSnack;
+
+  /// No description provided for @boardLedGuidanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LED guidance (level {level} / 5)'**
+  String boardLedGuidanceTitle(String level);
+
+  /// No description provided for @boardLedSendLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Send LED level'**
+  String get boardLedSendLevel;
+
+  /// No description provided for @boardGuidedCaptureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided captures'**
+  String get boardGuidedCaptureTitle;
+
+  /// No description provided for @boardGuidedCaptureSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LED highlight possible captures.'**
+  String get boardGuidedCaptureSubtitle;
+
+  /// No description provided for @lampBoardLightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board light'**
+  String get lampBoardLightTitle;
+
+  /// No description provided for @lampDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lamp — detail'**
+  String get lampDetailTitle;
+
+  /// No description provided for @lampDetailsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Lamp details'**
+  String get lampDetailsButton;
+
+  /// No description provided for @lampHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Lamp'**
+  String get lampHeader;
+
+  /// No description provided for @lampNeedsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Requires board connection (Wi‑Fi or Bluetooth).'**
+  String get lampNeedsConnection;
+
+  /// No description provided for @lampOnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lamp on'**
+  String get lampOnTitle;
+
+  /// No description provided for @lampBrightnessLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness {n}%'**
+  String lampBrightnessLabel(String n);
+
+  /// No description provided for @lampSendBrightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Send brightness'**
+  String get lampSendBrightness;
+
+  /// No description provided for @lampBrightnessSentSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness sent to the board.'**
+  String get lampBrightnessSentSnack;
+
+  /// No description provided for @lampColorStateSentSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Color and lamp state sent.'**
+  String get lampColorStateSentSnack;
+
+  /// No description provided for @lampGenericCommandSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Lamp command sent.'**
+  String get lampGenericCommandSnack;
+
+  /// No description provided for @lampBlockStatusSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode: {mode} · RGB({r},{g},{b}) · hint limit: {h} · auto-off: {t}s'**
+  String lampBlockStatusSummary(
+      Object b, Object g, Object h, Object mode, Object r, Object t);
+
+  /// No description provided for @lampRgbHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Color (R G B) — POST /api/light/command'**
+  String get lampRgbHint;
+
+  /// No description provided for @lampSendColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Send color / lamp state'**
+  String get lampSendColor;
+
+  /// No description provided for @lampGameModeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Game lamp mode'**
+  String get lampGameModeButton;
+
+  /// No description provided for @lampColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get lampColorLabel;
+
+  /// No description provided for @lampColorfulnessLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Colorfulness'**
+  String get lampColorfulnessLabel;
+
+  /// No description provided for @lampLedBrightnessPct.
+  ///
+  /// In en, this message translates to:
+  /// **'LED brightness (%)'**
+  String get lampLedBrightnessPct;
+
+  /// No description provided for @lampStudioColorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get lampStudioColorTitle;
+
+  /// No description provided for @lampStudioColorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap or drag — hue and saturation (center = white).'**
+  String get lampStudioColorHint;
+
+  /// No description provided for @lampStudioValueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Color lightness'**
+  String get lampStudioValueTitle;
+
+  /// No description provided for @lampStudioBoardPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Board preview'**
+  String get lampStudioBoardPreview;
+
+  /// No description provided for @lampStudioPreviewGlowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Light spill preview'**
+  String get lampStudioPreviewGlowHint;
+
+  /// No description provided for @lampStudioPreviewLampOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Lamp off'**
+  String get lampStudioPreviewLampOff;
+
+  /// No description provided for @lampStudioScenes.
+  ///
+  /// In en, this message translates to:
+  /// **'Scenes'**
+  String get lampStudioScenes;
+
+  /// No description provided for @lampStudioApplyToBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to board'**
+  String get lampStudioApplyToBoard;
+
+  /// No description provided for @lampStudioGameMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Game mode'**
+  String get lampStudioGameMode;
+
+  /// No description provided for @lampStudioAppliedOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Color and brightness sent to the board.'**
+  String get lampStudioAppliedOk;
+
+  /// No description provided for @lampStudioGameModeOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Game lamp mode applied.'**
+  String get lampStudioGameModeOk;
+
+  /// No description provided for @lampStudioNeedConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect the board via Wi‑Fi or Bluetooth to control the lamp.'**
+  String get lampStudioNeedConnection;
+
+  /// No description provided for @lampStudioAutoOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto shut-off'**
+  String get lampStudioAutoOff;
+
+  /// No description provided for @lampStudioSaveTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Save timer'**
+  String get lampStudioSaveTimer;
+
+  /// No description provided for @lampStudioTimerSavedOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto shut-off timer saved.'**
+  String get lampStudioTimerSavedOk;
+
+  /// No description provided for @lampStudioRgbLine.
+  ///
+  /// In en, this message translates to:
+  /// **'RGB ({r}, {g}, {b})'**
+  String lampStudioRgbLine(int r, int g, int b);
+
+  /// No description provided for @lampPresetWarmWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm white'**
+  String get lampPresetWarmWhite;
+
+  /// No description provided for @lampPresetCoolWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Cool white'**
+  String get lampPresetCoolWhite;
+
+  /// No description provided for @lampPresetCalmBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm blue'**
+  String get lampPresetCalmBlue;
+
+  /// No description provided for @lampPresetForestGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Forest green'**
+  String get lampPresetForestGreen;
+
+  /// No description provided for @lampPresetWarmth.
+  ///
+  /// In en, this message translates to:
+  /// **'Warmth'**
+  String get lampPresetWarmth;
+
+  /// No description provided for @lampPresetPurpleScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple scene'**
+  String get lampPresetPurpleScene;
+
+  /// No description provided for @lampPresetRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get lampPresetRed;
+
+  /// No description provided for @lampPresetAmber.
+  ///
+  /// In en, this message translates to:
+  /// **'Amber'**
+  String get lampPresetAmber;
+
+  /// No description provided for @puzzleTabDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get puzzleTabDaily;
+
+  /// No description provided for @puzzleTabLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get puzzleTabLibrary;
+
+  /// No description provided for @puzzleTabTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get puzzleTabTraining;
+
+  /// No description provided for @puzzleBackLiveTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to live game'**
+  String get puzzleBackLiveTooltip;
+
+  /// No description provided for @puzzlePoolEmptySnack.
+  ///
+  /// In en, this message translates to:
+  /// **'No positions in this pool mode — switch to Mixed or add library items.'**
+  String get puzzlePoolEmptySnack;
+
+  /// No description provided for @puzzleLibraryEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No items yet — use the form above or Add from the daily puzzle.'**
+  String get puzzleLibraryEmptyHint;
+
+  /// No description provided for @puzzleLoadDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Load daily puzzle'**
+  String get puzzleLoadDaily;
+
+  /// No description provided for @puzzleRefreshDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh daily puzzle'**
+  String get puzzleRefreshDaily;
+
+  /// No description provided for @puzzleAlreadyInLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in library'**
+  String get puzzleAlreadyInLibrary;
+
+  /// No description provided for @puzzleSavedToLibraryBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to library.'**
+  String get puzzleSavedToLibraryBanner;
+
+  /// No description provided for @puzzleLibNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get puzzleLibNameLabel;
+
+  /// No description provided for @puzzleLibFenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'FEN'**
+  String get puzzleLibFenLabel;
+
+  /// No description provided for @puzzleGoPlaySandbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Sandbox — Play tab.'**
+  String get puzzleGoPlaySandbox;
+
+  /// No description provided for @puzzleGoPlayPuzzle.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle ({title}) — Play tab.'**
+  String puzzleGoPlayPuzzle(String title);
+
+  /// No description provided for @puzzleSideBlackMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Black to move'**
+  String get puzzleSideBlackMove;
+
+  /// No description provided for @puzzleSideWhiteMove.
+  ///
+  /// In en, this message translates to:
+  /// **'White to move'**
+  String get puzzleSideWhiteMove;
+
+  /// No description provided for @puzzleSideUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Side to move: ?'**
+  String get puzzleSideUnknown;
+
+  /// No description provided for @puzzleTrainingPoolStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{poolN} positions · {sessions} rounds started'**
+  String puzzleTrainingPoolStats(int poolN, int sessions);
+
+  /// No description provided for @puzzleThemeMateIn1.
+  ///
+  /// In en, this message translates to:
+  /// **'Mate in 1'**
+  String get puzzleThemeMateIn1;
+
+  /// No description provided for @puzzleThemeAdvancedPawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced pawn'**
+  String get puzzleThemeAdvancedPawn;
+
+  /// No description provided for @puzzleThemeOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening'**
+  String get puzzleThemeOpening;
+
+  /// No description provided for @puzzleThemeKingsideAttack.
+  ///
+  /// In en, this message translates to:
+  /// **'Kingside attack'**
+  String get puzzleThemeKingsideAttack;
+
+  /// No description provided for @puzzleThemeMiddlegame.
+  ///
+  /// In en, this message translates to:
+  /// **'Middlegame'**
+  String get puzzleThemeMiddlegame;
+
+  /// No description provided for @puzzleThemeTactic.
+  ///
+  /// In en, this message translates to:
+  /// **'Tactics'**
+  String get puzzleThemeTactic;
+
+  /// No description provided for @setupWizardErrMissingFen.
+  ///
+  /// In en, this message translates to:
+  /// **'FEN is missing.'**
+  String get setupWizardErrMissingFen;
+
+  /// No description provided for @setupWizardErrConnectBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect the board via Wi‑Fi or Bluetooth (demo mode does not support this tutorial).'**
+  String get setupWizardErrConnectBoard;
+
+  /// No description provided for @setupWizardErrNoSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not build steps from this FEN.'**
+  String get setupWizardErrNoSteps;
+
+  /// No description provided for @setupWizardErrGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get setupWizardErrGeneric;
+
+  /// No description provided for @setupWizardTitleStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting position'**
+  String get setupWizardTitleStandard;
+
+  /// No description provided for @setupWizardTitleFromFen.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup from FEN'**
+  String get setupWizardTitleFromFen;
+
+  /// No description provided for @setupWizardDoneStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'The board confirmed the starting position.'**
+  String get setupWizardDoneStandard;
+
+  /// No description provided for @setupWizardDoneFenLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'The position was loaded on the board.'**
+  String get setupWizardDoneFenLoaded;
+
+  /// No description provided for @setupWizardDoneNoLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Wizard finished.'**
+  String get setupWizardDoneNoLoad;
+
+  /// No description provided for @setupWizardBtnDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get setupWizardBtnDone;
+
+  /// No description provided for @setupWizardStepProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} / {total}'**
+  String setupWizardStepProgress(int current, int total);
+
+  /// No description provided for @setupWizardPlacePieceOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Place the piece on {square}'**
+  String setupWizardPlacePieceOn(String square);
+
+  /// No description provided for @setupWizardPieceDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{pieceName} → {square}'**
+  String setupWizardPieceDetail(String pieceName, String square);
+
+  /// No description provided for @setupWizardLedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The board LED shows the target square. Progress is confirmed by the matrix sensor or the correct piece in the snapshot.'**
+  String get setupWizardLedHint;
+
+  /// No description provided for @setupWizardSkipStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip step'**
+  String get setupWizardSkipStep;
+
+  /// No description provided for @boardSetupWhiteKing.
+  ///
+  /// In en, this message translates to:
+  /// **'white king'**
+  String get boardSetupWhiteKing;
+
+  /// No description provided for @boardSetupBlackKing.
+  ///
+  /// In en, this message translates to:
+  /// **'black king'**
+  String get boardSetupBlackKing;
+
+  /// No description provided for @boardSetupWhiteQueen.
+  ///
+  /// In en, this message translates to:
+  /// **'white queen'**
+  String get boardSetupWhiteQueen;
+
+  /// No description provided for @boardSetupBlackQueen.
+  ///
+  /// In en, this message translates to:
+  /// **'black queen'**
+  String get boardSetupBlackQueen;
+
+  /// No description provided for @boardSetupWhiteRook.
+  ///
+  /// In en, this message translates to:
+  /// **'white rook'**
+  String get boardSetupWhiteRook;
+
+  /// No description provided for @boardSetupBlackRook.
+  ///
+  /// In en, this message translates to:
+  /// **'black rook'**
+  String get boardSetupBlackRook;
+
+  /// No description provided for @boardSetupWhiteBishop.
+  ///
+  /// In en, this message translates to:
+  /// **'white bishop'**
+  String get boardSetupWhiteBishop;
+
+  /// No description provided for @boardSetupBlackBishop.
+  ///
+  /// In en, this message translates to:
+  /// **'black bishop'**
+  String get boardSetupBlackBishop;
+
+  /// No description provided for @boardSetupWhiteKnight.
+  ///
+  /// In en, this message translates to:
+  /// **'white knight'**
+  String get boardSetupWhiteKnight;
+
+  /// No description provided for @boardSetupBlackKnight.
+  ///
+  /// In en, this message translates to:
+  /// **'black knight'**
+  String get boardSetupBlackKnight;
+
+  /// No description provided for @boardSetupWhitePawn.
+  ///
+  /// In en, this message translates to:
+  /// **'white pawn'**
+  String get boardSetupWhitePawn;
+
+  /// No description provided for @boardSetupBlackPawn.
+  ///
+  /// In en, this message translates to:
+  /// **'black pawn'**
+  String get boardSetupBlackPawn;
+
+  /// No description provided for @boardSetupPieceGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'piece'**
+  String get boardSetupPieceGeneric;
+
+  /// No description provided for @gameRemoteEmptySquareSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no piece on this square.'**
+  String get gameRemoteEmptySquareSnack;
+
+  /// No description provided for @gameRemoteEmptySquareHud.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty square'**
+  String get gameRemoteEmptySquareHud;
+
+  /// No description provided for @gameRemoteWrongTurnSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a piece of the side that is on move.'**
+  String get gameRemoteWrongTurnSnack;
+
+  /// No description provided for @gameRemoteWrongTurnHud.
+  ///
+  /// In en, this message translates to:
+  /// **'Not your turn'**
+  String get gameRemoteWrongTurnHud;
+
+  /// No description provided for @gamePromotionPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotion — choose a piece'**
+  String get gamePromotionPickTitle;
+
+  /// No description provided for @gamePromotionQueen.
+  ///
+  /// In en, this message translates to:
+  /// **'Queen'**
+  String get gamePromotionQueen;
+
+  /// No description provided for @gamePromotionRook.
+  ///
+  /// In en, this message translates to:
+  /// **'Rook'**
+  String get gamePromotionRook;
+
+  /// No description provided for @gamePromotionBishop.
+  ///
+  /// In en, this message translates to:
+  /// **'Bishop'**
+  String get gamePromotionBishop;
+
+  /// No description provided for @gamePromotionKnight.
+  ///
+  /// In en, this message translates to:
+  /// **'Knight'**
+  String get gamePromotionKnight;
+
+  /// No description provided for @gamePromotionFailedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotion failed'**
+  String get gamePromotionFailedSnack;
+
+  /// No description provided for @semanticsChessBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Chessboard, eight by eight squares. Tap to select squares.'**
+  String get semanticsChessBoard;
+
+  /// No description provided for @moveHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Move history is empty yet.'**
+  String get moveHistoryEmpty;
+
+  /// No description provided for @moveHistoryPieceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Piece: {piece}'**
+  String moveHistoryPieceSubtitle(String piece);
+
+  /// No description provided for @bundledPuzzleMateQg8Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Queen mate'**
+  String get bundledPuzzleMateQg8Title;
+
+  /// No description provided for @bundledPuzzleMateQg8Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'White · mate in 1'**
+  String get bundledPuzzleMateQg8Subtitle;
+
+  /// No description provided for @bundledPuzzleBackRankTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Back rank'**
+  String get bundledPuzzleBackRankTitle;
+
+  /// No description provided for @bundledPuzzleBackRankSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'White · rook mate'**
+  String get bundledPuzzleBackRankSubtitle;
+
+  /// No description provided for @bundledPuzzleRookCornerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rook vs king'**
+  String get bundledPuzzleRookCornerTitle;
+
+  /// No description provided for @bundledPuzzleRookCornerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'White · endgame'**
+  String get bundledPuzzleRookCornerSubtitle;
+
+  /// No description provided for @bundledPuzzleBlackMateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Black to move'**
+  String get bundledPuzzleBlackMateTitle;
+
+  /// No description provided for @bundledPuzzleBlackMateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Black · mate in 1'**
+  String get bundledPuzzleBlackMateSubtitle;
+
+  /// No description provided for @bundledPuzzlePromotionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pawn advance'**
+  String get bundledPuzzlePromotionTitle;
+
+  /// No description provided for @bundledPuzzlePromotionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'White · promotion'**
+  String get bundledPuzzlePromotionSubtitle;
+
+  /// No description provided for @bundledPuzzleTwoRooksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Two rooks'**
+  String get bundledPuzzleTwoRooksTitle;
+
+  /// No description provided for @bundledPuzzleTwoRooksSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'White · two rooks'**
+  String get bundledPuzzleTwoRooksSubtitle;
+
+  /// No description provided for @settingsTileSmartHomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart home (MQTT)'**
+  String get settingsTileSmartHomeTitle;
+
+  /// No description provided for @settingsTileSmartHomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home Assistant & MQTT'**
+  String get settingsTileSmartHomeSubtitle;
+
+  /// No description provided for @settingsHaMqttOpenButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Home Assistant & MQTT (guide + form)'**
+  String get settingsHaMqttOpenButton;
+
+  /// No description provided for @settingsTileBoardLightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board light'**
+  String get settingsTileBoardLightTitle;
+
+  /// No description provided for @settingsTileBoardLightSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Color, brightness, scenes, auto-off'**
+  String get settingsTileBoardLightSubtitle;
+
+  /// No description provided for @settingsTileModulesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Modules & learning'**
+  String get settingsTileModulesTitle;
+
+  /// No description provided for @settingsTileModulesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tour, puzzles, profile, progress, help'**
+  String get settingsTileModulesSubtitle;
+
+  /// No description provided for @settingsNavAppTour.
+  ///
+  /// In en, this message translates to:
+  /// **'App tour (onboarding)'**
+  String get settingsNavAppTour;
+
+  /// No description provided for @settingsNavChessPuzzles.
+  ///
+  /// In en, this message translates to:
+  /// **'Chess puzzles'**
+  String get settingsNavChessPuzzles;
+
+  /// No description provided for @settingsNavProfileElo.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile & puzzle Elo'**
+  String get settingsNavProfileElo;
+
+  /// No description provided for @settingsNavProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress (learning & stats)'**
+  String get settingsNavProgress;
+
+  /// No description provided for @settingsNavHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get settingsNavHelp;
+
+  /// No description provided for @settingsTileNvsDiagTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board memory & diagnostics'**
+  String get settingsTileNvsDiagTitle;
+
+  /// No description provided for @settingsTileNvsDiagSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NVS rules, developer tools'**
+  String get settingsTileNvsDiagSubtitle;
+
+  /// No description provided for @settingsNavBoardNvs.
+  ///
+  /// In en, this message translates to:
+  /// **'Board NVS rules (LED, bot)'**
+  String get settingsNavBoardNvs;
+
+  /// No description provided for @settingsNavDeveloperDiag.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer diagnostics'**
+  String get settingsNavDeveloperDiag;
+
+  /// No description provided for @settingsTileAboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsTileAboutTitle;
+
+  /// No description provided for @settingsTileAboutSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Version, privacy, system'**
+  String get settingsTileAboutSubtitle;
+
+  /// No description provided for @settingsAboutVersionLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading version…'**
+  String get settingsAboutVersionLoading;
+
+  /// No description provided for @settingsAboutVersionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} ({build}) • Tap “Settings” in the title bar 7× to unlock developer mode.'**
+  String settingsAboutVersionLine(String version, String build);
+
+  /// No description provided for @settingsPrivacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get settingsPrivacyTitle;
+
+  /// No description provided for @settingsPrivacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This build does not send analytics. Traffic goes only to your board on the local network or over Bluetooth.'**
+  String get settingsPrivacyBody;
+
+  /// No description provided for @settingsIcloudTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'iCloud'**
+  String get settingsIcloudTitle;
+
+  /// No description provided for @settingsIcloudBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional puzzle sync via iCloud (CloudKit) is planned for a future release; this build does not sync.'**
+  String get settingsIcloudBody;
+
+  /// No description provided for @settingsLiveActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock status outside the app'**
+  String get settingsLiveActivityTitle;
+
+  /// No description provided for @settingsLiveActivitySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: ongoing notification (Android 13+ may require enabling notifications). Enable from the game screen.'**
+  String get settingsLiveActivitySubtitle;
+
+  /// No description provided for @settingsLiveActivityIosDisabledSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Activities are disabled system-wide. Enable them in Settings → czechmate → Live Activities.'**
+  String get settingsLiveActivityIosDisabledSnack;
+
+  /// No description provided for @settingsWearMirrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mirror clock on Wear OS'**
+  String get settingsWearMirrorTitle;
+
+  /// No description provided for @settingsWearMirrorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Data Layer — same state as the ongoing notification; requires a paired Wear OS watch.'**
+  String get settingsWearMirrorSubtitle;
+
+  /// No description provided for @settingsWatchMirrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mirror clock on Apple Watch'**
+  String get settingsWatchMirrorTitle;
+
+  /// No description provided for @settingsWatchMirrorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WatchConnectivity — same state as Live Activity; basic UI on the watch with Pause/Resume.'**
+  String get settingsWatchMirrorSubtitle;
+
+  /// No description provided for @settingsFactoryTileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board factory reset'**
+  String get settingsFactoryTileTitle;
+
+  /// No description provided for @settingsFactoryTileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clears ESP NVS — device becomes access point'**
+  String get settingsFactoryTileSubtitle;
+
+  /// No description provided for @settingsFactoryDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Factory reset'**
+  String get settingsFactoryDialogTitle;
+
+  /// No description provided for @settingsFactoryDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase all board NVS (Wi‑Fi, passwords, MQTT, preferences)? The device will restart as a Wi‑Fi access point.'**
+  String get settingsFactoryDialogBody;
+
+  /// No description provided for @settingsFactoryErase.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase'**
+  String get settingsFactoryErase;
+
+  /// No description provided for @settingsFactoryCommandSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Command sent.'**
+  String get settingsFactoryCommandSent;
+
+  /// No description provided for @settingsFactoryError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String settingsFactoryError(String error);
+
+  /// No description provided for @settingsFactoryRunButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Run board factory reset'**
+  String get settingsFactoryRunButton;
+
+  /// No description provided for @settingsCoachOllamaUrlHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a URL ending with /v1 (e.g. :11434/v1). Port 11434 without /v1 used to fail — the app now appends /v1 for 11434.'**
+  String get settingsCoachOllamaUrlHelper;
+
+  /// No description provided for @settingsCoachOpenAiBaseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenAI API base'**
+  String get settingsCoachOpenAiBaseLabel;
+
+  /// No description provided for @settingsCoachModelNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model name'**
+  String get settingsCoachModelNameLabel;
+
+  /// No description provided for @settingsCoachEnterGeminiModelSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a Google AI model id (or pick a preset).'**
+  String get settingsCoachEnterGeminiModelSnack;
+
+  /// No description provided for @settingsCoachSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach settings saved.'**
+  String get settingsCoachSavedSnack;
+
+  /// No description provided for @settingsCoachSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save coach settings'**
+  String get settingsCoachSaveButton;
+
+  /// No description provided for @settingsCoachGoogleKeyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Google AI key'**
+  String get settingsCoachGoogleKeyButton;
+
+  /// No description provided for @settingsCoachGroqConsoleButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Groq console'**
+  String get settingsCoachGroqConsoleButton;
+
+  /// No description provided for @settingsCoachXaiConsoleButton.
+  ///
+  /// In en, this message translates to:
+  /// **'xAI console'**
+  String get settingsCoachXaiConsoleButton;
+
+  /// No description provided for @boardNvsRefreshTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh from board'**
+  String get boardNvsRefreshTooltip;
+
+  /// No description provided for @boardNvsFetchFailedFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load data from the board. Tap ↻ to retry.'**
+  String get boardNvsFetchFailedFallback;
+
+  /// No description provided for @boardNvsMergeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When saving, the app merges Stockfish depth ({depth}) and move-eval toggle ({eval}) into the NVS payload (same as iOS).'**
+  String boardNvsMergeHint(String depth, String eval);
+
+  /// No description provided for @boardNvsEvalOn.
+  ///
+  /// In en, this message translates to:
+  /// **'on'**
+  String get boardNvsEvalOn;
+
+  /// No description provided for @boardNvsEvalOff.
+  ///
+  /// In en, this message translates to:
+  /// **'off'**
+  String get boardNvsEvalOff;
+
+  /// No description provided for @boardNvsHintTierFootnote.
+  ///
+  /// In en, this message translates to:
+  /// **'H1–H3 in the phone app is separate from on-board LED level; POST above also forwards depth/eval from app diagnostics.'**
+  String get boardNvsHintTierFootnote;
+
+  /// No description provided for @boardNvsFooterMock.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo board: NVS write does not reach real hardware.'**
+  String get boardNvsFooterMock;
+
+  /// No description provided for @boardNvsFooterWifiActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi session active — Save sends bot settings to ESP NVS.'**
+  String get boardNvsFooterWifiActive;
+
+  /// No description provided for @boardNvsFooterBle.
+  ///
+  /// In en, this message translates to:
+  /// **'BLE: firmware may accept NVS/UI blob; verify status on the board web UI.'**
+  String get boardNvsFooterBle;
+
+  /// No description provided for @boardNvsFooterGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'For reliable bot NVS writes, connect the board (Wi‑Fi recommended).'**
+  String get boardNvsFooterGeneric;
+
+  /// No description provided for @boardNvsHttpBleExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is connected, but loading NVS from this screen uses HTTP. Save a valid board URL in Settings (STA IP, e.g. http://192.168.x.x), or activate a Wi‑Fi session to that IP.'**
+  String get boardNvsHttpBleExplain;
+
+  /// No description provided for @boardNvsHttpWifiNoUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi session without a valid base URL. Reconnect from Play → board manager.'**
+  String get boardNvsHttpWifiNoUrl;
+
+  /// No description provided for @boardNvsHttpMissingUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing valid board HTTP URL. In Settings fill “Default board URL” (full http://…) and try again (↻).'**
+  String get boardNvsHttpMissingUrl;
+
+  /// No description provided for @boardHttpMissingUrlBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The board HTTP address is missing or invalid. In Settings, save a full URL (e.g. http://192.168.4.1 or your board STA IP). Bluetooth can still work without this URL for live play.'**
+  String get boardHttpMissingUrlBody;
+
+  /// No description provided for @boardHttpFailBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is connected, but the HTTP request failed (wrong URL, timeout, or web lock).'**
+  String get boardHttpFailBle;
+
+  /// No description provided for @boardHttpFailWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi session active — verify the board URL and that the board responds.'**
+  String get boardHttpFailWifi;
+
+  /// No description provided for @boardHttpFailMock.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo board — HTTP to hardware does not apply.'**
+  String get boardHttpFailMock;
+
+  /// No description provided for @boardHttpFailNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No active connection to the board.'**
+  String get boardHttpFailNone;
+
+  /// No description provided for @boardHttpFailDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{link} Detail: {detail}'**
+  String boardHttpFailDetail(String link, String detail);
+
+  /// No description provided for @boardHttpErrGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Board communication error: {error}'**
+  String boardHttpErrGeneric(String error);
+
+  /// No description provided for @progressSegmentBeg.
+  ///
+  /// In en, this message translates to:
+  /// **'Beg.'**
+  String get progressSegmentBeg;
+
+  /// No description provided for @progressSegmentInt.
+  ///
+  /// In en, this message translates to:
+  /// **'Int.'**
+  String get progressSegmentInt;
+
+  /// No description provided for @progressSegmentAdv.
+  ///
+  /// In en, this message translates to:
+  /// **'Adv.'**
+  String get progressSegmentAdv;
+
+  /// No description provided for @progressSegmentExp.
+  ///
+  /// In en, this message translates to:
+  /// **'Exp.'**
+  String get progressSegmentExp;
+
+  /// No description provided for @progressLearningModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning mode'**
+  String get progressLearningModeTitle;
+
+  /// No description provided for @progressCoachLevelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach level'**
+  String get progressCoachLevelTitle;
+
+  /// No description provided for @progressTransportActiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active transport'**
+  String get progressTransportActiveTitle;
+
+  /// No description provided for @progressNoSessionYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No active session yet'**
+  String get progressNoSessionYet;
+
+  /// No description provided for @progressLevelBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner'**
+  String get progressLevelBeginner;
+
+  /// No description provided for @progressLevelIntermediate.
+  ///
+  /// In en, this message translates to:
+  /// **'Intermediate'**
+  String get progressLevelIntermediate;
+
+  /// No description provided for @progressLevelAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get progressLevelAdvanced;
+
+  /// No description provided for @progressLevelExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Expert'**
+  String get progressLevelExpert;
+
+  /// No description provided for @progressLevelNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {n}'**
+  String progressLevelNumber(int n);
+
+  /// No description provided for @analysisIntroEvalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Move evaluation and chart — chess-api or custom URL in Settings (developer).'**
+  String get analysisIntroEvalHint;
+
+  /// No description provided for @analysisHalfMoveOrderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each row is one half-move in order — white first, then black.'**
+  String get analysisHalfMoveOrderHint;
+
+  /// No description provided for @analysisNoBoardPositionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'On the Play tab, connect the chessboard. Below you can analyze a custom FEN.'**
+  String get analysisNoBoardPositionHint;
+
+  /// No description provided for @analysisChartDisabledBoardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on the switch below or in Settings → Board appearance.'**
+  String get analysisChartDisabledBoardSubtitle;
+
+  /// No description provided for @analysisOverviewSubtitleEval.
+  ///
+  /// In en, this message translates to:
+  /// **'Position eval after each move (White perspective: + favors White)'**
+  String get analysisOverviewSubtitleEval;
+
+  /// No description provided for @analysisChartFillHintLiveEvalOn.
+  ///
+  /// In en, this message translates to:
+  /// **'The chart fills after moves once Stockfish evaluates (play on Play with internet).'**
+  String get analysisChartFillHintLiveEvalOn;
+
+  /// No description provided for @analysisChartFillHintLiveEvalOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on automatic evaluation to see the curve here.'**
+  String get analysisChartFillHintLiveEvalOff;
+
+  /// No description provided for @analysisClearEvalData.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear chart and saved move evaluations'**
+  String get analysisClearEvalData;
+
+  /// No description provided for @analysisMoveQualitySideLast3.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 moves by side'**
+  String get analysisMoveQualitySideLast3;
+
+  /// No description provided for @analysisMoveQualitySideLast10.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 10 moves by side'**
+  String get analysisMoveQualitySideLast10;
+
+  /// No description provided for @analysisMoveQualityFullGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Full game'**
+  String get analysisMoveQualityFullGame;
+
+  /// No description provided for @analysisSecondLineComputing.
+  ///
+  /// In en, this message translates to:
+  /// **'Computing…'**
+  String get analysisSecondLineComputing;
+
+  /// No description provided for @analysisSecondLineLoadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Load second line (from session FEN)'**
+  String get analysisSecondLineLoadButton;
+
+  /// No description provided for @analysisSecondLineSameMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Both depths agree on {from}→{to}.'**
+  String analysisSecondLineSameMove(String from, String to);
+
+  /// No description provided for @analysisSecondLineEvalApprox.
+  ///
+  /// In en, this message translates to:
+  /// **' · eval ≈ {pawns} pawns.'**
+  String analysisSecondLineEvalApprox(String pawns);
+
+  /// No description provided for @analysisFreeAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Computing…'**
+  String get analysisFreeAnalyzing;
+
+  /// No description provided for @analysisBestMoveLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Best move: {from}–{to}{evalSuffix}{extra}'**
+  String analysisBestMoveLine(
+      String from, String to, String evalSuffix, String extra);
+
+  /// No description provided for @analysisQualitySummaryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{quality}{avgCp} · {count} moves'**
+  String analysisQualitySummaryLine(String quality, String avgCp, int count);
+
+  /// No description provided for @analysisAvgLossCp.
+  ///
+  /// In en, this message translates to:
+  /// **' · avg loss {cp} cp'**
+  String analysisAvgLossCp(String cp);
+
+  /// No description provided for @gameSandboxLoadPositionFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Load a position first (connect the board or use demo).'**
+  String get gameSandboxLoadPositionFirst;
+
+  /// No description provided for @gameSandboxSelectPiece.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a piece'**
+  String get gameSandboxSelectPiece;
+
+  /// No description provided for @gameSandboxWrongSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Not this side to move'**
+  String get gameSandboxWrongSide;
+
+  /// No description provided for @gameSandboxIllegalMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Illegal move'**
+  String get gameSandboxIllegalMove;
+
+  /// No description provided for @gameSandboxIllegalMoveSandbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Illegal move (sandbox)'**
+  String get gameSandboxIllegalMoveSandbox;
+
+  /// No description provided for @gameSandboxCouldNotLoadFen.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load FEN.'**
+  String get gameSandboxCouldNotLoadFen;
+
+  /// No description provided for @gameSandboxPositionRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Position restored — try again.'**
+  String get gameSandboxPositionRestored;
+
+  /// No description provided for @puzzleSuccessLineWithElo.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice! Correct line · +{delta} Elo'**
+  String puzzleSuccessLineWithElo(int delta);
+
+  /// No description provided for @puzzleSuccessLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice! Correct line.'**
+  String get puzzleSuccessLine;
+
+  /// No description provided for @puzzleWrongResetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Not the solution — resetting the position.'**
+  String get puzzleWrongResetting;
+
+  /// No description provided for @gameControlWhiteBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'White bottom'**
+  String get gameControlWhiteBottom;
+
+  /// No description provided for @gameControlBlackBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Black bottom'**
+  String get gameControlBlackBottom;
+
+  /// No description provided for @gameControlCoordsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Coords on'**
+  String get gameControlCoordsOn;
+
+  /// No description provided for @gameControlCoordsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Coords off'**
+  String get gameControlCoordsOff;
+
+  /// No description provided for @gameControlBoardSizeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Board size: Settings → Board appearance.'**
+  String get gameControlBoardSizeHint;
+
+  /// No description provided for @gameControlMoveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Move hint'**
+  String get gameControlMoveHint;
+
+  /// No description provided for @gameControlPanelSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Display · Mode · Actions'**
+  String get gameControlPanelSubtitle;
+
+  /// No description provided for @gameControlLearningCloudHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud coach in the app; on-board Stockfish drives hint LEDs per NVS.'**
+  String get gameControlLearningCloudHint;
+
+  /// No description provided for @gameRemoteMovesWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Double-tap squares to send the move to the board over Wi‑Fi.'**
+  String get gameRemoteMovesWifi;
+
+  /// No description provided for @gameRemoteMovesBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Double-tap squares to send the move over Bluetooth.'**
+  String get gameRemoteMovesBle;
+
+  /// No description provided for @gameRemoteMovesMock.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo: double-tap sends the move locally (board + clock simulation).'**
+  String get gameRemoteMovesMock;
+
+  /// No description provided for @gameRemoteMovesNoBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled, but no board connected. Connect via Bluetooth.'**
+  String get gameRemoteMovesNoBoard;
+
+  /// No description provided for @gameRemoteMovesConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled — connect a board over Wi‑Fi or Bluetooth to send moves.'**
+  String get gameRemoteMovesConnect;
+
+  /// No description provided for @gameBoardRefreshedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Board state refreshed'**
+  String get gameBoardRefreshedSnack;
+
+  /// No description provided for @gameDemoSnapshotReloadedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo snapshot reloaded'**
+  String get gameDemoSnapshotReloadedSnack;
+
+  /// No description provided for @timerCenterGameOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Game over'**
+  String get timerCenterGameOver;
+
+  /// No description provided for @timerCenterRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get timerCenterRunning;
+
+  /// No description provided for @timerCenterStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get timerCenterStopped;
+
+  /// No description provided for @coachSetupBannerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your coach priority list is non-empty, but no provider has credentials yet. Open Settings → Coach & AI and fill API keys (or Ollama URL) for at least one listed provider.'**
+  String get coachSetupBannerBody;
+
+  /// No description provided for @coachErrorSomethingWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong: {error}'**
+  String coachErrorSomethingWrong(String error);
+
+  /// No description provided for @coachOfflineLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get coachOfflineLabel;
+
+  /// No description provided for @coachDisconnectedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Board not connected — the coach isn’t receiving the live game position.'**
+  String get coachDisconnectedBanner;
+
+  /// No description provided for @coachEmptyPromptEmbedded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about plans, tactics, or specific squares.'**
+  String get coachEmptyPromptEmbedded;
+
+  /// No description provided for @coachEmptyPromptFullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about the current position or chess in general.'**
+  String get coachEmptyPromptFullscreen;
+
+  /// No description provided for @coachInputHintEmbedded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the coach…'**
+  String get coachInputHintEmbedded;
+
+  /// No description provided for @coachInputHintFullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about position or plan…'**
+  String get coachInputHintFullscreen;
+
+  /// No description provided for @coachChainFailedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach any configured AI provider (see Settings → Coach & AI).'**
+  String get coachChainFailedBanner;
+
+  /// No description provided for @settingsLinkDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected'**
+  String get settingsLinkDisconnected;
+
+  /// No description provided for @settingsLinkConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get settingsLinkConnecting;
+
+  /// No description provided for @settingsLinkNoResponseYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No board response yet'**
+  String get settingsLinkNoResponseYet;
+
+  /// No description provided for @settingsLinkConnectedLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected (live)'**
+  String get settingsLinkConnectedLive;
+
+  /// No description provided for @settingsCoachSubtitleOfflineTips.
+  ///
+  /// In en, this message translates to:
+  /// **'Short on-device tips only (no cloud)'**
+  String get settingsCoachSubtitleOfflineTips;
 }
 
 class _AppLocalizationsDelegate

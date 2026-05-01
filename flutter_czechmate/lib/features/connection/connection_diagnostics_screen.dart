@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/localization/context_l10n.dart';
 import 'board_session_notifier.dart';
 
 /// Parita `AdvancedConnectionDiagnosticsView` — REST poll / WS souhrn.
@@ -9,49 +10,53 @@ class ConnectionDiagnosticsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final s = ref.watch(boardSessionNotifierProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Diagnostika připojení')),
+      appBar: AppBar(title: Text(l10n.connDiagTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           ListTile(
-            title: const Text('Transport'),
+            title: Text(l10n.connDiagTransport),
             subtitle: Text(s.transport.name),
           ),
           ListTile(
-            title: const Text('Wi‑Fi base URL'),
-            subtitle: Text(s.wifiBaseUrl ?? '—'),
+            title: Text(l10n.connDiagWifiBaseUrl),
+            subtitle: Text(s.wifiBaseUrl ?? l10n.transportShortDash),
           ),
           ListTile(
-            title: const Text('Polling'),
-            subtitle: Text(s.pollingActive ? 'aktivní' : 'vypnuto'),
+            title: Text(l10n.connDiagPolling),
+            subtitle: Text(
+                s.pollingActive ? l10n.connDiagActive : l10n.connDiagOff),
           ),
           ListTile(
-            title: const Text('WebSocket'),
-            subtitle: Text(s.webSocketActive ? 'aktivní' : 'vypnuto'),
+            title: Text(l10n.connDiagWebSocket),
+            subtitle: Text(
+                s.webSocketActive ? l10n.connDiagActive : l10n.connDiagOff),
           ),
           ListTile(
-            title: const Text('Úspěšné snapshot GET (včetně 304)'),
+            title: Text(l10n.connDiagPollSuccessTitle),
             subtitle: Text('${s.pollSuccessCount}'),
           ),
           ListTile(
-            title: const Text('Chybné GET / výjimky při poll'),
+            title: Text(l10n.connDiagPollFailureTitle),
             subtitle: Text('${s.pollFailureCount}'),
           ),
           ListTile(
-            title: const Text('WS zprávy (rámce)'),
+            title: Text(l10n.connDiagWsFramesTitle),
             subtitle: Text('${s.wsMessageCount}'),
           ),
           ListTile(
-            title: const Text('Poslední úspěšný poll'),
+            title: Text(l10n.connDiagLastPollOk),
             subtitle: Text(
-              s.lastSuccessfulPoll?.toIso8601String() ?? '—',
+              s.lastSuccessfulPoll?.toIso8601String() ??
+                  l10n.transportShortDash,
             ),
           ),
           if (s.lastError != null)
             ListTile(
-              title: const Text('Poslední chyba'),
+              title: Text(l10n.connDiagLastErrorTitle),
               subtitle: Text('${s.lastError}'),
               textColor: Theme.of(context).colorScheme.error,
             ),

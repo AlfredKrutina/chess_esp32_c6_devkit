@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/localization/context_l10n.dart';
 import '../connection/board_session_notifier.dart';
 import 'coach_chat_notifier.dart';
 
@@ -54,7 +55,7 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
     if (q.isEmpty) {
       if (!mounted || fromShortcut) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nejdřív napiš otázku, pak Odeslat.')),
+        SnackBar(content: Text(context.l10n.coachChatTypeFirst)),
       );
       return;
     }
@@ -83,6 +84,7 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
     final chat = ref.watch(coachChatProvider);
     final notifier = ref.read(coachChatProvider.notifier);
     final showSetup = notifier.shouldShowSetupBanner(prefs);
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -105,14 +107,14 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            CoachChatNotifier.setupBannerText(prefs),
+                            CoachChatNotifier.setupBannerText(l10n),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: notifier.dismissSetupBanner,
-                              child: const Text('Skrýt'),
+                              child: Text(l10n.coachChatHide),
                             ),
                           ),
                         ],
@@ -121,11 +123,11 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
                   ),
                 )
               : MaterialBanner(
-                  content: Text(CoachChatNotifier.setupBannerText(prefs)),
+                  content: Text(CoachChatNotifier.setupBannerText(l10n)),
                   actions: [
                     TextButton(
                       onPressed: notifier.dismissSetupBanner,
-                      child: const Text('DISMISS'),
+                      child: Text(l10n.coachChatDismiss),
                     ),
                   ],
                 ),
@@ -133,14 +135,14 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             color: Colors.orange.withValues(alpha: 0.12),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.warning_amber, color: Colors.orange, size: 18),
-                SizedBox(width: 8),
+                const Icon(Icons.warning_amber, color: Colors.orange, size: 18),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Deska není připojená — AI nepřijímá aktuální pozici z partie.',
-                    style: TextStyle(fontSize: 12),
+                    l10n.coachDisconnectedBanner,
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ),
               ],
@@ -164,8 +166,8 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
                         const SizedBox(height: 12),
                         Text(
                           widget.embedded
-                              ? 'Zeptej se na plán, taktiku nebo konkrétní pole.'
-                              : 'Zeptej se na aktuální pozici nebo obecně na šachy.',
+                              ? l10n.coachEmptyPromptEmbedded
+                              : l10n.coachEmptyPromptFullscreen,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
@@ -219,8 +221,8 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
                       controller: _ctrl,
                       decoration: InputDecoration(
                         hintText: widget.embedded
-                            ? 'Zeptej se trenéra…'
-                            : 'Zeptej se na pozici nebo plán…',
+                            ? l10n.coachInputHintEmbedded
+                            : l10n.coachInputHintFullscreen,
                         border: const OutlineInputBorder(),
                         isDense: true,
                       ),

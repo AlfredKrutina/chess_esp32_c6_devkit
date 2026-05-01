@@ -8,10 +8,13 @@ class EvalLineChart extends StatelessWidget {
     super.key,
     required this.points,
     this.height = 180,
+    this.accentColor,
   });
 
   final List<({int moveIndex, double eval, MoveGrade? grade})> points;
   final double height;
+  /// When set (e.g. export on transparent background), overrides theme primary.
+  final Color? accentColor;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +34,7 @@ class EvalLineChart extends StatelessWidget {
           yMin: lo,
           yMax: hi,
           xMax: xMax,
-          accent: Theme.of(context).colorScheme.primary,
+          accent: accentColor ?? Theme.of(context).colorScheme.primary,
         ),
         child: Container(),
       ),
@@ -73,10 +76,10 @@ class _EvalChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final padL = 36.0;
-    final padR = 8.0;
-    final padT = 8.0;
-    final padB = 22.0;
+    const padL = 36.0;
+    const padR = 8.0;
+    const padT = 8.0;
+    const padB = 22.0;
     final w = size.width - padL - padR;
     final h = size.height - padT - padB;
 

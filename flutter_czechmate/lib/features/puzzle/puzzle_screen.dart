@@ -8,7 +8,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../app_navigation.dart';
 import '../../app_providers.dart';
+import '../../core/localization/context_l10n.dart';
 import '../../core/services/prefs_repository.dart';
+import '../../l10n/app_localizations.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 import '../game/board/chess_board_widget.dart';
@@ -74,35 +76,41 @@ String _encodeLibrary(List<PuzzleLibraryItem> items) =>
     jsonEncode(items.map((e) => e.toJson()).toList());
 
 class _TrainingPick {
-  _TrainingPick({required this.title, required this.fen});
+  _TrainingPick({required this.title, required this.fen, this.bundled});
   final String title;
   final String fen;
+  final BundledPuzzleItem? bundled;
+
+  String displayTitle(AppLocalizations l10n) =>
+      bundled != null ? bundled!.localizedTitle(l10n) : title;
 }
 
-String _sideToMove(String fen) {
+String _sideToMove(AppLocalizations l10n, String fen) {
   final parts = fen.trim().split(RegExp(r'\s+'));
   if (parts.length >= 2) {
-    return parts[1] == 'b' ? 'Černý na tahu' : 'Bílý na tahu';
+    return parts[1] == 'b'
+        ? l10n.puzzleSideBlackMove
+        : l10n.puzzleSideWhiteMove;
   }
-  return 'Na tahu: ?';
+  return l10n.puzzleSideUnknown;
 }
 
-String _localizedPuzzleTheme(String raw) {
+String _localizedPuzzleTheme(AppLocalizations l10n, String raw) {
   switch (raw) {
     case 'mateIn1':
-      return 'Mat 1 tahem';
+      return l10n.puzzleThemeMateIn1;
     case 'endgame':
-      return 'Koncovka';
+      return l10n.puzzleThemeEndgame;
     case 'advancedPawn':
-      return 'Volný pěšec';
+      return l10n.puzzleThemeAdvancedPawn;
     case 'opening':
-      return 'Zahájení';
+      return l10n.puzzleThemeOpening;
     case 'kingsideAttack':
-      return 'Útok na krále';
+      return l10n.puzzleThemeKingsideAttack;
     case 'middlegame':
-      return 'Střední hra';
+      return l10n.puzzleThemeMiddlegame;
     case 'tactic':
-      return 'Taktika';
+      return l10n.puzzleThemeTactic;
     default:
       return raw
           .replaceAllMapped(
@@ -129,12 +137,13 @@ Widget _puzzleBoardPreview(BuildContext context, String fen,
 
 Widget _themeChips(BuildContext context, List<String> themes) {
   if (themes.isEmpty) return const SizedBox.shrink();
+  final l10n = context.l10n;
   return Wrap(
     spacing: 8,
     runSpacing: 8,
     children: themes.map((t) {
       return Chip(
-        label: Text(_localizedPuzzleTheme(t)),
+        label: Text(_localizedPuzzleTheme(l10n, t)),
         visualDensity: VisualDensity.compact,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       );
@@ -156,7 +165,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
   DailyPuzzle? _daily;
   bool _dailyBusy = false;
   String? _dailyErr;
-  String? _libraryMsg;
+  bool _librarySavedBanner = false;
   final _libTitle = TextEditingController();
   final _libFen = TextEditingController();
   final _rnd = Random();
@@ -212,7 +221,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
   List<_TrainingPick> _trainingPool(PrefsRepository p) {
     final mode = p.puzzleTrainingPoolMode;
     final bundled = bundledPuzzleCatalog
-        .map((b) => _TrainingPick(title: b.title, fen: b.fen))
+        .map((b) => _TrainingPick(title: b.title, fen: b.fen, bundled: b))
         .toList();
     final lib = _library(p)
         .map((x) => _TrainingPick(title: x.title, fen: x.fen))
@@ -243,10 +252,9 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     final pool = _trainingPool(p);
     if (pool.isEmpty) {
       if (mounted) {
+        final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'Žádné pozice v tomto režimu fondu — přepni na Mix nebo přidej knihovnu.')),
+          SnackBar(content: Text(l10n.puzzlePoolEmptySnack)),
         );
       }
       return;
@@ -269,8 +277,9 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
         t.cancel();
         _trainingTimer = null;
         setState(() => _trainingRemaining = 0);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Čas kola vypršel')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.puzzleRoundExpiredSnack)),
+        );
       } else {
         setState(() => _trainingRemaining--);
       }
@@ -290,11 +299,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
   Future<void> _addDailyToLibrary(PrefsRepository p, DailyPuzzle d) async {
     final list = [..._library(p)];
     if (list.any((x) => x.id == d.id)) return;
+    if (!mounted) return;
+    final dailyTitle = context.l10n.puzzleDailyTitle(d.id);
     list.insert(
       0,
       PuzzleLibraryItem(
         id: d.id,
-        title: 'Denní ${d.id}',
+        title: dailyTitle,
         fen: d.fen,
         solution: d.solutionMoves,
         themes: d.themes,
@@ -302,10 +313,11 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
       ),
     );
     await _saveLibrary(p, list);
-    setState(() => _libraryMsg = 'Uloženo do knihovny');
+    setState(() => _librarySavedBanner = true);
     Future.delayed(const Duration(seconds: 4), () {
-      if (mounted && _libraryMsg == 'Uloženo do knihovny')
-        setState(() => _libraryMsg = null);
+      if (mounted && _librarySavedBanner) {
+        setState(() => _librarySavedBanner = false);
+      }
     });
   }
 
@@ -329,12 +341,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
       );
     }
     ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
+    final l10n = context.l10n;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           solution.isEmpty
-              ? 'Sandbox — záložka Hra'
-              : 'Puzzle ($title) — záložka Hra',
+              ? l10n.puzzleGoPlaySandbox
+              : l10n.puzzleGoPlayPuzzle(title),
         ),
       ),
     );
@@ -360,7 +373,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     if (session.transport != BoardTransport.wifi &&
         session.transport != BoardTransport.ble) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Připoj desku (Wi‑Fi nebo BLE).')),
+        SnackBar(content: Text(context.l10n.puzzleConnectBoardSnack)),
       );
       return;
     }
@@ -370,7 +383,8 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
           .sendPuzzleFenToBoard(fen);
       if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Příkaz new_game odeslán')));
+          SnackBar(content: Text(context.l10n.puzzleNewGameSentSnack)),
+        );
     } catch (e) {
       if (mounted)
         ScaffoldMessenger.of(context)
@@ -380,6 +394,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final prefs = ref.watch(prefsRepositoryProvider);
     final session = ref.watch(boardSessionNotifierProvider);
     final isPuzzleActive = session.snapshot?.status.puzzle?.active == true;
@@ -387,9 +402,9 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Puzzle'),
+        title: Text(l10n.navPuzzle),
         leading: IconButton(
-          tooltip: 'Zpět na živou partii',
+          tooltip: l10n.puzzleBackLiveTooltip,
           icon: const Icon(Icons.sports_esports_outlined),
           onPressed: () async {
             final ui = ref.read(gameUiNotifierProvider);
@@ -404,10 +419,10 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
         bottom: TabBar(
           controller: _tabs,
           isScrollable: true,
-          tabs: const [
-            Tab(text: 'Denní'),
-            Tab(text: 'Knihovna'),
-            Tab(text: 'Trénink'),
+          tabs: [
+            Tab(text: l10n.puzzleTabDaily),
+            Tab(text: l10n.puzzleTabLibrary),
+            Tab(text: l10n.puzzleTabTraining),
           ],
         ),
       ),
@@ -425,7 +440,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
               child: SafeArea(
                 child: ListTile(
                   leading: const Icon(Icons.extension),
-                  title: Text(pData?.title ?? 'Hádanka na desce'),
+                  title: Text(pData?.title ?? l10n.puzzleBoardRiddleTitle),
                   subtitle: Text(pData?.message ?? ''),
                 ),
               ),
@@ -436,13 +451,14 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
 
   Widget _dailyTab(
       BuildContext context, PrefsRepository prefs, BoardSessionState session) {
+    final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        if (_libraryMsg != null)
+        if (_librarySavedBanner)
           Material(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: ListTile(title: Text(_libraryMsg!)),
+            child: ListTile(title: Text(l10n.puzzleSavedToLibraryBanner)),
           ),
         if (_dailyBusy) const LinearProgressIndicator(),
         if (_dailyErr != null)
@@ -464,11 +480,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_sideToMove(_daily!.fen),
+                    Text(_sideToMove(l10n, _daily!.fen),
                         style: Theme.of(context).textTheme.titleMedium),
                     if (_daily!.solutionMoves.isNotEmpty)
-                      Text('Řešení: ${_daily!.solutionMoves.length} tahů',
-                          style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        l10n.puzzleSolutionMoves(_daily!.solutionMoves.length),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                   ],
                 ),
               ),
@@ -484,16 +502,16 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
             onPressed: () => _tryPuzzleOnScreen(
               ref,
               fen: _daily!.fen,
-              title: 'Denní puzzle',
+              title: l10n.puzzleDailySolveTitle,
               solution: _daily!.solutionMoves,
               rating: _daily!.rating,
             ),
-            child: const Text('Zkusit vyřešit na obrazovce'),
+            child: Text(l10n.puzzleTryOnScreen),
           ),
           const SizedBox(height: 8),
           OutlinedButton(
             onPressed: () => _sendToBoard(ref, _daily!.fen),
-            child: const Text('Nahrát na desku (new_game + FEN)'),
+            child: Text(l10n.puzzleLoadToBoard),
           ),
           const SizedBox(height: 8),
           FilledButton.tonalIcon(
@@ -502,7 +520,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                 ? () => _openBoardSetupWizard(context, _daily!.fen)
                 : null,
             icon: const Icon(Icons.lightbulb_outline),
-            label: const Text('Průvodce postavením na desce'),
+            label: Text(l10n.puzzleSetupWizardLabel),
           ),
           const SizedBox(height: 8),
           FilledButton.tonal(
@@ -510,20 +528,21 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                 ? null
                 : () => _addDailyToLibrary(prefs, _daily!),
             child: Text(_dailyInLibrary(prefs, _daily!)
-                ? 'Už je v knihovně'
-                : 'Přidat do knihovny'),
+                ? l10n.puzzleAlreadyInLibrary
+                : l10n.puzzleAddToLibrary),
           ),
           TextButton.icon(
             onPressed: _openLichess,
             icon: const Icon(Icons.open_in_browser),
-            label: const Text('Otevřít na Lichess'),
+            label: Text(l10n.puzzleOpenLichess),
           ),
         ],
         const SizedBox(height: 16),
         OutlinedButton(
           onPressed: _dailyBusy ? null : _loadDaily,
           child: Text(
-              _daily == null ? 'Načíst denní puzzle' : 'Obnovit denní úlohu'),
+            _daily == null ? l10n.puzzleLoadDaily : l10n.puzzleRefreshDaily,
+          ),
         ),
       ],
     );
@@ -531,21 +550,27 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
 
   Widget _libraryTab(
       BuildContext context, PrefsRepository prefs, BoardSessionState session) {
+    final l10n = context.l10n;
     final items = _library(prefs);
     return ListView(
       padding: const EdgeInsets.all(12),
       children: [
-        Text('Uložit pozici', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.puzzleSavePositionTitle,
+            style: Theme.of(context).textTheme.titleSmall),
         TextField(
             controller: _libTitle,
-            decoration: const InputDecoration(
-                labelText: 'Název', border: OutlineInputBorder())),
+            decoration: InputDecoration(
+              labelText: l10n.puzzleLibNameLabel,
+              border: const OutlineInputBorder(),
+            )),
         const SizedBox(height: 8),
         TextField(
           controller: _libFen,
           maxLines: 2,
-          decoration: const InputDecoration(
-              labelText: 'FEN', border: OutlineInputBorder()),
+          decoration: InputDecoration(
+            labelText: l10n.puzzleLibFenLabel,
+            border: const OutlineInputBorder(),
+          ),
         ),
         const SizedBox(height: 8),
         FilledButton.tonal(
@@ -557,24 +582,24 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
               ...items,
               PuzzleLibraryItem(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  title: t.isEmpty ? 'Vlastní' : t,
+                  title: t.isEmpty ? l10n.puzzleCustomTitle : t,
                   fen: f)
             ];
             await _saveLibrary(prefs, list);
             _libTitle.clear();
             _libFen.clear();
             if (!context.mounted) return;
-            ScaffoldMessenger.of(context)
-                .showSnackBar(const SnackBar(content: Text('Uloženo')));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(context.l10n.puzzleSavedSnack)),
+            );
           },
-          child: const Text('Přidat do knihovny'),
+          child: Text(l10n.puzzleAddToLibrary),
         ),
         const Divider(height: 24),
         if (items.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(24),
-            child: Text(
-                'Zatím žádné položky — použij tlačítko výše nebo „Přidat“ z denního puzzlu.'),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(l10n.puzzleLibraryEmptyHint),
           )
         else
           ...List.generate(items.length, (i) {
@@ -624,7 +649,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                                 ? () => _openBoardSetupWizard(context, it.fen)
                                 : null,
                             icon: const Icon(Icons.lightbulb_outline, size: 18),
-                            label: const Text('Průvodce na desce'),
+                            label: Text(l10n.puzzleSetupOnBoard),
                           ),
                         ),
                         IconButton(
@@ -647,20 +672,28 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
 
   Widget _trainingTab(
       BuildContext context, PrefsRepository prefs, BoardSessionState session) {
+    final l10n = context.l10n;
     final mode = prefs.puzzleTrainingPoolMode;
     final poolN = _trainingPool(prefs).length;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text('Režim fondu',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(l10n.puzzlePoolModeTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         SegmentedButton<String>(
-          segments: const [
-            ButtonSegment<String>(value: 'mixed', label: Text('Mix')),
+          segments: [
             ButtonSegment<String>(
-                value: 'bundledOnly', label: Text('Vestavěné')),
+              value: 'mixed',
+              label: Text(l10n.puzzlePoolMixed),
+            ),
             ButtonSegment<String>(
-                value: 'libraryOnly', label: Text('Knihovna')),
+              value: 'bundledOnly',
+              label: Text(l10n.puzzlePoolBundled),
+            ),
+            ButtonSegment<String>(
+              value: 'libraryOnly',
+              label: Text(l10n.puzzlePoolLibrary),
+            ),
           ],
           selected: {mode},
           onSelectionChanged: (Set<String> s) async {
@@ -671,11 +704,16 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
         ),
         const SizedBox(height: 8),
         Text(
-            'Pozic ve fondu: $poolN • Zahájených kol: ${prefs.puzzleTrainingSessionsStarted}',
-            style: Theme.of(context).textTheme.bodySmall),
+          l10n.puzzleTrainingPoolStats(
+            poolN,
+            prefs.puzzleTrainingSessionsStarted,
+          ),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
         const Divider(height: 24),
-        Text('Časované kolo', style: Theme.of(context).textTheme.titleSmall),
-        Text('Náhodná pozice z vybraného fondu, odpočet v sekundách.',
+        Text(l10n.puzzleTimedRoundTitle,
+            style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.puzzleTimedRoundBody,
             style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: 8),
         Row(
@@ -702,14 +740,14 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                 onPressed: _trainingRemaining > 0
                     ? null
                     : () => _startTrainingRound(prefs),
-                child: const Text('Nové kolo'),
+                child: Text(l10n.puzzleNewRound),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
                 onPressed: _trainingRemaining > 0 ? _stopTrainingRound : null,
-                child: const Text('Stop'),
+                child: Text(l10n.puzzleStop),
               ),
             ),
           ],
@@ -723,11 +761,11 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (_trainingRemaining > 0)
-                    Text('Zbývá: ${_trainingRemaining}s',
+                    Text(l10n.puzzleRemainingSeconds(_trainingRemaining),
                         style: Theme.of(context).textTheme.headlineSmall),
-                  Text(_trainingPick!.title,
+                  Text(_trainingPick!.displayTitle(l10n),
                       style: Theme.of(context).textTheme.titleMedium),
-                  Text(_sideToMove(_trainingPick!.fen),
+                  Text(_sideToMove(l10n, _trainingPick!.fen),
                       style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: 6),
                   SelectableText(_trainingPick!.fen,
@@ -739,14 +777,14 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                     onPressed: () => _tryPuzzleOnScreen(
                       ref,
                       fen: _trainingPick!.fen,
-                      title: _trainingPick!.title,
+                      title: _trainingPick!.displayTitle(l10n),
                     ),
-                    child: const Text('Řešit na obrazovce'),
+                    child: Text(l10n.puzzleSolveOnScreen),
                   ),
                   const SizedBox(height: 6),
                   OutlinedButton(
                     onPressed: () => _sendToBoard(ref, _trainingPick!.fen),
-                    child: const Text('Nahrát na desku'),
+                    child: Text(l10n.puzzleLoadToBoardShort),
                   ),
                   const SizedBox(height: 6),
                   OutlinedButton.icon(
@@ -756,7 +794,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                             _openBoardSetupWizard(context, _trainingPick!.fen)
                         : null,
                     icon: const Icon(Icons.lightbulb_outline, size: 18),
-                    label: const Text('Průvodce postavením'),
+                    label: Text(l10n.puzzleSetupWizardShort),
                   ),
                 ],
               ),
@@ -764,22 +802,22 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
           ),
         ],
         const Divider(height: 32),
-        const Text('Vestavěné pozice (offline)',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(l10n.puzzleBundledOfflineTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         for (final b in bundledPuzzleCatalog)
           Card(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ListTile(
-                  title: Text(b.title),
-                  subtitle: Text(b.subtitle),
+                  title: Text(b.localizedTitle(l10n)),
+                  subtitle: Text(b.localizedSubtitle(l10n)),
                   isThreeLine: true,
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _tryPuzzleOnScreen(
                     ref,
                     fen: b.fen,
-                    title: b.title,
+                    title: b.localizedTitle(l10n),
                     solution: b.solution,
                   ),
                 ),
@@ -811,7 +849,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                         ? () => _openBoardSetupWizard(context, b.fen)
                         : null,
                     icon: const Icon(Icons.lightbulb_outline, size: 18),
-                    label: const Text('Průvodce postavením na desce'),
+                    label: Text(l10n.puzzleSetupWizardLabel),
                   ),
                 ),
               ],

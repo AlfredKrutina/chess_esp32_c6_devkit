@@ -7,10 +7,13 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/analysis/move_evaluation.dart';
 import '../../../core/models/game_end_report_model.dart';
+import '../../../core/models/game_snapshot.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/fen_from_board.dart';
 import '../../../core/utils/game_end_report_timing.dart';
@@ -21,6 +24,11 @@ import '../../../core/widgets/glass_snackbar.dart';
 import '../../analysis/eval_line_chart.dart';
 import '../../analysis/move_eval_notifier.dart';
 import '../../connection/board_session_notifier.dart';
+import 'board_timeline.dart';
+import 'export_frame_capture.dart';
+import 'game_export_options.dart';
+import 'game_recap_gif_export.dart';
+import 'game_share_export_canvas.dart';
 import 'timing_charts.dart';
 
 class GameEndReportScreen extends ConsumerStatefulWidget {
@@ -33,6 +41,8 @@ class GameEndReportScreen extends ConsumerStatefulWidget {
 class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
   final GlobalKey _shareBoundaryKey = GlobalKey();
   bool _isExporting = false;
+  bool _gifBusy = false;
+  GameExportOptions _exportOpts = const GameExportOptions();
 
   String _formatDuration(AppLocalizations l10n, int sec) {
     if (sec <= 0) return l10n.durationDash;
@@ -68,6 +78,132 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
         return l10n.endReasonFinished;
       default:
         return model.reason;
+    }
+  }
+
+  Widget _shareRasterCanvas({
+    required AppLocalizations l10n,
+    required GameExportOptions opts,
+    required GameEndReportModel model,
+    required GameSnapshot snapshot,
+    required List<({int moveIndex, double eval, MoveGrade? grade})> evalPoints,
+    required List<GameEndThinkPlyPoint> think,
+    required List<GameEndCumulativePoint> cumulative,
+    required bool hasTiming,
+    List<List<String>>? boardCellsOverride,
+    String? recapCaption,
+  }) {
+    return GameShareExportCanvas(
+      options: opts,
+      theme: GameShareExportTheme.adaptive(context, transparent: opts.transparentBackground),
+      model: model,
+      boardCells: boardCellsOverride ?? boardFromSnapshot(snapshot),
+      resultHeadline: _resultText(l10n, model.result),
+      localizedReason: _localizedGameEndReason(l10n, model),
+      formatDuration: (sec) => _formatDuration(l10n, sec),
+      formatAvg: (v) => _formatAvgSec(l10n, v),
+      materialCaption:
+          l10n.reportMaterialCaptured(model.capturedValueWhite, model.capturedValueBlack),
+      brandingLabel: l10n.pgnEventHeader,
+      statTimeLabel: l10n.statTime,
+      statMovesLabel: l10n.statMoves,
+      statWhiteAvgLabel: l10n.statWhiteAvg,
+      statBlackAvgLabel: l10n.statBlackAvg,
+      recapCaption: recapCaption,
+      evalPoints: evalPoints,
+      evalCaption: l10n.reportEvalPerspective,
+      noEvalCaption: l10n.reportNoStockfishData,
+      think: think,
+      cumulative: cumulative,
+      hasTiming: hasTiming,
+      elapsedTitle: l10n.reportElapsedTime,
+      elapsedSubtitle: l10n.reportElapsedCaption,
+      halfMoveAxis: l10n.reportHalfMoveAxis,
+      perMoveTitle: l10n.reportTimePerMove,
+      perMoveSubtitle: l10n.reportSecondsSincePrev,
+      legendWhite: l10n.colorWhite,
+      legendBlack: l10n.colorBlack,
+      noTimingCaption: l10n.reportTimingUnavailable,
+    );
+  }
+
+  Future<void> _shareGifRecap(
+    AppLocalizations l10n,
+    GameSnapshot snapshot,
+    GameEndReportModel model,
+    List<({int moveIndex, double eval, MoveGrade? grade})> evalPoints,
+    List<GameEndThinkPlyPoint> think,
+    List<GameEndCumulativePoint> cumulative,
+    bool hasTiming,
+  ) async {
+    if (_gifBusy) return;
+    setState(() => _gifBusy = true);
+    try {
+      final total = snapshot.history.moves.length;
+      final indices = recapFrameIndices(total, 52);
+      final logical = const GameExportOptions(aspect: GameExportAspect.story).logicalSize();
+      final pkgFrames = <img.Image>[];
+      const baseOpts = GameExportOptions(
+        aspect: GameExportAspect.story,
+        showEvalChart: false,
+        showCumulativeChart: false,
+        showPerMoveChart: false,
+        roundedClip: true,
+        transparentBackground: false,
+      );
+      for (final ply in indices) {
+        if (!mounted) return;
+        final cells = boardAfterHistoryPrefix(snapshot, ply) ?? boardFromSnapshot(snapshot);
+        final caption = total <= 0 ? null : l10n.reportExportRecapMove(ply, total);
+        final opts = baseOpts.copyWith(recapMoveIndex: ply, recapMoveTotal: total);
+        final wrapped = Theme(
+          data: Theme.of(context),
+          child: _shareRasterCanvas(
+            l10n: l10n,
+            opts: opts,
+            model: model,
+            snapshot: snapshot,
+            evalPoints: evalPoints,
+            think: think,
+            cumulative: cumulative,
+            hasTiming: hasTiming,
+            boardCellsOverride: cells,
+            recapCaption: caption,
+          ),
+        );
+        final uiFrame =
+            await captureWidgetOffscreen(context: context, child: wrapped, logicalSize: logical, pixelRatio: 2);
+        if (uiFrame == null) continue;
+        final pkg = await uiImageToPackageImage(uiFrame);
+        uiFrame.dispose();
+        if (pkg != null) pkgFrames.add(pkg);
+      }
+      if (pkgFrames.isEmpty) {
+        if (mounted) showGlassSnackBar(context, l10n.reportExportGifFailed('no frames'));
+        return;
+      }
+      final gifBytes = encodeGifAnimation(pkgFrames, durationHundredths: 45);
+      if (gifBytes == null || gifBytes.isEmpty) {
+        if (mounted) showGlassSnackBar(context, l10n.reportExportGifFailed('encode'));
+        return;
+      }
+      if (!mounted) return;
+      final box = context.findRenderObject() as RenderBox?;
+      final rect = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+      final tmp = await getTemporaryDirectory();
+      final dir = Directory('${tmp.path}/czechmate_share');
+      await dir.create(recursive: true);
+      final gifFile = File('${dir.path}/czechmate_game_recap.gif');
+      await gifFile.writeAsBytes(gifBytes);
+      await Share.shareXFiles(
+        [XFile(gifFile.path, mimeType: 'image/gif')],
+        text: l10n.reportExportGifShareSubject,
+        sharePositionOrigin: rect,
+      );
+    } catch (e) {
+      if (mounted) showGlassSnackBar(context, l10n.reportExportGifFailed('$e'));
+    } finally {
+      if (mounted) setState(() => _gifBusy = false);
     }
   }
 
@@ -112,6 +248,7 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
 
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      image.dispose();
       if (byteData == null) {
         throw StateError(l10n.sharePngEncodeError);
       }
@@ -278,70 +415,166 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
       );
     }
 
-    final shareCard = RepaintBoundary(
-      key: _shareBoundaryKey,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              cs.surfaceContainerHigh,
-              cs.surfaceContainerHighest.withValues(alpha: 0.85),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.grid_view_rounded, size: 22, color: cs.primary),
-                const SizedBox(width: 8),
-                Text(
-                  l10n.pgnEventHeader,
-                  style: tt.labelLarge?.copyWith(
-                    letterSpacing: 1.2,
-                    fontWeight: FontWeight.w700,
-                    color: cs.primary,
+    final exportSize = _exportOpts.logicalSize();
+    final exportPreview = ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: ColoredBox(
+        color: _exportOpts.transparentBackground ? Colors.grey.shade900.withValues(alpha: 0.25) : cs.surfaceContainerLow,
+        child: AspectRatio(
+          aspectRatio: exportSize.width / exportSize.height,
+          child: LayoutBuilder(
+            builder: (ctx, bc) {
+              return FittedBox(
+                fit: BoxFit.contain,
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: exportSize.width,
+                  height: exportSize.height,
+                  child: RepaintBoundary(
+                    key: _shareBoundaryKey,
+                    child: Theme(
+                      data: Theme.of(context),
+                      child: _shareRasterCanvas(
+                        l10n: l10n,
+                        opts: _exportOpts,
+                        model: model,
+                        snapshot: snapshot,
+                        evalPoints: evalPoints,
+                        think: think,
+                        cumulative: cumulative,
+                        hasTiming: hasTiming,
+                      ),
+                    ),
                   ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    final exportControls = Card.outlined(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.reportExportAppearanceTitle,
+              style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n.reportExportAppearanceSubtitle,
+              style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ActionChip(
+                  label: Text(l10n.reportExportPresetFull),
+                  onPressed: () => setState(() => _exportOpts = const GameExportOptions()),
+                ),
+                ActionChip(
+                  label: Text(l10n.reportExportPresetMinimal),
+                  onPressed: () => setState(() => _exportOpts = GameExportOptions.minimal),
+                ),
+                ActionChip(
+                  label: Text(l10n.reportExportPresetStory),
+                  onPressed: () => setState(() => _exportOpts = GameExportOptions.storyHero),
                 ),
               ],
             ),
-            const SizedBox(height: 18),
-            Text(
-              _resultText(l10n, model.result),
-              style: tt.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _localizedGameEndReason(l10n, model),
-              style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-            ),
-            const SizedBox(height: 20),
-            Divider(height: 1, color: cs.outlineVariant.withValues(alpha: 0.6)),
-            const SizedBox(height: 18),
-            Wrap(
-              spacing: 20,
-              runSpacing: 14,
-              alignment: WrapAlignment.spaceBetween,
-              children: [
-                _ShareStatChip(label: l10n.statTime, value: _formatDuration(l10n, model.durationSec)),
-                _ShareStatChip(label: l10n.statMoves, value: '${model.totalMoves}'),
-                _ShareStatChip(label: l10n.statWhiteAvg, value: _formatAvgSec(l10n, model.whiteAvgMoveSec)),
-                _ShareStatChip(label: l10n.statBlackAvg, value: _formatAvgSec(l10n, model.blackAvgMoveSec)),
-              ],
-            ),
-            if (model.capturedValueWhite > 0 || model.capturedValueBlack > 0) ...[
-              const SizedBox(height: 16),
-              Text(
-                l10n.reportMaterialCaptured(model.capturedValueWhite, model.capturedValueBlack),
-                style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<GameExportAspect>(
+              // Controlled field; `initialValue` does not track preset changes.
+              // ignore: deprecated_member_use
+              value: _exportOpts.aspect,
+              decoration: InputDecoration(
+                labelText: l10n.reportExportAspectRatio,
+                border: const OutlineInputBorder(),
+                isDense: true,
               ),
-            ],
+              items: [
+                DropdownMenuItem(
+                  value: GameExportAspect.card,
+                  child: Text(l10n.reportExportAspectCard),
+                ),
+                DropdownMenuItem(
+                  value: GameExportAspect.square,
+                  child: Text(l10n.reportExportAspectSquare),
+                ),
+                DropdownMenuItem(
+                  value: GameExportAspect.story,
+                  child: Text(l10n.reportExportAspectStory),
+                ),
+                DropdownMenuItem(
+                  value: GameExportAspect.landscape,
+                  child: Text(l10n.reportExportAspectLandscape),
+                ),
+              ],
+              onChanged: (v) {
+                if (v != null) setState(() => _exportOpts = _exportOpts.copyWith(aspect: v));
+              },
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.reportExportTransparentBg),
+              subtitle: Text(l10n.reportExportTransparentHint, style: tt.bodySmall),
+              value: _exportOpts.transparentBackground,
+              onChanged: (v) =>
+                  setState(() => _exportOpts = _exportOpts.copyWith(transparentBackground: v)),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.reportExportShowBranding),
+              value: _exportOpts.showBranding,
+              onChanged: (v) => setState(() => _exportOpts = _exportOpts.copyWith(showBranding: v)),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.reportExportShowStats),
+              value: _exportOpts.showStats,
+              onChanged: (v) => setState(() => _exportOpts = _exportOpts.copyWith(showStats: v)),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.reportExportShowFinalBoard),
+              value: _exportOpts.showFinalBoard,
+              onChanged: (v) =>
+                  setState(() => _exportOpts = _exportOpts.copyWith(showFinalBoard: v)),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.reportExportFlipBoard),
+              value: _exportOpts.flipBoard,
+              onChanged: (v) => setState(() => _exportOpts = _exportOpts.copyWith(flipBoard: v)),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.reportExportShowEvalChart),
+              value: _exportOpts.showEvalChart,
+              onChanged: (v) =>
+                  setState(() => _exportOpts = _exportOpts.copyWith(showEvalChart: v)),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.reportExportShowCumulativeChart),
+              value: _exportOpts.showCumulativeChart,
+              onChanged: (v) =>
+                  setState(() => _exportOpts = _exportOpts.copyWith(showCumulativeChart: v)),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.reportExportShowPerMoveChart),
+              value: _exportOpts.showPerMoveChart,
+              onChanged: (v) =>
+                  setState(() => _exportOpts = _exportOpts.copyWith(showPerMoveChart: v)),
+            ),
           ],
         ),
       ),
@@ -373,14 +606,16 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxW),
               child: ListView(
-                padding: EdgeInsets.fromLTRB(sidePad, 8, sidePad, 40),
+                padding: const EdgeInsets.fromLTRB(sidePad, 8, sidePad, 40),
                 children: [
                   Text(
                     l10n.reportResultHeading,
                     style: tt.titleSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 10),
-                  shareCard,
+                  SizedBox(height: 340, child: exportPreview),
+                  const SizedBox(height: 14),
+                  exportControls,
                   const SizedBox(height: 22),
                   Text(
                     l10n.reportShareHeading,
@@ -412,6 +647,33 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                                   )
                                 : const Icon(Icons.ios_share_rounded),
                             label: Text(_isExporting ? l10n.reportSharePreparing : l10n.reportShareSummaryImage),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            l10n.reportExportGifSubtitle,
+                            style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                          ),
+                          const SizedBox(height: 8),
+                          OutlinedButton.icon(
+                            onPressed: _gifBusy
+                                ? null
+                                : () => _shareGifRecap(
+                                      l10n,
+                                      snapshot,
+                                      model,
+                                      evalPoints,
+                                      think,
+                                      cumulative,
+                                      hasTiming,
+                                    ),
+                            icon: _gifBusy
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Icon(Icons.animation_outlined),
+                            label: Text(_gifBusy ? l10n.reportExportGifBuilding : l10n.reportExportShareGifRecap),
                           ),
                           const SizedBox(height: 10),
                           OutlinedButton.icon(
@@ -536,32 +798,3 @@ class _LegendDot extends StatelessWidget {
 }
 
 /// Compact stat for the exported share card (matches iOS-style chips).
-class _ShareStatChip extends StatelessWidget {
-  const _ShareStatChip({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-    return SizedBox(
-      width: 112,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: tt.labelSmall?.copyWith(
-              letterSpacing: 0.8,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(value, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-}

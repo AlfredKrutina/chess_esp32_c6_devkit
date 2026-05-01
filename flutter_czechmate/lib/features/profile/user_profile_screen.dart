@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../app_providers.dart';
+import '../../core/localization/context_l10n.dart';
 import '../../core/services/prefs_repository.dart';
 
 /// Player profile — display name, avatar (preset icons or gallery photo), puzzle Elo, activity.
@@ -61,7 +62,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gallery: $e')),
+          SnackBar(content: Text(context.l10n.profileGalleryError('$e'))),
         );
       }
     }
@@ -151,14 +152,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Last 28 days',
+          context.l10n.profileHeatmapTitle,
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 8),
         Column(children: rows),
         const SizedBox(height: 6),
         Text(
-          'Darker = more attempts; greener = higher success rate.',
+          context.l10n.profileHeatmapCaption,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: cs.onSurfaceVariant,
               ),
@@ -169,12 +170,13 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final prefs = ref.watch(prefsRepositoryProvider);
     final cs = Theme.of(context).colorScheme;
     final week = prefs.puzzleStatsLastDays(7);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile & Elo')),
+      appBar: AppBar(title: Text(l10n.profileTitle)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -193,14 +195,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Puzzle Elo: ${prefs.puzzleElo}',
+                      l10n.profilePuzzleEloLine('${prefs.puzzleElo}'),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: cs.primary,
                             fontWeight: FontWeight.w600,
                           ),
                     ),
                     Text(
-                      'Last 7 days: ${week.solved7d} solved · ${week.failed7d} wrong lines',
+                      l10n.profileWeekStatsLine(week.solved7d, week.failed7d),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: cs.onSurfaceVariant,
                           ),
@@ -211,14 +213,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
             ],
           ),
           const Divider(height: 36),
-          Text('Display name',
+          Text(l10n.profileDisplayName,
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
           TextField(
             controller: _nameCtrl,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Name shown on your profile',
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              hintText: l10n.profileNameHint,
             ),
             onSubmitted: (v) async {
               await prefs.setProfileDisplayName(v);
@@ -236,17 +238,17 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 if (!mounted) return;
                 setState(() {});
                 messenger.showSnackBar(
-                  const SnackBar(content: Text('Name saved')),
+                  SnackBar(content: Text(l10n.profileNameSavedSnack)),
                 );
               },
-              child: const Text('Save name'),
+              child: Text(l10n.profileSaveName),
             ),
           ),
           const Divider(height: 28),
-          Text('Avatar', style: Theme.of(context).textTheme.titleSmall),
+          Text(l10n.profileAvatar, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
           Text(
-            'Preset icons or a photo from your gallery.',
+            l10n.profileAvatarHint,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: cs.onSurfaceVariant,
                 ),
@@ -272,7 +274,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
               OutlinedButton.icon(
                 onPressed: () => _pickGallery(prefs),
                 icon: const Icon(Icons.photo_library_outlined),
-                label: const Text('From gallery'),
+                label: Text(l10n.profileFromGallery),
               ),
             ],
           ),
@@ -280,7 +282,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
           _heatmap(context, prefs),
           const SizedBox(height: 24),
           Text(
-            'Elo updates when you complete a graded puzzle with a known solution line (e.g. daily Lichess puzzles).',
+            l10n.profileEloHelpBody,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: cs.onSurfaceVariant,
                 ),

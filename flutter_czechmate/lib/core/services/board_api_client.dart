@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../utils/http_json_decode.dart';
 import '../models/board_firmware_models.dart';
 import '../models/board_timer_state.dart';
 import '../models/game_snapshot.dart';
@@ -72,7 +73,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/timer');
     final res = await _client.get(uri).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
-    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final map = decodeHttpJsonMap(res.bodyBytes);
     return BoardTimerState.fromJson(map);
   }
 
@@ -162,7 +163,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/wifi/status');
     final res = await _client.get(uri).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
-    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final map = decodeHttpJsonMap(res.bodyBytes);
     return EspWifiStatus.fromJson(map);
   }
 
@@ -213,7 +214,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/status');
     final res = await _client.get(uri).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
-    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final map = decodeHttpJsonMap(res.bodyBytes);
     final raw = map['matrix_occupied'];
     if (raw is! List) return null;
     return raw.map((e) => (e as num).toInt()).toList();
@@ -230,7 +231,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/mqtt/status');
     final res = await _client.get(uri).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
-    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final map = decodeHttpJsonMap(res.bodyBytes);
     return ESPMQTTStatusJSON.fromJson(map);
   }
 
@@ -257,7 +258,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/settings/ui');
     final res = await _client.get(uri).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
-    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final map = decodeHttpJsonMap(res.bodyBytes);
     return BoardUISettingsEnvelope.fromJson(map);
   }
 
@@ -335,7 +336,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/demo/status');
     final res = await _client.get(uri).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
-    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final map = decodeHttpJsonMap(res.bodyBytes);
     return ESPDemoStatusJSON.fromJson(map);
   }
 
@@ -383,7 +384,7 @@ class BoardApiClient {
         detail: detail,
       );
     }
-    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final map = decodeHttpJsonMap(res.bodyBytes);
     final m = FirmwareManifest.fromJson(map);
     if (m.version.isEmpty || m.url.isEmpty || !m.url.startsWith('https://')) {
       throw BoardApiException(
@@ -398,7 +399,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/system/firmware');
     final res = await _client.get(uri).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
-    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final map = decodeHttpJsonMap(res.bodyBytes);
     return BoardFirmwareInfo.fromJson(map);
   }
 
@@ -406,7 +407,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/system/ota/status');
     final res = await _client.get(uri).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
-    final map = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final map = decodeHttpJsonMap(res.bodyBytes);
     return BoardOtaStatus.fromJson(map);
   }
 
@@ -458,10 +459,8 @@ class BoardApiClient {
     );
   }
 
-  String _previewBody(List<int> body) {
-    final s = utf8.decode(body);
-    return s.length > 200 ? s.substring(0, 200) : s;
-  }
+  String _previewBody(List<int> body) =>
+      previewHttpBodyUtf8(body, maxChars: 200);
 
   String _manifestFetchErrorDetail(int code, List<int> body) {
     if (code == 404) {
@@ -480,13 +479,11 @@ class BoardApiClient {
   String? _extractMessage(List<int> body) {
     if (body.isEmpty) return null;
     try {
-      final obj = jsonDecode(utf8.decode(body));
-      if (obj is Map<String, dynamic>) {
-        final m = obj['message'] as String?;
-        if (m != null && m.trim().isNotEmpty) return m.trim();
-        final e = obj['error'] as String?;
-        if (e != null && e.trim().isNotEmpty) return e.trim();
-      }
+      final obj = decodeHttpJsonMap(body);
+      final m = obj['message'] as String?;
+      if (m != null && m.trim().isNotEmpty) return m.trim();
+      final e = obj['error'] as String?;
+      if (e != null && e.trim().isNotEmpty) return e.trim();
     } catch (_) {}
     return null;
   }

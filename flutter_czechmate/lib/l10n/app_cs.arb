@@ -169,6 +169,48 @@
   "reportSharePreparing": "Připravuji…",
   "reportShareSummaryImage": "Sdílet obrázek shrnutí",
   "reportSharePgn": "Sdílet soubor PGN",
+  "reportExportAppearanceTitle": "Export obrázku",
+  "reportExportAppearanceSubtitle": "Zvol rozvržení, pozadí a sekce na sdíleném PNG. Náhled odpovídá exportu.",
+  "reportExportAspectRatio": "Velikost plátna",
+  "reportExportAspectCard": "Karta (vysoká)",
+  "reportExportAspectSquare": "Čtverec 1:1",
+  "reportExportAspectStory": "Story 9:16",
+  "reportExportAspectLandscape": "Na šířku 16:9",
+  "reportExportTransparentBg": "Průhledné pozadí",
+  "reportExportTransparentHint": "PNG alfa — nejlépe na barevném nebo fotografickém pozadí ve Stories.",
+  "reportExportShowBranding": "Zobrazit záhlaví CzechMate",
+  "reportExportShowStats": "Zobrazit čas a statistiky tahů",
+  "reportExportShowFinalBoard": "Zobrazit výsledné rozložení figurek",
+  "reportExportFlipBoard": "Otočit šachovnici (černý dole)",
+  "reportExportShowEvalChart": "Zahrnout graf evaluace",
+  "reportExportShowCumulativeChart": "Zahrnout graf uběhlého času",
+  "reportExportShowPerMoveChart": "Zahrnout sloupce času na tah",
+  "reportExportPresetFull": "Plný",
+  "reportExportPresetMinimal": "Minimální",
+  "reportExportPresetStory": "Story výřez",
+  "reportExportShareGifRecap": "Sdílet průběh tahů (GIF)",
+  "reportExportGifSubtitle": "Animovaný průběh pro Stories nebo chaty (9:16). U dlouhých partií se vzorkuje.",
+  "reportExportGifBuilding": "Skládám animaci…",
+  "reportExportGifShareSubject": "Průběh partie (GIF)",
+  "reportExportGifFailed": "Export GIF selhal: {error}",
+  "@reportExportGifFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "reportExportRecapMove": "Tah {current} / {total}",
+  "@reportExportRecapMove": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "reportClock": "Hodiny",
   "reportMinutesShort": "{n} min",
   "@reportMinutesShort": {
@@ -265,7 +307,7 @@
     }
   },
   "defaultBoardName": "CZECHMATE deska",
-  "discoveryWifiUrlHint": "Adresa desky (http://…)",
+  "discoveryWifiUrlHint": "např. http://192.168.4.1",
   "discoveryConnectWifi": "Připojit přes Wi‑Fi",
   "discoveryFindBle": "Najít desku (Bluetooth)",
   "discoveryScanning": "Skenuji…",
@@ -424,5 +466,1107 @@
   "firmwareDialogHttpsNote": "Deska stahuje přes HTTPS (Wi‑Fi STA). Telefon posílá jen odkaz.",
   "firmwareTurnOffReminders": "Vypnout připomínky",
   "firmwareNotNow": "Teď ne",
-  "firmwareUpdateAction": "Aktualizovat"
+  "firmwareUpdateAction": "Aktualizovat",
+  "discoveryCloseTooltip": "Zavřít",
+  "discoveryConnectionStatusTitle": "Stav připojení",
+  "discoveryScanningBoards": "Hledám desky…",
+  "discoveryBleDevicesDev": "Bluetooth ({guid})",
+  "@discoveryBleDevicesDev": {
+    "placeholders": {
+      "guid": {
+        "type": "String"
+      }
+    }
+  },
+  "discoveryFoundBoards": "Nalezené desky",
+  "discoveryEmptyBleList": "Seznam je prázdný. Klepni na „Najít desku“ a počkej pár sekund v dosahu zapnuté desky.",
+  "discoveryAdvancedSubtitle": "Wi‑Fi URL, režim připojení, demo",
+  "discoveryConnectionModeHeading": "Režim připojení",
+  "discoveryBleSegmentShort": "Jen BLE",
+  "discoveryReconnectSavedBoard": "Znovu připojit uloženou desku",
+  "discoveryManualAdvanced": "Ruční zadání / pokročilé",
+  "discoveryWifiUrlLabel": "Adresa desky (Wi‑Fi)",
+  "discoveryEnterBoardUrlSnack": "Zadej URL nebo IP desky (např. http://192.168.4.1).",
+  "discoveryBoardHotspotButton": "Hotspot desky (192.168.4.1)",
+  "connectionModeAutoShort": "Auto",
+  "settingsOverviewTitle": "Přehled",
+  "settingsOverviewSubtitleError": "Poslední chyba — rozbal pro detail",
+  "settingsOverviewSubtitleOk": "Zkratky a stav připojení",
+  "settingsOverviewBody": "Možnosti hry a desky platí pro kartu Hra a panel Ovládání hry — jedna sada přepínačů.",
+  "settingsGoToPlayTab": "Přejít na kartu Hra",
+  "settingsConnectionTitle": "Připojení desky",
+  "settingsConnectionSubtitle": "{tier} · {transport}",
+  "@settingsConnectionSubtitle": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      },
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsConnectionIntro": "Obvykle stačí najít desku přes Bluetooth; aplikace ji pak případně sama přepne na Wi‑Fi, pokud to dává smysl.",
+  "settingsDisconnect": "Odpojit",
+  "settingsAdvanced": "Pokročilé",
+  "settingsAdvancedConnectionSubtitle": "Výchozí URL, režim připojení, uložené BLE",
+  "settingsReconnectingBle": "Obnovuji Bluetooth k uložené desce…",
+  "settingsReconnectSavedBleShort": "Znovu připojit uloženou desku (BLE)",
+  "settingsManualEntry": "Ruční zadání",
+  "settingsSavedDefaultsTitle": "Uložené výchozí hodnoty",
+  "settingsSavedDefaultsBody": "Použijí se při příštím připojení z obrazovky „Najít desku“ nebo po znovupřipojení.",
+  "settingsConnectionModeLabel": "Režim připojení",
+  "settingsConnectionModeAutoBleWifi": "Auto (BLE → Wi‑Fi)",
+  "settingsDefaultBoardUrl": "Výchozí URL desky",
+  "settingsInvalidUrlSnack": "Neplatná URL — zadej hostitele (např. 192.168.4.1 nebo http://…)",
+  "settingsSavedSnack": "Uloženo",
+  "settingsSaveUrl": "Uložit URL",
+  "settingsBleOnlyTitle": "Jen Bluetooth",
+  "settingsBleOnlySubtitle": "Nepřepínat na Wi‑Fi po BLE",
+  "settingsWebSocketTitle": "WebSocket snapshot",
+  "settingsWebSocketSubtitle": "Po změně znovu připojit Wi‑Fi session",
+  "transportShortDemo": "Demo",
+  "transportShortDash": "—",
+  "settingsBoardAppearanceTitle": "Vzhled desky",
+  "settingsBoardAppearanceSubtitle": "{layout} · {zoom} · {style}",
+  "@settingsBoardAppearanceSubtitle": {
+    "placeholders": {
+      "layout": {
+        "type": "String"
+      },
+      "zoom": {
+        "type": "String"
+      },
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLayoutBoardOnlyShort": "Jen deska",
+  "settingsLayoutFullUiShort": "Plné UI",
+  "settingsPlayTabGamePanel": "Karta Hra a panel hry",
+  "settingsLayoutLabel": "Rozvržení",
+  "settingsLayoutBoardSegment": "Deska",
+  "settingsLayoutBoardTooltip": "Jen deska — minimum rozhraní",
+  "settingsLayoutFullSegment": "Plné",
+  "settingsLayoutFullTooltip": "Standard — hodiny a ovládání",
+  "settingsBoardZoom": "Zvětšení desky",
+  "settingsSquareColors": "Barvy polí",
+  "settingsBoardThemeLabel": "Motiv",
+  "settingsBoardOptions": "Možnosti desky",
+  "settingsCoordinatesTitle": "Souřadnice",
+  "settingsCoordinatesSubtitle": "Popisky a–h a 1–8",
+  "settingsPieceMotionTitle": "Pohyb figurek",
+  "settingsPieceMotionSubtitle": "Animované tahy na desce",
+  "settingsFlipBoardTitle": "Otočit desku",
+  "settingsFlipBoardSubtitle": "Černá k sobě",
+  "settingsRemoteMovesTitle": "Tahy z aplikace",
+  "settingsRemoteMovesSubtitle": "Hrát z aplikace, ne jen z desky",
+  "settingsLiveEvalTitle": "Živé hodnocení",
+  "settingsLiveEvalSubtitle": "Stockfish — plní graf na Analýze během hry",
+  "settingsResetBoardDisplay": "Obnovit výchozí zobrazení desky",
+  "boardStyleWooden": "Dřevo (výchozí)",
+  "boardStyleModernDark": "Moderní tmavý",
+  "boardStyleIceBlue": "Ledově modrý",
+  "boardStyleForestGreen": "Lesní zelený",
+  "boardStyleMarbleGray": "Mramor šedý",
+  "boardStyleMidnight": "Půlnoční",
+  "boardStyleSlate": "Břidlicový",
+  "boardStyleCoral": "Korálový",
+  "settingsAppAppearanceTitle": "Vzhled aplikace",
+  "settingsAppearanceLight": "Světlý vzhled",
+  "settingsAppearanceDark": "Tmavý vzhled",
+  "settingsAppearanceOled": "OLED",
+  "settingsAppearanceSystem": "Podle systému",
+  "settingsColorSchemeLabel": "Barevné schéma",
+  "settingsColorSchemeHelper": "Světlý / Tmavý se projeví hned. Systém sleduje vzhled macOS.",
+  "settingsThemeSystem": "Systém",
+  "settingsThemeLight": "Světlý",
+  "settingsThemeDark": "Tmavý",
+  "settingsThemeOledBlack": "OLED (čistá černá)",
+  "settingsHapticsTitle": "Haptická odezva",
+  "settingsSoundTitle": "Zvukové efekty",
+  "settingsAutoGameSummaryTitle": "Po partii automaticky otevřít shrnutí",
+  "settingsCoachAiTitle": "Trenér a AI",
+  "settingsCoachPriorityIntro": "Pořadí přetahováním: aplikace zkusí prvního poskytovatele, pak dalšího při selhání. Prázdný seznam = jen krátké tipy offline. Klíče zůstávají na tomto zařízení.",
+  "settingsCoachOfflineOnly": "Jen offline",
+  "settingsCoachOpenAiOnly": "Jen OpenAI",
+  "settingsCoachGoogleOnly": "Jen Google",
+  "settingsCoachGroqGoogleOpenAi": "Groq→Google→OpenAI",
+  "settingsCoachOllamaGoogle": "Ollama→Google",
+  "settingsCoachPriorityTopLabel": "Priorita (nahoře = první pokus)",
+  "settingsCoachNoCloudProviders": "Žádný cloud — trenér používá krátké tipy v zařízení.",
+  "settingsCoachRemoveFromChain": "Odebrat z řetězce",
+  "settingsCoachAddProvider": "Přidat poskytovatele",
+  "settingsCoachExplanationLevel": "Úroveň vysvětlení trenéra",
+  "settingsCoachExplanationLevelSubtitle": "1 = začátečník, 4 = expert",
+  "settingsCoachLevelBeginner": "1 – začátečník",
+  "settingsCoachLevelIntermediate": "2 – středně pokročilý",
+  "settingsCoachLevelAdvanced": "3 – pokročilý",
+  "settingsCoachLevelExpert": "4 – expert",
+  "settingsCoachCredentialsHeader": "Přihlašování (vyplň co používáš)",
+  "settingsCoachOpenAiProvider": "OpenAI",
+  "settingsCoachApiKeyLabel": "API klíč",
+  "settingsCoachOpenAiKeyHelper": "platform.openai.com — jen pro trenéra.",
+  "settingsCoachModelIdLabel": "ID modelu",
+  "settingsCoachOpenAiKeysButton": "OpenAI klíče",
+  "settingsCoachGoogleAiStudio": "Google AI Studio",
+  "settingsCoachPasteGoogleKeyHint": "Vlož klíč z Google AI Studio",
+  "settingsCoachGoogleKeyHelper": "Klíč na aistudio.google.com — Gemini / Gemma.",
+  "settingsCoachCustomModel": "Vlastní…",
+  "settingsCoachCustomModelId": "Vlastní ID modelu",
+  "settingsCoachCustomModelHint": "např. gemini-2.5-flash",
+  "settingsCoachGetGoogleKey": "Získat Google AI klíč",
+  "settingsCoachGroqTitle": "Groq (kompatibilní s OpenAI)",
+  "settingsCoachXaiTitle": "xAI (Grok)",
+  "settingsCoachOllamaTitle": "Ollama (lokálně)",
+  "settingsCoachBaseUrlLabel": "Základní URL",
+  "settingsCoachChainSubtitle": "{chain}",
+  "@settingsCoachChainSubtitle": {
+    "placeholders": {
+      "chain": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDeveloperModeUnlockedSnack": "Vývojářský režim odemčen.",
+  "gameControlDisplaySection": "Zobrazení",
+  "gameControlPlayModeSection": "Režim hry",
+  "gameControlSandboxLabel": "Sandbox",
+  "gameControlMovesFromApp": "Tahy z aplikace",
+  "gameControlUndoMove": "Vrátit tah ({n})",
+  "@gameControlUndoMove": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "gameControlExitSandbox": "Ukončit sandbox a obnovit desku",
+  "gameControlLearningModeTitle": "Výukový režim",
+  "gameControlLearningModeSubtitle": "Vysvětlení trenéra v aplikaci",
+  "gameControlExplanationLevelSettings": "Úroveň vysvětlení (1–4) v Nastavení",
+  "gameControlActionsSection": "Akce",
+  "gameControlNewGameEllipsis": "Nová hra…",
+  "gameControlRefreshState": "Obnovit stav",
+  "gameControlPanelTitle": "Ovládání hry",
+  "timerUnavailable": "Časomíra: vypnutá nebo nedostupná",
+  "timerWhiteShort": "Bílá",
+  "timerBlackShort": "Černá",
+  "coachChatTypeFirst": "Nejdřív napiš otázku, pak Odeslat.",
+  "coachChatHide": "Skrýt",
+  "coachChatDismiss": "ZAVŘÍT",
+  "manualConnTitle": "Ruční připojení",
+  "manualConnWifiStatusError": "Stav Wi‑Fi: {error}",
+  "@manualConnWifiStatusError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "manualConnEnterUrlSnack": "Zadej URL desky.",
+  "manualConnStaDisconnectedSnack": "STA odpojeno (příkaz odeslán).",
+  "manualConnClearWifiTitle": "Smazat uloženou Wi‑Fi z NVS?",
+  "manualConnClearWifiBody": "ESP zapomene uloženou síť.",
+  "manualConnNvsClearedSnack": "Wi‑Fi údaje v NVS vymazány.",
+  "manualConnSaveUrlSnack": "URL uložena do prefs.",
+  "manualConnSaveUrl": "Uložit URL",
+  "manualConnTestConnection": "Test spojení (GET snapshot)",
+  "manualConnConnectSession": "Připojit session (Wi‑Fi + poll)",
+  "manualConnWifiStaNvs": "Wi‑Fi STA a NVS",
+  "manualConnRefreshWifi": "Obnovit stav Wi‑Fi",
+  "manualConnDisconnectSta": "Odpojit ESP od STA",
+  "manualConnClearWifiNvs": "Smazat Wi‑Fi z NVS",
+  "haMqttTitle": "Home Assistant a MQTT",
+  "haMqttSavedSnack": "MQTT uloženo na desku.",
+  "haMqttHowToHa": "Jak na Home Assistant",
+  "haMqttBrokerHeader": "MQTT broker",
+  "haMqttSaveToBoard": "Uložit na šachovnici",
+  "haMqttRefreshFromBoard": "Obnovit stav z desky",
+  "haMqttBoardStatusHeader": "Stav na desce",
+  "haMqttModeTile": "Režim",
+  "haMqttMqttTile": "MQTT",
+  "haMqttWifiStaTile": "Wi‑Fi STA",
+  "haMqttGuideBody": "1. Home Assistant musí běžet ve stejné Wi‑Fi síti jako šachovnice (ESP připojené jako klient STA k routeru).\n\n2. V Home Assistantu zapni MQTT broker — nejčastěji doplněk „Mosquitto broker“ (Settings → Add-ons). Poznamenej si port (obvykle 1883) a případné uživatelské jméno a heslo z konfigurace doplňku.\n\n3. Zjisti IP adresu nebo hostname počítače / Raspberry Pi, kde HA běží (např. 192.168.1.42 nebo homeassistant.local). Šachovnice musí na tuto adresu v síti dosáhnout.\n\n4. Níže zadej stejnou adresu jako „Broker (host)“ — jde o adresu MQTT serveru (u běžné instalace stejný stroj jako Home Assistant). Port nech 1883, pokud jsi v Mosquitto neměnil výchozí.\n\n5. Uložením odešleš nastavení do firmware desky přes aktuální spojení (Wi‑Fi nebo Bluetooth). Aplikace CZECHMATE sama k brokeru nepřipojuje — data posílá jen ESP.",
+  "haMqttHostFieldLabel": "Broker (host), např. IP Home Assistant",
+  "haMqttPortFieldLabel": "Port",
+  "haMqttUserFieldLabel": "Uživatel (volitelné)",
+  "haMqttPasswordFieldLabel": "Heslo (volitelné)",
+  "haMqttFooterMock": "Ukázková šachovnice MQTT nepodporuje — připoj reálnou desku.",
+  "haMqttFooterConnectFirst": "Nejdřív připoj šachovnici (Bluetooth nebo Wi‑Fi), pak můžeš uložit broker.",
+  "haMqttFooterBleSave": "Broker uložíš i přes Bluetooth; stav z desky (tlačítko výše) se načte až při HTTP přes Wi‑Fi.",
+  "haMqttFooterTroubleshoot": "Pokud MQTT zůstane offline, zkontroluj firewall na HA, heslo Mosquitto a že ESP je ve stejné síti jako broker.",
+  "haMqttStateConnected": "připojeno",
+  "haMqttStateDisconnected": "nepřipojeno",
+  "haMqttWifiOk": "OK",
+  "haMqttWifiNoLink": "bez spojení",
+  "firmwareDailySecondConfirmBody": "Spustit aktualizaci? Deska stáhne firmware, zapíše flash a restartuje. Nepřerušuj napájení.",
+  "firmwareDailySecondConfirmTitle": "Potvrdit aktualizaci",
+  "profileTitle": "Profil a Elo",
+  "profileDisplayName": "Zobrazované jméno",
+  "profileNameSavedSnack": "Jméno uloženo",
+  "profileSaveName": "Uložit jméno",
+  "profileAvatar": "Avatar",
+  "profileFromGallery": "Z galerie",
+  "profileGalleryError": "Galerie: {error}",
+  "@profileGalleryError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileNameHint": "Jméno zobrazené v profilu",
+  "profilePuzzleEloLine": "Puzzle Elo: {elo}",
+  "@profilePuzzleEloLine": {
+    "placeholders": {
+      "elo": {
+        "type": "String"
+      }
+    }
+  },
+  "profileWeekStatsLine": "Posledních 7 dní: {solved} vyřešeno · {failed} špatných linií",
+  "@profileWeekStatsLine": {
+    "placeholders": {
+      "solved": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "profileHeatmapTitle": "Posledních 28 dní",
+  "profileHeatmapCaption": "Tmavší = více pokusů; zelenější = vyšší úspěšnost.",
+  "profileAvatarHint": "Předvolené ikony nebo fotka z galerie.",
+  "profileEloHelpBody": "Elo se mění po vyřešení hodnoceného puzzlu se známou řešitelnou linií (např. denní puzzle Lichess).",
+  "firmwareManifestSavedSnack": "URL manifestu uložena.",
+  "firmwareUpdateBoardTitle": "Aktualizovat firmware desky?",
+  "firmwareNewVersionLine": "Nová verze: {ver} — na desce: {boardVer}.",
+  "@firmwareNewVersionLine": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      },
+      "boardVer": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareUpdateIntroBody": "Deska stahuje soubor přes HTTPS. Udrž napájení a Wi‑Fi stabilní.",
+  "firmwareFinalConfirmTitle": "Konečné potvrzení",
+  "firmwareFinalConfirmBody": "Spustit OTA na desce teď?",
+  "firmwareYesUpdate": "Ano, aktualizovat",
+  "firmwareDailyRemindersTitle": "Denní připomínky aktualizace",
+  "firmwareDailyRemindersSubtitle": "Upozornit, když je dostupnější firmware.",
+  "firmwareSaveManifestUrl": "Uložit URL manifestu",
+  "firmwareCheckForUpdate": "Zkontrolovat aktualizaci",
+  "firmwareNewVersionChip": "Nová verze {ver}",
+  "@firmwareNewVersionChip": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDownloadOnEspNote": "Stahování probíhá na ESP přes HTTPS.",
+  "firmwareConfirmUpdateTitle": "Potvrdit aktualizaci",
+  "firmwareConfirmUpdateBody": "Spustit aktualizaci firmware na desce?",
+  "firmwareStartingOtaSnack": "Spouštím OTA na desce…",
+  "analysisAppBarTitle": "Analýza",
+  "analysisGameProgress": "Průběh partie",
+  "analysisGameProgressBody": "Půltahy z připojené desky.",
+  "analysisStockfishSection": "Stockfish",
+  "analysisStockfishSubtitle": "Eval řádek z aktuální pozice desky.",
+  "analysisNoBoardPosition": "Žádná pozice z desky",
+  "analysisNoBoardPositionBody": "Připoj Wi‑Fi nebo Bluetooth a otevři Hru.",
+  "analysisOpenPlay": "Otevřít Hru",
+  "analysisChartDisabledTitle": "Graf a hodnocení tahů jsou vypnuté",
+  "analysisChartDisabledSubtitle": "Zapni hodnocení tahů pro skóre kvality.",
+  "analysisEnableMoveEval": "Povolit hodnocení tahů (Stockfish)",
+  "analysisGameOverview": "Přehled partie",
+  "analysisGameOverviewBody": "Materiál, hodiny a zahájení, pokud jsou k dispozici.",
+  "analysisMoveQuality": "Kvalita tahů",
+  "analysisMoveQualityBody": "Průměr 0–100 podle stupně Stockfish a Ø ztráta v cp.",
+  "analysisLastMoveEvalTitle": "Poslední zhodnocení tahu",
+  "analysisMoveHistoryTitle": "Historie tahů",
+  "analysisMoveHistoryTapHint": "Klepnutím otevřeš chronologický průběh.",
+  "analysisSecondLineTitle": "Druhá varianta",
+  "analysisSecondLineBody": "Alternativní pokračování z enginu.",
+  "analysisCustomPositionTitle": "Vlastní pozice",
+  "analysisCustomPositionBody": "Analýza bez fyzické desky.",
+  "analysisDepthLabel": "Hloubka: {n}",
+  "@analysisDepthLabel": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisAnalyzePosition": "Analyzovat pozici",
+  "analysisSandboxFenSnack": "Sandbox z FEN — záložka Hra.",
+  "analysisPreviewInPlay": "Náhled v Hře",
+  "analysisPreviewMoveTitle": "Náhled pozice a tahu",
+  "puzzleRoundExpiredSnack": "Čas kola vypršel.",
+  "puzzleConnectBoardSnack": "Připoj desku (Wi‑Fi nebo BLE).",
+  "puzzleNewGameSentSnack": "Příkaz new_game odeslán.",
+  "puzzleBoardRiddleTitle": "Hádanka na desce",
+  "puzzleTryOnScreen": "Zkusit vyřešit na obrazovce",
+  "puzzleLoadToBoard": "Nahrát na desku (new_game + FEN)",
+  "puzzleSetupWizardLabel": "Průvodce postavením na desce",
+  "puzzleOpenLichess": "Otevřít na Lichess",
+  "puzzleSavePositionTitle": "Uložit pozici",
+  "puzzleSavedSnack": "Uloženo.",
+  "puzzleAddToLibrary": "Přidat do knihovny",
+  "puzzleCustomTitle": "Vlastní",
+  "puzzleSetupOnBoard": "Průvodce na desce",
+  "puzzleDailyTitle": "Denní {id}",
+  "@puzzleDailyTitle": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "puzzleDailySolveTitle": "Denní puzzle",
+  "puzzleSolutionMoves": "Řešení: {n} tahů",
+  "@puzzleSolutionMoves": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "puzzlePoolModeTitle": "Režim fondu",
+  "puzzlePoolMixed": "Mix",
+  "puzzlePoolBundled": "Vestavěné",
+  "puzzlePoolLibrary": "Knihovna",
+  "puzzleTimedRoundTitle": "Časované kolo",
+  "puzzleTimedRoundBody": "Náhodná pozice z vybraného fondu, odpočet v sekundách.",
+  "puzzleNewRound": "Nové kolo",
+  "puzzleStop": "Stop",
+  "puzzleRemainingSeconds": "Zbývá: {n}s",
+  "@puzzleRemainingSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "puzzleSolveOnScreen": "Řešit na obrazovce",
+  "puzzleLoadToBoardShort": "Nahrát na desku",
+  "puzzleSetupWizardShort": "Průvodce postavením",
+  "puzzleBundledOfflineTitle": "Vestavěné pozice (offline)",
+  "puzzleThemeMate": "Mat",
+  "puzzleThemeFork": "Vidlička",
+  "puzzleThemeEndgame": "Koncovka",
+  "puzzleThemeMixed": "Mix",
+  "progressAppBarTitle": "Pokrok",
+  "progressSegBeginner": "Zač.",
+  "progressSegIntermediate": "Str.",
+  "progressSegAdvanced": "Pokr.",
+  "progressSegExpert": "Exp.",
+  "progressTabLearn": "Učení",
+  "progressTabStats": "Statistiky",
+  "progressWelcomeTitle": "Vítej v CzechMate",
+  "progressWelcomeBody": "Sleduj puzzle, trenéra a nastavení desky na jednom místě.",
+  "progressProfilePuzzleEloTitle": "Profil a puzzle Elo",
+  "progressProfilePuzzleEloSubtitle": "Místní přezdívka a puzzle rating.",
+  "progressLearnCardTitle": "Výuka",
+  "progressLearnCardSubtitle": "LED průvodci a AI trenér",
+  "progressAiCoachTitle": "AI trenér",
+  "progressAiCoachBody": "Ptej se a dostávej nápovědy k pozici.",
+  "progressLearningModeTile": "Výukový režim",
+  "progressCoachLevelLabel": "Úroveň trenéra",
+  "progressCoachChatButton": "Chat s trenérem",
+  "progressPositionPlanButton": "Plán pozice",
+  "progressBoardErrorTitle": "Chyba desky",
+  "progressStartingPositionTitle": "Výchozí postavení",
+  "progressStartingPositionBody": "Průvodce srovná figury pomocí LED.",
+  "progressRunWizardStarting": "Spustit průvodce — výchozí postavení",
+  "progressAccountCardTitle": "Účet",
+  "progressAccountCardSubtitle": "Místní profil a aktivita",
+  "progressActiveTransportTitle": "Aktivní transport",
+  "progressNoSessionTitle": "Zatím žádná aktivní session",
+  "progressNoSessionSubtitle": "Otevři Najít desku pro připojení.",
+  "helpAppBarTitle": "czechmate — nápověda",
+  "helpConnectTitle": "Připojení desky",
+  "helpConnectBody": "Pro vyhledání použij Bluetooth, pak Wi‑Fi pokud je dostupné. V Nastavení najdeš ruční URL a režimy.",
+  "helpPlayingTitle": "Hraní partie",
+  "helpPlayingBody": "Karta Hra pro živou synchronizaci, Ovládání hry pro čas a otočení, Analýza pro Stockfish.",
+  "helpCoachTitle": "Trenér a analýza",
+  "helpCoachBody": "Zapni výukový režim a API klíče v Nastavení pro cloud trenéry.",
+  "helpSettingsTitle": "Nastavení a konfigurace",
+  "helpSettingsBody": "Vzhled, NVS, lampa, firmware a MQTT jsou zde.",
+  "coachScreenTitle": "AI trenér",
+  "coachScreenHintTitle": "Zahájení a plány",
+  "coachScreenHintBody": "Zeptej se na nápady k této pozici.",
+  "coachScreenLevelLabel": "Úroveň {level}",
+  "@coachScreenLevelLabel": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "setupModeAppBar": "Režim nastavení",
+  "setupModePiecePlacementTitle": "Rozestavení figurek",
+  "setupModePiecePlacementBody": "Použij průvodce pro srovnání figur pomocí LED.",
+  "setupModeGoBack": "Vrátit se zpět",
+  "wizardSkipStep": "Přeskočit krok",
+  "wizardCancel": "Zrušit",
+  "connDiagTitle": "Diagnostika připojení",
+  "connDiagTransport": "Transport",
+  "connDiagWifiBaseUrl": "Základní Wi‑Fi URL",
+  "connDiagPolling": "Polling",
+  "connDiagWebSocket": "WebSocket",
+  "connDiagPollSuccessTitle": "Úspěšné snapshot GET (včetně 304)",
+  "connDiagPollFailureTitle": "Chybné GET / výjimky při poll",
+  "connDiagWsFramesTitle": "WS zprávy (rámce)",
+  "connDiagLastPollOk": "Poslední úspěšný poll",
+  "connDiagLastErrorTitle": "Poslední chyba",
+  "connDiagActive": "aktivní",
+  "connDiagOff": "vypnuto",
+  "newGameSheetTitle": "Nová hra",
+  "newGameSheetSubtitle": "Zvol časovou kontrolu a stranu.",
+  "newGameWhiteBottom": "Bílá dole",
+  "newGameBlackBottom": "Černá dole",
+  "newGameCustomTimeTitle": "Vlastní čas (typ 14)",
+  "newGameCustomTimeSubtitle": "Minuty + přírůstek odeslané na desku.",
+  "newGameMinutesPerSide": "Minuty na stranu: {n}",
+  "@newGameMinutesPerSide": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "newGameIncrementSeconds": "Přírůstek (s): {n}",
+  "@newGameIncrementSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "newGameStartOnBoard": "Spustit na desce",
+  "newGameConnectFirstSnack": "Nejdřív připoj desku (Wi‑Fi nebo Bluetooth).",
+  "newGameStartedSnack": "Nová hra na desce spuštěna.",
+  "newGameErrorSnack": "Chyba: {error}",
+  "@newGameErrorSnack": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "newGameSheetBody": "Stejně jako na iOS: časová kontrola se odešle na desku a pak začne nová hra.",
+  "newGameBoardViewSection": "Pohled na desku (která barva je dole)",
+  "newGameWhoStartsNote": "Kdo začíná určuje deska / pravidla; zde jen otáčíš pohled (uloženo v Nastavení).",
+  "newGameFirmwarePresets": "Předvolby firmware",
+  "newGameCustomSummary": "{min} min + {inc} s / tah",
+  "@newGameCustomSummary": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "inc": {
+        "type": "int"
+      }
+    }
+  },
+  "learnAppBarTitle": "Výuka šachu",
+  "learnBoardLedHint": "Propoj šachovnici a využij LED nápovědy přímo na desce při procvičování těchto lekcí.",
+  "learnSnackLesson": "Lekce: {title} — interaktivní obsah připravujeme.",
+  "@learnSnackLesson": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "learnSecBasics": "Základy",
+  "learnSecSpecial": "Zvláštní tahy",
+  "learnSecTactics": "Taktiky",
+  "learnSecStrategy": "Strategie",
+  "learnL1Title": "Jak se pohybují figurky",
+  "learnL1Desc": "Král, dáma, věž, střelec, jezdec, pěšák — nauč se pohyby každé figurky.",
+  "learnL2Title": "Cíl šachové hry",
+  "learnL2Desc": "Šachmat, pat, remíza — co znamenají stavy konce partie.",
+  "learnL3Title": "Hodnota figurek",
+  "learnL3Desc": "Pěšák=1, Jezdec/Střelec=3, Věž=5, Dáma=9 — proč na tom záleží.",
+  "learnL4Title": "Rošáda",
+  "learnL4Desc": "Velká a malá rošáda — jak, kdy a proč.",
+  "learnL5Title": "Braní mimochodem",
+  "learnL5Desc": "Zvláštní braní pěšákem — pravidlo, na které začátečníci zapomínají.",
+  "learnL6Title": "Promoce",
+  "learnL6Desc": "Pěšák na osmé řadě — jak zvolit správnou figuru.",
+  "learnL7Title": "Vidlička",
+  "learnL7Desc": "Napadnout dvě figurky najednou — základní taktický motiv.",
+  "learnL8Title": "Svázání",
+  "learnL8Desc": "Figurka nemůže táhnout, protože by odkryla krále.",
+  "learnL9Title": "Scholar’s Mate",
+  "learnL9Desc": "Šachmat ve čtyřech tazích — a jak mu čelit.",
+  "learnL10Title": "Ovládnutí středu",
+  "learnL10Desc": "Proč jsou pole e4, d4, e5, d5 klíčová v zahájení.",
+  "learnL11Title": "Bezpečnost krále",
+  "learnL11Desc": "Rošáda včas jako pojistka — kdy a jak krále schovat.",
+  "learnL12Title": "Koncovka: král a pěšák",
+  "learnL12Desc": "Jak přeměnit výhodu pěšáka na výhru v koncovce.",
+  "devSettingsTitle": "Diagnostika a vývojář",
+  "devStockfishFenHeader": "Stockfish a FEN",
+  "devMoveEvalTile": "Eval tahů (moveEvaluationEnabled)",
+  "devHintDepthTile": "Hloubka nápovědy (hintDepth): {n}",
+  "@devHintDepthTile": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "devCurrentFenLabel": "Aktuální FEN z desky:",
+  "devNetworkTransportHeader": "Síť a transport",
+  "devBoardBaseUrlTile": "Základní URL desky (ESP)",
+  "devActiveLinkTile": "Stav spojení (Active Link)",
+  "devCoachTraceTile": "Podrobné logy trenéra (coach trace)",
+  "devStartConnection": "Spustit připojení",
+  "devStopTransport": "Zastavit",
+  "devTransportStoppedSnack": "Transport zastaven.",
+  "devRefreshedFromPrefsSnack": "Obnoveno z prefs.",
+  "devPingSnapshot": "Ping snapshot (RTT): {result}",
+  "@devPingSnapshot": {
+    "placeholders": {
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "devConnectionDiagTile": "Diagnostika připojení (REST / WS)",
+  "devDisconnectStaSnack": "STA odpojeno.",
+  "devClearWifiNvsTitle": "Smazat Wi‑Fi z NVS?",
+  "devClearWifiNvsBody": "ESP ztratí uloženou síť.",
+  "devWifiNvsClearedSnack": "Wi‑Fi NVS vymazáno.",
+  "devClearWifiNvsButton": "Smazat uloženou Wi‑Fi z NVS",
+  "devWifiConfigHeader": "Konfigurace Wi‑Fi na desce",
+  "devWifiUnavailable": "Stav Wi‑Fi není k dispozici. Obnov níže.",
+  "devNvsToolsButton": "Detailní nástroje (třídy NVS)",
+  "devErrorPrefix": "Chyba: {error}",
+  "@devErrorPrefix": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "devSentToEspSnack": "Odesláno na ESP.",
+  "boardNvsTitle": "Paměť šachovnice (NVS)",
+  "boardNvsSavedSnack": "Uloženo do NVS desky.",
+  "boardNvsLedHeader": "Šachová nápověda na desce (LED)",
+  "boardNvsEvalMode": "Eval mód (počítat nejlepší tahy)",
+  "boardNvsStockfishDepth": "Stockfish hloubka D1–D18",
+  "boardNvsLedBest": "Zobrazit LED odměny (nejlepší tah)",
+  "boardNvsLedGood": "Zobrazit LED odměny (dobrý tah)",
+  "boardNvsLedCapture": "Zobrazit LED odměny (braní)",
+  "boardNvsUartStats": "Zobrazit statistiku nápovědy v UART",
+  "boardNvsLiftBeforeBotTarget": "LED cíl u bota až po zvednutí",
+  "boardNvsTutorialMode": "Výukový mód (tutorials)",
+  "boardNvsConfirmNewGameLed": "Potvrzovat novou hru LED tlačítkem",
+  "boardNvsHintLimit": "Limit nápověd (0 = neomezeno)",
+  "boardNvsHintTierTitle": "Typ nápovědy (MoveHintTier)",
+  "boardNvsHintTierSubtitle": "H1 = jen nejlepší tah, H2 = top 3, H3 = vše dle Stockfish",
+  "boardNvsH1": "H1 – Nejlepší",
+  "boardNvsH2": "H2 – Top 3",
+  "boardNvsH3": "H3 – Vše",
+  "boardNvsOpponentHeader": "Nastavení oponenta (bota)",
+  "boardNvsBotMode": "Režim bota",
+  "boardNvsPvp": "Hráč vs hráč (vypnuto)",
+  "boardNvsPvb": "Hráč vs bot",
+  "boardNvsBotStrength": "Síla bota (úroveň)",
+  "boardNvsBotPlaysAs": "Za koho hraje bot",
+  "boardNvsDemoHeader": "Demo režim",
+  "boardNvsSaveToBoard": "Uložit do NVS desky",
+  "boardDemoStateLine": "Stav na desce: demo {on}",
+  "@boardDemoStateLine": {
+    "placeholders": {
+      "on": {
+        "type": "String"
+      }
+    }
+  },
+  "boardDemoOn": "zapnuto",
+  "boardDemoOff": "vypnuto",
+  "boardDemoEnabledConfig": "Demo zapnuto (konfigurace)",
+  "boardDemoSpeedLabel": "Rychlost animace: {ms} ms",
+  "@boardDemoSpeedLabel": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "boardDemoSendConfig": "Odeslat konfiguraci demo",
+  "boardDemoStart": "Spustit demo",
+  "boardLedSentSnack": "LED nápověda odeslána.",
+  "boardLedGuidanceTitle": "LED nápověda (úroveň {level} / 5)",
+  "@boardLedGuidanceTitle": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "boardLedSendLevel": "Odeslat LED úroveň",
+  "boardGuidedCaptureTitle": "Navigovaná braní",
+  "boardGuidedCaptureSubtitle": "LED zvýrazní možná braní.",
+  "lampBoardLightTitle": "Světlo desky",
+  "lampDetailTitle": "Lampa — detail",
+  "lampDetailsButton": "Podrobnosti lampy",
+  "lampHeader": "Lampa",
+  "lampNeedsConnection": "Vyžaduje připojení k desce (Wi‑Fi nebo Bluetooth).",
+  "lampOnTitle": "Lampa zapnutá",
+  "lampBrightnessLabel": "Jas {n}%",
+  "@lampBrightnessLabel": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "lampSendBrightness": "Odeslat jas",
+  "lampBrightnessSentSnack": "Jas odeslán na desku.",
+  "lampColorStateSentSnack": "Barva a stav lampy odeslány.",
+  "lampGenericCommandSnack": "Příkaz lampy odeslán.",
+  "lampBlockStatusSummary": "Režim: {mode} · RGB({r},{g},{b}) · limit nápověd: {h} · auto zhasnutí: {t} s",
+  "lampRgbHint": "Barva (R G B) — POST /api/light/command",
+  "lampSendColor": "Odeslat barvu / stav lampy",
+  "lampGameModeButton": "Režim hry (LED podle partie)",
+  "lampColorLabel": "Barva",
+  "lampColorfulnessLabel": "Sytost barvy",
+  "lampLedBrightnessPct": "Jas LED (%)",
+  "lampStudioColorTitle": "Barva",
+  "lampStudioColorHint": "Klepnutí nebo táhnutí — odstín a sytost (střed = bílá).",
+  "lampStudioValueTitle": "Světlost barvy",
+  "lampStudioBoardPreview": "Náhled desky",
+  "lampStudioPreviewGlowHint": "Náhled rozptylu světla",
+  "lampStudioPreviewLampOff": "Lampa vypnutá",
+  "lampStudioScenes": "Scény",
+  "lampStudioApplyToBoard": "Použít na desku",
+  "lampStudioGameMode": "Režim partie",
+  "lampStudioAppliedOk": "Barva a jas odeslány na desku.",
+  "lampStudioGameModeOk": "Režim lampy podle partie nastaven.",
+  "lampStudioNeedConnection": "Pro ovládání lampy připoj desku přes Wi‑Fi nebo Bluetooth.",
+  "lampStudioAutoOff": "Automatické zhasnutí",
+  "lampStudioSaveTimer": "Uložit časovač",
+  "lampStudioTimerSavedOk": "Časovač auto zhasnutí uložen.",
+  "lampStudioRgbLine": "RGB ({r}, {g}, {b})",
+  "@lampStudioRgbLine": {
+    "placeholders": {
+      "r": {
+        "type": "int"
+      },
+      "g": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "lampPresetWarmWhite": "Teplá bílá",
+  "lampPresetCoolWhite": "Studená bílá",
+  "lampPresetCalmBlue": "Klidná modrá",
+  "lampPresetForestGreen": "Lesní zelená",
+  "lampPresetWarmth": "Teplo",
+  "lampPresetPurpleScene": "Fialová scéna",
+  "lampPresetRed": "Červená",
+  "lampPresetAmber": "Jantar",
+  "puzzleTabDaily": "Denní",
+  "puzzleTabLibrary": "Knihovna",
+  "puzzleTabTraining": "Trénink",
+  "puzzleBackLiveTooltip": "Zpět na živou partii",
+  "puzzlePoolEmptySnack": "Žádné pozice v tomto režimu fondu — přepni na Mix nebo přidej knihovnu.",
+  "puzzleLibraryEmptyHint": "Zatím žádné položky — použij tlačítko výše nebo „Přidat“ z denního puzzlu.",
+  "puzzleLoadDaily": "Načíst denní puzzle",
+  "puzzleRefreshDaily": "Obnovit denní úlohu",
+  "puzzleAlreadyInLibrary": "Už je v knihovně",
+  "puzzleSavedToLibraryBanner": "Uloženo do knihovny.",
+  "puzzleLibNameLabel": "Název",
+  "puzzleLibFenLabel": "FEN",
+  "puzzleGoPlaySandbox": "Sandbox — záložka Hra.",
+  "puzzleGoPlayPuzzle": "Puzzle ({title}) — záložka Hra.",
+  "@puzzleGoPlayPuzzle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "puzzleSideBlackMove": "Černý na tahu",
+  "puzzleSideWhiteMove": "Bílý na tahu",
+  "puzzleSideUnknown": "Na tahu: ?",
+  "puzzleTrainingPoolStats": "{poolN} pozic · Zahájených kol: {sessions}",
+  "@puzzleTrainingPoolStats": {
+    "placeholders": {
+      "poolN": {
+        "type": "int"
+      },
+      "sessions": {
+        "type": "int"
+      }
+    }
+  },
+  "puzzleThemeMateIn1": "Mat 1 tahem",
+  "puzzleThemeAdvancedPawn": "Volný pěšec",
+  "puzzleThemeOpening": "Zahájení",
+  "puzzleThemeKingsideAttack": "Útok na krále",
+  "puzzleThemeMiddlegame": "Střední hra",
+  "puzzleThemeTactic": "Taktika",
+  "setupWizardErrMissingFen": "Chybí FEN.",
+  "setupWizardErrConnectBoard": "Připoj desku přes Wi‑Fi nebo Bluetooth (mock režim tutoriál nepodporuje).",
+  "setupWizardErrNoSteps": "Z FEN nešlo sestavit žádné kroky.",
+  "setupWizardErrGeneric": "Chyba",
+  "setupWizardTitleStandard": "Základní postavení",
+  "setupWizardTitleFromFen": "Postavení z FEN",
+  "setupWizardDoneStandard": "Deska potvrdila základní postavení.",
+  "setupWizardDoneFenLoaded": "Pozice byla nahrána na desku.",
+  "setupWizardDoneNoLoad": "Průvodce dokončen.",
+  "setupWizardBtnDone": "Hotovo",
+  "setupWizardStepProgress": "Krok {current} / {total}",
+  "@setupWizardStepProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "setupWizardPlacePieceOn": "Polož figurku na {square}",
+  "@setupWizardPlacePieceOn": {
+    "placeholders": {
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "setupWizardPieceDetail": "{pieceName} → {square}",
+  "@setupWizardPieceDetail": {
+    "placeholders": {
+      "pieceName": {
+        "type": "String"
+      },
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "setupWizardLedHint": "LED na desce ukazuje cílové pole. Postup se potvrdí senzorem matice nebo správnou figurkou ve snapshotu.",
+  "setupWizardSkipStep": "Přeskočit krok",
+  "boardSetupWhiteKing": "bílý král",
+  "boardSetupBlackKing": "černý král",
+  "boardSetupWhiteQueen": "bílá dáma",
+  "boardSetupBlackQueen": "černá dáma",
+  "boardSetupWhiteRook": "bílá věž",
+  "boardSetupBlackRook": "černá věž",
+  "boardSetupWhiteBishop": "bílý střelec",
+  "boardSetupBlackBishop": "černý střelec",
+  "boardSetupWhiteKnight": "bílý jezdec",
+  "boardSetupBlackKnight": "černý jezdec",
+  "boardSetupWhitePawn": "bílý pěšec",
+  "boardSetupBlackPawn": "černý pěšec",
+  "boardSetupPieceGeneric": "figurka",
+  "gameRemoteEmptySquareSnack": "Na tomto poli není figurka.",
+  "gameRemoteEmptySquareHud": "Prázdné pole",
+  "gameRemoteWrongTurnSnack": "Vyber figurku barvy, která je zrovna na tahu.",
+  "gameRemoteWrongTurnHud": "Nejsi na tahu",
+  "gamePromotionPickTitle": "Promoce — vyber figuru",
+  "gamePromotionQueen": "Dáma",
+  "gamePromotionRook": "Věž",
+  "gamePromotionBishop": "Střelec",
+  "gamePromotionKnight": "Jezdec",
+  "gamePromotionFailedSnack": "Promoce se nepodařila",
+  "semanticsChessBoard": "Šachovnice, osm krát osm polí. Klepnutím vybírej pole.",
+  "moveHistoryEmpty": "Historie tahů zatím prázdná",
+  "moveHistoryPieceSubtitle": "Figura: {piece}",
+  "@moveHistoryPieceSubtitle": {
+    "placeholders": {
+      "piece": {
+        "type": "String"
+      }
+    }
+  },
+  "bundledPuzzleMateQg8Title": "Mat dámou",
+  "bundledPuzzleMateQg8Subtitle": "Bílý · mat v 1 tahu",
+  "bundledPuzzleBackRankTitle": "Zadní řada",
+  "bundledPuzzleBackRankSubtitle": "Bílý · mat věží",
+  "bundledPuzzleRookCornerTitle": "Věž proti králi",
+  "bundledPuzzleRookCornerSubtitle": "Bílý · koncovka",
+  "bundledPuzzleBlackMateTitle": "Černý na tahu",
+  "bundledPuzzleBlackMateSubtitle": "Černý · mat v 1 tahu",
+  "bundledPuzzlePromotionTitle": "Postup pěšce",
+  "bundledPuzzlePromotionSubtitle": "Bílý · proměna",
+  "bundledPuzzleTwoRooksTitle": "Dvě věže",
+  "bundledPuzzleTwoRooksSubtitle": "Bílý · dvě věže",
+  "settingsTileSmartHomeTitle": "Smart home (MQTT)",
+  "settingsTileSmartHomeSubtitle": "Home Assistant a MQTT",
+  "settingsHaMqttOpenButton": "Home Assistant a MQTT (návod + formulář)",
+  "settingsTileBoardLightTitle": "Světlo desky",
+  "settingsTileBoardLightSubtitle": "Barva, jas, scény, auto‑vypnutí",
+  "settingsTileModulesTitle": "Moduly a učení",
+  "settingsTileModulesSubtitle": "Úvod, puzzle, profil, pokrok, nápověda",
+  "settingsNavAppTour": "Průvodce aplikací (úvod)",
+  "settingsNavChessPuzzles": "Šachové puzzle",
+  "settingsNavProfileElo": "Profil a puzzle Elo",
+  "settingsNavProgress": "Pokrok (učení a statistiky)",
+  "settingsNavHelp": "Nápověda",
+  "settingsTileNvsDiagTitle": "Paměť desky a diagnostika",
+  "settingsTileNvsDiagSubtitle": "NVS pravidla, vývojářské nástroje",
+  "settingsNavBoardNvs": "Pravidla NVS desky (LED, bot)",
+  "settingsNavDeveloperDiag": "Vývojářská diagnostika",
+  "settingsTileAboutTitle": "O aplikaci",
+  "settingsTileAboutSubtitle": "Verze, soukromí, systém",
+  "settingsAboutVersionLoading": "Načítám verzi…",
+  "settingsAboutVersionLine": "Verze {version} ({build}) • Klepnutím na „Nastavení“ v liště 7× odemkneš vývojářský režim.",
+  "@settingsAboutVersionLine": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsPrivacyTitle": "Soukromí",
+  "settingsPrivacyBody": "Tento build neodesílá analytiku. Provoz jde jen na tvou desku v lokální síti nebo přes Bluetooth.",
+  "settingsIcloudTitle": "iCloud",
+  "settingsIcloudBody": "Synchronizace puzzlů přes iCloud (CloudKit) je plánovaná; tento build nesynchronizuje.",
+  "settingsLiveActivityTitle": "Stav časomíry mimo aplikaci",
+  "settingsLiveActivitySubtitle": "iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: probíhající notifikace (Android 13+ je potřeba povolit oznámení). Zapíná se z herní obrazovky.",
+  "settingsLiveActivityIosDisabledSnack": "Live Activities jsou v systému vypnuté. Zapněte je v Nastavení → czechmate → Live Activities.",
+  "settingsWearMirrorTitle": "Zrcadlit časomíru na Wear OS",
+  "settingsWearMirrorSubtitle": "Google Data Layer — stejný stav jako probíhající notifikace; vyžaduje párování hodinek Wear OS.",
+  "settingsWatchMirrorTitle": "Zrcadlit časomíru na Apple Watch",
+  "settingsWatchMirrorSubtitle": "WatchConnectivity — stejný stav jako Live Activity; na hodinkách je základní UI + Pauza/Pokračovat.",
+  "settingsFactoryTileTitle": "Tovární reset desky",
+  "settingsFactoryTileSubtitle": "Smaže NVS na ESP — zařízení jako přístupový bod",
+  "settingsFactoryDialogTitle": "Tovární reset",
+  "settingsFactoryDialogBody": "Smazat celé NVS desky (Wi‑Fi, hesla, MQTT, předvolby)? Zařízení se restartuje jako Wi‑Fi přístupový bod.",
+  "settingsFactoryErase": "Smazat",
+  "settingsFactoryCommandSent": "Příkaz odeslán.",
+  "settingsFactoryError": "Chyba: {error}",
+  "@settingsFactoryError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFactoryRunButton": "Spustit tovární reset desky",
+  "settingsCoachOllamaUrlHelper": "Zadej URL končící na /v1 (např. :11434/v1). Jen :11434 bez /v1 dřív nefungovalo — u portu 11434 to teď appka doplní.",
+  "settingsCoachOpenAiBaseLabel": "OpenAI API základna",
+  "settingsCoachModelNameLabel": "Název modelu",
+  "settingsCoachEnterGeminiModelSnack": "Zadej ID modelu Google AI (nebo zvol předvolbu).",
+  "settingsCoachSavedSnack": "Nastavení trenéra uloženo.",
+  "settingsCoachSaveButton": "Uložit nastavení trenéra",
+  "settingsCoachGoogleKeyButton": "Získat Google AI klíč",
+  "settingsCoachGroqConsoleButton": "Konzole Groq",
+  "settingsCoachXaiConsoleButton": "Konzole xAI",
+  "boardNvsRefreshTooltip": "Obnovit z desky",
+  "boardNvsFetchFailedFallback": "Data z desky se nepodařilo načíst. Klepnutím na ↻ to zkus znovu.",
+  "boardNvsMergeHint": "Při uložení na desku se z aplikace sloučí Stockfish hloubka ({depth}) a přepínač eval ({eval}) do NVS payloadu (stejně jako iOS).",
+  "@boardNvsMergeHint": {
+    "placeholders": {
+      "depth": {
+        "type": "String"
+      },
+      "eval": {
+        "type": "String"
+      }
+    }
+  },
+  "boardNvsEvalOn": "zap.",
+  "boardNvsEvalOff": "vyp.",
+  "boardNvsHintTierFootnote": "H1–H3 v telefonu (`czechmate.moveHintTier`) je samostatné od LED úrovně na desce; při POST výše se do NVS propíše i hloubka/eval z diagnostiky aplikace.",
+  "boardNvsFooterMock": "Ukázková deska: NVS zápis se neprovede na reálný hardware.",
+  "boardNvsFooterWifiActive": "Wi‑Fi session je aktivní — tlačítkem „Uložit“ odešleš bot režim do NVS na ESP.",
+  "boardNvsFooterBle": "BLE: podle firmware lze posílat NVS/UI blob; pro jistotu ověř stav na webu desky.",
+  "boardNvsFooterGeneric": "Pro spolehlivý zápis bota do NVS připoj desku (Wi‑Fi doporučeno).",
+  "boardNvsHttpBleExplain": "Bluetooth je připojený, ale načtení NVS z této obrazovky probíhá přes HTTP. V Nastavení ulož platnou adresu desky (STA IP, např. http://192.168.x.x), nebo aktivuj Wi‑Fi session na tuto IP.",
+  "boardNvsHttpWifiNoUrl": "Wi‑Fi session bez platné základní URL. Obnov připojení na záložce Hra → správa šachovnice.",
+  "boardNvsHttpMissingUrl": "Chybí platná HTTP adresa desky. V Nastavení vyplň „Default board URL“ (kompletní http://…) a zkus znovu (ikonka ↻).",
+  "boardHttpMissingUrlBody": "Adresa HTTP desky chybí nebo je neplatná. V Nastavení ulož celou URL (např. http://192.168.4.1 nebo STA IP desky). Bluetooth může fungovat i bez této URL pro živou hru.",
+  "boardHttpFailBle": "Bluetooth je připojený, ale HTTP požadavek selhal (špatná URL, timeout nebo web lock).",
+  "boardHttpFailWifi": "Wi‑Fi session aktivní — ověř URL desky a že deska odpovídá.",
+  "boardHttpFailMock": "Ukázková deska — HTTP na hardware neplatí.",
+  "boardHttpFailNone": "Žádné aktivní připojení k desce.",
+  "boardHttpFailDetail": "{link} Detail: {detail}",
+  "@boardHttpFailDetail": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "boardHttpErrGeneric": "Chyba komunikace s deskou: {error}",
+  "@boardHttpErrGeneric": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "progressSegmentBeg": "Zač.",
+  "progressSegmentInt": "Stř.",
+  "progressSegmentAdv": "Pokr.",
+  "progressSegmentExp": "Exp.",
+  "progressLearningModeTitle": "Výukový režim",
+  "progressCoachLevelTitle": "Úroveň trenéra",
+  "progressTransportActiveTitle": "Aktivní přenos",
+  "progressNoSessionYet": "Zatím žádná aktivní session",
+  "progressLevelBeginner": "Začátečník",
+  "progressLevelIntermediate": "Středně pokročilý",
+  "progressLevelAdvanced": "Pokročilý",
+  "progressLevelExpert": "Expert",
+  "progressLevelNumber": "Úroveň {n}",
+  "@progressLevelNumber": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisIntroEvalHint": "Eval tahů a graf — chess-api nebo vlastní URL v Nastavení (vývojář).",
+  "analysisHalfMoveOrderHint": "Každý řádek je jeden tah v pořadí — nejdřív bílý, pak černý.",
+  "analysisNoBoardPositionHint": "Na záložce Hra připoj šachovnici. Níže můžeš analyzovat vlastní FEN.",
+  "analysisChartDisabledBoardSubtitle": "Zapni přepínač níže nebo v Nastavení → Vzhled šachovnice.",
+  "analysisOverviewSubtitleEval": "Eval pozice po tahu (perspektiva bílého: + výhoda bílého)",
+  "analysisChartFillHintLiveEvalOn": "Graf se naplní po tazích, až Stockfish vyhodnotí pozici (hraj na kartě Hra s internetem).",
+  "analysisChartFillHintLiveEvalOff": "Po zapnutí automatického vyhodnocení uvidíš křivku zde.",
+  "analysisClearEvalData": "Vymazat graf a uložené evaluace tahů",
+  "analysisMoveQualitySideLast3": "Poslední 3 tahy strany",
+  "analysisMoveQualitySideLast10": "Posledních 10 tahů strany",
+  "analysisMoveQualityFullGame": "Celá partie",
+  "analysisSecondLineComputing": "Počítám…",
+  "analysisSecondLineLoadButton": "Načíst druhou variantu (ze session FEN)",
+  "analysisSecondLineSameMove": "Obě hloubiny dávají stejný tah {from}→{to}.",
+  "@analysisSecondLineSameMove": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisSecondLineEvalApprox": " · eval ≈ {pawns} pěš.",
+  "@analysisSecondLineEvalApprox": {
+    "placeholders": {
+      "pawns": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisFreeAnalyzing": "Počítám…",
+  "analysisBestMoveLine": "Nejlepší tah: {from}–{to}{evalSuffix}{extra}",
+  "@analysisBestMoveLine": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "evalSuffix": {
+        "type": "String"
+      },
+      "extra": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisQualitySummaryLine": "{quality}{avgCp} · {count} tahů",
+  "@analysisQualitySummaryLine": {
+    "placeholders": {
+      "quality": {
+        "type": "String"
+      },
+      "avgCp": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisAvgLossCp": " · Ø ztráta {cp} cp",
+  "@analysisAvgLossCp": {
+    "placeholders": {
+      "cp": {
+        "type": "String"
+      }
+    }
+  },
+  "gameSandboxLoadPositionFirst": "Nejdřív načti pozici (připoj desku nebo použij demo).",
+  "gameSandboxSelectPiece": "Vyber figurku",
+  "gameSandboxWrongSide": "Není tah této barvy",
+  "gameSandboxIllegalMove": "Neplatný tah",
+  "gameSandboxIllegalMoveSandbox": "Neplatný tah (sandbox)",
+  "gameSandboxCouldNotLoadFen": "Nepodařilo se načíst FEN.",
+  "gameSandboxPositionRestored": "Pozice obnovena — zkus znovu.",
+  "puzzleSuccessLineWithElo": "Správně! Linie · +{delta} Elo",
+  "@puzzleSuccessLineWithElo": {
+    "placeholders": {
+      "delta": {
+        "type": "int"
+      }
+    }
+  },
+  "puzzleSuccessLine": "Správně! Linie.",
+  "puzzleWrongResetting": "To není řešení — obnovuji pozici.",
+  "gameControlWhiteBottom": "Bílá dole",
+  "gameControlBlackBottom": "Černá dole",
+  "gameControlCoordsOn": "Souřadnice zap.",
+  "gameControlCoordsOff": "Souřadnice vyp.",
+  "gameControlBoardSizeHint": "Velikost desky: Nastavení → Vzhled desky.",
+  "gameControlMoveHint": "Nápověda tahu",
+  "gameControlPanelSubtitle": "Zobrazení · Režim · Akce",
+  "gameControlLearningCloudHint": "Cloud trenér v aplikaci; Stockfish na desce řídí nápovědní LED dle NVS.",
+  "gameRemoteMovesWifi": "Dvojitým klepnutím na pole odešleš tah na desku přes Wi‑Fi.",
+  "gameRemoteMovesBle": "Dvojitým klepnutím na pole odešleš tah přes Bluetooth.",
+  "gameRemoteMovesMock": "Demo: dvojité klepnutí odešle tah lokálně (simulace desky + hodin).",
+  "gameRemoteMovesNoBoard": "Zapnuto, ale deska není připojená. Připoj přes Bluetooth.",
+  "gameRemoteMovesConnect": "Zapnuto — připoj desku přes Wi‑Fi nebo Bluetooth pro odesílání tahů.",
+  "gameBoardRefreshedSnack": "Stav desky obnoven",
+  "gameDemoSnapshotReloadedSnack": "Demo snapshot znovu načten",
+  "timerCenterGameOver": "Konec partie",
+  "timerCenterRunning": "Běží",
+  "timerCenterStopped": "Stojí",
+  "coachSetupBannerBody": "Seznam priorit trenéra není prázdný, ale žádný poskytovatel nemá vyplněné přihlašování. Otevři Nastavení → Trenér a AI a doplň API klíče (nebo URL Ollamy) pro alespoň jednoho z nich.",
+  "coachErrorSomethingWrong": "Něco se pokazilo: {error}",
+  "@coachErrorSomethingWrong": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "coachOfflineLabel": "Offline",
+  "coachDisconnectedBanner": "Deska není připojená — AI nedostává aktuální pozici z partie.",
+  "coachEmptyPromptEmbedded": "Zeptej se na plán, taktiku nebo konkrétní pole.",
+  "coachEmptyPromptFullscreen": "Zeptej se na aktuální pozici nebo obecně na šachy.",
+  "coachInputHintEmbedded": "Zeptej se trenéra…",
+  "coachInputHintFullscreen": "Zeptej se na pozici nebo plán…",
+  "coachChainFailedBanner": "Nepodařilo se kontaktovat žádného nastaveného AI poskytovatele (viz Nastavení → Trenér a AI).",
+  "settingsLinkDisconnected": "Odpojeno",
+  "settingsLinkConnecting": "Připojuji…",
+  "settingsLinkNoResponseYet": "Deska zatím neodpovídá",
+  "settingsLinkConnectedLive": "Připojeno (živě)",
+  "settingsCoachSubtitleOfflineTips": "Jen krátké tipy v zařízení (bez cloudu)"
 }

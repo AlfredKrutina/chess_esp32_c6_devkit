@@ -117,23 +117,23 @@ class FirmwareUpdateDailyPrompt {
     }
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Confirm update'),
-        content: const Text(
-          'Start the update? The board will download firmware, write flash, and reboot. '
-          'Do not interrupt power.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Yes, update'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final l10n = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(l10n.firmwareDailySecondConfirmTitle),
+          content: Text(l10n.firmwareDailySecondConfirmBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l10n.commonCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.firmwareYesUpdate),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true) {
@@ -145,7 +145,7 @@ class FirmwareUpdateDailyPrompt {
 
     var messenger = ScaffoldMessenger.maybeOf(context);
     messenger?.showSnackBar(
-      const SnackBar(content: Text('Starting OTA on the board…')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.firmwareStartingOtaSnack)),
     );
 
     final err = await FirmwareOtaRunner.execute(

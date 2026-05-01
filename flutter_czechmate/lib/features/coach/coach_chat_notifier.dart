@@ -6,7 +6,9 @@ import '../../core/constants/app_environment.dart';
 import '../../core/models/coach_ai_provider.dart';
 import '../../core/models/game_snapshot.dart';
 import '../../core/services/coach_ai_completion_service.dart';
+import '../../core/localization/locale_bridge.dart';
 import '../../core/services/prefs_repository.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/utils/fen_from_board.dart';
 import '../connection/board_session_notifier.dart';
 import 'coach_manager.dart';
@@ -163,8 +165,8 @@ class CoachChatNotifier extends StateNotifier<CoachChatState> {
             debugPrint('[staging][coach] fallback to offline tips after chain failure');
           }
           final offline = await _offlineCoachReply(snap: snap, level: level);
-          reply =
-              'Could not reach any configured AI provider (see Settings → Coach & AI).\n\n$offline';
+          final s = appStringsForPrefs(prefs);
+          reply = '${s.coachChainFailedBanner}\n\n$offline';
           state = state.copyWith(clearLastSuccessProvider: true);
         } else {
           reply = result.text;
@@ -177,18 +179,22 @@ class CoachChatNotifier extends StateNotifier<CoachChatState> {
         busy: false,
       );
     } catch (e) {
+      final s = appStringsForPrefs(_ref.read(prefsRepositoryProvider));
       state = state.copyWith(
         messages: [
           ...state.messages,
-          CoachChatMessage(text: 'Something went wrong: $e', isUser: false, isError: true),
+          CoachChatMessage(
+              text: s.coachErrorSomethingWrong('$e'),
+              isUser: false,
+              isError: true),
         ],
         busy: false,
       );
     }
   }
 
-  String providerChipLabel(PrefsRepository prefs) {
-    if (prefs.coachAiPriority.isEmpty) return 'Offline';
+  String providerChipLabel(PrefsRepository prefs, AppLocalizations l10n) {
+    if (prefs.coachAiPriority.isEmpty) return l10n.coachOfflineLabel;
     if (state.lastSuccessProvider != null) {
       return state.lastSuccessProvider!.shortLabel;
     }
@@ -201,10 +207,7 @@ class CoachChatNotifier extends StateNotifier<CoachChatState> {
     return !CoachAiCompletionService.anyProviderConfigured(prefs);
   }
 
-  static String setupBannerText(PrefsRepository prefs) {
-    return 'Your coach priority list is non-empty, but no provider has credentials yet. '
-        'Open Settings → Coach & AI and fill API keys (or Ollama URL) for at least one listed provider.';
-  }
+  static String setupBannerText(AppLocalizations l10n) => l10n.coachSetupBannerBody;
 }
 
 final coachChatProvider =

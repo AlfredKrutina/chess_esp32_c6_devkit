@@ -4,6 +4,7 @@ import 'package:chess/chess.dart' as ch;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/localization/locale_bridge.dart';
 import '../../../core/models/game_snapshot.dart';
 import '../../../core/models/puzzle_challenge_state.dart';
 import '../../../core/utils/puzzle_uci.dart';
@@ -15,6 +16,7 @@ import '../../connection/board_session_state.dart';
 import 'game_ui_state.dart';
 
 import '../../../app_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 final gameUiNotifierProvider =
     StateNotifierProvider<GameUiNotifier, GameUiState>((ref) {
@@ -61,6 +63,10 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
         ));
 
   final Ref _ref;
+
+  AppLocalizations get _l10n =>
+      appStringsForPrefs(_ref.read(prefsRepositoryProvider));
+
   Timer? _transientTimer;
   Timer? _flashTimer;
   Timer? _hintTimer;
@@ -301,7 +307,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     );
     final chess = ch.Chess();
     if (!chess.load(fen)) {
-      state = state.copyWith(sandboxMessage: 'Could not load FEN');
+      state = state.copyWith(sandboxMessage: _l10n.gameSandboxCouldNotLoadFen);
       return;
     }
     _sandboxChess = chess;
@@ -377,7 +383,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     );
     final chess = ch.Chess();
     if (!chess.load(fenTrim)) {
-      state = state.copyWith(sandboxMessage: 'Could not load FEN');
+      state = state.copyWith(sandboxMessage: _l10n.gameSandboxCouldNotLoadFen);
       return;
     }
     _sandboxChess = chess;
@@ -425,7 +431,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     final fen = fenFromSnapshot(snap);
     final chess = ch.Chess();
     if (!chess.load(fen)) {
-      state = state.copyWith(sandboxMessage: 'Could not load FEN');
+      state = state.copyWith(sandboxMessage: _l10n.gameSandboxCouldNotLoadFen);
       return;
     }
     _sandboxChess = chess;
@@ -524,13 +530,9 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       await prefs.recordPuzzleActivity(solved: true);
       _ref.invalidate(prefsRepositoryProvider);
       final snack = delta > 0
-          ? 'Nice! Correct line · +$delta Elo'
-          : 'Nice! Correct line.';
-      showTransientBoardMessage(
-        delta > 0
-            ? 'Nice! Correct line. +$delta Elo.'
-            : 'Nice! Correct line.',
-      );
+          ? _l10n.puzzleSuccessLineWithElo(delta)
+          : _l10n.puzzleSuccessLine;
+      showTransientBoardMessage(snack);
       state = state.copyWith(puzzleSnackText: snack);
       await Future<void>.delayed(const Duration(milliseconds: 920));
       state = state.copyWith(clearPuzzleChallenge: true);
@@ -544,14 +546,14 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     _puzzleFeedbackBusy = true;
     try {
       state = state.copyWith(
-        puzzleSnackText: 'Not the solution — resetting the position.',
+        puzzleSnackText: _l10n.puzzleWrongResetting,
       );
       _runTintPulse(false);
       await _ref.read(prefsRepositoryProvider).recordPuzzleActivity(solved: false);
       _ref.invalidate(prefsRepositoryProvider);
       await Future<void>.delayed(const Duration(milliseconds: 720));
       _resetPuzzlePositionOnly();
-      showTransientBoardMessage('Position restored — try again.');
+      showTransientBoardMessage(_l10n.gameSandboxPositionRestored);
     } finally {
       _puzzleFeedbackBusy = false;
     }
@@ -628,7 +630,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       });
       if (!ok) {
         _moveFeedback(invalid: true);
-        snack('Promotion failed');
+        snack(_l10n.gamePromotionFailedSnack);
       } else {
         _moveFeedback(successMove: true);
         var next = [...state.sandboxUndoStack, before];
@@ -670,8 +672,9 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     } catch (e) {
       if (e is BoardApiException && e.statusCode == 400) {
         _moveFeedback(invalid: true);
-        showTransientBoardMessage(e.detail ?? 'Illegal move');
-        snack(e.detail ?? 'Illegal move');
+        final msg = e.detail ?? _l10n.gameSandboxIllegalMove;
+        showTransientBoardMessage(msg);
+        snack(msg);
       } else {
         snack('$e');
       }
@@ -685,18 +688,18 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       return;
     }
     if (chess == null) {
-      snack('Load a position first (connect the board or use demo).');
+      snack(_l10n.gameSandboxLoadPositionFirst);
       return;
     }
     final sel = state.selectedSquare;
     if (sel == null) {
       final piece = chess.get(algebraic);
       if (piece == null) {
-        state = state.copyWith(sandboxMessage: 'Vyber figurku');
+        state = state.copyWith(sandboxMessage: _l10n.gameSandboxSelectPiece);
         return;
       }
       if (piece.color != chess.turn) {
-        state = state.copyWith(sandboxMessage: 'Not this side to move');
+        state = state.copyWith(sandboxMessage: _l10n.gameSandboxWrongSide);
         return;
       }
       _moveFeedback(selectionTap: true);
@@ -720,8 +723,8 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     final ok = chess.move({'from': sel, 'to': algebraic});
     if (!ok) {
       _moveFeedback(invalid: true);
-      state = state.copyWith(sandboxMessage: 'Illegal move');
-      showTransientBoardMessage('Illegal move (sandbox)');
+      state = state.copyWith(sandboxMessage: _l10n.gameSandboxIllegalMove);
+      showTransientBoardMessage(_l10n.gameSandboxIllegalMoveSandbox);
     } else {
       _moveFeedback(successMove: true);
       var next = [...state.sandboxUndoStack, before];
@@ -771,14 +774,14 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     if (_remoteFrom == null) {
       final rej = _remoteFirstTapReject(snap, algebraic);
       if (rej == 'empty') {
-        snack('Na tomto poli není figurka.');
-        showTransientBoardMessage('Prázdné pole');
+        snack(_l10n.gameRemoteEmptySquareSnack);
+        showTransientBoardMessage(_l10n.gameRemoteEmptySquareHud);
         return;
       }
       if (rej == 'turn') {
         _moveFeedback(invalid: true);
-        snack('Vyber figurku barvy, která je zrovna na tahu.');
-        showTransientBoardMessage('Nejsi na tahu');
+        snack(_l10n.gameRemoteWrongTurnSnack);
+        showTransientBoardMessage(_l10n.gameRemoteWrongTurnHud);
         return;
       }
       _remoteFrom = algebraic;
@@ -815,8 +818,9 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       if (e is BoardApiException && e.statusCode == 400) {
         _moveFeedback(invalid: true);
         _flashInvalidMove(from, to);
-        showTransientBoardMessage(e.detail ?? 'Illegal move');
-        snack(e.detail ?? 'Illegal move');
+        final msg = e.detail ?? _l10n.gameSandboxIllegalMove;
+        showTransientBoardMessage(msg);
+        snack(msg);
       } else {
         snack('$e');
       }

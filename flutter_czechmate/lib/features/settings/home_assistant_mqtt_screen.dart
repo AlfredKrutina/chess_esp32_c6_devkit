@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/localization/context_l10n.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/models/status_models.dart';
 import '../../core/utils/board_http_base_url.dart';
 import 'board_settings_error_message.dart';
@@ -43,17 +45,17 @@ class _HomeAssistantMqttScreenState extends ConsumerState<HomeAssistantMqttScree
     return s.transport == BoardTransport.wifi && s.wifiBaseUrl != null;
   }
 
-  String _footer(BoardSessionState store) {
+  String _footer(AppLocalizations l, BoardSessionState store) {
     if (store.transport == BoardTransport.mock) {
-      return 'Ukázková šachovnice MQTT nepodporuje — připoj reálnou desku.';
+      return l.haMqttFooterMock;
     }
     if (!_supportsWrite) {
-      return 'Nejdřív připoj šachovnici (Bluetooth nebo Wi‑Fi), pak můžeš uložit broker.';
+      return l.haMqttFooterConnectFirst;
     }
     if (!_supportsWifiCommands) {
-      return 'Broker uložíš i přes Bluetooth; stav z desky (tlačítko výše) se načte až při HTTP přes Wi‑Fi.';
+      return l.haMqttFooterBleSave;
     }
-    return 'Pokud MQTT zůstane offline, zkontroluj firewall na HA, heslo Mosquitto a že ESP je ve stejné síti jako broker.';
+    return l.haMqttFooterTroubleshoot;
   }
 
   String? _resolvedBoardUrl() {
@@ -83,7 +85,7 @@ class _HomeAssistantMqttScreenState extends ConsumerState<HomeAssistantMqttScree
     } catch (e) {
       if (mounted) {
         final session = ref.read(boardSessionNotifierProvider);
-        final msg = boardHttpSettingsUserMessage(e, session);
+        final msg = boardHttpSettingsUserMessage(context.l10n, e, session);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       }
     } finally {
@@ -105,14 +107,18 @@ class _HomeAssistantMqttScreenState extends ConsumerState<HomeAssistantMqttScree
             password: _pass.text.isEmpty ? null : _pass.text,
           );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('MQTT uloženo na desku')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.haMqttSavedSnack)),
+        );
       }
       await _refreshStatus();
     } catch (e) {
       if (mounted) {
         final session = ref.read(boardSessionNotifierProvider);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(boardHttpSettingsUserMessage(e, session))),
+          SnackBar(
+            content: Text(boardHttpSettingsUserMessage(context.l10n, e, session)),
+          ),
         );
       }
     } finally {
@@ -128,76 +134,89 @@ class _HomeAssistantMqttScreenState extends ConsumerState<HomeAssistantMqttScree
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final store = ref.watch(boardSessionNotifierProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Home Assistant a MQTT')),
+      appBar: AppBar(title: Text(l10n.haMqttTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text('Jak na Home Assistant', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(l10n.haMqttHowToHa,
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
-            '1. Home Assistant musí běžet ve stejné Wi‑Fi síti jako šachovnice (ESP připojené jako klient STA k routeru).\n\n'
-            '2. V Home Assistantu zapni MQTT broker — nejčastěji doplněk „Mosquitto broker“ (Settings → Add-ons). Poznamenej si port (obvykle 1883) a případné uživatelské jméno a heslo z konfigurace doplňku.\n\n'
-            '3. Zjisti IP adresu nebo hostname počítače / Raspberry Pi, kde HA běží (např. 192.168.1.42 nebo homeassistant.local). Šachovnice musí na tuto adresu v síti dosáhnout.\n\n'
-            '4. Níže zadej stejnou adresu jako „Broker (host)“ — jde o adresu MQTT serveru (u běžné instalace stejný stroj jako Home Assistant). Port nech 1883, pokud jsi v Mosquitto neměnil výchozí.\n\n'
-            '5. Uložením odešleš nastavení do firmware desky přes aktuální spojení (Wi‑Fi nebo Bluetooth). Aplikace CZECHMATE sama k brokeru nepřipojuje — data posílá jen ESP.',
+            l10n.haMqttGuideBody,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           const Divider(height: 32),
-          const Text('MQTT broker', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(l10n.haMqttBrokerHeader,
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           TextField(
             controller: _host,
-            decoration: const InputDecoration(
-              labelText: 'Broker (host), např. IP Home Assistant',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.haMqttHostFieldLabel,
+              border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.url,
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _port,
-            decoration: const InputDecoration(labelText: 'Port', border: OutlineInputBorder()),
+            decoration: InputDecoration(
+              labelText: l10n.haMqttPortFieldLabel,
+              border: const OutlineInputBorder(),
+            ),
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _user,
-            decoration: const InputDecoration(labelText: 'Uživatel (volitelné)', border: OutlineInputBorder()),
+            decoration: InputDecoration(
+              labelText: l10n.haMqttUserFieldLabel,
+              border: const OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _pass,
-            decoration: const InputDecoration(labelText: 'Heslo (volitelné)', border: OutlineInputBorder()),
+            decoration: InputDecoration(
+              labelText: l10n.haMqttPasswordFieldLabel,
+              border: const OutlineInputBorder(),
+            ),
             obscureText: true,
           ),
           const SizedBox(height: 12),
           FilledButton.icon(
             onPressed: _busy || !_supportsWrite || _host.text.trim().isEmpty ? null : _save,
             icon: _busy ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.upload),
-            label: const Text('Uložit na šachovnici'),
+            label: Text(l10n.haMqttSaveToBoard),
           ),
           const SizedBox(height: 8),
           OutlinedButton(
             onPressed: _busy || !_supportsWifiCommands ? null : _refreshStatus,
-            child: const Text('Obnovit stav z desky'),
+            child: Text(l10n.haMqttRefreshFromBoard),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 12),
-            child: Text(_footer(store), style: Theme.of(context).textTheme.bodySmall),
+            child: Text(_footer(l10n, store), style: Theme.of(context).textTheme.bodySmall),
           ),
           if (_status != null) ...[
             const Divider(height: 32),
-            const Text('Stav na desce', style: TextStyle(fontWeight: FontWeight.bold)),
-            ListTile(title: const Text('Režim'), subtitle: Text(_status!.mode)),
+            Text(l10n.haMqttBoardStatusHeader,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            ListTile(title: Text(l10n.haMqttModeTile), subtitle: Text(_status!.mode)),
             ListTile(
-              title: const Text('MQTT'),
-              subtitle: Text(_status!.mqttConnected ? 'připojeno' : 'nepřipojeno'),
+              title: Text(l10n.haMqttMqttTile),
+              subtitle: Text(_status!.mqttConnected
+                  ? l10n.haMqttStateConnected
+                  : l10n.haMqttStateDisconnected),
             ),
             ListTile(
-              title: const Text('Wi‑Fi STA'),
-              subtitle: Text(_status!.wifiConnected ? 'OK' : 'bez spojení'),
+              title: Text(l10n.haMqttWifiStaTile),
+              subtitle: Text(_status!.wifiConnected
+                  ? l10n.haMqttWifiOk
+                  : l10n.haMqttWifiNoLink),
             ),
           ],
         ],

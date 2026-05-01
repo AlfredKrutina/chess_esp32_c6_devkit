@@ -4,6 +4,8 @@ import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/localization/context_l10n.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
 
@@ -17,6 +19,20 @@ class BoardLampPreset {
   final int b;
   final IconData icon;
 }
+
+List<BoardLampPreset> boardLampPresets(AppLocalizations l10n) => [
+      BoardLampPreset(l10n.lampPresetWarmWhite, 255, 214, 170,
+          Icons.wb_incandescent_outlined),
+      BoardLampPreset(l10n.lampPresetCoolWhite, 220, 235, 255,
+          Icons.wb_cloudy_outlined),
+      BoardLampPreset(l10n.lampPresetCalmBlue, 70, 140, 255, Icons.water_drop_outlined),
+      BoardLampPreset(l10n.lampPresetForestGreen, 66, 200, 120, Icons.forest_outlined),
+      BoardLampPreset(l10n.lampPresetWarmth, 255, 120, 48,
+          Icons.local_fire_department_outlined),
+      BoardLampPreset(l10n.lampPresetPurpleScene, 160, 96, 255, Icons.auto_awesome),
+      BoardLampPreset(l10n.lampPresetRed, 255, 48, 48, Icons.favorite_outline),
+      BoardLampPreset(l10n.lampPresetAmber, 255, 180, 32, Icons.light_mode_outlined),
+    ];
 
 /// Disk hue × saturace (střed = bílá, okraj = plná barva), hodnota V zvlášť.
 class _HueSatDiskPainter extends CustomPainter {
@@ -145,7 +161,9 @@ class _BoardGlowPreview extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: Text(
-                  lampOn ? 'Náhled rozptylu světla' : 'Lampa vypnutá',
+                  lampOn
+                      ? context.l10n.lampStudioPreviewGlowHint
+                      : context.l10n.lampStudioPreviewLampOff,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: cs.onSurface.withValues(alpha: 0.75),
                       ),
@@ -192,17 +210,6 @@ class _GlowSquaresPainter extends CustomPainter {
 /// Hue-like studio pro lampu desky — výběr barvy, jas, náhled, předvolby.
 class BoardLampStudioPanel extends ConsumerStatefulWidget {
   const BoardLampStudioPanel({super.key});
-
-  static const presets = <BoardLampPreset>[
-    BoardLampPreset('Teplá bílá', 255, 214, 170, Icons.wb_incandescent_outlined),
-    BoardLampPreset('Studená bílá', 220, 235, 255, Icons.wb_cloudy_outlined),
-    BoardLampPreset('Klidná modrá', 70, 140, 255, Icons.water_drop_outlined),
-    BoardLampPreset('Lesní zelená', 66, 200, 120, Icons.forest_outlined),
-    BoardLampPreset('Teplo', 255, 120, 48, Icons.local_fire_department_outlined),
-    BoardLampPreset('Fialová scéna', 160, 96, 255, Icons.auto_awesome),
-    BoardLampPreset('Červená', 255, 48, 48, Icons.favorite_outline),
-    BoardLampPreset('Jantar', 255, 180, 32, Icons.light_mode_outlined),
-  ];
 
   @override
   ConsumerState<BoardLampStudioPanel> createState() =>
@@ -295,6 +302,7 @@ class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final session = ref.watch(boardSessionNotifierProvider);
     final can = _canControl(session);
     final rgb = _previewRgb();
@@ -306,10 +314,10 @@ class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
     final diskColumn = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Barva', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.lampStudioColorTitle, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 6),
         Text(
-          'Klepnutí nebo táhnutí — odstín a sytost (střed = bílá).',
+          l10n.lampStudioColorHint,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 8),
@@ -351,14 +359,14 @@ class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
     final slidersColumn = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Světlost barvy', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.lampStudioValueTitle, style: Theme.of(context).textTheme.titleSmall),
         Slider(
           value: _value.clamp(0.01, 1.0),
           min: 0.05,
           max: 1.0,
           onChanged: _busy || !can ? null : (v) => setState(() => _value = v),
         ),
-        Text('Jas LED (%)', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.lampLedBrightnessPct, style: Theme.of(context).textTheme.titleSmall),
         Slider(
           value: _boardBright.clamp(0, 100),
           max: 100,
@@ -368,7 +376,7 @@ class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          title: const Text('Lampa zapnutá'),
+          title: Text(l10n.lampOnTitle),
           value: _lampOn,
           onChanged: _busy || !can ? null : (v) => setState(() => _lampOn = v),
         ),
@@ -382,7 +390,7 @@ class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
           ),
           alignment: Alignment.center,
           child: Text(
-            'RGB (${rgb.red}, ${rgb.green}, ${rgb.blue})',
+            l10n.lampStudioRgbLine(rgb.red, rgb.green, rgb.blue),
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
@@ -398,11 +406,11 @@ class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              'Pro ovládání lampy připoj desku přes Wi‑Fi nebo Bluetooth.',
+              l10n.lampStudioNeedConnection,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.error),
             ),
           ),
-        Text('Náhled desky', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.lampStudioBoardPreview, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 280),
@@ -427,13 +435,13 @@ class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
             ],
           ),
         const SizedBox(height: 16),
-        Text('Scény', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.lampStudioScenes, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
-            for (final p in BoardLampStudioPanel.presets)
+            for (final p in boardLampPresets(l10n))
               FilterChip(
                 avatar: Icon(p.icon, size: 18),
                 label: Text(p.label),
@@ -445,57 +453,63 @@ class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
           ],
         ),
         const SizedBox(height: 16),
-        Row(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: !can || _busy
-                    ? null
-                    : () {
-                        final t = _rgbInts();
-                        _run(
-                          () async {
-                            final n = ref.read(boardSessionNotifierProvider.notifier);
-                            await n.postBoardBrightness(_boardBright.round());
-                            await n.postBoardLightCommand(
-                              lampState: _lampOn,
-                              r: t[0],
-                              g: t[1],
-                              b: t[2],
-                            );
-                          },
-                          ok: 'Barva a jas odeslány na desku',
-                        );
-                      },
-                icon: _busy
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.send_rounded),
-                label: const Text('Použít na desku'),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
               ),
+              onPressed: !can || _busy
+                  ? null
+                  : () {
+                      final t = _rgbInts();
+                      _run(
+                        () async {
+                          final n =
+                              ref.read(boardSessionNotifierProvider.notifier);
+                          await n.postBoardBrightness(_boardBright.round());
+                          await n.postBoardLightCommand(
+                            lampState: _lampOn,
+                            r: t[0],
+                            g: t[1],
+                            b: t[2],
+                          );
+                        },
+                        ok: l10n.lampStudioAppliedOk,
+                      );
+                    },
+              icon: _busy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.send_rounded),
+              label: Text(l10n.lampStudioApplyToBoard),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: !can || _busy
-                    ? null
-                    : () => _run(
-                          () => ref
-                              .read(boardSessionNotifierProvider.notifier)
-                              .postBoardLightGameMode(),
-                          ok: 'Režim lampy podle partie',
-                        ),
-                icon: const Icon(Icons.sports_esports_outlined),
-                label: const Text('Režim partie'),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
               ),
+              onPressed: !can || _busy
+                  ? null
+                  : () => _run(
+                        () => ref
+                            .read(boardSessionNotifierProvider.notifier)
+                            .postBoardLightGameMode(),
+                        ok: l10n.lampStudioGameModeOk,
+                      ),
+              icon: const Icon(Icons.sports_esports_outlined),
+              label: Text(l10n.lampStudioGameMode),
             ),
           ],
         ),
         const Divider(height: 32),
-        Text('Automatické zhasnutí', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.lampStudioAutoOff, style: Theme.of(context).textTheme.titleSmall),
         Text(
           '${_autoTimeoutSec}s (${(_autoTimeoutSec / 60).toStringAsFixed(1)} min)',
           style: Theme.of(context).textTheme.bodySmall,
@@ -515,9 +529,9 @@ class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
                     () => ref
                         .read(boardSessionNotifierProvider.notifier)
                         .postBoardAutoLampTimeout(_autoTimeoutSec),
-                    ok: 'Časovač auto zhasnutí uložen',
+                    ok: l10n.lampStudioTimerSavedOk,
                   ),
-          child: const Text('Uložit časovač'),
+          child: Text(l10n.lampStudioSaveTimer),
         ),
       ],
     );

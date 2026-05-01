@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+
 /// Parita `BundledPuzzleCatalog.swift`.
 class BundledPuzzleItem {
   const BundledPuzzleItem({
@@ -66,3 +68,43 @@ const bundledPuzzleCatalog = <BundledPuzzleItem>[
     themes: ['endgame'],
   ),
 ];
+
+extension BundledPuzzleItemL10n on BundledPuzzleItem {
+  String localizedTitle(AppLocalizations l) {
+    switch (id) {
+      case 'mate_qg8':
+        return l.bundledPuzzleMateQg8Title;
+      case 'mate_back_rank':
+        return l.bundledPuzzleBackRankTitle;
+      case 'mate_rook_corner':
+        return l.bundledPuzzleRookCornerTitle;
+      case 'black_mate_1':
+        return l.bundledPuzzleBlackMateTitle;
+      case 'promotion_hint':
+        return l.bundledPuzzlePromotionTitle;
+      case 'two_rooks':
+        return l.bundledPuzzleTwoRooksTitle;
+      default:
+        return title;
+    }
+  }
+
+  String localizedSubtitle(AppLocalizations l) {
+    switch (id) {
+      case 'mate_qg8':
+        return l.bundledPuzzleMateQg8Subtitle;
+      case 'mate_back_rank':
+        return l.bundledPuzzleBackRankSubtitle;
+      case 'mate_rook_corner':
+        return l.bundledPuzzleRookCornerSubtitle;
+      case 'black_mate_1':
+        return l.bundledPuzzleBlackMateSubtitle;
+      case 'promotion_hint':
+        return l.bundledPuzzlePromotionSubtitle;
+      case 'two_rooks':
+        return l.bundledPuzzleTwoRooksSubtitle;
+      default:
+        return subtitle;
+    }
+  }
+}

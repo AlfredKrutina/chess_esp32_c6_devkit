@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/localization/context_l10n.dart';
 import '../../../core/models/board_timer_state.dart';
 import '../../connection/board_session_notifier.dart';
 
@@ -16,6 +17,7 @@ class TimerDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final session = ref.watch(boardSessionNotifierProvider);
     BoardTimerState? t = session.timer;
     final c = session.snapshot?.clock;
@@ -25,10 +27,10 @@ class TimerDisplay extends ConsumerWidget {
         (snap.status.gameEnd?.ended == true ||
             snap.status.gameState.toLowerCase() == 'finished');
     if (t == null || !t.isTimeControlEnabled) {
-      return const Card(
+      return Card(
         child: Padding(
-          padding: EdgeInsets.all(12),
-          child: Text('Časomíra: vypnutá nebo nedostupná'),
+          padding: const EdgeInsets.all(12),
+          child: Text(l10n.timerUnavailable),
         ),
       );
     }
@@ -42,7 +44,8 @@ class TimerDisplay extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Bílá', style: TextStyle(fontSize: 12)),
+                Text(l10n.timerWhiteShort,
+                    style: const TextStyle(fontSize: 12)),
                 Text(
                   _fmtMs(t.whiteTimeMs),
                   style: const TextStyle(
@@ -60,8 +63,10 @@ class TimerDisplay extends ConsumerWidget {
                 ),
                 Text(
                   gameOver
-                      ? 'konec partie'
-                      : (running ? 'běží' : 'stojí'),
+                      ? l10n.timerCenterGameOver
+                      : (running
+                          ? l10n.timerCenterRunning
+                          : l10n.timerCenterStopped),
                   style: const TextStyle(fontSize: 11),
                 ),
               ],
@@ -69,7 +74,8 @@ class TimerDisplay extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const Text('Černá', style: TextStyle(fontSize: 12)),
+                Text(l10n.timerBlackShort,
+                    style: const TextStyle(fontSize: 12)),
                 Text(
                   _fmtMs(t.blackTimeMs),
                   style: const TextStyle(
