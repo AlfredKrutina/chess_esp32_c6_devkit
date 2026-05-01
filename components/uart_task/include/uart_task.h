@@ -131,6 +131,9 @@ command_result_t uart_cmd_version(const char* args);
 command_result_t uart_cmd_memory(const char* args);
 /** @brief Prikaz history */
 command_result_t uart_cmd_history(const char* args);
+/** @brief Jednotný CLI panel — viz též `HELP CLI` */
+command_result_t uart_cmd_cli(const char* args);
+void uart_cli_print_help(void);
 /** @brief Prikaz clear */
 command_result_t uart_cmd_clear(const char* args);
 /** @brief Prikaz reset */
