@@ -122,6 +122,9 @@ Funkce</h2></td></tr>
 <tr class="memitem:a061bf2fb7f3c766384c5042f5ad04c9f" id="r_a061bf2fb7f3c766384c5042f5ad04c9f"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ota__update_8h.html#a061bf2fb7f3c766384c5042f5ad04c9f">ota_update_ble_try_dispatch</a> (const char *json_buf)</td></tr>
 <tr class="memdesc:a061bf2fb7f3c766384c5042f5ad04c9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">BLE JSON {"cmd":"ota_start","url":"https://…"}.  <br /></td></tr>
 <tr class="separator:a061bf2fb7f3c766384c5042f5ad04c9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2c90b08ffa7e5e21ab74f0f9feb652c" id="r_ac2c90b08ffa7e5e21ab74f0f9feb652c"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ota__update_8h.html#ac2c90b08ffa7e5e21ab74f0f9feb652c">ota_update_try_start_url</a> (const char *url)</td></tr>
+<tr class="memdesc:ac2c90b08ffa7e5e21ab74f0f9feb652c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stejné jako HTTP POST /api/system/ota — z UART po STA a https URL.  <br /></td></tr>
+<tr class="separator:ac2c90b08ffa7e5e21ab74f0f9feb652c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
 <div class="textblock"><p>HTTPS OTA — ESP si stáhne .bin z URL (telefon jen pošle odkaz). </p>
@@ -147,7 +150,7 @@ Funkce</h2></td></tr>
 <p>BLE JSON {"cmd":"ota_start","url":"https://…"}. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pokud příkaz byl přijat a naplánován (nebo už běží), jinak chyba. </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00250">250</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00277">277</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -167,7 +170,29 @@ Funkce</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00217">217</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00237">237</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+
+</div>
+</div>
+<a id="ac2c90b08ffa7e5e21ab74f0f9feb652c" name="ac2c90b08ffa7e5e21ab74f0f9feb652c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2c90b08ffa7e5e21ab74f0f9feb652c">&#9670;&#160;</a></span>ota_update_try_start_url()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t ota_update_try_start_url </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>url</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stejné jako HTTP POST /api/system/ota — z UART po STA a https URL. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00275">275</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>

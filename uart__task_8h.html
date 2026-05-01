@@ -198,6 +198,11 @@ Funkce</h2></td></tr>
 <tr class="memitem:ac75af37c48ea155d265417cfc6db8c95" id="r_ac75af37c48ea155d265417cfc6db8c95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8h.html#ac75af37c48ea155d265417cfc6db8c95">uart_cmd_history</a> (const char *args)</td></tr>
 <tr class="memdesc:ac75af37c48ea155d265417cfc6db8c95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prikaz history.  <br /></td></tr>
 <tr class="separator:ac75af37c48ea155d265417cfc6db8c95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11d8ba42801488fd706473d5d16d5cdc" id="r_a11d8ba42801488fd706473d5d16d5cdc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8h.html#a11d8ba42801488fd706473d5d16d5cdc">uart_cmd_cli</a> (const char *args)</td></tr>
+<tr class="memdesc:a11d8ba42801488fd706473d5d16d5cdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jednotný CLI panel — viz též <code>HELP CLI</code>  <br /></td></tr>
+<tr class="separator:a11d8ba42801488fd706473d5d16d5cdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa81a0a57ae74b1827632b1a550d4120b" id="r_aa81a0a57ae74b1827632b1a550d4120b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8h.html#aa81a0a57ae74b1827632b1a550d4120b">uart_cli_print_help</a> (void)</td></tr>
+<tr class="separator:aa81a0a57ae74b1827632b1a550d4120b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbe2f7e4f05f1b0c256c81eefb34e95a" id="r_adbe2f7e4f05f1b0c256c81eefb34e95a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8h.html#adbe2f7e4f05f1b0c256c81eefb34e95a">uart_cmd_clear</a> (const char *args)</td></tr>
 <tr class="memdesc:adbe2f7e4f05f1b0c256c81eefb34e95a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prikaz clear.  <br /></td></tr>
 <tr class="separator:adbe2f7e4f05f1b0c256c81eefb34e95a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -399,7 +404,7 @@ Proměnné</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je notace platna</dd></dl>
 <p>Overi platnost notace tahu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05088">5088</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05099">5099</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -430,7 +435,27 @@ Proměnné</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je notace platna</dd></dl>
 <p>Overi platnost notace pole. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05108">5108</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05119">5119</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa81a0a57ae74b1827632b1a550d4120b" name="aa81a0a57ae74b1827632b1a550d4120b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa81a0a57ae74b1827632b1a550d4120b">&#9670;&#160;</a></span>uart_cli_print_help()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void uart_cli_print_help </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00230">230</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
 
 </div>
 </div>
@@ -452,7 +477,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz benchmark. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06831">6831</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06842">6842</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -474,7 +499,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz board. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05771">5771</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05782">5782</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -496,7 +521,29 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz clear. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02375">2375</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02379">2379</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a11d8ba42801488fd706473d5d16d5cdc" name="a11d8ba42801488fd706473d5d16d5cdc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11d8ba42801488fd706473d5d16d5cdc">&#9670;&#160;</a></span>uart_cmd_cli()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_cli </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Jednotný CLI panel — viz též <code>HELP CLI</code> </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00243">243</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
 
 </div>
 </div>
@@ -518,7 +565,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz debug_board. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06783">6783</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06794">6794</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -540,7 +587,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz debug_game. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06658">6658</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06669">6669</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -562,7 +609,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz debug_status. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06557">6557</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06568">6568</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -584,7 +631,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz dn (poloz figurku) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05701">5701</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05712">5712</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -606,7 +653,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz game_history. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06359">6359</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06370">6370</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -628,7 +675,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz game_new. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06015">6015</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06026">6026</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -650,7 +697,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz game_reset. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06039">6039</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06050">6050</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -672,7 +719,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz help. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l01463">1463</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l01464">1464</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -695,7 +742,7 @@ Proměnné</h2></td></tr>
 <p>Help pro zacatecniky. </p>
 <p>Help pro zacatecniky. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l01801">1801</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l01805">1805</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -718,7 +765,7 @@ Proměnné</h2></td></tr>
 <p>Help pro debug prikazy. </p>
 <p>Help pro debug prikazy. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02107">2107</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02111">2111</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -741,7 +788,7 @@ Proměnné</h2></td></tr>
 <p>Help pro game prikazy. </p>
 <p>Help pro game prikazy. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l01576">1576</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l01580">1580</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -764,7 +811,7 @@ Proměnné</h2></td></tr>
 <p>Help pro systemove prikazy. </p>
 <p>Help pro systemove prikazy. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l01693">1693</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l01697">1697</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -786,7 +833,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz history. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02368">2368</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02372">2372</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -809,7 +856,7 @@ Proměnné</h2></td></tr>
 <p>Prikaz led_board. </p>
 <p>Prikaz led_board. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05885">5885</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05896">5896</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -831,7 +878,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz memcheck. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06912">6912</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06923">6923</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -853,7 +900,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz memory. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02341">2341</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02345">2345</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -875,7 +922,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz move. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05544">5544</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05555">5555</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -897,7 +944,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz quiet. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02234">2234</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02238">2238</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -919,7 +966,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz reset. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02472">2472</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02476">2476</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -941,7 +988,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz self_test. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06385">6385</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06396">6396</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -963,7 +1010,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz show_fifos. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l07255">7255</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l07266">7266</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -985,7 +1032,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz show_moves. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06059">6059</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06070">6070</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1007,7 +1054,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz show_mutexes. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l07133">7133</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l07144">7144</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1029,7 +1076,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz show_tasks. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06993">6993</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l07004">7004</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1051,7 +1098,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz status. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02257">2257</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02261">2261</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1073,7 +1120,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz test_game. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06543">6543</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06554">6554</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1095,7 +1142,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz undo. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06339">6339</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l06350">6350</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1117,7 +1164,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz up (zvedni figurku) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05631">5631</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05642">5642</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1139,7 +1186,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz verbose. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02193">2193</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02197">2197</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1161,7 +1208,7 @@ Proměnné</h2></td></tr>
 
 <p>Prikaz version. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02323">2323</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l02327">2327</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1184,7 +1231,7 @@ Proměnné</h2></td></tr>
 <p>Zobraz rozsirenou sachovnici. </p>
 <p>Zobraz rozsirenou sachovnici. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05917">5917</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05928">5928</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1207,7 +1254,7 @@ Proměnné</h2></td></tr>
 <p>Zobraz LED sachovnici. </p>
 <p>Zobraz LED sachovnici. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l07580">7580</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l07591">7591</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1230,7 +1277,7 @@ Proměnné</h2></td></tr>
 <p>Zobraz hlavni help. </p>
 <p>Zobraz hlavni help. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l01505">1505</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l01508">1508</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1277,7 +1324,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05626">5626</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l05637">5637</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1305,7 +1352,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l07324">7324</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l07335">7335</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1342,7 +1389,7 @@ Proměnné</h2></td></tr>
 </dl>
 <p>Funkce pouziva mutex pro bezpecne operace z vice vlaken a automaticky detekuje zda je UART povolen. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00325">325</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00326">326</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1379,7 +1426,7 @@ Proměnné</h2></td></tr>
 </dl>
 <p>Funkce pouziva mutex pro bezpecne operace z vice vlaken a automaticky detekuje zda je UART povolen. Je optimalizovana pro rychle zapisovani. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00354">354</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00355">355</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -1406,7 +1453,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro UART vystup. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00450">450</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00451">451</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>

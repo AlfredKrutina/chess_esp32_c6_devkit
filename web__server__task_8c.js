@@ -102,6 +102,7 @@ var web__server__task_8c =
     [ "web_server_build_game_snapshot_json", "web__server__task_8c.html#af5b5cad95519a4822754d8caed31e3c9", null ],
     [ "web_server_build_game_snapshot_json_shared", "web__server__task_8c.html#a3595c3ff5038a64f10d58b22aa7961ee", null ],
     [ "web_server_enable_ssl", "web__server__task_8c.html#a74937acaf240abcaaac7d9260e412beb", null ],
+    [ "web_server_enqueue_command", "web__server__task_8c.html#aebdebfe626c7614323276405e1550a0f", null ],
     [ "web_server_execute_command", "web__server__task_8c.html#ae84a23138d1c5c146c9cadf884edaa85", null ],
     [ "web_server_get_ap_ssid", "web__server__task_8c.html#a0c5047ff652c986903b32c3cf49db6fc", null ],
     [ "web_server_get_client_count", "web__server__task_8c.html#ab47f0c904798d9ffc4f8e75f7ce8b5f3", null ],

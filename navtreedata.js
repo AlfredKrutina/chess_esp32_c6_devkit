@@ -62,12 +62,13 @@ var NAVTREEINDEX =
 "ha__light__task_8c.html#ab30ba07e2a0bd07a15e45a92c32db9c5",
 "led__task_8c.html#a0256c8c9fa0cc7b33ef3d2ceb0abb010",
 "main_8c.html#acb49a688d90460dc48f7e0b976ace62d",
-"structanimation__config__t.html#a74ff887373a2bd67b497e6e74e7f3e86",
-"structgame__snapshot__full__t.html#a15957d444453177f8e874283f9a401a3",
-"structtest__suite__t.html#ada7927aa2f5abc47a2eb6d0ba47a79b8",
-"uart__commands__extended_8h.html#a2c1f034f2745aa000fda3e70da59ccea",
-"uart__task_8h.html#a5208e133190e19aad814c5a69dbb93e5",
-"web__server__task_8c.html#a1449ade4d0e7558ec4fdb355d19b2d05"
+"structanimation__config__t.html",
+"structgame__snapshot__full__t.html",
+"structtest__suite__t.html#a9d512ba9e5bd1fb560c6ec96fa6ba528",
+"uart__cli__panel_8h.html",
+"uart__task_8c.html#af34a40710b1a30f20f8be55971986884",
+"visual__error__system_8h.html#abdd724f673b0a1e0a44c562e25861fcf",
+"web__server__task_8h.html#ad3bda523e632b9d3152cdd73fe9d8d4c"
 ];
 
 var SYNCONMSG = 'zakázat synchronizaci panelů';

@@ -1,0 +1,883 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru uart_cli_panel.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('uart__cli__panel_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#define-members">Definice maker</a> &#124;
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru uart_cli_panel.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Jednotný CLI panel — flash, oddíly, web fronta, OTA, BLE příkazy, snapshot.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="uart__cli__panel_8h_source.html">uart_cli_panel.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ota__update_8h_source.html">ota_update.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="web__server__task_8h_source.html">web_server_task.h</a>&quot;</code><br />
+<code>#include &quot;esp_app_format.h&quot;</code><br />
+<code>#include &quot;esp_chip_info.h&quot;</code><br />
+<code>#include &quot;esp_flash.h&quot;</code><br />
+<code>#include &quot;esp_heap_caps.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_ota_ops.h&quot;</code><br />
+<code>#include &quot;esp_partition.h&quot;</code><br />
+<code>#include &quot;esp_system.h&quot;</code><br />
+<code>#include &lt;ctype.h&gt;</code><br />
+<code>#include &lt;inttypes.h&gt;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+<code>#include &lt;strings.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro uart_cli_panel.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="uart__cli__panel_8c__incl.png" border="0" usemap="#auart__cli__panel_8c" alt=""/></div>
+<map name="auart__cli__panel_8c" id="auart__cli__panel_8c">
+<area shape="rect" title="Jednotný CLI panel — flash, oddíly, web fronta, OTA, BLE příkazy, snapshot." alt="" coords="2174,5,2298,31"/>
+<area shape="rect" href="uart__cli__panel_8h.html" title="Zapojení jednotného panelu — prototypy jsou v uart_task.h." alt="" coords="612,79,737,104"/>
+<area shape="poly" title=" " alt="" coords="2173,25,751,89,750,84,2173,19"/>
+<area shape="rect" href="ota__update_8h.html" title="HTTPS OTA — ESP si stáhne .bin z URL (telefon jen pošle odkaz)." alt="" coords="1414,79,1521,104"/>
+<area shape="poly" title=" " alt="" coords="2174,25,1900,44,1721,60,1535,81,1534,76,1720,55,1900,39,2173,20"/>
+<area shape="rect" href="web__server__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Web Server Task Hlavicka." alt="" coords="1106,79,1250,104"/>
+<area shape="poly" title=" " alt="" coords="2174,26,1264,87,1264,82,2173,21"/>
+<area shape="rect" title=" " alt="" coords="1545,79,1684,104"/>
+<area shape="poly" title=" " alt="" coords="2174,28,1698,81,1697,76,2173,23"/>
+<area shape="rect" title=" " alt="" coords="1708,79,1830,104"/>
+<area shape="poly" title=" " alt="" coords="2174,31,1844,81,1843,76,2173,26"/>
+<area shape="rect" title=" " alt="" coords="1855,79,1950,104"/>
+<area shape="poly" title=" " alt="" coords="2183,33,1963,80,1962,75,2181,28"/>
+<area shape="rect" title=" " alt="" coords="1974,79,2108,104"/>
+<area shape="poly" title=" " alt="" coords="2205,33,2086,76,2085,71,2203,28"/>
+<area shape="rect" title=" " alt="" coords="2132,79,2216,104"/>
+<area shape="poly" title=" " alt="" coords="2227,33,2195,70,2191,66,2223,29"/>
+<area shape="rect" title=" " alt="" coords="2241,79,2356,104"/>
+<area shape="poly" title=" " alt="" coords="2248,29,2281,66,2277,70,2244,33"/>
+<area shape="rect" title=" " alt="" coords="2380,79,2499,104"/>
+<area shape="poly" title=" " alt="" coords="2269,28,2395,72,2393,77,2267,33"/>
+<area shape="rect" title=" " alt="" coords="2522,79,2634,104"/>
+<area shape="poly" title=" " alt="" coords="2291,28,2510,73,2509,78,2290,33"/>
+<area shape="rect" title=" " alt="" coords="2658,79,2728,104"/>
+<area shape="poly" title=" " alt="" coords="2298,24,2452,44,2644,76,2643,81,2451,49,2297,29"/>
+<area shape="rect" title=" " alt="" coords="2752,79,2839,104"/>
+<area shape="poly" title=" " alt="" coords="2298,22,2491,42,2739,76,2738,81,2490,48,2297,28"/>
+<area shape="rect" title=" " alt="" coords="2864,79,2930,104"/>
+<area shape="poly" title=" " alt="" coords="2298,20,2536,37,2691,53,2850,76,2849,81,2690,58,2536,42,2297,25"/>
+<area shape="rect" title=" " alt="" coords="2955,79,3026,104"/>
+<area shape="poly" title=" " alt="" coords="2298,19,2573,35,2754,52,2942,76,2941,81,2754,57,2573,40,2298,24"/>
+<area shape="rect" title=" " alt="" coords="3050,79,3128,104"/>
+<area shape="poly" title=" " alt="" coords="2298,18,2611,33,2821,50,3036,76,3035,81,2820,56,2611,38,2298,24"/>
+<area shape="rect" href="uart__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; UART Task Hlavicka." alt="" coords="282,152,376,177"/>
+<area shape="poly" title=" " alt="" coords="619,107,390,154,389,148,618,101"/>
+<area shape="rect" title=" " alt="" coords="362,299,432,324"/>
+<area shape="poly" title=" " alt="" coords="315,180,298,194,283,212,275,231,279,250,293,266,310,279,349,297,347,301,307,283,289,270,274,252,270,230,279,209,294,190,311,176"/>
+<area shape="rect" title=" " alt="" coords="80,299,162,324"/>
+<area shape="poly" title=" " alt="" coords="281,171,213,176,135,186,66,203,41,214,24,227,19,236,19,244,30,262,51,278,78,291,75,296,48,282,26,265,14,246,14,235,20,224,38,210,64,198,134,181,212,171,281,165"/>
+<area shape="rect" title=" " alt="" coords="462,299,612,324"/>
+<area shape="poly" title=" " alt="" coords="343,176,381,210,430,248,502,290,499,295,427,253,378,214,339,180"/>
+<area shape="rect" title=" " alt="" coords="680,299,810,324"/>
+<area shape="poly" title=" " alt="" coords="377,168,486,186,550,202,613,223,673,255,722,288,719,293,670,259,610,228,549,207,485,191,376,173"/>
+<area shape="rect" title=" " alt="" coords="1436,299,1518,324"/>
+<area shape="poly" title=" " alt="" coords="377,172,603,213,815,248,989,268,1161,284,1423,304,1422,309,1160,290,988,274,814,253,602,218,376,177"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="485,225,600,251"/>
+<area shape="poly" title=" " alt="" coords="364,175,496,218,494,223,362,180"/>
+<area shape="rect" href="uart__queue__message_8h.html" title="Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof)." alt="" coords="34,225,208,251"/>
+<area shape="poly" title=" " alt="" coords="296,180,168,223,167,218,295,175"/>
+<area shape="poly" title=" " alt="" coords="520,253,434,295,431,290,518,248"/>
+<area shape="poly" title=" " alt="" coords="485,252,176,303,175,298,484,246"/>
+<area shape="poly" title=" " alt="" coords="544,251,541,285,536,285,539,251"/>
+<area shape="poly" title=" " alt="" coords="576,248,700,292,698,297,574,253"/>
+<area shape="poly" title=" " alt="" coords="600,242,669,248,1423,304,1423,309,669,253,599,247"/>
+<area shape="poly" title=" " alt="" coords="124,251,124,285,118,285,118,251"/>
+<area shape="poly" title=" " alt="" coords="1521,101,1626,125,1669,138,1692,150,1704,176,1701,200,1685,222,1661,242,1598,275,1532,298,1530,293,1595,270,1658,237,1681,219,1696,198,1699,177,1688,154,1667,143,1624,130,1520,106"/>
+<area shape="rect" title=" " alt="" coords="1540,152,1678,177"/>
+<area shape="poly" title=" " alt="" coords="1491,102,1575,143,1573,148,1489,106"/>
+<area shape="poly" title=" " alt="" coords="1106,98,678,119,442,135,269,155,189,161,123,163,94,168,67,179,40,198,14,227,9,237,9,245,20,263,44,279,72,292,70,296,41,283,17,267,4,247,4,235,9,224,37,194,64,174,93,163,123,158,189,156,269,149,441,130,678,113,1106,93"/>
+<area shape="poly" title=" " alt="" coords="1106,98,949,107,758,129,665,145,583,167,517,194,493,210,475,227,470,242,476,259,490,275,508,289,504,293,486,278,471,261,465,243,471,224,489,206,515,190,581,162,664,140,757,123,949,102,1106,92"/>
+<area shape="poly" title=" " alt="" coords="1223,101,1294,125,1366,158,1395,179,1413,201,1417,213,1417,226,1412,239,1403,253,1373,268,1318,280,1160,297,978,307,823,311,823,306,978,301,1159,291,1317,274,1371,263,1399,249,1408,237,1412,225,1412,214,1408,204,1391,182,1364,163,1292,130,1221,107"/>
+<area shape="poly" title=" " alt="" coords="1251,97,1364,116,1414,131,1447,150,1468,182,1479,218,1483,255,1482,285,1477,285,1477,255,1473,219,1463,184,1443,154,1412,136,1363,122,1250,103"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="814,152,943,177"/>
+<area shape="poly" title=" " alt="" coords="1131,107,940,151,939,146,1129,101"/>
+<area shape="rect" title=" " alt="" coords="1141,152,1216,177"/>
+<area shape="poly" title=" " alt="" coords="1181,104,1181,138,1176,138,1176,104"/>
+<area shape="poly" title=" " alt="" coords="814,173,628,191,537,207,501,217,474,228,456,240,439,256,413,288,409,285,435,252,452,236,472,223,499,212,536,202,627,186,813,167"/>
+<area shape="poly" title=" " alt="" coords="814,175,643,195,437,228,292,263,171,297,170,292,290,258,436,223,642,189,813,169"/>
+<area shape="poly" title=" " alt="" coords="852,180,578,296,575,291,850,175"/>
+<area shape="poly" title=" " alt="" coords="866,180,816,227,764,290,760,286,812,224,863,176"/>
+<area shape="poly" title=" " alt="" coords="943,165,1055,170,1188,180,1314,197,1364,209,1402,223,1422,236,1439,252,1465,285,1461,288,1435,255,1418,240,1400,228,1363,214,1313,202,1188,185,1055,175,943,170"/>
+<area shape="poly" title=" " alt="" coords="825,180,611,225,609,220,824,175"/>
+<area shape="rect" title=" " alt="" coords="826,225,930,251"/>
+<area shape="poly" title=" " alt="" coords="881,178,881,212,876,212,876,178"/>
+<area shape="rect" title=" " alt="" coords="955,225,1092,251"/>
+<area shape="poly" title=" " alt="" coords="903,175,989,217,987,222,900,180"/>
+<area shape="rect" title=" " alt="" coords="1117,225,1234,251"/>
+<area shape="poly" title=" " alt="" coords="927,175,1115,219,1114,225,925,180"/>
+<area shape="rect" title=" " alt="" coords="1258,225,1389,251"/>
+<area shape="poly" title=" " alt="" coords="943,174,1245,222,1244,227,943,179"/>
+</map>
+</div>
+</div>
+<p><a href="uart__cli__panel_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:a0d4d3a685f9501631d1feed1f4ba7577" id="r_a0d4d3a685f9501631d1feed1f4ba7577"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#a0d4d3a685f9501631d1feed1f4ba7577">COLOR_INFO</a>&#160;&#160;&#160;&quot;\033[36m&quot;</td></tr>
+<tr class="separator:a0d4d3a685f9501631d1feed1f4ba7577"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a24fe1d895d08ee05b18db4ebe08f7aa4" id="r_a24fe1d895d08ee05b18db4ebe08f7aa4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#a24fe1d895d08ee05b18db4ebe08f7aa4">uart_send_colored_line</a> (const char *color, const char *message)</td></tr>
+<tr class="memdesc:a24fe1d895d08ee05b18db4ebe08f7aa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Posle barevny text s novym radkem pres UART.  <br /></td></tr>
+<tr class="separator:a24fe1d895d08ee05b18db4ebe08f7aa4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a997485823479f84fcbc9b5121128fb8b" id="r_a997485823479f84fcbc9b5121128fb8b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#a997485823479f84fcbc9b5121128fb8b">uart_send_error</a> (const char *message)</td></tr>
+<tr class="memdesc:a997485823479f84fcbc9b5121128fb8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Posle chybovou zpravu pres UART.  <br /></td></tr>
+<tr class="separator:a997485823479f84fcbc9b5121128fb8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aadc15ad30b458f1f25f63c2400ed3e4e" id="r_aadc15ad30b458f1f25f63c2400ed3e4e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#aadc15ad30b458f1f25f63c2400ed3e4e">uart_send_success</a> (const char *message)</td></tr>
+<tr class="memdesc:aadc15ad30b458f1f25f63c2400ed3e4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Posle uspesnou zpravu pres UART.  <br /></td></tr>
+<tr class="separator:aadc15ad30b458f1f25f63c2400ed3e4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af15e84a1f0c0382355b80a7876d16045" id="r_af15e84a1f0c0382355b80a7876d16045"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#af15e84a1f0c0382355b80a7876d16045">uart_send_formatted</a> (const char *format,...) <a class="el" href="freertos__chess_8c.html#a43c4623c2553d09a59385aabe971d75d">__attribute__</a>((format(printf</td></tr>
+<tr class="separator:af15e84a1f0c0382355b80a7876d16045"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e73cb389b8160054b07da47410b12da" id="r_a5e73cb389b8160054b07da47410b12da"><td class="memItemLeft" align="right" valign="top">void void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#a5e73cb389b8160054b07da47410b12da">uart_send_line</a> (const char *str)</td></tr>
+<tr class="memdesc:a5e73cb389b8160054b07da47410b12da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Posle radek textu pres UART.  <br /></td></tr>
+<tr class="separator:a5e73cb389b8160054b07da47410b12da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb57740a2a0a9624b89a8655740688de" id="r_aeb57740a2a0a9624b89a8655740688de"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#aeb57740a2a0a9624b89a8655740688de">skip_leading_ws</a> (const char *s)</td></tr>
+<tr class="separator:aeb57740a2a0a9624b89a8655740688de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92d5a66de36559f7ff3ddba970a0b9d6" id="r_a92d5a66de36559f7ff3ddba970a0b9d6"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#a92d5a66de36559f7ff3ddba970a0b9d6">skip_first_word</a> (const char *line, char *rest, size_t rest_sz)</td></tr>
+<tr class="separator:a92d5a66de36559f7ff3ddba970a0b9d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10c64914c08c23accc435d8f980162b3" id="r_a10c64914c08c23accc435d8f980162b3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#a10c64914c08c23accc435d8f980162b3">cli_dump_partitions</a> (void)</td></tr>
+<tr class="separator:a10c64914c08c23accc435d8f980162b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3fe1c85e3b497dae96fd04f64e5dc41" id="r_ae3fe1c85e3b497dae96fd04f64e5dc41"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#ae3fe1c85e3b497dae96fd04f64e5dc41">cli_flash_info</a> (void)</td></tr>
+<tr class="separator:ae3fe1c85e3b497dae96fd04f64e5dc41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcc72f8948e4e76ad3ee080b4b6d0563" id="r_adcc72f8948e4e76ad3ee080b4b6d0563"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#adcc72f8948e4e76ad3ee080b4b6d0563">cli_chip_info</a> (void)</td></tr>
+<tr class="separator:adcc72f8948e4e76ad3ee080b4b6d0563"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab75e0746b4d1bfcba10ce8046065cf8f" id="r_ab75e0746b4d1bfcba10ce8046065cf8f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#ab75e0746b4d1bfcba10ce8046065cf8f">cli_app_info</a> (void)</td></tr>
+<tr class="separator:ab75e0746b4d1bfcba10ce8046065cf8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8151d743d037134a8de748489382f9e7" id="r_a8151d743d037134a8de748489382f9e7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#a8151d743d037134a8de748489382f9e7">cli_web_command</a> (const char *sub_args)</td></tr>
+<tr class="separator:a8151d743d037134a8de748489382f9e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7b46224ec5deb609cb37520f6530540" id="r_aa7b46224ec5deb609cb37520f6530540"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#aa7b46224ec5deb609cb37520f6530540">cli_ota_info</a> (void)</td></tr>
+<tr class="separator:aa7b46224ec5deb609cb37520f6530540"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69bd22200f728775ce6fa8665087ab8d" id="r_a69bd22200f728775ce6fa8665087ab8d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#a69bd22200f728775ce6fa8665087ab8d">cli_lock_command</a> (const char *sub_args)</td></tr>
+<tr class="separator:a69bd22200f728775ce6fa8665087ab8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd38a077e4e7e26a1346da330c86ff5e" id="r_afd38a077e4e7e26a1346da330c86ff5e"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#afd38a077e4e7e26a1346da330c86ff5e">cli_ble_json</a> (const char *json_line)</td></tr>
+<tr class="separator:afd38a077e4e7e26a1346da330c86ff5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae79d6f51b36340dccbbb5166fe319448" id="r_ae79d6f51b36340dccbbb5166fe319448"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#ae79d6f51b36340dccbbb5166fe319448">cli_snapshot</a> (void)</td></tr>
+<tr class="separator:ae79d6f51b36340dccbbb5166fe319448"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa81a0a57ae74b1827632b1a550d4120b" id="r_aa81a0a57ae74b1827632b1a550d4120b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#aa81a0a57ae74b1827632b1a550d4120b">uart_cli_print_help</a> (void)</td></tr>
+<tr class="separator:aa81a0a57ae74b1827632b1a550d4120b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11d8ba42801488fd706473d5d16d5cdc" id="r_a11d8ba42801488fd706473d5d16d5cdc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#a11d8ba42801488fd706473d5d16d5cdc">uart_cmd_cli</a> (const char *args)</td></tr>
+<tr class="memdesc:a11d8ba42801488fd706473d5d16d5cdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jednotný CLI panel — viz též <code>HELP CLI</code>  <br /></td></tr>
+<tr class="separator:a11d8ba42801488fd706473d5d16d5cdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__cli__panel_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;cli_panel&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Jednotný CLI panel — flash, oddíly, web fronta, OTA, BLE příkazy, snapshot. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace definic maker</h2>
+<a id="a0d4d3a685f9501631d1feed1f4ba7577" name="a0d4d3a685f9501631d1feed1f4ba7577"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d4d3a685f9501631d1feed1f4ba7577">&#9670;&#160;</a></span>COLOR_INFO</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define COLOR_INFO&#160;&#160;&#160;&quot;\033[36m&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00031">31</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="ab75e0746b4d1bfcba10ce8046065cf8f" name="ab75e0746b4d1bfcba10ce8046065cf8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab75e0746b4d1bfcba10ce8046065cf8f">&#9670;&#160;</a></span>cli_app_info()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cli_app_info </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00101">101</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="afd38a077e4e7e26a1346da330c86ff5e" name="afd38a077e4e7e26a1346da330c86ff5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd38a077e4e7e26a1346da330c86ff5e">&#9670;&#160;</a></span>cli_ble_json()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cli_ble_json </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>json_line</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00191">191</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="adcc72f8948e4e76ad3ee080b4b6d0563" name="adcc72f8948e4e76ad3ee080b4b6d0563"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adcc72f8948e4e76ad3ee080b4b6d0563">&#9670;&#160;</a></span>cli_chip_info()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cli_chip_info </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00086">86</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="a10c64914c08c23accc435d8f980162b3" name="a10c64914c08c23accc435d8f980162b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10c64914c08c23accc435d8f980162b3">&#9670;&#160;</a></span>cli_dump_partitions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cli_dump_partitions </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00055">55</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="ae3fe1c85e3b497dae96fd04f64e5dc41" name="ae3fe1c85e3b497dae96fd04f64e5dc41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3fe1c85e3b497dae96fd04f64e5dc41">&#9670;&#160;</a></span>cli_flash_info()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cli_flash_info </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00074">74</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="a69bd22200f728775ce6fa8665087ab8d" name="a69bd22200f728775ce6fa8665087ab8d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69bd22200f728775ce6fa8665087ab8d">&#9670;&#160;</a></span>cli_lock_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cli_lock_command </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>sub_args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00171">171</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="aa7b46224ec5deb609cb37520f6530540" name="aa7b46224ec5deb609cb37520f6530540"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7b46224ec5deb609cb37520f6530540">&#9670;&#160;</a></span>cli_ota_info()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cli_ota_info </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00159">159</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="ae79d6f51b36340dccbbb5166fe319448" name="ae79d6f51b36340dccbbb5166fe319448"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae79d6f51b36340dccbbb5166fe319448">&#9670;&#160;</a></span>cli_snapshot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cli_snapshot </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00205">205</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="a8151d743d037134a8de748489382f9e7" name="a8151d743d037134a8de748489382f9e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8151d743d037134a8de748489382f9e7">&#9670;&#160;</a></span>cli_web_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void cli_web_command </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>sub_args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00116">116</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="a92d5a66de36559f7ff3ddba970a0b9d6" name="a92d5a66de36559f7ff3ddba970a0b9d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a92d5a66de36559f7ff3ddba970a0b9d6">&#9670;&#160;</a></span>skip_first_word()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void skip_first_word </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>line</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>rest</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>rest_sz</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00045">45</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="aeb57740a2a0a9624b89a8655740688de" name="aeb57740a2a0a9624b89a8655740688de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb57740a2a0a9624b89a8655740688de">&#9670;&#160;</a></span>skip_leading_ws()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static const char * skip_leading_ws </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>s</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00035">35</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="aa81a0a57ae74b1827632b1a550d4120b" name="aa81a0a57ae74b1827632b1a550d4120b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa81a0a57ae74b1827632b1a550d4120b">&#9670;&#160;</a></span>uart_cli_print_help()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void uart_cli_print_help </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00230">230</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="a11d8ba42801488fd706473d5d16d5cdc" name="a11d8ba42801488fd706473d5d16d5cdc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11d8ba42801488fd706473d5d16d5cdc">&#9670;&#160;</a></span>uart_cmd_cli()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_cli </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Jednotný CLI panel — viz též <code>HELP CLI</code> </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00243">243</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+<a id="a24fe1d895d08ee05b18db4ebe08f7aa4" name="a24fe1d895d08ee05b18db4ebe08f7aa4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24fe1d895d08ee05b18db4ebe08f7aa4">&#9670;&#160;</a></span>uart_send_colored_line()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void uart_send_colored_line </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>color</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>message</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Posle barevny text s novym radkem pres UART. </p>
+<p>Tato funkce posle text s barevnym formatovanim a novym radkem pres UART. Pouziva ANSI escape sekvence pro barvy.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">color</td><td>ANSI escape sekvence pro barvu </td></tr>
+    <tr><td class="paramname">message</td><td>Text k poslani</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Funkce automaticky pridava novy radek a reset barvy na konec textu a pouziva mutex pro thread-safe operace. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00791">791</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a997485823479f84fcbc9b5121128fb8b" name="a997485823479f84fcbc9b5121128fb8b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a997485823479f84fcbc9b5121128fb8b">&#9670;&#160;</a></span>uart_send_error()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void uart_send_error </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>message</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Posle chybovou zpravu pres UART. </p>
+<p>Tato funkce posle chybovou zpravu s cervenou barvou pres UART.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">message</td><td>Chybova zprava k poslani </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00818">818</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af15e84a1f0c0382355b80a7876d16045" name="af15e84a1f0c0382355b80a7876d16045"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af15e84a1f0c0382355b80a7876d16045">&#9670;&#160;</a></span>uart_send_formatted()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void uart_send_formatted </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5e73cb389b8160054b07da47410b12da" name="a5e73cb389b8160054b07da47410b12da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e73cb389b8160054b07da47410b12da">&#9670;&#160;</a></span>uart_send_line()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void uart_send_line </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>str</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Posle radek textu pres UART. </p>
+<p>Tato funkce posle radek textu s novym radkem pres UART. Pouziva mutex pro thread-safe operace.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td>String k poslani</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Funkce automaticky pridava novy radek na konec textu a pouziva kratky timeout pro mutex aby se zabranilo WDT problemum. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00934">934</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aadc15ad30b458f1f25f63c2400ed3e4e" name="aadc15ad30b458f1f25f63c2400ed3e4e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aadc15ad30b458f1f25f63c2400ed3e4e">&#9670;&#160;</a></span>uart_send_success()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void uart_send_success </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>message</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Posle uspesnou zpravu pres UART. </p>
+<p>Tato funkce posle uspesnou zpravu se zelenou barvou pres UART.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">message</td><td>Uspesna zprava k poslani </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__task_8c_source.html#l00829">829</a> v souboru <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;cli_panel&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__cli__panel_8c_source.html#l00033">33</a> v souboru <a class="el" href="uart__cli__panel_8c_source.html">uart_cli_panel.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_d0ae06983db71f379ba075ec013a456f.html">uart_task</a></li><li class="navelem"><a class="el" href="uart__cli__panel_8c.html">uart_cli_panel.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>
