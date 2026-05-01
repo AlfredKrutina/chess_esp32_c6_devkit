@@ -195,7 +195,6 @@ $<TARGET_FILE:idf::ble_task>
 $<TARGET_FILE:idf::uart_task>
 $<TARGET_FILE:__idf_matrix_task>
 $<TARGET_FILE:__idf_uart_commands_extended>
-$<TARGET_FILE:idf::animation_task>
 $<TARGET_FILE:idf::led_state_manager>
 $<TARGET_FILE:idf::unified_animation_manager>
 $<TARGET_FILE:idf::visual_error_system>
@@ -231,9 +230,9 @@ $<TARGET_FILE:__idf_espressif__esp_insights>
 $<TARGET_FILE:__idf_espressif__esp_rcp_update>
 $<TARGET_FILE:idf::main>
 $<TARGET_FILE:__idf_uart_task>
-$<TARGET_FILE:__idf_animation_task>
 $<TARGET_FILE:__idf_visual_error_system>
 $<TARGET_FILE:__idf_espressif__esp_matter>
+$<TARGET_FILE:idf::animation_task>
 $<TARGET_FILE:idf::promotion_button_task>
 $<TARGET_FILE:idf::reset_button_task>
 $<TARGET_FILE:idf::test_task>

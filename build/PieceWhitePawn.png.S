@@ -1,4 +1,4 @@
-/* * Data converted from /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/components/web_server_task/piece_assets/PieceWhitePawn.png
+/* * Data converted from /Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/components/web_server_task/piece_assets/PieceWhitePawn.png
  */
 .data
 #if !defined (__APPLE__) && !defined (__linux__)

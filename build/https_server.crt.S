@@ -1,4 +1,4 @@
-/* * Data converted from /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/managed_components/espressif__esp_insights/server_certs/https_server.crt
+/* * Data converted from /Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/managed_components/espressif__esp_insights/server_certs/https_server.crt
  * (null byte appended)
  */
 .data

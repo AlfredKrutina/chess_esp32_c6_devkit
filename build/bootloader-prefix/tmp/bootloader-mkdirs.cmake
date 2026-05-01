@@ -10,18 +10,18 @@ if(NOT EXISTS "/Users/alfred/esp-idf/components/bootloader/subproject")
   file(MAKE_DIRECTORY "/Users/alfred/esp-idf/components/bootloader/subproject")
 endif()
 file(MAKE_DIRECTORY
-  "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader"
-  "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader-prefix"
-  "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader-prefix/tmp"
-  "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader-prefix/src/bootloader-stamp"
-  "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader-prefix/src"
-  "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader-prefix/src/bootloader-stamp"
+  "/Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/bootloader"
+  "/Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/bootloader-prefix"
+  "/Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/bootloader-prefix/tmp"
+  "/Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/bootloader-prefix/src/bootloader-stamp"
+  "/Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/bootloader-prefix/src"
+  "/Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/bootloader-prefix/src/bootloader-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
+    file(MAKE_DIRECTORY "/Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "/Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
 endif()

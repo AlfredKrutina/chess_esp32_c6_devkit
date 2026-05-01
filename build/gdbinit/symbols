@@ -13,8 +13,8 @@ end
 
 # Load bootloader symbols
 set confirm off
-    add-symbol-file /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader/bootloader.elf
+    add-symbol-file /Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/bootloader/bootloader.elf
 set confirm on
 
 # Load application symbols
-file /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/esp32_chess_v24.elf
+file /Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/esp32_chess_v24.elf

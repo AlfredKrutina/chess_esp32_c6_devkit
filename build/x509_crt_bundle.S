@@ -1,4 +1,4 @@
-/* * Data converted from /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from /Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 #if !defined (__APPLE__) && !defined (__linux__)

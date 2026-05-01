@@ -17,4 +17,4 @@ set confirm off
 set confirm on
 
 # Load application symbols
-file /Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/build/bootloader/bootloader.elf
+file /Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/build/bootloader/bootloader.elf
