@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../app_navigation.dart';
 import '../../app_providers.dart';
 import '../../core/layout/form_factor.dart';
+import '../../core/localization/context_l10n.dart';
 import '../../core/models/coach_ai_provider.dart';
 import '../../core/utils/board_http_base_url.dart';
 import '../connection/board_session_notifier.dart';
@@ -265,13 +266,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             .getBool('czechmate.developerModeUnlocked') ??
         false;
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
           onTap: _onAppBarTitleTapForDevUnlock,
           behavior: HitTestBehavior.opaque,
-          child: const Text('Settings'),
+          child: Text(l10n.navSettings),
         ),
       ),
       body: Theme(
@@ -795,6 +797,52 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     },
                   ),
                 ],
+          ),
+          _settingsTile(
+            title: l10n.settingsLanguage,
+            subtitle: switch (prefs.uiLanguage) {
+              'cs' => l10n.languageCzech,
+              'en' => l10n.languageEnglish,
+              _ => l10n.languageSystem,
+            },
+            leading: const Icon(Icons.language_outlined),
+            children: [
+              Text(
+                l10n.languageDescription,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: prefs.uiLanguage,
+                decoration: InputDecoration(
+                  labelText: l10n.settingsLanguage,
+                  border: const OutlineInputBorder(),
+                ),
+                items: [
+                  DropdownMenuItem(
+                    value: 'system',
+                    child: Text(l10n.languageSystem),
+                  ),
+                  DropdownMenuItem(
+                    value: 'en',
+                    child: Text(l10n.languageEnglish),
+                  ),
+                  DropdownMenuItem(
+                    value: 'cs',
+                    child: Text(l10n.languageCzech),
+                  ),
+                ],
+                onChanged: (v) async {
+                  if (v != null) {
+                    await prefs.setUiLanguage(v);
+                    ref.invalidate(prefsRepositoryProvider);
+                    setState(() {});
+                  }
+                },
+              ),
+            ],
           ),
 
           _settingsTile(
