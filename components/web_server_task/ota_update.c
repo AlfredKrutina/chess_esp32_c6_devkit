@@ -16,6 +16,7 @@
 #include "esp_http_server.h"
 #include "esp_https_ota.h"
 #include "esp_log.h"
+#include "esp_partition.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -34,6 +35,15 @@ static SemaphoreHandle_t s_ota_sem;
 static volatile ota_ui_state_t s_state = OTA_UI_IDLE;
 static volatile int s_percent;
 static char s_last_err[128];
+
+/** Standardní HTTPS OTA potřebuje ota_0 i ota_1 (factory-only tabulka na 4 MB flash → vypnuto). */
+static bool ota_partition_layout_ok(void) {
+  const esp_partition_t *p0 = esp_partition_find_first(
+      ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
+  const esp_partition_t *p1 = esp_partition_find_first(
+      ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_1, NULL);
+  return p0 != NULL && p1 != NULL;
+}
 
 static const char *ota_state_json_str(ota_ui_state_t st) {
   switch (st) {
@@ -103,6 +113,9 @@ static void ota_worker_task(void *arg) {
 }
 
 static esp_err_t schedule_ota(const char *url) {
+  if (!ota_partition_layout_ok()) {
+    return ESP_ERR_NOT_SUPPORTED;
+  }
   if (!wifi_is_sta_connected()) {
     return ESP_ERR_INVALID_STATE;
   }
@@ -209,6 +222,13 @@ static esp_err_t http_post_ota(httpd_req_t *req) {
     httpd_resp_send(req, "{\"ok\":false,\"error\":\"need_https_url\"}", -1);
     return ESP_OK;
   }
+  if (q == ESP_ERR_NOT_SUPPORTED) {
+    httpd_resp_set_status(req, "503 Service Unavailable");
+    httpd_resp_send(
+        req,
+        "{\"ok\":false,\"error\":\"ota_requires_ota0_ota1_partitions\"}", -1);
+    return ESP_OK;
+  }
   httpd_resp_set_status(req, "500 Internal Server Error");
   httpd_resp_send(req, "{\"ok\":false,\"error\":\"ota_queue_failed\"}", -1);
   return ESP_OK;
@@ -221,6 +241,11 @@ esp_err_t ota_update_register_http_handlers(httpd_handle_t hd) {
       return ESP_ERR_NO_MEM;
     }
     xSemaphoreGive(s_ota_sem);
+  }
+
+  if (!ota_partition_layout_ok()) {
+    ESP_LOGW(TAG,
+             "HTTPS OTA nedostupné: v tabulce oddílů chybí ota_0+ota_1 (např. 4 MB factory layout)");
   }
 
   httpd_uri_t get_fw = {.uri = "/api/system/firmware",

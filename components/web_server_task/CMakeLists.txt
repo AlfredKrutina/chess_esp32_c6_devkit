@@ -35,6 +35,7 @@ idf_component_register(
         mdns
         esp_https_ota
         app_update
+        esp_partition
         esp_http_client
         mbedtls
 )
