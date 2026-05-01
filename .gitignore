@@ -19,7 +19,13 @@
 # =============================================================================
 # ESP-IDF / toolchain
 # =============================================================================
+# Kořenový výstup `idf.py build` — nikdy commitovat. Pokud už historicky ve sledování:
+#   git rm -r --cached build/
 /build/
+
+# Lokální CMake výstup omylem spuštěný uvnitř komponenty (IDE / debug)
+components/*/build/
+
 /sdkconfig.old
 
 # Doxygen výstup (generuj: ./generate_docs.sh)

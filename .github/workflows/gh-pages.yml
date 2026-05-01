@@ -55,10 +55,11 @@ jobs:
           ./generate_docs.sh
           ./scripts/render_docs.sh
 
+      # Verze image drž v souladu s lokálním IDF (projekt sdkconfig hlásí IDF 5.5.x).
       - name: Build ESP-IDF firmware (OTA .bin na gh-pages)
         continue-on-error: true
         run: |
-          docker run --rm -v "$PWD:/project" -w /project espressif/idf:v5.3.2 \
+          docker run --rm -v "$PWD:/project" -w /project espressif/idf:v5.5.1 \
             bash -c "idf.py set-target esp32c6 && idf.py build"
 
       - name: Složit adresář pro GitHub Pages
@@ -73,7 +74,15 @@ jobs:
           if [ -f build/esp32_chess_v24.bin ]; then
             cp -f build/esp32_chess_v24.bin _site/firmware/esp32_chess_v24.bin
           else
-            echo "::warning::Firmware bin chybí – zkontroluj ESP-IDF build výše; OTA URL v manifestu dočasně vrátí 404."
+            echo "::warning::Firmware bin chybí – zkontroluj ESP-IDF Docker build výše; OTA odkaz na .bin na Pages vrátí 404."
+          fi
+
+      - name: Kontrola _site/firmware před deployem
+        run: |
+          test -f _site/firmware/version.json || (echo "::error::Chybí _site/firmware/version.json" && exit 1)
+          ls -la _site/firmware/
+          if [ ! -f _site/firmware/esp32_chess_v24.bin ]; then
+            echo "::warning::Na Pages není .bin — zkontroluj log Docker buildu (musí doběhnout úspěšně)."
           fi
 
       - name: Ověření manifestu (raw na main)

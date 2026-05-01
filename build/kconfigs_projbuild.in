@@ -1,7 +1,0 @@
-source "/Users/alfred/esp-idf/components/bootloader/Kconfig.projbuild"
-source "/Users/alfred/esp-idf/components/esp_app_format/Kconfig.projbuild"
-source "/Users/alfred/esp-idf/components/esp_rom/Kconfig.projbuild"
-source "/Users/alfred/esp-idf/components/esp_tee/Kconfig.projbuild"
-source "/Users/alfred/esp-idf/components/esptool_py/Kconfig.projbuild"
-source "/Users/alfred/esp-idf/components/partition_table/Kconfig.projbuild"
-source "/Users/alfred/Documents/GitHub/chess_esp32_c6_devkit/main/Kconfig.projbuild"
