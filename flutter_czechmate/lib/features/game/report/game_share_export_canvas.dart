@@ -1,58 +1,86 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
+import '../../../core/models/chart_palette.dart';
 import '../../../core/models/game_end_report_model.dart';
 import '../../../core/utils/game_end_report_timing.dart';
 import '../../../core/analysis/move_evaluation.dart';
 import '../../analysis/eval_line_chart.dart';
 import 'export_board_preview.dart';
+import 'game_export_block_id.dart';
 import 'game_export_options.dart';
 import 'timing_charts.dart';
 
-/// Colors for export raster (supports transparent / high-contrast story).
+/// Colors for export raster (supports transparent outer background only).
 @immutable
 class GameShareExportTheme {
   const GameShareExportTheme({
     required this.foreground,
     required this.muted,
     required this.accent,
+    required this.evalLine,
+    required this.cumulativeLine,
     required this.chartWhite,
     required this.chartBlack,
     required this.boardLight,
     required this.boardDark,
     required this.divider,
+    this.chartPlotBackground,
+    this.chartAxisMuted,
   });
 
   final Color foreground;
   final Color muted;
+  /// Branding / recap capsule — aligned with eval line.
   final Color accent;
+  final Color evalLine;
+  final Color cumulativeLine;
   final Color chartWhite;
   final Color chartBlack;
+  /// Always opaque — transparent PNG must not wash out squares.
   final Color boardLight;
   final Color boardDark;
   final Color divider;
+  /// Opaque panel behind charts when the outer export background is transparent.
+  final Color? chartPlotBackground;
+  final Color? chartAxisMuted;
 
-  factory GameShareExportTheme.adaptive(BuildContext context, {required bool transparent}) {
+  factory GameShareExportTheme.forExport(
+    BuildContext context, {
+    required bool transparentExport,
+    required ChartPaletteColors palette,
+  }) {
     final cs = Theme.of(context).colorScheme;
-    if (transparent) {
+    const boardLight = Color(0xFFE8D4B8);
+    const boardDark = Color(0xFFB58863);
+
+    if (transparentExport) {
       return GameShareExportTheme(
         foreground: Colors.white,
         muted: Colors.white.withValues(alpha: 0.78),
-        accent: const Color(0xFF90CAF9),
-        chartWhite: Colors.white,
-        chartBlack: const Color(0xFFD1C4E9),
-        boardLight: const Color(0x55FFFFFF),
-        boardDark: const Color(0x33FFFFFF),
+        accent: palette.evalLine,
+        evalLine: palette.evalLine,
+        cumulativeLine: palette.cumulative,
+        chartWhite: palette.barWhite,
+        chartBlack: palette.barBlack,
+        boardLight: boardLight,
+        boardDark: boardDark,
         divider: Colors.white.withValues(alpha: 0.35),
+        chartPlotBackground: const Color(0xFF2C2C2C),
+        chartAxisMuted: Colors.white.withValues(alpha: 0.38),
       );
     }
     return GameShareExportTheme(
       foreground: cs.onSurface,
       muted: cs.onSurfaceVariant,
-      accent: cs.primary,
-      chartWhite: cs.primary,
-      chartBlack: Colors.purple.shade400,
-      boardLight: const Color(0xFFE8D4B8),
-      boardDark: const Color(0xFFB58863),
+      accent: palette.evalLine,
+      evalLine: palette.evalLine,
+      cumulativeLine: palette.cumulative,
+      chartWhite: palette.barWhite,
+      chartBlack: palette.barBlack,
+      boardLight: boardLight,
+      boardDark: boardDark,
       divider: cs.outlineVariant.withValues(alpha: 0.55),
     );
   }
@@ -168,18 +196,165 @@ class GameShareExportCanvas extends StatelessWidget {
 
     final content = Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-      child: options.aspect == GameExportAspect.landscape
-          ? _landscapeBody(context)
-          : _portraitBody(context),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return _scaledExportBody(constraints.maxWidth, constraints.maxHeight);
+        },
+      ),
     );
 
     return decorated(child: content);
   }
 
-  Widget _recapBanner() {
-    if (recapCaption == null || recapCaption!.isEmpty) return const SizedBox.shrink();
+  Widget _scaledExportBody(double maxW, double maxH) {
+    final core = _composeLayout(maxW, maxH);
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.topCenter,
+      child: SizedBox(width: maxW, child: core),
+    );
+  }
+
+  _ChartHeights _chartHeights(double maxH) {
+    var n = 0;
+    if (options.showEvalChart) n++;
+    if (options.showCumulativeChart && hasTiming) n++;
+    if (options.showPerMoveChart && hasTiming) n++;
+    if (n == 0) {
+      return const _ChartHeights(eval: 80, cumulative: 120, barOuter: 130, barPlot: 118);
+    }
+    final slice = (maxH * 0.36 / n).clamp(72.0, 118.0);
+    final barPlot = (slice * 0.92).clamp(68.0, 112.0);
+    return _ChartHeights(
+      eval: slice,
+      cumulative: slice,
+      barOuter: slice + 18,
+      barPlot: barPlot,
+    );
+  }
+
+  Widget _composeLayout(double maxW, double maxH) {
+    final ch = _chartHeights(maxH);
+    final order = options.blockOrder;
+    final boardIdx = order.indexOf(GameExportBlockId.board);
+    final useMagazine = options.showFinalBoard &&
+        boardIdx >= 0 &&
+        maxW >= 292 &&
+        options.aspect != GameExportAspect.square;
+
+    if (!useMagazine) {
+      final kids = <Widget>[];
+      for (final id in order) {
+        final w = _section(id, ch);
+        if (w != null) kids.add(w);
+      }
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: _withGaps(kids),
+      );
+    }
+
+    final beforeIds = order.sublist(0, boardIdx);
+    final afterIds = order.sublist(boardIdx + 1);
+
+    final bandH = math.min(maxW * 0.44, maxH * 0.5).clamp(104.0, 248.0);
+
+    final beforeKids = <Widget>[];
+    for (final id in beforeIds) {
+      final w = _section(id, ch);
+      if (w != null) beforeKids.add(w);
+    }
+    final afterKids = <Widget>[];
+    for (final id in afterIds) {
+      final w = _section(id, ch);
+      if (w != null) afterKids.add(w);
+    }
+
+    final boardWidget = _section(GameExportBlockId.board, ch);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: bandH,
+                child: FittedBox(
+                  alignment: Alignment.topLeft,
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
+                    width: maxW * 0.54,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: _withGaps(beforeKids),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (boardWidget != null) ...[
+              const SizedBox(width: 8),
+              SizedBox(width: bandH, height: bandH, child: boardWidget),
+            ],
+          ],
+        ),
+        if (afterKids.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          ..._withGaps(afterKids),
+        ],
+      ],
+    );
+  }
+
+  List<Widget> _withGaps(List<Widget> items) {
+    if (items.isEmpty) return items;
+    final out = <Widget>[items.first];
+    for (var i = 1; i < items.length; i++) {
+      out.add(const SizedBox(height: 8));
+      out.add(items[i]);
+    }
+    return out;
+  }
+
+  Widget? _section(GameExportBlockId id, _ChartHeights ch) {
+    switch (id) {
+      case GameExportBlockId.recap:
+        return _recapOrNull();
+      case GameExportBlockId.branding:
+        if (!options.showBranding) return null;
+        return _header();
+      case GameExportBlockId.result:
+        if (!options.showResult && !options.showReason) return null;
+        return _resultBlock();
+      case GameExportBlockId.stats:
+        if (!options.showStats) return null;
+        return _stats();
+      case GameExportBlockId.material:
+        if (!options.showMaterial ||
+            (model.capturedValueWhite <= 0 && model.capturedValueBlack <= 0)) {
+          return null;
+        }
+        return Text(materialCaption, style: TextStyle(fontSize: 11, color: theme.muted));
+      case GameExportBlockId.board:
+        return _boardOrNull();
+      case GameExportBlockId.eval:
+        if (!options.showEvalChart) return null;
+        return _eval(ch.eval);
+      case GameExportBlockId.timing:
+        if (!options.showCumulativeChart && !options.showPerMoveChart) return null;
+        return _timing(ch.cumulative, ch.barOuter, ch.barPlot);
+    }
+  }
+
+  Widget? _recapOrNull() {
+    if (recapCaption == null || recapCaption!.isEmpty) return null;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 2),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
@@ -276,8 +451,8 @@ class GameShareExportCanvas extends StatelessWidget {
     );
   }
 
-  Widget _board() {
-    if (!options.showFinalBoard) return const SizedBox.shrink();
+  Widget? _boardOrNull() {
+    if (!options.showFinalBoard) return null;
     return ExportBoardPreview(
       cells: boardCells,
       flip: options.flipBoard,
@@ -297,12 +472,18 @@ class GameShareExportCanvas extends StatelessWidget {
       children: [
         Text(evalCaption, style: _titleSm),
         const SizedBox(height: 4),
-        EvalLineChart(points: evalPoints, height: height, accentColor: theme.accent),
+        EvalLineChart(
+          points: evalPoints,
+          height: height,
+          accentColor: theme.evalLine,
+          plotBackgroundColor: theme.chartPlotBackground,
+          axisColor: theme.chartAxisMuted,
+        ),
       ],
     );
   }
 
-  Widget _timing(double chartH) {
+  Widget _timing(double cumulativeH, double barOuter, double barPlot) {
     if (!options.showCumulativeChart && !options.showPerMoveChart) {
       return const SizedBox.shrink();
     }
@@ -316,7 +497,13 @@ class GameShareExportCanvas extends StatelessWidget {
           Text(elapsedTitle, style: _titleSm.copyWith(fontSize: 12)),
           Text(elapsedSubtitle, style: TextStyle(fontSize: 10, color: theme.muted)),
           const SizedBox(height: 4),
-          CumulativePlayedTimeChart(points: cumulative, accent: theme.accent),
+          CumulativePlayedTimeChart(
+            points: cumulative,
+            accent: theme.cumulativeLine,
+            height: cumulativeH,
+            backgroundColor: theme.chartPlotBackground,
+            axisColor: theme.chartAxisMuted,
+          ),
           Text(halfMoveAxis, style: TextStyle(fontSize: 9, color: theme.muted)),
           const SizedBox(height: 8),
         ],
@@ -328,6 +515,9 @@ class GameShareExportCanvas extends StatelessWidget {
             points: think,
             whiteColor: theme.chartWhite,
             blackColor: theme.chartBlack,
+            outerHeight: barOuter,
+            plotHeight: barPlot,
+            backgroundColor: theme.chartPlotBackground,
           ),
           const SizedBox(height: 4),
           Row(
@@ -356,122 +546,18 @@ class GameShareExportCanvas extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _portraitBody(BuildContext context) {
-    final chartH = switch (options.aspect) {
-      GameExportAspect.story => 88.0,
-      GameExportAspect.card => 96.0,
-      GameExportAspect.square => 52.0,
-      GameExportAspect.landscape => 72.0,
-    };
+class _ChartHeights {
+  const _ChartHeights({
+    required this.eval,
+    required this.cumulative,
+    required this.barOuter,
+    required this.barPlot,
+  });
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final w = constraints.maxWidth;
-        final children = <Widget>[
-          _recapBanner(),
-          _header(),
-          if (options.showBranding) const SizedBox(height: 10),
-          _resultBlock(),
-          const SizedBox(height: 10),
-          Divider(height: 16, color: theme.divider),
-          const SizedBox(height: 6),
-          _stats(),
-          if (options.showMaterial &&
-              (model.capturedValueWhite > 0 || model.capturedValueBlack > 0)) ...[
-            const SizedBox(height: 8),
-            Text(materialCaption, style: TextStyle(fontSize: 11, color: theme.muted)),
-          ],
-          if (options.showFinalBoard) ...[
-            const SizedBox(height: 8),
-            SizedBox(width: w, height: w, child: Center(child: _board())),
-          ],
-          const SizedBox(height: 6),
-          if (options.aspect != GameExportAspect.square) ...[
-            SizedBox(height: chartH + 36, child: _eval(chartH)),
-            const SizedBox(height: 6),
-            _timing(chartH),
-          ],
-        ];
-
-        final column = Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: children,
-        );
-
-        // Timing charts use fixed ~200px heights; card/story canvas is shorter → scale whole column down.
-        return FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.topCenter,
-          child: SizedBox(width: w, child: column),
-        );
-      },
-    );
-  }
-
-  Widget _landscapeBody(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final w = constraints.maxWidth;
-        final rowH = (constraints.maxHeight * 0.42).clamp(120.0, 260.0);
-
-        final column = Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _recapBanner(),
-            SizedBox(
-              height: rowH,
-              width: w,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 11,
-                    child: ClipRect(
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _header(),
-                            const SizedBox(height: 8),
-                            _resultBlock(),
-                            const SizedBox(height: 8),
-                            Divider(height: 12, color: theme.divider),
-                            const SizedBox(height: 6),
-                            _stats(),
-                            if (options.showMaterial &&
-                                (model.capturedValueWhite > 0 || model.capturedValueBlack > 0)) ...[
-                              const SizedBox(height: 6),
-                              Text(materialCaption,
-                                  style: TextStyle(fontSize: 10, color: theme.muted)),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(flex: 13, child: Center(child: _board())),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(height: 76, child: _eval(72)),
-            const SizedBox(height: 6),
-            _timing(72),
-          ],
-        );
-
-        return FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.topCenter,
-          child: SizedBox(width: w, child: column),
-        );
-      },
-    );
-  }
+  final double eval;
+  final double cumulative;
+  final double barOuter;
+  final double barPlot;
 }

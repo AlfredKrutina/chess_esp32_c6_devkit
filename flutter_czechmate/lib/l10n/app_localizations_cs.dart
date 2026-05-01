@@ -313,6 +313,37 @@ class AppLocalizationsCs extends AppLocalizations {
       'Otevírám sdílení — obrázek ve schránce funguje nejlépe na iPhonu a Androidu.';
 
   @override
+  String get reportExportSectionOrderTitle => 'Pořadí sekcí (export)';
+
+  @override
+  String get reportExportSectionOrderSubtitle =>
+      'Přetáhni bloky na sdíleném obrázku — stejný princip jako priorita AI trenéra.';
+
+  @override
+  String get reportExportBlockRecap => 'Titulek průběhu';
+
+  @override
+  String get reportExportBlockBranding => 'Značka';
+
+  @override
+  String get reportExportBlockResult => 'Výsledek a důvod';
+
+  @override
+  String get reportExportBlockStats => 'Čas a tahy';
+
+  @override
+  String get reportExportBlockMaterial => 'Braný materiál';
+
+  @override
+  String get reportExportBlockBoard => 'Šachovnice';
+
+  @override
+  String get reportExportBlockEval => 'Graf evaluace';
+
+  @override
+  String get reportExportBlockTiming => 'Grafy času';
+
+  @override
   String get reportSharePgn => 'Sdílet soubor PGN';
 
   @override

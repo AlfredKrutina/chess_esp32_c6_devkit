@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/firmware_defaults.dart';
+import '../models/chart_palette.dart';
 import '../models/coach_ai_provider.dart';
 import '../models/coach_llm_backend.dart';
+import '../../features/game/report/game_export_block_id.dart';
 
 class PrefsRepository {
   PrefsRepository(this._p);
@@ -76,6 +79,9 @@ class PrefsRepository {
   static const keyProfileDisplayName = 'czechmate.profile.displayName';
   static const keyProfileAvatarSpec = 'czechmate.profile.avatarSpec';
   static const keyActivityJson = 'czechmate.profile.activityJson';
+  static const keyExportShareBlockOrder = 'czechmate.exportShareBlockOrderJson';
+  static const keyChartPalettePreset = 'czechmate.chartPalettePreset';
+  static const keyChartPaletteCustom = 'czechmate.chartPaletteCustomJson';
 
   String? get lastBoardBaseUrl => _p.getString(keyBaseUrl);
   Future<void> setLastBoardBaseUrl(String? v) async {
@@ -561,5 +567,63 @@ class PrefsRepository {
       }
     }
     return (solved7d: s, failed7d: f);
+  }
+
+  /// Order of blocks on the game summary PNG/GIF export canvas.
+  List<GameExportBlockId> get exportShareBlockOrder {
+    final raw = _p.getString(keyExportShareBlockOrder);
+    if (raw == null || raw.isEmpty) {
+      return normalizeGameExportBlockOrder(null);
+    }
+    try {
+      final list = jsonDecode(raw) as List<dynamic>;
+      final ids = <GameExportBlockId>[];
+      for (final e in list) {
+        final id = gameExportBlockIdFromStorage('$e');
+        if (id != null && !ids.contains(id)) ids.add(id);
+      }
+      return normalizeGameExportBlockOrder(ids);
+    } catch (_) {
+      return normalizeGameExportBlockOrder(null);
+    }
+  }
+
+  Future<void> setExportShareBlockOrder(List<GameExportBlockId> order) async {
+    final normalized = normalizeGameExportBlockOrder(order);
+    await _p.setString(
+      keyExportShareBlockOrder,
+      jsonEncode(normalized.map((e) => e.name).toList()),
+    );
+  }
+
+  ChartPalettePreset get chartPalettePreset =>
+      ChartPalettePreset.fromStorage(_p.getString(keyChartPalettePreset));
+
+  Future<void> setChartPalettePreset(ChartPalettePreset v) async {
+    await _p.setString(keyChartPalettePreset, v.name);
+  }
+
+  ChartPaletteColors? get chartPaletteCustom {
+    final raw = _p.getString(keyChartPaletteCustom);
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final dec = jsonDecode(raw);
+      if (dec is! Map<String, dynamic>) return null;
+      return ChartPaletteColors.fromJson(dec);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> setChartPaletteCustom(ChartPaletteColors colors) async {
+    await _p.setString(keyChartPaletteCustom, jsonEncode(colors.toJson()));
+  }
+
+  ChartPaletteColors resolvedChartPalette(ColorScheme colorScheme) {
+    final preset = chartPalettePreset;
+    if (preset == ChartPalettePreset.custom) {
+      return chartPaletteCustom ?? ChartPaletteColors.neon;
+    }
+    return ChartPaletteColors.forPreset(preset, colorScheme);
   }
 }

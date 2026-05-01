@@ -4,16 +4,22 @@ import '../../../core/utils/game_end_report_timing.dart';
 
 /// Kumulativní „uběhlý čas“ v minutách po půltazích — Area + čára (Swift `AreaMark` + `LineMark`).
 class CumulativePlayedTimeChart extends StatelessWidget {
-  const CumulativePlayedTimeChart({super.key, required this.points, required this.accent});
+  const CumulativePlayedTimeChart({
+    super.key,
+    required this.points,
+    required this.accent,
+    this.height = 200,
+  });
 
   final List<GameEndCumulativePoint> points;
   final Color accent;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
-    if (points.isEmpty) return const SizedBox(height: 200);
+    if (points.isEmpty) return SizedBox(height: height);
     return SizedBox(
-      height: 200,
+      height: height,
       child: CustomPaint(
         painter: _CumulativePainter(points: points, accent: accent),
         child: const SizedBox.expand(),
@@ -90,27 +96,31 @@ class TimePerMoveBarChart extends StatelessWidget {
     required this.points,
     required this.whiteColor,
     required this.blackColor,
+    this.outerHeight = 220,
+    this.plotHeight = 200,
   });
 
   final List<GameEndThinkPlyPoint> points;
   final Color whiteColor;
   final Color blackColor;
+  final double outerHeight;
+  final double plotHeight;
 
   @override
   Widget build(BuildContext context) {
     final bars = points.where((p) => p.secondsFromPrevious != null).toList();
-    if (bars.isEmpty) return const SizedBox(height: 200);
+    if (bars.isEmpty) return SizedBox(height: outerHeight);
     final maxS = bars.map((p) => p.secondsFromPrevious!).reduce((a, b) => a > b ? a : b).clamp(0.5, 9999.0);
     const barW = 12.0;
     const gap = 2.0;
     final chartW = bars.length * (barW + gap) + 40;
     return SizedBox(
-      height: 220,
+      height: outerHeight,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: SizedBox(
           width: chartW.clamp(320, 2000),
-          height: 200,
+          height: plotHeight,
           child: CustomPaint(
             painter: _BarPainter(
               points: bars,

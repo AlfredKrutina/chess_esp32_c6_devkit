@@ -2,6 +2,8 @@ import 'dart:ui' show Size;
 
 import 'package:flutter/foundation.dart';
 
+import 'game_export_block_id.dart';
+
 /// Aspect preset for raster export (logical pixels before [pixelRatio]).
 enum GameExportAspect {
   /// Tall summary (~ feed card).
@@ -13,7 +15,7 @@ enum GameExportAspect {
 
 @immutable
 class GameExportOptions {
-  const GameExportOptions({
+  GameExportOptions({
     this.aspect = GameExportAspect.card,
     this.transparentBackground = false,
     this.showBranding = true,
@@ -29,7 +31,8 @@ class GameExportOptions {
     this.roundedClip = true,
     this.recapMoveIndex,
     this.recapMoveTotal,
-  });
+    List<GameExportBlockId>? blockOrder,
+  }) : blockOrder = normalizeGameExportBlockOrder(blockOrder);
 
   final GameExportAspect aspect;
   final bool transparentBackground;
@@ -49,7 +52,10 @@ class GameExportOptions {
   final int? recapMoveIndex;
   final int? recapMoveTotal;
 
-  static const minimal = GameExportOptions(
+  /// Vertical blocks on the export image (drag-reordered in report UI).
+  final List<GameExportBlockId> blockOrder;
+
+  static final minimal = GameExportOptions(
     showBranding: false,
     showReason: false,
     showMaterial: false,
@@ -60,7 +66,7 @@ class GameExportOptions {
     aspect: GameExportAspect.square,
   );
 
-  static const storyHero = GameExportOptions(
+  static final storyHero = GameExportOptions(
     aspect: GameExportAspect.story,
     showEvalChart: true,
     showCumulativeChart: false,
@@ -98,6 +104,7 @@ class GameExportOptions {
     int? recapMoveIndex,
     int? recapMoveTotal,
     bool clearRecap = false,
+    List<GameExportBlockId>? blockOrder,
   }) {
     return GameExportOptions(
       aspect: aspect ?? this.aspect,
@@ -115,6 +122,7 @@ class GameExportOptions {
       roundedClip: roundedClip ?? this.roundedClip,
       recapMoveIndex: clearRecap ? null : (recapMoveIndex ?? this.recapMoveIndex),
       recapMoveTotal: clearRecap ? null : (recapMoveTotal ?? this.recapMoveTotal),
+      blockOrder: blockOrder ?? this.blockOrder,
     );
   }
 }

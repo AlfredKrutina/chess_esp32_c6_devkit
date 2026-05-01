@@ -146,39 +146,72 @@ static esp_err_t schedule_ota(const char *url) {
 
 static esp_err_t http_get_firmware(httpd_req_t *req) {
   const esp_app_desc_t *app = esp_app_get_description();
-  const char *ota_sup = ota_partition_layout_ok() ? "true" : "false";
-  char buf[384];
-  int n = snprintf(buf, sizeof(buf),
-                   "{\"version\":\"%s\",\"project_name\":\"%s\","
-                   "\"idf\":\"%s\",\"ota_supported\":%s}",
-                   app->version, app->project_name,
-                   esp_get_idf_version(), ota_sup);
-  if (n <= 0 || n >= (int)sizeof(buf)) {
+  if (app == NULL) {
     httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "{}", -1);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{}", HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
   }
+
+  cJSON *root = cJSON_CreateObject();
+  if (root == NULL) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{}", HTTPD_RESP_USE_STRLEN);
+    return ESP_OK;
+  }
+
+  cJSON_AddStringToObject(root, "version", app->version);
+  cJSON_AddStringToObject(root, "project_name", app->project_name);
+  cJSON_AddStringToObject(root, "idf", esp_get_idf_version());
+  cJSON_AddItemToObject(
+      root, "ota_supported",
+      cJSON_CreateBool(ota_partition_layout_ok() ? 1 : 0));
+
+  char *printed = cJSON_PrintUnformatted(root);
+  cJSON_Delete(root);
+  if (printed == NULL) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{}", HTTPD_RESP_USE_STRLEN);
+    return ESP_OK;
+  }
+
   httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, buf, n);
+  (void)httpd_resp_send(req, printed, HTTPD_RESP_USE_STRLEN);
+  free(printed);
   return ESP_OK;
 }
 
 static esp_err_t http_get_ota_status(httpd_req_t *req) {
-  char buf[256];
   ota_ui_state_t st = s_state;
   int pct = s_percent;
   const char *err = s_last_err;
-  int n = snprintf(
-      buf, sizeof(buf),
-      "{\"state\":\"%s\",\"percent\":%d,\"message\":\"%s\"}",
-      ota_state_json_str(st), pct, err);
-  if (n <= 0 || n >= (int)sizeof(buf)) {
+
+  cJSON *root = cJSON_CreateObject();
+  if (root == NULL) {
     httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "{}", -1);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{}", HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
   }
+
+  cJSON_AddStringToObject(root, "state", ota_state_json_str(st));
+  cJSON_AddNumberToObject(root, "percent", pct);
+  cJSON_AddStringToObject(root, "message", (err != NULL) ? err : "");
+
+  char *printed = cJSON_PrintUnformatted(root);
+  cJSON_Delete(root);
+  if (printed == NULL) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{}", HTTPD_RESP_USE_STRLEN);
+    return ESP_OK;
+  }
+
   httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, buf, n);
+  (void)httpd_resp_send(req, printed, HTTPD_RESP_USE_STRLEN);
+  free(printed);
   return ESP_OK;
 }
 

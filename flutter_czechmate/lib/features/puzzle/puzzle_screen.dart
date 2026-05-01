@@ -397,8 +397,11 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     final l10n = context.l10n;
     final prefs = ref.watch(prefsRepositoryProvider);
     final session = ref.watch(boardSessionNotifierProvider);
+    final gameUi = ref.watch(gameUiNotifierProvider);
+    final localPuzzle = gameUi.puzzleChallenge != null && gameUi.puzzleChallenge!.hasVerifier;
     final isPuzzleActive = session.snapshot?.status.puzzle?.active == true;
     final pData = session.snapshot?.status.puzzle;
+    final showPuzzleReturnBar = isPuzzleActive || localPuzzle;
 
     return Scaffold(
       appBar: AppBar(
@@ -434,14 +437,37 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
           _trainingTab(context, prefs, session),
         ],
       ),
-      bottomNavigationBar: isPuzzleActive
+      bottomNavigationBar: showPuzzleReturnBar
           ? Material(
+              elevation: 8,
               color: Theme.of(context).colorScheme.surfaceContainerHigh,
               child: SafeArea(
                 child: ListTile(
                   leading: const Icon(Icons.extension),
-                  title: Text(pData?.title ?? l10n.puzzleBoardRiddleTitle),
-                  subtitle: Text(pData?.message ?? ''),
+                  title: Text(
+                    isPuzzleActive
+                        ? (pData?.title ?? l10n.puzzleBoardRiddleTitle)
+                        : (gameUi.puzzleChallenge?.title ?? l10n.puzzleBoardRiddleTitle),
+                  ),
+                  subtitle: Text(
+                    isPuzzleActive
+                        ? (pData?.message ?? '')
+                        : context.l10n.gamePuzzleMovesProgress(
+                            gameUi.puzzleChallenge!.playedUci.length,
+                            gameUi.puzzleChallenge!.solutionUci.length,
+                          ),
+                  ),
+                  trailing: TextButton.icon(
+                    icon: const Icon(Icons.sports_esports_outlined),
+                    label: Text(l10n.gameReturnLive),
+                    onPressed: () async {
+                      if (gameUi.sandboxMode) {
+                        await ref.read(gameUiNotifierProvider.notifier).returnToLiveGame();
+                      }
+                      if (!context.mounted) return;
+                      ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
+                    },
+                  ),
                 ),
               ),
             )

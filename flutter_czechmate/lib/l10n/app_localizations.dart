@@ -614,6 +614,66 @@ abstract class AppLocalizations {
   /// **'Sharing instead — full image clipboard works best on iPhone & Android.'**
   String get reportCopyImageDesktopFallback;
 
+  /// No description provided for @reportExportSectionOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Section order (export)'**
+  String get reportExportSectionOrderTitle;
+
+  /// No description provided for @reportExportSectionOrderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder blocks on the shared image — same idea as coach AI priority.'**
+  String get reportExportSectionOrderSubtitle;
+
+  /// No description provided for @reportExportBlockRecap.
+  ///
+  /// In en, this message translates to:
+  /// **'Recap caption'**
+  String get reportExportBlockRecap;
+
+  /// No description provided for @reportExportBlockBranding.
+  ///
+  /// In en, this message translates to:
+  /// **'Branding'**
+  String get reportExportBlockBranding;
+
+  /// No description provided for @reportExportBlockResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result & reason'**
+  String get reportExportBlockResult;
+
+  /// No description provided for @reportExportBlockStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Time & move stats'**
+  String get reportExportBlockStats;
+
+  /// No description provided for @reportExportBlockMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Material captured'**
+  String get reportExportBlockMaterial;
+
+  /// No description provided for @reportExportBlockBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Board'**
+  String get reportExportBlockBoard;
+
+  /// No description provided for @reportExportBlockEval.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluation chart'**
+  String get reportExportBlockEval;
+
+  /// No description provided for @reportExportBlockTiming.
+  ///
+  /// In en, this message translates to:
+  /// **'Timing charts'**
+  String get reportExportBlockTiming;
+
   /// No description provided for @reportSharePgn.
   ///
   /// In en, this message translates to:

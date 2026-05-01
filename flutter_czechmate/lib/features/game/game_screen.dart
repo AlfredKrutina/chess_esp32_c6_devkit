@@ -240,13 +240,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       .read(gameUiNotifierProvider.notifier)
                       .returnToLiveGame(),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  tooltip: l10n.gameExitPuzzleCheck,
-                  onPressed: () => ref
-                      .read(gameUiNotifierProvider.notifier)
-                      .exitPuzzleChallenge(),
-                ),
               ],
             ),
           ),

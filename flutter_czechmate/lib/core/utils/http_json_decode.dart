@@ -125,9 +125,12 @@ dynamic _jsonDecodeLenient(String text) {
   try {
     return jsonDecode(text);
   } on FormatException catch (_) {
+    // Trailing garbage after a valid object (e.g. `\0`, debug text) breaks full-string decode.
     final slice = _extractFirstJsonObject(text);
-    if (slice != null && slice != text) {
-      return jsonDecode(slice);
+    if (slice != null) {
+      try {
+        return jsonDecode(slice);
+      } on FormatException catch (_) {}
     }
     rethrow;
   }

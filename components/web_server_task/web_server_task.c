@@ -382,7 +382,11 @@ esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
   nvs_handle_t nvs_handle;
   esp_err_t ret = nvs_open(WIFI_NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
   if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+    if (ret == ESP_ERR_NVS_NOT_FOUND) {
+      ESP_LOGD(TAG, "WiFi NVS namespace missing (no STA credentials saved yet)");
+    } else {
+      ESP_LOGE(TAG, "Failed to open NVS: %s", esp_err_to_name(ret));
+    }
     return ret;
   }
 
@@ -390,7 +394,11 @@ esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
   size_t required_size = ssid_len;
   ret = nvs_get_str(nvs_handle, WIFI_NVS_KEY_SSID, ssid, &required_size);
   if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to get SSID from NVS: %s", esp_err_to_name(ret));
+    if (ret == ESP_ERR_NVS_NOT_FOUND) {
+      ESP_LOGD(TAG, "WiFi SSID not in NVS");
+    } else {
+      ESP_LOGE(TAG, "Failed to get SSID from NVS: %s", esp_err_to_name(ret));
+    }
     nvs_close(nvs_handle);
     return ret;
   }
@@ -400,7 +408,11 @@ esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
   ret =
       nvs_get_str(nvs_handle, WIFI_NVS_KEY_PASSWORD, password, &required_size);
   if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to get password from NVS: %s", esp_err_to_name(ret));
+    if (ret == ESP_ERR_NVS_NOT_FOUND) {
+      ESP_LOGD(TAG, "WiFi password not in NVS");
+    } else {
+      ESP_LOGE(TAG, "Failed to get password from NVS: %s", esp_err_to_name(ret));
+    }
     nvs_close(nvs_handle);
     return ret;
   }
@@ -515,8 +527,12 @@ esp_err_t wifi_connect_sta(void) {
   esp_err_t ret =
       wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
   if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to load WiFi config from NVS: %s",
-             esp_err_to_name(ret));
+    if (ret == ESP_ERR_NVS_NOT_FOUND) {
+      ESP_LOGI(TAG, "WiFi STA: no credentials in NVS (use AP or BLE to configure)");
+    } else {
+      ESP_LOGE(TAG, "Failed to load WiFi config from NVS: %s",
+               esp_err_to_name(ret));
+    }
     return ret;
   }
 

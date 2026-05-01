@@ -52,6 +52,9 @@ CONFIG_BT_NIMBLE_MSYS_2_BLOCK_COUNT=32
 # Host task: default 4096 nestačí — GATT read snapshotu volá build_snapshot (clock_json ~1 KiB na stacku)
 # + NimBLE/HS + coexistence → Guru Meditation „Stack protection fault“ v nimble_host (viz log).
 CONFIG_BT_NIMBLE_HOST_TASK_STACK_SIZE=8192
+# INFO loguje každý GATT notify (snapshot chunky) — zaplaví sériovku; WARNING stačí na chyby/varování.
+# CONFIG_BT_NIMBLE_LOG_LEVEL_INFO is not set
+CONFIG_BT_NIMBLE_LOG_LEVEL_WARNING=y
 
 # WiFi + BLE na jednom čipu (nutné pro stabilní provoz obojího).
 CONFIG_ESP_COEX_ENABLED=y

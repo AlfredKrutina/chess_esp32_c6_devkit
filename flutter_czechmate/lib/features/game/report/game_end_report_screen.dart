@@ -14,6 +14,7 @@ import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../app_providers.dart';
 import '../../../core/analysis/move_evaluation.dart';
 import '../../../core/models/game_end_report_model.dart';
 import '../../../core/models/game_snapshot.dart';
@@ -29,6 +30,7 @@ import '../../analysis/move_eval_notifier.dart';
 import '../../connection/board_session_notifier.dart';
 import 'board_timeline.dart';
 import 'export_frame_capture.dart';
+import 'game_export_block_id.dart';
 import 'game_export_options.dart';
 import 'game_recap_gif_export.dart';
 import 'game_share_export_canvas.dart';
@@ -47,7 +49,14 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
   /// Which action shows the spinner: true = copy, false = share sheet.
   bool _pngClipboardOp = false;
   bool _gifBusy = false;
-  GameExportOptions _exportOpts = const GameExportOptions();
+  GameExportOptions _exportOpts = GameExportOptions();
+  late List<GameExportBlockId> _blockOrder;
+
+  @override
+  void initState() {
+    super.initState();
+    _blockOrder = ref.read(prefsRepositoryProvider).exportShareBlockOrder;
+  }
 
   String _formatDuration(AppLocalizations l10n, int sec) {
     if (sec <= 0) return l10n.durationDash;
@@ -86,6 +95,19 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     }
   }
 
+  String _exportBlockLabel(AppLocalizations l10n, GameExportBlockId id) {
+    return switch (id) {
+      GameExportBlockId.recap => l10n.reportExportBlockRecap,
+      GameExportBlockId.branding => l10n.reportExportBlockBranding,
+      GameExportBlockId.result => l10n.reportExportBlockResult,
+      GameExportBlockId.stats => l10n.reportExportBlockStats,
+      GameExportBlockId.material => l10n.reportExportBlockMaterial,
+      GameExportBlockId.board => l10n.reportExportBlockBoard,
+      GameExportBlockId.eval => l10n.reportExportBlockEval,
+      GameExportBlockId.timing => l10n.reportExportBlockTiming,
+    };
+  }
+
   Widget _shareRasterCanvas({
     required AppLocalizations l10n,
     required GameExportOptions opts,
@@ -99,7 +121,7 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     String? recapCaption,
   }) {
     return GameShareExportCanvas(
-      options: opts,
+      options: opts.copyWith(blockOrder: _blockOrder),
       theme: GameShareExportTheme.adaptive(context, transparent: opts.transparentBackground),
       model: model,
       boardCells: boardCellsOverride ?? boardFromSnapshot(snapshot),
@@ -146,15 +168,16 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     try {
       final total = snapshot.history.moves.length;
       final indices = recapFrameIndices(total, 52);
-      final logical = const GameExportOptions(aspect: GameExportAspect.story).logicalSize();
+      final logical = GameExportOptions(aspect: GameExportAspect.story).logicalSize();
       final pkgFrames = <img.Image>[];
-      const baseOpts = GameExportOptions(
+      final baseOpts = GameExportOptions(
         aspect: GameExportAspect.story,
         showEvalChart: false,
         showCumulativeChart: false,
         showPerMoveChart: false,
         roundedClip: true,
         transparentBackground: false,
+        blockOrder: _blockOrder,
       );
       for (final ply in indices) {
         if (!mounted) return;
@@ -598,7 +621,15 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
               children: [
                 ActionChip(
                   label: Text(l10n.reportExportPresetFull),
-                  onPressed: () => setState(() => _exportOpts = const GameExportOptions()),
+                  onPressed: () async {
+                    final prefs = ref.read(prefsRepositoryProvider);
+                    final reset = normalizeGameExportBlockOrder(null);
+                    setState(() {
+                      _exportOpts = GameExportOptions();
+                      _blockOrder = reset;
+                    });
+                    await prefs.setExportShareBlockOrder(reset);
+                  },
                 ),
                 ActionChip(
                   label: Text(l10n.reportExportPresetMinimal),
@@ -695,6 +726,53 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
               value: _exportOpts.showPerMoveChart,
               onChanged: (v) =>
                   setState(() => _exportOpts = _exportOpts.copyWith(showPerMoveChart: v)),
+            ),
+            Theme(
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                title: Text(
+                  l10n.reportExportSectionOrderTitle,
+                  style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  l10n.reportExportSectionOrderSubtitle,
+                  style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                ),
+                children: [
+                  SizedBox(
+                    height: math.min(380, _blockOrder.length * 54.0),
+                    child: ReorderableListView(
+                      padding: EdgeInsets.zero,
+                      buildDefaultDragHandles: false,
+                      onReorder: (oldIndex, newIndex) async {
+                        setState(() {
+                          var ni = newIndex;
+                          if (ni > oldIndex) ni -= 1;
+                          final id = _blockOrder.removeAt(oldIndex);
+                          _blockOrder.insert(ni, id);
+                        });
+                        await ref
+                            .read(prefsRepositoryProvider)
+                            .setExportShareBlockOrder(_blockOrder);
+                      },
+                      children: [
+                        for (var i = 0; i < _blockOrder.length; i++)
+                          ListTile(
+                            key: ValueKey('${_blockOrder[i].name}_$i'),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
+                            leading: ReorderableDragStartListener(
+                              index: i,
+                              child: Icon(Icons.drag_handle, color: cs.onSurfaceVariant),
+                            ),
+                            title: Text(_exportBlockLabel(l10n, _blockOrder[i])),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

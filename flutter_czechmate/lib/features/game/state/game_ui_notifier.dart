@@ -530,7 +530,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       showTransientBoardMessage(snack);
       state = state.copyWith(puzzleSnackText: snack);
       await Future<void>.delayed(const Duration(milliseconds: 920));
-      state = state.copyWith(clearPuzzleChallenge: true);
+      // Keep puzzleChallenge until user taps „Return to live game“ — HUD must stay after solve.
     } finally {
       _puzzleFeedbackBusy = false;
     }

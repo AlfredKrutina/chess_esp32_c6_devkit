@@ -317,6 +317,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sharing instead — full image clipboard works best on iPhone & Android.';
 
   @override
+  String get reportExportSectionOrderTitle => 'Section order (export)';
+
+  @override
+  String get reportExportSectionOrderSubtitle =>
+      'Drag to reorder blocks on the shared image — same idea as coach AI priority.';
+
+  @override
+  String get reportExportBlockRecap => 'Recap caption';
+
+  @override
+  String get reportExportBlockBranding => 'Branding';
+
+  @override
+  String get reportExportBlockResult => 'Result & reason';
+
+  @override
+  String get reportExportBlockStats => 'Time & move stats';
+
+  @override
+  String get reportExportBlockMaterial => 'Material captured';
+
+  @override
+  String get reportExportBlockBoard => 'Board';
+
+  @override
+  String get reportExportBlockEval => 'Evaluation chart';
+
+  @override
+  String get reportExportBlockTiming => 'Timing charts';
+
+  @override
   String get reportSharePgn => 'Share PGN file';
 
   @override
