@@ -456,7 +456,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                                   Text(l10n.colorWhite, style: tt.titleSmall),
                                   Text(
                                     l10n.reportMinutesShort(
-                                      '${(clock.whiteTimeMs / 60000).toStringAsFixed(1)}',
+                                      (clock.whiteTimeMs / 60000)
+                                          .toStringAsFixed(1),
                                     ),
                                     style: tt.titleLarge,
                                   ),
@@ -469,7 +470,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                                   Text(l10n.colorBlack, style: tt.titleSmall),
                                   Text(
                                     l10n.reportMinutesShort(
-                                      '${(clock.blackTimeMs / 60000).toStringAsFixed(1)}',
+                                      (clock.blackTimeMs / 60000)
+                                          .toStringAsFixed(1),
                                     ),
                                     style: tt.titleLarge,
                                   ),
